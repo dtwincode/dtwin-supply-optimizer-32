@@ -2,16 +2,15 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Progress } from "@/components/ui/progress";
 import { DataUploadDialogProps, ValidationError } from "./validation/types";
 import { validateData } from "./validation/validateData";
 import { processDataByModule } from "./data-processing/processDataByModule";
 import { TemplateDownloader } from "./template/TemplateDownloader";
 import { ValidationErrorDisplay } from "./validation/ValidationErrorDisplay";
+import { FileUpload } from "./upload/FileUpload";
 
 export function DataUploadDialog({ module, onDataUploaded }: DataUploadDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -20,23 +19,6 @@ export function DataUploadDialog({ module, onDataUploaded }: DataUploadDialogPro
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const [progress, setProgress] = useState(0);
   const { toast } = useToast();
-
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      if (file.type !== 'text/csv') {
-        toast({
-          variant: "destructive",
-          title: "Invalid File Type",
-          description: "Please upload a CSV file",
-        });
-        return;
-      }
-      setFile(file);
-      setValidationErrors([]);
-      setProgress(0);
-    }
-  };
 
   const processUpload = async () => {
     if (!file) return;
@@ -127,6 +109,12 @@ export function DataUploadDialog({ module, onDataUploaded }: DataUploadDialogPro
     }
   };
 
+  const handleFileSelect = (selectedFile: File) => {
+    setFile(selectedFile);
+    setValidationErrors([]);
+    setProgress(0);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -143,31 +131,16 @@ export function DataUploadDialog({ module, onDataUploaded }: DataUploadDialogPro
           <div className="flex flex-col gap-4">
             <TemplateDownloader module={module} />
             
-            <Input
-              type="file"
-              accept=".csv"
-              onChange={handleFileUpload}
-              className="cursor-pointer"
-              disabled={isValidating}
+            <FileUpload
+              isValidating={isValidating}
+              onFileSelect={handleFileSelect}
+              onProcessUpload={processUpload}
+              progress={progress}
+              file={file}
+              hasValidationErrors={validationErrors.length > 0}
             />
 
-            {isValidating && (
-              <div className="space-y-2">
-                <Progress value={progress} className="w-full" />
-                <p className="text-sm text-muted-foreground text-center">
-                  Validating and processing data...
-                </p>
-              </div>
-            )}
-
             <ValidationErrorDisplay errors={validationErrors} />
-
-            {file && !isValidating && (
-              <Button onClick={processUpload} className="gap-2" disabled={validationErrors.length > 0}>
-                <Upload className="h-4 w-4" />
-                Process Upload
-              </Button>
-            )}
           </div>
         </div>
       </DialogContent>
