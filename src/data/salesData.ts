@@ -8,6 +8,7 @@ export const salesPlansData: SalesPlan[] = [
       startDate: "2024-01-01",
       endDate: "2024-03-31"
     },
+    planType: "top-down",
     productHierarchy: {
       category: "Electronics",
       subcategory: "Phones",
@@ -20,10 +21,11 @@ export const salesPlansData: SalesPlan[] = [
     planningValues: {
       targetValue: 1500000,
       confidence: 0.85,
-      forecastAccuracy: 0.92
+      notes: "Q1 sales plan for mobile phones"
     },
-    status: "active",
-    lastUpdated: "2024-01-25"
+    status: "approved",
+    lastUpdated: "2024-01-25",
+    createdBy: "admin"
   },
   {
     id: "2",
@@ -31,6 +33,7 @@ export const salesPlansData: SalesPlan[] = [
       startDate: "2024-02-01",
       endDate: "2024-04-30"
     },
+    planType: "bottom-up",
     productHierarchy: {
       category: "Electronics",
       subcategory: "Laptops",
@@ -43,10 +46,10 @@ export const salesPlansData: SalesPlan[] = [
     planningValues: {
       targetValue: 2500000,
       confidence: 0.78,
-      forecastAccuracy: 0.88
+      notes: "Laptop sales projection for Q1-Q2"
     },
     status: "draft",
-    lastUpdated: "2024-01-26"
+    lastUpdated: "2024-01-26",
+    createdBy: "admin"
   }
 ];
-
