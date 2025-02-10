@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { DashboardLayout } from "@/components/DashboardLayout";
+import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -20,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowDown, ArrowUp, Filter } from "lucide-react";
+import { ArrowDown, ArrowUp } from "lucide-react";
 import type { SalesPlan } from "@/types/sales";
 
 // Mock data - replace with actual data from your backend
