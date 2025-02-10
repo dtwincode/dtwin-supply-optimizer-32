@@ -246,12 +246,30 @@ const Inventory = () => {
     leadTimeFactor: "",
     variabilityFactor: ""
   });
+
+  // Add new state for product hierarchy
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>("all");
+  const [selectedSKU, setSelectedSKU] = useState<string>("all");
+
   const { toast } = useToast();
 
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const [selectedCity, setSelectedCity] = useState<string>("all");
   const [selectedChannel, setSelectedChannel] = useState<string>("all");
   const [selectedWarehouse, setSelectedWarehouse] = useState<string>("all");
+
+  // Get unique categories, subcategories, and SKUs
+  const categories = [...new Set(inventoryData.map(item => item.category))];
+  const subcategories = [...new Set(inventoryData
+    .filter(item => selectedCategory === "all" || item.category === selectedCategory)
+    .map(item => item.subcategory))];
+  const skus = [...new Set(inventoryData
+    .filter(item => 
+      (selectedCategory === "all" || item.category === selectedCategory) &&
+      (selectedSubcategory === "all" || item.subcategory === selectedSubcategory)
+    )
+    .map(item => item.sku))];
 
   const filteredData = useMemo(() => {
     return inventoryData.filter(item => {
@@ -261,6 +279,9 @@ const Inventory = () => {
       if (selectedCity !== "all" && item.city !== selectedCity) return false;
       if (selectedChannel !== "all" && item.channel !== selectedChannel) return false;
       if (selectedWarehouse !== "all" && item.warehouse !== selectedWarehouse) return false;
+      if (selectedCategory !== "all" && item.category !== selectedCategory) return false;
+      if (selectedSubcategory !== "all" && item.subcategory !== selectedSubcategory) return false;
+      if (selectedSKU !== "all" && item.sku !== selectedSKU) return false;
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         return (
@@ -279,6 +300,9 @@ const Inventory = () => {
     selectedCity,
     selectedChannel,
     selectedWarehouse,
+    selectedCategory,
+    selectedSubcategory,
+    selectedSKU,
     searchQuery,
     inventoryData
   ]);
@@ -383,6 +407,56 @@ const Inventory = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
+              <Select value={selectedCategory} onValueChange={(value) => {
+                setSelectedCategory(value);
+                setSelectedSubcategory("all");
+                setSelectedSKU("all");
+              }}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {categories.map(category => (
+                    <SelectItem key={category} value={category}>{category}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select 
+                value={selectedSubcategory} 
+                onValueChange={(value) => {
+                  setSelectedSubcategory(value);
+                  setSelectedSKU("all");
+                }}
+                disabled={selectedCategory === "all"}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select Subcategory" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Subcategories</SelectItem>
+                  {subcategories.map(subcategory => (
+                    <SelectItem key={subcategory} value={subcategory}>{subcategory}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select 
+                value={selectedSKU} 
+                onValueChange={setSelectedSKU}
+                disabled={selectedSubcategory === "all"}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select SKU" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All SKUs</SelectItem>
+                  {skus.map(sku => (
+                    <SelectItem key={sku} value={sku}>{sku}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-4">
               <Select value={selectedRegion} onValueChange={setSelectedRegion}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select Region" />
@@ -859,152 +933,4 @@ const Inventory = () => {
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Variability Factor</Label>
-                  <Select
-                    defaultValue={selectedProduct?.decouplingPoint?.variabilityFactor}
-                    onValueChange={(value) => {
-                      if (selectedProduct) {
-                        selectedProduct.decouplingPoint.variabilityFactor = value;
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select factor" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {variabilityFactors.map(factor => (
-                        <SelectItem key={factor} value={factor}>{factor}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Buffer Profile</Label>
-                  <Select
-                    defaultValue={selectedProduct?.decouplingPoint?.bufferProfile}
-                    onValueChange={(value) => {
-                      if (selectedProduct) {
-                        selectedProduct.decouplingPoint.bufferProfile = value;
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select profile" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {bufferProfiles.map(profile => (
-                        <SelectItem key={profile} value={profile}>{profile}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowDecouplingDialog(false)}>
-                Cancel
-              </Button>
-              <Button onClick={() => handleDecouplingPointChange(selectedProduct?.sku, selectedProduct?.decouplingPoint)}>
-                Save Changes
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        <Dialog open={showPurchaseOrderDialog} onOpenChange={setShowPurchaseOrderDialog}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create Purchase Order</DialogTitle>
-              <DialogDescription>
-                Create a new purchase order for {selectedProduct?.name}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label>Quantity</Label>
-                <Input type="number" placeholder="Enter quantity" />
-              </div>
-              <div>
-                <Label>Expected Delivery Date</Label>
-                <Input type="date" />
-              </div>
-              <div>
-                <Label>Supplier</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select supplier" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="supplier1">Supplier 1</SelectItem>
-                    <SelectItem value="supplier2">Supplier 2</SelectItem>
-                    <SelectItem value="supplier3">Supplier 3</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex justify-end gap-3">
-                <Button variant="outline" onClick={() => setShowPurchaseOrderDialog(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleCreatePurchaseOrder}>
-                  Create Order
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        <Dialog open={showBufferAdjustmentDialog} onOpenChange={setShowBufferAdjustmentDialog}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Adjust Buffer Zones</DialogTitle>
-              <DialogDescription>
-                Update buffer zones for {selectedProduct?.name}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label>Red Zone</Label>
-                <Input 
-                  type="number" 
-                  placeholder="Enter red zone value"
-                  value={bufferFormState.redZone}
-                  onChange={handleBufferFormChange('redZone')}
-                />
-              </div>
-              <div>
-                <Label>Yellow Zone</Label>
-                <Input 
-                  type="number" 
-                  placeholder="Enter yellow zone value"
-                  value={bufferFormState.yellowZone}
-                  onChange={handleBufferFormChange('yellowZone')}
-                />
-              </div>
-              <div>
-                <Label>Green Zone</Label>
-                <Input 
-                  type="number" 
-                  placeholder="Enter green zone value"
-                  value={bufferFormState.greenZone}
-                  onChange={handleBufferFormChange('greenZone')}
-                />
-              </div>
-              <div className="flex justify-end gap-3">
-                <Button variant="outline" onClick={() => setShowBufferAdjustmentDialog(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleSaveBufferAdjustments}>
-                  Save Changes
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </DashboardLayout>
-  );
-};
-
-export default Inventory;
+                <div className="space
