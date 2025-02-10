@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { Settings } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ModelConfig, ModelParameter } from "@/types/modelParameters";
 import { useToast } from "@/hooks/use-toast";
 
@@ -20,8 +20,13 @@ interface ModelParametersDialogProps {
 }
 
 export function ModelParametersDialog({ model, onParametersChange }: ModelParametersDialogProps) {
-  const [parameters, setParameters] = useState<ModelParameter[]>(model.parameters);
+  const [parameters, setParameters] = useState<ModelParameter[]>([]);
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Update parameters when model changes
+    setParameters(model.parameters);
+  }, [model]);
 
   const handleParameterChange = (paramName: string, value: number) => {
     setParameters(prev =>
@@ -58,8 +63,8 @@ export function ModelParametersDialog({ model, onParametersChange }: ModelParame
           {parameters.map((param) => (
             <div key={param.name} className="space-y-2">
               <div className="flex justify-between items-center">
-                <label className="text-sm font-medium">
-                  {param.name}
+                <label className="text-sm font-medium leading-none capitalize">
+                  {param.name.replace(/([A-Z])/g, ' $1').trim()}
                 </label>
                 <span className="text-sm text-gray-500">
                   {param.value}
