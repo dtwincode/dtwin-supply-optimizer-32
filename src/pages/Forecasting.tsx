@@ -34,10 +34,11 @@ import {
   calculateConfidenceIntervals,
   decomposeSeasonality,
   generateScenario,
-  type Scenario
+  type Scenario,
+  validateForecast,
+  performCrossValidation
 } from "@/utils/forecastingUtils";
 
-// Mock data - replace with actual API data
 const forecastData = [
   { 
     month: "Jan", 
