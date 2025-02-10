@@ -119,6 +119,9 @@ const Forecasting = () => {
     seasonality: 0,
     events: []
   });
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>("all");
+  const [selectedSku, setSelectedSku] = useState<string>("all");
   const { toast } = useToast();
 
   const filteredData = useMemo(() => {
@@ -127,18 +130,24 @@ const Forecasting = () => {
       if (selectedCity !== "all" && item.city !== selectedCity) return false;
       if (selectedChannel !== "all" && item.channel !== selectedChannel) return false;
       if (selectedWarehouse !== "all" && item.warehouse !== selectedWarehouse) return false;
+      if (selectedCategory !== "all" && item.category !== selectedCategory) return false;
+      if (selectedSubcategory !== "all" && item.subcategory !== selectedSubcategory) return false;
+      if (selectedSku !== "all" && item.sku !== selectedSku) return false;
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         return (
           item.month.toLowerCase().includes(query) ||
           item.region.toLowerCase().includes(query) ||
           item.city.toLowerCase().includes(query) ||
-          item.channel.toLowerCase().includes(query)
+          item.channel.toLowerCase().includes(query) ||
+          item.category.toLowerCase().includes(query) ||
+          item.subcategory.toLowerCase().includes(query) ||
+          item.sku.toLowerCase().includes(query)
         );
       }
       return true;
     });
-  }, [selectedRegion, selectedCity, selectedChannel, selectedWarehouse, searchQuery]);
+  }, [selectedRegion, selectedCity, selectedChannel, selectedWarehouse, selectedCategory, selectedSubcategory, selectedSku, searchQuery]);
 
   const metrics = useMemo(() => {
     const actuals = filteredData.map(d => d.actual).filter(a => a !== null) as number[];
@@ -295,6 +304,61 @@ const Forecasting = () => {
                   {warehouses.map(warehouse => (
                     <SelectItem key={warehouse} value={warehouse}>{warehouse}</SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-4">
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {Array.from(new Set(forecastData.map(item => item.category))).map(category => (
+                    <SelectItem key={category} value={category}>{category}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select 
+                value={selectedSubcategory} 
+                onValueChange={setSelectedSubcategory}
+                disabled={selectedCategory === "all"}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Subcategory" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Subcategories</SelectItem>
+                  {selectedCategory !== "all" && 
+                    Array.from(new Set(forecastData
+                      .filter(item => item.category === selectedCategory)
+                      .map(item => item.subcategory)))
+                      .map(subcategory => (
+                        <SelectItem key={subcategory} value={subcategory}>{subcategory}</SelectItem>
+                      ))
+                  }
+                </SelectContent>
+              </Select>
+              <Select 
+                value={selectedSku} 
+                onValueChange={setSelectedSku}
+                disabled={selectedSubcategory === "all"}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="SKU" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All SKUs</SelectItem>
+                  {selectedSubcategory !== "all" && 
+                    Array.from(new Set(forecastData
+                      .filter(item => 
+                        item.category === selectedCategory && 
+                        item.subcategory === selectedSubcategory)
+                      .map(item => item.sku)))
+                      .map(sku => (
+                        <SelectItem key={sku} value={sku}>{sku}</SelectItem>
+                      ))
+                  }
                 </SelectContent>
               </Select>
             </div>
