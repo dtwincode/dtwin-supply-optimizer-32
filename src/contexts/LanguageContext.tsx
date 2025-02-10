@@ -21,6 +21,13 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
     localStorage.setItem('language', language);
     document.dir = isRTL ? 'rtl' : 'ltr';
     document.documentElement.lang = language;
+    
+    // Apply RTL class to body for global styling
+    if (isRTL) {
+      document.body.classList.add('rtl');
+    } else {
+      document.body.classList.remove('rtl');
+    }
   }, [language, isRTL]);
 
   return (
