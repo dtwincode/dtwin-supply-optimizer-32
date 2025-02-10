@@ -36,7 +36,7 @@ export const ReportGenerator = () => {
   const generateReportDescription = async (reportType: string) => {
     setIsLoadingDescription(true);
     try {
-      const response = await fetch('/api/generate-report-description', {
+      const response = await fetch('https://b006500d-faf3-4127-884e-bcd01399fc3d.functions.supabase.co/generate-report-description', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
