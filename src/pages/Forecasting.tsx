@@ -46,6 +46,11 @@ import { ModelParametersDialog } from "@/components/forecasting/ModelParametersD
 import { defaultModelConfigs } from "@/types/modelParameters";
 
 import { WeatherData, MarketEvent, PriceAnalysis } from '@/types/weatherAndEvents';
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
 const forecastData = defaultForecastData;
 const forecastingModels = defaultForecastingModels;
@@ -57,6 +62,8 @@ const warehouses = defaultWarehouses;
 
 const Forecasting = () => {
   const [selectedModel, setSelectedModel] = useState("moving-avg");
+  const [fromDate, setFromDate] = useState<Date>(new Date());
+  const [toDate, setToDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() + 30)));
   const [horizon, setHorizon] = useState("12w");
   const [scenarioName, setScenarioName] = useState("");
   const [selectedScenario, setSelectedScenario] = useState<any>(null);
@@ -89,44 +96,12 @@ const Forecasting = () => {
     }));
   });
 
-  const [weatherLocation, setWeatherLocation] = useState("");
-  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
-  const [marketEvents, setMarketEvents] = useState<MarketEvent[]>([]);
-  const [newEvent, setNewEvent] = useState<Partial<MarketEvent>>({});
-  const [priceAnalysis, setPriceAnalysis] = useState<PriceAnalysis | null>(null);
-  const [historicalPriceData, setHistoricalPriceData] = useState<{ price: number; demand: number }[]>([]);
-
-  const fetchWeatherForecast = async (location: string): Promise<WeatherData> => {
-    const mockData: WeatherData = {
-      temperature: 25,
-      precipitation: 0,
-      humidity: 60,
-      windSpeed: 10,
-      weatherCondition: "Sunny",
-      alert: null
-    };
-    setWeatherData(mockData);
-    return mockData;
-  };
-
-  const addHistoricalPricePoint = (price: number, demand: number) => {
-    setHistoricalPriceData(prev => [...prev, { price, demand }]);
-  };
-
-  const calculatePriceAnalysis = () => {
-    setPriceAnalysis({
-      priceElasticity: -1.5,
-      optimalPrice: 100,
-      priceThresholds: {
-        min: 80,
-        max: 120,
-        optimal: 100
-      }
-    });
-  };
-
   const filteredData = useMemo(() => {
     return forecastData.filter(item => {
+      // Add date range filter
+      const itemDate = new Date(item.week);
+      if (!(itemDate >= fromDate && itemDate <= toDate)) return false;
+      
       if (selectedRegion !== "all" && item.region !== selectedRegion) return false;
       if (selectedCity !== "all" && item.city !== selectedCity) return false;
       if (selectedChannel !== "all" && item.channel !== selectedChannel) return false;
@@ -148,34 +123,7 @@ const Forecasting = () => {
       }
       return true;
     });
-  }, [selectedRegion, selectedCity, selectedChannel, selectedWarehouse, selectedCategory, selectedSubcategory, selectedSku, searchQuery]);
-
-  const metrics = useMemo(() => {
-    const actuals = filteredData.map(d => d.actual).filter(a => a !== null) as number[];
-    const forecasts = filteredData.map(d => d.forecast).filter(f => f !== null) as number[];
-    return calculateMetrics(actuals, forecasts);
-  }, [filteredData]);
-
-  const confidenceIntervals = useMemo(() => {
-    const forecasts = filteredData.map(d => d.forecast);
-    return calculateConfidenceIntervals(forecasts);
-  }, [filteredData]);
-
-  const decomposition = useMemo(() => {
-    const values = filteredData.map(d => d.actual || d.forecast);
-    return decomposeSeasonality(values);
-  }, [filteredData]);
-
-  const validationResults = useMemo(() => {
-    const actuals = filteredData.map(d => d.actual).filter(a => a !== null) as number[];
-    const forecasts = filteredData.map(d => d.forecast).filter(f => f !== null) as number[];
-    return validateForecast(actuals, forecasts);
-  }, [filteredData]);
-
-  const crossValidationResults = useMemo(() => {
-    const values = filteredData.map(d => d.actual || d.forecast);
-    return performCrossValidation(values);
-  }, [filteredData]);
+  }, [selectedRegion, selectedCity, selectedChannel, selectedWarehouse, selectedCategory, selectedSubcategory, selectedSku, searchQuery, fromDate, toDate]);
 
   const handleExport = () => {
     const csvContent = [
@@ -259,16 +207,54 @@ const Forecasting = () => {
                 <Wand2 className="w-4 h-4" />
                 Find Best Model
               </Button>
-              <Select value={horizon} onValueChange={setHorizon}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Forecast Horizon" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="12w">12 Weeks</SelectItem>
-                  <SelectItem value="24w">24 Weeks</SelectItem>
-                  <SelectItem value="52w">52 Weeks</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-[180px] justify-start text-left font-normal",
+                        !fromDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {fromDate ? format(fromDate, "MMM dd, yyyy") : "Select date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={fromDate}
+                      onSelect={(date) => date && setFromDate(date)}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-[180px] justify-start text-left font-normal",
+                        !toDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {toDate ? format(toDate, "MMM dd, yyyy") : "Select date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={toDate}
+                      onSelect={(date) => date && setToDate(date)}
+                      initialFocus
+                      fromDate={fromDate}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
               <Button variant="outline" onClick={handleExport}>
                 <FileDown className="w-4 h-4 mr-2" />
                 Export
