@@ -9,30 +9,35 @@ import { TestDataChart } from "./test-chart/TestDataChart";
 import { useModelParameters } from "@/hooks/useModelParameters";
 import { useParamConfig } from "@/hooks/useParamConfig";
 import { useTestData } from "@/hooks/useTestData";
+import { differenceInDays } from "date-fns";
 
 interface TestingChartProps {
   historicalData: any[];
   predictedData: any[];
-  timeRange: string;
-  onTimeRangeChange: (range: string) => void;
 }
 
 export const TestingChart = ({ 
   historicalData, 
-  predictedData, 
-  timeRange, 
-  onTimeRangeChange 
+  predictedData
 }: TestingChartProps) => {
   const [selectedModel, setSelectedModel] = useState("moving-avg");
   const [modelExample, setModelExample] = useState(getModelExample("moving-avg", []));
+  const [fromDate, setFromDate] = useState<Date>(new Date());
+  const [toDate, setToDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() + 30)));
   
   const { modelParams, handleParameterChange } = useModelParameters();
   const { getParamConfig } = useParamConfig();
   const { testData, generateNewTestData } = useTestData();
 
+  const handleDateRangeChange = (from: Date, to: Date) => {
+    setFromDate(from);
+    setToDate(to);
+  };
+
   const generateNewData = () => {
     const params = modelParams[selectedModel as keyof typeof modelParams];
-    const modelSpecificData = generateNewTestData(selectedModel, params, timeRange);
+    const days = differenceInDays(toDate, fromDate);
+    const modelSpecificData = generateNewTestData(selectedModel, params, days.toString());
     setModelExample(getModelExample(selectedModel, modelSpecificData || []));
   };
 
@@ -45,8 +50,9 @@ export const TestingChart = ({
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Model Testing Results</h3>
         <ChartControls
-          timeRange={timeRange}
-          onTimeRangeChange={onTimeRangeChange}
+          fromDate={fromDate}
+          toDate={toDate}
+          onDateRangeChange={handleDateRangeChange}
           selectedModel={selectedModel}
           onModelChange={(value) => {
             setSelectedModel(value);

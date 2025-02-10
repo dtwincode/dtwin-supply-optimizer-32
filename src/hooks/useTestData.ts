@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { generateTestData } from "@/utils/forecasting/testDataGenerator";
-import { format, eachDayOfInterval, addDays } from "date-fns";
+import { format, eachDayOfInterval } from "date-fns";
 
 export const useTestData = () => {
   const [testData, setTestData] = useState<{ date: string; actual: number }[]>([]);
@@ -9,7 +9,8 @@ export const useTestData = () => {
   const generateNewTestData = (selectedModel: string, params: Record<string, number>, timeRange: string = "30") => {
     const days = parseInt(timeRange);
     const startDate = new Date();
-    const endDate = addDays(startDate, days);
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + days);
 
     const dates = eachDayOfInterval({ start: startDate, end: endDate });
     const modelSpecificData = generateTestData({

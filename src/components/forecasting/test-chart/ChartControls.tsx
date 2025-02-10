@@ -10,30 +10,22 @@ import { format } from "date-fns";
 import { useState } from "react";
 
 interface ChartControlsProps {
-  timeRange: string;
-  onTimeRangeChange: (range: string) => void;
+  fromDate: Date;
+  toDate: Date;
+  onDateRangeChange: (from: Date, to: Date) => void;
   selectedModel: string;
   onModelChange: (model: string) => void;
   onGenerateData: () => void;
 }
 
 export const ChartControls = ({
-  timeRange,
-  onTimeRangeChange,
+  fromDate,
+  toDate,
+  onDateRangeChange,
   selectedModel,
   onModelChange,
   onGenerateData
 }: ChartControlsProps) => {
-  const [fromDate, setFromDate] = useState<Date>(new Date());
-  const [toDate, setToDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() + 30)));
-
-  const updateDateRange = (from: Date | undefined, to: Date | undefined) => {
-    if (from && to) {
-      const days = Math.ceil((to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24));
-      onTimeRangeChange(days.toString());
-    }
-  };
-
   return (
     <div className="flex gap-4">
       <div className="flex gap-2">
@@ -56,8 +48,7 @@ export const ChartControls = ({
               selected={fromDate}
               onSelect={(date) => {
                 if (date) {
-                  setFromDate(date);
-                  updateDateRange(date, toDate);
+                  onDateRangeChange(date, toDate);
                 }
               }}
               initialFocus
@@ -84,8 +75,7 @@ export const ChartControls = ({
               selected={toDate}
               onSelect={(date) => {
                 if (date) {
-                  setToDate(date);
-                  updateDateRange(fromDate, date);
+                  onDateRangeChange(fromDate, date);
                 }
               }}
               initialFocus
