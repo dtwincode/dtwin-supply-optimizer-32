@@ -17,7 +17,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Package, AlertTriangle, CheckCircle } from "lucide-react";
+import { Package, AlertTriangle, CheckCircle, Waves } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Mock data - replace with actual API data later
 const inventoryData = [
@@ -32,6 +33,13 @@ const inventoryData = [
     leadTime: "5 days",
     category: "Electronics",
     lastUpdated: "2024-02-10",
+    decouplingPoint: "Strategic",
+    netFlow: {
+      onHand: 65,
+      onOrder: 30,
+      qualifiedDemand: 40,
+      netFlowPosition: 55
+    }
   },
   {
     id: 2,
@@ -44,6 +52,13 @@ const inventoryData = [
     leadTime: "7 days",
     category: "Components",
     lastUpdated: "2024-02-10",
+    decouplingPoint: "Lead time",
+    netFlow: {
+      onHand: 25,
+      onOrder: 40,
+      qualifiedDemand: 50,
+      netFlowPosition: 15
+    }
   },
   {
     id: 3,
@@ -56,6 +71,13 @@ const inventoryData = [
     leadTime: "3 days",
     category: "Accessories",
     lastUpdated: "2024-02-10",
+    decouplingPoint: "Capacity",
+    netFlow: {
+      onHand: 45,
+      onOrder: 20,
+      qualifiedDemand: 30,
+      netFlowPosition: 35
+    }
   },
 ];
 
@@ -86,7 +108,7 @@ const Inventory = () => {
         </div>
 
         {/* Buffer Status Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card className="p-6">
             <div className="flex items-center space-x-4">
               <div className="p-3 bg-success-50 rounded-full">
@@ -120,54 +142,137 @@ const Inventory = () => {
               </div>
             </div>
           </Card>
+          <Card className="p-6">
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-primary-50 rounded-full">
+                <Waves className="h-6 w-6 text-primary-500" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Net Flow Position</p>
+                <p className="text-2xl font-semibold">105 units</p>
+              </div>
+            </div>
+          </Card>
         </div>
 
-        {/* Inventory Table */}
+        {/* Inventory Tabs and Table */}
         <Card>
-          <div className="p-6">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>SKU</TableHead>
-                  <TableHead>Product Name</TableHead>
-                  <TableHead>Current Stock</TableHead>
-                  <TableHead>Buffer Zone</TableHead>
-                  <TableHead>Min Stock</TableHead>
-                  <TableHead>Max Stock</TableHead>
-                  <TableHead>Lead Time</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Last Updated</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {inventoryData.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell className="font-medium">{item.sku}</TableCell>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell>{item.currentStock}</TableCell>
-                    <TableCell>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          item.bufferZone === "green"
-                            ? "bg-success-50 text-success-700"
-                            : item.bufferZone === "yellow"
-                            ? "bg-warning-50 text-warning-700"
-                            : "bg-danger-50 text-danger-700"
-                        }`}
-                      >
-                        {item.bufferZone.toUpperCase()}
-                      </span>
-                    </TableCell>
-                    <TableCell>{item.minStock}</TableCell>
-                    <TableCell>{item.maxStock}</TableCell>
-                    <TableCell>{item.leadTime}</TableCell>
-                    <TableCell>{item.category}</TableCell>
-                    <TableCell>{item.lastUpdated}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <Tabs defaultValue="inventory" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 lg:w-[400px] p-4">
+              <TabsTrigger value="inventory">Inventory Status</TabsTrigger>
+              <TabsTrigger value="netflow">Net Flow Analysis</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="inventory">
+              <div className="p-6">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>SKU</TableHead>
+                      <TableHead>Product Name</TableHead>
+                      <TableHead>Current Stock</TableHead>
+                      <TableHead>Buffer Zone</TableHead>
+                      <TableHead>Decoupling Point</TableHead>
+                      <TableHead>Min Stock</TableHead>
+                      <TableHead>Max Stock</TableHead>
+                      <TableHead>Lead Time</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Last Updated</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {inventoryData.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell className="font-medium">{item.sku}</TableCell>
+                        <TableCell>{item.name}</TableCell>
+                        <TableCell>{item.currentStock}</TableCell>
+                        <TableCell>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              item.bufferZone === "green"
+                                ? "bg-success-50 text-success-700"
+                                : item.bufferZone === "yellow"
+                                ? "bg-warning-50 text-warning-700"
+                                : "bg-danger-50 text-danger-700"
+                            }`}
+                          >
+                            {item.bufferZone.toUpperCase()}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="px-2 py-1 bg-primary-50 text-primary-700 rounded-full text-xs">
+                            {item.decouplingPoint}
+                          </span>
+                        </TableCell>
+                        <TableCell>{item.minStock}</TableCell>
+                        <TableCell>{item.maxStock}</TableCell>
+                        <TableCell>{item.leadTime}</TableCell>
+                        <TableCell>{item.category}</TableCell>
+                        <TableCell>{item.lastUpdated}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="netflow">
+              <div className="p-6">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>SKU</TableHead>
+                      <TableHead>Product Name</TableHead>
+                      <TableHead>On Hand</TableHead>
+                      <TableHead>On Order</TableHead>
+                      <TableHead>Qualified Demand</TableHead>
+                      <TableHead>Net Flow Position</TableHead>
+                      <TableHead>Buffer Status</TableHead>
+                      <TableHead>Decoupling Point</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {inventoryData.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell className="font-medium">{item.sku}</TableCell>
+                        <TableCell>{item.name}</TableCell>
+                        <TableCell>{item.netFlow.onHand}</TableCell>
+                        <TableCell>{item.netFlow.onOrder}</TableCell>
+                        <TableCell>{item.netFlow.qualifiedDemand}</TableCell>
+                        <TableCell>
+                          <span className={`font-medium ${
+                            item.netFlow.netFlowPosition > item.minStock
+                              ? "text-success-600"
+                              : "text-danger-600"
+                          }`}>
+                            {item.netFlow.netFlowPosition}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              item.bufferZone === "green"
+                                ? "bg-success-50 text-success-700"
+                                : item.bufferZone === "yellow"
+                                ? "bg-warning-50 text-warning-700"
+                                : "bg-danger-50 text-danger-700"
+                            }`}
+                          >
+                            {item.bufferZone.toUpperCase()}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="px-2 py-1 bg-primary-50 text-primary-700 rounded-full text-xs">
+                            {item.decouplingPoint}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </TabsContent>
+          </Tabs>
         </Card>
       </div>
     </DashboardLayout>
