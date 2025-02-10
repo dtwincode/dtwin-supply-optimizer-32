@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
@@ -44,11 +44,11 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-[500px]">
-        <div className="-mt-4">
+        <div className="-mt-8 -mb-4">
           <img
             src="/lovable-uploads/0b98205f-f1d3-4302-9462-faee3a8dbe23.png"
             alt="dtwin logo"
-            className="h-[256px] w-auto object-contain"
+            className="h-[320px] w-auto object-contain"
           />
         </div>
         <Tabs defaultValue="signin" className="w-full">
