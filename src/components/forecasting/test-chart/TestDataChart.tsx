@@ -11,7 +11,10 @@ import {
 } from "recharts";
 
 interface TestDataChartProps {
-  data: any[];
+  data: {
+    date: string;
+    actual: number;
+  }[];
 }
 
 export const TestDataChart = ({ data }: TestDataChartProps) => {

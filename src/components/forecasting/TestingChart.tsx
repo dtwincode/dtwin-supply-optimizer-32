@@ -24,6 +24,7 @@ export const TestingChart = ({
 }: TestingChartProps) => {
   const [selectedModel, setSelectedModel] = useState("moving-avg");
   const [modelExample, setModelExample] = useState(getModelExample("moving-avg", []));
+  const [testData, setTestData] = useState<{ date: string; actual: number }[]>([]);
   
   const [modelParams, setModelParams] = useState({
     "moving-avg": {
@@ -143,6 +144,14 @@ export const TestingChart = ({
       modelType: selectedModel,
       parameters: params
     });
+
+    // Transform the generated data into the format expected by the chart
+    const formattedData = modelSpecificData.map((value, index) => ({
+      date: `Week ${index + 1}`,
+      actual: value
+    }));
+
+    setTestData(formattedData);
     setModelExample(getModelExample(selectedModel, modelSpecificData || []));
   };
 
@@ -184,7 +193,7 @@ export const TestingChart = ({
         onChange={handleParameterChange}
       />
 
-      <TestDataChart data={[]} />
+      <TestDataChart data={testData} />
     </Card>
   );
 };
