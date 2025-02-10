@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 import { FloatingAskAI } from "./ai/FloatingAskAI";
 import { ThemeToggle } from "./ThemeToggle";
 import { CreateTicketDialog } from "./tickets/CreateTicketDialog";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from "./ui/button";
 
 const navigationItems = [
   { name: "Dashboard", icon: Home, href: "/" },
@@ -21,13 +23,14 @@ const navigationItems = [
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [createTicketOpen, setCreateTicketOpen] = useState(false);
+  const { language, setLanguage, isRTL } = useLanguage();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 z-40 h-screen transition-transform duration-300 ease-in-out ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        className={`fixed top-0 ${isRTL ? 'right-0' : 'left-0'} z-40 h-screen transition-transform duration-300 ease-in-out ${
+          sidebarOpen ? "translate-x-0" : `${isRTL ? 'translate-x-full' : '-translate-x-full'}`
         }`}
       >
         <div className="h-full w-64 bg-white shadow-lg">
@@ -75,7 +78,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       {/* Main Content */}
       <div
         className={`transition-all duration-300 ${
-          sidebarOpen ? "ml-64" : "ml-0"
+          sidebarOpen ? (isRTL ? 'mr-64' : 'ml-64') : 'ml-0'
         }`}
       >
         {/* Top Bar */}
@@ -91,6 +94,14 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             )}
             <h2 className="font-display text-lg">Supply Chain Dashboard</h2>
             <div className="ml-auto flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
+                className="px-2 py-1"
+              >
+                {language === 'en' ? 'العربية' : 'English'}
+              </Button>
               <button
                 onClick={() => setCreateTicketOpen(true)}
                 className="p-2 rounded-full hover:bg-accent"
