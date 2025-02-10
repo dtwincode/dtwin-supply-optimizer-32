@@ -85,7 +85,11 @@ const inventoryData = [
       redZone: 35,
       yellowZone: 30,
       greenZone: 35
-    }
+    },
+    region: "Central Region",
+    city: "Riyadh",
+    channel: "B2B",
+    warehouse: "Distribution Center NA"
   },
   {
     id: 2,
@@ -117,7 +121,11 @@ const inventoryData = [
       redZone: 20,
       yellowZone: 15,
       greenZone: 25
-    }
+    },
+    region: "Eastern Region",
+    city: "Dammam",
+    channel: "B2C",
+    warehouse: "Distribution Center EU"
   },
   {
     id: 3,
@@ -149,7 +157,11 @@ const inventoryData = [
       redZone: 25,
       yellowZone: 20,
       greenZone: 30
-    }
+    },
+    region: "Western Region",
+    city: "Jeddah",
+    channel: "Wholesale",
+    warehouse: "Manufacturing Plant Asia"
   },
 ];
 
@@ -190,6 +202,31 @@ const productFamilies = [
   "Accessories",
 ];
 
+const regions = [
+  "Central Region",
+  "Eastern Region",
+  "Western Region",
+  "Northern Region",
+  "Southern Region"
+];
+
+const cities = {
+  "Central Region": ["Riyadh", "Al-Kharj", "Al-Qassim"],
+  "Eastern Region": ["Dammam", "Al-Khobar", "Dhahran"],
+  "Western Region": ["Jeddah", "Mecca", "Medina"],
+  "Northern Region": ["Tabuk", "Hail", "Al-Jawf"],
+  "Southern Region": ["Abha", "Jizan", "Najran"]
+};
+
+const channelTypes = [
+  "B2B",
+  "B2C",
+  "Wholesale",
+  "Online Marketplace",
+  "Direct Store",
+  "Distribution Center"
+];
+
 const Inventory = () => {
   const [selectedLocation, setSelectedLocation] = useState<string>("all");
   const [selectedFamily, setSelectedFamily] = useState<string>("all");
@@ -208,21 +245,40 @@ const Inventory = () => {
   });
   const { toast } = useToast();
 
+  const [selectedRegion, setSelectedRegion] = useState<string>("all");
+  const [selectedCity, setSelectedCity] = useState<string>("all");
+  const [selectedChannel, setSelectedChannel] = useState<string>("all");
+  const [selectedWarehouse, setSelectedWarehouse] = useState<string>("all");
+
   const filteredData = useMemo(() => {
     return inventoryData.filter(item => {
       if (selectedLocation !== "all" && item.location !== selectedLocation) return false;
       if (selectedFamily !== "all" && item.productFamily !== selectedFamily) return false;
+      if (selectedRegion !== "all" && item.region !== selectedRegion) return false;
+      if (selectedCity !== "all" && item.city !== selectedCity) return false;
+      if (selectedChannel !== "all" && item.channel !== selectedChannel) return false;
+      if (selectedWarehouse !== "all" && item.warehouse !== selectedWarehouse) return false;
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         return (
           item.sku.toLowerCase().includes(query) ||
           item.name.toLowerCase().includes(query) ||
-          item.productFamily.toLowerCase().includes(query)
+          item.productFamily.toLowerCase().includes(query) ||
+          item.location.toLowerCase().includes(query)
         );
       }
       return true;
     });
-  }, [selectedLocation, selectedFamily, searchQuery, inventoryData]);
+  }, [
+    selectedLocation,
+    selectedFamily,
+    selectedRegion,
+    selectedCity,
+    selectedChannel,
+    selectedWarehouse,
+    searchQuery,
+    inventoryData
+  ]);
 
   const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
   const paginatedData = filteredData.slice(
@@ -316,35 +372,76 @@ const Inventory = () => {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">DDMRP Inventory Management</h1>
-          <div className="flex gap-4">
-            <Input
-              placeholder="Search products..."
-              className="w-[250px]"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by Location" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Locations</SelectItem>
-                {locations.map(loc => (
-                  <SelectItem key={loc} value={loc}>{loc}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={selectedFamily} onValueChange={setSelectedFamily}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by Family" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Families</SelectItem>
-                {productFamilies.map(family => (
-                  <SelectItem key={family} value={family}>{family}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="flex flex-col gap-4 w-full max-w-4xl">
+            <div className="flex gap-4">
+              <Input
+                placeholder="Search products, SKUs, locations..."
+                className="w-[300px]"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select Region" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Regions</SelectItem>
+                  {regions.map(region => (
+                    <SelectItem key={region} value={region}>{region}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select 
+                value={selectedCity} 
+                onValueChange={setSelectedCity}
+                disabled={selectedRegion === "all"}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select City" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Cities</SelectItem>
+                  {selectedRegion !== "all" && cities[selectedRegion as keyof typeof cities].map(city => (
+                    <SelectItem key={city} value={city}>{city}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-4">
+              <Select value={selectedChannel} onValueChange={setSelectedChannel}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Channel Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Channels</SelectItem>
+                  {channelTypes.map(channel => (
+                    <SelectItem key={channel} value={channel}>{channel}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={selectedFamily} onValueChange={setSelectedFamily}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Product Family" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Families</SelectItem>
+                  {productFamilies.map(family => (
+                    <SelectItem key={family} value={family}>{family}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={selectedWarehouse} onValueChange={setSelectedWarehouse}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Warehouse" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Warehouses</SelectItem>
+                  {locations.map(loc => (
+                    <SelectItem key={loc} value={loc}>{loc}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
@@ -857,72 +954,3 @@ const Inventory = () => {
 
         <Dialog open={showBufferAdjustmentDialog} onOpenChange={setShowBufferAdjustmentDialog}>
           <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Adjust Buffer</DialogTitle>
-              <DialogDescription>
-                Adjust buffer for {selectedProduct?.name}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label>Red Zone</Label>
-                <Input 
-                  type="number"
-                  placeholder="Enter red zone"
-                  value={bufferFormState.redZone}
-                  onChange={handleBufferFormChange("redZone")}
-                />
-              </div>
-              <div>
-                <Label>Yellow Zone</Label>
-                <Input 
-                  type="number"
-                  placeholder="Enter yellow zone"
-                  value={bufferFormState.yellowZone}
-                  onChange={handleBufferFormChange("yellowZone")}
-                />
-              </div>
-              <div>
-                <Label>Green Zone</Label>
-                <Input 
-                  type="number"
-                  placeholder="Enter green zone"
-                  value={bufferFormState.greenZone}
-                  onChange={handleBufferFormChange("greenZone")}
-                />
-              </div>
-              <div>
-                <Label>Lead Time Factor</Label>
-                <Input 
-                  type="number"
-                  placeholder="Enter lead time factor"
-                  value={bufferFormState.leadTimeFactor}
-                  onChange={handleBufferFormChange("leadTimeFactor")}
-                />
-              </div>
-              <div>
-                <Label>Variability Factor</Label>
-                <Input 
-                  type="number"
-                  placeholder="Enter variability factor"
-                  value={bufferFormState.variabilityFactor}
-                  onChange={handleBufferFormChange("variabilityFactor")}
-                />
-              </div>
-              <div className="flex justify-end gap-3">
-                <Button variant="outline" onClick={() => setShowBufferAdjustmentDialog(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleSaveBufferAdjustments}>
-                  Save Changes
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </DashboardLayout>
-  );
-};
-
-export default Inventory;
