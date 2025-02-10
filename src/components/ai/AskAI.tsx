@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, Download, ChartBar, FileText } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const outputFormats = [
   { id: "text", name: "Text Response" },
@@ -38,22 +39,15 @@ export const AskAI = () => {
 
     setIsLoading(true);
     try {
-      const response = await fetch('https://mttzjxktvbsixjaqiuxq.functions.supabase.co/process-ai-query', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('process-ai-query', {
+        body: {
           query,
           context: "Supply chain management system with inventory, sales, marketing, and logistics data. The user is looking for insights and analysis based on the available data.",
-        }),
+        },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to process query');
-      }
+      if (error) throw error;
 
-      const data = await response.json();
       setResponse(data.response);
       
       toast({
