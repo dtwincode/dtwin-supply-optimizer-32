@@ -1,3 +1,4 @@
+
 import { CommonTranslations } from './types';
 
 export const commonTranslations: CommonTranslations = {
@@ -229,7 +230,7 @@ export const commonTranslations: CommonTranslations = {
     en: "reports",
     ar: "تقرير"
   },
-   viewDetails: {
+  viewDetails: {
     en: "View Details",
     ar: "عرض التفاصيل"
   },
@@ -252,10 +253,6 @@ export const commonTranslations: CommonTranslations = {
   previous: {
     en: "Previous",
     ar: "السابق"
-  },
-  next: {
-    en: "Next",
-    ar: "التالي"
   },
   success: {
     en: "Success",

@@ -95,6 +95,26 @@ export type CommonTranslations = {
   buffers: TranslationValue;
   adu: TranslationValue;
   alerts: TranslationValue;
+  demandforecasting: TranslationValue;
+  accuracyLabel: TranslationValue;
+  inventorymanagement: TranslationValue;
+  skuCount: TranslationValue;
+  salesplanning: TranslationValue;
+  pipelineValue: TranslationValue;
+  logistics: TranslationValue;
+  onTimeDelivery: TranslationValue;
+  marketingcampaigns: TranslationValue;
+  activeCampaigns: TranslationValue;
+  reportsAnalytics: TranslationValue;
+  reportCount: TranslationValue;
+  viewDetails: TranslationValue;
+  items: TranslationValue;
+  showing: TranslationValue;
+  to: TranslationValue;
+  of: TranslationValue;
+  previous: TranslationValue;
+  success: TranslationValue;
+  purchaseOrderCreated: TranslationValue;
 };
 
 export type SalesTranslations = {
