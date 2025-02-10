@@ -65,6 +65,7 @@ const inventoryData = [
     maxStock: 100,
     leadTime: "5 days",
     category: "Electronics",
+    subcategory: "Smartphones",
     lastUpdated: "2024-02-10",
     decouplingPoint: {
       type: "Strategic",
@@ -100,7 +101,8 @@ const inventoryData = [
     minStock: 30,
     maxStock: 80,
     leadTime: "7 days",
-    category: "Components",
+    category: "Electronics",
+    subcategory: "Laptops",
     lastUpdated: "2024-02-10",
     decouplingPoint: {
       type: "Lead time",
@@ -136,7 +138,8 @@ const inventoryData = [
     minStock: 40,
     maxStock: 90,
     leadTime: "3 days",
-    category: "Accessories",
+    category: "Electronics",
+    subcategory: "Tablets",
     lastUpdated: "2024-02-10",
     decouplingPoint: {
       type: "Capacity",
