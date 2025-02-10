@@ -17,7 +17,18 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Package, AlertTriangle, CheckCircle, Waves, Filter, TreeDeciduous } from "lucide-react";
+import { 
+  Package, 
+  AlertTriangle, 
+  CheckCircle, 
+  Waves, 
+  Filter, 
+  TreeDeciduous,
+  Calendar,
+  TrendingUp,
+  Bell,
+  Settings,
+} from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
@@ -28,7 +39,7 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Label } from "@/components/ui/label";
 import {
@@ -40,6 +51,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+
+const ITEMS_PER_PAGE = 10;
 
 const inventoryData = [
   {
@@ -180,10 +193,54 @@ const productFamilies = [
 const Inventory = () => {
   const [selectedLocation, setSelectedLocation] = useState<string>("all");
   const [selectedFamily, setSelectedFamily] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
   const [showPurchaseOrderDialog, setShowPurchaseOrderDialog] = useState(false);
   const [showDecouplingDialog, setShowDecouplingDialog] = useState(false);
+  const [showBufferAdjustmentDialog, setShowBufferAdjustmentDialog] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const { toast } = useToast();
+
+  const filteredData = useMemo(() => {
+    return inventoryData.filter(item => {
+      if (selectedLocation !== "all" && item.location !== selectedLocation) return false;
+      if (selectedFamily !== "all" && item.productFamily !== selectedFamily) return false;
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        return (
+          item.sku.toLowerCase().includes(query) ||
+          item.name.toLowerCase().includes(query) ||
+          item.productFamily.toLowerCase().includes(query)
+        );
+      }
+      return true;
+    });
+  }, [selectedLocation, selectedFamily, searchQuery, inventoryData]);
+
+  const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
+  const paginatedData = filteredData.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const calculateBufferSize = (item: any) => {
+    const leadTimeFactor = item.leadTime === "5 days" ? 1 : item.leadTime === "7 days" ? 1.4 : 0.8;
+    const variabilityFactor = item.decouplingPoint.variabilityFactor === "High demand variability" ? 1.5 : 1;
+    const baseBuffer = item.netFlow.avgDailyUsage * leadTimeFactor * variabilityFactor;
+    return {
+      red: Math.round(baseBuffer * 0.33),
+      yellow: Math.round(baseBuffer * 0.33),
+      green: Math.round(baseBuffer * 0.34)
+    };
+  };
+
+  const handleBufferAdjustment = (sku: string, adjustmentType: string, value: number) => {
+    toast({
+      title: "Buffer Adjusted",
+      description: `${adjustmentType} adjustment applied to ${sku}`,
+    });
+    setShowBufferAdjustmentDialog(false);
+  };
 
   const handleCreatePurchaseOrder = () => {
     toast({
@@ -219,12 +276,6 @@ const Inventory = () => {
     return "red";
   };
 
-  const filteredData = inventoryData.filter(item => {
-    if (selectedLocation !== "all" && item.location !== selectedLocation) return false;
-    if (selectedFamily !== "all" && item.productFamily !== selectedFamily) return false;
-    return true;
-  });
-
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -234,6 +285,8 @@ const Inventory = () => {
             <Input
               placeholder="Search products..."
               className="w-[250px]"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
             <Select value={selectedLocation} onValueChange={setSelectedLocation}>
               <SelectTrigger className="w-[180px]">
@@ -309,10 +362,12 @@ const Inventory = () => {
 
         <Card>
           <Tabs defaultValue="inventory" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 lg:w-[600px] p-4">
+            <TabsList className="grid w-full grid-cols-5 lg:w-[800px] p-4">
               <TabsTrigger value="inventory">Inventory Status</TabsTrigger>
               <TabsTrigger value="netflow">Net Flow Analysis</TabsTrigger>
               <TabsTrigger value="decoupling">Decoupling Points</TabsTrigger>
+              <TabsTrigger value="buffers">Buffer Management</TabsTrigger>
+              <TabsTrigger value="adjustments">Adjustments</TabsTrigger>
             </TabsList>
             
             <TabsContent value="inventory">
@@ -330,7 +385,7 @@ const Inventory = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredData.map((item) => (
+                    {paginatedData.map((item) => (
                       <TableRow key={item.id}>
                         <TableCell className="font-medium">{item.sku}</TableCell>
                         <TableCell>{item.name}</TableCell>
@@ -366,6 +421,27 @@ const Inventory = () => {
                     ))}
                   </TableBody>
                 </Table>
+                <div className="mt-4 flex justify-between items-center">
+                  <div className="text-sm text-gray-500">
+                    Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, filteredData.length)} of {filteredData.length} items
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
               </div>
             </TabsContent>
 
@@ -385,7 +461,7 @@ const Inventory = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredData.map((item) => (
+                    {paginatedData.map((item) => (
                       <TableRow key={item.id}>
                         <TableCell className="font-medium">{item.sku}</TableCell>
                         <TableCell>{item.name}</TableCell>
@@ -436,7 +512,7 @@ const Inventory = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredData.map((item) => (
+                    {paginatedData.map((item) => (
                       <TableRow key={item.id}>
                         <TableCell className="font-medium">{item.sku}</TableCell>
                         <TableCell>{item.name}</TableCell>
@@ -453,6 +529,116 @@ const Inventory = () => {
                             }}
                           >
                             Configure
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="buffers">
+              <div className="p-6">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>SKU</TableHead>
+                      <TableHead>Product Name</TableHead>
+                      <TableHead>Red Zone</TableHead>
+                      <TableHead>Yellow Zone</TableHead>
+                      <TableHead>Green Zone</TableHead>
+                      <TableHead>Lead Time Factor</TableHead>
+                      <TableHead>Variability Factor</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedData.map((item) => {
+                      const bufferSizes = calculateBufferSize(item);
+                      return (
+                        <TableRow key={item.id}>
+                          <TableCell className="font-medium">{item.sku}</TableCell>
+                          <TableCell>{item.name}</TableCell>
+                          <TableCell>{bufferSizes.red}</TableCell>
+                          <TableCell>{bufferSizes.yellow}</TableCell>
+                          <TableCell>{bufferSizes.green}</TableCell>
+                          <TableCell>{item.leadTime}</TableCell>
+                          <TableCell>{item.decouplingPoint.variabilityFactor}</TableCell>
+                          <TableCell>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedProduct(item);
+                                setShowBufferAdjustmentDialog(true);
+                              }}
+                            >
+                              Adjust
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+                <div className="mt-4 flex justify-between items-center">
+                  <div className="text-sm text-gray-500">
+                    Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, filteredData.length)} of {filteredData.length} items
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="adjustments">
+              <div className="p-6">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>SKU</TableHead>
+                      <TableHead>Product Name</TableHead>
+                      <TableHead>Seasonal Pattern</TableHead>
+                      <TableHead>Trend</TableHead>
+                      <TableHead>Last Adjustment</TableHead>
+                      <TableHead>Next Review</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedData.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell className="font-medium">{item.sku}</TableCell>
+                        <TableCell>{item.name}</TableCell>
+                        <TableCell>Normal</TableCell>
+                        <TableCell>Stable</TableCell>
+                        <TableCell>{item.lastUpdated}</TableCell>
+                        <TableCell>{new Date(item.lastUpdated).toLocaleDateString()}</TableCell>
+                        <TableCell>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedProduct(item);
+                              // Add adjustment dialog logic here
+                            }}
+                          >
+                            Review
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -628,6 +814,66 @@ const Inventory = () => {
                 </Button>
                 <Button onClick={handleCreatePurchaseOrder}>
                   Create Order
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showBufferAdjustmentDialog} onOpenChange={setShowBufferAdjustmentDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Adjust Buffer</DialogTitle>
+              <DialogDescription>
+                Adjust buffer for {selectedProduct?.name}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>Red Zone</Label>
+                <Input type="number" placeholder="Enter red zone" />
+              </div>
+              <div>
+                <Label>Yellow Zone</Label>
+                <Input type="number" placeholder="Enter yellow zone" />
+              </div>
+              <div>
+                <Label>Green Zone</Label>
+                <Input type="number" placeholder="Enter green zone" />
+              </div>
+              <div>
+                <Label>Lead Time Factor</Label>
+                <Input type="number" placeholder="Enter lead time factor" />
+              </div>
+              <div>
+                <Label>Variability Factor</Label>
+                <Input type="number" placeholder="Enter variability factor" />
+              </div>
+              <div>
+                <Label>Buffer Profile</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select profile" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {bufferProfiles.map(profile => (
+                      <SelectItem key={profile} value={profile}>{profile}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex justify-end gap-3">
+                <Button variant="outline" onClick={() => setShowBufferAdjustmentDialog(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={() => handleBufferAdjustment(selectedProduct?.sku, "red", parseInt(document.getElementById("redZoneInput")?.value || "0"))}>
+                  Adjust Red Zone
+                </Button>
+                <Button onClick={() => handleBufferAdjustment(selectedProduct?.sku, "yellow", parseInt(document.getElementById("yellowZoneInput")?.value || "0"))}>
+                  Adjust Yellow Zone
+                </Button>
+                <Button onClick={() => handleBufferAdjustment(selectedProduct?.sku, "green", parseInt(document.getElementById("greenZoneInput")?.value || "0"))}>
+                  Adjust Green Zone
                 </Button>
               </div>
             </div>
