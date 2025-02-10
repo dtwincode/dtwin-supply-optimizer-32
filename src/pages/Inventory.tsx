@@ -235,6 +235,15 @@ const Inventory = () => {
   };
 
   const handleBufferAdjustment = (sku: string, adjustmentType: string, value: number) => {
+    if (!value || isNaN(value)) {
+      toast({
+        title: "Invalid Value",
+        description: "Please enter a valid number for buffer adjustment",
+        variant: "destructive"
+      });
+      return;
+    }
+
     toast({
       title: "Buffer Adjusted",
       description: `${adjustmentType} adjustment applied to ${sku}`,
@@ -831,15 +840,45 @@ const Inventory = () => {
             <div className="space-y-4">
               <div>
                 <Label>Red Zone</Label>
-                <Input type="number" placeholder="Enter red zone" />
+                <Input 
+                  type="number" 
+                  placeholder="Enter red zone" 
+                  id="redZoneInput"
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value);
+                    if (selectedProduct) {
+                      handleBufferAdjustment(selectedProduct.sku, "red", value);
+                    }
+                  }}
+                />
               </div>
               <div>
                 <Label>Yellow Zone</Label>
-                <Input type="number" placeholder="Enter yellow zone" />
+                <Input 
+                  type="number" 
+                  placeholder="Enter yellow zone" 
+                  id="yellowZoneInput"
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value);
+                    if (selectedProduct) {
+                      handleBufferAdjustment(selectedProduct.sku, "yellow", value);
+                    }
+                  }}
+                />
               </div>
               <div>
                 <Label>Green Zone</Label>
-                <Input type="number" placeholder="Enter green zone" />
+                <Input 
+                  type="number" 
+                  placeholder="Enter green zone" 
+                  id="greenZoneInput"
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value);
+                    if (selectedProduct) {
+                      handleBufferAdjustment(selectedProduct.sku, "green", value);
+                    }
+                  }}
+                />
               </div>
               <div>
                 <Label>Lead Time Factor</Label>
@@ -866,14 +905,8 @@ const Inventory = () => {
                 <Button variant="outline" onClick={() => setShowBufferAdjustmentDialog(false)}>
                   Cancel
                 </Button>
-                <Button onClick={() => handleBufferAdjustment(selectedProduct?.sku, "red", parseInt(document.getElementById("redZoneInput")?.value || "0"))}>
-                  Adjust Red Zone
-                </Button>
-                <Button onClick={() => handleBufferAdjustment(selectedProduct?.sku, "yellow", parseInt(document.getElementById("yellowZoneInput")?.value || "0"))}>
-                  Adjust Yellow Zone
-                </Button>
-                <Button onClick={() => handleBufferAdjustment(selectedProduct?.sku, "green", parseInt(document.getElementById("greenZoneInput")?.value || "0"))}>
-                  Adjust Green Zone
+                <Button onClick={() => setShowBufferAdjustmentDialog(false)}>
+                  Save Changes
                 </Button>
               </div>
             </div>
