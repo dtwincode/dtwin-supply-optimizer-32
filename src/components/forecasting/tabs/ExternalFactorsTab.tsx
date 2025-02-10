@@ -39,6 +39,10 @@ export const ExternalFactorsTab = ({
 }: ExternalFactorsTabProps) => {
   const { toast } = useToast();
 
+  const handleEventUpdate = (field: keyof MarketEvent, value: any) => {
+    setNewEvent({ ...newEvent, [field]: value });
+  };
+
   return (
     <Card className="p-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -97,7 +101,7 @@ export const ExternalFactorsTab = ({
                 <label className="block text-sm mb-1">Event Type</label>
                 <Select 
                   value={newEvent.type}
-                  onValueChange={(value) => setNewEvent(prev => ({ ...prev, type: value as MarketEvent['type'] }))}>
+                  onValueChange={(value) => handleEventUpdate('type', value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
@@ -114,7 +118,7 @@ export const ExternalFactorsTab = ({
                 <label className="block text-sm mb-1">Category</label>
                 <Select 
                   value={newEvent.category}
-                  onValueChange={(value) => setNewEvent(prev => ({ ...prev, category: value }))}>
+                  onValueChange={(value) => handleEventUpdate('category', value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
@@ -133,7 +137,7 @@ export const ExternalFactorsTab = ({
               <label className="block text-sm mb-1">Event Name</label>
               <Input 
                 value={newEvent.name || ''}
-                onChange={(e) => setNewEvent(prev => ({ ...prev, name: e.target.value }))}
+                onChange={(e) => handleEventUpdate('name', e.target.value)}
                 placeholder="Enter event name"
               />
             </div>
@@ -143,7 +147,7 @@ export const ExternalFactorsTab = ({
               <Input 
                 type="date"
                 value={newEvent.date || ''}
-                onChange={(e) => setNewEvent(prev => ({ ...prev, date: e.target.value }))}
+                onChange={(e) => handleEventUpdate('date', e.target.value)}
               />
             </div>
 
@@ -155,7 +159,7 @@ export const ExternalFactorsTab = ({
                 max="1"
                 step="0.1"
                 value={newEvent.impact || 0}
-                onChange={(e) => setNewEvent(prev => ({ ...prev, impact: parseFloat(e.target.value) }))}
+                onChange={(e) => handleEventUpdate('impact', parseFloat(e.target.value))}
               />
             </div>
 
@@ -164,7 +168,7 @@ export const ExternalFactorsTab = ({
               <textarea 
                 className="w-full p-2 border rounded"
                 value={newEvent.description || ''}
-                onChange={(e) => setNewEvent(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(e) => handleEventUpdate('description', e.target.value)}
                 placeholder="Enter event description"
               />
             </div>
@@ -172,7 +176,7 @@ export const ExternalFactorsTab = ({
             <Button 
               onClick={() => {
                 if (newEvent.name && newEvent.date) {
-                  setMarketEvents(prev => [...prev, { 
+                  setMarketEvents([...marketEvents, { 
                     ...newEvent as MarketEvent,
                     id: Math.random().toString(36).substr(2, 9)
                   }]);
@@ -198,7 +202,7 @@ export const ExternalFactorsTab = ({
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      onClick={() => setMarketEvents(prev => prev.filter(e => e.id !== event.id))}
+                      onClick={() => setMarketEvents(marketEvents.filter(e => e.id !== event.id))}
                     >
                       <X className="h-4 w-4" />
                     </Button>
@@ -270,3 +274,4 @@ export const ExternalFactorsTab = ({
     </Card>
   );
 };
+
