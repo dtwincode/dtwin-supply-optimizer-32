@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -38,13 +37,22 @@ export const ReportGenerator = () => {
     try {
       const response = await fetch('https://b006500d-faf3-4127-884e-bcd01399fc3d.functions.supabase.co/generate-report-description', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ 
           reportType: reportTypes.find(r => r.id === reportType)?.name 
         }),
       });
       
+      if (!response.ok) {
+        throw new Error('Failed to generate report description');
+      }
+
       const data = await response.json();
+      if (data.error) {
+        throw new Error(data.error);
+      }
       setReportDescription(data.description);
     } catch (error) {
       console.error('Error generating report description:', error);

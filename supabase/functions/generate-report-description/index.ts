@@ -15,6 +15,10 @@ serve(async (req) => {
   }
 
   try {
+    if (!openAIApiKey) {
+      throw new Error('OPENAI_API_KEY is not set');
+    }
+
     const { reportType } = await req.json();
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -24,7 +28,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
@@ -38,6 +42,11 @@ serve(async (req) => {
       }),
     });
 
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error?.message || 'Failed to generate description');
+    }
+
     const data = await response.json();
     const description = data.choices[0].message.content;
 
@@ -45,6 +54,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
+    console.error('Error in generate-report-description:', error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
