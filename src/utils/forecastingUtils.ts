@@ -5,6 +5,19 @@ export interface ModelMetrics {
   rmse: number;
 }
 
+export interface ProductHierarchy {
+  category: string;
+  subcategory?: string;
+  sku?: string;
+}
+
+export interface ForecastDataPoint {
+  month: string;
+  category: string;
+  subcategory?: string;
+  sku?: string;
+}
+
 export const calculateMetrics = (actual: number[], forecast: number[]): ModelMetrics => {
   const nonNullPairs = actual.map((a, i) => [a, forecast[i]])
     .filter(([a]) => a !== null);
@@ -59,10 +72,6 @@ export interface Scenario {
   };
 }
 
-interface ForecastDataPoint {
-  month: string;
-}
-
 export const generateScenario = (
   baseline: number[],
   assumptions: {
@@ -78,5 +87,22 @@ export const generateScenario = (
     const event = assumptions.events.find(e => e.month === timeData[index]?.month);
     return seasonal * (event ? 1 + event.impact : 1);
   });
+};
+
+export const filterByProductHierarchy = (
+  data: ForecastDataPoint[],
+  filters: ProductHierarchy
+): ForecastDataPoint[] => {
+  return data.filter(item => {
+    const categoryMatch = !filters.category || item.category === filters.category;
+    const subcategoryMatch = !filters.subcategory || item.subcategory === filters.subcategory;
+    const skuMatch = !filters.sku || item.sku === filters.sku;
+    return categoryMatch && subcategoryMatch && skuMatch;
+  });
+};
+
+export const getUniqueValues = (data: ForecastDataPoint[], field: keyof ProductHierarchy): string[] => {
+  const values = new Set(data.map(item => item[field]).filter(Boolean));
+  return Array.from(values) as string[];
 };
 
