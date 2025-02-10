@@ -50,7 +50,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { DataUploadDialog } from "@/components/forecasting/DataUploadDialog";
+import { DataUploadDialog } from "@/components/settings/DataUploadDialog";
 
 const forecastData = defaultForecastData;
 const forecastingModels = defaultForecastingModels;

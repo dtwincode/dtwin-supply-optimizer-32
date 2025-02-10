@@ -15,7 +15,7 @@ interface DataTemplate {
 }
 
 interface DataUploadDialogProps {
-  module: string;
+  module: Database["public"]["Enums"]["module_type"];
   onDataUploaded: () => void;
 }
 
