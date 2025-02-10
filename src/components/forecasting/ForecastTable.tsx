@@ -9,22 +9,18 @@ import {
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { EditableCell } from "./table/EditableCell";
+import { RowActions } from "./table/RowActions";
+import { ForecastData, EditingCell } from "./table/types";
 
 interface ForecastTableProps {
-  data: {
-    week: string;
-    forecast: number;
-    lower: number;
-    upper: number;
-  }[];
+  data: ForecastData[];
 }
 
 export const ForecastTable = ({ data: initialData }: ForecastTableProps) => {
   const [data, setData] = useState(initialData);
-  const [editingCell, setEditingCell] = useState<{row: number, col: 'forecast' | 'lower' | 'upper'} | null>(null);
+  const [editingCell, setEditingCell] = useState<EditingCell | null>(null);
   const [tempValue, setTempValue] = useState("");
   const { toast } = useToast();
 
@@ -47,34 +43,8 @@ export const ForecastTable = ({ data: initialData }: ForecastTableProps) => {
 
     const newData = [...data];
     if (editingCell?.col) {
-      // Validate against bounds
-      if (editingCell.col === 'forecast') {
-        if (newValue < newData[rowIndex].lower || newValue > newData[rowIndex].upper) {
-          toast({
-            title: "Out of bounds",
-            description: "Forecast must be between lower and upper bounds",
-            variant: "destructive",
-          });
-          return;
-        }
-      } else if (editingCell.col === 'lower') {
-        if (newValue > newData[rowIndex].forecast) {
-          toast({
-            title: "Invalid bounds",
-            description: "Lower bound must be less than forecast",
-            variant: "destructive",
-          });
-          return;
-        }
-      } else if (editingCell.col === 'upper') {
-        if (newValue < newData[rowIndex].forecast) {
-          toast({
-            title: "Invalid bounds",
-            description: "Upper bound must be greater than forecast",
-            variant: "destructive",
-          });
-          return;
-        }
+      if (!validateEdit(rowIndex, editingCell.col, newValue)) {
+        return;
       }
 
       newData[rowIndex][editingCell.col] = newValue;
@@ -88,6 +58,38 @@ export const ForecastTable = ({ data: initialData }: ForecastTableProps) => {
     
     setEditingCell(null);
     setTempValue("");
+  };
+
+  const validateEdit = (rowIndex: number, column: 'forecast' | 'lower' | 'upper', value: number): boolean => {
+    if (column === 'forecast') {
+      if (value < data[rowIndex].lower || value > data[rowIndex].upper) {
+        toast({
+          title: "Out of bounds",
+          description: "Forecast must be between lower and upper bounds",
+          variant: "destructive",
+        });
+        return false;
+      }
+    } else if (column === 'lower') {
+      if (value > data[rowIndex].forecast) {
+        toast({
+          title: "Invalid bounds",
+          description: "Lower bound must be less than forecast",
+          variant: "destructive",
+        });
+        return false;
+      }
+    } else if (column === 'upper') {
+      if (value < data[rowIndex].forecast) {
+        toast({
+          title: "Invalid bounds",
+          description: "Upper bound must be greater than forecast",
+          variant: "destructive",
+        });
+        return false;
+      }
+    }
+    return true;
   };
 
   const handleKeyPress = (e: React.KeyboardEvent, rowIndex: number) => {
@@ -122,84 +124,45 @@ export const ForecastTable = ({ data: initialData }: ForecastTableProps) => {
             {data.map((row, rowIndex) => (
               <TableRow key={row.week}>
                 <TableCell>{row.week}</TableCell>
-                <TableCell className="text-right">
-                  {editingCell?.row === rowIndex && editingCell?.col === 'forecast' ? (
-                    <Input
-                      type="number"
-                      value={tempValue}
-                      onChange={(e) => setTempValue(e.target.value)}
-                      onKeyDown={(e) => handleKeyPress(e, rowIndex)}
-                      className="w-24 text-right"
-                      autoFocus
-                    />
-                  ) : (
-                    <div
-                      onClick={() => handleStartEdit(rowIndex, 'forecast', row.forecast)}
-                      className="cursor-pointer hover:bg-gray-100 p-1 rounded"
-                    >
-                      {row.forecast.toFixed(0)}
-                    </div>
-                  )}
-                </TableCell>
-                <TableCell className="text-right">
-                  {editingCell?.row === rowIndex && editingCell?.col === 'lower' ? (
-                    <Input
-                      type="number"
-                      value={tempValue}
-                      onChange={(e) => setTempValue(e.target.value)}
-                      onKeyDown={(e) => handleKeyPress(e, rowIndex)}
-                      className="w-24 text-right"
-                      autoFocus
-                    />
-                  ) : (
-                    <div
-                      onClick={() => handleStartEdit(rowIndex, 'lower', row.lower)}
-                      className="cursor-pointer hover:bg-gray-100 p-1 rounded"
-                    >
-                      {row.lower.toFixed(0)}
-                    </div>
-                  )}
-                </TableCell>
-                <TableCell className="text-right">
-                  {editingCell?.row === rowIndex && editingCell?.col === 'upper' ? (
-                    <Input
-                      type="number"
-                      value={tempValue}
-                      onChange={(e) => setTempValue(e.target.value)}
-                      onKeyDown={(e) => handleKeyPress(e, rowIndex)}
-                      className="w-24 text-right"
-                      autoFocus
-                    />
-                  ) : (
-                    <div
-                      onClick={() => handleStartEdit(rowIndex, 'upper', row.upper)}
-                      className="cursor-pointer hover:bg-gray-100 p-1 rounded"
-                    >
-                      {row.upper.toFixed(0)}
-                    </div>
-                  )}
+                <TableCell>
+                  <EditableCell
+                    value={row.forecast}
+                    isEditing={editingCell?.row === rowIndex && editingCell?.col === 'forecast'}
+                    tempValue={tempValue}
+                    onEdit={() => handleStartEdit(rowIndex, 'forecast', row.forecast)}
+                    onChange={setTempValue}
+                    onKeyDown={(e) => handleKeyPress(e, rowIndex)}
+                  />
                 </TableCell>
                 <TableCell>
-                  {editingCell?.row === rowIndex && (
-                    <div className="flex gap-2">
-                      <Button 
-                        size="sm" 
-                        onClick={() => handleSaveEdit(rowIndex)}
-                      >
-                        Save
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => {
-                          setEditingCell(null);
-                          setTempValue("");
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  )}
+                  <EditableCell
+                    value={row.lower}
+                    isEditing={editingCell?.row === rowIndex && editingCell?.col === 'lower'}
+                    tempValue={tempValue}
+                    onEdit={() => handleStartEdit(rowIndex, 'lower', row.lower)}
+                    onChange={setTempValue}
+                    onKeyDown={(e) => handleKeyPress(e, rowIndex)}
+                  />
+                </TableCell>
+                <TableCell>
+                  <EditableCell
+                    value={row.upper}
+                    isEditing={editingCell?.row === rowIndex && editingCell?.col === 'upper'}
+                    tempValue={tempValue}
+                    onEdit={() => handleStartEdit(rowIndex, 'upper', row.upper)}
+                    onChange={setTempValue}
+                    onKeyDown={(e) => handleKeyPress(e, rowIndex)}
+                  />
+                </TableCell>
+                <TableCell>
+                  <RowActions
+                    isEditing={editingCell?.row === rowIndex}
+                    onSave={() => handleSaveEdit(rowIndex)}
+                    onCancel={() => {
+                      setEditingCell(null);
+                      setTempValue("");
+                    }}
+                  />
                 </TableCell>
               </TableRow>
             ))}
@@ -209,4 +172,3 @@ export const ForecastTable = ({ data: initialData }: ForecastTableProps) => {
     </Card>
   );
 };
-
