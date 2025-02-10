@@ -13,7 +13,14 @@ import { useMarketEvents } from "@/hooks/useMarketEvents";
 import { usePriceAnalysis } from "@/hooks/usePriceAnalysis";
 import { defaultModelConfigs } from "@/types/modelParameters";
 import { findBestFitModel } from "@/utils/forecasting";
-import { savedScenarios } from "@/constants/forecasting";
+import { 
+  savedScenarios, 
+  regions, 
+  cities, 
+  channelTypes, 
+  warehouses, 
+  forecastData 
+} from "@/constants/forecasting";
 
 export const ForecastingContainer = () => {
   const [selectedModel, setSelectedModel] = useState("moving-avg");
