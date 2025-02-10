@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -27,10 +26,17 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import type { SalesPlan } from "@/types/sales";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
-// Mock data - replace with actual data from your backend
 const mockSalesPlans: SalesPlan[] = [
   {
     id: "1",
@@ -70,14 +76,16 @@ const SalesPlanning = () => {
   const [selectedRegion, setSelectedRegion] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
 
-  const handleCreateSalesPlan = () => {
+  const handleCreateSalesPlan = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     toast({
-      title: "Create New Sales Plan",
-      description: "Opening sales plan creation form...",
+      title: "Success",
+      description: "Sales plan created successfully",
     });
-    // TODO: Implement sales plan creation form
+    setIsDialogOpen(false);
   };
 
   const filteredSalesPlans = mockSalesPlans.filter((plan) => {
@@ -116,10 +124,107 @@ const SalesPlanning = () => {
               <ArrowUp className="h-4 w-4" />
               Bottom-Up
             </Button>
-            <Button onClick={handleCreateSalesPlan} className="gap-2">
-              <PlusCircle className="h-4 w-4" />
-              Create New Sales Plan
-            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="gap-2">
+                  <PlusCircle className="h-4 w-4" />
+                  Create New Sales Plan
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Create New Sales Plan</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleCreateSalesPlan} className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="startDate">Start Date</Label>
+                      <Input
+                        id="startDate"
+                        type="date"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="endDate">End Date</Label>
+                      <Input
+                        id="endDate"
+                        type="date"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="category">Product Category</Label>
+                      <Select required>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {productCategories.map((category) => (
+                            <SelectItem key={category} value={category}>
+                              {category}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="region">Region</Label>
+                      <Select required>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select region" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {regions.map((region) => (
+                            <SelectItem key={region} value={region}>
+                              {region}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="targetValue">Target Value ($)</Label>
+                      <Input
+                        id="targetValue"
+                        type="number"
+                        min="0"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="confidence">Confidence (%)</Label>
+                      <Input
+                        id="confidence"
+                        type="number"
+                        min="0"
+                        max="100"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
+                      id="notes"
+                      placeholder="Add any additional notes or comments..."
+                    />
+                  </div>
+                  <div className="flex justify-end gap-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsDialogOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit">
+                      Create Plan
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
 
@@ -260,4 +365,3 @@ const SalesPlanning = () => {
 };
 
 export default SalesPlanning;
-
