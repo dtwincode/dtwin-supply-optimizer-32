@@ -32,7 +32,14 @@ export const MarketingPlanForm = ({ onClose, onSave }: MarketingPlanFormProps) =
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    description: string;
+    promotionType: PromotionType | "";
+    startDate: string;
+    endDate: string;
+    products: { sku: string; targetQuantity: number; discountPercentage: number; }[];
+  }>({
     name: "",
     description: "",
     promotionType: "",
@@ -46,9 +53,14 @@ export const MarketingPlanForm = ({ onClose, onSave }: MarketingPlanFormProps) =
     setIsSubmitting(true);
 
     try {
+      if (!formData.promotionType) {
+        throw new Error("Promotion type is required");
+      }
+
       const newPlan: MarketingPlan = {
         id: Date.now().toString(),
         ...formData,
+        promotionType: formData.promotionType,
         status: "draft",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -100,7 +112,7 @@ export const MarketingPlanForm = ({ onClose, onSave }: MarketingPlanFormProps) =
             <Label htmlFor="promotionType">Promotion Type</Label>
             <Select
               value={formData.promotionType}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, promotionType: value }))}
+              onValueChange={(value: PromotionType) => setFormData(prev => ({ ...prev, promotionType: value }))}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select promotion type" />
