@@ -23,11 +23,11 @@ export const useModelVersions = (modelId: string) => {
       // Convert the JSON data to match ModelVersion type
       const typedData = data.map(item => ({
         ...item,
-        parameters: item.parameters as Record<string, any>,
-        metadata: item.metadata as Record<string, any>,
-        validation_metrics: item.validation_metrics as Record<string, any>,
-        training_data_snapshot: item.training_data_snapshot as Record<string, any>,
-        accuracy_metrics: item.accuracy_metrics as { mape: number; mae: number; rmse: number }
+        parameters: item.parameters || {},
+        metadata: item.metadata || {},
+        validation_metrics: item.validation_metrics || {},
+        training_data_snapshot: item.training_data_snapshot || {},
+        accuracy_metrics: item.accuracy_metrics || { mape: 0, mae: 0, rmse: 0 }
       }));
       
       setVersions(typedData);
@@ -55,11 +55,11 @@ export const useModelVersions = (modelId: string) => {
 
       const typedData: ModelVersion = {
         ...data,
-        parameters: data.parameters as Record<string, any>,
-        metadata: data.metadata as Record<string, any>,
-        validation_metrics: data.validation_metrics as Record<string, any>,
-        training_data_snapshot: data.training_data_snapshot as Record<string, any>,
-        accuracy_metrics: data.accuracy_metrics as { mape: number; mae: number; rmse: number }
+        parameters: data.parameters || {},
+        metadata: data.metadata || {},
+        validation_metrics: data.validation_metrics || {},
+        training_data_snapshot: data.training_data_snapshot || {},
+        accuracy_metrics: data.accuracy_metrics || { mape: 0, mae: 0, rmse: 0 }
       };
 
       setVersions(prev => [typedData, ...prev]);
@@ -100,6 +100,7 @@ export const useModelVersions = (modelId: string) => {
         description: "Failed to delete model version",
         variant: "destructive",
       });
+      throw error;
     }
   };
 
