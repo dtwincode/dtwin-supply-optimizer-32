@@ -207,13 +207,20 @@ export function DataUploadDialog({ module, onDataUploaded }: DataUploadDialogPro
         setProgress(50);
 
         if (errors.length > 0) {
+          // Convert ValidationError[] to a format compatible with Json type
+          const jsonErrors = errors.map(error => ({
+            row: error.row,
+            column: error.column,
+            message: error.message
+          }));
+
           // Log validation errors
           await supabase.from('data_validation_logs').insert({
             module,
             file_name: file.name,
             row_count: dataRows.length,
             error_count: errors.length,
-            validation_errors: errors as unknown as Record<string, unknown>[],
+            validation_errors: jsonErrors,
             status: 'failed'
           });
 
