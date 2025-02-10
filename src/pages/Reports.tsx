@@ -10,9 +10,14 @@ const Reports = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 p-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">{getTranslation('navigationItems.reports', language)}</h1>
+      <div className="space-y-6">
+        <div className="flex flex-col gap-4">
+          <h1 className="text-2xl font-bold">
+            Supply Chain Dashboard
+          </h1>
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold">{getTranslation('navigationItems.reports', language)}</h2>
+          </div>
         </div>
         <Card className="p-6">
           <ReportGenerator />

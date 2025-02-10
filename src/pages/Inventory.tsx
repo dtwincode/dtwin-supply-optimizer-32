@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -85,46 +84,49 @@ const Inventory = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col gap-4">
           <h1 className="text-2xl font-bold">
-            {getTranslation("common.inventory", language)}
+            Supply Chain Dashboard
           </h1>
-          <InventoryFilters
-            selectedLocation={selectedLocation}
-            setSelectedLocation={setSelectedLocation}
-            selectedFamily={selectedFamily}
-            setSelectedFamily={setSelectedFamily}
-            selectedRegion={selectedRegion}
-            setSelectedRegion={setSelectedRegion}
-            selectedCity={selectedCity}
-            setSelectedCity={setSelectedCity}
-            selectedChannel={selectedChannel}
-            setSelectedChannel={setSelectedChannel}
-            selectedWarehouse={selectedWarehouse}
-            setSelectedWarehouse={setSelectedWarehouse}
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
-            selectedSubcategory={selectedSubcategory}
-            setSelectedSubcategory={setSelectedSubcategory}
-            selectedSKU={selectedSKU}
-            setSelectedSKU={setSelectedSKU}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            categories={categories}
-            subcategories={subcategories}
-            skus={skus}
-            productFamilies={productFamilies}
-            regions={regions}
-            cities={{
-              "Central Region": ["Riyadh", "Al-Kharj", "Al-Qassim"],
-              "Eastern Region": ["Dammam", "Al-Khobar", "Dhahran"],
-              "Western Region": ["Jeddah", "Mecca", "Medina"],
-              "Northern Region": ["Tabuk", "Hail", "Al-Jawf"],
-              "Southern Region": ["Abha", "Jizan", "Najran"]
-            }}
-            channelTypes={channelTypes}
-            locations={locations}
-          />
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold">Inventory Management</h2>
+            <InventoryFilters
+              selectedLocation={selectedLocation}
+              setSelectedLocation={setSelectedLocation}
+              selectedFamily={selectedFamily}
+              setSelectedFamily={setSelectedFamily}
+              selectedRegion={selectedRegion}
+              setSelectedRegion={setSelectedRegion}
+              selectedCity={selectedCity}
+              setSelectedCity={setSelectedCity}
+              selectedChannel={selectedChannel}
+              setSelectedChannel={setSelectedChannel}
+              selectedWarehouse={selectedWarehouse}
+              setSelectedWarehouse={setSelectedWarehouse}
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+              selectedSubcategory={selectedSubcategory}
+              setSelectedSubcategory={setSelectedSubcategory}
+              selectedSKU={selectedSKU}
+              setSelectedSKU={setSelectedSKU}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              categories={categories}
+              subcategories={subcategories}
+              skus={skus}
+              productFamilies={productFamilies}
+              regions={regions}
+              cities={{
+                "Central Region": ["Riyadh", "Al-Kharj", "Al-Qassim"],
+                "Eastern Region": ["Dammam", "Al-Khobar", "Dhahran"],
+                "Western Region": ["Jeddah", "Mecca", "Medina"],
+                "Northern Region": ["Tabuk", "Hail", "Al-Jawf"],
+                "Southern Region": ["Abha", "Jizan", "Najran"]
+              }}
+              channelTypes={channelTypes}
+              locations={locations}
+            />
+          </div>
         </div>
 
         <InventorySummaryCards />

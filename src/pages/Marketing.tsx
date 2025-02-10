@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Calendar } from "@/components/ui/calendar";
@@ -24,33 +23,36 @@ const Marketing = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">
-              {getTranslation('navigationItems.marketing', language)}
-            </h1>
-            <p className="text-muted-foreground">
-              {language === 'ar' 
-                ? 'إدارة الحملات الترويجية والفعاليات الموسمية'
-                : 'Manage promotional campaigns and seasonal events'}
-            </p>
+        <div className="flex flex-col gap-4">
+          <h1 className="text-2xl font-bold">
+            Supply Chain Dashboard
+          </h1>
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-xl font-semibold">Marketing & Promotions</h2>
+              <p className="text-muted-foreground">
+                {language === 'ar' 
+                  ? 'إدارة الحملات الترويجية والفعاليات الموسمية'
+                  : 'Manage promotional campaigns and seasonal events'}
+              </p>
+            </div>
+            <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Gift className="mr-2 h-4 w-4" />
+                  {language === 'ar' ? 'حملة جديدة' : 'New Promotion'}
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>
+                    {language === 'ar' ? 'إنشاء خطة ترويجية جديدة' : 'Create New Promotional Plan'}
+                  </DialogTitle>
+                </DialogHeader>
+                <MarketingPlanForm onClose={() => setIsFormOpen(false)} />
+              </DialogContent>
+            </Dialog>
           </div>
-          <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Gift className="mr-2 h-4 w-4" />
-                {language === 'ar' ? 'حملة جديدة' : 'New Promotion'}
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>
-                  {language === 'ar' ? 'إنشاء خطة ترويجية جديدة' : 'Create New Promotional Plan'}
-                </DialogTitle>
-              </DialogHeader>
-              <MarketingPlanForm onClose={() => setIsFormOpen(false)} />
-            </DialogContent>
-          </Dialog>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

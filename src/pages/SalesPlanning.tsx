@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -48,43 +47,48 @@ const SalesPlanning = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 p-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">{getTranslation('sales.title', language)}</h1>
-          <div className="flex gap-4">
-            <Button
-              variant={planType === "top-down" ? "default" : "outline"}
-              onClick={() => setPlanType("top-down")}
-              className="gap-2"
-            >
-              <ArrowDown className="h-4 w-4" />
-              {getTranslation('sales.topDown', language)}
-            </Button>
-            <Button
-              variant={planType === "bottom-up" ? "default" : "outline"}
-              onClick={() => setPlanType("bottom-up")}
-              className="gap-2"
-            >
-              <ArrowUp className="h-4 w-4" />
-              {getTranslation('sales.bottomUp', language)}
-            </Button>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="gap-2">
-                  <PlusCircle className="h-4 w-4" />
-                  {getTranslation('sales.newPlan', language)}
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>{getTranslation('sales.newPlan', language)}</DialogTitle>
-                </DialogHeader>
-                <SalesPlanForm 
-                  onClose={() => setIsDialogOpen(false)} 
-                  onSave={handleSavePlan}
-                />
-              </DialogContent>
-            </Dialog>
+      <div className="space-y-6">
+        <div className="flex flex-col gap-4">
+          <h1 className="text-2xl font-bold">
+            Supply Chain Dashboard
+          </h1>
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold">Sales Planning</h2>
+            <div className="flex gap-4">
+              <Button
+                variant={planType === "top-down" ? "default" : "outline"}
+                onClick={() => setPlanType("top-down")}
+                className="gap-2"
+              >
+                <ArrowDown className="h-4 w-4" />
+                {getTranslation('sales.topDown', language)}
+              </Button>
+              <Button
+                variant={planType === "bottom-up" ? "default" : "outline"}
+                onClick={() => setPlanType("bottom-up")}
+                className="gap-2"
+              >
+                <ArrowUp className="h-4 w-4" />
+                {getTranslation('sales.bottomUp', language)}
+              </Button>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="gap-2">
+                    <PlusCircle className="h-4 w-4" />
+                    {getTranslation('sales.newPlan', language)}
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>{getTranslation('sales.newPlan', language)}</DialogTitle>
+                  </DialogHeader>
+                  <SalesPlanForm 
+                    onClose={() => setIsDialogOpen(false)} 
+                    onSave={handleSavePlan}
+                  />
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </div>
 

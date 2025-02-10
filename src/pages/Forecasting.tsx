@@ -259,8 +259,11 @@ const Forecasting = () => {
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex flex-col gap-4">
+          <h1 className="text-2xl font-bold">
+            Supply Chain Dashboard
+          </h1>
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Demand Forecasting</h1>
+            <h2 className="text-xl font-semibold">Demand Forecasting</h2>
             <div className="flex gap-4">
               <Select value={selectedModel} onValueChange={setSelectedModel}>
                 <SelectTrigger className="w-[200px]">
