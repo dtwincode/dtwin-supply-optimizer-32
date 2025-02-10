@@ -21,6 +21,9 @@ export type UITranslations = {
   adjust: TranslationValue;
   review: TranslationValue;
   success: TranslationValue;
+  signIn: TranslationValue;
+  signUp: TranslationValue;
+  signOut: TranslationValue;
 };
 
 export const uiTranslations: UITranslations = {
@@ -99,5 +102,17 @@ export const uiTranslations: UITranslations = {
   success: {
     en: "Success",
     ar: "نجاح"
+  },
+  signIn: {
+    en: "Sign In",
+    ar: "تسجيل الدخول"
+  },
+  signUp: {
+    en: "Sign Up",
+    ar: "إنشاء حساب"
+  },
+  signOut: {
+    en: "Sign Out",
+    ar: "تسجيل الخروج"
   }
 };

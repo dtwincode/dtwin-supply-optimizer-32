@@ -1,15 +1,16 @@
 
-import { useState } from "react";
-import { MenuIcon, X, Home, TrendingUp, Package, LineChart, Gift, Truck, FileText, Search, Settings, TicketPlus } from "lucide-react";
+import { useState, useEffect } from "react";
+import { MenuIcon, X, Home, TrendingUp, Package, LineChart, Gift, Truck, FileText, Search, Settings, TicketPlus, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FloatingAskAI } from "./ai/FloatingAskAI";
 import { ThemeToggle } from "./ThemeToggle";
 import { CreateTicketDialog } from "./tickets/CreateTicketDialog";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "./ui/button";
 import { getTranslation } from "@/translations";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
-import { useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const navigationItems = [
   { name: "navigationItems.dashboard", icon: Home, href: "/" },
@@ -27,7 +28,15 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [createTicketOpen, setCreateTicketOpen] = useState(false);
   const { language, setLanguage, isRTL } = useLanguage();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/auth');
+    }
+  }, [user, navigate]);
 
   // Get current module name based on location
   const getCurrentModuleName = () => {
@@ -37,6 +46,10 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     );
     return currentModule ? getTranslation(currentModule.name, language) : "";
   };
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -147,6 +160,24 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                   </p>
                 </HoverCardContent>
               </HoverCard>
+
+              <HoverCard>
+                <HoverCardTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={signOut}
+                    className="p-2"
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </Button>
+                </HoverCardTrigger>
+                <HoverCardContent className="w-48">
+                  <p className="text-sm">
+                    {getTranslation('ui.signOut', language)}
+                  </p>
+                </HoverCardContent>
+              </HoverCard>
             </div>
           </div>
         </div>
@@ -170,4 +201,3 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default DashboardLayout;
-
