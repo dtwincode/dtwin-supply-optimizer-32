@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { MenuIcon, X, Home, Package, TrendingUp, Truck, Settings, LineChart, FileText, Gift, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { FloatingAskAI } from "./ai/FloatingAskAI";
 
 const navigationItems = [
   { name: "Dashboard", icon: Home, href: "/" },
@@ -90,11 +91,13 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
 
         {/* Page Content */}
-        <div className="p-6">{children}</div>
+        <div className="p-6">
+          {children}
+          <FloatingAskAI />
+        </div>
       </div>
     </div>
   );
 };
 
 export default DashboardLayout;
-
