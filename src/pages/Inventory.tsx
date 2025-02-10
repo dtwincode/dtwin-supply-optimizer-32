@@ -85,9 +85,12 @@ const Inventory = () => {
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex flex-col gap-4">
-          <h1 className="text-2xl font-bold">Inventory Management</h1>
           <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Inventory Management</h2>
+            <p className="text-muted-foreground">
+              {language === 'ar' 
+                ? 'إدارة المخزون والتتبع'
+                : 'Manage and track inventory levels'}
+            </p>
             <InventoryFilters
               selectedLocation={selectedLocation}
               setSelectedLocation={setSelectedLocation}

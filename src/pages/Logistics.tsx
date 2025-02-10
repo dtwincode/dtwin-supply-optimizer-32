@@ -102,7 +102,9 @@ const Logistics = () => {
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex flex-col gap-4">
-          <h1 className="text-2xl font-bold">Supply Chain Execution</h1>
+          <p className="text-muted-foreground">
+            Optimize and track supply chain operations
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

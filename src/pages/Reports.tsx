@@ -12,9 +12,11 @@ const Reports = () => {
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex flex-col gap-4">
-          <h1 className="text-2xl font-bold">
-            {getTranslation('navigationItems.reports', language)}
-          </h1>
+          <p className="text-muted-foreground">
+            {language === 'ar' 
+              ? 'إنشاء وإدارة التقارير التحليلية'
+              : 'Generate and manage analytical reports'}
+          </p>
         </div>
         <Card className="p-6">
           <ReportGenerator />

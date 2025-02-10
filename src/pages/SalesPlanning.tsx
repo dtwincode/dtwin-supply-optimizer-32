@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -49,9 +50,14 @@ const SalesPlanning = () => {
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex flex-col gap-4">
-          <h1 className="text-2xl font-bold">Sales Planning</h1>
           <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Sales Planning</h2>
+            <div>
+              <p className="text-muted-foreground">
+                {language === 'ar' 
+                  ? 'تخطيط وإدارة المبيعات'
+                  : 'Plan and manage sales activities'}
+              </p>
+            </div>
             <div className="flex gap-4">
               <Button
                 variant={planType === "top-down" ? "default" : "outline"}
