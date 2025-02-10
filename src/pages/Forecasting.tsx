@@ -30,6 +30,8 @@ import {
 import { ForecastMetricsCards } from "@/components/forecasting/ForecastMetricsCards";
 import { ForecastFilters } from "@/components/forecasting/ForecastFilters";
 import { ForecastChart } from "@/components/forecasting/ForecastChart";
+import { TestingChart } from "@/components/forecasting/TestingChart";
+import { ForecastTable } from "@/components/forecasting/ForecastTable";
 import { ScenarioManagement } from "@/components/forecasting/ScenarioManagement";
 import { useToast } from "@/hooks/use-toast";
 import { DecompositionTab } from "@/components/forecasting/tabs/DecompositionTab";
@@ -107,6 +109,25 @@ const Forecasting = () => {
   const [priceAnalysis, setPriceAnalysis] = useState<PriceAnalysis | null>(null);
   const [historicalPriceData, setHistoricalPriceData] = useState<{ price: number; demand: number }[]>([]);
   const { toast } = useToast();
+  const [timeRange, setTimeRange] = useState("30");
+  const [historicalData, setHistoricalData] = useState(() => {
+    // Generate sample historical data
+    return Array.from({ length: 180 }, (_, i) => ({
+      date: new Date(Date.now() - (180 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      actual: Math.round(1000 + Math.random() * 500),
+      predicted: Math.round(900 + Math.random() * 600)
+    }));
+  });
+
+  const [forecastTableData, setForecastTableData] = useState(() => {
+    // Generate sample forecast distribution data
+    return Array.from({ length: 12 }, (_, i) => ({
+      week: `Week ${i + 1}`,
+      forecast: Math.round(1200 + Math.random() * 300),
+      lower: Math.round(1000 + Math.random() * 200),
+      upper: Math.round(1400 + Math.random() * 200)
+    }));
+  });
 
   const filteredData = useMemo(() => {
     return forecastData.filter(item => {
@@ -255,6 +276,11 @@ const Forecasting = () => {
     }));
   }, [filteredData, priceData]);
 
+    // Filter historical data based on selected time range
+    const filteredHistoricalData = useMemo(() => {
+      return historicalData.slice(-parseInt(timeRange));
+    }, [historicalData, timeRange]);
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -319,18 +345,33 @@ const Forecasting = () => {
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
+            <TabsTrigger value="testing">Model Testing</TabsTrigger>
             <TabsTrigger value="forecast">Forecast Analysis</TabsTrigger>
+            <TabsTrigger value="distribution">Forecast Distribution</TabsTrigger>
             <TabsTrigger value="decomposition">Pattern Analysis</TabsTrigger>
             <TabsTrigger value="scenarios">What-If Analysis</TabsTrigger>
             <TabsTrigger value="validation">Forecast Validation</TabsTrigger>
             <TabsTrigger value="external">External Factors</TabsTrigger>
           </TabsList>
 
+          <TabsContent value="testing">
+            <TestingChart
+              historicalData={filteredHistoricalData}
+              predictedData={[]}
+              timeRange={timeRange}
+              onTimeRangeChange={setTimeRange}
+            />
+          </TabsContent>
+
           <TabsContent value="forecast">
             <ForecastChart
               data={filteredData}
               confidenceIntervals={confidenceIntervals}
             />
+          </TabsContent>
+
+          <TabsContent value="distribution">
+            <ForecastTable data={forecastTableData} />
           </TabsContent>
 
           <TabsContent value="decomposition">
