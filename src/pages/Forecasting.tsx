@@ -316,13 +316,6 @@ const Forecasting = () => {
                   </PopoverContent>
                 </Popover>
               </div>
-              <DataUploadDialog onDataUploaded={() => {
-                toast({
-                  title: "Data Refreshed",
-                  description: "The forecast data has been updated",
-                });
-                // Here you would typically refresh your data
-              }} />
               <Button variant="outline" onClick={handleExport}>
                 <FileDown className="w-4 h-4 mr-2" />
                 Export

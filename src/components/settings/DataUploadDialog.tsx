@@ -15,10 +15,11 @@ interface DataTemplate {
 }
 
 interface DataUploadDialogProps {
+  module: string;
   onDataUploaded: () => void;
 }
 
-export function DataUploadDialog({ onDataUploaded }: DataUploadDialogProps) {
+export function DataUploadDialog({ module, onDataUploaded }: DataUploadDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const { toast } = useToast();
@@ -28,12 +29,11 @@ export function DataUploadDialog({ onDataUploaded }: DataUploadDialogProps) {
       const { data, error } = await supabase
         .from('module_settings')
         .select('data_template')
-        .eq('module', 'forecasting')
+        .eq('module', module)
         .single();
 
       if (error) throw error;
 
-      // Safely type cast the data template
       const template = data.data_template as unknown as DataTemplate;
       if (!template || !template.required_columns || !template.sample_row) {
         throw new Error('Invalid template format');
@@ -47,7 +47,7 @@ export function DataUploadDialog({ onDataUploaded }: DataUploadDialogProps) {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'forecast_data_template.csv';
+      a.download = `${module}_data_template.csv`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -92,11 +92,10 @@ export function DataUploadDialog({ onDataUploaded }: DataUploadDialogProps) {
         const rows = text.split('\n');
         const headers = rows[0].split(',').map(h => h.trim());
 
-        // Validate headers against template
         const { data: templateData } = await supabase
           .from('module_settings')
           .select('data_template')
-          .eq('module', 'forecasting')
+          .eq('module', module)
           .single();
 
         const template = templateData?.data_template as unknown as DataTemplate;
@@ -115,35 +114,37 @@ export function DataUploadDialog({ onDataUploaded }: DataUploadDialogProps) {
           return;
         }
 
-        // Process data rows
+        // Process data rows based on module
         const dataRows = rows.slice(1).filter(row => row.trim());
-        const processedData = dataRows.map(row => {
-          const values = row.split(',').map(v => v.trim());
-          const rowData: Database['public']['Tables']['forecast_data']['Insert'] = {
-            date: values[headers.indexOf('date')],
-            value: parseFloat(values[headers.indexOf('value')]),
-            category: values[headers.indexOf('category')] || null,
-            subcategory: values[headers.indexOf('subcategory')] || null,
-            sku: values[headers.indexOf('sku')] || null,
-            region: values[headers.indexOf('region')] || null,
-            city: values[headers.indexOf('city')] || null,
-            channel: values[headers.indexOf('channel')] || null,
-            warehouse: values[headers.indexOf('warehouse')] || null,
-            notes: values[headers.indexOf('notes')] || null
-          };
-          return rowData;
-        });
+        
+        if (module === 'forecasting') {
+          const processedData = dataRows.map(row => {
+            const values = row.split(',').map(v => v.trim());
+            const rowData: Database['public']['Tables']['forecast_data']['Insert'] = {
+              date: values[headers.indexOf('date')],
+              value: parseFloat(values[headers.indexOf('value')]),
+              category: values[headers.indexOf('category')] || null,
+              subcategory: values[headers.indexOf('subcategory')] || null,
+              sku: values[headers.indexOf('sku')] || null,
+              region: values[headers.indexOf('region')] || null,
+              city: values[headers.indexOf('city')] || null,
+              channel: values[headers.indexOf('channel')] || null,
+              warehouse: values[headers.indexOf('warehouse')] || null,
+              notes: values[headers.indexOf('notes')] || null
+            };
+            return rowData;
+          });
 
-        // Upload to database
-        const { error } = await supabase
-          .from('forecast_data')
-          .insert(processedData);
+          const { error } = await supabase
+            .from('forecast_data')
+            .insert(processedData);
 
-        if (error) throw error;
+          if (error) throw error;
+        }
 
         toast({
           title: "Success",
-          description: `${processedData.length} rows uploaded successfully`,
+          description: `Data uploaded successfully for ${module} module`,
         });
         setIsOpen(false);
         onDataUploaded();
@@ -170,7 +171,7 @@ export function DataUploadDialog({ onDataUploaded }: DataUploadDialogProps) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Upload Forecast Data</DialogTitle>
+          <DialogTitle>Upload {module} Data</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="flex flex-col gap-4">
