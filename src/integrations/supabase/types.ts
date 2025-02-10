@@ -479,6 +479,39 @@ export type Database = {
         }
         Relationships: []
       }
+      price_analysis: {
+        Row: {
+          analysis_date: string | null
+          id: string
+          max_threshold: number | null
+          min_threshold: number | null
+          optimal_price: number | null
+          optimal_threshold: number | null
+          price_elasticity: number | null
+          product_id: string | null
+        }
+        Insert: {
+          analysis_date?: string | null
+          id?: string
+          max_threshold?: number | null
+          min_threshold?: number | null
+          optimal_price?: number | null
+          optimal_threshold?: number | null
+          price_elasticity?: number | null
+          product_id?: string | null
+        }
+        Update: {
+          analysis_date?: string | null
+          id?: string
+          max_threshold?: number | null
+          min_threshold?: number | null
+          optimal_price?: number | null
+          optimal_threshold?: number | null
+          price_elasticity?: number | null
+          product_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -560,6 +593,42 @@ export type Database = {
           total?: number
           updated_at?: string
           warehouse?: string | null
+        }
+        Relationships: []
+      }
+      weather_data: {
+        Row: {
+          alert: string | null
+          humidity: number | null
+          id: string
+          location: string
+          precipitation: number | null
+          recorded_at: string | null
+          temperature: number | null
+          weather_condition: string | null
+          wind_speed: number | null
+        }
+        Insert: {
+          alert?: string | null
+          humidity?: number | null
+          id?: string
+          location: string
+          precipitation?: number | null
+          recorded_at?: string | null
+          temperature?: number | null
+          weather_condition?: string | null
+          wind_speed?: number | null
+        }
+        Update: {
+          alert?: string | null
+          humidity?: number | null
+          id?: string
+          location?: string
+          precipitation?: number | null
+          recorded_at?: string | null
+          temperature?: number | null
+          weather_condition?: string | null
+          wind_speed?: number | null
         }
         Relationships: []
       }
