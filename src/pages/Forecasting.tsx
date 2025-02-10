@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, AlertCircle, Zap, Save, FileDown, Share2 } from "lucide-react";
+import { TrendingUp, AlertCircle, Zap, Save, FileDown, Share2, X } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -36,7 +36,10 @@ import {
   generateScenario,
   type Scenario,
   validateForecast,
-  performCrossValidation
+  performCrossValidation,
+  type WeatherData,
+  type MarketEvent,
+  fetchWeatherForecast
 } from "@/utils/forecastingUtils";
 
 const forecastData = [
