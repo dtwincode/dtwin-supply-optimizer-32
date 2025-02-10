@@ -16,6 +16,16 @@ interface DataTemplate {
   sample_row: Record<string, string | number>;
 }
 
+interface ValidationRules {
+  data_types?: Record<string, string>;
+  required_columns: string[];
+  constraints?: {
+    min_rows?: number;
+    max_rows?: number;
+    allow_duplicates?: boolean;
+  };
+}
+
 interface ValidationError {
   row: number;
   column: string;
@@ -91,7 +101,7 @@ export function DataUploadDialog({ module, onDataUploaded }: DataUploadDialogPro
 
       if (!settings) throw new Error('Module settings not found');
 
-      const rules = settings.validation_rules;
+      const rules = settings.validation_rules as unknown as ValidationRules;
       const template = settings.data_template as unknown as DataTemplate;
 
       // Check required columns
@@ -109,7 +119,7 @@ export function DataUploadDialog({ module, onDataUploaded }: DataUploadDialogPro
         const rowNumber = index + 1;
         headers.forEach((header, colIndex) => {
           const value = row[colIndex];
-          const dataType = rules?.data_types?.[header];
+          const dataType = rules.data_types?.[header];
 
           if (dataType) {
             switch (dataType) {
@@ -203,7 +213,7 @@ export function DataUploadDialog({ module, onDataUploaded }: DataUploadDialogPro
             file_name: file.name,
             row_count: dataRows.length,
             error_count: errors.length,
-            validation_errors: errors,
+            validation_errors: errors as unknown as Record<string, unknown>[],
             status: 'failed'
           });
 
