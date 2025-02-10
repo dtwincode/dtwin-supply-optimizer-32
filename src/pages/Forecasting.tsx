@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
 import {
@@ -41,7 +40,10 @@ import {
   type WeatherData,
   type MarketEvent,
   fetchWeatherForecast,
-  type PriceData
+  type PriceData,
+  type PriceAnalysis,
+  calculatePriceImpact,
+  analyzePriceSensitivity
 } from "@/utils/forecastingUtils";
 
 const forecastData = [
@@ -182,6 +184,8 @@ const Forecasting = () => {
     elasticity: -1,
     historicalPrices: []
   });
+  const [priceAnalysis, setPriceAnalysis] = useState<PriceAnalysis | null>(null);
+  const [historicalPriceData, setHistoricalPriceData] = useState<{ price: number; demand: number }[]>([]);
   const { toast } = useToast();
 
   const filteredData = useMemo(() => {
@@ -285,6 +289,51 @@ const Forecasting = () => {
     a.download = "forecast_data.csv";
     a.click();
   };
+
+  const handlePriceDataChange = (field: keyof PriceData, value: number) => {
+    setPriceData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+
+    setWhatIfParams(prev => ({
+      ...prev,
+      priceData: {
+        ...priceData,
+        [field]: value
+      }
+    }));
+  };
+
+  const calculatePriceAnalysis = () => {
+    if (historicalPriceData.length > 0) {
+      const analysis = analyzePriceSensitivity(historicalPriceData);
+      setPriceAnalysis(analysis);
+      
+      setPriceData(prev => ({
+        ...prev,
+        elasticity: analysis.priceElasticity
+      }));
+
+      toast({
+        title: "Price Analysis Updated",
+        description: `Optimal price point: ${analysis.optimalPrice.toFixed(2)}`,
+      });
+    }
+  };
+
+  const addHistoricalPricePoint = (price: number, demand: number) => {
+    setHistoricalPriceData(prev => [...prev, { price, demand }]);
+  };
+
+  const dataWithPriceImpact = useMemo(() => {
+    return filteredData.map(item => ({
+      ...item,
+      forecast: priceData.basePrice > 0 
+        ? calculatePriceImpact(item.forecast, priceData)
+        : item.forecast
+    }));
+  }, [filteredData, priceData]);
 
   return (
     <DashboardLayout>
@@ -928,6 +977,61 @@ const Forecasting = () => {
                         </div>
                       ))}
                     </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Price Analysis</h3>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm mb-1">Historical Price</label>
+                        <Input 
+                          type="number"
+                          placeholder="Enter price"
+                          onChange={(e) => {
+                            const price = parseFloat(e.target.value);
+                            const demand = historicalPriceData.length > 0 
+                              ? historicalPriceData[historicalPriceData.length - 1].demand 
+                              : 0;
+                            if (!isNaN(price)) {
+                              addHistoricalPricePoint(price, demand);
+                            }
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm mb-1">Historical Demand</label>
+                        <Input 
+                          type="number"
+                          placeholder="Enter demand"
+                          onChange={(e) => {
+                            const demand = parseFloat(e.target.value);
+                            const price = historicalPriceData.length > 0 
+                              ? historicalPriceData[historicalPriceData.length - 1].price 
+                              : 0;
+                            if (!isNaN(demand)) {
+                              addHistoricalPricePoint(price, demand);
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <Button onClick={calculatePriceAnalysis}>
+                      Analyze Price Sensitivity
+                    </Button>
+
+                    {priceAnalysis && (
+                      <div className="mt-4 p-4 bg-gray-50 rounded">
+                        <h4 className="font-medium mb-2">Price Analysis Results</h4>
+                        <div className="space-y-2">
+                          <p>Price Elasticity: {priceAnalysis.priceElasticity.toFixed(2)}</p>
+                          <p>Optimal Price: ${priceAnalysis.optimalPrice.toFixed(2)}</p>
+                          <p>Price Range: ${priceAnalysis.priceThresholds.min.toFixed(2)} - ${priceAnalysis.priceThresholds.max.toFixed(2)}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
