@@ -56,6 +56,8 @@ import {
   channelTypes as defaultChannelTypes,
   warehouses as defaultWarehouses
 } from "@/constants/forecasting";
+import { ModelParametersDialog } from "@/components/forecasting/ModelParametersDialog";
+import { defaultModelConfigs, type ModelConfig, type ModelParameter } from "@/types/modelParameters";
 
 const forecastData = defaultForecastData;
 const forecastingModels = defaultForecastingModels;
@@ -108,6 +110,7 @@ const Forecasting = () => {
   });
   const [priceAnalysis, setPriceAnalysis] = useState<PriceAnalysis | null>(null);
   const [historicalPriceData, setHistoricalPriceData] = useState<{ price: number; demand: number }[]>([]);
+  const [modelConfigs, setModelConfigs] = useState<ModelConfig[]>(defaultModelConfigs);
   const { toast } = useToast();
   const [timeRange, setTimeRange] = useState("30");
   const [historicalData, setHistoricalData] = useState(() => {
@@ -276,10 +279,17 @@ const Forecasting = () => {
     }));
   }, [filteredData, priceData]);
 
-    // Filter historical data based on selected time range
-    const filteredHistoricalData = useMemo(() => {
-      return historicalData.slice(-parseInt(timeRange));
-    }, [historicalData, timeRange]);
+  const handleParametersChange = (modelId: string, parameters: ModelParameter[]) => {
+    setModelConfigs(prev =>
+      prev.map(config =>
+        config.id === modelId ? { ...config, parameters } : config
+      )
+    );
+  };
+
+  const filteredHistoricalData = useMemo(() => {
+    return historicalData.slice(-parseInt(timeRange));
+  }, [historicalData, timeRange]);
 
   return (
     <DashboardLayout>
@@ -292,13 +302,19 @@ const Forecasting = () => {
                   <SelectValue placeholder="Select Model" />
                 </SelectTrigger>
                 <SelectContent>
-                  {forecastingModels.map(model => (
+                  {modelConfigs.map(model => (
                     <SelectItem key={model.id} value={model.id}>
                       {model.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {selectedModel && (
+                <ModelParametersDialog
+                  model={modelConfigs.find(m => m.id === selectedModel)!}
+                  onParametersChange={handleParametersChange}
+                />
+              )}
               <Select value={horizon} onValueChange={setHorizon}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Forecast Horizon" />
