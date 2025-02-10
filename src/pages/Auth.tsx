@@ -49,7 +49,7 @@ export default function Auth() {
             <img
               src="/lovable-uploads/0b98205f-f1d3-4302-9462-faee3a8dbe23.png"
               alt="dtwin logo"
-              className="h-32 w-auto" // Increased from h-16 to h-32
+              className="h-96 w-auto" // Increased from h-32 to h-96 (300% increase)
             />
           </div>
         </CardHeader>
