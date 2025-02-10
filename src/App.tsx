@@ -11,6 +11,7 @@ import Logistics from "./pages/Logistics";
 import SalesPlanning from "./pages/SalesPlanning";
 import Reports from "./pages/Reports";
 import Marketing from "./pages/Marketing";
+import AskAI from "./pages/AskAI";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/sales-planning" element={<SalesPlanning />} />
           <Route path="/marketing" element={<Marketing />} />
           <Route path="/reports" element={<Reports />} />
+          <Route path="/ask-ai" element={<AskAI />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
