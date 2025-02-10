@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
 import {
@@ -27,7 +26,12 @@ import {
   ShoppingBag,
   Megaphone,
   FileText,
-  BrainCircuit
+  BrainCircuit,
+  DollarSign,
+  Leaf,
+  Shield,
+  Users,
+  BadgeCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -105,6 +109,46 @@ const modulesSummary = [
   }
 ];
 
+const financialMetrics = [
+  {
+    title: "Revenue",
+    value: "₪12.4M",
+    change: "+8.2%",
+    trend: "up",
+  },
+  {
+    title: "Operating Costs",
+    value: "₪4.2M",
+    change: "-3.1%",
+    trend: "down",
+  },
+  {
+    title: "Profit Margin",
+    value: "24.5%",
+    change: "+2.1%",
+    trend: "up",
+  }
+];
+
+const sustainabilityMetrics = [
+  {
+    title: "Carbon Footprint",
+    value: "12.3k",
+    unit: "CO₂e",
+    change: "-5.2%",
+  },
+  {
+    title: "Waste Reduction",
+    value: "85%",
+    change: "+2.1%",
+  },
+  {
+    title: "Green Suppliers",
+    value: "76%",
+    change: "+4.3%",
+  }
+];
+
 const Index = () => {
   const navigate = useNavigate();
 
@@ -158,6 +202,121 @@ const Index = () => {
                 <ArrowUpDown className="h-8 w-8 text-danger-500" />
               </div>
             </Card>
+          </div>
+
+          {/* Financial Metrics */}
+          <div className="mb-8">
+            <h4 className="font-display text-xl font-semibold mb-4">Financial Performance</h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {financialMetrics.map((metric) => (
+                <Card key={metric.title} className="p-6">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-sm text-gray-500">{metric.title}</p>
+                      <p className="text-2xl font-semibold mt-1">{metric.value}</p>
+                      <p className={`text-sm mt-1 ${
+                        metric.trend === 'up' ? 'text-green-500' : 'text-red-500'
+                      }`}>
+                        {metric.change}
+                      </p>
+                    </div>
+                    <DollarSign className="h-8 w-8 text-primary" />
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Risk & Compliance */}
+          <div className="mb-8">
+            <h4 className="font-display text-xl font-semibold mb-4">Risk & Compliance</h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="p-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm text-gray-500">Risk Score</p>
+                    <p className="text-2xl font-semibold mt-1">Low</p>
+                    <p className="text-sm text-green-500 mt-1">-12% from last month</p>
+                  </div>
+                  <Shield className="h-8 w-8 text-green-500" />
+                </div>
+              </Card>
+              <Card className="p-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm text-gray-500">Compliance Rate</p>
+                    <p className="text-2xl font-semibold mt-1">98.2%</p>
+                    <p className="text-sm text-green-500 mt-1">+2.1%</p>
+                  </div>
+                  <BadgeCheck className="h-8 w-8 text-blue-500" />
+                </div>
+              </Card>
+              <Card className="p-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm text-gray-500">Active Incidents</p>
+                    <p className="text-2xl font-semibold mt-1">3</p>
+                    <p className="text-sm text-red-500 mt-1">+1 new</p>
+                  </div>
+                  <AlertTriangle className="h-8 w-8 text-orange-500" />
+                </div>
+              </Card>
+            </div>
+          </div>
+
+          {/* Sustainability Metrics */}
+          <div className="mb-8">
+            <h4 className="font-display text-xl font-semibold mb-4">Sustainability</h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {sustainabilityMetrics.map((metric) => (
+                <Card key={metric.title} className="p-6">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-sm text-gray-500">{metric.title}</p>
+                      <p className="text-2xl font-semibold mt-1">
+                        {metric.value}
+                        {metric.unit && <span className="text-sm ml-1">{metric.unit}</span>}
+                      </p>
+                      <p className="text-sm text-green-500 mt-1">{metric.change}</p>
+                    </div>
+                    <Leaf className="h-8 w-8 text-green-500" />
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Customer & Supplier Performance */}
+          <div className="mb-8">
+            <h4 className="font-display text-xl font-semibold mb-4">Stakeholder Performance</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <p className="text-sm text-gray-500">Customer Satisfaction</p>
+                    <p className="text-2xl font-semibold mt-1">94%</p>
+                    <p className="text-sm text-green-500 mt-1">+3.2%</p>
+                  </div>
+                  <Users className="h-8 w-8 text-blue-500" />
+                </div>
+                <div className="text-sm text-gray-500">
+                  Based on 1,234 reviews this month
+                </div>
+              </Card>
+              <Card className="p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <p className="text-sm text-gray-500">Supplier Performance</p>
+                    <p className="text-2xl font-semibold mt-1">87%</p>
+                    <p className="text-sm text-amber-500 mt-1">-1.5%</p>
+                  </div>
+                  <Truck className="h-8 w-8 text-purple-500" />
+                </div>
+                <div className="text-sm text-gray-500">
+                  Average across 45 key suppliers
+                </div>
+              </Card>
+            </div>
           </div>
 
           {/* Modules Overview */}
@@ -273,4 +432,3 @@ const Index = () => {
 };
 
 export default Index;
-
