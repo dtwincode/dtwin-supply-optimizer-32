@@ -44,7 +44,7 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-[500px]">
-        <div className="-mt-8 -mb-4">
+        <div className="-mt-8 -mb-4 flex justify-center">
           <img
             src="/lovable-uploads/0b98205f-f1d3-4302-9462-faee3a8dbe23.png"
             alt="dtwin logo"
