@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslation } from "@/translations";
 
 export default function Auth() {
   const { user, signIn, signUp, isLoading } = useAuth();
@@ -53,8 +52,8 @@ export default function Auth() {
         </div>
         <Tabs defaultValue="signin" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="signin">{getTranslation('ui.signIn', language)}</TabsTrigger>
-            <TabsTrigger value="signup">{getTranslation('ui.signUp', language)}</TabsTrigger>
+            <TabsTrigger value="signin">Sign In</TabsTrigger>
+            <TabsTrigger value="signup">Sign Up</TabsTrigger>
           </TabsList>
           <TabsContent value="signin">
             <form onSubmit={(e) => { e.preventDefault(); handleSubmit("signIn"); }}>
@@ -84,10 +83,7 @@ export default function Auth() {
                   type="submit" 
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? 
-                    getTranslation('ui.loading', language) : 
-                    getTranslation('ui.signIn', language)
-                  }
+                  {isSubmitting ? "Loading..." : "Sign In"}
                 </Button>
               </CardFooter>
             </form>
@@ -120,10 +116,7 @@ export default function Auth() {
                   type="submit" 
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? 
-                    getTranslation('ui.loading', language) : 
-                    getTranslation('ui.signUp', language)
-                  }
+                  {isSubmitting ? "Loading..." : "Sign Up"}
                 </Button>
               </CardFooter>
             </form>
