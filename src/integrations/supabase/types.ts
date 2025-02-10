@@ -329,7 +329,12 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      module_type: "forecasting" | "inventory" | "sales" | "marketing"
+      module_type:
+        | "forecasting"
+        | "inventory"
+        | "sales"
+        | "marketing"
+        | "logistics"
     }
     CompositeTypes: {
       [_ in never]: never
