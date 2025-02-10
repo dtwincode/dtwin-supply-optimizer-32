@@ -21,13 +21,22 @@ export const useModelVersions = (modelId: string) => {
       if (error) throw error;
       
       // Convert the JSON data to match ModelVersion type
-      const typedData = data.map(item => ({
-        ...item,
-        parameters: item.parameters || {},
-        metadata: item.metadata || {},
-        validation_metrics: item.validation_metrics || {},
-        training_data_snapshot: item.training_data_snapshot || {},
-        accuracy_metrics: item.accuracy_metrics || { mape: 0, mae: 0, rmse: 0 }
+      const typedData: ModelVersion[] = data.map(item => ({
+        id: item.id,
+        model_name: item.model_name,
+        version: item.version,
+        parameters: item.parameters as Record<string, any> || {},
+        metadata: item.metadata as Record<string, any> || {},
+        validation_metrics: item.validation_metrics as Record<string, any> || {},
+        training_data_snapshot: item.training_data_snapshot as Record<string, any> || {},
+        accuracy_metrics: {
+          mape: Number(item.accuracy_metrics?.mape || 0),
+          mae: Number(item.accuracy_metrics?.mae || 0),
+          rmse: Number(item.accuracy_metrics?.rmse || 0)
+        },
+        is_active: item.is_active,
+        created_at: item.created_at,
+        updated_at: item.updated_at
       }));
       
       setVersions(typedData);
@@ -47,7 +56,18 @@ export const useModelVersions = (modelId: string) => {
     try {
       const { data, error } = await supabase
         .from('model_versions')
-        .insert(versionData)
+        .insert({
+          ...versionData,
+          parameters: versionData.parameters || {},
+          metadata: versionData.metadata || {},
+          validation_metrics: versionData.validation_metrics || {},
+          training_data_snapshot: versionData.training_data_snapshot || {},
+          accuracy_metrics: {
+            mape: Number(versionData.accuracy_metrics?.mape || 0),
+            mae: Number(versionData.accuracy_metrics?.mae || 0),
+            rmse: Number(versionData.accuracy_metrics?.rmse || 0)
+          }
+        })
         .select()
         .single();
 
@@ -55,11 +75,15 @@ export const useModelVersions = (modelId: string) => {
 
       const typedData: ModelVersion = {
         ...data,
-        parameters: data.parameters || {},
-        metadata: data.metadata || {},
-        validation_metrics: data.validation_metrics || {},
-        training_data_snapshot: data.training_data_snapshot || {},
-        accuracy_metrics: data.accuracy_metrics || { mape: 0, mae: 0, rmse: 0 }
+        parameters: data.parameters as Record<string, any>,
+        metadata: data.metadata as Record<string, any>,
+        validation_metrics: data.validation_metrics as Record<string, any>,
+        training_data_snapshot: data.training_data_snapshot as Record<string, any>,
+        accuracy_metrics: {
+          mape: Number(data.accuracy_metrics?.mape || 0),
+          mae: Number(data.accuracy_metrics?.mae || 0),
+          rmse: Number(data.accuracy_metrics?.rmse || 0)
+        }
       };
 
       setVersions(prev => [typedData, ...prev]);
