@@ -21,10 +21,16 @@ export function TemplateDownloader({ module }: TemplateDownloaderProps) {
         .eq('module', module)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        throw new Error(`Failed to fetch template: ${error.message}`);
+      }
+
+      if (!data || !data.data_template) {
+        throw new Error('Template not found for this module');
+      }
 
       const template = data.data_template as unknown as DataTemplate;
-      if (!template || !template.required_columns || !template.sample_row) {
+      if (!template.required_columns || !template.sample_row) {
         throw new Error('Invalid template format');
       }
 
@@ -52,7 +58,7 @@ export function TemplateDownloader({ module }: TemplateDownloaderProps) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to download template",
+        description: error instanceof Error ? error.message : "Failed to download template",
       });
     }
   };

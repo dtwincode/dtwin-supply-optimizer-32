@@ -21,7 +21,14 @@ export function DataUploadDialog({ module, onDataUploaded }: DataUploadDialogPro
   const { toast } = useToast();
 
   const processUpload = async () => {
-    if (!file) return;
+    if (!file) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please select a file to upload",
+      });
+      return;
+    }
 
     try {
       setIsValidating(true);
@@ -29,70 +36,81 @@ export function DataUploadDialog({ module, onDataUploaded }: DataUploadDialogPro
 
       const reader = new FileReader();
       reader.onload = async (e) => {
-        const text = e.target?.result as string;
-        const rows = text.split('\n');
-        const headers = rows[0].split(',').map(h => h.trim());
-        const dataRows = rows.slice(1).filter(row => row.trim());
-        
-        setProgress(30);
-        
-        // Validate data
-        const errors = await validateData(headers, dataRows.map(row => row.split(',')), module);
-        setValidationErrors(errors);
-        
-        setProgress(50);
+        try {
+          const text = e.target?.result as string;
+          const rows = text.split('\n');
+          const headers = rows[0].split(',').map(h => h.trim());
+          const dataRows = rows.slice(1).filter(row => row.trim());
+          
+          setProgress(30);
+          
+          // Validate data
+          const errors = await validateData(headers, dataRows.map(row => row.split(',')), module);
+          setValidationErrors(errors);
+          
+          setProgress(50);
 
-        if (errors.length > 0) {
-          // Convert ValidationError[] to a format compatible with Json type
-          const jsonErrors = errors.map(error => ({
-            row: error.row,
-            column: error.column,
-            message: error.message
-          }));
+          if (errors.length > 0) {
+            // Convert ValidationError[] to a format compatible with Json type
+            const jsonErrors = errors.map(error => ({
+              row: error.row,
+              column: error.column,
+              message: error.message
+            }));
 
-          // Log validation errors
+            // Log validation errors
+            await supabase.from('data_validation_logs').insert({
+              module,
+              file_name: file.name,
+              row_count: dataRows.length,
+              error_count: errors.length,
+              validation_errors: jsonErrors,
+              status: 'failed'
+            });
+
+            toast({
+              variant: "destructive",
+              title: "Validation Failed",
+              description: `Found ${errors.length} errors in the data`,
+            });
+            return;
+          }
+
+          setProgress(70);
+
+          // Process data rows based on module type
+          const { error: processError } = await processDataByModule(module, headers, dataRows);
+
+          if (processError) {
+            throw new Error(`Error processing data: ${processError.message}`);
+          }
+
+          // Log successful validation
           await supabase.from('data_validation_logs').insert({
             module,
             file_name: file.name,
             row_count: dataRows.length,
-            error_count: errors.length,
-            validation_errors: jsonErrors,
-            status: 'failed'
+            error_count: 0,
+            status: 'completed'
           });
 
+          setProgress(100);
+          
+          toast({
+            title: "Success",
+            description: `Data uploaded successfully for ${module} module`,
+          });
+          setIsOpen(false);
+          onDataUploaded();
+
+        } catch (error) {
+          console.error('Error processing file:', error);
           toast({
             variant: "destructive",
-            title: "Validation Failed",
-            description: `Found ${errors.length} errors in the data`,
+            title: "Error",
+            description: error instanceof Error ? error.message : "Failed to process file",
           });
-          setIsValidating(false);
-          return;
         }
-
-        setProgress(70);
-
-        // Process data rows based on module type
-        const { error } = await processDataByModule(module, headers, dataRows);
-
-        if (error) throw error;
-
-        // Log successful validation
-        await supabase.from('data_validation_logs').insert({
-          module,
-          file_name: file.name,
-          row_count: dataRows.length,
-          error_count: 0,
-          status: 'completed'
-        });
-
-        setProgress(100);
-        
-        toast({
-          title: "Success",
-          description: `Data uploaded successfully for ${module} module`,
-        });
-        setIsOpen(false);
-        onDataUploaded();
       };
 
       reader.readAsText(file);
