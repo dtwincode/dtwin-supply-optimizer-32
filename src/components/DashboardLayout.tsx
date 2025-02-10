@@ -9,6 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "./ui/button";
 import { getTranslation } from "@/translations";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
+import { useLocation } from "react-router-dom";
 
 const navigationItems = [
   { name: "navigationItems.dashboard", icon: Home, href: "/" },
@@ -26,6 +27,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [createTicketOpen, setCreateTicketOpen] = useState(false);
   const { language, setLanguage, isRTL } = useLanguage();
+  const location = useLocation();
 
   return (
     <div className="min-h-screen bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -64,7 +66,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                 href={item.href}
                 className={cn(
                   "flex items-center px-4 py-2 text-sm font-medium rounded-lg",
-                  item.href === "/"
+                  location.pathname === item.href || (item.href === "/" && location.pathname === "")
                     ? "bg-dtwin-medium text-white"
                     : "text-gray-600 hover:bg-gray-100"
                 )}
