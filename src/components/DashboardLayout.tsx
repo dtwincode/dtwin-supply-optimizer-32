@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { MenuIcon, X, Home, Package, TrendingUp, Truck, Settings, LineChart } from "lucide-react";
+import { MenuIcon, X, Home, Package, TrendingUp, Truck, Settings, LineChart, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navigationItems = [
@@ -9,6 +9,7 @@ const navigationItems = [
   { name: "Sales Planning", icon: LineChart, href: "/sales-planning" },
   { name: "Forecasting", icon: TrendingUp, href: "/forecasting" },
   { name: "Logistics", icon: Truck, href: "/logistics" },
+  { name: "Reports", icon: FileText, href: "/reports" },
   { name: "Settings", icon: Settings, href: "/settings" },
 ];
 
