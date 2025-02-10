@@ -12,31 +12,31 @@ interface InventoryChartProps {
 }
 
 type ChartType = 'bar' | 'line' | 'area';
-type TimeRange = 'day' | 'week' | 'month' | 'quarter' | 'year';
+type TimeRange = '1week' | '2weeks' | '4weeks' | '8weeks' | '12weeks';
 
 export const InventoryChart = ({ data }: InventoryChartProps) => {
   const { language } = useLanguage();
   const [chartType, setChartType] = useState<ChartType>('bar');
-  const [timeRange, setTimeRange] = useState<TimeRange>('month');
+  const [timeRange, setTimeRange] = useState<TimeRange>('4weeks');
 
-  // Filter data based on time range
+  // Filter data based on time range in weeks
   const getFilteredData = () => {
     const now = new Date();
     const filtered = data.filter(item => {
       const itemDate = new Date(item.lastUpdated);
+      const weeksDiff = Math.floor((now.getTime() - itemDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
+      
       switch (timeRange) {
-        case 'day':
-          return itemDate.getDate() === now.getDate();
-        case 'week':
-          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-          return itemDate >= weekAgo;
-        case 'month':
-          return itemDate.getMonth() === now.getMonth();
-        case 'quarter':
-          const quarterAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
-          return itemDate >= quarterAgo;
-        case 'year':
-          return itemDate.getFullYear() === now.getFullYear();
+        case '1week':
+          return weeksDiff <= 1;
+        case '2weeks':
+          return weeksDiff <= 2;
+        case '4weeks':
+          return weeksDiff <= 4;
+        case '8weeks':
+          return weeksDiff <= 8;
+        case '12weeks':
+          return weeksDiff <= 12;
         default:
           return true;
       }
@@ -127,11 +127,11 @@ export const InventoryChart = ({ data }: InventoryChartProps) => {
               <SelectValue placeholder="Select time range" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="day">Today</SelectItem>
-              <SelectItem value="week">Last Week</SelectItem>
-              <SelectItem value="month">This Month</SelectItem>
-              <SelectItem value="quarter">Last Quarter</SelectItem>
-              <SelectItem value="year">This Year</SelectItem>
+              <SelectItem value="1week">Last Week</SelectItem>
+              <SelectItem value="2weeks">Last 2 Weeks</SelectItem>
+              <SelectItem value="4weeks">Last 4 Weeks</SelectItem>
+              <SelectItem value="8weeks">Last 8 Weeks</SelectItem>
+              <SelectItem value="12weeks">Last 12 Weeks</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -144,4 +144,3 @@ export const InventoryChart = ({ data }: InventoryChartProps) => {
     </Card>
   );
 };
-
