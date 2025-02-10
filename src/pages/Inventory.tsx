@@ -254,19 +254,19 @@ const channelTypes = [
   "Distribution Center"
 ];
 
-const DynamicAdjustmentFactor = {
+interface DynamicAdjustmentFactor {
   seasonality: number;
   trend: number;
   marketStrategy: number;
-};
+}
 
-const ADUCalculation = {
+interface ADUCalculation {
   past30Days: number;
   past60Days: number;
   past90Days: number;
   forecastedADU: number;
   blendedADU: number;
-};
+}
 
 const Inventory = () => {
   const [selectedLocation, setSelectedLocation] = useState<string>("all");
