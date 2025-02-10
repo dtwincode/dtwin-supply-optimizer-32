@@ -268,8 +268,8 @@ const Inventory = () => {
 
   const handleSaveBufferAdjustments = () => {
     if (selectedProduct) {
-      // Validate and apply all buffer adjustments
-      const { redZone, yellowZone, greenZone } = bufferFormState;
+      // Now passing string values directly from the form state
+      const { redZone, yellowZone, greenZone, leadTimeFactor, variabilityFactor } = bufferFormState;
       if (redZone) handleBufferAdjustment(selectedProduct.sku, "red", redZone);
       if (yellowZone) handleBufferAdjustment(selectedProduct.sku, "yellow", yellowZone);
       if (greenZone) handleBufferAdjustment(selectedProduct.sku, "green", greenZone);
@@ -867,65 +867,47 @@ const Inventory = () => {
               <div>
                 <Label>Red Zone</Label>
                 <Input 
-                  type="number" 
-                  placeholder="Enter red zone" 
-                  id="redZoneInput"
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value);
-                    if (selectedProduct) {
-                      handleBufferAdjustment(selectedProduct.sku, "red", value);
-                    }
-                  }}
+                  type="number"
+                  placeholder="Enter red zone"
+                  value={bufferFormState.redZone}
+                  onChange={handleBufferFormChange("redZone")}
                 />
               </div>
               <div>
                 <Label>Yellow Zone</Label>
                 <Input 
-                  type="number" 
-                  placeholder="Enter yellow zone" 
-                  id="yellowZoneInput"
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value);
-                    if (selectedProduct) {
-                      handleBufferAdjustment(selectedProduct.sku, "yellow", value);
-                    }
-                  }}
+                  type="number"
+                  placeholder="Enter yellow zone"
+                  value={bufferFormState.yellowZone}
+                  onChange={handleBufferFormChange("yellowZone")}
                 />
               </div>
               <div>
                 <Label>Green Zone</Label>
                 <Input 
-                  type="number" 
-                  placeholder="Enter green zone" 
-                  id="greenZoneInput"
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value);
-                    if (selectedProduct) {
-                      handleBufferAdjustment(selectedProduct.sku, "green", value);
-                    }
-                  }}
+                  type="number"
+                  placeholder="Enter green zone"
+                  value={bufferFormState.greenZone}
+                  onChange={handleBufferFormChange("greenZone")}
                 />
               </div>
               <div>
                 <Label>Lead Time Factor</Label>
-                <Input type="number" placeholder="Enter lead time factor" />
+                <Input 
+                  type="number"
+                  placeholder="Enter lead time factor"
+                  value={bufferFormState.leadTimeFactor}
+                  onChange={handleBufferFormChange("leadTimeFactor")}
+                />
               </div>
               <div>
                 <Label>Variability Factor</Label>
-                <Input type="number" placeholder="Enter variability factor" />
-              </div>
-              <div>
-                <Label>Buffer Profile</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select profile" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {bufferProfiles.map(profile => (
-                      <SelectItem key={profile} value={profile}>{profile}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Input 
+                  type="number"
+                  placeholder="Enter variability factor"
+                  value={bufferFormState.variabilityFactor}
+                  onChange={handleBufferFormChange("variabilityFactor")}
+                />
               </div>
               <div className="flex justify-end gap-3">
                 <Button variant="outline" onClick={() => setShowBufferAdjustmentDialog(false)}>
