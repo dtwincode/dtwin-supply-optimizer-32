@@ -3,9 +3,15 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { type MarketEvent, type WeatherData, type PriceAnalysis } from "@/utils/forecasting";
-import { marketEventTypes, marketEventCategories } from "@/constants/forecasting";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import { type MarketEvent, type WeatherData, type PriceAnalysis } from '@/types/weatherAndEvents';
+import { marketEventTypes, marketEventCategories } from '@/constants/forecasting';
 import { useToast } from "@/hooks/use-toast";
 
 interface ExternalFactorsTabProps {
@@ -44,7 +50,7 @@ export const ExternalFactorsTab = ({
   };
 
   return (
-    <Card className="p-6">
+    <Card className="p-6 bg-background">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <h3 className="text-lg font-semibold mb-4">Weather Impact Analysis</h3>
@@ -56,6 +62,7 @@ export const ExternalFactorsTab = ({
                   value={weatherLocation}
                   onChange={(e) => setWeatherLocation(e.target.value)}
                   placeholder="Enter location"
+                  className="bg-background"
                 />
                 <Button 
                   onClick={async () => {
@@ -101,8 +108,8 @@ export const ExternalFactorsTab = ({
                 <label className="block text-sm mb-1">Event Type</label>
                 <Select 
                   value={newEvent.type}
-                  onValueChange={(value) => handleEventUpdate('type', value)}>
-                  <SelectTrigger>
+                  onValueChange={(value: any) => handleEventUpdate('type', value)}>
+                  <SelectTrigger className="w-full bg-background">
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
@@ -119,7 +126,7 @@ export const ExternalFactorsTab = ({
                 <Select 
                   value={newEvent.category}
                   onValueChange={(value) => handleEventUpdate('category', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full bg-background">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -139,11 +146,13 @@ export const ExternalFactorsTab = ({
                 placeholder="Event Name"
                 value={newEvent.name || ''}
                 onChange={(e) => handleEventUpdate('name', e.target.value)}
+                className="bg-background"
               />
               <Input
                 type="date"
                 value={newEvent.date || ''}
                 onChange={(e) => handleEventUpdate('date', e.target.value)}
+                className="bg-background"
               />
               <Input
                 type="number"
@@ -153,9 +162,10 @@ export const ExternalFactorsTab = ({
                 step="0.1"
                 value={newEvent.impact || 0}
                 onChange={(e) => handleEventUpdate('impact', parseFloat(e.target.value))}
+                className="bg-background"
               />
               <textarea
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded bg-background"
                 placeholder="Description"
                 value={newEvent.description || ''}
                 onChange={(e) => handleEventUpdate('description', e.target.value)}
@@ -167,9 +177,19 @@ export const ExternalFactorsTab = ({
                 if (newEvent.name && newEvent.date) {
                   setMarketEvents([...marketEvents, {
                     ...newEvent as MarketEvent,
-                    id: Math.random().toString(36).substr(2, 9)
+                    id: crypto.randomUUID()
                   }]);
                   setNewEvent({});
+                  toast({
+                    title: "Success",
+                    description: "Market event added successfully",
+                  });
+                } else {
+                  toast({
+                    title: "Error",
+                    description: "Please fill in all required fields",
+                    variant: "destructive",
+                  });
                 }
               }}
             >
@@ -181,18 +201,24 @@ export const ExternalFactorsTab = ({
             <h4 className="font-medium mb-2">Recorded Events</h4>
             <div className="space-y-2">
               {marketEvents.map(event => (
-                <div key={event.id} className="p-2 border rounded">
+                <div key={event.id} className="p-2 border rounded bg-background">
                   <div className="flex justify-between">
                     <span className="font-medium">{event.name}</span>
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      onClick={() => setMarketEvents(marketEvents.filter(e => e.id !== event.id))}
+                      onClick={() => {
+                        setMarketEvents(marketEvents.filter(e => e.id !== event.id));
+                        toast({
+                          title: "Success",
+                          description: "Event removed successfully",
+                        });
+                      }}
                     >
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
-                  <p className="text-sm text-gray-600">{event.date} - {event.type}</p>
+                  <p className="text-sm text-muted-foreground">{event.date} - {event.type}</p>
                   <p className="text-sm">{event.description}</p>
                   <p className="text-sm font-medium">Impact: {event.impact}</p>
                 </div>
