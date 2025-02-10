@@ -1,9 +1,10 @@
 
 import { useState } from "react";
-import { MenuIcon, X, Home, TrendingUp, Package, LineChart, Gift, Truck, FileText, Search, Settings } from "lucide-react";
+import { MenuIcon, X, Home, TrendingUp, Package, LineChart, Gift, Truck, FileText, Search, Settings, TicketPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FloatingAskAI } from "./ai/FloatingAskAI";
 import { ThemeToggle } from "./ThemeToggle";
+import { CreateTicketDialog } from "./tickets/CreateTicketDialog";
 
 const navigationItems = [
   { name: "Dashboard", icon: Home, href: "/" },
@@ -19,6 +20,7 @@ const navigationItems = [
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [createTicketOpen, setCreateTicketOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background">
@@ -88,7 +90,13 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
               </button>
             )}
             <h2 className="font-display text-lg">Supply Chain Dashboard</h2>
-            <div className="ml-4">
+            <div className="ml-auto flex items-center gap-2">
+              <button
+                onClick={() => setCreateTicketOpen(true)}
+                className="p-2 rounded-full hover:bg-accent"
+              >
+                <TicketPlus className="h-4 w-4" />
+              </button>
               <ThemeToggle />
             </div>
           </div>
@@ -100,6 +108,15 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           <FloatingAskAI />
         </div>
       </div>
+
+      <CreateTicketDialog 
+        isOpen={createTicketOpen}
+        onOpenChange={setCreateTicketOpen}
+        onSubmit={(ticket) => {
+          console.log('New ticket:', ticket);
+          setCreateTicketOpen(false);
+        }}
+      />
     </div>
   );
 };
