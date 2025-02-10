@@ -16,9 +16,51 @@ type NavigationItems = {
   settings: TranslationValue;
 };
 
+type DashboardMetrics = {
+  totalSKUs: TranslationValue;
+  bufferPenetration: TranslationValue;
+  orderStatus: TranslationValue;
+  flowIndex: TranslationValue;
+};
+
+type FinancialMetrics = {
+  revenue: TranslationValue;
+  operatingCosts: TranslationValue;
+  profitMargin: TranslationValue;
+  title: TranslationValue;
+};
+
+type SustainabilityMetrics = {
+  carbonFootprint: TranslationValue;
+  wasteReduction: TranslationValue;
+  greenSuppliers: TranslationValue;
+  title: TranslationValue;
+};
+
+type ModulesSummary = {
+  inventoryManagement: TranslationValue;
+  demandForecasting: TranslationValue;
+  salesPlanning: TranslationValue;
+  marketingCampaigns: TranslationValue;
+  logistics: TranslationValue;
+  reportsAnalytics: TranslationValue;
+  viewDetails: TranslationValue;
+};
+
 type Translations = {
   dashboard: TranslationValue;
   navigationItems: NavigationItems;
+  dashboardMetrics: DashboardMetrics;
+  financialMetrics: FinancialMetrics;
+  sustainabilityMetrics: SustainabilityMetrics;
+  modulesSummary: ModulesSummary;
+  common: {
+    skus: TranslationValue;
+    active: TranslationValue;
+    pipeline: TranslationValue;
+    onTime: TranslationValue;
+    reports: TranslationValue;
+  };
 };
 
 export const translations: Translations = {
@@ -63,7 +105,119 @@ export const translations: Translations = {
       en: "Settings",
       ar: "الإعدادات"
     }
+  },
+  dashboardMetrics: {
+    totalSKUs: {
+      en: "Total SKUs",
+      ar: "إجمالي وحدات التخزين"
+    },
+    bufferPenetration: {
+      en: "Buffer Penetration",
+      ar: "اختراق المخزون"
+    },
+    orderStatus: {
+      en: "Order Status",
+      ar: "حالة الطلب"
+    },
+    flowIndex: {
+      en: "Flow Index",
+      ar: "مؤشر التدفق"
+    }
+  },
+  financialMetrics: {
+    title: {
+      en: "Financial Performance",
+      ar: "الأداء المالي"
+    },
+    revenue: {
+      en: "Revenue",
+      ar: "الإيرادات"
+    },
+    operatingCosts: {
+      en: "Operating Costs",
+      ar: "تكاليف التشغيل"
+    },
+    profitMargin: {
+      en: "Profit Margin",
+      ar: "هامش الربح"
+    }
+  },
+  sustainabilityMetrics: {
+    title: {
+      en: "Sustainability",
+      ar: "الاستدامة"
+    },
+    carbonFootprint: {
+      en: "Carbon Footprint",
+      ar: "البصمة الكربونية"
+    },
+    wasteReduction: {
+      en: "Waste Reduction",
+      ar: "تقليل النفايات"
+    },
+    greenSuppliers: {
+      en: "Green Suppliers",
+      ar: "الموردون الخضر"
+    }
+  },
+  modulesSummary: {
+    inventoryManagement: {
+      en: "Inventory Management",
+      ar: "إدارة المخزون"
+    },
+    demandForecasting: {
+      en: "Demand Forecasting",
+      ar: "التنبؤ بالطلب"
+    },
+    salesPlanning: {
+      en: "Sales Planning",
+      ar: "تخطيط المبيعات"
+    },
+    marketingCampaigns: {
+      en: "Marketing Campaigns",
+      ar: "الحملات التسويقية"
+    },
+    logistics: {
+      en: "Logistics",
+      ar: "الخدمات اللوجستية"
+    },
+    reportsAnalytics: {
+      en: "Reports & Analytics",
+      ar: "التقارير والتحليلات"
+    },
+    viewDetails: {
+      en: "View Details",
+      ar: "عرض التفاصيل"
+    }
+  },
+  common: {
+    skus: {
+      en: "SKUs",
+      ar: "وحدات تخزين"
+    },
+    active: {
+      en: "active",
+      ar: "نشط"
+    },
+    pipeline: {
+      en: "pipeline",
+      ar: "قيد التنفيذ"
+    },
+    onTime: {
+      en: "on-time",
+      ar: "في الوقت المحدد"
+    },
+    reports: {
+      en: "reports",
+      ar: "تقارير"
+    }
   }
+};
+
+// Helper function to convert numbers to Arabic numerals
+export const toArabicNumerals = (num: number | string): string => {
+  const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+  return num.toString().replace(/[0-9]/g, (d) => arabicNumerals[parseInt(d)]);
 };
 
 export const getTranslation = (key: string, language: 'en' | 'ar'): string => {

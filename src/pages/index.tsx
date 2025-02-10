@@ -35,6 +35,9 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/context/LanguageContext";
+import { getTranslation } from "@/utils/translation";
+import { toArabicNumerals } from "@/utils/arabicNumerals";
 
 // Mock data - replace with actual API data later
 const bufferProfileData = [
@@ -151,23 +154,43 @@ const sustainabilityMetrics = [
 
 const Index = () => {
   const navigate = useNavigate();
+  const { language } = useLanguage();
+
+  const formatNumber = (num: number): string => {
+    if (language === 'ar') {
+      return toArabicNumerals(num);
+    }
+    return num.toString();
+  };
+
+  const formatCurrency = (amount: number): string => {
+    if (language === 'ar') {
+      return `₪${toArabicNumerals(amount.toLocaleString())}`;
+    }
+    return `₪${amount.toLocaleString()}`;
+  };
+
+  const formatPercentage = (percentage: number): string => {
+    if (language === 'ar') {
+      return `${toArabicNumerals(percentage)}%`;
+    }
+    return `${percentage}%`;
+  };
 
   return (
     <DashboardLayout>
       <div className="space-y-6 animate-fadeIn">
-        {/* DDMRP Overview Section */}
         <section>
           <h3 className="font-display text-2xl font-semibold mb-4">
-            Supply Chain Overview
+            {getTranslation('dashboard', language)}
           </h3>
           
-          {/* Primary Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
             <Card className="p-6 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between">
                 <div className="space-y-2">
-                  <p className="text-sm text-gray-500">Total SKUs</p>
-                  <p className="text-3xl font-semibold">1,234</p>
+                  <p className="text-sm text-gray-500">{getTranslation('dashboardMetrics.totalSKUs', language)}</p>
+                  <p className="text-3xl font-semibold">{formatNumber(1234)}</p>
                 </div>
                 <Package className="h-8 w-8 text-primary" />
               </div>
@@ -176,8 +199,8 @@ const Index = () => {
             <Card className="p-6 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between">
                 <div className="space-y-2">
-                  <p className="text-sm text-gray-500">Buffer Penetration</p>
-                  <p className="text-3xl font-semibold">78%</p>
+                  <p className="text-sm text-gray-500">{getTranslation('dashboardMetrics.bufferPenetration', language)}</p>
+                  <p className="text-3xl font-semibold">{formatPercentage(78)}</p>
                 </div>
                 <ShieldAlert className="h-8 w-8 text-success-500" />
               </div>
@@ -186,8 +209,8 @@ const Index = () => {
             <Card className="p-6 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between">
                 <div className="space-y-2">
-                  <p className="text-sm text-gray-500">Order Status</p>
-                  <p className="text-3xl font-semibold">92%</p>
+                  <p className="text-sm text-gray-500">{getTranslation('dashboardMetrics.orderStatus', language)}</p>
+                  <p className="text-3xl font-semibold">{formatPercentage(92)}</p>
                 </div>
                 <Zap className="h-8 w-8 text-warning-500" />
               </div>
@@ -196,28 +219,33 @@ const Index = () => {
             <Card className="p-6 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between">
                 <div className="space-y-2">
-                  <p className="text-sm text-gray-500">Flow Index</p>
-                  <p className="text-3xl font-semibold">4.2x</p>
+                  <p className="text-sm text-gray-500">{getTranslation('dashboardMetrics.flowIndex', language)}</p>
+                  <p className="text-3xl font-semibold">{formatNumber(4.2)}x</p>
                 </div>
                 <ArrowUpDown className="h-8 w-8 text-danger-500" />
               </div>
             </Card>
           </div>
 
-          {/* Financial Metrics */}
           <div className="mb-8">
-            <h4 className="font-display text-xl font-semibold mb-4">Financial Performance</h4>
+            <h4 className="font-display text-xl font-semibold mb-4">
+              {getTranslation('financialMetrics.title', language)}
+            </h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {financialMetrics.map((metric) => (
                 <Card key={metric.title} className="p-6">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-sm text-gray-500">{metric.title}</p>
-                      <p className="text-2xl font-semibold mt-1">{metric.value}</p>
+                      <p className="text-sm text-gray-500">
+                        {getTranslation(`financialMetrics.${metric.title.toLowerCase()}`, language)}
+                      </p>
+                      <p className="text-2xl font-semibold mt-1">
+                        {language === 'ar' ? toArabicNumerals(metric.value) : metric.value}
+                      </p>
                       <p className={`text-sm mt-1 ${
                         metric.trend === 'up' ? 'text-green-500' : 'text-red-500'
                       }`}>
-                        {metric.change}
+                        {language === 'ar' ? toArabicNumerals(metric.change) : metric.change}
                       </p>
                     </div>
                     <DollarSign className="h-8 w-8 text-primary" />
@@ -227,54 +255,20 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Risk & Compliance */}
           <div className="mb-8">
-            <h4 className="font-display text-xl font-semibold mb-4">Risk & Compliance</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card className="p-6">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">Risk Score</p>
-                    <p className="text-2xl font-semibold mt-1">Low</p>
-                    <p className="text-sm text-green-500 mt-1">-12% from last month</p>
-                  </div>
-                  <Shield className="h-8 w-8 text-green-500" />
-                </div>
-              </Card>
-              <Card className="p-6">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">Compliance Rate</p>
-                    <p className="text-2xl font-semibold mt-1">98.2%</p>
-                    <p className="text-sm text-green-500 mt-1">+2.1%</p>
-                  </div>
-                  <BadgeCheck className="h-8 w-8 text-blue-500" />
-                </div>
-              </Card>
-              <Card className="p-6">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">Active Incidents</p>
-                    <p className="text-2xl font-semibold mt-1">3</p>
-                    <p className="text-sm text-red-500 mt-1">+1 new</p>
-                  </div>
-                  <AlertTriangle className="h-8 w-8 text-orange-500" />
-                </div>
-              </Card>
-            </div>
-          </div>
-
-          {/* Sustainability Metrics */}
-          <div className="mb-8">
-            <h4 className="font-display text-xl font-semibold mb-4">Sustainability</h4>
+            <h4 className="font-display text-xl font-semibold mb-4">
+              {getTranslation('sustainabilityMetrics.title', language)}
+            </h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {sustainabilityMetrics.map((metric) => (
                 <Card key={metric.title} className="p-6">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-sm text-gray-500">{metric.title}</p>
+                      <p className="text-sm text-gray-500">
+                        {getTranslation(`sustainabilityMetrics.${metric.title.toLowerCase()}`, language)}
+                      </p>
                       <p className="text-2xl font-semibold mt-1">
-                        {metric.value}
+                        {formatNumber(parseFloat(metric.value))}
                         {metric.unit && <span className="text-sm ml-1">{metric.unit}</span>}
                       </p>
                       <p className="text-sm text-green-500 mt-1">{metric.change}</p>
@@ -286,40 +280,6 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Customer & Supplier Performance */}
-          <div className="mb-8">
-            <h4 className="font-display text-xl font-semibold mb-4">Stakeholder Performance</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <p className="text-sm text-gray-500">Customer Satisfaction</p>
-                    <p className="text-2xl font-semibold mt-1">94%</p>
-                    <p className="text-sm text-green-500 mt-1">+3.2%</p>
-                  </div>
-                  <Users className="h-8 w-8 text-blue-500" />
-                </div>
-                <div className="text-sm text-gray-500">
-                  Based on 1,234 reviews this month
-                </div>
-              </Card>
-              <Card className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <p className="text-sm text-gray-500">Supplier Performance</p>
-                    <p className="text-2xl font-semibold mt-1">87%</p>
-                    <p className="text-sm text-amber-500 mt-1">-1.5%</p>
-                  </div>
-                  <Truck className="h-8 w-8 text-purple-500" />
-                </div>
-                <div className="text-sm text-gray-500">
-                  Average across 45 key suppliers
-                </div>
-              </Card>
-            </div>
-          </div>
-
-          {/* Modules Overview */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
             {modulesSummary.map((module) => (
               <Card 
@@ -332,14 +292,18 @@ const Index = () => {
                     <module.icon className={`h-6 w-6 ${module.color}`} />
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-semibold text-lg mb-1">{module.title}</h4>
-                    <p className="text-2xl font-semibold mb-2">{module.stats}</p>
+                    <h4 className="font-semibold text-lg mb-1">
+                      {getTranslation(`modulesSummary.${module.title.replace(/\s+/g, '').toLowerCase()}`, language)}
+                    </h4>
+                    <p className="text-2xl font-semibold mb-2">
+                      {language === 'ar' ? toArabicNumerals(module.stats) : module.stats}
+                    </p>
                     <p className="text-sm text-gray-500">{module.description}</p>
                   </div>
                 </div>
                 <div className="mt-4 flex justify-end">
                   <Button variant="ghost" size="sm">
-                    View Details →
+                    {getTranslation('modulesSummary.viewDetails', language)} →
                   </Button>
                 </div>
               </Card>
@@ -349,7 +313,6 @@ const Index = () => {
 
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Buffer Profile Distribution */}
           <Card className="p-6">
             <h4 className="font-display text-xl font-semibold mb-4">
               Buffer Profile Distribution
@@ -388,7 +351,6 @@ const Index = () => {
             </div>
           </Card>
 
-          {/* Demand Variability Analysis */}
           <Card className="p-6">
             <h4 className="font-display text-xl font-semibold mb-4">
               Demand Variability Analysis
