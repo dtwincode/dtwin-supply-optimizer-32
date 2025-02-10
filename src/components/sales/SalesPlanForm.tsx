@@ -26,22 +26,6 @@ const cities = {
   "Asia Pacific": ["Tokyo", "Singapore", "Sydney", "Seoul"]
 };
 
-// Updated warehouses mapping
-const warehouses = {
-  "New York": ["NYC-01", "NYC-02"],
-  "Los Angeles": ["LA-01", "LA-02"],
-  "London": ["LDN-01", "LDN-02"],
-  "Paris": ["PAR-01", "PAR-02"],
-  "Berlin": ["BER-01", "BER-02"],
-  "Madrid": ["MAD-01", "MAD-02"],
-  "Tokyo": ["TKY-01", "TKY-02"],
-  "Singapore": ["SIN-01", "SIN-02"],
-  "Sydney": ["SYD-01", "SYD-02"],
-  "Seoul": ["SEL-01", "SEL-02"],
-  "Toronto": ["TOR-01", "TOR-02"],
-  "Chicago": ["CHI-01", "CHI-02"]
-};
-
 const productCategories = ["Electronics", "Fashion", "Home & Garden"];
 const regions = ["North America", "Europe", "Asia Pacific"];
 const channelTypes = ["B2B", "Wholesale", "Direct"];
@@ -63,9 +47,10 @@ const skus = {
 
 interface SalesPlanFormProps {
   onClose: () => void;
+  onSave?: (newPlan: any) => void;
 }
 
-export const SalesPlanForm = ({ onClose }: SalesPlanFormProps) => {
+export const SalesPlanForm = ({ onClose, onSave }: SalesPlanFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   
@@ -77,7 +62,6 @@ export const SalesPlanForm = ({ onClose }: SalesPlanFormProps) => {
     sku: "",
     region: "",
     city: "",
-    warehouse: "",
     channelType: "",
     accountName: "",
     targetValue: "",
@@ -96,7 +80,6 @@ export const SalesPlanForm = ({ onClose }: SalesPlanFormProps) => {
     if (!formState.subcategory) errors.subcategory = "Subcategory is required";
     if (!formState.region) errors.region = "Region is required";
     if (!formState.city) errors.city = "City is required";
-    if (!formState.warehouse) errors.warehouse = "Warehouse is required";
     if (!formState.channelType) errors.channelType = "Channel type is required";
     if (!formState.targetValue) errors.targetValue = "Target value is required";
     if (!formState.confidence) errors.confidence = "Confidence is required";
@@ -132,7 +115,6 @@ export const SalesPlanForm = ({ onClose }: SalesPlanFormProps) => {
     setFormState(prev => {
       const newState = { ...prev, [field]: value };
       
-      // Reset dependent fields when parent field changes
       if (field === "category") {
         newState.subcategory = "";
         newState.sku = "";
@@ -142,16 +124,11 @@ export const SalesPlanForm = ({ onClose }: SalesPlanFormProps) => {
       }
       if (field === "region") {
         newState.city = "";
-        newState.warehouse = "";
-      }
-      if (field === "city") {
-        newState.warehouse = "";
       }
       if (field === "channelType" && !["B2B", "Wholesale"].includes(value)) {
         newState.accountName = "";
       }
       
-      // Clear error when field is updated
       setFormErrors(prev => ({ ...prev, [field]: "" }));
       
       return newState;
@@ -173,30 +150,41 @@ export const SalesPlanForm = ({ onClose }: SalesPlanFormProps) => {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const newPlan = {
+        id: Date.now().toString(),
+        timeframe: {
+          startDate: formState.startDate,
+          endDate: formState.endDate
+        },
+        planType: "top-down",
+        productHierarchy: {
+          category: formState.category,
+          subcategory: formState.subcategory,
+          sku: formState.sku
+        },
+        location: {
+          region: formState.region,
+          city: formState.city,
+        },
+        planningValues: {
+          targetValue: Number(formState.targetValue),
+          confidence: Number(formState.confidence) / 100,
+          notes: formState.notes
+        },
+        status: "draft",
+        lastUpdated: new Date().toISOString(),
+        createdBy: "Current User"
+      };
+
+      if (onSave) {
+        onSave(newPlan);
+      }
 
       toast({
         title: "Success",
         description: "Sales plan created successfully",
       });
 
-      setFormState({
-        startDate: "",
-        endDate: "",
-        category: "",
-        subcategory: "",
-        sku: "",
-        region: "",
-        city: "",
-        warehouse: "",
-        channelType: "",
-        accountName: "",
-        targetValue: "",
-        confidence: "",
-        notes: ""
-      });
-      setFormErrors({});
       onClose();
     } catch (error) {
       toast({
@@ -335,28 +323,28 @@ export const SalesPlanForm = ({ onClose }: SalesPlanFormProps) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="warehouse">Warehouse</Label>
+            <Label htmlFor="sku">SKU</Label>
             <Select
-              value={formState.warehouse}
-              onValueChange={(value) => handleFormChange("warehouse", value)}
-              disabled={!formState.city}
+              value={formState.sku}
+              onValueChange={(value) => handleFormChange("sku", value)}
+              disabled={!formState.subcategory}
             >
-              <SelectTrigger className={formErrors.warehouse ? "border-red-500" : ""}>
-                <SelectValue placeholder="Select warehouse" />
+              <SelectTrigger className={formErrors.sku ? "border-red-500" : ""}>
+                <SelectValue placeholder="Select SKU" />
               </SelectTrigger>
               <SelectContent>
-                {formState.city &&
-                  warehouses[formState.city as keyof typeof warehouses]?.map(
-                    (warehouse) => (
-                      <SelectItem key={warehouse} value={warehouse}>
-                        {warehouse}
+                {formState.subcategory &&
+                  skus[formState.subcategory as keyof typeof skus]?.map(
+                    (sku) => (
+                      <SelectItem key={sku} value={sku}>
+                        {sku}
                       </SelectItem>
                     )
                   )}
               </SelectContent>
             </Select>
-            {formErrors.warehouse && (
-              <p className="text-sm text-red-500">{formErrors.warehouse}</p>
+            {formErrors.sku && (
+              <p className="text-sm text-red-500">{formErrors.sku}</p>
             )}
           </div>
 
@@ -428,32 +416,6 @@ export const SalesPlanForm = ({ onClose }: SalesPlanFormProps) => {
               <p className="text-sm text-red-500">{formErrors.confidence}</p>
             )}
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="sku">SKU</Label>
-            <Select
-              value={formState.sku}
-              onValueChange={(value) => handleFormChange("sku", value)}
-              disabled={!formState.subcategory}
-            >
-              <SelectTrigger className={formErrors.sku ? "border-red-500" : ""}>
-                <SelectValue placeholder="Select SKU" />
-              </SelectTrigger>
-              <SelectContent>
-                {formState.subcategory &&
-                  skus[formState.subcategory as keyof typeof skus]?.map(
-                    (sku) => (
-                      <SelectItem key={sku} value={sku}>
-                        {sku}
-                      </SelectItem>
-                    )
-                  )}
-              </SelectContent>
-            </Select>
-            {formErrors.sku && (
-              <p className="text-sm text-red-500">{formErrors.sku}</p>
-            )}
-          </div>
         </div>
 
         <div className="space-y-2">
@@ -483,4 +445,3 @@ export const SalesPlanForm = ({ onClose }: SalesPlanFormProps) => {
     </ScrollArea>
   );
 };
-

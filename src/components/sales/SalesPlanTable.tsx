@@ -40,8 +40,7 @@ export const SalesPlanTable = ({ salesPlans }: SalesPlanTableProps) => {
               {plan.productHierarchy.sku}
             </TableCell>
             <TableCell>
-              {plan.location.region} / {plan.location.city} /{" "}
-              {plan.location.warehouse}
+              {plan.location.region} / {plan.location.city}
             </TableCell>
             <TableCell>
               ${plan.planningValues.targetValue.toLocaleString()}
@@ -59,4 +58,3 @@ export const SalesPlanTable = ({ salesPlans }: SalesPlanTableProps) => {
     </Table>
   );
 };
-

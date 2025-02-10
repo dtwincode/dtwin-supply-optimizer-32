@@ -52,8 +52,13 @@ const SalesPlanning = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [salesPlans, setSalesPlans] = useState<SalesPlan[]>(mockSalesPlans);
 
-  const filteredSalesPlans = mockSalesPlans.filter((plan) => {
+  const handleSavePlan = (newPlan: SalesPlan) => {
+    setSalesPlans(prev => [...prev, newPlan]);
+  };
+
+  const filteredSalesPlans = salesPlans.filter((plan) => {
     const matchesSearch = 
       plan.productHierarchy.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
       plan.productHierarchy.subcategory?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -100,7 +105,10 @@ const SalesPlanning = () => {
                 <DialogHeader>
                   <DialogTitle>Create New Sales Plan</DialogTitle>
                 </DialogHeader>
-                <SalesPlanForm onClose={() => setIsDialogOpen(false)} />
+                <SalesPlanForm 
+                  onClose={() => setIsDialogOpen(false)} 
+                  onSave={handleSavePlan}
+                />
               </DialogContent>
             </Dialog>
           </div>
@@ -128,4 +136,3 @@ const SalesPlanning = () => {
 };
 
 export default SalesPlanning;
-
