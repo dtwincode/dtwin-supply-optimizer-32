@@ -21,8 +21,16 @@ import {
   Clock,
   Truck,
   ShieldAlert,
-  Zap
+  Zap,
+  Boxes,
+  LineChart as LineChartIcon,
+  ShoppingBag,
+  Megaphone,
+  FileText,
+  BrainCircuit
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 // Mock data - replace with actual API data later
 const bufferProfileData = [
@@ -40,14 +48,73 @@ const demandVariabilityData = [
   { date: "Week 6", ADU: 100, demand: 105, buffer: 120 },
 ];
 
+const modulesSummary = [
+  {
+    title: "Inventory Management",
+    icon: Boxes,
+    stats: "1,234 SKUs",
+    description: "Track and manage inventory levels",
+    route: "/inventory",
+    color: "text-blue-500",
+    bgColor: "bg-blue-50"
+  },
+  {
+    title: "Demand Forecasting",
+    icon: LineChartIcon,
+    stats: "92% accuracy",
+    description: "Predict future demand patterns",
+    route: "/forecasting",
+    color: "text-green-500",
+    bgColor: "bg-green-50"
+  },
+  {
+    title: "Sales Planning",
+    icon: ShoppingBag,
+    stats: "₪2.1M pipeline",
+    description: "Plan and track sales activities",
+    route: "/sales-planning",
+    color: "text-purple-500",
+    bgColor: "bg-purple-50"
+  },
+  {
+    title: "Marketing Campaigns",
+    icon: Megaphone,
+    stats: "12 active",
+    description: "Manage marketing initiatives",
+    route: "/marketing",
+    color: "text-pink-500",
+    bgColor: "bg-pink-50"
+  },
+  {
+    title: "Logistics",
+    icon: Truck,
+    stats: "95.8% on-time",
+    description: "Optimize delivery operations",
+    route: "/logistics",
+    color: "text-orange-500",
+    bgColor: "bg-orange-50"
+  },
+  {
+    title: "Reports & Analytics",
+    icon: FileText,
+    stats: "24 reports",
+    description: "Access business insights",
+    route: "/reports",
+    color: "text-indigo-500",
+    bgColor: "bg-indigo-50"
+  }
+];
+
 const Index = () => {
+  const navigate = useNavigate();
+
   return (
     <DashboardLayout>
       <div className="space-y-6 animate-fadeIn">
         {/* DDMRP Overview Section */}
         <section>
           <h3 className="font-display text-2xl font-semibold mb-4">
-            DDMRP Dashboard
+            Supply Chain Overview
           </h3>
           
           {/* Primary Metrics */}
@@ -93,43 +160,31 @@ const Index = () => {
             </Card>
           </div>
 
-          {/* Secondary Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <Card className="p-6">
-              <div className="flex items-center space-x-4">
-                <div className="p-3 bg-primary-50 rounded-full">
-                  <Clock className="h-6 w-6 text-primary-500" />
+          {/* Modules Overview */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            {modulesSummary.map((module) => (
+              <Card 
+                key={module.title} 
+                className="p-6 cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => navigate(module.route)}
+              >
+                <div className="flex items-start space-x-4">
+                  <div className={`p-3 rounded-lg ${module.bgColor}`}>
+                    <module.icon className={`h-6 w-6 ${module.color}`} />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-lg mb-1">{module.title}</h4>
+                    <p className="text-2xl font-semibold mb-2">{module.stats}</p>
+                    <p className="text-sm text-gray-500">{module.description}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-500">Average Lead Time</p>
-                  <p className="text-2xl font-semibold">5.2 days</p>
+                <div className="mt-4 flex justify-end">
+                  <Button variant="ghost" size="sm">
+                    View Details →
+                  </Button>
                 </div>
-              </div>
-            </Card>
-
-            <Card className="p-6">
-              <div className="flex items-center space-x-4">
-                <div className="p-3 bg-warning-50 rounded-full">
-                  <AlertTriangle className="h-6 w-6 text-warning-500" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Stock Outs</p>
-                  <p className="text-2xl font-semibold">2.3%</p>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6">
-              <div className="flex items-center space-x-4">
-                <div className="p-3 bg-success-50 rounded-full">
-                  <Truck className="h-6 w-6 text-success-500" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">On-Time Delivery</p>
-                  <p className="text-2xl font-semibold">95.8%</p>
-                </div>
-              </div>
-            </Card>
+              </Card>
+            ))}
           </div>
         </section>
 
@@ -218,3 +273,4 @@ const Index = () => {
 };
 
 export default Index;
+
