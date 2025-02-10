@@ -29,6 +29,15 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { language, setLanguage, isRTL } = useLanguage();
   const location = useLocation();
 
+  // Get current module name based on location
+  const getCurrentModuleName = () => {
+    const currentPath = location.pathname;
+    const currentModule = navigationItems.find(item => 
+      item.href === currentPath || (item.href === "/" && currentPath === "")
+    );
+    return currentModule ? getTranslation(currentModule.name, language) : "";
+  };
+
   return (
     <div className="min-h-screen bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
       <div
@@ -90,7 +99,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                 <MenuIcon className="h-5 w-5" />
               </button>
             )}
-            <h2 className="font-display text-lg">{getTranslation('dashboard', language)}</h2>
+            <h2 className="font-display text-lg">{getCurrentModuleName()}</h2>
             <div className="ml-auto flex items-center gap-2">
               <HoverCard>
                 <HoverCardTrigger asChild>
@@ -161,3 +170,4 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default DashboardLayout;
+
