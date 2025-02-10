@@ -24,7 +24,19 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       >
         <div className="h-full w-64 bg-white shadow-lg">
           <div className="flex items-center justify-between p-4 border-b">
-            <h1 className="font-display text-xl font-semibold">dtwin</h1>
+            <div className="flex items-center gap-2">
+              <img 
+                src="/lovable-uploads/20a1eff5-9fd9-48a9-9896-f1f3c1ec575f.png" 
+                alt="dtwin logo" 
+                className="h-8"
+              />
+              <div className="flex flex-col">
+                <span className="font-display text-xl font-semibold">dtwin</span>
+                <span className="text-[8px] text-dtwin-medium uppercase tracking-wider">
+                  Innovate. Integrate. Accelerate
+                </span>
+              </div>
+            </div>
             <button
               onClick={() => setSidebarOpen(false)}
               className="p-2 rounded-lg hover:bg-gray-100"
@@ -40,7 +52,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                 className={cn(
                   "flex items-center px-4 py-2 text-sm font-medium rounded-lg",
                   item.href === "/"
-                    ? "bg-primary text-primary-foreground"
+                    ? "bg-dtwin-medium text-white"
                     : "text-gray-600 hover:bg-gray-100"
                 )}
               >
@@ -81,3 +93,4 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default DashboardLayout;
+
