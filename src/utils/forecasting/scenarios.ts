@@ -9,7 +9,7 @@ export interface Scenario {
   assumptions: {
     growthRate: number;
     seasonality: number;
-    events: { month: string; impact: number }[];
+    events: { week: string; impact: number }[];
     priceData?: PriceData;
   };
 }
@@ -19,15 +19,16 @@ export const generateScenario = (
   assumptions: {
     growthRate: number;
     seasonality: number;
-    events: { month: string; impact: number }[];
+    events: { week: string; impact: number }[];
     priceData?: PriceData;
   },
   timeData: ForecastDataPoint[]
 ): number[] => {
   return baseline.map((value, index) => {
     const growth = value * (1 + assumptions.growthRate);
-    const seasonal = growth * (1 + Math.sin(index * 2 * Math.PI / 12) * assumptions.seasonality);
-    const event = assumptions.events.find(e => e.month === timeData[index]?.month);
+    // Adjust seasonality calculation for weekly pattern (52 weeks in a year)
+    const seasonal = growth * (1 + Math.sin(index * 2 * Math.PI / 52) * assumptions.seasonality);
+    const event = assumptions.events.find(e => e.week === timeData[index]?.week);
     const withEvents = seasonal * (event ? 1 + event.impact : 1);
     
     if (assumptions.priceData) {

@@ -20,6 +20,12 @@ interface ForecastChartProps {
   confidenceIntervals: { upper: number; lower: number }[];
 }
 
+const formatWeek = (week: string) => {
+  // Assuming week format is "YYYY-WW"
+  const [year, weekNum] = week.split('-W');
+  return `Week ${weekNum}`;
+};
+
 export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps) => {
   const [showConfidenceIntervals, setShowConfidenceIntervals] = useState(false);
 
@@ -38,10 +44,11 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={data.map((d, i) => ({
             ...d,
-            ci: confidenceIntervals[i]
+            ci: confidenceIntervals[i],
+            formattedWeek: formatWeek(d.week)
           }))}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" />
+            <XAxis dataKey="formattedWeek" />
             <YAxis />
             <Tooltip />
             <Legend />

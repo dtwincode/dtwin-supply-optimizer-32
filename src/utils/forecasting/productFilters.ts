@@ -1,4 +1,3 @@
-
 export interface ProductHierarchy {
   category: string;
   subcategory?: string;
@@ -6,15 +5,17 @@ export interface ProductHierarchy {
 }
 
 export interface ForecastDataPoint {
-  month: string;
+  week: string;
+  actual: number | null;
+  forecast: number;
+  variance: number | null;
+  region: string;
+  city: string;
+  channel: string;
+  warehouse: string;
   category: string;
-  subcategory?: string;
-  sku?: string;
-  promotionalEvent?: boolean;
-  weatherImpact?: number;
-  marketEvents?: string[];
-  stockLevels?: number;
-  priceElasticity?: number;
+  subcategory: string;
+  sku: string;
 }
 
 export const filterByProductHierarchy = (
