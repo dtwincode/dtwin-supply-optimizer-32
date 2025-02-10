@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -16,38 +17,23 @@ import {
   calculateMetrics,
   calculateConfidenceIntervals,
   decomposeSeasonality,
-  generateScenario,
   validateForecast,
   performCrossValidation,
   findBestFitModel,
-  type WeatherData,
-  type MarketEvent,
-  fetchWeatherForecast,
-  type PriceData,
-  type PriceAnalysis,
-  calculatePriceImpact,
-  analyzePriceSensitivity
 } from "@/utils/forecasting";
+
 import { ForecastMetricsCards } from "@/components/forecasting/ForecastMetricsCards";
 import { ForecastFilters } from "@/components/forecasting/ForecastFilters";
-import { ForecastChart } from "@/components/forecasting/ForecastChart";
-import { TestingChart } from "@/components/forecasting/TestingChart";
-import { ForecastTable } from "@/components/forecasting/ForecastTable";
 import { ScenarioManagement } from "@/components/forecasting/ScenarioManagement";
 import { useToast } from "@/hooks/use-toast";
 import { DecompositionTab } from "@/components/forecasting/tabs/DecompositionTab";
 import { ValidationTab } from "@/components/forecasting/tabs/ValidationTab";
 import { ExternalFactorsTab } from "@/components/forecasting/tabs/ExternalFactorsTab";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+import { ModelTestingTab } from "@/components/forecasting/tabs/ModelTestingTab";
+import { ForecastAnalysisTab } from "@/components/forecasting/tabs/ForecastAnalysisTab";
+import { ForecastDistributionTab } from "@/components/forecasting/tabs/ForecastDistributionTab";
+import { WhatIfAnalysisTab } from "@/components/forecasting/tabs/WhatIfAnalysisTab";
+
 import {
   forecastData as defaultForecastData,
   forecastingModels as defaultForecastingModels,
@@ -58,7 +44,7 @@ import {
   warehouses as defaultWarehouses
 } from "@/constants/forecasting";
 import { ModelParametersDialog } from "@/components/forecasting/ModelParametersDialog";
-import { defaultModelConfigs, type ModelConfig, type ModelParameter } from "@/types/modelParameters";
+import { defaultModelConfigs } from "@/types/modelParameters";
 
 const forecastData = defaultForecastData;
 const forecastingModels = defaultForecastingModels;
@@ -78,44 +64,14 @@ const Forecasting = () => {
   const [selectedCity, setSelectedCity] = useState<string>("all");
   const [selectedChannel, setSelectedChannel] = useState<string>("all");
   const [selectedWarehouse, setSelectedWarehouse] = useState<string>("all");
-  const [showConfidenceIntervals, setShowConfidenceIntervals] = useState(false);
   const [activeTab, setActiveTab] = useState("forecast");
-  const [whatIfParams, setWhatIfParams] = useState({
-    growthRate: 0,
-    seasonality: 0,
-    events: [],
-    priceData: undefined as PriceData | undefined
-  });
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>("all");
   const [selectedSku, setSelectedSku] = useState<string>("all");
-  const [showValidation, setShowValidation] = useState(false);
-  const [showExternalFactors, setShowExternalFactors] = useState(false);
-  const [macroFactors, setMacroFactors] = useState({
-    gdpGrowth: 0.02,
-    inflation: 0.03,
-    exchangeRates: { USD: 1, EUR: 0.85 }
-  });
-  const [weatherLocation, setWeatherLocation] = useState<string>('');
-  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
-  const [marketEvents, setMarketEvents] = useState<MarketEvent[]>([]);
-  const [newEvent, setNewEvent] = useState<Partial<MarketEvent>>({
-    type: 'competitor_action',
-    category: 'pricing',
-    impact: 0
-  });
-  const [priceData, setPriceData] = useState<PriceData>({
-    basePrice: 0,
-    elasticity: -1,
-    historicalPrices: []
-  });
-  const [priceAnalysis, setPriceAnalysis] = useState<PriceAnalysis | null>(null);
-  const [historicalPriceData, setHistoricalPriceData] = useState<{ price: number; demand: number }[]>([]);
-  const [modelConfigs, setModelConfigs] = useState<ModelConfig[]>(defaultModelConfigs);
+  const [modelConfigs, setModelConfigs] = useState(defaultModelConfigs);
   const { toast } = useToast();
-  const [timeRange, setTimeRange] = useState("30");
-  const [historicalData, setHistoricalData] = useState(() => {
-    // Generate sample historical data
+
+  const [historicalData] = useState(() => {
     return Array.from({ length: 180 }, (_, i) => ({
       date: new Date(Date.now() - (180 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       actual: Math.round(1000 + Math.random() * 500),
@@ -123,8 +79,7 @@ const Forecasting = () => {
     }));
   });
 
-  const [forecastTableData, setForecastTableData] = useState(() => {
-    // Generate sample forecast distribution data
+  const [forecastTableData] = useState(() => {
     return Array.from({ length: 12 }, (_, i) => ({
       week: `Week ${i + 1}`,
       forecast: Math.round(1200 + Math.random() * 300),
@@ -174,14 +129,6 @@ const Forecasting = () => {
     return decomposeSeasonality(values);
   }, [filteredData]);
 
-  const whatIfScenario = useMemo(() => {
-    const baseline = filteredData.map(d => d.forecast);
-    return generateScenario(baseline, {
-      ...whatIfParams,
-      priceData: priceData.basePrice > 0 ? priceData : undefined
-    }, filteredData);
-  }, [filteredData, whatIfParams, priceData]);
-
   const validationResults = useMemo(() => {
     const actuals = filteredData.map(d => d.actual).filter(a => a !== null) as number[];
     const forecasts = filteredData.map(d => d.forecast).filter(f => f !== null) as number[];
@@ -192,23 +139,6 @@ const Forecasting = () => {
     const values = filteredData.map(d => d.actual || d.forecast);
     return performCrossValidation(values);
   }, [filteredData]);
-
-  const handleSaveScenario = () => {
-    if (!scenarioName) {
-      toast({
-        title: "Error",
-        description: "Please enter a scenario name",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    toast({
-      title: "Success",
-      description: "Scenario saved successfully",
-    });
-    setScenarioName("");
-  };
 
   const handleExport = () => {
     const csvContent = [
@@ -235,78 +165,14 @@ const Forecasting = () => {
     a.click();
   };
 
-  const handlePriceDataChange = (field: keyof PriceData, value: number) => {
-    setPriceData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-
-    setWhatIfParams(prev => ({
-      ...prev,
-      priceData: {
-        ...priceData,
-        [field]: value
-      }
-    }));
-  };
-
-  const calculatePriceAnalysis = () => {
-    if (historicalPriceData.length > 0) {
-      const analysis = analyzePriceSensitivity(historicalPriceData);
-      setPriceAnalysis(analysis);
-      
-      setPriceData(prev => ({
-        ...prev,
-        elasticity: analysis.priceElasticity
-      }));
-
-      toast({
-        title: "Price Analysis Updated",
-        description: `Optimal price point: ${analysis.optimalPrice.toFixed(2)}`,
-      });
-    }
-  };
-
-  const addHistoricalPricePoint = (price: number, demand: number) => {
-    setHistoricalPriceData(prev => [...prev, { price, demand }]);
-  };
-
-  const dataWithPriceImpact = useMemo(() => {
-    return filteredData.map(item => ({
-      ...item,
-      forecast: priceData.basePrice > 0 
-        ? calculatePriceImpact(item.forecast, priceData)
-        : item.forecast
-    }));
-  }, [filteredData, priceData]);
-
-  const handleParametersChange = (modelId: string, parameters: ModelParameter[]) => {
-    setModelConfigs(prev =>
-      prev.map(config =>
-        config.id === modelId ? { ...config, parameters } : config
-      )
-    );
-  };
-
-  const filteredHistoricalData = useMemo(() => {
-    return historicalData.slice(-parseInt(timeRange));
-  }, [historicalData, timeRange]);
-
   const findBestModel = () => {
     const actuals = filteredData.map(d => d.actual).filter(a => a !== null) as number[];
     
-    // Generate forecasts using each model
-    const modelResults = modelConfigs.map(model => {
-      // For demonstration, we're using the existing forecast data
-      // In a real implementation, you would generate new forecasts using each model
-      const forecast = filteredData.map(d => d.forecast);
-      
-      return {
-        modelId: model.id,
-        modelName: model.name,
-        forecast
-      };
-    });
+    const modelResults = modelConfigs.map(model => ({
+      modelId: model.id,
+      modelName: model.name,
+      forecast: filteredData.map(d => d.forecast)
+    }));
 
     const bestModel = findBestFitModel(actuals, modelResults);
     
@@ -339,7 +205,13 @@ const Forecasting = () => {
               {selectedModel && (
                 <ModelParametersDialog
                   model={modelConfigs.find(m => m.id === selectedModel)!}
-                  onParametersChange={handleParametersChange}
+                  onParametersChange={(modelId, parameters) => 
+                    setModelConfigs(prev =>
+                      prev.map(config =>
+                        config.id === modelId ? { ...config, parameters } : config
+                      )
+                    )
+                  }
                 />
               )}
               <Button 
@@ -406,23 +278,21 @@ const Forecasting = () => {
           </TabsList>
 
           <TabsContent value="testing">
-            <TestingChart
-              historicalData={filteredHistoricalData}
+            <ModelTestingTab
+              historicalData={historicalData}
               predictedData={[]}
-              timeRange={timeRange}
-              onTimeRangeChange={setTimeRange}
             />
           </TabsContent>
 
           <TabsContent value="forecast">
-            <ForecastChart
-              data={filteredData}
+            <ForecastAnalysisTab
+              filteredData={filteredData}
               confidenceIntervals={confidenceIntervals}
             />
           </TabsContent>
 
           <TabsContent value="distribution">
-            <ForecastTable data={forecastTableData} />
+            <ForecastDistributionTab forecastTableData={forecastTableData} />
           </TabsContent>
 
           <TabsContent value="decomposition">
@@ -433,116 +303,10 @@ const Forecasting = () => {
           </TabsContent>
 
           <TabsContent value="scenarios">
-            <Card className="p-6">
-              <div className="flex flex-col gap-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Growth Rate (%)</label>
-                    <Input
-                      type="number"
-                      value={whatIfParams.growthRate}
-                      onChange={(e) => setWhatIfParams(prev => ({
-                        ...prev,
-                        growthRate: parseFloat(e.target.value) / 100
-                      }))}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Seasonality Impact</label>
-                    <Input
-                      type="number"
-                      value={whatIfParams.seasonality}
-                      onChange={(e) => setWhatIfParams(prev => ({
-                        ...prev,
-                        seasonality: parseFloat(e.target.value)
-                      }))}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Event Impact</label>
-                    <Button
-                      variant="outline"
-                      onClick={() => setWhatIfParams(prev => ({
-                        ...prev,
-                        events: [...prev.events, { week: "", impact: 0 }]
-                      }))}
-                    >
-                      Add Event
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Base Price</label>
-                    <Input
-                      type="number"
-                      value={priceData.basePrice}
-                      onChange={(e) => setPriceData(prev => ({
-                        ...prev,
-                        basePrice: parseFloat(e.target.value)
-                      }))}
-                      min="0"
-                      step="0.01"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Price Elasticity</label>
-                    <Input
-                      type="number"
-                      value={priceData.elasticity}
-                      onChange={(e) => setPriceData(prev => ({
-                        ...prev,
-                        elasticity: parseFloat(e.target.value)
-                      }))}
-                      step="0.1"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Promotional Price</label>
-                    <Input
-                      type="number"
-                      value={priceData.promotionalPrice || ''}
-                      onChange={(e) => setPriceData(prev => ({
-                        ...prev,
-                        promotionalPrice: e.target.value ? parseFloat(e.target.value) : undefined
-                      }))}
-                      min="0"
-                      step="0.01"
-                    />
-                  </div>
-                </div>
-
-                <div className="h-[400px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={filteredData.map((d, i) => ({
-                      week: d.week,
-                      scenario: whatIfScenario[i]
-                    }))}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="week" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Line
-                        type="monotone"
-                        dataKey="forecast"
-                        stroke="#F59E0B"
-                        name="Base Forecast"
-                        strokeWidth={2}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="scenario"
-                        stroke="#10B981"
-                        name="Scenario Forecast"
-                        strokeWidth={2}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            </Card>
+            <WhatIfAnalysisTab
+              filteredData={filteredData}
+              whatIfScenario={[]}
+            />
           </TabsContent>
 
           <TabsContent value="validation">
@@ -553,20 +317,7 @@ const Forecasting = () => {
           </TabsContent>
 
           <TabsContent value="external">
-            <ExternalFactorsTab
-              weatherLocation={weatherLocation}
-              setWeatherLocation={setWeatherLocation}
-              weatherData={weatherData}
-              fetchWeatherForecast={fetchWeatherForecast}
-              marketEvents={marketEvents}
-              setMarketEvents={setMarketEvents}
-              newEvent={newEvent}
-              setNewEvent={setNewEvent}
-              priceAnalysis={priceAnalysis}
-              addHistoricalPricePoint={addHistoricalPricePoint}
-              calculatePriceAnalysis={calculatePriceAnalysis}
-              historicalPriceData={historicalPriceData}
-            />
+            <ExternalFactorsTab />
           </TabsContent>
         </Tabs>
 
