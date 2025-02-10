@@ -9,11 +9,11 @@ import DashboardCharts from "@/components/dashboard/DashboardCharts";
 import SustainabilityMetrics from "@/components/dashboard/SustainabilityMetrics";
 
 const Index = () => {
-  const { language } = useLanguage();
+  const { language, isRTL } = useLanguage();
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 animate-fadeIn">
+      <div className="space-y-6 animate-fadeIn" dir={isRTL ? 'rtl' : 'ltr'}>
         <section>
           <h3 className="font-display text-2xl font-semibold mb-4">
             {getTranslation('dashboard', language)}
@@ -31,4 +31,3 @@ const Index = () => {
 };
 
 export default Index;
-

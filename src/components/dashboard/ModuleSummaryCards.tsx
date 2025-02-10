@@ -16,55 +16,58 @@ import {
 
 const modulesSummary = [
   {
-    title: "Inventory Management",
+    title: "inventorymanagement",
     icon: Boxes,
-    stats: "1,234 SKUs",
-    description: "Track and manage inventory levels",
+    stats: "1,234",
+    statsKey: "skuCount",
     route: "/inventory",
     color: "text-blue-500",
     bgColor: "bg-blue-50"
   },
   {
-    title: "Demand Forecasting",
+    title: "demandforecasting",
     icon: LineChart,
-    stats: "92% accuracy",
-    description: "Predict future demand patterns",
+    stats: "92",
+    statsKey: "accuracyLabel",
+    suffix: "%",
     route: "/forecasting",
     color: "text-green-500",
     bgColor: "bg-green-50"
   },
   {
-    title: "Sales Planning",
+    title: "salesplanning",
     icon: ShoppingBag,
-    stats: "₪2.1M pipeline",
-    description: "Plan and track sales activities",
+    stats: "2.1M",
+    statsKey: "pipelineValue",
+    prefix: "₪",
     route: "/sales-planning",
     color: "text-purple-500",
     bgColor: "bg-purple-50"
   },
   {
-    title: "Marketing Campaigns",
+    title: "marketingcampaigns",
     icon: Megaphone,
-    stats: "12 active",
-    description: "Manage marketing initiatives",
+    stats: "12",
+    statsKey: "activeCampaigns",
     route: "/marketing",
     color: "text-pink-500",
     bgColor: "bg-pink-50"
   },
   {
-    title: "Logistics",
+    title: "logistics",
     icon: Truck,
-    stats: "95.8% on-time",
-    description: "Optimize delivery operations",
+    stats: "95.8",
+    statsKey: "onTimeDelivery",
+    suffix: "%",
     route: "/logistics",
     color: "text-orange-500",
     bgColor: "bg-orange-50"
   },
   {
-    title: "Reports & Analytics",
+    title: "reportsAnalytics",
     icon: FileText,
-    stats: "24 reports",
-    description: "Access business insights",
+    stats: "24",
+    statsKey: "reportCount",
     route: "/reports",
     color: "text-indigo-500",
     bgColor: "bg-indigo-50"
@@ -75,8 +78,9 @@ const ModuleSummaryCards = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
 
-  const getModuleDescription = (moduleKey: string): string => {
-    return getTranslation(`common.${moduleKey}`, language);
+  const formatStats = (stats: string, prefix?: string, suffix?: string) => {
+    const formattedStats = language === 'ar' ? toArabicNumerals(stats) : stats;
+    return `${prefix || ''}${formattedStats}${suffix || ''}`;
   };
 
   return (
@@ -93,19 +97,19 @@ const ModuleSummaryCards = () => {
             </div>
             <div className="flex-1">
               <h4 className="font-semibold text-lg mb-1">
-                {getTranslation(`modulesSummary.${module.title.replace(/\s+/g, '').toLowerCase()}`, language)}
+                {getTranslation(module.title, language)}
               </h4>
               <p className="text-2xl font-semibold mb-2">
-                {language === 'ar' ? toArabicNumerals(module.stats) : module.stats}
+                {formatStats(module.stats, module.prefix, module.suffix)}
               </p>
               <p className="text-sm text-gray-500">
-                {getModuleDescription(module.title.replace(/\s+/g, '').toLowerCase())}
+                {getTranslation(module.statsKey, language)}
               </p>
             </div>
           </div>
           <div className="mt-4 flex justify-end">
             <Button variant="ghost" size="sm">
-              {getTranslation('modulesSummary.viewDetails', language)} →
+              {getTranslation('viewDetails', language)} {language === 'ar' ? '←' : '→'}
             </Button>
           </div>
         </Card>

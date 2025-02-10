@@ -180,5 +180,89 @@ export const commonTranslations: CommonTranslations = {
   alerts: {
     en: "Supply Alerts",
     ar: "تنبيهات التوريد"
+  },
+  demandforecasting: {
+    en: "Demand Forecasting",
+    ar: "التنبؤ بالطلب"
+  },
+  accuracyLabel: {
+    en: "accuracy",
+    ar: "دقة التنبؤ"
+  },
+  inventorymanagement: {
+    en: "Inventory Management",
+    ar: "إدارة المخزون"
+  },
+  skuCount: {
+    en: "SKUs",
+    ar: "وحدات تخزين"
+  },
+  salesplanning: {
+    en: "Sales Planning",
+    ar: "تخطيط المبيعات"
+  },
+  pipelineValue: {
+    en: "pipeline",
+    ar: "في خط الأنابيب"
+  },
+  logistics: {
+    en: "Logistics",
+    ar: "الخدمات اللوجستية"
+  },
+  onTimeDelivery: {
+    en: "on-time delivery",
+    ar: "التسليم في الوقت المحدد"
+  },
+  marketingcampaigns: {
+    en: "Marketing Campaigns",
+    ar: "الحملات التسويقية"
+  },
+  activeCampaigns: {
+    en: "active campaigns",
+    ar: "حملات نشطة"
+  },
+  reportsAnalytics: {
+    en: "Reports & Analytics",
+    ar: "التقارير والتحليلات"
+  },
+  reportCount: {
+    en: "reports",
+    ar: "تقرير"
+  },
+   viewDetails: {
+    en: "View Details",
+    ar: "عرض التفاصيل"
+  },
+  items: {
+    en: "items",
+    ar: "العناصر"
+  },
+  showing: {
+    en: "Showing",
+    ar: "عرض"
+  },
+  to: {
+    en: "to",
+    ar: "إلى"
+  },
+  of: {
+    en: "of",
+    ar: "من"
+  },
+  previous: {
+    en: "Previous",
+    ar: "السابق"
+  },
+  next: {
+    en: "Next",
+    ar: "التالي"
+  },
+  success: {
+    en: "Success",
+    ar: "نجاح"
+  },
+  purchaseOrderCreated: {
+    en: "Purchase order created!",
+    ar: "تم إنشاء أمر الشراء!"
   }
 };
