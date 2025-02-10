@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FilePdf, FileSpreadsheet, FilePpt, Download } from "lucide-react";
+import { FileText, Download } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 const reportTypes = [
@@ -88,7 +88,7 @@ export const ReportGenerator = () => {
               onClick={() => handleGenerateReport("pdf")}
               disabled={!selectedReport || !selectedTimeFrame}
             >
-              <FilePdf className="h-4 w-4" />
+              <FileText className="h-4 w-4" />
               Export as PDF
             </Button>
             <Button
@@ -97,7 +97,7 @@ export const ReportGenerator = () => {
               onClick={() => handleGenerateReport("excel")}
               disabled={!selectedReport || !selectedTimeFrame}
             >
-              <FileSpreadsheet className="h-4 w-4" />
+              <FileText className="h-4 w-4" />
               Export as Excel
             </Button>
             <Button
@@ -106,7 +106,7 @@ export const ReportGenerator = () => {
               onClick={() => handleGenerateReport("ppt")}
               disabled={!selectedReport || !selectedTimeFrame}
             >
-              <FilePpt className="h-4 w-4" />
+              <FileText className="h-4 w-4" />
               Export as PowerPoint
             </Button>
           </div>
