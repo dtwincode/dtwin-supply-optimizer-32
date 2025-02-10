@@ -44,15 +44,13 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-[500px]">
-        <CardHeader className="p-0">
-          <div className="flex justify-center">
-            <img
-              src="/lovable-uploads/0b98205f-f1d3-4302-9462-faee3a8dbe23.png"
-              alt="dtwin logo"
-              className="h-128 w-auto object-contain"
-            />
-          </div>
-        </CardHeader>
+        <div>
+          <img
+            src="/lovable-uploads/0b98205f-f1d3-4302-9462-faee3a8dbe23.png"
+            alt="dtwin logo"
+            className="h-128 w-auto object-contain"
+          />
+        </div>
         <Tabs defaultValue="signin" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="signin">{getTranslation('ui.signIn', language)}</TabsTrigger>
