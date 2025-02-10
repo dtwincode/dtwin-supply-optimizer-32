@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -69,15 +70,79 @@ const mockSalesPlans: SalesPlan[] = [
 const productCategories = ["Electronics", "Fashion", "Home & Garden"];
 const regions = ["North America", "Europe", "Asia Pacific"];
 const statuses = ["draft", "submitted", "approved", "rejected"];
+const channelTypes = ["B2B", "Wholesale", "Direct"];
+
+// Add subcategories mapping
+const subcategories = {
+  "Electronics": ["Smartphones", "Laptops", "Tablets", "Accessories"],
+  "Fashion": ["Men's Wear", "Women's Wear", "Children's Wear", "Accessories"],
+  "Home & Garden": ["Furniture", "Decor", "Garden Tools", "Lighting"]
+};
+
+// Add cities mapping
+const cities = {
+  "North America": ["New York", "Los Angeles", "Toronto", "Chicago"],
+  "Europe": ["London", "Paris", "Berlin", "Madrid"],
+  "Asia Pacific": ["Tokyo", "Singapore", "Sydney", "Seoul"]
+};
+
+const warehouses = {
+  "New York": ["NYC-01", "NYC-02"],
+  "Los Angeles": ["LA-01", "LA-02"],
+  "London": ["LDN-01", "LDN-02"],
+  "Tokyo": ["TKY-01", "TKY-02"]
+};
 
 const SalesPlanning = () => {
   const [planType, setPlanType] = useState<"top-down" | "bottom-up">("top-down");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>("");
   const [selectedRegion, setSelectedRegion] = useState<string>("");
+  const [selectedCity, setSelectedCity] = useState<string>("");
+  const [selectedWarehouse, setSelectedWarehouse] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
+
+  // Form state for new sales plan
+  const [formState, setFormState] = useState({
+    startDate: "",
+    endDate: "",
+    category: "",
+    subcategory: "",
+    region: "",
+    city: "",
+    warehouse: "",
+    channelType: "",
+    accountName: "",
+    targetValue: "",
+    confidence: "",
+    notes: ""
+  });
+
+  const handleFormChange = (field: string, value: string) => {
+    setFormState(prev => {
+      const newState = { ...prev, [field]: value };
+      
+      // Reset dependent fields when parent field changes
+      if (field === "category") {
+        newState.subcategory = "";
+      }
+      if (field === "region") {
+        newState.city = "";
+        newState.warehouse = "";
+      }
+      if (field === "city") {
+        newState.warehouse = "";
+      }
+      if (field === "channelType" && !["B2B", "Wholesale"].includes(value)) {
+        newState.accountName = "";
+      }
+      
+      return newState;
+    });
+  };
 
   const handleCreateSalesPlan = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -86,6 +151,20 @@ const SalesPlanning = () => {
       description: "Sales plan created successfully",
     });
     setIsDialogOpen(false);
+    setFormState({
+      startDate: "",
+      endDate: "",
+      category: "",
+      subcategory: "",
+      region: "",
+      city: "",
+      warehouse: "",
+      channelType: "",
+      accountName: "",
+      targetValue: "",
+      confidence: "",
+      notes: ""
+    });
   };
 
   const filteredSalesPlans = mockSalesPlans.filter((plan) => {
@@ -142,6 +221,8 @@ const SalesPlanning = () => {
                       <Input
                         id="startDate"
                         type="date"
+                        value={formState.startDate}
+                        onChange={(e) => handleFormChange("startDate", e.target.value)}
                         required
                       />
                     </div>
@@ -150,12 +231,19 @@ const SalesPlanning = () => {
                       <Input
                         id="endDate"
                         type="date"
+                        value={formState.endDate}
+                        onChange={(e) => handleFormChange("endDate", e.target.value)}
                         required
                       />
                     </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="category">Product Category</Label>
-                      <Select required>
+                      <Select
+                        value={formState.category}
+                        onValueChange={(value) => handleFormChange("category", value)}
+                        required
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
@@ -168,9 +256,38 @@ const SalesPlanning = () => {
                         </SelectContent>
                       </Select>
                     </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="subcategory">Subcategory</Label>
+                      <Select
+                        value={formState.subcategory}
+                        onValueChange={(value) => handleFormChange("subcategory", value)}
+                        disabled={!formState.category}
+                        required
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select subcategory" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {formState.category &&
+                            subcategories[formState.category as keyof typeof subcategories].map(
+                              (subcategory) => (
+                                <SelectItem key={subcategory} value={subcategory}>
+                                  {subcategory}
+                                </SelectItem>
+                              )
+                            )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="region">Region</Label>
-                      <Select required>
+                      <Select
+                        value={formState.region}
+                        onValueChange={(value) => handleFormChange("region", value)}
+                        required
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select region" />
                         </SelectTrigger>
@@ -183,15 +300,98 @@ const SalesPlanning = () => {
                         </SelectContent>
                       </Select>
                     </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="city">City</Label>
+                      <Select
+                        value={formState.city}
+                        onValueChange={(value) => handleFormChange("city", value)}
+                        disabled={!formState.region}
+                        required
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select city" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {formState.region &&
+                            cities[formState.region as keyof typeof cities].map((city) => (
+                              <SelectItem key={city} value={city}>
+                                {city}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="warehouse">Warehouse</Label>
+                      <Select
+                        value={formState.warehouse}
+                        onValueChange={(value) => handleFormChange("warehouse", value)}
+                        disabled={!formState.city || !warehouses[formState.city as keyof typeof warehouses]}
+                        required
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select warehouse" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {formState.city &&
+                            warehouses[formState.city as keyof typeof warehouses]?.map(
+                              (warehouse) => (
+                                <SelectItem key={warehouse} value={warehouse}>
+                                  {warehouse}
+                                </SelectItem>
+                              )
+                            )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="channelType">Channel Type</Label>
+                      <Select
+                        value={formState.channelType}
+                        onValueChange={(value) => handleFormChange("channelType", value)}
+                        required
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select channel type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {channelTypes.map((type) => (
+                            <SelectItem key={type} value={type}>
+                              {type}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {(formState.channelType === "B2B" || formState.channelType === "Wholesale") && (
+                      <div className="space-y-2">
+                        <Label htmlFor="accountName">Account Name</Label>
+                        <Input
+                          id="accountName"
+                          value={formState.accountName}
+                          onChange={(e) => handleFormChange("accountName", e.target.value)}
+                          placeholder="Enter account name"
+                          required
+                        />
+                      </div>
+                    )}
+
                     <div className="space-y-2">
                       <Label htmlFor="targetValue">Target Value ($)</Label>
                       <Input
                         id="targetValue"
                         type="number"
                         min="0"
+                        value={formState.targetValue}
+                        onChange={(e) => handleFormChange("targetValue", e.target.value)}
                         required
                       />
                     </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="confidence">Confidence (%)</Label>
                       <Input
@@ -199,17 +399,23 @@ const SalesPlanning = () => {
                         type="number"
                         min="0"
                         max="100"
+                        value={formState.confidence}
+                        onChange={(e) => handleFormChange("confidence", e.target.value)}
                         required
                       />
                     </div>
                   </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="notes">Notes</Label>
                     <Textarea
                       id="notes"
                       placeholder="Add any additional notes or comments..."
+                      value={formState.notes}
+                      onChange={(e) => handleFormChange("notes", e.target.value)}
                     />
                   </div>
+
                   <div className="flex justify-end gap-4">
                     <Button
                       type="button"
@@ -218,9 +424,7 @@ const SalesPlanning = () => {
                     >
                       Cancel
                     </Button>
-                    <Button type="submit">
-                      Create Plan
-                    </Button>
+                    <Button type="submit">Create Plan</Button>
                   </div>
                 </form>
               </DialogContent>
