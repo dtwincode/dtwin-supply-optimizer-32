@@ -9,6 +9,56 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      forecast_accuracy: {
+        Row: {
+          actual_value: number | null
+          created_at: string | null
+          forecast_date: string
+          forecasted_value: number | null
+          id: string
+          mae: number | null
+          mape: number | null
+          model_id: string | null
+          notes: string | null
+          rmse: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          actual_value?: number | null
+          created_at?: string | null
+          forecast_date: string
+          forecasted_value?: number | null
+          id?: string
+          mae?: number | null
+          mape?: number | null
+          model_id?: string | null
+          notes?: string | null
+          rmse?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          actual_value?: number | null
+          created_at?: string | null
+          forecast_date?: string
+          forecasted_value?: number | null
+          id?: string
+          mae?: number | null
+          mape?: number | null
+          model_id?: string | null
+          notes?: string | null
+          rmse?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forecast_accuracy_model_id_fkey"
+            columns: ["model_id"]
+            isOneToOne: false
+            referencedRelation: "forecast_models"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       forecast_data: {
         Row: {
           category: string | null
@@ -54,6 +104,72 @@ export type Database = {
           updated_at?: string
           value?: number
           warehouse?: string | null
+        }
+        Relationships: []
+      }
+      forecast_data_quality: {
+        Row: {
+          created_at: string | null
+          data_completeness_score: number | null
+          dataset_date: string
+          id: string
+          missing_values_count: number | null
+          outliers_count: number | null
+          quality_issues: Json | null
+          resolution_status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          data_completeness_score?: number | null
+          dataset_date: string
+          id?: string
+          missing_values_count?: number | null
+          outliers_count?: number | null
+          quality_issues?: Json | null
+          resolution_status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          data_completeness_score?: number | null
+          dataset_date?: string
+          id?: string
+          missing_values_count?: number | null
+          outliers_count?: number | null
+          quality_issues?: Json | null
+          resolution_status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      forecast_models: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          parameters: Json
+          updated_at: string | null
+          version: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          parameters?: Json
+          updated_at?: string | null
+          version: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          parameters?: Json
+          updated_at?: string | null
+          version?: string
         }
         Relationships: []
       }

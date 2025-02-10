@@ -1,17 +1,15 @@
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { FileDown, Wand2 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { ForecastMetricsCards } from "@/components/forecasting/ForecastMetricsCards";
+import { ForecastingHeader } from "@/components/forecasting/ForecastingHeader";
+import { ForecastingDateRange } from "@/components/forecasting/ForecastingDateRange";
+import { ForecastingTabs } from "@/components/forecasting/ForecastingTabs";
+import { ForecastFilters } from "@/components/forecasting/ForecastFilters";
+import { ScenarioManagement } from "@/components/forecasting/ScenarioManagement";
+import { useModelParameters } from "@/hooks/useModelParameters";
+import { defaultModelConfigs } from "@/types/modelParameters";
 import {
   calculateMetrics,
   calculateConfidenceIntervals,
@@ -20,21 +18,6 @@ import {
   performCrossValidation,
   findBestFitModel,
 } from "@/utils/forecasting";
-
-import { ForecastMetricsCards } from "@/components/forecasting/ForecastMetricsCards";
-import { ForecastFilters } from "@/components/forecasting/ForecastFilters";
-import { ScenarioManagement } from "@/components/forecasting/ScenarioManagement";
-import { useToast } from "@/hooks/use-toast";
-import { DecompositionTab } from "@/components/forecasting/tabs/DecompositionTab";
-import { ValidationTab } from "@/components/forecasting/tabs/ValidationTab";
-import { ExternalFactorsTab } from "@/components/forecasting/tabs/ExternalFactorsTab";
-import { ModelTestingTab } from "@/components/forecasting/tabs/ModelTestingTab";
-import { ForecastAnalysisTab } from "@/components/forecasting/tabs/ForecastAnalysisTab";
-import { ForecastDistributionTab } from "@/components/forecasting/tabs/ForecastDistributionTab";
-import { WhatIfAnalysisTab } from "@/components/forecasting/tabs/WhatIfAnalysisTab";
-import { WeatherData, MarketEvent, PriceAnalysis } from '@/types/weatherAndEvents';
-import { ModelParametersDialog } from "@/components/forecasting/ModelParametersDialog";
-import { defaultModelConfigs } from "@/types/modelParameters";
 
 import {
   forecastData as defaultForecastData,
@@ -45,12 +28,6 @@ import {
   channelTypes as defaultChannelTypes,
   warehouses as defaultWarehouses
 } from "@/constants/forecasting";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import { DataUploadDialog } from "@/components/settings/DataUploadDialog";
 
 const forecastData = defaultForecastData;
 const forecastingModels = defaultForecastingModels;
@@ -234,94 +211,20 @@ const Forecasting = () => {
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex flex-col gap-4">
-          <div className="flex justify-between items-center">
-            <div className="flex gap-4">
-              <Select value={selectedModel} onValueChange={setSelectedModel}>
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Select Model" />
-                </SelectTrigger>
-                <SelectContent>
-                  {modelConfigs.map(model => (
-                    <SelectItem key={model.id} value={model.id}>
-                      {model.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {selectedModel && (
-                <ModelParametersDialog
-                  model={modelConfigs.find(m => m.id === selectedModel)!}
-                  onParametersChange={(modelId, parameters) => 
-                    setModelConfigs(prev =>
-                      prev.map(config =>
-                        config.id === modelId ? { ...config, parameters } : config
-                      )
-                    )
-                  }
-                />
-              )}
-              <Button 
-                variant="outline" 
-                onClick={findBestModel}
-                className="flex items-center gap-2"
-              >
-                <Wand2 className="w-4 h-4" />
-                Find Best Model
-              </Button>
-              <div className="flex gap-2">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-[180px] justify-start text-left font-normal",
-                        !fromDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {fromDate ? format(fromDate, "MMM dd, yyyy") : "Select date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={fromDate}
-                      onSelect={(date) => date && setFromDate(date)}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
+          <ForecastingHeader
+            selectedModel={selectedModel}
+            setSelectedModel={setSelectedModel}
+            handleExport={handleExport}
+            findBestModel={findBestModel}
+            modelConfigs={modelConfigs}
+          />
 
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-[180px] justify-start text-left font-normal",
-                        !toDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {toDate ? format(toDate, "MMM dd, yyyy") : "Select date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={toDate}
-                      onSelect={(date) => date && setToDate(date)}
-                      initialFocus
-                      fromDate={fromDate}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <Button variant="outline" onClick={handleExport}>
-                <FileDown className="w-4 h-4 mr-2" />
-                Export
-              </Button>
-            </div>
-          </div>
+          <ForecastingDateRange
+            fromDate={fromDate}
+            toDate={toDate}
+            setFromDate={setFromDate}
+            setToDate={setToDate}
+          />
 
           <ForecastFilters
             searchQuery={searchQuery}
@@ -350,73 +253,29 @@ const Forecasting = () => {
 
         <ForecastMetricsCards metrics={metrics} />
 
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList>
-            <TabsTrigger value="testing">Model Testing</TabsTrigger>
-            <TabsTrigger value="forecast">Forecast Analysis</TabsTrigger>
-            <TabsTrigger value="distribution">Forecast Distribution</TabsTrigger>
-            <TabsTrigger value="decomposition">Pattern Analysis</TabsTrigger>
-            <TabsTrigger value="scenarios">What-If Analysis</TabsTrigger>
-            <TabsTrigger value="validation">Forecast Validation</TabsTrigger>
-            <TabsTrigger value="external">External Factors</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="testing">
-            <ModelTestingTab
-              historicalData={historicalData}
-              predictedData={[]}
-            />
-          </TabsContent>
-
-          <TabsContent value="forecast">
-            <ForecastAnalysisTab
-              filteredData={filteredData}
-              confidenceIntervals={confidenceIntervals}
-            />
-          </TabsContent>
-
-          <TabsContent value="distribution">
-            <ForecastDistributionTab forecastTableData={forecastTableData} />
-          </TabsContent>
-
-          <TabsContent value="decomposition">
-            <DecompositionTab
-              filteredData={filteredData}
-              decomposition={decomposition}
-            />
-          </TabsContent>
-
-          <TabsContent value="scenarios">
-            <WhatIfAnalysisTab
-              filteredData={filteredData}
-              whatIfScenario={[]}
-            />
-          </TabsContent>
-
-          <TabsContent value="validation">
-            <ValidationTab
-              validationResults={validationResults}
-              crossValidationResults={crossValidationResults}
-            />
-          </TabsContent>
-
-          <TabsContent value="external">
-            <ExternalFactorsTab
-              weatherLocation={weatherLocation}
-              setWeatherLocation={setWeatherLocation}
-              weatherData={weatherData}
-              fetchWeatherForecast={fetchWeatherForecast}
-              marketEvents={marketEvents}
-              setMarketEvents={setMarketEvents}
-              newEvent={newEvent}
-              setNewEvent={setNewEvent}
-              priceAnalysis={priceAnalysis}
-              addHistoricalPricePoint={addHistoricalPricePoint}
-              calculatePriceAnalysis={calculatePriceAnalysis}
-              historicalPriceData={historicalPriceData}
-            />
-          </TabsContent>
-        </Tabs>
+        <ForecastingTabs
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          historicalData={historicalData}
+          filteredData={filteredData}
+          confidenceIntervals={confidenceIntervals}
+          decomposition={decomposition}
+          validationResults={validationResults}
+          crossValidationResults={crossValidationResults}
+          weatherLocation={weatherLocation}
+          setWeatherLocation={setWeatherLocation}
+          weatherData={weatherData}
+          fetchWeatherForecast={fetchWeatherForecast}
+          marketEvents={marketEvents}
+          setMarketEvents={setMarketEvents}
+          newEvent={newEvent}
+          setNewEvent={setNewEvent}
+          priceAnalysis={priceAnalysis}
+          historicalPriceData={historicalPriceData}
+          addHistoricalPricePoint={addHistoricalPricePoint}
+          calculatePriceAnalysis={calculatePriceAnalysis}
+          forecastTableData={forecastTableData}
+        />
 
         <ScenarioManagement
           scenarioName={scenarioName}
