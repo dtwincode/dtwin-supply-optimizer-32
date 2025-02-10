@@ -1,6 +1,15 @@
 
 import { useState } from "react";
-import { MenuIcon, X } from "lucide-react";
+import { MenuIcon, X, Home, Package, TrendingUp, Truck, Settings } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const navigationItems = [
+  { name: "Dashboard", icon: Home, href: "/" },
+  { name: "Inventory", icon: Package, href: "/inventory" },
+  { name: "Forecasting", icon: TrendingUp, href: "/forecasting" },
+  { name: "Logistics", icon: Truck, href: "/logistics" },
+  { name: "Settings", icon: Settings, href: "/settings" },
+];
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -23,7 +32,23 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
               <X className="h-5 w-5" />
             </button>
           </div>
-          {/* Add navigation items here */}
+          <nav className="p-4 space-y-1">
+            {navigationItems.map((item) => (
+              <a
+                key={item.name}
+                href={item.href}
+                className={cn(
+                  "flex items-center px-4 py-2 text-sm font-medium rounded-lg",
+                  item.href === "/"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-gray-600 hover:bg-gray-100"
+                )}
+              >
+                <item.icon className="h-5 w-5 mr-3" />
+                {item.name}
+              </a>
+            ))}
+          </nav>
         </div>
       </div>
 
