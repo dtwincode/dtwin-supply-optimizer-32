@@ -1,4 +1,6 @@
 
+import { type ModelMetrics } from './metrics';
+
 export const calculateConfidenceIntervals = (forecast: number[], confidence: number = 0.95) => {
   const z = 1.96; // 95% confidence interval
   const std = Math.sqrt(forecast.reduce((sum, f) => sum + Math.pow(f - (forecast.reduce((a, b) => a + b) / forecast.length), 2), 0) / forecast.length);
