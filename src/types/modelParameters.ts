@@ -164,5 +164,171 @@ export const defaultModelConfigs: ModelConfig[] = [
         description: "Maximum capacity for logistic growth"
       }
     ]
+  },
+  {
+    id: "sarima",
+    name: "Seasonal ARIMA (SARIMA)",
+    parameters: [
+      {
+        name: "p",
+        value: 1,
+        min: 0,
+        max: 5,
+        step: 1,
+        description: "Non-seasonal AR order"
+      },
+      {
+        name: "d",
+        value: 1,
+        min: 0,
+        max: 2,
+        step: 1,
+        description: "Non-seasonal differencing"
+      },
+      {
+        name: "q",
+        value: 1,
+        min: 0,
+        max: 5,
+        step: 1,
+        description: "Non-seasonal MA order"
+      },
+      {
+        name: "P",
+        value: 1,
+        min: 0,
+        max: 5,
+        step: 1,
+        description: "Seasonal AR order"
+      },
+      {
+        name: "D",
+        value: 1,
+        min: 0,
+        max: 2,
+        step: 1,
+        description: "Seasonal differencing"
+      },
+      {
+        name: "Q",
+        value: 1,
+        min: 0,
+        max: 5,
+        step: 1,
+        description: "Seasonal MA order"
+      },
+      {
+        name: "m",
+        value: 12,
+        min: 1,
+        max: 52,
+        step: 1,
+        description: "Number of periods in a season"
+      }
+    ]
+  },
+  {
+    id: "nnet",
+    name: "Neural Network",
+    parameters: [
+      {
+        name: "hiddenLayers",
+        value: 1,
+        min: 1,
+        max: 5,
+        step: 1,
+        description: "Number of hidden layers"
+      },
+      {
+        name: "neurons",
+        value: 10,
+        min: 5,
+        max: 100,
+        step: 5,
+        description: "Neurons per hidden layer"
+      },
+      {
+        name: "epochs",
+        value: 100,
+        min: 10,
+        max: 1000,
+        step: 10,
+        description: "Training epochs"
+      },
+      {
+        name: "learningRate",
+        value: 0.01,
+        min: 0.001,
+        max: 0.1,
+        step: 0.001,
+        description: "Learning rate for training"
+      }
+    ]
+  },
+  {
+    id: "var",
+    name: "Vector Autoregression (VAR)",
+    parameters: [
+      {
+        name: "p",
+        value: 1,
+        min: 1,
+        max: 10,
+        step: 1,
+        description: "Order of VAR model"
+      },
+      {
+        name: "deterministic",
+        value: 1,
+        min: 0,
+        max: 2,
+        step: 1,
+        description: "Deterministic terms (0: none, 1: constant, 2: trend)"
+      }
+    ]
+  },
+  {
+    id: "state-space",
+    name: "State Space Models",
+    parameters: [
+      {
+        name: "components",
+        value: 3,
+        min: 1,
+        max: 5,
+        step: 1,
+        description: "Number of state components"
+      },
+      {
+        name: "filterType",
+        value: 0,
+        min: 0,
+        max: 1,
+        step: 1,
+        description: "Filter type (0: Kalman, 1: Extended Kalman)"
+      }
+    ]
+  },
+  {
+    id: "tbats",
+    name: "TBATS",
+    parameters: [
+      {
+        name: "boxCox",
+        value: 0,
+        min: 0,
+        max: 1,
+        step: 1,
+        description: "Box-Cox transformation (0: none, 1: auto)"
+      },
+      {
+        name: "harmonics",
+        value: 2,
+        min: 1,
+        max: 5,
+        step: 1,
+        description: "Number of harmonic terms"
+      }
+    ]
   }
 ];
