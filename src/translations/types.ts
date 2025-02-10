@@ -1,4 +1,10 @@
 
+import { UITranslations } from './common/ui';
+import { InventoryTranslations } from './common/inventory';
+import { ModuleTranslations } from './common/modules';
+import { ChartTranslations } from './common/charts';
+import { PaginationTranslations } from './common/pagination';
+
 export type TranslationValue = {
   en: string;
   ar: string;
@@ -116,7 +122,7 @@ export type CommonTranslations = {
     yellow: TranslationValue;
     red: TranslationValue;
   };
-} & Partial<UITranslations & InventoryTranslations & ModuleTranslations & ChartTranslations & PaginationTranslations>;
+} & UITranslations & InventoryTranslations & ModuleTranslations & ChartTranslations & PaginationTranslations;
 
 export type SalesTranslations = {
   title: TranslationValue;
