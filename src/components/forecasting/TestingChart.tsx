@@ -30,28 +30,130 @@ export const TestingChart = ({
   timeRange, 
   onTimeRangeChange 
 }: TestingChartProps) => {
-  const [testParams, setTestParams] = useState<TestDataParams>({
-    length: 52, // One year of weekly data
-    trend: 0.05,
-    seasonality: 0.2,
-    noise: 0.1,
-    baseValue: 1000
-  });
-
-  const [testData, setTestData] = useState<number[]>([]);
   const [selectedModel, setSelectedModel] = useState("moving-avg");
   const [modelExample, setModelExample] = useState(getModelExample("moving-avg", []));
+  
+  // Model-specific parameters based on the selected model
+  const [modelParams, setModelParams] = useState({
+    "moving-avg": {
+      windowSize: 3,
+    },
+    "exp-smoothing": {
+      alpha: 0.3,
+      beta: 0.1,
+      gamma: 0.1
+    },
+    "arima": {
+      p: 1,
+      d: 1,
+      q: 1
+    },
+    "prophet": {
+      changePointPrior: 0.05,
+      seasonalityPrior: 10,
+    }
+  });
 
-  const generateNewTestData = () => {
-    const newData = generateTestData(testParams);
-    setTestData(newData);
-    setModelExample(getModelExample(selectedModel, newData));
+  const getParamConfig = (modelId: string) => {
+    switch(modelId) {
+      case "moving-avg":
+        return [
+          {
+            name: "Window Size",
+            key: "windowSize",
+            min: 2,
+            max: 12,
+            step: 1,
+            description: "Number of periods to include in moving average"
+          }
+        ];
+      case "exp-smoothing":
+        return [
+          {
+            name: "Level (α)",
+            key: "alpha",
+            min: 0,
+            max: 1,
+            step: 0.1,
+            description: "Weight given to recent observations"
+          },
+          {
+            name: "Trend (β)",
+            key: "beta",
+            min: 0,
+            max: 1,
+            step: 0.1,
+            description: "Weight given to trend component"
+          },
+          {
+            name: "Seasonality (γ)",
+            key: "gamma",
+            min: 0,
+            max: 1,
+            step: 0.1,
+            description: "Weight given to seasonal component"
+          }
+        ];
+      case "arima":
+        return [
+          {
+            name: "AR Order (p)",
+            key: "p",
+            min: 0,
+            max: 5,
+            step: 1,
+            description: "Number of autoregressive terms"
+          },
+          {
+            name: "Differencing (d)",
+            key: "d",
+            min: 0,
+            max: 2,
+            step: 1,
+            description: "Number of differences needed for stationarity"
+          },
+          {
+            name: "MA Order (q)",
+            key: "q",
+            min: 0,
+            max: 5,
+            step: 1,
+            description: "Number of moving average terms"
+          }
+        ];
+      case "prophet":
+        return [
+          {
+            name: "Change Point Prior",
+            key: "changePointPrior",
+            min: 0.001,
+            max: 0.5,
+            step: 0.001,
+            description: "Flexibility of the trend"
+          },
+          {
+            name: "Seasonality Prior",
+            key: "seasonalityPrior",
+            min: 0.01,
+            max: 50,
+            step: 0.01,
+            description: "Strength of seasonal pattern"
+          }
+        ];
+      default:
+        return [];
+    }
   };
 
-  const formattedData = testData.map((value, index) => ({
-    date: new Date(Date.now() - (testData.length - index) * 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    actual: value,
-  }));
+  const generateNewTestData = () => {
+    const params = modelParams[selectedModel as keyof typeof modelParams];
+    const modelSpecificData = generateTestData({
+      length: 52,
+      modelType: selectedModel,
+      parameters: params
+    });
+    setModelExample(getModelExample(selectedModel, modelSpecificData));
+  };
 
   return (
     <Card className="p-6">
@@ -73,7 +175,7 @@ export const TestingChart = ({
             value={selectedModel} 
             onValueChange={(value) => {
               setSelectedModel(value);
-              setModelExample(getModelExample(value, testData));
+              setModelExample(getModelExample(value, []));
             }}
           >
             <SelectTrigger className="w-[180px]">
@@ -112,50 +214,39 @@ export const TestingChart = ({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-        <div>
-          <label className="block text-sm font-medium mb-2">Trend Factor</label>
-          <input
-            type="range"
-            min="0"
-            max="0.2"
-            step="0.01"
-            value={testParams.trend}
-            onChange={(e) => setTestParams(prev => ({ ...prev, trend: parseFloat(e.target.value) }))}
-            className="w-full"
-          />
-          <span className="text-sm text-gray-500">{testParams.trend}</span>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-2">Seasonality Factor</label>
-          <input
-            type="range"
-            min="0"
-            max="0.5"
-            step="0.05"
-            value={testParams.seasonality}
-            onChange={(e) => setTestParams(prev => ({ ...prev, seasonality: parseFloat(e.target.value) }))}
-            className="w-full"
-          />
-          <span className="text-sm text-gray-500">{testParams.seasonality}</span>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-2">Noise Factor</label>
-          <input
-            type="range"
-            min="0"
-            max="0.3"
-            step="0.05"
-            value={testParams.noise}
-            onChange={(e) => setTestParams(prev => ({ ...prev, noise: parseFloat(e.target.value) }))}
-            className="w-full"
-          />
-          <span className="text-sm text-gray-500">{testParams.noise}</span>
-        </div>
+        {getParamConfig(selectedModel).map((param) => (
+          <div key={param.key}>
+            <label className="block text-sm font-medium mb-2">
+              {param.name}
+              <span className="block text-xs text-gray-500">{param.description}</span>
+            </label>
+            <input
+              type="range"
+              min={param.min}
+              max={param.max}
+              step={param.step}
+              value={modelParams[selectedModel as keyof typeof modelParams][param.key as keyof typeof modelParams[keyof typeof modelParams]]}
+              onChange={(e) => {
+                setModelParams(prev => ({
+                  ...prev,
+                  [selectedModel]: {
+                    ...prev[selectedModel as keyof typeof modelParams],
+                    [param.key]: parseFloat(e.target.value)
+                  }
+                }));
+              }}
+              className="w-full"
+            />
+            <span className="text-sm text-gray-500">
+              {modelParams[selectedModel as keyof typeof modelParams][param.key as keyof typeof modelParams[keyof typeof modelParams]]}
+            </span>
+          </div>
+        ))}
       </div>
 
       <div className="h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={formattedData}>
+          <LineChart data={[]}> {/* This will be populated by generateTestData */}
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="date" />
             <YAxis />
