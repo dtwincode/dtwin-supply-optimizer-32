@@ -134,6 +134,47 @@ export type Database = {
           },
         ]
       }
+      forecast_adjustments: {
+        Row: {
+          adjusted_at: string | null
+          adjusted_by: string | null
+          adjustment_reason: string | null
+          forecast_id: string | null
+          id: string
+          metadata: Json | null
+          new_value: number | null
+          previous_value: number | null
+        }
+        Insert: {
+          adjusted_at?: string | null
+          adjusted_by?: string | null
+          adjustment_reason?: string | null
+          forecast_id?: string | null
+          id?: string
+          metadata?: Json | null
+          new_value?: number | null
+          previous_value?: number | null
+        }
+        Update: {
+          adjusted_at?: string | null
+          adjusted_by?: string | null
+          adjustment_reason?: string | null
+          forecast_id?: string | null
+          id?: string
+          metadata?: Json | null
+          new_value?: number | null
+          previous_value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forecast_adjustments_forecast_id_fkey"
+            columns: ["forecast_id"]
+            isOneToOne: false
+            referencedRelation: "forecast_data"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       forecast_data: {
         Row: {
           category: string | null
@@ -221,8 +262,10 @@ export type Database = {
       forecast_models: {
         Row: {
           created_at: string | null
+          created_by: string | null
           description: string | null
           id: string
+          last_modified_by: string | null
           name: string
           parameters: Json
           updated_at: string | null
@@ -230,8 +273,10 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          created_by?: string | null
           description?: string | null
           id?: string
+          last_modified_by?: string | null
           name: string
           parameters?: Json
           updated_at?: string | null
@@ -239,14 +284,57 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          created_by?: string | null
           description?: string | null
           id?: string
+          last_modified_by?: string | null
           name?: string
           parameters?: Json
           updated_at?: string | null
           version?: string
         }
         Relationships: []
+      }
+      forecast_outliers: {
+        Row: {
+          confidence_score: number | null
+          data_point_id: string | null
+          detected_at: string | null
+          detection_method: string
+          id: string
+          is_verified: boolean | null
+          metadata: Json | null
+          verified_by: string | null
+        }
+        Insert: {
+          confidence_score?: number | null
+          data_point_id?: string | null
+          detected_at?: string | null
+          detection_method: string
+          id?: string
+          is_verified?: boolean | null
+          metadata?: Json | null
+          verified_by?: string | null
+        }
+        Update: {
+          confidence_score?: number | null
+          data_point_id?: string | null
+          detected_at?: string | null
+          detection_method?: string
+          id?: string
+          is_verified?: boolean | null
+          metadata?: Json | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forecast_outliers_data_point_id_fkey"
+            columns: ["data_point_id"]
+            isOneToOne: false
+            referencedRelation: "forecast_data"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       inventory_data: {
         Row: {
@@ -467,9 +555,12 @@ export type Database = {
           created_at: string | null
           id: string
           is_active: boolean | null
+          metadata: Json | null
           model_name: string
           parameters: Json | null
+          training_data_snapshot: Json | null
           updated_at: string | null
+          validation_metrics: Json | null
           version: string
         }
         Insert: {
@@ -477,9 +568,12 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_active?: boolean | null
+          metadata?: Json | null
           model_name: string
           parameters?: Json | null
+          training_data_snapshot?: Json | null
           updated_at?: string | null
+          validation_metrics?: Json | null
           version: string
         }
         Update: {
@@ -487,9 +581,12 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_active?: boolean | null
+          metadata?: Json | null
           model_name?: string
           parameters?: Json | null
+          training_data_snapshot?: Json | null
           updated_at?: string | null
+          validation_metrics?: Json | null
           version?: string
         }
         Relationships: []
@@ -638,6 +735,42 @@ export type Database = {
           total?: number
           updated_at?: string
           warehouse?: string | null
+        }
+        Relationships: []
+      }
+      seasonality_patterns: {
+        Row: {
+          configuration: Json | null
+          dataset_id: string | null
+          detected_at: string | null
+          frequency: number | null
+          id: string
+          last_updated_at: string | null
+          metadata: Json | null
+          pattern_type: string
+          strength: number | null
+        }
+        Insert: {
+          configuration?: Json | null
+          dataset_id?: string | null
+          detected_at?: string | null
+          frequency?: number | null
+          id?: string
+          last_updated_at?: string | null
+          metadata?: Json | null
+          pattern_type: string
+          strength?: number | null
+        }
+        Update: {
+          configuration?: Json | null
+          dataset_id?: string | null
+          detected_at?: string | null
+          frequency?: number | null
+          id?: string
+          last_updated_at?: string | null
+          metadata?: Json | null
+          pattern_type?: string
+          strength?: number | null
         }
         Relationships: []
       }

@@ -7,6 +7,7 @@ import { ForecastingDateRange } from "./ForecastingDateRange";
 import { ForecastingTabs } from "./ForecastingTabs";
 import { ForecastFilters } from "./ForecastFilters";
 import { ScenarioManagement } from "./ScenarioManagement";
+import { ModelVersioning } from "./ModelVersioning";
 import { useForecastData } from "@/hooks/useForecastData";
 import { useWeatherData } from "@/hooks/useWeatherData";
 import { useMarketEvents } from "@/hooks/useMarketEvents";
@@ -153,6 +154,8 @@ export const ForecastingContainer = () => {
           findBestModel={findBestModel}
           modelConfigs={modelConfigs}
         />
+
+        <ModelVersioning modelId={selectedModel} />
 
         <ForecastingDateRange
           fromDate={fromDate}

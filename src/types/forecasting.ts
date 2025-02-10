@@ -1,4 +1,3 @@
-
 import { WeatherData, MarketEvent, PriceData, PriceAnalysis } from "@/utils/forecasting";
 
 export interface SavedScenario {
@@ -45,3 +44,54 @@ export interface MacroFactors {
   exchangeRates: { [key: string]: number };
 }
 
+export interface ModelVersion {
+  id: string;
+  model_name: string;
+  version: string;
+  parameters: Record<string, any>;
+  accuracy_metrics: {
+    mape: number;
+    mae: number;
+    rmse: number;
+  };
+  metadata: Record<string, any>;
+  validation_metrics: Record<string, any>;
+  training_data_snapshot: Record<string, any>;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ForecastAdjustment {
+  id: string;
+  forecast_id: string;
+  previous_value: number;
+  new_value: number;
+  adjustment_reason: string;
+  adjusted_by: string;
+  adjusted_at: string;
+  metadata: Record<string, any>;
+}
+
+export interface ForecastOutlier {
+  id: string;
+  data_point_id: string;
+  detection_method: string;
+  confidence_score: number;
+  detected_at: string;
+  is_verified: boolean;
+  verified_by: string | null;
+  metadata: Record<string, any>;
+}
+
+export interface SeasonalityPattern {
+  id: string;
+  dataset_id: string;
+  pattern_type: string;
+  frequency: number;
+  strength: number;
+  detected_at: string;
+  last_updated_at: string;
+  configuration: Record<string, any>;
+  metadata: Record<string, any>;
+}
