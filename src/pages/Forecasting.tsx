@@ -65,7 +65,7 @@ const warehouses = defaultWarehouses;
 
 const Forecasting = () => {
   const [selectedModel, setSelectedModel] = useState("moving-avg");
-  const [horizon, setHorizon] = useState("6m");
+  const [horizon, setHorizon] = useState("12w");
   const [scenarioName, setScenarioName] = useState("");
   const [selectedScenario, setSelectedScenario] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -279,9 +279,9 @@ const Forecasting = () => {
                   <SelectValue placeholder="Forecast Horizon" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="3m">3 Months</SelectItem>
-                  <SelectItem value="6m">6 Months</SelectItem>
-                  <SelectItem value="12m">12 Months</SelectItem>
+                  <SelectItem value="12w">12 Weeks</SelectItem>
+                  <SelectItem value="24w">24 Weeks</SelectItem>
+                  <SelectItem value="52w">52 Weeks</SelectItem>
                 </SelectContent>
               </Select>
               <Button variant="outline" onClick={handleExport}>
