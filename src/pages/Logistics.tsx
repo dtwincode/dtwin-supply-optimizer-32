@@ -336,7 +336,7 @@ const Logistics = () => {
                               po.priority === "high"
                                 ? "destructive"
                                 : po.priority === "medium"
-                                ? "warning"
+                                ? "secondary"
                                 : "default"
                             }
                             className="capitalize"
