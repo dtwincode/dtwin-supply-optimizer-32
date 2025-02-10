@@ -8,29 +8,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { 
-  Package, 
-  AlertTriangle, 
-  CheckCircle, 
-  Waves, 
-  Filter, 
-  TreeDeciduous,
-  Calendar,
-  TrendingUp,
-  Bell,
-  Settings,
-} from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
@@ -38,21 +18,15 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Label } from "@/components/ui/label";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import InventoryFilters from "@/components/inventory/InventoryFilters";
+import InventorySummaryCards from "@/components/inventory/InventorySummaryCards";
+import { InventoryItem } from "@/types/inventory";
+import { calculateBufferStatus } from "@/utils/inventoryUtils";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -287,19 +261,17 @@ const Inventory = () => {
     variabilityFactor: ""
   });
 
-  // Add new state for product hierarchy
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string>("all");
-  const [selectedSKU, setSelectedSKU] = useState<string>("all");
-
-  const { toast } = useToast();
-
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const [selectedCity, setSelectedCity] = useState<string>("all");
   const [selectedChannel, setSelectedChannel] = useState<string>("all");
   const [selectedWarehouse, setSelectedWarehouse] = useState<string>("all");
 
-  // Get unique categories, subcategories, and SKUs
+  const { toast } = useToast();
+
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>("all");
+  const [selectedSKU, setSelectedSKU] = useState<string>("all");
+
   const categories = [...new Set(inventoryData.map(item => item.category))];
   const subcategories = [...new Set(inventoryData
     .filter(item => selectedCategory === "all" || item.category === selectedCategory)
@@ -391,7 +363,6 @@ const Inventory = () => {
 
   const handleSaveBufferAdjustments = () => {
     if (selectedProduct) {
-      // Now passing string values directly from the form state
       const { redZone, yellowZone, greenZone, leadTimeFactor, variabilityFactor } = bufferFormState;
       if (redZone) handleBufferAdjustment(selectedProduct.sku, "red", redZone);
       if (yellowZone) handleBufferAdjustment(selectedProduct.sku, "yellow", yellowZone);
@@ -453,175 +424,39 @@ const Inventory = () => {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">DDMRP Inventory Management</h1>
-          <div className="flex flex-col gap-4 w-full max-w-4xl">
-            <div className="flex gap-4">
-              <Input
-                placeholder="Search products, SKUs, locations..."
-                className="w-[300px]"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <Select value={selectedCategory} onValueChange={(value) => {
-                setSelectedCategory(value);
-                setSelectedSubcategory("all");
-                setSelectedSKU("all");
-              }}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  {categories.map(category => (
-                    <SelectItem key={category} value={category}>{category}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select 
-                value={selectedSubcategory} 
-                onValueChange={(value) => {
-                  setSelectedSubcategory(value);
-                  setSelectedSKU("all");
-                }}
-                disabled={selectedCategory === "all"}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select Subcategory" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Subcategories</SelectItem>
-                  {subcategories.map(subcategory => (
-                    <SelectItem key={subcategory} value={subcategory}>{subcategory}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select 
-                value={selectedSKU} 
-                onValueChange={setSelectedSKU}
-                disabled={selectedSubcategory === "all"}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select SKU" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All SKUs</SelectItem>
-                  {skus.map(sku => (
-                    <SelectItem key={sku} value={sku}>{sku}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex gap-4">
-              <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select Region" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Regions</SelectItem>
-                  {regions.map(region => (
-                    <SelectItem key={region} value={region}>{region}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select 
-                value={selectedCity} 
-                onValueChange={setSelectedCity}
-                disabled={selectedRegion === "all"}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select City" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Cities</SelectItem>
-                  {selectedRegion !== "all" && cities[selectedRegion as keyof typeof cities].map(city => (
-                    <SelectItem key={city} value={city}>{city}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex gap-4">
-              <Select value={selectedChannel} onValueChange={setSelectedChannel}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Channel Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Channels</SelectItem>
-                  {channelTypes.map(channel => (
-                    <SelectItem key={channel} value={channel}>{channel}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={selectedFamily} onValueChange={setSelectedFamily}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Product Family" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Families</SelectItem>
-                  {productFamilies.map(family => (
-                    <SelectItem key={family} value={family}>{family}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={selectedWarehouse} onValueChange={setSelectedWarehouse}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Warehouse" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Warehouses</SelectItem>
-                  {locations.map(loc => (
-                    <SelectItem key={loc} value={loc}>{loc}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          <InventoryFilters
+            selectedLocation={selectedLocation}
+            setSelectedLocation={setSelectedLocation}
+            selectedFamily={selectedFamily}
+            setSelectedFamily={setSelectedFamily}
+            selectedRegion={selectedRegion}
+            setSelectedRegion={setSelectedRegion}
+            selectedCity={selectedCity}
+            setSelectedCity={setSelectedCity}
+            selectedChannel={selectedChannel}
+            setSelectedChannel={setSelectedChannel}
+            selectedWarehouse={selectedWarehouse}
+            setSelectedWarehouse={setSelectedWarehouse}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            selectedSubcategory={selectedSubcategory}
+            setSelectedSubcategory={setSelectedSubcategory}
+            selectedSKU={selectedSKU}
+            setSelectedSKU={setSelectedSKU}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            categories={categories}
+            subcategories={subcategories}
+            skus={skus}
+            productFamilies={productFamilies}
+            regions={regions}
+            cities={cities}
+            channelTypes={channelTypes}
+            locations={locations}
+          />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card className="p-6">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 bg-success-50 rounded-full">
-                <CheckCircle className="h-6 w-6 text-success-500" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Green Zone</p>
-                <p className="text-2xl font-semibold">45 SKUs</p>
-              </div>
-            </div>
-          </Card>
-          <Card className="p-6">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 bg-warning-50 rounded-full">
-                <AlertTriangle className="h-6 w-6 text-warning-500" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Yellow Zone</p>
-                <p className="text-2xl font-semibold">28 SKUs</p>
-              </div>
-            </div>
-          </Card>
-          <Card className="p-6">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 bg-danger-50 rounded-full">
-                <Package className="h-6 w-6 text-danger-500" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Red Zone</p>
-                <p className="text-2xl font-semibold">12 SKUs</p>
-              </div>
-            </div>
-          </Card>
-          <Card className="p-6">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 bg-primary-50 rounded-full">
-                <Waves className="h-6 w-6 text-primary-500" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Net Flow Position</p>
-                <p className="text-2xl font-semibold">105 units</p>
-              </div>
-            </div>
-          </Card>
-        </div>
+        <InventorySummaryCards />
 
         <Card>
           <Tabs defaultValue="inventory" className="w-full">
