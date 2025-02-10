@@ -1,17 +1,27 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Clock, User } from "lucide-react";
+import { Clock, User, AlertCircle, Tag } from "lucide-react";
 import { getPriorityColor, getTypeIcon } from "@/utils/ticketUtils";
 import { type Ticket } from "@/types/tickets";
-import { Icon } from "lucide-react";
 
 interface TicketCardProps {
   ticket: Ticket;
 }
 
 export const TicketCard = ({ ticket }: TicketCardProps) => {
-  const TypeIcon = Icon;
+  const TypeIcon = () => {
+    switch (ticket.type) {
+      case "technical":
+        return <AlertCircle className="h-4 w-4" />;
+      case "task":
+        return <Tag className="h-4 w-4" />;
+      case "advice":
+        return <User className="h-4 w-4" />;
+      default:
+        return <Tag className="h-4 w-4" />;
+    }
+  };
 
   return (
     <Card className="p-6">
@@ -32,7 +42,7 @@ export const TicketCard = ({ ticket }: TicketCardProps) => {
           <span>{ticket.assignedTo}</span>
         </div>
         <div className="flex items-center gap-1">
-          <TypeIcon name={getTypeIcon(ticket.type)} className="h-4 w-4" />
+          <TypeIcon />
           <span>{ticket.type}</span>
         </div>
         <div className="flex items-center gap-1">
