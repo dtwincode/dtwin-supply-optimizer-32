@@ -33,7 +33,12 @@ export function DataUploadDialog({ onDataUploaded }: DataUploadDialogProps) {
 
       if (error) throw error;
 
-      const template = data.data_template as DataTemplate;
+      // Safely type cast the data template
+      const template = data.data_template as unknown as DataTemplate;
+      if (!template || !template.required_columns || !template.sample_row) {
+        throw new Error('Invalid template format');
+      }
+
       const csvHeader = template.required_columns.join(',');
       const csvRow = Object.values(template.sample_row).join(',');
       const csvContent = `${csvHeader}\n${csvRow}`;
@@ -94,7 +99,11 @@ export function DataUploadDialog({ onDataUploaded }: DataUploadDialogProps) {
           .eq('module', 'forecasting')
           .single();
 
-        const template = templateData?.data_template as DataTemplate;
+        const template = templateData?.data_template as unknown as DataTemplate;
+        if (!template || !template.required_columns) {
+          throw new Error('Invalid template format');
+        }
+
         const missingColumns = template.required_columns.filter(col => !headers.includes(col));
 
         if (missingColumns.length > 0) {
