@@ -896,9 +896,9 @@ const Inventory = () => {
                         <TableCell>{item.aduCalculation?.blendedADU}</TableCell>
                         <TableCell>
                           {item.orderSpike?.qualified ? (
-                            <Badge variant="warning">Spike Detected</Badge>
+                            <Badge variant="destructive">Spike Detected</Badge>
                           ) : (
-                            <Badge variant="success">Normal</Badge>
+                            <Badge variant="secondary">Normal</Badge>
                           )}
                         </TableCell>
                         <TableCell>
@@ -938,14 +938,14 @@ const Inventory = () => {
                           {item.supplySignals?.leadTimeAlert ? (
                             <Badge variant="destructive">Alert</Badge>
                           ) : (
-                            <Badge variant="success">Normal</Badge>
+                            <Badge variant="secondary">Normal</Badge>
                           )}
                         </TableCell>
                         <TableCell>
                           {item.supplySignals?.qualityAlert ? (
                             <Badge variant="destructive">Issues Found</Badge>
                           ) : (
-                            <Badge variant="success">No Issues</Badge>
+                            <Badge variant="secondary">No Issues</Badge>
                           )}
                         </TableCell>
                         <TableCell>
@@ -954,8 +954,8 @@ const Inventory = () => {
                               item.supplySignals?.orderDelayRisk === "High"
                                 ? "destructive"
                                 : item.supplySignals?.orderDelayRisk === "Medium"
-                                ? "warning"
-                                : "success"
+                                ? "outline"
+                                : "secondary"
                             }
                           >
                             {item.supplySignals?.orderDelayRisk}
