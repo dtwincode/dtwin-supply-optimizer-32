@@ -395,6 +395,8 @@ export type Database = {
         | "sales"
         | "marketing"
         | "logistics"
+        | "location_hierarchy"
+        | "product_hierarchy"
     }
     CompositeTypes: {
       [_ in never]: never
