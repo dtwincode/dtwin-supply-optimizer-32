@@ -90,7 +90,31 @@ const inventoryData = [
     region: "Central Region",
     city: "Riyadh",
     channel: "B2B",
-    warehouse: "Distribution Center NA"
+    warehouse: "Distribution Center NA",
+    aduCalculation: {
+      past30Days: 7.5,
+      past60Days: 8.2,
+      past90Days: 7.8,
+      forecastedADU: 8.5,
+      blendedADU: 8.0
+    },
+    dynamicAdjustments: {
+      seasonality: 1.2,
+      trend: 1.1,
+      marketStrategy: 1.0
+    },
+    planningHorizon: "30 days",
+    orderSpike: {
+      threshold: 50,
+      horizon: "14 days",
+      qualified: true
+    },
+    bufferPenetration: 65, // percentage
+    supplySignals: {
+      leadTimeAlert: false,
+      qualityAlert: false,
+      orderDelayRisk: "Low"
+    }
   },
   {
     id: 2,
@@ -229,6 +253,20 @@ const channelTypes = [
   "Direct Store",
   "Distribution Center"
 ];
+
+const DynamicAdjustmentFactor = {
+  seasonality: number;
+  trend: number;
+  marketStrategy: number;
+};
+
+const ADUCalculation = {
+  past30Days: number;
+  past60Days: number;
+  past90Days: number;
+  forecastedADU: number;
+  blendedADU: number;
+};
 
 const Inventory = () => {
   const [selectedLocation, setSelectedLocation] = useState<string>("all");
@@ -392,6 +430,20 @@ const Inventory = () => {
     if (currentPosition >= netFlow.greenZone) return "green";
     if (currentPosition >= netFlow.yellowZone) return "yellow";
     return "red";
+  };
+
+  const handleADUUpdate = (sku: string, newADU: ADUCalculation) => {
+    toast({
+      title: "ADU Updated",
+      description: `Updated ADU calculations for ${sku}`,
+    });
+  };
+
+  const handleDynamicAdjustment = (sku: string, adjustments: DynamicAdjustmentFactor) => {
+    toast({
+      title: "Dynamic Adjustments Updated",
+      description: `Updated adjustment factors for ${sku}`,
+    });
   };
 
   return (
@@ -571,12 +623,13 @@ const Inventory = () => {
 
         <Card>
           <Tabs defaultValue="inventory" className="w-full">
-            <TabsList className="grid w-full grid-cols-5 lg:w-[800px] p-4">
+            <TabsList className="grid w-full grid-cols-6 lg:w-[1000px] p-4">
               <TabsTrigger value="inventory">Inventory Status</TabsTrigger>
               <TabsTrigger value="netflow">Net Flow Analysis</TabsTrigger>
               <TabsTrigger value="decoupling">Decoupling Points</TabsTrigger>
               <TabsTrigger value="buffers">Buffer Management</TabsTrigger>
-              <TabsTrigger value="adjustments">Adjustments</TabsTrigger>
+              <TabsTrigger value="adu">ADU & Spikes</TabsTrigger>
+              <TabsTrigger value="alerts">Supply Alerts</TabsTrigger>
             </TabsList>
             
             <TabsContent value="inventory">
@@ -815,17 +868,18 @@ const Inventory = () => {
               </div>
             </TabsContent>
 
-            <TabsContent value="adjustments">
+            <TabsContent value="adu">
               <div className="p-6">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>SKU</TableHead>
-                      <TableHead>Product Name</TableHead>
-                      <TableHead>Seasonal Pattern</TableHead>
-                      <TableHead>Trend</TableHead>
-                      <TableHead>Last Adjustment</TableHead>
-                      <TableHead>Next Review</TableHead>
+                      <TableHead>30 Days ADU</TableHead>
+                      <TableHead>60 Days ADU</TableHead>
+                      <TableHead>90 Days ADU</TableHead>
+                      <TableHead>Forecasted ADU</TableHead>
+                      <TableHead>Blended ADU</TableHead>
+                      <TableHead>Order Spikes</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -833,18 +887,94 @@ const Inventory = () => {
                     {paginatedData.map((item) => (
                       <TableRow key={item.id}>
                         <TableCell className="font-medium">{item.sku}</TableCell>
-                        <TableCell>{item.name}</TableCell>
-                        <TableCell>Normal</TableCell>
-                        <TableCell>Stable</TableCell>
-                        <TableCell>{item.lastUpdated}</TableCell>
-                        <TableCell>{new Date(item.lastUpdated).toLocaleDateString()}</TableCell>
+                        <TableCell>{item.aduCalculation?.past30Days}</TableCell>
+                        <TableCell>{item.aduCalculation?.past60Days}</TableCell>
+                        <TableCell>{item.aduCalculation?.past90Days}</TableCell>
+                        <TableCell>{item.aduCalculation?.forecastedADU}</TableCell>
+                        <TableCell>{item.aduCalculation?.blendedADU}</TableCell>
+                        <TableCell>
+                          {item.orderSpike?.qualified ? (
+                            <Badge variant="warning">Spike Detected</Badge>
+                          ) : (
+                            <Badge variant="success">Normal</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleADUUpdate(item.sku, item.aduCalculation)}
+                          >
+                            Recalculate
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="alerts">
+              <div className="p-6">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>SKU</TableHead>
+                      <TableHead>Lead Time Alert</TableHead>
+                      <TableHead>Quality Issues</TableHead>
+                      <TableHead>Order Delay Risk</TableHead>
+                      <TableHead>Buffer Penetration</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedData.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell className="font-medium">{item.sku}</TableCell>
+                        <TableCell>
+                          {item.supplySignals?.leadTimeAlert ? (
+                            <Badge variant="destructive">Alert</Badge>
+                          ) : (
+                            <Badge variant="success">Normal</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {item.supplySignals?.qualityAlert ? (
+                            <Badge variant="destructive">Issues Found</Badge>
+                          ) : (
+                            <Badge variant="success">No Issues</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              item.supplySignals?.orderDelayRisk === "High"
+                                ? "destructive"
+                                : item.supplySignals?.orderDelayRisk === "Medium"
+                                ? "warning"
+                                : "success"
+                            }
+                          >
+                            {item.supplySignals?.orderDelayRisk}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Progress
+                              value={item.bufferPenetration}
+                              className="w-[60px]"
+                            />
+                            <span>{item.bufferPenetration}%</span>
+                          </div>
+                        </TableCell>
                         <TableCell>
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => {
                               setSelectedProduct(item);
-                              // Add adjustment dialog logic here
+                              // Add handler for supply alerts
                             }}
                           >
                             Review
