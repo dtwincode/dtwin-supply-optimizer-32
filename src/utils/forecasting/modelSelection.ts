@@ -11,6 +11,23 @@ export interface ModelFitResult {
   optimizedParameters?: { name: string; value: number }[];
 }
 
+const optimizeARIMAOrders = (data: number[]) => {
+  if (!data || data.length < 2) {
+    return { p: 1, d: 0, q: 1 }; // Default values for insufficient data
+  }
+
+  const differenced = data.slice(1).map((v, i) => v - data[i]);
+  const isStationary = Math.abs(
+    differenced.reduce((sum, val) => sum + val, 0) / differenced.length
+  ) < 0.1;
+
+  return {
+    p: 1, // Start with simple AR(1)
+    d: isStationary ? 0 : 1, // Difference if non-stationary
+    q: 1  // Start with simple MA(1)
+  };
+};
+
 export const findBestFitModel = (
   actual: number[],
   modelResults: { modelId: string; modelName: string; forecast: number[] }[]

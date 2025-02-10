@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,7 +12,7 @@ import { Settings, Wand2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { ModelConfig, ModelParameter } from "@/types/modelParameters";
 import { useToast } from "@/hooks/use-toast";
-import { optimizeModelParameters } from "@/utils/forecasting/metrics";
+import { optimizeModelParameters } from "@/utils/forecasting/modelOptimization";
 
 interface ModelParametersDialogProps {
   model: ModelConfig;

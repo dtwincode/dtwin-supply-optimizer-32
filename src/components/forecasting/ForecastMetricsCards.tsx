@@ -1,7 +1,7 @@
 
 import { Card } from "@/components/ui/card";
 import { TrendingUp, AlertCircle, Zap, Share2 } from "lucide-react";
-import { type ModelMetrics } from "@/utils/forecasting/metrics";
+import { type ModelMetrics } from "@/utils/forecasting/metricsCalculation";
 
 interface ForecastMetricsCardsProps {
   metrics: ModelMetrics;

@@ -1,5 +1,5 @@
 
-import { type ModelMetrics } from './metrics';
+import { type ModelMetrics } from './metricsCalculation';
 
 export const calculateConfidenceIntervals = (forecast: number[], confidence: number = 0.95) => {
   const z = 1.96; // 95% confidence interval

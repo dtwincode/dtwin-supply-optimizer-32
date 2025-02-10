@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import {
   LineChart,
@@ -13,7 +14,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Wand2 } from "lucide-react";
 import { useState } from "react";
-import { generateTestData, TestDataParams, getModelExample } from "@/utils/forecasting/metrics";
+import { generateTestData } from "@/utils/forecasting/testDataGenerator";
+import { type TestDataParams } from "@/utils/forecasting/testDataGenerator";
+import { getModelExample } from "@/utils/forecasting/modelSelection";
 import { defaultModelConfigs } from "@/types/modelParameters";
 
 interface TestingChartProps {
