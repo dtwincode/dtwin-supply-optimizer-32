@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { MenuIcon, X, Home, TrendingUp, Package, LineChart, Gift, Truck, FileText, Search, Settings, TicketPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -41,7 +42,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
               <img 
                 src="/lovable-uploads/ff1ca214-cc5f-4fa6-8bfd-4818cf19a551.png" 
                 alt="dtwin logo" 
-                className="h-14 w-auto"
+                className="h-16 w-auto"
               />
               <span className="text-[10px] text-dtwin-medium uppercase tracking-wider mt-1 ml-2 block">
                 Innovate. Integrate. Accelerate
