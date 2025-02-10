@@ -19,7 +19,7 @@ export interface MarketEventCategory {
 }
 
 export interface ForecastDataPoint {
-  month: string;
+  week: string;
   actual: number | null;
   forecast: number;
   variance: number | null;
@@ -35,7 +35,7 @@ export interface ForecastDataPoint {
 export interface WhatIfParams {
   growthRate: number;
   seasonality: number;
-  events: { month: string; impact: number }[];
+  events: { week: string; impact: number }[];
   priceData?: PriceData;
 }
 
@@ -44,3 +44,4 @@ export interface MacroFactors {
   inflation: number;
   exchangeRates: { [key: string]: number };
 }
+
