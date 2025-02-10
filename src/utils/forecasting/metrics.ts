@@ -1,3 +1,4 @@
+
 export interface ModelMetrics {
   mape: number;
   mae: number;
@@ -46,6 +47,10 @@ interface OptimizedParameters {
 }
 
 export const optimizeModelParameters = (data: number[]): OptimizedParameters[] => {
+  if (!data || data.length === 0) {
+    return [];
+  }
+
   const optimizedParams: OptimizedParameters[] = [];
   
   // Moving Average optimization
@@ -84,39 +89,44 @@ export const optimizeModelParameters = (data: number[]): OptimizedParameters[] =
   return optimizedParams;
 };
 
-// Helper functions for parameter optimization
 const detectSeasonality = (data: number[]): boolean => {
-  if (!data || data.length === 0) {
+  if (!data || data.length < 12) {
     return false;
   }
   
-  // Simple seasonality detection using autocorrelation
-  const mean = data.reduce((a, b) => a + b, 0) / data.length; // Added initial value 0
+  const mean = data.reduce((a, b) => a + b, 0) / data.length;
   const normalized = data.map(x => x - mean);
   
-  if (normalized.length < 12) {
-    return false;
-  }
-  
   const correlation = normalized.slice(12).reduce((sum, _, i) => 
-    sum + (normalized[i] * normalized[i + 12]), 0); // Added initial value 0
+    sum + (normalized[i] * normalized[i + 12]), 0);
+    
   return correlation > 0.3;
 };
 
 const calculateVolatility = (data: number[]): number => {
+  if (!data || data.length < 2) {
+    return 0.1; // Default value for insufficient data
+  }
+
   const returns = data.slice(1).map((value, i) => 
     (value - data[i]) / data[i]
   );
+  
   const stdDev = Math.sqrt(
     returns.reduce((sum, r) => sum + r * r, 0) / returns.length
   );
+  
   return Math.min(Math.max(stdDev, 0.1), 0.9);
 };
 
 const optimizeARIMAOrders = (data: number[]): { p: number; d: number; q: number } => {
+  if (!data || data.length < 2) {
+    return { p: 1, d: 0, q: 1 }; // Default values for insufficient data
+  }
+
   const differenced = data.slice(1).map((v, i) => v - data[i]);
   const isStationary = Math.abs(
-    differenced.reduce((a, b) => a + b) / differenced.length
+    differenced.reduce((sum, val) => sum + val, 0) / differenced.length
   ) < 0.1;
 
   return {
