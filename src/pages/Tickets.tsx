@@ -21,7 +21,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Clock, PlusCircle, Tag, User } from "lucide-react";
+import { Clock, PlusCircle, Tag, User, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 // Improved type definitions with proper documentation
@@ -89,9 +89,14 @@ const TicketsPage = () => {
       description: `Ticket "${newTicket.title}" has been assigned to ${newTicket.assignedTo}`,
     });
 
-    // Here you would typically also trigger an email notification
+    // Here you would typically trigger email notifications
     // This would be handled by your backend service
     console.log("Email notification would be sent to:", newTicket.assignedTo);
+    if (newTicket.type === "task") {
+      console.log("Task assignment email to be sent");
+    } else if (newTicket.priority === "high") {
+      console.log("High priority notification to be sent to leadership");
+    }
   };
 
   const getPriorityColor = (priority: TicketPriority) => {
@@ -104,6 +109,19 @@ const TicketsPage = () => {
         return "default";
       default:
         return "default";
+    }
+  };
+
+  const getTypeIcon = (type: TicketType) => {
+    switch (type) {
+      case "technical":
+        return <AlertCircle className="h-4 w-4" />;
+      case "task":
+        return <Tag className="h-4 w-4" />;
+      case "advice":
+        return <User className="h-4 w-4" />;
+      default:
+        return <Tag className="h-4 w-4" />;
     }
   };
 
@@ -207,7 +225,7 @@ const TicketsPage = () => {
                   <span>{ticket.assignedTo}</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Tag className="h-4 w-4" />
+                  {getTypeIcon(ticket.type)}
                   <span>{ticket.type}</span>
                 </div>
                 <div className="flex items-center gap-1">
@@ -230,4 +248,3 @@ const TicketsPage = () => {
 };
 
 export default TicketsPage;
-
