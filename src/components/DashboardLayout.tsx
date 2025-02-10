@@ -8,6 +8,7 @@ import { CreateTicketDialog } from "./tickets/CreateTicketDialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "./ui/button";
 import { getTranslation } from "@/translations";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 
 const navigationItems = [
   { name: "navigationItems.dashboard", icon: Home, href: "/" },
@@ -95,21 +96,52 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             )}
             <h2 className="font-display text-lg">{getTranslation('dashboard', language)}</h2>
             <div className="ml-auto flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
-                className="px-2 py-1"
-              >
-                {language === 'en' ? 'العربية' : 'English'}
-              </Button>
-              <button
-                onClick={() => setCreateTicketOpen(true)}
-                className="p-2 rounded-full hover:bg-accent"
-              >
-                <TicketPlus className="h-4 w-4" />
-              </button>
-              <ThemeToggle />
+              <HoverCard>
+                <HoverCardTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
+                    className="px-2 py-1"
+                  >
+                    {language === 'en' ? 'العربية' : 'English'}
+                  </Button>
+                </HoverCardTrigger>
+                <HoverCardContent className="w-48">
+                  <p className="text-sm">
+                    {language === 'en' ? 'Switch to Arabic language' : 'تغيير اللغة إلى الإنجليزية'}
+                  </p>
+                </HoverCardContent>
+              </HoverCard>
+
+              <HoverCard>
+                <HoverCardTrigger asChild>
+                  <button
+                    onClick={() => setCreateTicketOpen(true)}
+                    className="p-2 rounded-full hover:bg-accent"
+                  >
+                    <TicketPlus className="h-4 w-4" />
+                  </button>
+                </HoverCardTrigger>
+                <HoverCardContent className="w-48">
+                  <p className="text-sm">
+                    {language === 'en' ? 'Create Support Ticket' : 'إنشاء تذكرة دعم'}
+                  </p>
+                </HoverCardContent>
+              </HoverCard>
+
+              <HoverCard>
+                <HoverCardTrigger asChild>
+                  <div>
+                    <ThemeToggle />
+                  </div>
+                </HoverCardTrigger>
+                <HoverCardContent className="w-48">
+                  <p className="text-sm">
+                    {language === 'en' ? 'Toggle Light/Dark Theme' : 'تبديل السمة الفاتحة/الداكنة'}
+                  </p>
+                </HoverCardContent>
+              </HoverCard>
             </div>
           </div>
         </div>
