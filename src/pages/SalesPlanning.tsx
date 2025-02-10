@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -103,6 +102,7 @@ const SalesPlanning = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   // Form state for new sales plan
@@ -111,6 +111,7 @@ const SalesPlanning = () => {
     endDate: "",
     category: "",
     subcategory: "",
+    sku: "",
     region: "",
     city: "",
     warehouse: "",
@@ -121,6 +122,53 @@ const SalesPlanning = () => {
     notes: ""
   });
 
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+    
+    // Required fields validation
+    if (!formState.startDate) errors.startDate = "Start date is required";
+    if (!formState.endDate) errors.endDate = "End date is required";
+    if (!formState.category) errors.category = "Category is required";
+    if (!formState.subcategory) errors.subcategory = "Subcategory is required";
+    if (!formState.region) errors.region = "Region is required";
+    if (!formState.city) errors.city = "City is required";
+    if (!formState.warehouse) errors.warehouse = "Warehouse is required";
+    if (!formState.channelType) errors.channelType = "Channel type is required";
+    if (!formState.targetValue) errors.targetValue = "Target value is required";
+    if (!formState.confidence) errors.confidence = "Confidence is required";
+
+    // B2B/Wholesale account name validation
+    if (["B2B", "Wholesale"].includes(formState.channelType) && !formState.accountName) {
+      errors.accountName = "Account name is required for B2B/Wholesale";
+    }
+
+    // Date range validation
+    if (formState.startDate && formState.endDate) {
+      const start = new Date(formState.startDate);
+      const end = new Date(formState.endDate);
+      if (end < start) {
+        errors.endDate = "End date must be after start date";
+      }
+    }
+
+    // Numeric validations
+    if (formState.targetValue && Number(formState.targetValue) <= 0) {
+      errors.targetValue = "Target value must be greater than 0";
+    }
+    
+    if (formState.confidence) {
+      const confidence = Number(formState.confidence);
+      if (confidence < 0 || confidence > 100) {
+        errors.confidence = "Confidence must be between 0 and 100";
+      }
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleFormChange = (field: string, value: string) => {
     setFormState(prev => {
       const newState = { ...prev, [field]: value };
@@ -128,6 +176,10 @@ const SalesPlanning = () => {
       // Reset dependent fields when parent field changes
       if (field === "category") {
         newState.subcategory = "";
+        newState.sku = "";
+      }
+      if (field === "subcategory") {
+        newState.sku = "";
       }
       if (field === "region") {
         newState.city = "";
@@ -140,31 +192,63 @@ const SalesPlanning = () => {
         newState.accountName = "";
       }
       
+      // Clear specific error when field changes
+      setFormErrors(prev => ({ ...prev, [field]: "" }));
+      
       return newState;
     });
   };
 
-  const handleCreateSalesPlan = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleCreateSalesPlan = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    toast({
-      title: "Success",
-      description: "Sales plan created successfully",
-    });
-    setIsDialogOpen(false);
-    setFormState({
-      startDate: "",
-      endDate: "",
-      category: "",
-      subcategory: "",
-      region: "",
-      city: "",
-      warehouse: "",
-      channelType: "",
-      accountName: "",
-      targetValue: "",
-      confidence: "",
-      notes: ""
-    });
+    
+    if (!validateForm()) {
+      toast({
+        title: "Validation Error",
+        description: "Please check the form for errors",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      toast({
+        title: "Success",
+        description: "Sales plan created successfully",
+      });
+
+      // Reset form
+      setFormState({
+        startDate: "",
+        endDate: "",
+        category: "",
+        subcategory: "",
+        sku: "",
+        region: "",
+        city: "",
+        warehouse: "",
+        channelType: "",
+        accountName: "",
+        targetValue: "",
+        confidence: "",
+        notes: ""
+      });
+      setFormErrors({});
+      setIsDialogOpen(false);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create sales plan. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const filteredSalesPlans = mockSalesPlans.filter((plan) => {
@@ -223,8 +307,11 @@ const SalesPlanning = () => {
                         type="date"
                         value={formState.startDate}
                         onChange={(e) => handleFormChange("startDate", e.target.value)}
-                        required
+                        className={formErrors.startDate ? "border-red-500" : ""}
                       />
+                      {formErrors.startDate && (
+                        <p className="text-sm text-red-500">{formErrors.startDate}</p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="endDate">End Date</Label>
@@ -233,8 +320,11 @@ const SalesPlanning = () => {
                         type="date"
                         value={formState.endDate}
                         onChange={(e) => handleFormChange("endDate", e.target.value)}
-                        required
+                        className={formErrors.endDate ? "border-red-500" : ""}
                       />
+                      {formErrors.endDate && (
+                        <p className="text-sm text-red-500">{formErrors.endDate}</p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
@@ -244,7 +334,7 @@ const SalesPlanning = () => {
                         onValueChange={(value) => handleFormChange("category", value)}
                         required
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className={formErrors.category ? "border-red-500" : ""}>
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent>
@@ -255,6 +345,9 @@ const SalesPlanning = () => {
                           ))}
                         </SelectContent>
                       </Select>
+                      {formErrors.category && (
+                        <p className="text-sm text-red-500">{formErrors.category}</p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
@@ -265,7 +358,7 @@ const SalesPlanning = () => {
                         disabled={!formState.category}
                         required
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className={formErrors.subcategory ? "border-red-500" : ""}>
                           <SelectValue placeholder="Select subcategory" />
                         </SelectTrigger>
                         <SelectContent>
@@ -279,6 +372,9 @@ const SalesPlanning = () => {
                             )}
                         </SelectContent>
                       </Select>
+                      {formErrors.subcategory && (
+                        <p className="text-sm text-red-500">{formErrors.subcategory}</p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
@@ -288,7 +384,7 @@ const SalesPlanning = () => {
                         onValueChange={(value) => handleFormChange("region", value)}
                         required
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className={formErrors.region ? "border-red-500" : ""}>
                           <SelectValue placeholder="Select region" />
                         </SelectTrigger>
                         <SelectContent>
@@ -299,6 +395,9 @@ const SalesPlanning = () => {
                           ))}
                         </SelectContent>
                       </Select>
+                      {formErrors.region && (
+                        <p className="text-sm text-red-500">{formErrors.region}</p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
@@ -309,7 +408,7 @@ const SalesPlanning = () => {
                         disabled={!formState.region}
                         required
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className={formErrors.city ? "border-red-500" : ""}>
                           <SelectValue placeholder="Select city" />
                         </SelectTrigger>
                         <SelectContent>
@@ -321,6 +420,9 @@ const SalesPlanning = () => {
                             ))}
                         </SelectContent>
                       </Select>
+                      {formErrors.city && (
+                        <p className="text-sm text-red-500">{formErrors.city}</p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
@@ -331,7 +433,7 @@ const SalesPlanning = () => {
                         disabled={!formState.city || !warehouses[formState.city as keyof typeof warehouses]}
                         required
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className={formErrors.warehouse ? "border-red-500" : ""}>
                           <SelectValue placeholder="Select warehouse" />
                         </SelectTrigger>
                         <SelectContent>
@@ -345,6 +447,9 @@ const SalesPlanning = () => {
                             )}
                         </SelectContent>
                       </Select>
+                      {formErrors.warehouse && (
+                        <p className="text-sm text-red-500">{formErrors.warehouse}</p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
@@ -354,7 +459,7 @@ const SalesPlanning = () => {
                         onValueChange={(value) => handleFormChange("channelType", value)}
                         required
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className={formErrors.channelType ? "border-red-500" : ""}>
                           <SelectValue placeholder="Select channel type" />
                         </SelectTrigger>
                         <SelectContent>
@@ -365,6 +470,9 @@ const SalesPlanning = () => {
                           ))}
                         </SelectContent>
                       </Select>
+                      {formErrors.channelType && (
+                        <p className="text-sm text-red-500">{formErrors.channelType}</p>
+                      )}
                     </div>
 
                     {(formState.channelType === "B2B" || formState.channelType === "Wholesale") && (
@@ -375,8 +483,11 @@ const SalesPlanning = () => {
                           value={formState.accountName}
                           onChange={(e) => handleFormChange("accountName", e.target.value)}
                           placeholder="Enter account name"
-                          required
+                          className={formErrors.accountName ? "border-red-500" : ""}
                         />
+                        {formErrors.accountName && (
+                          <p className="text-sm text-red-500">{formErrors.accountName}</p>
+                        )}
                       </div>
                     )}
 
@@ -388,8 +499,11 @@ const SalesPlanning = () => {
                         min="0"
                         value={formState.targetValue}
                         onChange={(e) => handleFormChange("targetValue", e.target.value)}
-                        required
+                        className={formErrors.targetValue ? "border-red-500" : ""}
                       />
+                      {formErrors.targetValue && (
+                        <p className="text-sm text-red-500">{formErrors.targetValue}</p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
@@ -401,8 +515,11 @@ const SalesPlanning = () => {
                         max="100"
                         value={formState.confidence}
                         onChange={(e) => handleFormChange("confidence", e.target.value)}
-                        required
+                        className={formErrors.confidence ? "border-red-500" : ""}
                       />
+                      {formErrors.confidence && (
+                        <p className="text-sm text-red-500">{formErrors.confidence}</p>
+                      )}
                     </div>
                   </div>
 
@@ -421,10 +538,13 @@ const SalesPlanning = () => {
                       type="button"
                       variant="outline"
                       onClick={() => setIsDialogOpen(false)}
+                      disabled={isSubmitting}
                     >
                       Cancel
                     </Button>
-                    <Button type="submit">Create Plan</Button>
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting ? "Creating..." : "Create Plan"}
+                    </Button>
                   </div>
                 </form>
               </DialogContent>
