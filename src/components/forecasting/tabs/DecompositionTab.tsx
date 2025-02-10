@@ -28,11 +28,11 @@ export const DecompositionTab = ({ filteredData, decomposition }: DecompositionT
         <div className="h-[400px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={filteredData.map((d, i) => ({
-              month: d.month,
+              week: d.week,
               trend: decomposition.trend[i]
             }))}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
+              <XAxis dataKey="week" />
               <YAxis />
               <Tooltip />
               <Legend />
@@ -53,11 +53,11 @@ export const DecompositionTab = ({ filteredData, decomposition }: DecompositionT
         <div className="h-[400px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={filteredData.map((d, i) => ({
-              month: d.month,
+              week: d.week,
               seasonal: decomposition.seasonal[i]
             }))}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
+              <XAxis dataKey="week" />
               <YAxis />
               <Tooltip />
               <Legend />

@@ -120,7 +120,7 @@ const Forecasting = () => {
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         return (
-          item.month.toLowerCase().includes(query) ||
+          item.week.toLowerCase().includes(query) ||
           item.region.toLowerCase().includes(query) ||
           item.city.toLowerCase().includes(query) ||
           item.channel.toLowerCase().includes(query) ||
@@ -187,9 +187,9 @@ const Forecasting = () => {
 
   const handleExport = () => {
     const csvContent = [
-      ["Month", "Actual", "Forecast", "Variance", "Region", "City", "Channel", "Category", "Subcategory", "SKU"],
+      ["Week", "Actual", "Forecast", "Variance", "Region", "City", "Channel", "Category", "Subcategory", "SKU"],
       ...filteredData.map(d => [
-        d.month,
+        d.week,
         d.actual,
         d.forecast,
         d.variance,
@@ -373,7 +373,7 @@ const Forecasting = () => {
                       variant="outline"
                       onClick={() => setWhatIfParams(prev => ({
                         ...prev,
-                        events: [...prev.events, { month: "", impact: 0 }]
+                        events: [...prev.events, { week: "", impact: 0 }]
                       }))}
                     >
                       Add Event
@@ -425,11 +425,11 @@ const Forecasting = () => {
                 <div className="h-[400px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={filteredData.map((d, i) => ({
-                      month: d.month,
+                      week: d.week,
                       scenario: whatIfScenario[i]
                     }))}>
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
+                      <XAxis dataKey="week" />
                       <YAxis />
                       <Tooltip />
                       <Legend />
