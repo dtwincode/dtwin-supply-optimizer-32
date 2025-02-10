@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CreateTicketDialog } from "@/components/tickets/CreateTicketDialog";
 import { TicketCard } from "@/components/tickets/TicketCard";
 import { type Ticket } from "@/types/tickets";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const mockTickets: Ticket[] = [
   {
@@ -52,7 +53,7 @@ const TicketsPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 p-6">
+      <div className="space-y-6 p-6 h-[calc(100vh-4rem)]">
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Tickets</h1>
@@ -67,11 +68,13 @@ const TicketsPage = () => {
           />
         </div>
 
-        <div className="grid gap-4">
-          {tickets.map((ticket) => (
-            <TicketCard key={ticket.id} ticket={ticket} />
-          ))}
-        </div>
+        <ScrollArea className="h-[calc(100vh-12rem)]">
+          <div className="grid gap-4 pr-4">
+            {tickets.map((ticket) => (
+              <TicketCard key={ticket.id} ticket={ticket} />
+            ))}
+          </div>
+        </ScrollArea>
       </div>
     </DashboardLayout>
   );
