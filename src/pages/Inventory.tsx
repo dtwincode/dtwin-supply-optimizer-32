@@ -41,7 +41,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-// Enhanced mock data
 const inventoryData = [
   {
     id: 1,
@@ -172,6 +171,12 @@ const bufferProfiles = [
   "H-L-M"  // High LT, Low Variability, Medium MOQ
 ];
 
+const productFamilies = [
+  "Consumer Electronics",
+  "Industrial Components",
+  "Accessories",
+];
+
 const Inventory = () => {
   const [selectedLocation, setSelectedLocation] = useState<string>("all");
   const [selectedFamily, setSelectedFamily] = useState<string>("all");
@@ -223,7 +228,6 @@ const Inventory = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* Header Section */}
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">DDMRP Inventory Management</h1>
           <div className="flex gap-4">
@@ -256,7 +260,6 @@ const Inventory = () => {
           </div>
         </div>
 
-        {/* Buffer Status Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card className="p-6">
             <div className="flex items-center space-x-4">
@@ -304,7 +307,6 @@ const Inventory = () => {
           </Card>
         </div>
 
-        {/* Inventory Tabs and Table */}
         <Card>
           <Tabs defaultValue="inventory" className="w-full">
             <TabsList className="grid w-full grid-cols-3 lg:w-[600px] p-4">
@@ -462,7 +464,6 @@ const Inventory = () => {
           </Tabs>
         </Card>
 
-        {/* Decoupling Point Configuration Dialog */}
         <Dialog open={showDecouplingDialog} onOpenChange={setShowDecouplingDialog}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
@@ -591,7 +592,6 @@ const Inventory = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Purchase Order Dialog */}
         <Dialog open={showPurchaseOrderDialog} onOpenChange={setShowPurchaseOrderDialog}>
           <DialogContent>
             <DialogHeader>
