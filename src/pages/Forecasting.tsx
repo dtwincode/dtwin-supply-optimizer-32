@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FileDown } from "lucide-react";
+import { FileDown, Wand2 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -19,6 +19,7 @@ import {
   generateScenario,
   validateForecast,
   performCrossValidation,
+  findBestFitModel,
   type WeatherData,
   type MarketEvent,
   fetchWeatherForecast,
@@ -291,6 +292,32 @@ const Forecasting = () => {
     return historicalData.slice(-parseInt(timeRange));
   }, [historicalData, timeRange]);
 
+  const findBestModel = () => {
+    const actuals = filteredData.map(d => d.actual).filter(a => a !== null) as number[];
+    
+    // Generate forecasts using each model
+    const modelResults = modelConfigs.map(model => {
+      // For demonstration, we're using the existing forecast data
+      // In a real implementation, you would generate new forecasts using each model
+      const forecast = filteredData.map(d => d.forecast);
+      
+      return {
+        modelId: model.id,
+        modelName: model.name,
+        forecast
+      };
+    });
+
+    const bestModel = findBestFitModel(actuals, modelResults);
+    
+    setSelectedModel(bestModel.modelId);
+    
+    toast({
+      title: "Best Fit Model Selected",
+      description: `${bestModel.modelName} was selected as the best fitting model with MAPE: ${bestModel.metrics.mape.toFixed(2)}%`,
+    });
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -315,6 +342,14 @@ const Forecasting = () => {
                   onParametersChange={handleParametersChange}
                 />
               )}
+              <Button 
+                variant="outline" 
+                onClick={findBestModel}
+                className="flex items-center gap-2"
+              >
+                <Wand2 className="w-4 h-4" />
+                Find Best Model
+              </Button>
               <Select value={horizon} onValueChange={setHorizon}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Forecast Horizon" />

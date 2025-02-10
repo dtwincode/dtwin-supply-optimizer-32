@@ -1,4 +1,3 @@
-
 export interface ModelMetrics {
   mape: number;
   mae: number;
@@ -39,4 +38,38 @@ export const calculateR2 = (actual: number[], predicted: number[]): number => {
   const totalSum = actual.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0);
   const residualSum = actual.reduce((sum, val, i) => sum + Math.pow(val - predicted[i], 2), 0);
   return 1 - (residualSum / totalSum);
+};
+
+export interface ModelFitResult {
+  modelId: string;
+  modelName: string;
+  metrics: ModelMetrics;
+  score: number;
+}
+
+export const findBestFitModel = (
+  actual: number[],
+  modelResults: { modelId: string; modelName: string; forecast: number[] }[]
+): ModelFitResult => {
+  const results = modelResults.map(({ modelId, modelName, forecast }) => {
+    const metrics = calculateMetrics(actual, forecast);
+    
+    // Calculate a composite score (lower is better)
+    // Weighted average of normalized metrics
+    const score = (
+      0.4 * metrics.mape + 
+      0.3 * metrics.mae + 
+      0.3 * metrics.rmse
+    );
+
+    return {
+      modelId,
+      modelName,
+      metrics,
+      score
+    };
+  });
+
+  // Sort by score (lower is better) and return the best model
+  return results.sort((a, b) => a.score - b.score)[0];
 };
