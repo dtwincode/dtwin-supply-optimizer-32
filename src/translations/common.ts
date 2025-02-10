@@ -127,4 +127,3 @@ export const commonTranslations: CommonTranslations = {
     ar: "التالي"
   }
 };
-
