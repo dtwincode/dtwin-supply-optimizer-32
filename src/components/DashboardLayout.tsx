@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { MenuIcon, X, Home, TrendingUp, Package, LineChart, Gift, Truck, FileText, Search, Settings, TicketPlus, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -60,15 +59,12 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       >
         <div className="h-full w-64 bg-white shadow-lg">
           <div className="flex items-center justify-between p-4 border-b">
-            <div className="flex items-center">
+            <div className="flex items-center w-full justify-center">
               <img 
                 src="/lovable-uploads/ff1ca214-cc5f-4fa6-8bfd-4818cf19a551.png" 
                 alt="dtwin logo" 
-                className="h-16 w-auto"
+                className="h-24 w-auto"
               />
-              <span className="text-[10px] text-dtwin-medium uppercase tracking-wider mt-1 ml-2 block">
-                Innovate. Integrate. Accelerate
-              </span>
             </div>
             <button
               onClick={() => setSidebarOpen(false)}
