@@ -6,6 +6,7 @@ import DashboardMetrics from "@/components/dashboard/DashboardMetrics";
 import FinancialMetrics from "@/components/dashboard/FinancialMetrics";
 import ModuleSummaryCards from "@/components/dashboard/ModuleSummaryCards";
 import DashboardCharts from "@/components/dashboard/DashboardCharts";
+import SustainabilityMetrics from "@/components/dashboard/SustainabilityMetrics";
 
 const Index = () => {
   const { language } = useLanguage();
@@ -20,6 +21,7 @@ const Index = () => {
           
           <DashboardMetrics />
           <FinancialMetrics />
+          <SustainabilityMetrics />
           <ModuleSummaryCards />
           <DashboardCharts />
         </section>
@@ -29,3 +31,4 @@ const Index = () => {
 };
 
 export default Index;
+
