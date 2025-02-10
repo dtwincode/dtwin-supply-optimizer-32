@@ -32,6 +32,9 @@ import { ModelTestingTab } from "@/components/forecasting/tabs/ModelTestingTab";
 import { ForecastAnalysisTab } from "@/components/forecasting/tabs/ForecastAnalysisTab";
 import { ForecastDistributionTab } from "@/components/forecasting/tabs/ForecastDistributionTab";
 import { WhatIfAnalysisTab } from "@/components/forecasting/tabs/WhatIfAnalysisTab";
+import { WeatherData, MarketEvent, PriceAnalysis } from '@/types/weatherAndEvents';
+import { ModelParametersDialog } from "@/components/forecasting/ModelParametersDialog";
+import { defaultModelConfigs } from "@/types/modelParameters";
 
 import {
   forecastData as defaultForecastData,
@@ -42,10 +45,6 @@ import {
   channelTypes as defaultChannelTypes,
   warehouses as defaultWarehouses
 } from "@/constants/forecasting";
-import { ModelParametersDialog } from "@/components/forecasting/ModelParametersDialog";
-import { defaultModelConfigs } from "@/types/modelParameters";
-
-import { WeatherData, MarketEvent, PriceAnalysis } from '@/types/weatherAndEvents';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -79,6 +78,18 @@ const Forecasting = () => {
   const [modelConfigs, setModelConfigs] = useState(defaultModelConfigs);
   const { toast } = useToast();
 
+  const [metrics, setMetrics] = useState(calculateMetrics([], []));
+  const [confidenceIntervals, setConfidenceIntervals] = useState<{ upper: number; lower: number }[]>([]);
+  const [decomposition, setDecomposition] = useState(decomposeSeasonality([]));
+  const [validationResults, setValidationResults] = useState(validateForecast([], []));
+  const [crossValidationResults, setCrossValidationResults] = useState(performCrossValidation([]));
+  const [weatherLocation, setWeatherLocation] = useState("Riyadh");
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [marketEvents, setMarketEvents] = useState<MarketEvent[]>([]);
+  const [newEvent, setNewEvent] = useState<Partial<MarketEvent>>({});
+  const [priceAnalysis, setPriceAnalysis] = useState<PriceAnalysis | null>(null);
+  const [historicalPriceData, setHistoricalPriceData] = useState<{ date: string; price: number }[]>([]);
+
   const [historicalData] = useState(() => {
     return Array.from({ length: 180 }, (_, i) => ({
       date: new Date(Date.now() - (180 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -98,7 +109,6 @@ const Forecasting = () => {
 
   const filteredData = useMemo(() => {
     return forecastData.filter(item => {
-      // Add date range filter
       const itemDate = new Date(item.week);
       if (!(itemDate >= fromDate && itemDate <= toDate)) return false;
       
@@ -167,6 +177,15 @@ const Forecasting = () => {
       title: "Best Fit Model Selected",
       description: `${bestModel.modelName} was selected as the best fitting model with MAPE: ${bestModel.metrics.mape.toFixed(2)}%`,
     });
+  };
+
+  const addHistoricalPricePoint = (date: string, price: number) => {
+    setHistoricalPriceData(prev => [...prev, { date, price }]);
+  };
+
+  const calculatePriceAnalysis = () => {
+    // This would be implemented to calculate price analysis based on historical data
+    // For now it's a placeholder
   };
 
   return (
