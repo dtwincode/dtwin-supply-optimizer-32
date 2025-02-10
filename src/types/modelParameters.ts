@@ -118,6 +118,51 @@ export const defaultModelConfigs: ModelConfig[] = [
         description: "Neurons per layer"
       }
     ]
+  },
+  {
+    id: "prophet",
+    name: "Prophet",
+    parameters: [
+      {
+        name: "changePointPrior",
+        value: 0.05,
+        min: 0.001,
+        max: 0.5,
+        step: 0.001,
+        description: "Flexibility of the trend (0.001-0.5)"
+      },
+      {
+        name: "seasonalityPrior",
+        value: 10,
+        min: 0.01,
+        max: 50,
+        step: 0.01,
+        description: "Strength of the seasonality (0.01-50)"
+      },
+      {
+        name: "holidaysPrior",
+        value: 10,
+        min: 0.01,
+        max: 50,
+        step: 0.01,
+        description: "Strength of holidays effect (0.01-50)"
+      },
+      {
+        name: "seasonalityMode",
+        value: 1,
+        min: 0,
+        max: 1,
+        step: 1,
+        description: "Seasonality mode (0: additive, 1: multiplicative)"
+      },
+      {
+        name: "growthCeiling",
+        value: 1000,
+        min: 100,
+        max: 10000,
+        step: 100,
+        description: "Maximum capacity for logistic growth"
+      }
+    ]
   }
 ];
-
