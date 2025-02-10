@@ -19,7 +19,18 @@ export const useModelVersions = (modelId: string) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setVersions(data);
+      
+      // Convert the JSON data to match ModelVersion type
+      const typedData = data.map(item => ({
+        ...item,
+        parameters: item.parameters as Record<string, any>,
+        metadata: item.metadata as Record<string, any>,
+        validation_metrics: item.validation_metrics as Record<string, any>,
+        training_data_snapshot: item.training_data_snapshot as Record<string, any>,
+        accuracy_metrics: item.accuracy_metrics as { mape: number; mae: number; rmse: number }
+      }));
+      
+      setVersions(typedData);
     } catch (error) {
       console.error('Error fetching model versions:', error);
       toast({
@@ -32,21 +43,31 @@ export const useModelVersions = (modelId: string) => {
     }
   };
 
-  const createVersion = async (versionData: Partial<ModelVersion>) => {
+  const createVersion = async (versionData: Omit<ModelVersion, 'id' | 'created_at' | 'updated_at'>) => {
     try {
       const { data, error } = await supabase
         .from('model_versions')
-        .insert([versionData])
+        .insert(versionData)
         .select()
         .single();
 
       if (error) throw error;
-      setVersions(prev => [data, ...prev]);
+
+      const typedData: ModelVersion = {
+        ...data,
+        parameters: data.parameters as Record<string, any>,
+        metadata: data.metadata as Record<string, any>,
+        validation_metrics: data.validation_metrics as Record<string, any>,
+        training_data_snapshot: data.training_data_snapshot as Record<string, any>,
+        accuracy_metrics: data.accuracy_metrics as { mape: number; mae: number; rmse: number }
+      };
+
+      setVersions(prev => [typedData, ...prev]);
       toast({
         title: "Success",
         description: "New model version created",
       });
-      return data;
+      return typedData;
     } catch (error) {
       console.error('Error creating model version:', error);
       toast({

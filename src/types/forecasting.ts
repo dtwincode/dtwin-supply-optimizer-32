@@ -1,4 +1,32 @@
-import { WeatherData, MarketEvent, PriceData, PriceAnalysis } from "@/utils/forecasting";
+
+import { Json } from '@/integrations/supabase/types';
+
+export interface WeatherData {
+  temperature: number;
+  precipitation: number;
+  humidity: number;
+  date: string;
+}
+
+export interface MarketEvent {
+  id: string;
+  name: string;
+  date: string;
+  impact: number;
+  type: string;
+}
+
+export interface PriceData {
+  date: string;
+  price: number;
+  volume: number;
+}
+
+export interface PriceAnalysis {
+  elasticity: number;
+  optimalPrice: number;
+  priceRange: { min: number; max: number };
+}
 
 export interface SavedScenario {
   id: number;
@@ -18,6 +46,7 @@ export interface MarketEventCategory {
 }
 
 export interface ForecastDataPoint {
+  id: string;
   week: string;
   actual: number | null;
   forecast: number;

@@ -1,7 +1,8 @@
+
 import { useState, useMemo, useEffect } from "react";
 import { supabase } from '@/integrations/supabase/client';
 import { calculateMetrics, calculateConfidenceIntervals, decomposeSeasonality, validateForecast, performCrossValidation } from "@/utils/forecasting";
-import { type WeatherData, type MarketEvent, type PriceAnalysis, type ForecastOutlier, type SeasonalityPattern } from '@/types/forecasting';
+import { type ForecastDataPoint, type ForecastOutlier, type SeasonalityPattern } from '@/types/forecasting';
 import { forecastData as defaultForecastData } from "@/constants/forecasting";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -22,7 +23,10 @@ export const useForecastData = (
   const { toast } = useToast();
 
   const filteredData = useMemo(() => {
-    return defaultForecastData.filter(item => {
+    return defaultForecastData.map(item => ({
+      ...item,
+      id: crypto.randomUUID(), // Add id to each data point
+    })).filter(item => {
       const itemDate = new Date(item.week);
       if (!(itemDate >= fromDate && itemDate <= toDate)) return false;
       
@@ -49,13 +53,7 @@ export const useForecastData = (
     });
   }, [selectedRegion, selectedCity, selectedChannel, selectedWarehouse, selectedCategory, selectedSubcategory, selectedSku, searchQuery, fromDate, toDate]);
 
-  const [metrics, setMetrics] = useState(() => calculateMetrics([], []));
-  const [confidenceIntervals, setConfidenceIntervals] = useState<{ upper: number; lower: number }[]>([]);
-  const [decomposition, setDecomposition] = useState(() => decomposeSeasonality([]));
-  const [validationResults, setValidationResults] = useState(() => validateForecast([], []));
-  const [crossValidationResults, setCrossValidationResults] = useState(() => performCrossValidation([]));
-
-  const detectOutliers = async (data: typeof filteredData) => {
+  const detectOutliers = async (data: ForecastDataPoint[]) => {
     try {
       const outlierPoints = data.filter(point => {
         const avg = data.reduce((sum, p) => sum + (p.actual || 0), 0) / data.length;
@@ -78,7 +76,14 @@ export const useForecastData = (
         .select();
 
       if (error) throw error;
-      setOutliers(savedOutliers);
+
+      // Convert the response data to match ForecastOutlier type
+      const typedOutliers: ForecastOutlier[] = savedOutliers.map(outlier => ({
+        ...outlier,
+        metadata: outlier.metadata as Record<string, any>
+      }));
+
+      setOutliers(typedOutliers);
     } catch (error) {
       console.error('Error detecting outliers:', error);
       toast({
@@ -89,23 +94,35 @@ export const useForecastData = (
     }
   };
 
-  const analyzeSeasonality = async (data: typeof filteredData) => {
+  const analyzeSeasonality = async (data: ForecastDataPoint[]) => {
     try {
       const decomposed = decomposeSeasonality(data.map(d => d.actual).filter((a): a is number => a !== null));
       
+      const seasonalityData = {
+        pattern_type: 'multiplicative',
+        frequency: 12, // Monthly seasonality
+        strength: 0.8,
+        configuration: {
+          trend: decomposed.trend,
+          seasonal: decomposed.seasonal
+        }
+      };
+
       const { data: savedPattern, error } = await supabase
         .from('seasonality_patterns')
-        .insert({
-          pattern_type: 'multiplicative',
-          frequency: decomposed.frequency,
-          strength: decomposed.strength,
-          configuration: decomposed.configuration,
-          metadata: { analysis_date: new Date().toISOString() }
-        })
+        .insert(seasonalityData)
         .select();
 
       if (error) throw error;
-      setSeasonalityPatterns(savedPattern);
+
+      // Convert the response data to match SeasonalityPattern type
+      const typedPatterns: SeasonalityPattern[] = savedPattern.map(pattern => ({
+        ...pattern,
+        configuration: pattern.configuration as Record<string, any>,
+        metadata: pattern.metadata as Record<string, any>
+      }));
+
+      setSeasonalityPatterns(typedPatterns);
     } catch (error) {
       console.error('Error analyzing seasonality:', error);
       toast({

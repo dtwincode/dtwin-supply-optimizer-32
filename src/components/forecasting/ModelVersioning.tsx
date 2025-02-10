@@ -27,7 +27,11 @@ export const ModelVersioning = ({ modelId }: ModelVersioningProps) => {
       model_name: modelId,
       version: `v${versions.length + 1}`,
       parameters: {},
-      accuracy_metrics: {},
+      accuracy_metrics: {
+        mape: 0,
+        mae: 0,
+        rmse: 0
+      },
       metadata: {},
       validation_metrics: {},
       training_data_snapshot: {},
@@ -68,7 +72,7 @@ export const ModelVersioning = ({ modelId }: ModelVersioningProps) => {
                 {format(new Date(version.created_at), 'MMM dd, yyyy HH:mm')}
               </TableCell>
               <TableCell>
-                <Badge variant={version.is_active ? "success" : "secondary"}>
+                <Badge variant={version.is_active ? "default" : "secondary"}>
                   {version.is_active ? 'Active' : 'Inactive'}
                 </Badge>
               </TableCell>
