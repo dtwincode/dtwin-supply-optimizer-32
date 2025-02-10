@@ -19,6 +19,43 @@ const mockTickets: Ticket[] = [
     createdAt: new Date().toISOString(),
     department: "Planning",
     tags: ["performance", "urgent"],
+  },
+  // Adding more mock tickets to demonstrate scrolling
+  {
+    id: "2",
+    title: "Database Connection Error",
+    description: "Users unable to connect to the main database",
+    priority: "high",
+    type: "technical",
+    status: "open",
+    assignedTo: "IT Support",
+    createdAt: new Date().toISOString(),
+    department: "IT",
+    tags: ["database", "urgent"],
+  },
+  {
+    id: "3",
+    title: "Update Documentation",
+    description: "Need to update user documentation for new features",
+    priority: "medium",
+    type: "task",
+    status: "open",
+    assignedTo: "documentation@example.com",
+    createdAt: new Date().toISOString(),
+    department: "Documentation",
+    tags: ["documentation"],
+  },
+  {
+    id: "4",
+    title: "Server Maintenance",
+    description: "Scheduled server maintenance and updates",
+    priority: "low",
+    type: "task",
+    status: "open",
+    assignedTo: "operations@example.com",
+    createdAt: new Date().toISOString(),
+    department: "Operations",
+    tags: ["maintenance"],
   }
 ];
 
@@ -53,28 +90,32 @@ const TicketsPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 p-6 h-[calc(100vh-4rem)]">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Tickets</h1>
-            <p className="text-muted-foreground">
-              Manage technical issues, tasks, and requests
-            </p>
+      <div className="flex flex-col h-[calc(100vh-4rem)]">
+        <div className="p-6 space-y-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-semibold tracking-tight">Tickets</h1>
+              <p className="text-muted-foreground">
+                Manage technical issues, tasks, and requests
+              </p>
+            </div>
+            <CreateTicketDialog
+              isOpen={isDialogOpen}
+              onOpenChange={setIsDialogOpen}
+              onSubmit={handleCreateTicket}
+            />
           </div>
-          <CreateTicketDialog
-            isOpen={isDialogOpen}
-            onOpenChange={setIsDialogOpen}
-            onSubmit={handleCreateTicket}
-          />
-        </div>
 
-        <ScrollArea className="h-[calc(100vh-12rem)]">
-          <div className="grid gap-4 pr-4">
-            {tickets.map((ticket) => (
-              <TicketCard key={ticket.id} ticket={ticket} />
-            ))}
-          </div>
-        </ScrollArea>
+          <ScrollArea className="h-[calc(100vh-12rem)] border rounded-md">
+            <div className="p-4">
+              <div className="grid gap-4">
+                {tickets.map((ticket) => (
+                  <TicketCard key={ticket.id} ticket={ticket} />
+                ))}
+              </div>
+            </div>
+          </ScrollArea>
+        </div>
       </div>
     </DashboardLayout>
   );
