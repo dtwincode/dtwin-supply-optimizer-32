@@ -199,6 +199,13 @@ const Inventory = () => {
   const [showDecouplingDialog, setShowDecouplingDialog] = useState(false);
   const [showBufferAdjustmentDialog, setShowBufferAdjustmentDialog] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [bufferFormState, setBufferFormState] = useState({
+    redZone: "",
+    yellowZone: "",
+    greenZone: "",
+    leadTimeFactor: "",
+    variabilityFactor: ""
+  });
   const { toast } = useToast();
 
   const filteredData = useMemo(() => {
@@ -234,8 +241,16 @@ const Inventory = () => {
     };
   };
 
-  const handleBufferAdjustment = (sku: string, adjustmentType: string, value: number) => {
-    if (!value || isNaN(value)) {
+  const handleBufferFormChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setBufferFormState(prev => ({
+      ...prev,
+      [field]: e.target.value
+    }));
+  };
+
+  const handleBufferAdjustment = (sku: string, adjustmentType: string, value: string) => {
+    const numValue = parseFloat(value);
+    if (!value || isNaN(numValue)) {
       toast({
         title: "Invalid Value",
         description: "Please enter a valid number for buffer adjustment",
@@ -248,6 +263,17 @@ const Inventory = () => {
       title: "Buffer Adjusted",
       description: `${adjustmentType} adjustment applied to ${sku}`,
     });
+    setShowBufferAdjustmentDialog(false);
+  };
+
+  const handleSaveBufferAdjustments = () => {
+    if (selectedProduct) {
+      // Validate and apply all buffer adjustments
+      const { redZone, yellowZone, greenZone } = bufferFormState;
+      if (redZone) handleBufferAdjustment(selectedProduct.sku, "red", redZone);
+      if (yellowZone) handleBufferAdjustment(selectedProduct.sku, "yellow", yellowZone);
+      if (greenZone) handleBufferAdjustment(selectedProduct.sku, "green", greenZone);
+    }
     setShowBufferAdjustmentDialog(false);
   };
 
@@ -905,7 +931,7 @@ const Inventory = () => {
                 <Button variant="outline" onClick={() => setShowBufferAdjustmentDialog(false)}>
                   Cancel
                 </Button>
-                <Button onClick={() => setShowBufferAdjustmentDialog(false)}>
+                <Button onClick={handleSaveBufferAdjustments}>
                   Save Changes
                 </Button>
               </div>
