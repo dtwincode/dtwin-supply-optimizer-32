@@ -7,17 +7,18 @@ import { ThemeToggle } from "./ThemeToggle";
 import { CreateTicketDialog } from "./tickets/CreateTicketDialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "./ui/button";
+import { getTranslation } from "@/translations";
 
 const navigationItems = [
-  { name: "Dashboard", icon: Home, href: "/" },
-  { name: "Forecasting", icon: TrendingUp, href: "/forecasting" },
-  { name: "Inventory", icon: Package, href: "/inventory" },
-  { name: "Sales Planning", icon: LineChart, href: "/sales-planning" },
-  { name: "Marketing", icon: Gift, href: "/marketing" },
-  { name: "Logistics", icon: Truck, href: "/logistics" },
-  { name: "Reports", icon: FileText, href: "/reports" },
-  { name: "Ask AI", icon: Search, href: "/ask-ai" },
-  { name: "Settings", icon: Settings, href: "/settings" },
+  { name: "navigationItems.dashboard", icon: Home, href: "/" },
+  { name: "navigationItems.forecasting", icon: TrendingUp, href: "/forecasting" },
+  { name: "navigationItems.inventory", icon: Package, href: "/inventory" },
+  { name: "navigationItems.salesPlanning", icon: LineChart, href: "/sales-planning" },
+  { name: "navigationItems.marketing", icon: Gift, href: "/marketing" },
+  { name: "navigationItems.logistics", icon: Truck, href: "/logistics" },
+  { name: "navigationItems.reports", icon: FileText, href: "/reports" },
+  { name: "navigationItems.askAI", icon: Search, href: "/ask-ai" },
+  { name: "navigationItems.settings", icon: Settings, href: "/settings" },
 ];
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
@@ -67,8 +68,8 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                     : "text-gray-600 hover:bg-gray-100"
                 )}
               >
-                <item.icon className="h-5 w-5 mr-3" />
-                {item.name}
+                <item.icon className={`h-5 w-5 ${isRTL ? 'ml-3' : 'mr-3'}`} />
+                {getTranslation(item.name, language)}
               </a>
             ))}
           </nav>
@@ -92,7 +93,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                 <MenuIcon className="h-5 w-5" />
               </button>
             )}
-            <h2 className="font-display text-lg">Supply Chain Dashboard</h2>
+            <h2 className="font-display text-lg">{getTranslation('dashboard', language)}</h2>
             <div className="ml-auto flex items-center gap-2">
               <Button
                 variant="ghost"
