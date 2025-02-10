@@ -44,7 +44,7 @@ import {
   type PriceAnalysis,
   calculatePriceImpact,
   analyzePriceSensitivity
-} from "@/utils/forecastingUtils";
+} from "@/utils/forecasting";
 
 const forecastData = [
   { 
