@@ -47,7 +47,7 @@ export default function Auth() {
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-4">
             <img
-              src="/lovable-uploads/ff1ca214-cc5f-4fa6-8bfd-4818cf19a551.png"
+              src="/lovable-uploads/0b98205f-f1d3-4302-9462-faee3a8dbe23.png"
               alt="dtwin logo"
               className="h-16 w-auto"
             />
