@@ -38,12 +38,12 @@ export function ThemeToggle() {
       variant="ghost" 
       size="icon"
       onClick={toggleTheme}
-      className="fixed bottom-20 right-4 rounded-full w-12 h-12 shadow-lg hover:shadow-xl transition-all duration-300 z-50 bg-background/80 backdrop-blur-sm border border-border"
+      className="rounded-full w-8 h-8 hover:bg-accent"
     >
       {theme === "light" ? (
-        <Moon className="h-6 w-6" />
+        <Moon className="h-4 w-4" />
       ) : (
-        <Sun className="h-6 w-6" />
+        <Sun className="h-4 w-4" />
       )}
     </Button>
   );

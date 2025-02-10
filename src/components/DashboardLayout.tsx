@@ -3,6 +3,7 @@ import { useState } from "react";
 import { MenuIcon, X, Home, TrendingUp, Package, LineChart, Gift, Truck, FileText, Search, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FloatingAskAI } from "./ai/FloatingAskAI";
+import { ThemeToggle } from "./ThemeToggle";
 
 const navigationItems = [
   { name: "Dashboard", icon: Home, href: "/" },
@@ -76,7 +77,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         }`}
       >
         {/* Top Bar */}
-        <div className="bg-white border-b">
+        <div className="bg-white dark:bg-card border-b">
           <div className="flex items-center h-16 px-4">
             {!sidebarOpen && (
               <button
@@ -87,6 +88,9 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
               </button>
             )}
             <h2 className="font-display text-lg">Supply Chain Dashboard</h2>
+            <div className="ml-4">
+              <ThemeToggle />
+            </div>
           </div>
         </div>
 
