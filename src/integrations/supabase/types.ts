@@ -9,6 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      market_events: {
+        Row: {
+          category: string
+          created_at: string | null
+          date: string
+          description: string
+          id: string
+          impact: number
+          name: string
+          source: string | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string | null
+          date: string
+          description?: string
+          id?: string
+          impact: number
+          name: string
+          source?: string | null
+          type?: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          date?: string
+          description?: string
+          id?: string
+          impact?: number
+          name?: string
+          source?: string | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

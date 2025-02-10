@@ -1,14 +1,7 @@
 
-export interface MarketEvent {
-  id: string;
-  type: 'competitor_action' | 'regulatory_change' | 'market_disruption' | 'technology_change' | 'economic_event';
-  name: string;
-  date: string;
-  impact: number;
-  description: string;
-  source?: string;
-  category: string;
-}
+import { MarketEvent } from '@/types/weatherAndEvents';
+
+export type { MarketEvent };
 
 export interface ExternalFactors {
   macroeconomic: {
