@@ -59,18 +59,24 @@ export interface Scenario {
   };
 }
 
+interface ForecastDataPoint {
+  month: string;
+}
+
 export const generateScenario = (
   baseline: number[],
   assumptions: {
     growthRate: number;
     seasonality: number;
     events: { month: string; impact: number }[];
-  }
+  },
+  timeData: ForecastDataPoint[]
 ): number[] => {
   return baseline.map((value, index) => {
     const growth = value * (1 + assumptions.growthRate);
     const seasonal = growth * (1 + Math.sin(index * 2 * Math.PI / 12) * assumptions.seasonality);
-    const event = assumptions.events.find(e => e.month === forecastData[index]?.month);
+    const event = assumptions.events.find(e => e.month === timeData[index]?.month);
     return seasonal * (event ? 1 + event.impact : 1);
   });
 };
+
