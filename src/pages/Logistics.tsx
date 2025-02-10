@@ -102,29 +102,7 @@ const Logistics = () => {
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex flex-col gap-4">
-          <h1 className="text-2xl font-bold">
-            Supply Chain Dashboard
-          </h1>
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Supply Chain Execution</h2>
-            <div className="flex gap-4">
-              <Input
-                placeholder="Search orders..."
-                className="w-[250px]"
-              />
-              <Select defaultValue="all">
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Filter by Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="in-transit">In Transit</SelectItem>
-                  <SelectItem value="delayed">Delayed</SelectItem>
-                  <SelectItem value="processing">Processing</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          <h1 className="text-2xl font-bold">Supply Chain Execution</h1>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

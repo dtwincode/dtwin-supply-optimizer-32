@@ -24,9 +24,7 @@ const Marketing = () => {
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex flex-col gap-4">
-          <h1 className="text-2xl font-bold">
-            Supply Chain Dashboard
-          </h1>
+          <h1 className="text-2xl font-bold">Marketing & Promotions</h1>
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-xl font-semibold">Marketing & Promotions</h2>
