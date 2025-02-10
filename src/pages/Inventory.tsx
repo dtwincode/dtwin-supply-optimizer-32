@@ -954,3 +954,54 @@ const Inventory = () => {
 
         <Dialog open={showBufferAdjustmentDialog} onOpenChange={setShowBufferAdjustmentDialog}>
           <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Adjust Buffer Zones</DialogTitle>
+              <DialogDescription>
+                Update buffer zones for {selectedProduct?.name}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>Red Zone</Label>
+                <Input 
+                  type="number" 
+                  placeholder="Enter red zone value"
+                  value={bufferFormState.redZone}
+                  onChange={handleBufferFormChange('redZone')}
+                />
+              </div>
+              <div>
+                <Label>Yellow Zone</Label>
+                <Input 
+                  type="number" 
+                  placeholder="Enter yellow zone value"
+                  value={bufferFormState.yellowZone}
+                  onChange={handleBufferFormChange('yellowZone')}
+                />
+              </div>
+              <div>
+                <Label>Green Zone</Label>
+                <Input 
+                  type="number" 
+                  placeholder="Enter green zone value"
+                  value={bufferFormState.greenZone}
+                  onChange={handleBufferFormChange('greenZone')}
+                />
+              </div>
+              <div className="flex justify-end gap-3">
+                <Button variant="outline" onClick={() => setShowBufferAdjustmentDialog(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSaveBufferAdjustments}>
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </DashboardLayout>
+  );
+};
+
+export default Inventory;
