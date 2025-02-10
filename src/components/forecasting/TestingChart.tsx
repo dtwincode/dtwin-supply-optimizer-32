@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Wand2 } from "lucide-react";
 import { useState } from "react";
 import { generateTestData, TestDataParams, getModelExample } from "@/utils/forecasting/metrics";
+import { defaultModelConfigs } from "@/types/modelParameters";
 
 interface TestingChartProps {
   historicalData: any[];
@@ -38,10 +39,13 @@ export const TestingChart = ({
   });
 
   const [testData, setTestData] = useState<number[]>([]);
+  const [selectedModel, setSelectedModel] = useState("moving-avg");
+  const [modelExample, setModelExample] = useState(getModelExample("moving-avg", []));
 
   const generateNewTestData = () => {
     const newData = generateTestData(testParams);
     setTestData(newData);
+    setModelExample(getModelExample(selectedModel, newData));
   };
 
   const formattedData = testData.map((value, index) => ({
@@ -65,6 +69,24 @@ export const TestingChart = ({
               <SelectItem value="180">Last 180 Days</SelectItem>
             </SelectContent>
           </Select>
+          <Select 
+            value={selectedModel} 
+            onValueChange={(value) => {
+              setSelectedModel(value);
+              setModelExample(getModelExample(value, testData));
+            }}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select model" />
+            </SelectTrigger>
+            <SelectContent>
+              {defaultModelConfigs.map(model => (
+                <SelectItem key={model.id} value={model.id}>
+                  {model.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button 
             variant="outline" 
             onClick={generateNewTestData}
@@ -75,6 +97,20 @@ export const TestingChart = ({
           </Button>
         </div>
       </div>
+
+      <div className="mb-6 p-4 bg-muted rounded-lg">
+        <h4 className="font-medium mb-2">{modelExample.description}</h4>
+        <p className="text-sm text-muted-foreground mb-2">Best Use Case: {modelExample.bestUseCase}</p>
+        <div className="text-sm text-muted-foreground">
+          Recommended Parameters:
+          {Object.entries(modelExample.recommendedParams).map(([key, value]) => (
+            <span key={key} className="ml-2">
+              {key}: {value}
+            </span>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <div>
           <label className="block text-sm font-medium mb-2">Trend Factor</label>
@@ -116,6 +152,7 @@ export const TestingChart = ({
           <span className="text-sm text-gray-500">{testParams.noise}</span>
         </div>
       </div>
+
       <div className="h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={formattedData}>
