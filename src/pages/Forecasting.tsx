@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { FileDown } from "lucide-react";
+import { FileDown, X } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -30,6 +30,8 @@ import { ForecastMetricsCards } from "@/components/forecasting/ForecastMetricsCa
 import { ForecastFilters } from "@/components/forecasting/ForecastFilters";
 import { ForecastChart } from "@/components/forecasting/ForecastChart";
 import { ScenarioManagement } from "@/components/forecasting/ScenarioManagement";
+import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
 
 const forecastData = [
   { 
