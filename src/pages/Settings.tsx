@@ -29,6 +29,21 @@ const MODULES: { id: ModuleType; title: string; description: string }[] = [
     id: "marketing",
     title: "Marketing Module",
     description: "Upload and manage marketing campaign data using CSV templates"
+  },
+  {
+    id: "logistics",
+    title: "Logistics Module",
+    description: "Upload and manage logistics and shipment data using CSV templates"
+  },
+  {
+    id: "location_hierarchy",
+    title: "Location Hierarchy",
+    description: "Upload and manage location hierarchy data using CSV templates"
+  },
+  {
+    id: "product_hierarchy",
+    title: "Product Hierarchy",
+    description: "Upload and manage product hierarchy data using CSV templates"
   }
 ];
 
@@ -75,4 +90,3 @@ const Settings = () => {
 };
 
 export default Settings;
-
