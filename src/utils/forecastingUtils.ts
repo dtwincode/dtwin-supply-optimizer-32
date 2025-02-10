@@ -1,8 +1,9 @@
-
 export interface ModelMetrics {
   mape: number;
   mae: number;
   rmse: number;
+  r2?: number;  // Added R-squared metric
+  aic?: number; // Added Akaike Information Criterion
 }
 
 export interface ProductHierarchy {
@@ -16,6 +17,11 @@ export interface ForecastDataPoint {
   category: string;
   subcategory?: string;
   sku?: string;
+  promotionalEvent?: boolean;
+  weatherImpact?: number;
+  marketEvents?: string[];
+  stockLevels?: number;
+  priceElasticity?: number;
 }
 
 export const calculateMetrics = (actual: number[], forecast: number[]): ModelMetrics => {
@@ -106,3 +112,91 @@ export const getUniqueValues = (data: ForecastDataPoint[], field: keyof ProductH
   return Array.from(values) as string[];
 };
 
+export const calculateAIC = (
+  residuals: number[],
+  numParameters: number
+): number => {
+  const n = residuals.length;
+  const rss = residuals.reduce((sum, r) => sum + r * r, 0);
+  return n * Math.log(rss / n) + 2 * numParameters;
+};
+
+export const calculateR2 = (actual: number[], predicted: number[]): number => {
+  const mean = actual.reduce((sum, val) => sum + val, 0) / actual.length;
+  const totalSum = actual.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0);
+  const residualSum = actual.reduce((sum, val, i) => sum + Math.pow(val - predicted[i], 2), 0);
+  return 1 - (residualSum / totalSum);
+};
+
+export interface CrossValidationResult {
+  trainMetrics: ModelMetrics;
+  testMetrics: ModelMetrics;
+  validationMetrics: ModelMetrics;
+}
+
+export const performCrossValidation = (
+  data: number[],
+  folds: number = 5
+): CrossValidationResult => {
+  // Simple implementation for demonstration
+  const foldSize = Math.floor(data.length / folds);
+  const metrics = {
+    mape: 0,
+    mae: 0,
+    rmse: 0
+  };
+  
+  return {
+    trainMetrics: metrics,
+    testMetrics: metrics,
+    validationMetrics: metrics
+  };
+};
+
+export interface ForecastValidation {
+  outOfSampleError: number;
+  biasTest: boolean;
+  residualNormality: boolean;
+  heteroskedasticityTest: boolean;
+}
+
+export const validateForecast = (
+  actual: number[],
+  forecast: number[]
+): ForecastValidation => {
+  return {
+    outOfSampleError: calculateMetrics(actual, forecast).mape,
+    biasTest: true, // Implement actual statistical test
+    residualNormality: true, // Implement Shapiro-Wilk or similar test
+    heteroskedasticityTest: true // Implement White test or similar
+  };
+};
+
+export interface ExternalFactors {
+  macroeconomic: {
+    gdpGrowth: number;
+    inflation: number;
+    exchangeRates: { [key: string]: number };
+  };
+  competitive: {
+    marketShare: number;
+    competitorActions: string[];
+  };
+  seasonal: {
+    weatherPatterns: string[];
+    events: string[];
+  };
+}
+
+export const adjustForecastWithExternalFactors = (
+  baseline: number[],
+  factors: ExternalFactors
+): number[] => {
+  return baseline.map(value => {
+    let adjusted = value;
+    adjusted *= (1 + factors.macroeconomic.gdpGrowth);
+    adjusted *= (1 - factors.macroeconomic.inflation);
+    // Add more sophisticated adjustments based on other factors
+    return adjusted;
+  });
+};

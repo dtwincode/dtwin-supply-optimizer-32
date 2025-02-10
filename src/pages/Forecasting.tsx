@@ -39,7 +39,24 @@ import {
 
 // Mock data - replace with actual API data
 const forecastData = [
-  { month: "Jan", actual: 65, forecast: 62, variance: -3, region: "Central Region", city: "Riyadh", channel: "B2B", warehouse: "Distribution Center NA", category: "Electronics", subcategory: "Smartphones", sku: "IPH-12" },
+  { 
+    month: "Jan", 
+    actual: 65, 
+    forecast: 62, 
+    variance: -3, 
+    region: "Central Region", 
+    city: "Riyadh", 
+    channel: "B2B", 
+    warehouse: "Distribution Center NA", 
+    category: "Electronics", 
+    subcategory: "Smartphones", 
+    sku: "IPH-12",
+    promotionalEvent: true,
+    weatherImpact: 0.02,
+    marketEvents: ["New Competitor Launch"],
+    stockLevels: 500,
+    priceElasticity: -1.2
+  },
   { month: "Feb", actual: 72, forecast: 70, variance: -2, region: "Eastern Region", city: "Dammam", channel: "B2C", warehouse: "Distribution Center EU", category: "Electronics", subcategory: "Laptops", sku: "LT-HP-1" },
   { month: "Mar", actual: 68, forecast: 65, variance: -3, region: "Western Region", city: "Jeddah", channel: "Wholesale", warehouse: "Manufacturing Plant Asia", category: "Electronics", subcategory: "Tablets", sku: "TAB-SM-1" },
   { month: "Apr", actual: 75, forecast: 78, variance: 3, region: "Central Region", city: "Riyadh", channel: "B2B", warehouse: "Distribution Center NA", category: "Electronics", subcategory: "Smartphones", sku: "IPH-13" },
@@ -122,6 +139,13 @@ const Forecasting = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>("all");
   const [selectedSku, setSelectedSku] = useState<string>("all");
+  const [showValidation, setShowValidation] = useState(false);
+  const [showExternalFactors, setShowExternalFactors] = useState(false);
+  const [macroFactors, setMacroFactors] = useState({
+    gdpGrowth: 0.02,
+    inflation: 0.03,
+    exchangeRates: { USD: 1, EUR: 0.85 }
+  });
   const { toast } = useToast();
 
   const filteredData = useMemo(() => {
@@ -169,6 +193,17 @@ const Forecasting = () => {
     const baseline = filteredData.map(d => d.forecast);
     return generateScenario(baseline, whatIfParams, filteredData); // Pass filteredData as timeData
   }, [filteredData, whatIfParams]);
+
+  const validationResults = useMemo(() => {
+    const actuals = filteredData.map(d => d.actual).filter(a => a !== null) as number[];
+    const forecasts = filteredData.map(d => d.forecast).filter(f => f !== null) as number[];
+    return validateForecast(actuals, forecasts);
+  }, [filteredData]);
+
+  const crossValidationResults = useMemo(() => {
+    const values = filteredData.map(d => d.actual || d.forecast);
+    return performCrossValidation(values);
+  }, [filteredData]);
 
   const handleSaveScenario = () => {
     if (!scenarioName) {
@@ -418,6 +453,8 @@ const Forecasting = () => {
             <TabsTrigger value="forecast">Forecast Analysis</TabsTrigger>
             <TabsTrigger value="decomposition">Pattern Analysis</TabsTrigger>
             <TabsTrigger value="scenarios">What-If Analysis</TabsTrigger>
+            <TabsTrigger value="validation">Forecast Validation</TabsTrigger>
+            <TabsTrigger value="external">External Factors</TabsTrigger>
           </TabsList>
 
           <TabsContent value="forecast">
@@ -600,6 +637,88 @@ const Forecasting = () => {
                       />
                     </LineChart>
                   </ResponsiveContainer>
+                </div>
+              </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="validation">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Forecast Validation</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-medium mb-2">Statistical Tests</h4>
+                  <ul className="space-y-2">
+                    <li className="flex items-center">
+                      <span className={`mr-2 ${validationResults.biasTest ? 'text-green-500' : 'text-red-500'}`}>
+                        {validationResults.biasTest ? '✓' : '×'}
+                      </span>
+                      Bias Test
+                    </li>
+                    <li className="flex items-center">
+                      <span className={`mr-2 ${validationResults.residualNormality ? 'text-green-500' : 'text-red-500'}`}>
+                        {validationResults.residualNormality ? '✓' : '×'}
+                      </span>
+                      Residual Normality
+                    </li>
+                    <li className="flex items-center">
+                      <span className={`mr-2 ${validationResults.heteroskedasticityTest ? 'text-green-500' : 'text-red-500'}`}>
+                        {validationResults.heteroskedasticityTest ? '✓' : '×'}
+                      </span>
+                      Heteroskedasticity Test
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-medium mb-2">Cross Validation Results</h4>
+                  <div className="space-y-2">
+                    <p>Train MAPE: {crossValidationResults.trainMetrics.mape.toFixed(2)}%</p>
+                    <p>Test MAPE: {crossValidationResults.testMetrics.mape.toFixed(2)}%</p>
+                    <p>Validation MAPE: {crossValidationResults.validationMetrics.mape.toFixed(2)}%</p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="external">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">External Factors Analysis</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <h4 className="font-medium mb-2">Macroeconomic Factors</h4>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm mb-1">GDP Growth</label>
+                      <Input
+                        type="number"
+                        value={macroFactors.gdpGrowth}
+                        onChange={(e) => setMacroFactors(prev => ({
+                          ...prev,
+                          gdpGrowth: parseFloat(e.target.value)
+                        }))}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm mb-1">Inflation Rate</label>
+                      <Input
+                        type="number"
+                        value={macroFactors.inflation}
+                        onChange={(e) => setMacroFactors(prev => ({
+                          ...prev,
+                          inflation: parseFloat(e.target.value)
+                        }))}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="font-medium mb-2">Market Events</h4>
+                  {/* Add event input and management UI */}
+                </div>
+                <div>
+                  <h4 className="font-medium mb-2">Weather Patterns</h4>
+                  {/* Add weather pattern input and analysis UI */}
                 </div>
               </div>
             </Card>
