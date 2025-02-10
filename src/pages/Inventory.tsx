@@ -1,6 +1,6 @@
+
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { TabsContent } from "@/components/ui/tabs";
 import { useState } from "react";
@@ -9,11 +9,10 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
 import InventoryFilters from "@/components/inventory/InventoryFilters";
 import InventorySummaryCards from "@/components/inventory/InventorySummaryCards";
-import { InventoryTableHeader } from "@/components/inventory/InventoryTableHeader";
-import { BufferStatusBadge } from "@/components/inventory/BufferStatusBadge";
 import { InventoryTabs } from "@/components/inventory/InventoryTabs";
+import { InventoryTab } from "@/components/inventory/InventoryTab";
 import { inventoryData } from "@/data/inventoryData";
-import { calculateBufferStatus } from "@/utils/inventoryUtils";
+import { InventoryItem } from "@/types/inventory";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -31,12 +30,8 @@ const Inventory = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>("all");
   const [selectedSKU, setSelectedSKU] = useState<string>("all");
-  const [showPurchaseOrderDialog, setShowPurchaseOrderDialog] = useState(false);
-  const [showDecouplingDialog, setShowDecouplingDialog] = useState(false);
-  const [showBufferAdjustmentDialog, setShowBufferAdjustmentDialog] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
 
-  const handleCreatePurchaseOrder = () => {
+  const handleCreatePurchaseOrder = (item: InventoryItem) => {
     toast({
       title: getTranslation("common.success", language),
       description: getTranslation("common.purchaseOrderCreated", language),
@@ -70,6 +65,22 @@ const Inventory = () => {
     currentPage * ITEMS_PER_PAGE
   );
 
+  // Get unique values for filters
+  const categories = [...new Set(inventoryData.map(item => item.category))] as string[];
+  const subcategories = [...new Set(inventoryData
+    .filter(item => selectedCategory === "all" || item.category === selectedCategory)
+    .map(item => item.subcategory))] as string[];
+  const skus = [...new Set(inventoryData
+    .filter(item => 
+      (selectedCategory === "all" || item.category === selectedCategory) &&
+      (selectedSubcategory === "all" || item.subcategory === selectedSubcategory)
+    )
+    .map(item => item.sku))] as string[];
+  const productFamilies = [...new Set(inventoryData.map(item => item.productFamily))] as string[];
+  const regions = [...new Set(inventoryData.map(item => item.region))] as string[];
+  const channelTypes = [...new Set(inventoryData.map(item => item.channel))] as string[];
+  const locations = [...new Set(inventoryData.map(item => item.location))] as string[];
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -98,18 +109,11 @@ const Inventory = () => {
             setSelectedSKU={setSelectedSKU}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
-            categories={[...new Set(inventoryData.map(item => item.category))]}
-            subcategories={[...new Set(inventoryData
-              .filter(item => selectedCategory === "all" || item.category === selectedCategory)
-              .map(item => item.subcategory))]}
-            skus={[...new Set(inventoryData
-              .filter(item => 
-                (selectedCategory === "all" || item.category === selectedCategory) &&
-                (selectedSubcategory === "all" || item.subcategory === selectedSubcategory)
-              )
-              .map(item => item.sku))]}
-            productFamilies={[...new Set(inventoryData.map(item => item.productFamily))]}
-            regions={[...new Set(inventoryData.map(item => item.region))]}
+            categories={categories}
+            subcategories={subcategories}
+            skus={skus}
+            productFamilies={productFamilies}
+            regions={regions}
             cities={{
               "Central Region": ["Riyadh", "Al-Kharj", "Al-Qassim"],
               "Eastern Region": ["Dammam", "Al-Khobar", "Dhahran"],
@@ -117,8 +121,8 @@ const Inventory = () => {
               "Northern Region": ["Tabuk", "Hail", "Al-Jawf"],
               "Southern Region": ["Abha", "Jizan", "Najran"]
             }}
-            channelTypes={[...new Set(inventoryData.map(item => item.channel))]}
-            locations={[...new Set(inventoryData.map(item => item.location))]}
+            channelTypes={channelTypes}
+            locations={locations}
           />
         </div>
 
@@ -127,56 +131,29 @@ const Inventory = () => {
         <Card>
           <InventoryTabs>
             <TabsContent value="inventory">
-              <div className="p-6">
-                <Table>
-                  <InventoryTableHeader />
-                  <TableBody>
-                    {paginatedData.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell className="font-medium">{item.sku}</TableCell>
-                        <TableCell>{item.name}</TableCell>
-                        <TableCell>{item.currentStock}</TableCell>
-                        <TableCell>
-                          <BufferStatusBadge status={calculateBufferStatus(item.netFlow)} />
-                        </TableCell>
-                        <TableCell>{item.location}</TableCell>
-                        <TableCell>{item.productFamily}</TableCell>
-                        <TableCell>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedProduct(item);
-                              setShowPurchaseOrderDialog(true);
-                            }}
-                          >
-                            {getTranslation("common.createPO", language)}
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-                <div className="mt-4 flex justify-between items-center">
-                  <div className="text-sm text-gray-500">
-                    {getTranslation("common.showing", language)} {(currentPage - 1) * ITEMS_PER_PAGE + 1} {getTranslation("common.to", language)} {Math.min(currentPage * ITEMS_PER_PAGE, filteredData.length)} {getTranslation("common.of", language)} {filteredData.length} {getTranslation("common.items", language)}
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                      disabled={currentPage === 1}
-                    >
-                      {getTranslation("common.previous", language)}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredData.length / ITEMS_PER_PAGE), p + 1))}
-                      disabled={currentPage === Math.ceil(filteredData.length / ITEMS_PER_PAGE)}
-                    >
-                      {getTranslation("common.next", language)}
-                    </Button>
-                  </div>
+              <InventoryTab 
+                paginatedData={paginatedData}
+                onCreatePO={handleCreatePurchaseOrder}
+              />
+              <div className="mt-4 flex justify-between items-center p-6">
+                <div className="text-sm text-gray-500">
+                  {getTranslation("common.showing", language)} {(currentPage - 1) * ITEMS_PER_PAGE + 1} {getTranslation("common.to", language)} {Math.min(currentPage * ITEMS_PER_PAGE, filteredData.length)} {getTranslation("common.of", language)} {filteredData.length} {getTranslation("common.items", language)}
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    {getTranslation("common.previous", language)}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredData.length / ITEMS_PER_PAGE), p + 1))}
+                    disabled={currentPage === Math.ceil(filteredData.length / ITEMS_PER_PAGE)}
+                  >
+                    {getTranslation("common.next", language)}
+                  </Button>
                 </div>
               </div>
             </TabsContent>
