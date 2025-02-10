@@ -29,11 +29,45 @@ const timeFrames = [
 export const ReportGenerator = () => {
   const [selectedReport, setSelectedReport] = useState<string>("");
   const [selectedTimeFrame, setSelectedTimeFrame] = useState<string>("");
+  const [reportDescription, setReportDescription] = useState<string>("");
+  const [isLoadingDescription, setIsLoadingDescription] = useState(false);
   const { toast } = useToast();
 
+  const generateReportDescription = async (reportType: string) => {
+    setIsLoadingDescription(true);
+    try {
+      const response = await fetch('/api/generate-report-description', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          reportType: reportTypes.find(r => r.id === reportType)?.name 
+        }),
+      });
+      
+      const data = await response.json();
+      setReportDescription(data.description);
+    } catch (error) {
+      console.error('Error generating report description:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate report description. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingDescription(false);
+    }
+  };
+
+  const handleReportChange = (value: string) => {
+    setSelectedReport(value);
+    if (value) {
+      generateReportDescription(value);
+    } else {
+      setReportDescription("");
+    }
+  };
+
   const handleGenerateReport = (format: "pdf" | "excel" | "ppt") => {
-    // This is where you would implement the actual report generation logic
-    // For now, we'll just show a toast notification
     toast({
       title: "Report Generated",
       description: `${selectedReport} for ${selectedTimeFrame} has been generated in ${format.toUpperCase()} format.`,
@@ -48,7 +82,7 @@ export const ReportGenerator = () => {
           <div className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Report Type</label>
-              <Select onValueChange={setSelectedReport} value={selectedReport}>
+              <Select onValueChange={handleReportChange} value={selectedReport}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select report type" />
                 </SelectTrigger>
@@ -60,6 +94,14 @@ export const ReportGenerator = () => {
                   ))}
                 </SelectContent>
               </Select>
+              {isLoadingDescription && (
+                <p className="text-sm text-gray-500 mt-2">Generating description...</p>
+              )}
+              {reportDescription && !isLoadingDescription && (
+                <p className="text-sm text-gray-600 mt-2 bg-gray-50 p-3 rounded-md">
+                  {reportDescription}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Time Frame</label>
