@@ -153,3 +153,80 @@ export const findBestFitModel = (
   // Sort by score (lower is better) and return the best model
   return results.sort((a, b) => a.score - b.score)[0];
 };
+
+export interface TestDataParams {
+  length: number;
+  trend?: number;
+  seasonality?: number;
+  noise?: number;
+  baseValue?: number;
+}
+
+export const generateTestData = (params: TestDataParams): number[] => {
+  const {
+    length,
+    trend = 0.05,
+    seasonality = 0.2,
+    noise = 0.1,
+    baseValue = 1000
+  } = params;
+
+  return Array.from({ length }, (_, i) => {
+    // Add trend component
+    const trendComponent = baseValue * (1 + trend * (i / 52));
+    
+    // Add seasonal component (yearly pattern)
+    const seasonalComponent = trendComponent * (1 + seasonality * Math.sin(2 * Math.PI * i / 52));
+    
+    // Add random noise
+    const randomNoise = seasonalComponent * (1 + (Math.random() - 0.5) * noise);
+    
+    return Math.round(randomNoise);
+  });
+};
+
+export const getModelExample = (modelId: string, data: number[]) => {
+  switch (modelId) {
+    case "moving-avg":
+      return {
+        description: "Best for stable data with minimal seasonality",
+        recommendedParams: {
+          windowSize: Math.min(Math.ceil(Math.sqrt(data.length)), 12)
+        },
+        bestUseCase: "Short-term forecasting of stable demand"
+      };
+    case "exp-smoothing":
+      return {
+        description: "Effective for data with trends and seasonality",
+        recommendedParams: {
+          alpha: 0.3,
+          beta: 0.1,
+          gamma: detectSeasonality(data) ? 0.3 : 0.1
+        },
+        bestUseCase: "Medium-term forecasting with seasonal patterns"
+      };
+    case "arima":
+      const { p, d, q } = optimizeARIMAOrders(data);
+      return {
+        description: "Powerful for complex time series with multiple patterns",
+        recommendedParams: { p, d, q },
+        bestUseCase: "Long-term forecasting with complex patterns"
+      };
+    case "prophet":
+      return {
+        description: "Handles multiple seasonalities and holiday effects",
+        recommendedParams: {
+          changePointPrior: 0.05,
+          seasonalityPrior: 10,
+          holidaysPrior: 10
+        },
+        bestUseCase: "Forecasting with multiple seasonal patterns and events"
+      };
+    default:
+      return {
+        description: "General purpose forecasting model",
+        recommendedParams: {},
+        bestUseCase: "Various forecasting scenarios"
+      };
+  }
+};
