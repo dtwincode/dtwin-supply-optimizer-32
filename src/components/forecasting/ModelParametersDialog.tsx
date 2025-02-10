@@ -9,22 +9,27 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
-import { Settings } from "lucide-react";
+import { Settings, Wand2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { ModelConfig, ModelParameter } from "@/types/modelParameters";
 import { useToast } from "@/hooks/use-toast";
+import { optimizeModelParameters } from "@/utils/forecasting/metrics";
 
 interface ModelParametersDialogProps {
   model: ModelConfig;
   onParametersChange: (modelId: string, parameters: ModelParameter[]) => void;
+  historicalData?: number[];
 }
 
-export function ModelParametersDialog({ model, onParametersChange }: ModelParametersDialogProps) {
+export function ModelParametersDialog({ 
+  model, 
+  onParametersChange,
+  historicalData 
+}: ModelParametersDialogProps) {
   const [parameters, setParameters] = useState<ModelParameter[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
-    // Update parameters when model changes
     setParameters(model.parameters);
   }, [model]);
 
@@ -34,6 +39,36 @@ export function ModelParametersDialog({ model, onParametersChange }: ModelParame
         param.name === paramName ? { ...param, value } : param
       )
     );
+  };
+
+  const handleAutoOptimize = () => {
+    if (!historicalData || historicalData.length === 0) {
+      toast({
+        title: "Auto-optimization failed",
+        description: "Historical data is required for parameter optimization.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const optimizedParams = optimizeModelParameters(historicalData);
+    const modelOptimizedParams = optimizedParams.find(p => p.modelId === model.id);
+
+    if (modelOptimizedParams) {
+      setParameters(prev =>
+        prev.map(param => {
+          const optimized = modelOptimizedParams.parameters.find(
+            p => p.name === param.name
+          );
+          return optimized ? { ...param, value: optimized.value } : param;
+        })
+      );
+
+      toast({
+        title: "Parameters Optimized",
+        description: `${model.name} parameters have been automatically optimized based on historical data.`,
+      });
+    }
   };
 
   const handleSave = () => {
@@ -60,6 +95,14 @@ export function ModelParametersDialog({ model, onParametersChange }: ModelParame
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
+          <Button 
+            variant="outline" 
+            onClick={handleAutoOptimize}
+            className="w-full"
+          >
+            <Wand2 className="h-4 w-4 mr-2" />
+            Auto-optimize Parameters
+          </Button>
           {parameters.map((param) => (
             <div key={param.name} className="space-y-2">
               <div className="flex justify-between items-center">
