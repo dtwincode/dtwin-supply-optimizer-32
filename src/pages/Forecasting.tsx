@@ -3,7 +3,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FileDown, Wand2 } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
@@ -78,17 +78,17 @@ const Forecasting = () => {
   const [modelConfigs, setModelConfigs] = useState(defaultModelConfigs);
   const { toast } = useToast();
 
-  const [metrics, setMetrics] = useState(calculateMetrics([], []));
+  const [metrics, setMetrics] = useState(() => calculateMetrics([], []));
   const [confidenceIntervals, setConfidenceIntervals] = useState<{ upper: number; lower: number }[]>([]);
-  const [decomposition, setDecomposition] = useState(decomposeSeasonality([]));
-  const [validationResults, setValidationResults] = useState(validateForecast([], []));
-  const [crossValidationResults, setCrossValidationResults] = useState(performCrossValidation([]));
+  const [decomposition, setDecomposition] = useState(() => decomposeSeasonality([]));
+  const [validationResults, setValidationResults] = useState(() => validateForecast([], []));
+  const [crossValidationResults, setCrossValidationResults] = useState(() => performCrossValidation([]));
   const [weatherLocation, setWeatherLocation] = useState("Riyadh");
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [marketEvents, setMarketEvents] = useState<MarketEvent[]>([]);
   const [newEvent, setNewEvent] = useState<Partial<MarketEvent>>({});
   const [priceAnalysis, setPriceAnalysis] = useState<PriceAnalysis | null>(null);
-  const [historicalPriceData, setHistoricalPriceData] = useState<{ date: string; price: number }[]>([]);
+  const [historicalPriceData, setHistoricalPriceData] = useState<Array<{ price: number; demand: number }>>([]);
 
   const [historicalData] = useState(() => {
     return Array.from({ length: 180 }, (_, i) => ({
@@ -135,6 +135,17 @@ const Forecasting = () => {
     });
   }, [selectedRegion, selectedCity, selectedChannel, selectedWarehouse, selectedCategory, selectedSubcategory, selectedSku, searchQuery, fromDate, toDate]);
 
+  useEffect(() => {
+    const actuals = filteredData.map(d => d.actual).filter((a): a is number => a !== null);
+    const forecasts = filteredData.map(d => d.forecast);
+    
+    setMetrics(calculateMetrics(actuals, forecasts));
+    setConfidenceIntervals(calculateConfidenceIntervals(forecasts));
+    setDecomposition(decomposeSeasonality(forecasts));
+    setValidationResults(validateForecast(actuals, forecasts));
+    setCrossValidationResults(performCrossValidation(forecasts));
+  }, [filteredData]);
+
   const handleExport = () => {
     const csvContent = [
       ["Week", "Actual", "Forecast", "Variance", "Region", "City", "Channel", "Category", "Subcategory", "SKU"],
@@ -179,13 +190,31 @@ const Forecasting = () => {
     });
   };
 
-  const addHistoricalPricePoint = (date: string, price: number) => {
-    setHistoricalPriceData(prev => [...prev, { date, price }]);
+  const addHistoricalPricePoint = (price: number, demand: number) => {
+    setHistoricalPriceData(prev => [...prev, { price, demand }]);
   };
 
   const calculatePriceAnalysis = () => {
-    // This would be implemented to calculate price analysis based on historical data
-    // For now it's a placeholder
+    const analysis = historicalPriceData.reduce((acc, point) => {
+      return {
+        averagePrice: (acc.averagePrice || 0) + point.price / historicalPriceData.length,
+        averageDemand: (acc.averageDemand || 0) + point.demand / historicalPriceData.length
+      };
+    }, { averagePrice: 0, averageDemand: 0 });
+
+    setPriceAnalysis({
+      elasticity: 0, // Placeholder
+      optimalPrice: analysis.averagePrice,
+      projectedDemand: analysis.averageDemand
+    });
+  };
+
+  const fetchWeatherForecast = async () => {
+    try {
+      console.log("Fetching weather forecast for:", weatherLocation);
+    } catch (error) {
+      console.error("Error fetching weather data:", error);
+    }
   };
 
   return (
