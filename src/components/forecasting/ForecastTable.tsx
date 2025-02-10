@@ -209,3 +209,4 @@ export const ForecastTable = ({ data: initialData }: ForecastTableProps) => {
     </Card>
   );
 };
+
