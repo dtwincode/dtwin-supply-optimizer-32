@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { MenuIcon, X, Home, TrendingUp, Package, LineChart, Gift, Truck, FileText, Search, Settings, TicketPlus, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -9,7 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "./ui/button";
 import { getTranslation } from "@/translations";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 
 const navigationItems = [
   { name: "navigationItems.dashboard", icon: Home, href: "/" },
@@ -75,9 +76,9 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           </div>
           <nav className="p-4 space-y-1">
             {navigationItems.map((item) => (
-              <a
+              <Link
                 key={item.name}
-                href={item.href}
+                to={item.href}
                 className={cn(
                   "flex items-center px-4 py-2 text-sm font-medium rounded-lg",
                   location.pathname === item.href || (item.href === "/" && location.pathname === "")
@@ -87,7 +88,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
               >
                 <item.icon className={`h-5 w-5 ${isRTL ? 'ml-3' : 'mr-3'}`} />
                 {getTranslation(item.name, language)}
-              </a>
+              </Link>
             ))}
           </nav>
         </div>
