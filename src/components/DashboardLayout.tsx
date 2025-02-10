@@ -1,11 +1,12 @@
 
 import { useState } from "react";
-import { MenuIcon, X, Home, Package, TrendingUp, Truck, Settings } from "lucide-react";
+import { MenuIcon, X, Home, Package, TrendingUp, Truck, Settings, LineChart } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navigationItems = [
   { name: "Dashboard", icon: Home, href: "/" },
   { name: "Inventory", icon: Package, href: "/inventory" },
+  { name: "Sales Planning", icon: LineChart, href: "/sales-planning" },
   { name: "Forecasting", icon: TrendingUp, href: "/forecasting" },
   { name: "Logistics", icon: Truck, href: "/logistics" },
   { name: "Settings", icon: Settings, href: "/settings" },
