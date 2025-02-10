@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
 import {
@@ -39,7 +40,8 @@ import {
   performCrossValidation,
   type WeatherData,
   type MarketEvent,
-  fetchWeatherForecast
+  fetchWeatherForecast,
+  type PriceData
 } from "@/utils/forecastingUtils";
 
 const forecastData = [
