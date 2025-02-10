@@ -933,4 +933,62 @@ const Inventory = () => {
                   </Select>
                 </div>
 
-                <div className="space
+                <div className="space-y-2">
+                  <Label>Variability Factor</Label>
+                  <Select
+                    defaultValue={selectedProduct?.decouplingPoint?.variabilityFactor}
+                    onValueChange={(value) => {
+                      if (selectedProduct) {
+                        selectedProduct.decouplingPoint.variabilityFactor = value;
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select variability factor" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {variabilityFactors.map(factor => (
+                        <SelectItem key={factor} value={factor}>{factor}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Buffer Profile</Label>
+                  <Select
+                    defaultValue={selectedProduct?.decouplingPoint?.bufferProfile}
+                    onValueChange={(value) => {
+                      if (selectedProduct) {
+                        selectedProduct.decouplingPoint.bufferProfile = value;
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select buffer profile" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {bufferProfiles.map(profile => (
+                        <SelectItem key={profile} value={profile}>{profile}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button onClick={() => setShowDecouplingDialog(false)}>Cancel</Button>
+              <Button onClick={() => {
+                if (selectedProduct) {
+                  handleDecouplingPointChange(selectedProduct.sku, selectedProduct.decouplingPoint);
+                }
+              }}>Save Changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </DashboardLayout>
+  );
+};
+
+export default Inventory;
