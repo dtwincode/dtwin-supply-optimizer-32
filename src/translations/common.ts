@@ -1,3 +1,4 @@
+
 import { CommonTranslations } from './types';
 
 export const commonTranslations: CommonTranslations = {
@@ -126,3 +127,4 @@ export const commonTranslations: CommonTranslations = {
     ar: "التالي"
   }
 };
+

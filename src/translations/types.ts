@@ -1,3 +1,4 @@
+
 export type TranslationValue = {
   en: string;
   ar: string;
@@ -67,6 +68,20 @@ export type CommonTranslations = {
     yellow: TranslationValue;
     red: TranslationValue;
   };
+  viewAll: TranslationValue;
+  search: TranslationValue;
+  filter: TranslationValue;
+  status: TranslationValue;
+  loading: TranslationValue;
+  noData: TranslationValue;
+  submit: TranslationValue;
+  cancel: TranslationValue;
+  save: TranslationValue;
+  edit: TranslationValue;
+  delete: TranslationValue;
+  create: TranslationValue;
+  back: TranslationValue;
+  next: TranslationValue;
 };
 
 export type SalesTranslations = {
@@ -91,3 +106,4 @@ export type Translations = {
   common: CommonTranslations;
   sales: SalesTranslations;
 };
+
