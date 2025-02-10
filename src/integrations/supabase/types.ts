@@ -117,6 +117,66 @@ export type Database = {
         }
         Relationships: []
       }
+      logistics_data: {
+        Row: {
+          actual_delivery: string | null
+          carrier: string
+          cost: number | null
+          created_at: string
+          date: string
+          destination: string
+          estimated_delivery: string | null
+          id: string
+          notes: string | null
+          origin: string
+          priority: string | null
+          shipment_id: string
+          status: string
+          tracking_number: string | null
+          type: string | null
+          updated_at: string
+          weight: number | null
+        }
+        Insert: {
+          actual_delivery?: string | null
+          carrier: string
+          cost?: number | null
+          created_at?: string
+          date: string
+          destination: string
+          estimated_delivery?: string | null
+          id?: string
+          notes?: string | null
+          origin: string
+          priority?: string | null
+          shipment_id: string
+          status: string
+          tracking_number?: string | null
+          type?: string | null
+          updated_at?: string
+          weight?: number | null
+        }
+        Update: {
+          actual_delivery?: string | null
+          carrier?: string
+          cost?: number | null
+          created_at?: string
+          date?: string
+          destination?: string
+          estimated_delivery?: string | null
+          id?: string
+          notes?: string | null
+          origin?: string
+          priority?: string | null
+          shipment_id?: string
+          status?: string
+          tracking_number?: string | null
+          type?: string | null
+          updated_at?: string
+          weight?: number | null
+        }
+        Relationships: []
+      }
       market_events: {
         Row: {
           category: string

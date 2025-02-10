@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -205,6 +204,29 @@ export function DataUploadDialog({ module, onDataUploaded }: DataUploadDialogPro
             });
             ({ error } = await supabase.from('marketing_data').insert(marketingData));
             break;
+
+          case 'logistics':
+            const logisticsData = dataRows.map(row => {
+              const values = row.split(',').map(v => v.trim());
+              return {
+                shipment_id: values[headers.indexOf('shipment_id')],
+                date: values[headers.indexOf('date')],
+                origin: values[headers.indexOf('origin')],
+                destination: values[headers.indexOf('destination')],
+                status: values[headers.indexOf('status')],
+                carrier: values[headers.indexOf('carrier')],
+                tracking_number: values[headers.indexOf('tracking_number')] || null,
+                estimated_delivery: values[headers.indexOf('estimated_delivery')] || null,
+                actual_delivery: values[headers.indexOf('actual_delivery')] || null,
+                weight: values[headers.indexOf('weight')] ? parseFloat(values[headers.indexOf('weight')]) : null,
+                cost: values[headers.indexOf('cost')] ? parseFloat(values[headers.indexOf('cost')]) : null,
+                type: values[headers.indexOf('type')] || null,
+                priority: values[headers.indexOf('priority')] || null,
+                notes: values[headers.indexOf('notes')] || null
+              };
+            });
+            ({ error } = await supabase.from('logistics_data').insert(logisticsData));
+            break;
         }
 
         if (error) throw error;
@@ -264,4 +286,3 @@ export function DataUploadDialog({ module, onDataUploaded }: DataUploadDialogPro
     </Dialog>
   );
 }
-
