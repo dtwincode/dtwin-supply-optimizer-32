@@ -15,7 +15,7 @@ export interface MarketEvent {
   name: string;
   date: string;
   impact: number;
-  description?: string;
+  description: string;
   source?: string;
 }
 
