@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ForecastMetricsCards } from "./ForecastMetricsCards";
@@ -24,9 +25,11 @@ import {
 } from "@/constants/forecasting";
 
 export const ForecastingContainer = () => {
+  // Set initial dates to show our 2024 data
+  const [fromDate, setFromDate] = useState<Date>(new Date('2024-01-01'));
+  const [toDate, setToDate] = useState<Date>(new Date('2024-12-26'));
+  
   const [selectedModel, setSelectedModel] = useState("moving-avg");
-  const [fromDate, setFromDate] = useState<Date>(new Date());
-  const [toDate, setToDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() + 30)));
   const [horizon, setHorizon] = useState("12w");
   const [scenarioName, setScenarioName] = useState("");
   const [selectedScenario, setSelectedScenario] = useState<any>(null);
