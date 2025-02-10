@@ -180,7 +180,7 @@ const SalesPlanning = () => {
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">All Categories</SelectItem>
+                          <SelectItem value="all">All Categories</SelectItem>
                           {productCategories.map((category) => (
                             <SelectItem key={category} value={category}>
                               {category}
@@ -196,7 +196,7 @@ const SalesPlanning = () => {
                           <SelectValue placeholder="Select region" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">All Regions</SelectItem>
+                          <SelectItem value="all">All Regions</SelectItem>
                           {regions.map((region) => (
                             <SelectItem key={region} value={region}>
                               {region}
