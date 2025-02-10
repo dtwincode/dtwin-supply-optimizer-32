@@ -1,4 +1,3 @@
-
 import { CommonTranslations } from './types';
 
 export const commonTranslations: CommonTranslations = {
@@ -125,5 +124,61 @@ export const commonTranslations: CommonTranslations = {
   next: {
     en: "Next",
     ar: "التالي"
+  },
+  inventory: {
+    en: "Inventory Management",
+    ar: "إدارة المخزون"
+  },
+  bufferZones: {
+    en: "Buffer Zones",
+    ar: "مناطق المخزون"
+  },
+  netFlowPosition: {
+    en: "Net Flow Position",
+    ar: "صافي التدفق"
+  },
+  unitsLabel: {
+    en: "units",
+    ar: "وحدات"
+  },
+  actions: {
+    en: "Actions",
+    ar: "إجراءات"
+  },
+  createPO: {
+    en: "Create PO",
+    ar: "إنشاء أمر شراء"
+  },
+  configure: {
+    en: "Configure",
+    ar: "تكوين"
+  },
+  adjust: {
+    en: "Adjust",
+    ar: "تعديل"
+  },
+  review: {
+    en: "Review",
+    ar: "مراجعة"
+  },
+  decouplingPoint: {
+    en: "Decoupling Point",
+    ar: "نقطة الفصل"
+  },
+  netFlow: {
+    en: "Net Flow Analysis",
+    ar: "تحليل التدفق الصافي"
+  },
+  buffers: {
+    en: "Buffer Management",
+    ar: "إدارة المخزون الاحتياطي"
+  },
+  adu: {
+    en: "ADU & Spikes",
+    ar: "معدل الاستخدام اليومي والقفزات"
+  },
+  alerts: {
+    en: "Supply Alerts",
+    ar: "تنبيهات التوريد"
   }
 };

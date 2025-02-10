@@ -1,4 +1,3 @@
-
 export type TranslationValue = {
   en: string;
   ar: string;
@@ -82,6 +81,20 @@ export type CommonTranslations = {
   create: TranslationValue;
   back: TranslationValue;
   next: TranslationValue;
+  inventory: TranslationValue;
+  bufferZones: TranslationValue;
+  netFlowPosition: TranslationValue;
+  unitsLabel: TranslationValue;
+  actions: TranslationValue;
+  createPO: TranslationValue;
+  configure: TranslationValue;
+  adjust: TranslationValue;
+  review: TranslationValue;
+  decouplingPoint: TranslationValue;
+  netFlow: TranslationValue;
+  buffers: TranslationValue;
+  adu: TranslationValue;
+  alerts: TranslationValue;
 };
 
 export type SalesTranslations = {
@@ -106,4 +119,3 @@ export type Translations = {
   common: CommonTranslations;
   sales: SalesTranslations;
 };
-
