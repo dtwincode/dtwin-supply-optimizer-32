@@ -99,6 +99,7 @@ const Forecasting = () => {
   const fetchWeatherForecast = async (location: string): Promise<WeatherData> => {
     const mockData: WeatherData = {
       temperature: 25,
+      precipitation: 0,
       humidity: 60,
       windSpeed: 10,
       weatherCondition: "Sunny",
