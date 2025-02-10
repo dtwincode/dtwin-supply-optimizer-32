@@ -9,6 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      data_quality_metrics: {
+        Row: {
+          accuracy_score: number | null
+          anomaly_count: number | null
+          completeness_score: number | null
+          consistency_score: number | null
+          created_at: string | null
+          dataset_date: string
+          id: string
+          notes: string | null
+        }
+        Insert: {
+          accuracy_score?: number | null
+          anomaly_count?: number | null
+          completeness_score?: number | null
+          consistency_score?: number | null
+          created_at?: string | null
+          dataset_date: string
+          id?: string
+          notes?: string | null
+        }
+        Update: {
+          accuracy_score?: number | null
+          anomaly_count?: number | null
+          completeness_score?: number | null
+          consistency_score?: number | null
+          created_at?: string | null
+          dataset_date?: string
+          id?: string
+          notes?: string | null
+        }
+        Relationships: []
+      }
       forecast_accuracy: {
         Row: {
           actual_value: number | null
@@ -383,6 +416,39 @@ export type Database = {
           start_date?: string
           target_audience?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      model_versions: {
+        Row: {
+          accuracy_metrics: Json | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          model_name: string
+          parameters: Json | null
+          updated_at: string | null
+          version: string
+        }
+        Insert: {
+          accuracy_metrics?: Json | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          model_name: string
+          parameters?: Json | null
+          updated_at?: string | null
+          version: string
+        }
+        Update: {
+          accuracy_metrics?: Json | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          model_name?: string
+          parameters?: Json | null
+          updated_at?: string | null
+          version?: string
         }
         Relationships: []
       }
