@@ -158,7 +158,7 @@ const Forecasting = () => {
 
   const whatIfScenario = useMemo(() => {
     const baseline = filteredData.map(d => d.forecast);
-    return generateScenario(baseline, whatIfParams);
+    return generateScenario(baseline, whatIfParams, filteredData); // Pass filteredData as timeData
   }, [filteredData, whatIfParams]);
 
   const handleSaveScenario = () => {
