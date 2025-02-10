@@ -1,15 +1,15 @@
 
 import { useState } from "react";
-import { MenuIcon, X, Home, Package, TrendingUp, Truck, Settings, LineChart, FileText, Gift, Search } from "lucide-react";
+import { MenuIcon, X, Home, TrendingUp, Package, LineChart, Gift, Truck, FileText, Search, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FloatingAskAI } from "./ai/FloatingAskAI";
 
 const navigationItems = [
   { name: "Dashboard", icon: Home, href: "/" },
+  { name: "Forecasting", icon: TrendingUp, href: "/forecasting" },
   { name: "Inventory", icon: Package, href: "/inventory" },
   { name: "Sales Planning", icon: LineChart, href: "/sales-planning" },
   { name: "Marketing", icon: Gift, href: "/marketing" },
-  { name: "Forecasting", icon: TrendingUp, href: "/forecasting" },
   { name: "Logistics", icon: Truck, href: "/logistics" },
   { name: "Reports", icon: FileText, href: "/reports" },
   { name: "Ask AI", icon: Search, href: "/ask-ai" },
