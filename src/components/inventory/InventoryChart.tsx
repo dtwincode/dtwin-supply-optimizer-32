@@ -6,40 +6,30 @@ import { getTranslation } from "@/translations";
 import { InventoryItem } from "@/types/inventory";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from 'react';
+import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
 interface InventoryChartProps {
   data: InventoryItem[];
 }
 
 type ChartType = 'bar' | 'line' | 'area';
-type TimeRange = '1week' | '2weeks' | '4weeks' | '8weeks' | '12weeks';
 
 export const InventoryChart = ({ data }: InventoryChartProps) => {
   const { language } = useLanguage();
   const [chartType, setChartType] = useState<ChartType>('bar');
-  const [timeRange, setTimeRange] = useState<TimeRange>('4weeks');
+  const [fromDate, setFromDate] = useState<Date>(new Date());
+  const [toDate, setToDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() + 30)));
 
-  // Filter data based on time range in weeks
+  // Filter data based on date range
   const getFilteredData = () => {
-    const now = new Date();
     const filtered = data.filter(item => {
       const itemDate = new Date(item.lastUpdated);
-      const weeksDiff = Math.floor((now.getTime() - itemDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
-      
-      switch (timeRange) {
-        case '1week':
-          return weeksDiff <= 1;
-        case '2weeks':
-          return weeksDiff <= 2;
-        case '4weeks':
-          return weeksDiff <= 4;
-        case '8weeks':
-          return weeksDiff <= 8;
-        case '12weeks':
-          return weeksDiff <= 12;
-        default:
-          return true;
-      }
+      return itemDate >= fromDate && itemDate <= toDate;
     });
 
     return filtered.map(item => ({
@@ -122,18 +112,55 @@ export const InventoryChart = ({ data }: InventoryChartProps) => {
               <SelectItem value="area">Area Chart</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={timeRange} onValueChange={(value: TimeRange) => setTimeRange(value)}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select time range" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1week">Last Week</SelectItem>
-              <SelectItem value="2weeks">Last 2 Weeks</SelectItem>
-              <SelectItem value="4weeks">Last 4 Weeks</SelectItem>
-              <SelectItem value="8weeks">Last 8 Weeks</SelectItem>
-              <SelectItem value="12weeks">Last 12 Weeks</SelectItem>
-            </SelectContent>
-          </Select>
+          
+          <div className="flex gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-[180px] justify-start text-left font-normal",
+                    !fromDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {fromDate ? format(fromDate, "MMM dd, yyyy") : "Select date"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={fromDate}
+                  onSelect={(date) => date && setFromDate(date)}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-[180px] justify-start text-left font-normal",
+                    !toDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {toDate ? format(toDate, "MMM dd, yyyy") : "Select date"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={toDate}
+                  onSelect={(date) => date && setToDate(date)}
+                  initialFocus
+                  fromDate={fromDate}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
       </div>
       <div className="h-[400px]">
