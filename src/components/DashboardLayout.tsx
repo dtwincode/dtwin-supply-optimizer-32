@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { MenuIcon, X, Home, TrendingUp, Package, LineChart, Gift, Truck, FileText, Search, Settings, TicketPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -31,7 +30,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="min-h-screen bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Sidebar */}
       <div
         className={`fixed top-0 ${isRTL ? 'right-0' : 'left-0'} z-40 h-screen transition-transform duration-300 ease-in-out ${
           sidebarOpen ? "translate-x-0" : `${isRTL ? 'translate-x-full' : '-translate-x-full'}`
@@ -39,18 +37,15 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       >
         <div className="h-full w-64 bg-white shadow-lg">
           <div className="flex items-center justify-between p-4 border-b">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center">
               <img 
-                src="/lovable-uploads/20a1eff5-9fd9-48a9-9896-f1f3c1ec575f.png" 
+                src="/lovable-uploads/1a4fcbbf-1db8-4111-b40a-bdbb74fea485.png" 
                 alt="dtwin logo" 
-                className="h-8"
+                className="h-12 w-auto"
               />
-              <div className="flex flex-col">
-                <span className="font-display text-xl font-semibold">dtwin</span>
-                <span className="text-[8px] text-dtwin-medium uppercase tracking-wider">
-                  Innovate. Integrate. Accelerate
-                </span>
-              </div>
+              <span className="text-[10px] text-dtwin-medium uppercase tracking-wider mt-1 block">
+                Innovate. Integrate. Accelerate
+              </span>
             </div>
             <button
               onClick={() => setSidebarOpen(false)}
@@ -79,13 +74,11 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div
         className={`transition-all duration-300 ${
           sidebarOpen ? (isRTL ? 'mr-64' : 'ml-64') : 'ml-0'
         }`}
       >
-        {/* Top Bar */}
         <div className="bg-white dark:bg-card border-b">
           <div className="flex items-center h-16 px-4">
             {!sidebarOpen && (
@@ -148,7 +141,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           </div>
         </div>
 
-        {/* Page Content */}
         <div className="p-6">
           {children}
           <FloatingAskAI />
