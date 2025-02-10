@@ -203,17 +203,29 @@ const Forecasting = () => {
     }, { averagePrice: 0, averageDemand: 0 });
 
     setPriceAnalysis({
-      elasticity: 0, // Placeholder
+      priceElasticity: 0, // Changed from elasticity to match PriceAnalysis type
       optimalPrice: analysis.averagePrice,
-      projectedDemand: analysis.averageDemand
+      priceThresholds: {
+        min: Math.min(...historicalPriceData.map(d => d.price)),
+        max: Math.max(...historicalPriceData.map(d => d.price)),
+        optimal: analysis.averagePrice
+      }
     });
   };
 
   const fetchWeatherForecast = async () => {
     try {
       console.log("Fetching weather forecast for:", weatherLocation);
+      return {
+        temperature: 25,
+        precipitation: 0,
+        humidity: 50,
+        windSpeed: 10,
+        weatherCondition: "sunny"
+      };
     } catch (error) {
       console.error("Error fetching weather data:", error);
+      throw error;
     }
   };
 
