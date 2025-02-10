@@ -1,4 +1,3 @@
-
 interface ModelParameters {
   [key: string]: number;
 }
@@ -7,6 +6,12 @@ interface TestDataConfig {
   length: number;
   modelType: string;
   parameters: ModelParameters;
+}
+
+export interface TestDataParams {
+  length: number;
+  modelType: string;
+  parameters: Record<string, number>;
 }
 
 export const generateTestData = (config: TestDataConfig): number[] => {

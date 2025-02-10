@@ -1,23 +1,13 @@
 
 import { Card } from "@/components/ui/card";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Wand2 } from "lucide-react";
 import { useState } from "react";
 import { generateTestData } from "@/utils/forecasting/testDataGenerator";
 import { type TestDataParams } from "@/utils/forecasting/testDataGenerator";
 import { getModelExample } from "@/utils/forecasting/modelSelection";
-import { defaultModelConfigs } from "@/types/modelParameters";
+import { ChartControls } from "./test-chart/ChartControls";
+import { ModelInfo } from "./test-chart/ModelInfo";
+import { ParametersPanel } from "./test-chart/ParametersPanel";
+import { TestDataChart } from "./test-chart/TestDataChart";
 
 interface TestingChartProps {
   historicalData: any[];
@@ -35,7 +25,6 @@ export const TestingChart = ({
   const [selectedModel, setSelectedModel] = useState("moving-avg");
   const [modelExample, setModelExample] = useState(getModelExample("moving-avg", []));
   
-  // Model-specific parameters based on the selected model
   const [modelParams, setModelParams] = useState({
     "moving-avg": {
       windowSize: 3,
@@ -154,116 +143,48 @@ export const TestingChart = ({
       modelType: selectedModel,
       parameters: params
     });
-    setModelExample(getModelExample(selectedModel, modelSpecificData || [])); // Added null check
+    setModelExample(getModelExample(selectedModel, modelSpecificData || []));
+  };
+
+  const handleParameterChange = (key: string, value: number) => {
+    setModelParams(prev => ({
+      ...prev,
+      [selectedModel]: {
+        ...prev[selectedModel as keyof typeof modelParams],
+        [key]: value
+      }
+    }));
   };
 
   return (
     <Card className="p-6">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Model Testing Results</h3>
-        <div className="flex gap-4">
-          <Select value={timeRange} onValueChange={onTimeRangeChange}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select time range" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="30">Last 30 Days</SelectItem>
-              <SelectItem value="60">Last 60 Days</SelectItem>
-              <SelectItem value="90">Last 90 Days</SelectItem>
-              <SelectItem value="180">Last 180 Days</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select 
-            value={selectedModel} 
-            onValueChange={(value) => {
-              setSelectedModel(value);
-              setModelExample(getModelExample(value, []));
-            }}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select model" />
-            </SelectTrigger>
-            <SelectContent>
-              {defaultModelConfigs.map(model => (
-                <SelectItem key={model.id} value={model.id}>
-                  {model.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button 
-            variant="outline" 
-            onClick={generateNewTestData}
-            className="flex items-center gap-2"
-          >
-            <Wand2 className="h-4 w-4" />
-            Generate Test Data
-          </Button>
-        </div>
+        <ChartControls
+          timeRange={timeRange}
+          onTimeRangeChange={onTimeRangeChange}
+          selectedModel={selectedModel}
+          onModelChange={(value) => {
+            setSelectedModel(value);
+            setModelExample(getModelExample(value, []));
+          }}
+          onGenerateData={generateNewTestData}
+        />
       </div>
 
-      <div className="mb-6 p-4 bg-muted rounded-lg">
-        <h4 className="font-medium mb-2">{modelExample.description}</h4>
-        <p className="text-sm text-muted-foreground mb-2">Best Use Case: {modelExample.bestUseCase}</p>
-        <div className="text-sm text-muted-foreground">
-          Recommended Parameters:
-          {Object.entries(modelExample.recommendedParams).map(([key, value]) => (
-            <span key={key} className="ml-2">
-              {key}: {value}
-            </span>
-          ))}
-        </div>
-      </div>
+      <ModelInfo
+        description={modelExample.description}
+        bestUseCase={modelExample.bestUseCase}
+        recommendedParams={modelExample.recommendedParams}
+      />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-        {getParamConfig(selectedModel).map((param) => (
-          <div key={param.key}>
-            <label className="block text-sm font-medium mb-2">
-              {param.name}
-              <span className="block text-xs text-gray-500">{param.description}</span>
-            </label>
-            <input
-              type="range"
-              min={param.min}
-              max={param.max}
-              step={param.step}
-              value={modelParams[selectedModel as keyof typeof modelParams][param.key as keyof typeof modelParams[keyof typeof modelParams]]}
-              onChange={(e) => {
-                setModelParams(prev => ({
-                  ...prev,
-                  [selectedModel]: {
-                    ...prev[selectedModel as keyof typeof modelParams],
-                    [param.key]: parseFloat(e.target.value)
-                  }
-                }));
-              }}
-              className="w-full"
-            />
-            <span className="text-sm text-gray-500">
-              {modelParams[selectedModel as keyof typeof modelParams][param.key as keyof typeof modelParams[keyof typeof modelParams]]}
-            </span>
-          </div>
-        ))}
-      </div>
+      <ParametersPanel
+        parameters={getParamConfig(selectedModel)}
+        values={modelParams[selectedModel as keyof typeof modelParams]}
+        onChange={handleParameterChange}
+      />
 
-      <div className="h-[400px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={[]}> {/* This will be populated by generateTestData */}
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="actual"
-              stroke="#10B981"
-              name="Test Data"
-              strokeWidth={2}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+      <TestDataChart data={[]} />
     </Card>
   );
 };
