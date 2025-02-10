@@ -35,9 +35,9 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useLanguage } from "@/context/LanguageContext";
-import { getTranslation } from "@/utils/translation";
-import { toArabicNumerals } from "@/utils/arabicNumerals";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslation } from "@/translations";
+import { toArabicNumerals } from "@/translations";
 
 // Mock data - replace with actual API data later
 const bufferProfileData = [
