@@ -38,14 +38,14 @@ export const AskAI = () => {
 
     setIsLoading(true);
     try {
-      const response = await fetch('https://b006500d-faf3-4127-884e-bcd01399fc3d.functions.supabase.co/process-ai-query', {
+      const response = await fetch('https://mttzjxktvbsixjaqiuxq.functions.supabase.co/process-ai-query', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           query,
-          context: "Supply chain management system with inventory, sales, marketing, and logistics data.",
+          context: "Supply chain management system with inventory, sales, marketing, and logistics data. The user is looking for insights and analysis based on the available data.",
         }),
       });
 
@@ -55,6 +55,11 @@ export const AskAI = () => {
 
       const data = await response.json();
       setResponse(data.response);
+      
+      toast({
+        title: "Success",
+        description: "Query processed successfully",
+      });
     } catch (error) {
       console.error('Error processing query:', error);
       toast({

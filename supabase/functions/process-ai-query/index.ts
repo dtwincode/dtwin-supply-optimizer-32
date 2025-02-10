@@ -28,7 +28,7 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'You are a helpful assistant that helps users with supply chain management queries. You can analyze data, create reports, and provide insights about inventory, sales, marketing plans, and logistics.'
+            content: 'You are a helpful assistant specialized in supply chain management and data analysis. You help users analyze reports, identify trends, and provide actionable insights about inventory, sales, marketing plans, and logistics data.'
           },
           {
             role: 'user',
@@ -49,6 +49,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
+    console.error('Error in process-ai-query:', error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
