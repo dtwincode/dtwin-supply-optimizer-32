@@ -1,4 +1,3 @@
-
 type TranslationValue = {
   en: string;
   ar: string;
@@ -60,6 +59,21 @@ type Translations = {
     pipeline: TranslationValue;
     onTime: TranslationValue;
     reports: TranslationValue;
+    description: TranslationValue;
+    accuracy: TranslationValue;
+    planAndTrack: TranslationValue;
+    manageInitiatives: TranslationValue;
+    optimizeDelivery: TranslationValue;
+    accessInsights: TranslationValue;
+    chartTitles: {
+      bufferProfile: TranslationValue;
+      demandVariability: TranslationValue;
+    };
+    zones: {
+      green: TranslationValue;
+      yellow: TranslationValue;
+      red: TranslationValue;
+    };
   };
 };
 
@@ -210,6 +224,54 @@ export const translations: Translations = {
     reports: {
       en: "reports",
       ar: "تقارير"
+    },
+    description: {
+      en: "Track and manage inventory levels",
+      ar: "تتبع وإدارة مستويات المخزون"
+    },
+    accuracy: {
+      en: "accuracy",
+      ar: "دقة"
+    },
+    planAndTrack: {
+      en: "Plan and track sales activities",
+      ar: "تخطيط وتتبع أنشطة المبيعات"
+    },
+    manageInitiatives: {
+      en: "Manage marketing initiatives",
+      ar: "إدارة المبادرات التسويقية"
+    },
+    optimizeDelivery: {
+      en: "Optimize delivery operations",
+      ar: "تحسين عمليات التسليم"
+    },
+    accessInsights: {
+      en: "Access business insights",
+      ar: "الوصول إلى رؤى الأعمال"
+    },
+    chartTitles: {
+      bufferProfile: {
+        en: "Buffer Profile Distribution",
+        ar: "توزيع نسب المخزون"
+      },
+      demandVariability: {
+        en: "Demand Variability Analysis",
+        ar: "تحليل تغير الطلب"
+      }
+    },
+    zones: {
+      green: {
+        en: "Green Zone",
+        ar: "المنطقة الخضراء"
+      },
+      yellow: {
+        en: "Yellow Zone",
+        ar: "المنطقة الصفراء"
+      },
+      red: {
+        en: "Red Zone",
+        ar: "المنطقة الحمراء"
+      }
     }
   }
 };
@@ -234,4 +296,3 @@ export const getTranslation = (key: string, language: 'en' | 'ar'): string => {
   
   return current[language] || key;
 };
-

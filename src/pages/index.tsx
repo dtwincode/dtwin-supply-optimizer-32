@@ -39,7 +39,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
 import { toArabicNumerals } from "@/translations";
 
-// Mock data - replace with actual API data later
 const bufferProfileData = [
   { category: "Raw Materials", green: 65, yellow: 20, red: 15 },
   { category: "WIP", green: 55, yellow: 30, red: 15 },
@@ -177,6 +176,10 @@ const Index = () => {
     return `${percentage}%`;
   };
 
+  const getModuleDescription = (moduleKey: string): string => {
+    return getTranslation(`common.${moduleKey}`, language);
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6 animate-fadeIn">
@@ -298,7 +301,9 @@ const Index = () => {
                     <p className="text-2xl font-semibold mb-2">
                       {language === 'ar' ? toArabicNumerals(module.stats) : module.stats}
                     </p>
-                    <p className="text-sm text-gray-500">{module.description}</p>
+                    <p className="text-sm text-gray-500">
+                      {getModuleDescription(module.title.replace(/\s+/g, '').toLowerCase())}
+                    </p>
                   </div>
                 </div>
                 <div className="mt-4 flex justify-end">
@@ -311,11 +316,10 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card className="p-6">
             <h4 className="font-display text-xl font-semibold mb-4">
-              Buffer Profile Distribution
+              {getTranslation('common.chartTitles.bufferProfile', language)}
             </h4>
             <div className="h-[400px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -329,21 +333,21 @@ const Index = () => {
                     dataKey="green"
                     stackId="stack"
                     fill="#10B981"
-                    name="Green Zone"
+                    name={getTranslation('common.zones.green', language)}
                     radius={[4, 4, 0, 0]}
                   />
                   <Bar
                     dataKey="yellow"
                     stackId="stack"
                     fill="#F59E0B"
-                    name="Yellow Zone"
+                    name={getTranslation('common.zones.yellow', language)}
                     radius={[4, 4, 0, 0]}
                   />
                   <Bar
                     dataKey="red"
                     stackId="stack"
                     fill="#EF4444"
-                    name="Red Zone"
+                    name={getTranslation('common.zones.red', language)}
                     radius={[4, 4, 0, 0]}
                   />
                 </BarChart>
@@ -353,7 +357,7 @@ const Index = () => {
 
           <Card className="p-6">
             <h4 className="font-display text-xl font-semibold mb-4">
-              Demand Variability Analysis
+              {getTranslation('common.chartTitles.demandVariability', language)}
             </h4>
             <div className="h-[400px]">
               <ResponsiveContainer width="100%" height="100%">
