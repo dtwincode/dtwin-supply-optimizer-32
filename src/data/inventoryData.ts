@@ -20,6 +20,7 @@ export const inventoryData: InventoryItem[] = [
     city: "Riyadh",
     channel: "Retail",
     warehouse: "Main DC",
+    bufferPenetration: 75, // Added the missing property
     netFlow: {
       onHand: 100,
       onOrder: 50,
@@ -41,3 +42,4 @@ export const inventoryData: InventoryItem[] = [
   },
   // Add more sample data as needed
 ];
+
