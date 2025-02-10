@@ -23,25 +23,63 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Check active sessions and sets the user
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setIsLoading(false);
-    });
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setUser(session?.user ?? null);
+        
+        if (!session?.user) {
+          // If no active session, redirect to auth page
+          navigate('/auth');
+        }
+      } catch (error) {
+        console.error('Error checking auth session:', error);
+        // On session error, clear user state and redirect to auth
+        setUser(null);
+        navigate('/auth');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeAuth();
 
     // Listen for changes on auth state (signed in, signed out, etc.)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event);
       setUser(session?.user ?? null);
+      
+      switch (event) {
+        case 'SIGNED_IN':
+          navigate('/');
+          break;
+        case 'SIGNED_OUT':
+          navigate('/auth');
+          break;
+        case 'TOKEN_REFRESHED':
+          console.log('Token refreshed successfully');
+          break;
+        case 'USER_UPDATED':
+          setUser(session?.user ?? null);
+          break;
+      }
+      
       setIsLoading(false);
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
 
   const signUp = async (email: string, password: string) => {
     try {
       const { error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: window.location.origin,
+        },
       });
       if (error) throw error;
       toast({
@@ -65,7 +103,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password,
       });
       if (error) throw error;
-      navigate('/');
       toast({
         title: "Success",
         description: "Successfully signed in",
@@ -84,7 +121,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      navigate('/auth');
+      // Clear user state immediately after signing out
+      setUser(null);
       toast({
         title: "Success",
         description: "Successfully signed out",
