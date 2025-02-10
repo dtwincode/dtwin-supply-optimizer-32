@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,11 +26,20 @@ const cities = {
   "Asia Pacific": ["Tokyo", "Singapore", "Sydney", "Seoul"]
 };
 
+// Updated warehouses mapping
 const warehouses = {
   "New York": ["NYC-01", "NYC-02"],
   "Los Angeles": ["LA-01", "LA-02"],
   "London": ["LDN-01", "LDN-02"],
-  "Tokyo": ["TKY-01", "TKY-02"]
+  "Paris": ["PAR-01", "PAR-02"],
+  "Berlin": ["BER-01", "BER-02"],
+  "Madrid": ["MAD-01", "MAD-02"],
+  "Tokyo": ["TKY-01", "TKY-02"],
+  "Singapore": ["SIN-01", "SIN-02"],
+  "Sydney": ["SYD-01", "SYD-02"],
+  "Seoul": ["SEL-01", "SEL-02"],
+  "Toronto": ["TOR-01", "TOR-02"],
+  "Chicago": ["CHI-01", "CHI-02"]
 };
 
 const productCategories = ["Electronics", "Fashion", "Home & Garden"];
@@ -122,6 +132,7 @@ export const SalesPlanForm = ({ onClose }: SalesPlanFormProps) => {
     setFormState(prev => {
       const newState = { ...prev, [field]: value };
       
+      // Reset dependent fields when parent field changes
       if (field === "category") {
         newState.subcategory = "";
         newState.sku = "";
@@ -140,6 +151,7 @@ export const SalesPlanForm = ({ onClose }: SalesPlanFormProps) => {
         newState.accountName = "";
       }
       
+      // Clear error when field is updated
       setFormErrors(prev => ({ ...prev, [field]: "" }));
       
       return newState;
@@ -327,7 +339,7 @@ export const SalesPlanForm = ({ onClose }: SalesPlanFormProps) => {
             <Select
               value={formState.warehouse}
               onValueChange={(value) => handleFormChange("warehouse", value)}
-              disabled={!formState.city || !warehouses[formState.city as keyof typeof warehouses]}
+              disabled={!formState.city}
             >
               <SelectTrigger className={formErrors.warehouse ? "border-red-500" : ""}>
                 <SelectValue placeholder="Select warehouse" />
@@ -471,3 +483,4 @@ export const SalesPlanForm = ({ onClose }: SalesPlanFormProps) => {
     </ScrollArea>
   );
 };
+
