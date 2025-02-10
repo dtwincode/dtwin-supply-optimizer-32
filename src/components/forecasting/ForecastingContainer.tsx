@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ForecastMetricsCards } from "./ForecastMetricsCards";
@@ -8,6 +7,7 @@ import { ForecastingTabs } from "./ForecastingTabs";
 import { ForecastFilters } from "./ForecastFilters";
 import { ScenarioManagement } from "./ScenarioManagement";
 import { ModelVersioning } from "./ModelVersioning";
+import { DataUploadDialog } from "../settings/DataUploadDialog";
 import { useForecastData } from "@/hooks/useForecastData";
 import { useWeatherData } from "@/hooks/useWeatherData";
 import { useMarketEvents } from "@/hooks/useMarketEvents";
@@ -144,16 +144,29 @@ export const ForecastingContainer = () => {
     });
   };
 
+  const handleDataUploaded = () => {
+    toast({
+      title: "Success",
+      description: "Forecast data has been uploaded successfully",
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4">
-        <ForecastingHeader
-          selectedModel={selectedModel}
-          setSelectedModel={setSelectedModel}
-          handleExport={handleExport}
-          findBestModel={findBestModel}
-          modelConfigs={modelConfigs}
-        />
+        <div className="flex justify-between items-center">
+          <ForecastingHeader
+            selectedModel={selectedModel}
+            setSelectedModel={setSelectedModel}
+            handleExport={handleExport}
+            findBestModel={findBestModel}
+            modelConfigs={modelConfigs}
+          />
+          <DataUploadDialog 
+            module="forecasting"
+            onDataUploaded={handleDataUploaded}
+          />
+        </div>
 
         <ModelVersioning modelId={selectedModel} />
 
