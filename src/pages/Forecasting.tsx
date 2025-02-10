@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useState, useMemo, useEffect } from "react";
@@ -10,6 +11,7 @@ import { ForecastFilters } from "@/components/forecasting/ForecastFilters";
 import { ScenarioManagement } from "@/components/forecasting/ScenarioManagement";
 import { useModelParameters } from "@/hooks/useModelParameters";
 import { defaultModelConfigs } from "@/types/modelParameters";
+import { type WeatherData, type MarketEvent, type PriceAnalysis } from '@/types/weatherAndEvents';
 import {
   calculateMetrics,
   calculateConfidenceIntervals,
