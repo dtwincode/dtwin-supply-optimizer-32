@@ -21,18 +21,26 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { PlusCircle } from "lucide-react";
+import { Clock, PlusCircle, Tag, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+// Improved type definitions with proper documentation
+type TicketPriority = "high" | "medium" | "low";
+type TicketType = "technical" | "task" | "advice";
+type TicketStatus = "open" | "in-progress" | "resolved";
 
 interface Ticket {
   id: string;
   title: string;
   description: string;
-  priority: "high" | "medium" | "low";
-  type: "technical" | "task" | "advice";
-  status: "open" | "in-progress" | "resolved";
+  priority: TicketPriority;
+  type: TicketType;
+  status: TicketStatus;
   assignedTo: string;
   createdAt: string;
+  department?: string;
+  dueDate?: string;
+  tags?: string[];
 }
 
 const mockTickets: Ticket[] = [
@@ -45,6 +53,8 @@ const mockTickets: Ticket[] = [
     status: "open",
     assignedTo: "IT Support",
     createdAt: new Date().toISOString(),
+    department: "Planning",
+    tags: ["performance", "urgent"],
   }
 ];
 
@@ -61,22 +71,30 @@ const TicketsPage = () => {
       id: (tickets.length + 1).toString(),
       title: formData.get("title") as string,
       description: formData.get("description") as string,
-      priority: formData.get("priority") as "high" | "medium" | "low",
-      type: formData.get("type") as "technical" | "task" | "advice",
+      priority: formData.get("priority") as TicketPriority,
+      type: formData.get("type") as TicketType,
       status: "open",
       assignedTo: formData.get("assignedTo") as string,
       createdAt: new Date().toISOString(),
+      department: formData.get("department") as string,
+      dueDate: formData.get("dueDate") as string || undefined,
     };
 
     setTickets([...tickets, newTicket]);
     setIsDialogOpen(false);
+
+    // Enhanced toast notification with more context
     toast({
-      title: "Ticket Created",
-      description: "Your ticket has been successfully created",
+      title: "Ticket Created Successfully",
+      description: `Ticket "${newTicket.title}" has been assigned to ${newTicket.assignedTo}`,
     });
+
+    // Here you would typically also trigger an email notification
+    // This would be handled by your backend service
+    console.log("Email notification would be sent to:", newTicket.assignedTo);
   };
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (priority: TicketPriority) => {
     switch (priority) {
       case "high":
         return "destructive";
@@ -147,6 +165,16 @@ const TicketsPage = () => {
                     </Select>
                   </div>
                 </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="department">Department</Label>
+                    <Input id="department" name="department" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="dueDate">Due Date</Label>
+                    <Input id="dueDate" name="dueDate" type="date" />
+                  </div>
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="assignedTo">Assign To</Label>
                   <Input id="assignedTo" name="assignedTo" required />
@@ -173,12 +201,25 @@ const TicketsPage = () => {
                   {ticket.priority}
                 </Badge>
               </div>
-              <div className="mt-4 flex gap-2 text-sm text-muted-foreground">
-                <span>Assigned to: {ticket.assignedTo}</span>
-                <span>•</span>
-                <span>Type: {ticket.type}</span>
-                <span>•</span>
-                <span>Status: {ticket.status}</span>
+              <div className="mt-4 flex flex-wrap gap-2 text-sm text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <User className="h-4 w-4" />
+                  <span>{ticket.assignedTo}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Tag className="h-4 w-4" />
+                  <span>{ticket.type}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Clock className="h-4 w-4" />
+                  <span>{ticket.status}</span>
+                </div>
+                {ticket.department && (
+                  <span>Department: {ticket.department}</span>
+                )}
+                {ticket.dueDate && (
+                  <span>Due: {new Date(ticket.dueDate).toLocaleDateString()}</span>
+                )}
               </div>
             </Card>
           ))}
@@ -189,3 +230,4 @@ const TicketsPage = () => {
 };
 
 export default TicketsPage;
+
