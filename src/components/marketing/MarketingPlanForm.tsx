@@ -23,6 +23,14 @@ const promotionTypes: { label: string; value: PromotionType }[] = [
   { label: "Custom", value: "custom" },
 ];
 
+const regions = [
+  "North America",
+  "Europe",
+  "Asia Pacific",
+  "Latin America",
+  "Middle East",
+];
+
 interface MarketingPlanFormProps {
   onClose: () => void;
   onSave?: (plan: MarketingPlan) => void;
@@ -39,6 +47,11 @@ export const MarketingPlanForm = ({ onClose, onSave }: MarketingPlanFormProps) =
     startDate: string;
     endDate: string;
     products: { sku: string; targetQuantity: number; discountPercentage: number; }[];
+    location: {
+      region: string;
+      city: string;
+      store: string;
+    };
   }>({
     name: "",
     description: "",
@@ -46,6 +59,11 @@ export const MarketingPlanForm = ({ onClose, onSave }: MarketingPlanFormProps) =
     startDate: "",
     endDate: "",
     products: [{ sku: "", targetQuantity: 0, discountPercentage: 0 }],
+    location: {
+      region: "",
+      city: "",
+      store: "",
+    },
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -55,6 +73,10 @@ export const MarketingPlanForm = ({ onClose, onSave }: MarketingPlanFormProps) =
     try {
       if (!formData.promotionType) {
         throw new Error("Promotion type is required");
+      }
+
+      if (!formData.location.region) {
+        throw new Error("Region is required");
       }
 
       const newPlan: MarketingPlan = {
@@ -79,7 +101,7 @@ export const MarketingPlanForm = ({ onClose, onSave }: MarketingPlanFormProps) =
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to create marketing plan",
+        description: error instanceof Error ? error.message : "Failed to create marketing plan",
         variant: "destructive",
       });
     } finally {
@@ -159,6 +181,57 @@ export const MarketingPlanForm = ({ onClose, onSave }: MarketingPlanFormProps) =
           </div>
 
           <div className="space-y-4">
+            <Label>Location</Label>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="region">Region</Label>
+                <Select
+                  value={formData.location.region}
+                  onValueChange={(value) => setFormData(prev => ({
+                    ...prev,
+                    location: { ...prev.location, region: value }
+                  }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select region" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {regions.map((region) => (
+                      <SelectItem key={region} value={region}>
+                        {region}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="city">City</Label>
+                <Input
+                  id="city"
+                  value={formData.location.city}
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev,
+                    location: { ...prev.location, city: e.target.value }
+                  }))}
+                  placeholder="Enter city"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="store">Store</Label>
+                <Input
+                  id="store"
+                  value={formData.location.store}
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev,
+                    location: { ...prev.location, store: e.target.value }
+                  }))}
+                  placeholder="Enter store"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
             <div className="flex justify-between items-center">
               <Label>Products</Label>
               <Button type="button" variant="outline" onClick={addProduct}>
@@ -226,3 +299,4 @@ export const MarketingPlanForm = ({ onClose, onSave }: MarketingPlanFormProps) =
     </ScrollArea>
   );
 };
+

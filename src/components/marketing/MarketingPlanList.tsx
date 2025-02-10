@@ -2,6 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { MapPin } from "lucide-react";
 
 // This is a placeholder component that will later be connected to actual data
 export const MarketingPlanList = () => {
@@ -13,6 +14,11 @@ export const MarketingPlanList = () => {
       startDate: "2024-11-29",
       endDate: "2024-11-30",
       status: "draft",
+      location: {
+        region: "North America",
+        city: "New York",
+        store: "Manhattan Store",
+      },
     },
     {
       id: "2",
@@ -21,6 +27,11 @@ export const MarketingPlanList = () => {
       startDate: "2024-07-01",
       endDate: "2024-07-31",
       status: "draft",
+      location: {
+        region: "Europe",
+        city: "London",
+        store: "Oxford Street",
+      },
     },
   ];
 
@@ -37,9 +48,17 @@ export const MarketingPlanList = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-sm text-muted-foreground">
-              {format(new Date(plan.startDate), "MMM d, yyyy")} -{" "}
-              {format(new Date(plan.endDate), "MMM d, yyyy")}
+            <div className="space-y-2">
+              <div className="text-sm text-muted-foreground">
+                {format(new Date(plan.startDate), "MMM d, yyyy")} -{" "}
+                {format(new Date(plan.endDate), "MMM d, yyyy")}
+              </div>
+              <div className="flex items-center text-sm text-muted-foreground">
+                <MapPin className="h-4 w-4 mr-1" />
+                {plan.location.region}
+                {plan.location.city && ` - ${plan.location.city}`}
+                {plan.location.store && ` (${plan.location.store})`}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -47,3 +66,4 @@ export const MarketingPlanList = () => {
     </div>
   );
 };
+

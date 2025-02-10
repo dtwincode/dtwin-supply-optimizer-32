@@ -1,6 +1,12 @@
 
 export type PromotionType = 'black-friday' | 'holiday-season' | 'summer-sale' | 'spring-sale' | 'custom';
 
+export interface LocationHierarchy {
+  region: string;
+  city?: string;
+  store?: string;
+}
+
 export interface MarketingPlan {
   id: string;
   name: string;
@@ -13,7 +19,9 @@ export interface MarketingPlan {
     targetQuantity: number;
     discountPercentage: number;
   }[];
+  location: LocationHierarchy;
   status: 'draft' | 'active' | 'completed';
   createdAt: string;
   updatedAt: string;
 }
+
