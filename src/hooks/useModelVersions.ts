@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { type ModelVersion } from '@/types/forecasting';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 export const useModelVersions = (modelId: string) => {
   const [versions, setVersions] = useState<ModelVersion[]>([]);
@@ -79,6 +79,30 @@ export const useModelVersions = (modelId: string) => {
     }
   };
 
+  const deleteVersion = async (versionId: string) => {
+    try {
+      const { error } = await supabase
+        .from('model_versions')
+        .delete()
+        .eq('id', versionId);
+
+      if (error) throw error;
+
+      setVersions(prev => prev.filter(v => v.id !== versionId));
+      toast({
+        title: "Success",
+        description: "Model version deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting model version:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete model version",
+        variant: "destructive",
+      });
+    }
+  };
+
   useEffect(() => {
     if (modelId) {
       fetchVersions();
@@ -89,6 +113,7 @@ export const useModelVersions = (modelId: string) => {
     versions,
     isLoading,
     createVersion,
+    deleteVersion,
     refreshVersions: fetchVersions,
   };
 };
