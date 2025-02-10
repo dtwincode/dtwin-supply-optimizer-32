@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { PlusCircle } from "lucide-react";
+import { TicketPlus } from "lucide-react";
 import { type Ticket } from "@/types/tickets";
 
 interface CreateTicketDialogProps {
@@ -52,7 +52,7 @@ export const CreateTicketDialog = ({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Button className="gap-2">
-          <PlusCircle className="h-4 w-4" />
+          <TicketPlus className="h-4 w-4" />
           Create New Ticket
         </Button>
       </DialogTrigger>
