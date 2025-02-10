@@ -16,6 +16,7 @@ import Reports from "./pages/Reports";
 import Marketing from "./pages/Marketing";
 import AskAI from "./pages/AskAI";
 import Tickets from "./pages/Tickets";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,7 @@ const App = () => (
               <Route path="/reports" element={<Reports />} />
               <Route path="/ask-ai" element={<AskAI />} />
               <Route path="/tickets" element={<Tickets />} />
+              <Route path="/settings" element={<Settings />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </TooltipProvider>
