@@ -9,7 +9,7 @@ export interface WeatherData {
 }
 
 export interface MarketEvent {
-  id?: string;
+  id: string;
   type: 'competitor_action' | 'regulatory_change' | 'market_disruption' | 'technology_change' | 'economic_event';
   category: string;
   name: string;
