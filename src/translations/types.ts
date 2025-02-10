@@ -1,3 +1,4 @@
+
 export type TranslationValue = {
   en: string;
   ar: string;
@@ -47,26 +48,6 @@ export type ModulesSummary = {
 };
 
 export type CommonTranslations = {
-  skus: TranslationValue;
-  active: TranslationValue;
-  pipeline: TranslationValue;
-  onTime: TranslationValue;
-  reports: TranslationValue;
-  description: TranslationValue;
-  accuracy: TranslationValue;
-  planAndTrack: TranslationValue;
-  manageInitiatives: TranslationValue;
-  optimizeDelivery: TranslationValue;
-  accessInsights: TranslationValue;
-  chartTitles: {
-    bufferProfile: TranslationValue;
-    demandVariability: TranslationValue;
-  };
-  zones: {
-    green: TranslationValue;
-    yellow: TranslationValue;
-    red: TranslationValue;
-  };
   viewAll: TranslationValue;
   search: TranslationValue;
   filter: TranslationValue;
@@ -115,7 +96,27 @@ export type CommonTranslations = {
   previous: TranslationValue;
   success: TranslationValue;
   purchaseOrderCreated: TranslationValue;
-};
+  skus: TranslationValue;
+  active: TranslationValue;
+  pipeline: TranslationValue;
+  onTime: TranslationValue;
+  reports: TranslationValue;
+  description: TranslationValue;
+  accuracy: TranslationValue;
+  planAndTrack: TranslationValue;
+  manageInitiatives: TranslationValue;
+  optimizeDelivery: TranslationValue;
+  accessInsights: TranslationValue;
+  chartTitles: {
+    bufferProfile: TranslationValue;
+    demandVariability: TranslationValue;
+  };
+  zones: {
+    green: TranslationValue;
+    yellow: TranslationValue;
+    red: TranslationValue;
+  };
+} & Partial<UITranslations & InventoryTranslations & ModuleTranslations & ChartTranslations & PaginationTranslations>;
 
 export type SalesTranslations = {
   title: TranslationValue;
