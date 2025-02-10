@@ -50,6 +50,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { DataUploadDialog } from "@/components/forecasting/DataUploadDialog";
 
 const forecastData = defaultForecastData;
 const forecastingModels = defaultForecastingModels;
@@ -315,6 +316,13 @@ const Forecasting = () => {
                   </PopoverContent>
                 </Popover>
               </div>
+              <DataUploadDialog onDataUploaded={() => {
+                toast({
+                  title: "Data Refreshed",
+                  description: "The forecast data has been updated",
+                });
+                // Here you would typically refresh your data
+              }} />
               <Button variant="outline" onClick={handleExport}>
                 <FileDown className="w-4 h-4 mr-2" />
                 Export

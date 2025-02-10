@@ -48,6 +48,33 @@ export type Database = {
         }
         Relationships: []
       }
+      module_settings: {
+        Row: {
+          created_at: string
+          data_template: Json | null
+          id: string
+          module: Database["public"]["Enums"]["module_type"]
+          settings: Json | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data_template?: Json | null
+          id?: string
+          module: Database["public"]["Enums"]["module_type"]
+          settings?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data_template?: Json | null
+          id?: string
+          module?: Database["public"]["Enums"]["module_type"]
+          settings?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -80,7 +107,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      module_type: "forecasting" | "inventory" | "sales" | "marketing"
     }
     CompositeTypes: {
       [_ in never]: never
