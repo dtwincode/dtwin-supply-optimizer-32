@@ -53,14 +53,12 @@ export const InventoryChart = ({ data }: InventoryChartProps) => {
 
   const chartData = getFilteredData();
 
-  const renderChart = () => {
-    const commonProps = {
-      width: "100%",
-      height: "100%",
-      data: chartData,
-      margin: { top: 20, right: 30, left: 20, bottom: 5 }
-    };
+  const commonProps = {
+    data: chartData,
+    margin: { top: 20, right: 30, left: 20, bottom: 5 }
+  };
 
+  const renderChart = () => {
     switch (chartType) {
       case 'line':
         return (
@@ -146,3 +144,4 @@ export const InventoryChart = ({ data }: InventoryChartProps) => {
     </Card>
   );
 };
+
