@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
@@ -44,12 +44,12 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-[500px]">
-        <CardHeader>
+        <CardHeader className="pb-2">
           <div className="flex justify-center">
             <img
               src="/lovable-uploads/0b98205f-f1d3-4302-9462-faee3a8dbe23.png"
               alt="dtwin logo"
-              className="h-48 w-auto object-contain"
+              className="h-64 w-auto object-contain"
             />
           </div>
         </CardHeader>
@@ -60,7 +60,7 @@ export default function Auth() {
           </TabsList>
           <TabsContent value="signin">
             <form onSubmit={(e) => { e.preventDefault(); handleSubmit("signIn"); }}>
-              <CardContent className="space-y-6 pt-4">
+              <CardContent className="space-y-4 pt-2">
                 <div className="space-y-2">
                   <Input
                     type="email"
@@ -96,7 +96,7 @@ export default function Auth() {
           </TabsContent>
           <TabsContent value="signup">
             <form onSubmit={(e) => { e.preventDefault(); handleSubmit("signUp"); }}>
-              <CardContent className="space-y-6 pt-4">
+              <CardContent className="space-y-4 pt-2">
                 <div className="space-y-2">
                   <Input
                     type="email"
