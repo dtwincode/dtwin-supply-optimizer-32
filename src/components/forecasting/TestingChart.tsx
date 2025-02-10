@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import {
   LineChart,
@@ -152,7 +151,7 @@ export const TestingChart = ({
       modelType: selectedModel,
       parameters: params
     });
-    setModelExample(getModelExample(selectedModel, modelSpecificData));
+    setModelExample(getModelExample(selectedModel, modelSpecificData || [])); // Added null check
   };
 
   return (

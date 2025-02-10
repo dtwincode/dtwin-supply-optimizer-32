@@ -86,11 +86,20 @@ export const optimizeModelParameters = (data: number[]): OptimizedParameters[] =
 
 // Helper functions for parameter optimization
 const detectSeasonality = (data: number[]): boolean => {
+  if (!data || data.length === 0) {
+    return false;
+  }
+  
   // Simple seasonality detection using autocorrelation
-  const mean = data.reduce((a, b) => a + b) / data.length;
+  const mean = data.reduce((a, b) => a + b, 0) / data.length; // Added initial value 0
   const normalized = data.map(x => x - mean);
+  
+  if (normalized.length < 12) {
+    return false;
+  }
+  
   const correlation = normalized.slice(12).reduce((sum, _, i) => 
-    sum + (normalized[i] * normalized[i + 12]), 0);
+    sum + (normalized[i] * normalized[i + 12]), 0); // Added initial value 0
   return correlation > 0.3;
 };
 
@@ -156,30 +165,28 @@ export const findBestFitModel = (
 
 export interface TestDataParams {
   length: number;
-  trend?: number;
-  seasonality?: number;
-  noise?: number;
-  baseValue?: number;
+  modelType: string;  // Added this property
+  parameters: {
+    [key: string]: number;
+  };
 }
 
 export const generateTestData = (params: TestDataParams): number[] => {
   const {
     length,
-    trend = 0.05,
-    seasonality = 0.2,
-    noise = 0.1,
-    baseValue = 1000
+    modelType = "linear",
+    parameters = {}
   } = params;
 
   return Array.from({ length }, (_, i) => {
     // Add trend component
-    const trendComponent = baseValue * (1 + trend * (i / 52));
+    const trendComponent = parameters.trend ? parameters.trend * (i / 52) : 0;
     
     // Add seasonal component (yearly pattern)
-    const seasonalComponent = trendComponent * (1 + seasonality * Math.sin(2 * Math.PI * i / 52));
+    const seasonalComponent = trendComponent * (1 + parameters.seasonality ? parameters.seasonality * Math.sin(2 * Math.PI * i / 52) : 0);
     
     // Add random noise
-    const randomNoise = seasonalComponent * (1 + (Math.random() - 0.5) * noise);
+    const randomNoise = seasonalComponent * (1 + (Math.random() - 0.5) * parameters.noise);
     
     return Math.round(randomNoise);
   });
