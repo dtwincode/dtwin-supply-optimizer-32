@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
 import {
@@ -20,7 +19,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { TrendingUp, AlertCircle, Zap } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { TrendingUp, AlertCircle, Zap, Save } from "lucide-react";
+import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Mock data - replace with actual API data
 const forecastData = [
@@ -42,7 +46,59 @@ const patternData = [
   { name: "Random", value: 20 },
 ];
 
+const forecastingModels = [
+  { id: "moving-avg", name: "Moving Average" },
+  { id: "exp-smoothing", name: "Exponential Smoothing" },
+  { id: "arima", name: "ARIMA" },
+  { id: "ml-lstm", name: "Machine Learning (LSTM)" },
+];
+
+const savedScenarios = [
+  { id: 1, name: "Base Scenario", model: "moving-avg", horizon: "6m" },
+  { id: 2, name: "High Growth", model: "exp-smoothing", horizon: "12m" },
+  { id: 3, name: "Conservative", model: "arima", horizon: "3m" },
+];
+
 const Forecasting = () => {
+  const [selectedModel, setSelectedModel] = useState("moving-avg");
+  const [horizon, setHorizon] = useState("6m");
+  const [scenarioName, setScenarioName] = useState("");
+  const [selectedScenario, setSelectedScenario] = useState<any>(null);
+  const { toast } = useToast();
+
+  const handleSaveScenario = () => {
+    if (!scenarioName) {
+      toast({
+        title: "Error",
+        description: "Please enter a scenario name",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Scenario saved successfully",
+    });
+    setScenarioName("");
+  };
+
+  const handleCompareScenarios = () => {
+    if (!selectedScenario) {
+      toast({
+        title: "Error",
+        description: "Please select a scenario to compare",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Comparing Scenarios",
+      description: `Comparing current forecast with ${selectedScenario.name}`,
+    });
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -50,7 +106,19 @@ const Forecasting = () => {
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Demand Forecasting</h1>
           <div className="flex gap-4">
-            <Select defaultValue="6m">
+            <Select value={selectedModel} onValueChange={setSelectedModel}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Select Model" />
+              </SelectTrigger>
+              <SelectContent>
+                {forecastingModels.map(model => (
+                  <SelectItem key={model.id} value={model.id}>
+                    {model.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={horizon} onValueChange={setHorizon}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Forecast Horizon" />
               </SelectTrigger>
@@ -99,6 +167,40 @@ const Forecasting = () => {
             </div>
           </Card>
         </div>
+
+        {/* Scenario Management */}
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Scenario Management</h3>
+          <div className="flex gap-4 mb-6">
+            <Input
+              placeholder="Enter scenario name"
+              value={scenarioName}
+              onChange={(e) => setScenarioName(e.target.value)}
+              className="w-[300px]"
+            />
+            <Button onClick={handleSaveScenario}>
+              <Save className="w-4 h-4 mr-2" />
+              Save Scenario
+            </Button>
+          </div>
+          <div className="flex gap-4">
+            <Select onValueChange={(value) => setSelectedScenario(savedScenarios.find(s => s.id.toString() === value))}>
+              <SelectTrigger className="w-[300px]">
+                <SelectValue placeholder="Select scenario to compare" />
+              </SelectTrigger>
+              <SelectContent>
+                {savedScenarios.map(scenario => (
+                  <SelectItem key={scenario.id} value={scenario.id.toString()}>
+                    {scenario.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button variant="outline" onClick={handleCompareScenarios}>
+              Compare Scenarios
+            </Button>
+          </div>
+        </Card>
 
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

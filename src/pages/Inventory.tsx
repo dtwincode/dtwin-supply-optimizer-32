@@ -17,10 +17,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Package, AlertTriangle, CheckCircle, Waves } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Package, AlertTriangle, CheckCircle, Waves, Filter, TreeDeciduous } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
-// Mock data - replace with actual API data later
+// Enhanced mock data with location and hierarchy
 const inventoryData = [
   {
     id: 1,
@@ -34,6 +45,8 @@ const inventoryData = [
     category: "Electronics",
     lastUpdated: "2024-02-10",
     decouplingPoint: "Strategic",
+    location: "North America",
+    productFamily: "Consumer Electronics",
     netFlow: {
       onHand: 65,
       onOrder: 30,
@@ -81,7 +94,37 @@ const inventoryData = [
   },
 ];
 
+const locations = ["North America", "Europe", "Asia", "South America"];
+const productFamilies = ["Consumer Electronics", "Industrial Components", "Accessories"];
+
 const Inventory = () => {
+  const [selectedLocation, setSelectedLocation] = useState<string>("all");
+  const [selectedFamily, setSelectedFamily] = useState<string>("all");
+  const [showPurchaseOrderDialog, setShowPurchaseOrderDialog] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const { toast } = useToast();
+
+  const handleCreatePurchaseOrder = () => {
+    toast({
+      title: "Purchase Order Created",
+      description: `Created PO for ${selectedProduct?.name}`,
+    });
+    setShowPurchaseOrderDialog(false);
+  };
+
+  const handleDecouplingPointChange = (sku: string, newPoint: string) => {
+    toast({
+      title: "Decoupling Point Updated",
+      description: `Updated decoupling point for ${sku} to ${newPoint}`,
+    });
+  };
+
+  const filteredData = inventoryData.filter(item => {
+    if (selectedLocation !== "all" && item.location !== selectedLocation) return false;
+    if (selectedFamily !== "all" && item.productFamily !== selectedFamily) return false;
+    return true;
+  });
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -93,15 +136,26 @@ const Inventory = () => {
               placeholder="Search products..."
               className="w-[250px]"
             />
-            <Select defaultValue="all">
+            <Select value={selectedLocation} onValueChange={setSelectedLocation}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by Category" />
+                <SelectValue placeholder="Filter by Location" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                <SelectItem value="electronics">Electronics</SelectItem>
-                <SelectItem value="components">Components</SelectItem>
-                <SelectItem value="accessories">Accessories</SelectItem>
+                <SelectItem value="all">All Locations</SelectItem>
+                {locations.map(loc => (
+                  <SelectItem key={loc} value={loc}>{loc}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={selectedFamily} onValueChange={setSelectedFamily}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter by Family" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Families</SelectItem>
+                {productFamilies.map(family => (
+                  <SelectItem key={family} value={family}>{family}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -158,9 +212,10 @@ const Inventory = () => {
         {/* Inventory Tabs and Table */}
         <Card>
           <Tabs defaultValue="inventory" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 lg:w-[400px] p-4">
+            <TabsList className="grid w-full grid-cols-3 lg:w-[600px] p-4">
               <TabsTrigger value="inventory">Inventory Status</TabsTrigger>
               <TabsTrigger value="netflow">Net Flow Analysis</TabsTrigger>
+              <TabsTrigger value="decoupling">Decoupling Points</TabsTrigger>
             </TabsList>
             
             <TabsContent value="inventory">
@@ -172,16 +227,13 @@ const Inventory = () => {
                       <TableHead>Product Name</TableHead>
                       <TableHead>Current Stock</TableHead>
                       <TableHead>Buffer Zone</TableHead>
-                      <TableHead>Decoupling Point</TableHead>
-                      <TableHead>Min Stock</TableHead>
-                      <TableHead>Max Stock</TableHead>
-                      <TableHead>Lead Time</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Last Updated</TableHead>
+                      <TableHead>Location</TableHead>
+                      <TableHead>Product Family</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {inventoryData.map((item) => (
+                    {filteredData.map((item) => (
                       <TableRow key={item.id}>
                         <TableCell className="font-medium">{item.sku}</TableCell>
                         <TableCell>{item.name}</TableCell>
@@ -199,16 +251,20 @@ const Inventory = () => {
                             {item.bufferZone.toUpperCase()}
                           </span>
                         </TableCell>
+                        <TableCell>{item.location}</TableCell>
+                        <TableCell>{item.productFamily}</TableCell>
                         <TableCell>
-                          <span className="px-2 py-1 bg-primary-50 text-primary-700 rounded-full text-xs">
-                            {item.decouplingPoint}
-                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedProduct(item);
+                              setShowPurchaseOrderDialog(true);
+                            }}
+                          >
+                            Create PO
+                          </Button>
                         </TableCell>
-                        <TableCell>{item.minStock}</TableCell>
-                        <TableCell>{item.maxStock}</TableCell>
-                        <TableCell>{item.leadTime}</TableCell>
-                        <TableCell>{item.category}</TableCell>
-                        <TableCell>{item.lastUpdated}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -227,12 +283,12 @@ const Inventory = () => {
                       <TableHead>On Order</TableHead>
                       <TableHead>Qualified Demand</TableHead>
                       <TableHead>Net Flow Position</TableHead>
-                      <TableHead>Buffer Status</TableHead>
-                      <TableHead>Decoupling Point</TableHead>
+                      <TableHead>Location</TableHead>
+                      <TableHead>Product Family</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {inventoryData.map((item) => (
+                    {filteredData.map((item) => (
                       <TableRow key={item.id}>
                         <TableCell className="font-medium">{item.sku}</TableCell>
                         <TableCell>{item.name}</TableCell>
@@ -248,23 +304,62 @@ const Inventory = () => {
                             {item.netFlow.netFlowPosition}
                           </span>
                         </TableCell>
+                        <TableCell>{item.location}</TableCell>
+                        <TableCell>{item.productFamily}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="decoupling">
+              <div className="p-6">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>SKU</TableHead>
+                      <TableHead>Product Name</TableHead>
+                      <TableHead>Current Decoupling Point</TableHead>
+                      <TableHead>Location</TableHead>
+                      <TableHead>Product Family</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredData.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell className="font-medium">{item.sku}</TableCell>
+                        <TableCell>{item.name}</TableCell>
                         <TableCell>
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              item.bufferZone === "green"
-                                ? "bg-success-50 text-success-700"
-                                : item.bufferZone === "yellow"
-                                ? "bg-warning-50 text-warning-700"
-                                : "bg-danger-50 text-danger-700"
-                            }`}
+                          <Select
+                            defaultValue={item.decouplingPoint}
+                            onValueChange={(value) => handleDecouplingPointChange(item.sku, value)}
                           >
-                            {item.bufferZone.toUpperCase()}
-                          </span>
+                            <SelectTrigger className="w-[180px]">
+                              <SelectValue placeholder="Select point" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Strategic">Strategic</SelectItem>
+                              <SelectItem value="Lead time">Lead time</SelectItem>
+                              <SelectItem value="Capacity">Capacity</SelectItem>
+                              <SelectItem value="MTO">Make to Order</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </TableCell>
+                        <TableCell>{item.location}</TableCell>
+                        <TableCell>{item.productFamily}</TableCell>
                         <TableCell>
-                          <span className="px-2 py-1 bg-primary-50 text-primary-700 rounded-full text-xs">
-                            {item.decouplingPoint}
-                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedProduct(item);
+                              setShowPurchaseOrderDialog(true);
+                            }}
+                          >
+                            Create PO
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -274,6 +369,36 @@ const Inventory = () => {
             </TabsContent>
           </Tabs>
         </Card>
+
+        {/* Purchase Order Dialog */}
+        <Dialog open={showPurchaseOrderDialog} onOpenChange={setShowPurchaseOrderDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create Purchase Order</DialogTitle>
+              <DialogDescription>
+                Create a new purchase order for {selectedProduct?.name}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Quantity</label>
+                <Input type="number" placeholder="Enter quantity" />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Expected Delivery Date</label>
+                <Input type="date" />
+              </div>
+              <div className="flex justify-end gap-3">
+                <Button variant="outline" onClick={() => setShowPurchaseOrderDialog(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleCreatePurchaseOrder}>
+                  Create Order
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   );
