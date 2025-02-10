@@ -32,7 +32,7 @@ export const TestingChart = ({
 
   const generateNewData = () => {
     const params = modelParams[selectedModel as keyof typeof modelParams];
-    const modelSpecificData = generateNewTestData(selectedModel, params);
+    const modelSpecificData = generateNewTestData(selectedModel, params, timeRange);
     setModelExample(getModelExample(selectedModel, modelSpecificData || []));
   };
 
@@ -72,4 +72,3 @@ export const TestingChart = ({
     </Card>
   );
 };
-
