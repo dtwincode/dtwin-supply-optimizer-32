@@ -47,7 +47,7 @@ export default function Auth() {
           <img
             src="/lovable-uploads/0b98205f-f1d3-4302-9462-faee3a8dbe23.png"
             alt="dtwin logo"
-            className="h-[500px] w-auto object-contain"
+            className="h-[600px] w-auto object-contain"
           />
         </div>
         <Card className="w-[400px]">
