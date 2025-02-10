@@ -20,6 +20,16 @@ export const useForecastData = (
 ) => {
   const [outliers, setOutliers] = useState<ForecastOutlier[]>([]);
   const [seasonalityPatterns, setSeasonalityPatterns] = useState<SeasonalityPattern[]>([]);
+  const [metrics, setMetrics] = useState({ mape: 0, mae: 0, rmse: 0 });
+  const [confidenceIntervals, setConfidenceIntervals] = useState<{ upper: number; lower: number }[]>([]);
+  const [decomposition, setDecomposition] = useState<{ trend: (number | null)[]; seasonal: (number | null)[] }>({ trend: [], seasonal: [] });
+  const [validationResults, setValidationResults] = useState({ biasTest: false, residualNormality: false, heteroskedasticityTest: false });
+  const [crossValidationResults, setCrossValidationResults] = useState({
+    trainMetrics: { mape: 0, mae: 0, rmse: 0 },
+    testMetrics: { mape: 0, mae: 0, rmse: 0 },
+    validationMetrics: { mape: 0, mae: 0, rmse: 0 }
+  });
+  
   const { toast } = useToast();
 
   const filteredData = useMemo(() => {
@@ -77,7 +87,6 @@ export const useForecastData = (
 
       if (error) throw error;
 
-      // Convert the response data to match ForecastOutlier type
       const typedOutliers: ForecastOutlier[] = savedOutliers.map(outlier => ({
         ...outlier,
         metadata: outlier.metadata as Record<string, any>
@@ -115,7 +124,6 @@ export const useForecastData = (
 
       if (error) throw error;
 
-      // Convert the response data to match SeasonalityPattern type
       const typedPatterns: SeasonalityPattern[] = savedPattern.map(pattern => ({
         ...pattern,
         configuration: pattern.configuration as Record<string, any>,
