@@ -19,6 +19,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { TicketPlus } from "lucide-react";
 import { type Ticket } from "@/types/tickets";
+import { useState } from "react";
 
 interface CreateTicketDialogProps {
   isOpen: boolean;
@@ -31,6 +32,8 @@ export const CreateTicketDialog = ({
   onOpenChange,
   onSubmit,
 }: CreateTicketDialogProps) => {
+  const [ticketType, setTicketType] = useState<Ticket["type"]>("task");
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -40,7 +43,9 @@ export const CreateTicketDialog = ({
       description: formData.get("description") as string,
       priority: formData.get("priority") as Ticket["priority"],
       type: formData.get("type") as Ticket["type"],
-      assignedTo: formData.get("assignedTo") as string,
+      assignedTo: formData.get("type") === "technical" 
+        ? "Tech Support Team" 
+        : formData.get("assignedTo") as string,
       department: formData.get("department") as string,
       dueDate: formData.get("dueDate") as string || undefined,
     };
@@ -72,7 +77,11 @@ export const CreateTicketDialog = ({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="type">Type</Label>
-              <Select name="type" required>
+              <Select 
+                name="type" 
+                required
+                onValueChange={(value) => setTicketType(value as Ticket["type"])}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
@@ -109,7 +118,23 @@ export const CreateTicketDialog = ({
           </div>
           <div className="space-y-2">
             <Label htmlFor="assignedTo">Assign To</Label>
-            <Input id="assignedTo" name="assignedTo" required />
+            {ticketType === "technical" ? (
+              <Input 
+                id="assignedTo" 
+                name="assignedTo" 
+                value="Tech Support Team" 
+                readOnly 
+                className="bg-muted"
+              />
+            ) : (
+              <Input 
+                id="assignedTo" 
+                name="assignedTo" 
+                type="email" 
+                placeholder="Enter email address"
+                required 
+              />
+            )}
           </div>
           <div className="flex justify-end gap-2">
             <Button type="submit">Create Ticket</Button>
