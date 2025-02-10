@@ -42,14 +42,14 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <Card className="w-[350px]">
-        <CardHeader className="space-y-1">
-          <div className="flex justify-center mb-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-[500px]">
+        <CardHeader>
+          <div className="flex justify-center">
             <img
               src="/lovable-uploads/0b98205f-f1d3-4302-9462-faee3a8dbe23.png"
               alt="dtwin logo"
-              className="h-96 w-auto" // Increased from h-32 to h-96 (300% increase)
+              className="h-48 w-auto object-contain"
             />
           </div>
         </CardHeader>
@@ -60,7 +60,7 @@ export default function Auth() {
           </TabsList>
           <TabsContent value="signin">
             <form onSubmit={(e) => { e.preventDefault(); handleSubmit("signIn"); }}>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6 pt-4">
                 <div className="space-y-2">
                   <Input
                     type="email"
@@ -96,7 +96,7 @@ export default function Auth() {
           </TabsContent>
           <TabsContent value="signup">
             <form onSubmit={(e) => { e.preventDefault(); handleSubmit("signUp"); }}>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6 pt-4">
                 <div className="space-y-2">
                   <Input
                     type="email"
