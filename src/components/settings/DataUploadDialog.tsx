@@ -39,8 +39,9 @@ export function DataUploadDialog({ module, onDataUploaded }: DataUploadDialogPro
         throw new Error('Invalid template format');
       }
 
-      const csvHeader = template.required_columns.join(',');
-      const csvRow = Object.values(template.sample_row).join(',');
+      const allColumns = [...template.required_columns, ...(template.optional_columns || [])];
+      const csvHeader = allColumns.join(',');
+      const csvRow = allColumns.map(col => template.sample_row[col] || '').join(',');
       const csvContent = `${csvHeader}\n${csvRow}`;
 
       const blob = new Blob([csvContent], { type: 'text/csv' });
@@ -116,31 +117,97 @@ export function DataUploadDialog({ module, onDataUploaded }: DataUploadDialogPro
 
         // Process data rows based on module
         const dataRows = rows.slice(1).filter(row => row.trim());
-        
-        if (module === 'forecasting') {
-          const processedData = dataRows.map(row => {
-            const values = row.split(',').map(v => v.trim());
-            const rowData: Database['public']['Tables']['forecast_data']['Insert'] = {
-              date: values[headers.indexOf('date')],
-              value: parseFloat(values[headers.indexOf('value')]),
-              category: values[headers.indexOf('category')] || null,
-              subcategory: values[headers.indexOf('subcategory')] || null,
-              sku: values[headers.indexOf('sku')] || null,
-              region: values[headers.indexOf('region')] || null,
-              city: values[headers.indexOf('city')] || null,
-              channel: values[headers.indexOf('channel')] || null,
-              warehouse: values[headers.indexOf('warehouse')] || null,
-              notes: values[headers.indexOf('notes')] || null
-            };
-            return rowData;
-          });
+        let error;
 
-          const { error } = await supabase
-            .from('forecast_data')
-            .insert(processedData);
+        switch (module) {
+          case 'forecasting':
+            const forecastData = dataRows.map(row => {
+              const values = row.split(',').map(v => v.trim());
+              return {
+                date: values[headers.indexOf('date')],
+                value: parseFloat(values[headers.indexOf('value')]),
+                category: values[headers.indexOf('category')] || null,
+                subcategory: values[headers.indexOf('subcategory')] || null,
+                sku: values[headers.indexOf('sku')] || null,
+                region: values[headers.indexOf('region')] || null,
+                city: values[headers.indexOf('city')] || null,
+                channel: values[headers.indexOf('channel')] || null,
+                warehouse: values[headers.indexOf('warehouse')] || null,
+                notes: values[headers.indexOf('notes')] || null
+              };
+            });
+            ({ error } = await supabase.from('forecast_data').insert(forecastData));
+            break;
 
-          if (error) throw error;
+          case 'inventory':
+            const inventoryData = dataRows.map(row => {
+              const values = row.split(',').map(v => v.trim());
+              return {
+                sku: values[headers.indexOf('sku')],
+                name: values[headers.indexOf('name')],
+                current_stock: parseInt(values[headers.indexOf('current_stock')]),
+                min_stock: parseInt(values[headers.indexOf('min_stock')]),
+                max_stock: parseInt(values[headers.indexOf('max_stock')]),
+                category: values[headers.indexOf('category')] || null,
+                subcategory: values[headers.indexOf('subcategory')] || null,
+                location: values[headers.indexOf('location')] || null,
+                product_family: values[headers.indexOf('product_family')] || null,
+                region: values[headers.indexOf('region')] || null,
+                city: values[headers.indexOf('city')] || null,
+                channel: values[headers.indexOf('channel')] || null,
+                warehouse: values[headers.indexOf('warehouse')] || null,
+                notes: values[headers.indexOf('notes')] || null
+              };
+            });
+            ({ error } = await supabase.from('inventory_data').insert(inventoryData));
+            break;
+
+          case 'sales':
+            const salesData = dataRows.map(row => {
+              const values = row.split(',').map(v => v.trim());
+              return {
+                date: values[headers.indexOf('date')],
+                sku: values[headers.indexOf('sku')],
+                quantity: parseInt(values[headers.indexOf('quantity')]),
+                price: parseFloat(values[headers.indexOf('price')]),
+                total: parseFloat(values[headers.indexOf('total')]),
+                category: values[headers.indexOf('category')] || null,
+                subcategory: values[headers.indexOf('subcategory')] || null,
+                region: values[headers.indexOf('region')] || null,
+                city: values[headers.indexOf('city')] || null,
+                channel: values[headers.indexOf('channel')] || null,
+                warehouse: values[headers.indexOf('warehouse')] || null,
+                customer: values[headers.indexOf('customer')] || null,
+                payment_method: values[headers.indexOf('payment_method')] || null,
+                notes: values[headers.indexOf('notes')] || null
+              };
+            });
+            ({ error } = await supabase.from('sales_data').insert(salesData));
+            break;
+
+          case 'marketing':
+            const marketingData = dataRows.map(row => {
+              const values = row.split(',').map(v => v.trim());
+              return {
+                campaign_name: values[headers.indexOf('campaign_name')],
+                start_date: values[headers.indexOf('start_date')],
+                end_date: values[headers.indexOf('end_date')],
+                budget: parseFloat(values[headers.indexOf('budget')]),
+                target_audience: values[headers.indexOf('target_audience')],
+                channel: values[headers.indexOf('channel')] || null,
+                region: values[headers.indexOf('region')] || null,
+                city: values[headers.indexOf('city')] || null,
+                product_category: values[headers.indexOf('product_category')] || null,
+                expected_roi: values[headers.indexOf('expected_roi')] ? parseFloat(values[headers.indexOf('expected_roi')]) : null,
+                kpis: values[headers.indexOf('kpis')] || null,
+                notes: values[headers.indexOf('notes')] || null
+              };
+            });
+            ({ error } = await supabase.from('marketing_data').insert(marketingData));
+            break;
         }
+
+        if (error) throw error;
 
         toast({
           title: "Success",
@@ -197,3 +264,4 @@ export function DataUploadDialog({ module, onDataUploaded }: DataUploadDialogPro
     </Dialog>
   );
 }
+

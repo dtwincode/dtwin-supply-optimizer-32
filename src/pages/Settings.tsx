@@ -5,9 +5,39 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
 import { DataUploadDialog } from "@/components/settings/DataUploadDialog";
 import { Separator } from "@/components/ui/separator";
+import { Database } from "@/integrations/supabase/types";
+
+type ModuleType = Database["public"]["Enums"]["module_type"];
+
+const MODULES: { id: ModuleType; title: string; description: string }[] = [
+  {
+    id: "forecasting",
+    title: "Forecasting Module",
+    description: "Upload and manage forecasting data using CSV templates"
+  },
+  {
+    id: "inventory",
+    title: "Inventory Module",
+    description: "Upload and manage inventory data using CSV templates"
+  },
+  {
+    id: "sales",
+    title: "Sales Module",
+    description: "Upload and manage sales data using CSV templates"
+  },
+  {
+    id: "marketing",
+    title: "Marketing Module",
+    description: "Upload and manage marketing campaign data using CSV templates"
+  }
+];
 
 const Settings = () => {
   const { language } = useLanguage();
+
+  const handleDataUploaded = (module: ModuleType) => {
+    console.log(`Data uploaded for ${module} module`);
+  };
 
   return (
     <DashboardLayout>
@@ -18,26 +48,24 @@ const Settings = () => {
         <div className="grid gap-4">
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">Data Management</h3>
-            <div className="space-y-4">
-              <div>
-                <h4 className="text-sm font-medium mb-2">Forecasting Module</h4>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Upload and manage forecasting data using CSV templates
-                </p>
-                <DataUploadDialog 
-                  module="forecasting" 
-                  onDataUploaded={() => {
-                    // Handle data refresh if needed
-                  }} 
-                />
-              </div>
-              <Separator />
-              <div>
-                <h4 className="text-sm font-medium mb-2">More Settings</h4>
-                <p className="text-muted-foreground">
-                  {getTranslation('settings.underDevelopment', language)}
-                </p>
-              </div>
+            <div className="space-y-6">
+              {MODULES.map((module, index) => (
+                <div key={module.id}>
+                  <div>
+                    <h4 className="text-sm font-medium mb-2">{module.title}</h4>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {module.description}
+                    </p>
+                    <DataUploadDialog 
+                      module={module.id}
+                      onDataUploaded={() => handleDataUploaded(module.id)}
+                    />
+                  </div>
+                  {index < MODULES.length - 1 && (
+                    <Separator className="my-6" />
+                  )}
+                </div>
+              ))}
             </div>
           </Card>
         </div>
@@ -47,3 +75,4 @@ const Settings = () => {
 };
 
 export default Settings;
+

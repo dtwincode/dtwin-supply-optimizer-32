@@ -57,6 +57,66 @@ export type Database = {
         }
         Relationships: []
       }
+      inventory_data: {
+        Row: {
+          category: string | null
+          channel: string | null
+          city: string | null
+          created_at: string
+          current_stock: number
+          id: string
+          location: string | null
+          max_stock: number
+          min_stock: number
+          name: string
+          notes: string | null
+          product_family: string | null
+          region: string | null
+          sku: string
+          subcategory: string | null
+          updated_at: string
+          warehouse: string | null
+        }
+        Insert: {
+          category?: string | null
+          channel?: string | null
+          city?: string | null
+          created_at?: string
+          current_stock: number
+          id?: string
+          location?: string | null
+          max_stock: number
+          min_stock: number
+          name: string
+          notes?: string | null
+          product_family?: string | null
+          region?: string | null
+          sku: string
+          subcategory?: string | null
+          updated_at?: string
+          warehouse?: string | null
+        }
+        Update: {
+          category?: string | null
+          channel?: string | null
+          city?: string | null
+          created_at?: string
+          current_stock?: number
+          id?: string
+          location?: string | null
+          max_stock?: number
+          min_stock?: number
+          name?: string
+          notes?: string | null
+          product_family?: string | null
+          region?: string | null
+          sku?: string
+          subcategory?: string | null
+          updated_at?: string
+          warehouse?: string | null
+        }
+        Relationships: []
+      }
       market_events: {
         Row: {
           category: string
@@ -93,6 +153,60 @@ export type Database = {
           source?: string | null
           type?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      marketing_data: {
+        Row: {
+          budget: number
+          campaign_name: string
+          channel: string | null
+          city: string | null
+          created_at: string
+          end_date: string
+          expected_roi: number | null
+          id: string
+          kpis: string | null
+          notes: string | null
+          product_category: string | null
+          region: string | null
+          start_date: string
+          target_audience: string
+          updated_at: string
+        }
+        Insert: {
+          budget: number
+          campaign_name: string
+          channel?: string | null
+          city?: string | null
+          created_at?: string
+          end_date: string
+          expected_roi?: number | null
+          id?: string
+          kpis?: string | null
+          notes?: string | null
+          product_category?: string | null
+          region?: string | null
+          start_date: string
+          target_audience: string
+          updated_at?: string
+        }
+        Update: {
+          budget?: number
+          campaign_name?: string
+          channel?: string | null
+          city?: string | null
+          created_at?: string
+          end_date?: string
+          expected_roi?: number | null
+          id?: string
+          kpis?: string | null
+          notes?: string | null
+          product_category?: string | null
+          region?: string | null
+          start_date?: string
+          target_audience?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -144,6 +258,66 @@ export type Database = {
           id?: string
           updated_at?: string | null
           username?: string | null
+        }
+        Relationships: []
+      }
+      sales_data: {
+        Row: {
+          category: string | null
+          channel: string | null
+          city: string | null
+          created_at: string
+          customer: string | null
+          date: string
+          id: string
+          notes: string | null
+          payment_method: string | null
+          price: number
+          quantity: number
+          region: string | null
+          sku: string
+          subcategory: string | null
+          total: number
+          updated_at: string
+          warehouse: string | null
+        }
+        Insert: {
+          category?: string | null
+          channel?: string | null
+          city?: string | null
+          created_at?: string
+          customer?: string | null
+          date: string
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          price: number
+          quantity: number
+          region?: string | null
+          sku: string
+          subcategory?: string | null
+          total: number
+          updated_at?: string
+          warehouse?: string | null
+        }
+        Update: {
+          category?: string | null
+          channel?: string | null
+          city?: string | null
+          created_at?: string
+          customer?: string | null
+          date?: string
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          price?: number
+          quantity?: number
+          region?: string | null
+          sku?: string
+          subcategory?: string | null
+          total?: number
+          updated_at?: string
+          warehouse?: string | null
         }
         Relationships: []
       }
