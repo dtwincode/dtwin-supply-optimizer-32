@@ -11,6 +11,10 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  AreaChart,
+  Area,
+  ComposedChart,
+  ErrorBar,
 } from "recharts";
 import {
   Select,
@@ -21,10 +25,17 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, AlertCircle, Zap, Save } from "lucide-react";
+import { TrendingUp, AlertCircle, Zap, Save, FileDown, Share2 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  calculateMetrics,
+  calculateConfidenceIntervals,
+  decomposeSeasonality,
+  generateScenario,
+  type Scenario
+} from "@/utils/forecastingUtils";
 
 // Mock data - replace with actual API data
 const forecastData = [
@@ -101,6 +112,13 @@ const Forecasting = () => {
   const [selectedCity, setSelectedCity] = useState<string>("all");
   const [selectedChannel, setSelectedChannel] = useState<string>("all");
   const [selectedWarehouse, setSelectedWarehouse] = useState<string>("all");
+  const [showConfidenceIntervals, setShowConfidenceIntervals] = useState(false);
+  const [activeTab, setActiveTab] = useState("forecast");
+  const [whatIfParams, setWhatIfParams] = useState({
+    growthRate: 0,
+    seasonality: 0,
+    events: []
+  });
   const { toast } = useToast();
 
   const filteredData = useMemo(() => {
@@ -122,6 +140,27 @@ const Forecasting = () => {
     });
   }, [selectedRegion, selectedCity, selectedChannel, selectedWarehouse, searchQuery]);
 
+  const metrics = useMemo(() => {
+    const actuals = filteredData.map(d => d.actual).filter(a => a !== null) as number[];
+    const forecasts = filteredData.map(d => d.forecast).filter(f => f !== null) as number[];
+    return calculateMetrics(actuals, forecasts);
+  }, [filteredData]);
+
+  const confidenceIntervals = useMemo(() => {
+    const forecasts = filteredData.map(d => d.forecast);
+    return calculateConfidenceIntervals(forecasts);
+  }, [filteredData]);
+
+  const decomposition = useMemo(() => {
+    const values = filteredData.map(d => d.actual || d.forecast);
+    return decomposeSeasonality(values);
+  }, [filteredData]);
+
+  const whatIfScenario = useMemo(() => {
+    const baseline = filteredData.map(d => d.forecast);
+    return generateScenario(baseline, whatIfParams);
+  }, [filteredData, whatIfParams]);
+
   const handleSaveScenario = () => {
     if (!scenarioName) {
       toast({
@@ -139,20 +178,26 @@ const Forecasting = () => {
     setScenarioName("");
   };
 
-  const handleCompareScenarios = () => {
-    if (!selectedScenario) {
-      toast({
-        title: "Error",
-        description: "Please select a scenario to compare",
-        variant: "destructive",
-      });
-      return;
-    }
+  const handleExport = () => {
+    const csvContent = [
+      ["Month", "Actual", "Forecast", "Variance", "Region", "City", "Channel"],
+      ...filteredData.map(d => [
+        d.month,
+        d.actual,
+        d.forecast,
+        d.variance,
+        d.region,
+        d.city,
+        d.channel
+      ])
+    ].map(row => row.join(",")).join("\n");
 
-    toast({
-      title: "Comparing Scenarios",
-      description: `Comparing current forecast with ${selectedScenario.name}`,
-    });
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "forecast_data.csv";
+    a.click();
   };
 
   return (
@@ -184,6 +229,10 @@ const Forecasting = () => {
                   <SelectItem value="12m">12 Months</SelectItem>
                 </SelectContent>
               </Select>
+              <Button variant="outline" onClick={handleExport}>
+                <FileDown className="w-4 h-4 mr-2" />
+                Export
+              </Button>
             </div>
           </div>
 
@@ -247,9 +296,10 @@ const Forecasting = () => {
               </Select>
             </div>
           </div>
+
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card className="p-6">
             <div className="flex items-center space-x-4">
               <div className="p-3 bg-primary-50 rounded-full">
@@ -257,7 +307,7 @@ const Forecasting = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-500">Forecast Accuracy</p>
-                <p className="text-2xl font-semibold">95.2%</p>
+                <p className="text-2xl font-semibold">{(100 - metrics.mape).toFixed(1)}%</p>
               </div>
             </div>
           </Card>
@@ -268,7 +318,7 @@ const Forecasting = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-500">MAPE</p>
-                <p className="text-2xl font-semibold">4.8%</p>
+                <p className="text-2xl font-semibold">{metrics.mape}%</p>
               </div>
             </div>
           </Card>
@@ -278,12 +328,216 @@ const Forecasting = () => {
                 <Zap className="h-6 w-6 text-success-500" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Bias</p>
-                <p className="text-2xl font-semibold">-1.2%</p>
+                <p className="text-sm text-gray-500">MAE</p>
+                <p className="text-2xl font-semibold">{metrics.mae}</p>
+              </div>
+            </div>
+          </Card>
+          <Card className="p-6">
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-info-50 rounded-full">
+                <Share2 className="h-6 w-6 text-info-500" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">RMSE</p>
+                <p className="text-2xl font-semibold">{metrics.rmse}</p>
               </div>
             </div>
           </Card>
         </div>
+
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList>
+            <TabsTrigger value="forecast">Forecast Analysis</TabsTrigger>
+            <TabsTrigger value="decomposition">Pattern Analysis</TabsTrigger>
+            <TabsTrigger value="scenarios">What-If Analysis</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="forecast">
+            <Card className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Demand Forecast</h3>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowConfidenceIntervals(!showConfidenceIntervals)}
+                >
+                  {showConfidenceIntervals ? "Hide" : "Show"} Confidence Intervals
+                </Button>
+              </div>
+              <div className="h-[400px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart data={filteredData.map((d, i) => ({
+                    ...d,
+                    ci: confidenceIntervals[i]
+                  }))}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="actual"
+                      stroke="#10B981"
+                      name="Actual Demand"
+                      strokeWidth={2}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="forecast"
+                      stroke="#F59E0B"
+                      name="Forecast"
+                      strokeWidth={2}
+                    />
+                    {showConfidenceIntervals && (
+                      <Area
+                        dataKey="ci.upper"
+                        stroke="transparent"
+                        fill="#F59E0B"
+                        fillOpacity={0.1}
+                        name="Confidence Interval"
+                      />
+                    )}
+                    {showConfidenceIntervals && (
+                      <Area
+                        dataKey="ci.lower"
+                        stroke="transparent"
+                        fill="#F59E0B"
+                        fillOpacity={0.1}
+                      />
+                    )}
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="decomposition">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold mb-4">Trend Analysis</h3>
+                <div className="h-[400px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={filteredData.map((d, i) => ({
+                      month: d.month,
+                      trend: decomposition.trend[i]
+                    }))}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Line
+                        type="monotone"
+                        dataKey="trend"
+                        stroke="#10B981"
+                        name="Trend"
+                        strokeWidth={2}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </Card>
+
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold mb-4">Seasonality Pattern</h3>
+                <div className="h-[400px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={filteredData.map((d, i) => ({
+                      month: d.month,
+                      seasonal: decomposition.seasonal[i]
+                    }))}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Line
+                        type="monotone"
+                        dataKey="seasonal"
+                        stroke="#F59E0B"
+                        name="Seasonal Component"
+                        strokeWidth={2}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="scenarios">
+            <Card className="p-6">
+              <div className="flex flex-col gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Growth Rate (%)</label>
+                    <Input
+                      type="number"
+                      value={whatIfParams.growthRate}
+                      onChange={(e) => setWhatIfParams(prev => ({
+                        ...prev,
+                        growthRate: parseFloat(e.target.value) / 100
+                      }))}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Seasonality Impact</label>
+                    <Input
+                      type="number"
+                      value={whatIfParams.seasonality}
+                      onChange={(e) => setWhatIfParams(prev => ({
+                        ...prev,
+                        seasonality: parseFloat(e.target.value)
+                      }))}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Event Impact</label>
+                    <Button
+                      variant="outline"
+                      onClick={() => setWhatIfParams(prev => ({
+                        ...prev,
+                        events: [...prev.events, { month: "", impact: 0 }]
+                      }))}
+                    >
+                      Add Event
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="h-[400px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={filteredData.map((d, i) => ({
+                      ...d,
+                      scenario: whatIfScenario[i]
+                    }))}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Line
+                        type="monotone"
+                        dataKey="forecast"
+                        stroke="#F59E0B"
+                        name="Base Forecast"
+                        strokeWidth={2}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="scenario"
+                        stroke="#10B981"
+                        name="Scenario Forecast"
+                        strokeWidth={2}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </Card>
+          </TabsContent>
+        </Tabs>
 
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4">Scenario Management</h3>
@@ -312,61 +566,11 @@ const Forecasting = () => {
                 ))}
               </SelectContent>
             </Select>
-            <Button variant="outline" onClick={handleCompareScenarios}>
+            <Button variant="outline">
               Compare Scenarios
             </Button>
           </div>
         </Card>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Demand Forecast</h3>
-            <div className="h-[400px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={filteredData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="actual"
-                    stroke="#10B981"
-                    name="Actual Demand"
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="forecast"
-                    stroke="#F59E0B"
-                    name="Forecast"
-                    strokeDasharray="5 5"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Demand Patterns</h3>
-            <div className="h-[400px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={patternData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar
-                    dataKey="value"
-                    fill="#10B981"
-                    name="Pattern Distribution (%)"
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
-        </div>
       </div>
     </DashboardLayout>
   );
