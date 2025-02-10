@@ -2,6 +2,11 @@
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 import {
   LineChart,
   Line,
@@ -13,6 +18,7 @@ import {
   ResponsiveContainer
 } from "recharts";
 import { type PriceData } from "@/utils/forecasting";
+import { useState } from "react";
 
 interface ForecastWhatIfAnalysisProps {
   filteredData: any[];
@@ -35,6 +41,9 @@ export const ForecastWhatIfAnalysis = ({
   setPriceData,
   whatIfScenario
 }: ForecastWhatIfAnalysisProps) => {
+  const [fromDate, setFromDate] = useState<Date>(new Date());
+  const [toDate, setToDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() + 30)));
+
   return (
     <Card className="p-6">
       <div className="flex flex-col gap-6">
@@ -44,10 +53,10 @@ export const ForecastWhatIfAnalysis = ({
             <Input
               type="number"
               value={whatIfParams.growthRate}
-              onChange={(e) => setWhatIfParams(prev => ({
-                ...prev,
+              onChange={(e) => setWhatIfParams({
+                ...whatIfParams,
                 growthRate: parseFloat(e.target.value) / 100
-              }))}
+              })}
             />
           </div>
           <div>
@@ -55,23 +64,64 @@ export const ForecastWhatIfAnalysis = ({
             <Input
               type="number"
               value={whatIfParams.seasonality}
-              onChange={(e) => setWhatIfParams(prev => ({
-                ...prev,
+              onChange={(e) => setWhatIfParams({
+                ...whatIfParams,
                 seasonality: parseFloat(e.target.value)
-              }))}
+              })}
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Event Impact</label>
-            <Button
-              variant="outline"
-              onClick={() => setWhatIfParams(prev => ({
-                ...prev,
-                events: [...prev.events, { week: "", impact: 0 }]
-              }))}
-            >
-              Add Event
-            </Button>
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <label className="block text-sm font-medium mb-2">From Date</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !fromDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {fromDate ? format(fromDate, "LLL dd, y") : "Select date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={fromDate}
+                    onSelect={(date) => date && setFromDate(date)}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div className="flex-1">
+              <label className="block text-sm font-medium mb-2">To Date</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !toDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {toDate ? format(toDate, "LLL dd, y") : "Select date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={toDate}
+                    onSelect={(date) => date && setToDate(date)}
+                    initialFocus
+                    fromDate={fromDate}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
         </div>
 
@@ -81,8 +131,8 @@ export const ForecastWhatIfAnalysis = ({
             <Input
               type="number"
               value={priceData.basePrice}
-              onChange={(e) => setPriceData(prev => ({
-                ...prev,
+              onChange={(e) => setPriceData(prevData => ({
+                ...prevData,
                 basePrice: parseFloat(e.target.value)
               }))}
               min="0"
@@ -94,8 +144,8 @@ export const ForecastWhatIfAnalysis = ({
             <Input
               type="number"
               value={priceData.elasticity}
-              onChange={(e) => setPriceData(prev => ({
-                ...prev,
+              onChange={(e) => setPriceData(prevData => ({
+                ...prevData,
                 elasticity: parseFloat(e.target.value)
               }))}
               step="0.1"
@@ -106,8 +156,8 @@ export const ForecastWhatIfAnalysis = ({
             <Input
               type="number"
               value={priceData.promotionalPrice || ''}
-              onChange={(e) => setPriceData(prev => ({
-                ...prev,
+              onChange={(e) => setPriceData(prevData => ({
+                ...prevData,
                 promotionalPrice: e.target.value ? parseFloat(e.target.value) : undefined
               }))}
               min="0"

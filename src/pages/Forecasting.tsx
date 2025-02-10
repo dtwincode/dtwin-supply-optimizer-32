@@ -45,6 +45,8 @@ import {
 import { ModelParametersDialog } from "@/components/forecasting/ModelParametersDialog";
 import { defaultModelConfigs } from "@/types/modelParameters";
 
+import { WeatherData, MarketEvent, PriceAnalysis } from '@/types/weatherAndEvents';
+
 const forecastData = defaultForecastData;
 const forecastingModels = defaultForecastingModels;
 const savedScenarios = defaultSavedScenarios;
