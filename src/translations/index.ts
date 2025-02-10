@@ -1,9 +1,24 @@
 
+type TranslationValue = {
+  en: string;
+  ar: string;
+};
+
+type NavigationItems = {
+  dashboard: TranslationValue;
+  forecasting: TranslationValue;
+  inventory: TranslationValue;
+  salesPlanning: TranslationValue;
+  marketing: TranslationValue;
+  logistics: TranslationValue;
+  reports: TranslationValue;
+  askAI: TranslationValue;
+  settings: TranslationValue;
+};
+
 type Translations = {
-  [key: string]: {
-    en: string;
-    ar: string;
-  };
+  dashboard: TranslationValue;
+  navigationItems: NavigationItems;
 };
 
 export const translations: Translations = {
@@ -65,3 +80,4 @@ export const getTranslation = (key: string, language: 'en' | 'ar'): string => {
   
   return current[language] || key;
 };
+
