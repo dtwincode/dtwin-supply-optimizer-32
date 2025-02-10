@@ -1,0 +1,432 @@
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+
+// Add subcategories mapping
+const subcategories = {
+  "Electronics": ["Smartphones", "Laptops", "Tablets", "Accessories"],
+  "Fashion": ["Men's Wear", "Women's Wear", "Children's Wear", "Accessories"],
+  "Home & Garden": ["Furniture", "Decor", "Garden Tools", "Lighting"]
+};
+
+const cities = {
+  "North America": ["New York", "Los Angeles", "Toronto", "Chicago"],
+  "Europe": ["London", "Paris", "Berlin", "Madrid"],
+  "Asia Pacific": ["Tokyo", "Singapore", "Sydney", "Seoul"]
+};
+
+const warehouses = {
+  "New York": ["NYC-01", "NYC-02"],
+  "Los Angeles": ["LA-01", "LA-02"],
+  "London": ["LDN-01", "LDN-02"],
+  "Tokyo": ["TKY-01", "TKY-02"]
+};
+
+const productCategories = ["Electronics", "Fashion", "Home & Garden"];
+const regions = ["North America", "Europe", "Asia Pacific"];
+const channelTypes = ["B2B", "Wholesale", "Direct"];
+
+interface SalesPlanFormProps {
+  onClose: () => void;
+}
+
+export const SalesPlanForm = ({ onClose }: SalesPlanFormProps) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+  
+  const [formState, setFormState] = useState({
+    startDate: "",
+    endDate: "",
+    category: "",
+    subcategory: "",
+    sku: "",
+    region: "",
+    city: "",
+    warehouse: "",
+    channelType: "",
+    accountName: "",
+    targetValue: "",
+    confidence: "",
+    notes: ""
+  });
+
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+    
+    if (!formState.startDate) errors.startDate = "Start date is required";
+    if (!formState.endDate) errors.endDate = "End date is required";
+    if (!formState.category) errors.category = "Category is required";
+    if (!formState.subcategory) errors.subcategory = "Subcategory is required";
+    if (!formState.region) errors.region = "Region is required";
+    if (!formState.city) errors.city = "City is required";
+    if (!formState.warehouse) errors.warehouse = "Warehouse is required";
+    if (!formState.channelType) errors.channelType = "Channel type is required";
+    if (!formState.targetValue) errors.targetValue = "Target value is required";
+    if (!formState.confidence) errors.confidence = "Confidence is required";
+
+    if (["B2B", "Wholesale"].includes(formState.channelType) && !formState.accountName) {
+      errors.accountName = "Account name is required for B2B/Wholesale";
+    }
+
+    if (formState.startDate && formState.endDate) {
+      const start = new Date(formState.startDate);
+      const end = new Date(formState.endDate);
+      if (end < start) {
+        errors.endDate = "End date must be after start date";
+      }
+    }
+
+    if (formState.targetValue && Number(formState.targetValue) <= 0) {
+      errors.targetValue = "Target value must be greater than 0";
+    }
+    
+    if (formState.confidence) {
+      const confidence = Number(formState.confidence);
+      if (confidence < 0 || confidence > 100) {
+        errors.confidence = "Confidence must be between 0 and 100";
+      }
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleFormChange = (field: string, value: string) => {
+    setFormState(prev => {
+      const newState = { ...prev, [field]: value };
+      
+      if (field === "category") {
+        newState.subcategory = "";
+        newState.sku = "";
+      }
+      if (field === "subcategory") {
+        newState.sku = "";
+      }
+      if (field === "region") {
+        newState.city = "";
+        newState.warehouse = "";
+      }
+      if (field === "city") {
+        newState.warehouse = "";
+      }
+      if (field === "channelType" && !["B2B", "Wholesale"].includes(value)) {
+        newState.accountName = "";
+      }
+      
+      setFormErrors(prev => ({ ...prev, [field]: "" }));
+      
+      return newState;
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      toast({
+        title: "Validation Error",
+        description: "Please check the form for errors",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      toast({
+        title: "Success",
+        description: "Sales plan created successfully",
+      });
+
+      setFormState({
+        startDate: "",
+        endDate: "",
+        category: "",
+        subcategory: "",
+        sku: "",
+        region: "",
+        city: "",
+        warehouse: "",
+        channelType: "",
+        accountName: "",
+        targetValue: "",
+        confidence: "",
+        notes: ""
+      });
+      setFormErrors({});
+      onClose();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create sales plan. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="startDate">Start Date</Label>
+          <Input
+            id="startDate"
+            type="date"
+            value={formState.startDate}
+            onChange={(e) => handleFormChange("startDate", e.target.value)}
+            className={formErrors.startDate ? "border-red-500" : ""}
+          />
+          {formErrors.startDate && (
+            <p className="text-sm text-red-500">{formErrors.startDate}</p>
+          )}
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="endDate">End Date</Label>
+          <Input
+            id="endDate"
+            type="date"
+            value={formState.endDate}
+            onChange={(e) => handleFormChange("endDate", e.target.value)}
+            className={formErrors.endDate ? "border-red-500" : ""}
+          />
+          {formErrors.endDate && (
+            <p className="text-sm text-red-500">{formErrors.endDate}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="category">Product Category</Label>
+          <Select
+            value={formState.category}
+            onValueChange={(value) => handleFormChange("category", value)}
+          >
+            <SelectTrigger className={formErrors.category ? "border-red-500" : ""}>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {productCategories.map((category) => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {formErrors.category && (
+            <p className="text-sm text-red-500">{formErrors.category}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="subcategory">Subcategory</Label>
+          <Select
+            value={formState.subcategory}
+            onValueChange={(value) => handleFormChange("subcategory", value)}
+            disabled={!formState.category}
+          >
+            <SelectTrigger className={formErrors.subcategory ? "border-red-500" : ""}>
+              <SelectValue placeholder="Select subcategory" />
+            </SelectTrigger>
+            <SelectContent>
+              {formState.category &&
+                subcategories[formState.category as keyof typeof subcategories].map(
+                  (subcategory) => (
+                    <SelectItem key={subcategory} value={subcategory}>
+                      {subcategory}
+                    </SelectItem>
+                  )
+                )}
+            </SelectContent>
+          </Select>
+          {formErrors.subcategory && (
+            <p className="text-sm text-red-500">{formErrors.subcategory}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="region">Region</Label>
+          <Select
+            value={formState.region}
+            onValueChange={(value) => handleFormChange("region", value)}
+          >
+            <SelectTrigger className={formErrors.region ? "border-red-500" : ""}>
+              <SelectValue placeholder="Select region" />
+            </SelectTrigger>
+            <SelectContent>
+              {regions.map((region) => (
+                <SelectItem key={region} value={region}>
+                  {region}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {formErrors.region && (
+            <p className="text-sm text-red-500">{formErrors.region}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="city">City</Label>
+          <Select
+            value={formState.city}
+            onValueChange={(value) => handleFormChange("city", value)}
+            disabled={!formState.region}
+          >
+            <SelectTrigger className={formErrors.city ? "border-red-500" : ""}>
+              <SelectValue placeholder="Select city" />
+            </SelectTrigger>
+            <SelectContent>
+              {formState.region &&
+                cities[formState.region as keyof typeof cities].map((city) => (
+                  <SelectItem key={city} value={city}>
+                    {city}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+          {formErrors.city && (
+            <p className="text-sm text-red-500">{formErrors.city}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="warehouse">Warehouse</Label>
+          <Select
+            value={formState.warehouse}
+            onValueChange={(value) => handleFormChange("warehouse", value)}
+            disabled={!formState.city || !warehouses[formState.city as keyof typeof warehouses]}
+          >
+            <SelectTrigger className={formErrors.warehouse ? "border-red-500" : ""}>
+              <SelectValue placeholder="Select warehouse" />
+            </SelectTrigger>
+            <SelectContent>
+              {formState.city &&
+                warehouses[formState.city as keyof typeof warehouses]?.map(
+                  (warehouse) => (
+                    <SelectItem key={warehouse} value={warehouse}>
+                      {warehouse}
+                    </SelectItem>
+                  )
+                )}
+            </SelectContent>
+          </Select>
+          {formErrors.warehouse && (
+            <p className="text-sm text-red-500">{formErrors.warehouse}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="channelType">Channel Type</Label>
+          <Select
+            value={formState.channelType}
+            onValueChange={(value) => handleFormChange("channelType", value)}
+          >
+            <SelectTrigger className={formErrors.channelType ? "border-red-500" : ""}>
+              <SelectValue placeholder="Select channel type" />
+            </SelectTrigger>
+            <SelectContent>
+              {channelTypes.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {type}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {formErrors.channelType && (
+            <p className="text-sm text-red-500">{formErrors.channelType}</p>
+          )}
+        </div>
+
+        {(formState.channelType === "B2B" || formState.channelType === "Wholesale") && (
+          <div className="space-y-2">
+            <Label htmlFor="accountName">Account Name</Label>
+            <Input
+              id="accountName"
+              value={formState.accountName}
+              onChange={(e) => handleFormChange("accountName", e.target.value)}
+              placeholder="Enter account name"
+              className={formErrors.accountName ? "border-red-500" : ""}
+            />
+            {formErrors.accountName && (
+              <p className="text-sm text-red-500">{formErrors.accountName}</p>
+            )}
+          </div>
+        )}
+
+        <div className="space-y-2">
+          <Label htmlFor="targetValue">Target Value ($)</Label>
+          <Input
+            id="targetValue"
+            type="number"
+            min="0"
+            value={formState.targetValue}
+            onChange={(e) => handleFormChange("targetValue", e.target.value)}
+            className={formErrors.targetValue ? "border-red-500" : ""}
+          />
+          {formErrors.targetValue && (
+            <p className="text-sm text-red-500">{formErrors.targetValue}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="confidence">Confidence (%)</Label>
+          <Input
+            id="confidence"
+            type="number"
+            min="0"
+            max="100"
+            value={formState.confidence}
+            onChange={(e) => handleFormChange("confidence", e.target.value)}
+            className={formErrors.confidence ? "border-red-500" : ""}
+          />
+          {formErrors.confidence && (
+            <p className="text-sm text-red-500">{formErrors.confidence}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="notes">Notes</Label>
+        <Textarea
+          id="notes"
+          placeholder="Add any additional notes or comments..."
+          value={formState.notes}
+          onChange={(e) => handleFormChange("notes", e.target.value)}
+        />
+      </div>
+
+      <div className="flex justify-end gap-4">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onClose}
+          disabled={isSubmitting}
+        >
+          Cancel
+        </Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Creating..." : "Create Plan"}
+        </Button>
+      </div>
+    </form>
+  );
+};
+
