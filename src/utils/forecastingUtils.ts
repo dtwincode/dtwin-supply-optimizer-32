@@ -200,3 +200,88 @@ export const adjustForecastWithExternalFactors = (
     return adjusted;
   });
 };
+
+export interface WeatherData {
+  temperature: number;
+  precipitation: number;
+  humidity: number;
+  windSpeed: number;
+  weatherCondition: string;
+  alert?: string;
+}
+
+export interface MarketEvent {
+  id: string;
+  type: 'competitor_action' | 'regulatory_change' | 'market_disruption' | 'technology_change' | 'economic_event';
+  name: string;
+  date: string;
+  impact: number; // -1 to 1 scale
+  description: string;
+  source?: string;
+  category: string;
+}
+
+export interface WeatherPattern {
+  location: string;
+  date: string;
+  forecast: WeatherData;
+  historicalAverage?: WeatherData;
+  impactScore: number; // -1 to 1 scale
+}
+
+export const calculateWeatherImpact = (weatherData: WeatherData, productCategory: string): number => {
+  let impactScore = 0;
+  
+  // Calculate impact based on weather conditions and product category
+  switch (productCategory.toLowerCase()) {
+    case 'beverages':
+      impactScore += (weatherData.temperature - 20) * 0.05; // Higher temps increase beverage sales
+      break;
+    case 'winter clothing':
+      impactScore -= weatherData.temperature * 0.03; // Lower temps increase winter clothing sales
+      break;
+    case 'electronics':
+      // Extreme conditions might affect electronics sales
+      if (weatherData.humidity > 80) impactScore -= 0.2;
+      break;
+    default:
+      // Default impact calculation
+      if (weatherData.weatherCondition === 'rainy') impactScore -= 0.1;
+      if (weatherData.weatherCondition === 'sunny') impactScore += 0.1;
+  }
+  
+  return Math.max(-1, Math.min(1, impactScore)); // Clamp between -1 and 1
+};
+
+export const fetchWeatherForecast = async (location: string): Promise<WeatherData> => {
+  // Note: Replace with actual API key implementation
+  const apiKey = 'YOUR_WEATHER_API_KEY';
+  try {
+    const response = await fetch(
+      `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${location}&days=1`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    
+    if (!response.ok) {
+      throw new Error('Weather API request failed');
+    }
+    
+    const data = await response.json();
+    
+    return {
+      temperature: data.current.temp_c,
+      precipitation: data.current.precip_mm,
+      humidity: data.current.humidity,
+      windSpeed: data.current.wind_kph,
+      weatherCondition: data.current.condition.text,
+      alert: data.alerts?.alert[0]?.desc
+    };
+  } catch (error) {
+    console.error('Error fetching weather data:', error);
+    throw error;
+  }
+};

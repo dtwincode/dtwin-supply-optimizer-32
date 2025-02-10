@@ -120,6 +120,22 @@ const warehouses = [
   "Regional Warehouse SA"
 ];
 
+const marketEventTypes = [
+  { value: 'competitor_action', label: 'Competitor Action' },
+  { value: 'regulatory_change', label: 'Regulatory Change' },
+  { value: 'market_disruption', label: 'Market Disruption' },
+  { value: 'technology_change', label: 'Technology Change' },
+  { value: 'economic_event', label: 'Economic Event' }
+];
+
+const marketEventCategories = [
+  { value: 'pricing', label: 'Pricing Changes' },
+  { value: 'product_launch', label: 'Product Launch' },
+  { value: 'promotion', label: 'Promotional Activity' },
+  { value: 'distribution', label: 'Distribution Changes' },
+  { value: 'merger_acquisition', label: 'Merger & Acquisition' }
+];
+
 const Forecasting = () => {
   const [selectedModel, setSelectedModel] = useState("moving-avg");
   const [horizon, setHorizon] = useState("6m");
@@ -146,6 +162,14 @@ const Forecasting = () => {
     gdpGrowth: 0.02,
     inflation: 0.03,
     exchangeRates: { USD: 1, EUR: 0.85 }
+  });
+  const [weatherLocation, setWeatherLocation] = useState<string>('');
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [marketEvents, setMarketEvents] = useState<MarketEvent[]>([]);
+  const [newEvent, setNewEvent] = useState<Partial<MarketEvent>>({
+    type: 'competitor_action',
+    category: 'pricing',
+    impact: 0
   });
   const { toast } = useToast();
 
@@ -684,42 +708,172 @@ const Forecasting = () => {
 
           <TabsContent value="external">
             <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">External Factors Analysis</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="font-medium mb-2">Macroeconomic Factors</h4>
+                  <h3 className="text-lg font-semibold mb-4">Weather Impact Analysis</h3>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm mb-1">GDP Growth</label>
-                      <Input
-                        type="number"
-                        value={macroFactors.gdpGrowth}
-                        onChange={(e) => setMacroFactors(prev => ({
-                          ...prev,
-                          gdpGrowth: parseFloat(e.target.value)
-                        }))}
-                      />
+                      <label className="block text-sm mb-1">Location</label>
+                      <div className="flex gap-2">
+                        <Input 
+                          value={weatherLocation}
+                          onChange={(e) => setWeatherLocation(e.target.value)}
+                          placeholder="Enter location"
+                        />
+                        <Button 
+                          onClick={async () => {
+                            try {
+                              const data = await fetchWeatherForecast(weatherLocation);
+                              setWeatherData(data);
+                            } catch (error) {
+                              toast({
+                                title: "Error",
+                                description: "Failed to fetch weather data",
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                        >
+                          Fetch Weather
+                        </Button>
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-sm mb-1">Inflation Rate</label>
-                      <Input
-                        type="number"
-                        value={macroFactors.inflation}
-                        onChange={(e) => setMacroFactors(prev => ({
-                          ...prev,
-                          inflation: parseFloat(e.target.value)
-                        }))}
-                      />
-                    </div>
+                    
+                    {weatherData && (
+                      <div className="space-y-2">
+                        <p>Temperature: {weatherData.temperature}°C</p>
+                        <p>Humidity: {weatherData.humidity}%</p>
+                        <p>Wind Speed: {weatherData.windSpeed} km/h</p>
+                        <p>Condition: {weatherData.weatherCondition}</p>
+                        {weatherData.alert && (
+                          <p className="text-red-500">Alert: {weatherData.alert}</p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
+
                 <div>
-                  <h4 className="font-medium mb-2">Market Events</h4>
-                  {/* Add event input and management UI */}
-                </div>
-                <div>
-                  <h4 className="font-medium mb-2">Weather Patterns</h4>
-                  {/* Add weather pattern input and analysis UI */}
+                  <h3 className="text-lg font-semibold mb-4">Market Events</h3>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm mb-1">Event Type</label>
+                        <Select 
+                          value={newEvent.type}
+                          onValueChange={(value) => setNewEvent(prev => ({ ...prev, type: value as MarketEvent['type'] }))}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {marketEventTypes.map(type => (
+                              <SelectItem key={type.value} value={type.value}>
+                                {type.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="block text-sm mb-1">Category</label>
+                        <Select 
+                          value={newEvent.category}
+                          onValueChange={(value) => setNewEvent(prev => ({ ...prev, category: value }))}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {marketEventCategories.map(category => (
+                              <SelectItem key={category.value} value={category.value}>
+                                {category.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm mb-1">Event Name</label>
+                      <Input 
+                        value={newEvent.name || ''}
+                        onChange={(e) => setNewEvent(prev => ({ ...prev, name: e.target.value }))}
+                        placeholder="Enter event name"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm mb-1">Date</label>
+                      <Input 
+                        type="date"
+                        value={newEvent.date || ''}
+                        onChange={(e) => setNewEvent(prev => ({ ...prev, date: e.target.value }))}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm mb-1">Impact (-1 to 1)</label>
+                      <Input 
+                        type="number"
+                        min="-1"
+                        max="1"
+                        step="0.1"
+                        value={newEvent.impact || 0}
+                        onChange={(e) => setNewEvent(prev => ({ ...prev, impact: parseFloat(e.target.value) }))}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm mb-1">Description</label>
+                      <textarea 
+                        className="w-full p-2 border rounded"
+                        value={newEvent.description || ''}
+                        onChange={(e) => setNewEvent(prev => ({ ...prev, description: e.target.value }))}
+                        placeholder="Enter event description"
+                      />
+                    </div>
+
+                    <Button 
+                      onClick={() => {
+                        if (newEvent.name && newEvent.date) {
+                          setMarketEvents(prev => [...prev, { 
+                            ...newEvent as MarketEvent,
+                            id: Math.random().toString(36).substr(2, 9)
+                          }]);
+                          setNewEvent({
+                            type: 'competitor_action',
+                            category: 'pricing',
+                            impact: 0
+                          });
+                        }
+                      }}
+                    >
+                      Add Market Event
+                    </Button>
+                  </div>
+
+                  <div className="mt-4">
+                    <h4 className="font-medium mb-2">Recorded Events</h4>
+                    <div className="space-y-2">
+                      {marketEvents.map(event => (
+                        <div key={event.id} className="p-2 border rounded">
+                          <div className="flex justify-between">
+                            <span className="font-medium">{event.name}</span>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => setMarketEvents(prev => prev.filter(e => e.id !== event.id))}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <p className="text-sm text-gray-600">{event.date} - {event.type}</p>
+                          <p className="text-sm">{event.description}</p>
+                          <p className="text-sm font-medium">Impact: {event.impact}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             </Card>
