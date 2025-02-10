@@ -42,6 +42,48 @@ export type Database = {
         }
         Relationships: []
       }
+      data_validation_logs: {
+        Row: {
+          created_at: string | null
+          error_count: number
+          file_name: string
+          id: string
+          module: Database["public"]["Enums"]["module_type"]
+          processed_by: string | null
+          row_count: number
+          status: string
+          updated_at: string | null
+          validation_date: string | null
+          validation_errors: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          error_count?: number
+          file_name: string
+          id?: string
+          module: Database["public"]["Enums"]["module_type"]
+          processed_by?: string | null
+          row_count: number
+          status?: string
+          updated_at?: string | null
+          validation_date?: string | null
+          validation_errors?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          error_count?: number
+          file_name?: string
+          id?: string
+          module?: Database["public"]["Enums"]["module_type"]
+          processed_by?: string | null
+          row_count?: number
+          status?: string
+          updated_at?: string | null
+          validation_date?: string | null
+          validation_errors?: Json | null
+        }
+        Relationships: []
+      }
       forecast_accuracy: {
         Row: {
           actual_value: number | null
@@ -460,6 +502,7 @@ export type Database = {
           module: Database["public"]["Enums"]["module_type"]
           settings: Json | null
           updated_at: string
+          validation_rules: Json | null
         }
         Insert: {
           created_at?: string
@@ -468,6 +511,7 @@ export type Database = {
           module: Database["public"]["Enums"]["module_type"]
           settings?: Json | null
           updated_at?: string
+          validation_rules?: Json | null
         }
         Update: {
           created_at?: string
@@ -476,6 +520,7 @@ export type Database = {
           module?: Database["public"]["Enums"]["module_type"]
           settings?: Json | null
           updated_at?: string
+          validation_rules?: Json | null
         }
         Relationships: []
       }
