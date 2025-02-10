@@ -6,6 +6,13 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Download, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { Database } from "@/integrations/supabase/types";
+
+interface DataTemplate {
+  required_columns: string[];
+  optional_columns: string[];
+  sample_row: Record<string, string | number>;
+}
 
 interface DataUploadDialogProps {
   onDataUploaded: () => void;
@@ -26,7 +33,7 @@ export function DataUploadDialog({ onDataUploaded }: DataUploadDialogProps) {
 
       if (error) throw error;
 
-      const template = data.data_template;
+      const template = data.data_template as DataTemplate;
       const csvHeader = template.required_columns.join(',');
       const csvRow = Object.values(template.sample_row).join(',');
       const csvContent = `${csvHeader}\n${csvRow}`;
@@ -87,8 +94,8 @@ export function DataUploadDialog({ onDataUploaded }: DataUploadDialogProps) {
           .eq('module', 'forecasting')
           .single();
 
-        const requiredColumns = templateData?.data_template.required_columns;
-        const missingColumns = requiredColumns.filter(col => !headers.includes(col));
+        const template = templateData?.data_template as DataTemplate;
+        const missingColumns = template.required_columns.filter(col => !headers.includes(col));
 
         if (missingColumns.length > 0) {
           toast({
@@ -103,10 +110,18 @@ export function DataUploadDialog({ onDataUploaded }: DataUploadDialogProps) {
         const dataRows = rows.slice(1).filter(row => row.trim());
         const processedData = dataRows.map(row => {
           const values = row.split(',').map(v => v.trim());
-          const rowData: Record<string, any> = {};
-          headers.forEach((header, index) => {
-            rowData[header] = values[index];
-          });
+          const rowData: Database['public']['Tables']['forecast_data']['Insert'] = {
+            date: values[headers.indexOf('date')],
+            value: parseFloat(values[headers.indexOf('value')]),
+            category: values[headers.indexOf('category')] || null,
+            subcategory: values[headers.indexOf('subcategory')] || null,
+            sku: values[headers.indexOf('sku')] || null,
+            region: values[headers.indexOf('region')] || null,
+            city: values[headers.indexOf('city')] || null,
+            channel: values[headers.indexOf('channel')] || null,
+            warehouse: values[headers.indexOf('warehouse')] || null,
+            notes: values[headers.indexOf('notes')] || null
+          };
           return rowData;
         });
 
