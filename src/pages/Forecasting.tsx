@@ -154,7 +154,8 @@ const Forecasting = () => {
   const [whatIfParams, setWhatIfParams] = useState({
     growthRate: 0,
     seasonality: 0,
-    events: []
+    events: [],
+    priceData: undefined as PriceData | undefined
   });
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>("all");
@@ -173,6 +174,11 @@ const Forecasting = () => {
     type: 'competitor_action',
     category: 'pricing',
     impact: 0
+  });
+  const [priceData, setPriceData] = useState<PriceData>({
+    basePrice: 0,
+    elasticity: -1,
+    historicalPrices: []
   });
   const { toast } = useToast();
 
@@ -219,8 +225,11 @@ const Forecasting = () => {
 
   const whatIfScenario = useMemo(() => {
     const baseline = filteredData.map(d => d.forecast);
-    return generateScenario(baseline, whatIfParams, filteredData); // Pass filteredData as timeData
-  }, [filteredData, whatIfParams]);
+    return generateScenario(baseline, {
+      ...whatIfParams,
+      priceData: priceData.basePrice > 0 ? priceData : undefined
+    }, filteredData);
+  }, [filteredData, whatIfParams, priceData]);
 
   const validationResults = useMemo(() => {
     const actuals = filteredData.map(d => d.actual).filter(a => a !== null) as number[];
@@ -635,6 +644,47 @@ const Forecasting = () => {
                     >
                       Add Event
                     </Button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Base Price</label>
+                    <Input
+                      type="number"
+                      value={priceData.basePrice}
+                      onChange={(e) => setPriceData(prev => ({
+                        ...prev,
+                        basePrice: parseFloat(e.target.value)
+                      }))}
+                      min="0"
+                      step="0.01"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Price Elasticity</label>
+                    <Input
+                      type="number"
+                      value={priceData.elasticity}
+                      onChange={(e) => setPriceData(prev => ({
+                        ...prev,
+                        elasticity: parseFloat(e.target.value)
+                      }))}
+                      step="0.1"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Promotional Price</label>
+                    <Input
+                      type="number"
+                      value={priceData.promotionalPrice || ''}
+                      onChange={(e) => setPriceData(prev => ({
+                        ...prev,
+                        promotionalPrice: e.target.value ? parseFloat(e.target.value) : undefined
+                      }))}
+                      min="0"
+                      step="0.01"
+                    />
                   </div>
                 </div>
 
