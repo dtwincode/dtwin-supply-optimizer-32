@@ -1,21 +1,9 @@
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  ComposedChart,
-  ErrorBar,
-} from "recharts";
+import { Button } from "@/components/ui/button";
+import { FileDown } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -23,18 +11,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { TrendingUp, AlertCircle, Zap, Save, FileDown, Share2, X } from "lucide-react";
-import { useState, useMemo } from "react";
-import { useToast } from "@/components/ui/use-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   calculateMetrics,
   calculateConfidenceIntervals,
   decomposeSeasonality,
   generateScenario,
-  type Scenario,
   validateForecast,
   performCrossValidation,
   type WeatherData,
@@ -45,6 +26,10 @@ import {
   calculatePriceImpact,
   analyzePriceSensitivity
 } from "@/utils/forecasting";
+import { ForecastMetricsCards } from "@/components/forecasting/ForecastMetricsCards";
+import { ForecastFilters } from "@/components/forecasting/ForecastFilters";
+import { ForecastChart } from "@/components/forecasting/ForecastChart";
+import { ScenarioManagement } from "@/components/forecasting/ScenarioManagement";
 
 const forecastData = [
   { 
@@ -371,170 +356,32 @@ const Forecasting = () => {
             </div>
           </div>
 
-          <div className="flex flex-col gap-4 w-full max-w-4xl">
-            <div className="flex gap-4">
-              <Input
-                placeholder="Search forecasts..."
-                className="w-[300px]"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select Region" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Regions</SelectItem>
-                  {regions.map(region => (
-                    <SelectItem key={region} value={region}>{region}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select 
-                value={selectedCity} 
-                onValueChange={setSelectedCity}
-                disabled={selectedRegion === "all"}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select City" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Cities</SelectItem>
-                  {selectedRegion !== "all" && cities[selectedRegion as keyof typeof cities].map(city => (
-                    <SelectItem key={city} value={city}>{city}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex gap-4">
-              <Select value={selectedChannel} onValueChange={setSelectedChannel}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Channel Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Channels</SelectItem>
-                  {channelTypes.map(channel => (
-                    <SelectItem key={channel} value={channel}>{channel}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={selectedWarehouse} onValueChange={setSelectedWarehouse}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Warehouse" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Warehouses</SelectItem>
-                  {warehouses.map(warehouse => (
-                    <SelectItem key={warehouse} value={warehouse}>{warehouse}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex gap-4">
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  {Array.from(new Set(forecastData.map(item => item.category))).map(category => (
-                    <SelectItem key={category} value={category}>{category}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select 
-                value={selectedSubcategory} 
-                onValueChange={setSelectedSubcategory}
-                disabled={selectedCategory === "all"}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Subcategory" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Subcategories</SelectItem>
-                  {selectedCategory !== "all" && 
-                    Array.from(new Set(forecastData
-                      .filter(item => item.category === selectedCategory)
-                      .map(item => item.subcategory)))
-                      .map(subcategory => (
-                        <SelectItem key={subcategory} value={subcategory}>{subcategory}</SelectItem>
-                      ))
-                  }
-                </SelectContent>
-              </Select>
-              <Select 
-                value={selectedSku} 
-                onValueChange={setSelectedSku}
-                disabled={selectedSubcategory === "all"}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="SKU" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All SKUs</SelectItem>
-                  {selectedSubcategory !== "all" && 
-                    Array.from(new Set(forecastData
-                      .filter(item => 
-                        item.category === selectedCategory && 
-                        item.subcategory === selectedSubcategory)
-                      .map(item => item.sku)))
-                      .map(sku => (
-                        <SelectItem key={sku} value={sku}>{sku}</SelectItem>
-                      ))
-                  }
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
+          <ForecastFilters
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            selectedRegion={selectedRegion}
+            setSelectedRegion={setSelectedRegion}
+            selectedCity={selectedCity}
+            setSelectedCity={setSelectedCity}
+            selectedChannel={selectedChannel}
+            setSelectedChannel={setSelectedChannel}
+            selectedWarehouse={selectedWarehouse}
+            setSelectedWarehouse={setSelectedWarehouse}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            selectedSubcategory={selectedSubcategory}
+            setSelectedSubcategory={setSelectedSubcategory}
+            selectedSku={selectedSku}
+            setSelectedSku={setSelectedSku}
+            regions={regions}
+            cities={cities}
+            channelTypes={channelTypes}
+            warehouses={warehouses}
+            forecastData={forecastData}
+          />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card className="p-6">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 bg-primary-50 rounded-full">
-                <TrendingUp className="h-6 w-6 text-primary-500" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Forecast Accuracy</p>
-                <p className="text-2xl font-semibold">{(100 - metrics.mape).toFixed(1)}%</p>
-              </div>
-            </div>
-          </Card>
-          <Card className="p-6">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 bg-warning-50 rounded-full">
-                <AlertCircle className="h-6 w-6 text-warning-500" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">MAPE</p>
-                <p className="text-2xl font-semibold">{metrics.mape}%</p>
-              </div>
-            </div>
-          </Card>
-          <Card className="p-6">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 bg-success-50 rounded-full">
-                <Zap className="h-6 w-6 text-success-500" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">MAE</p>
-                <p className="text-2xl font-semibold">{metrics.mae}</p>
-              </div>
-            </div>
-          </Card>
-          <Card className="p-6">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 bg-info-50 rounded-full">
-                <Share2 className="h-6 w-6 text-info-500" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">RMSE</p>
-                <p className="text-2xl font-semibold">{metrics.rmse}</p>
-              </div>
-            </div>
-          </Card>
-        </div>
+        <ForecastMetricsCards metrics={metrics} />
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
@@ -546,62 +393,10 @@ const Forecasting = () => {
           </TabsList>
 
           <TabsContent value="forecast">
-            <Card className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">Demand Forecast</h3>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowConfidenceIntervals(!showConfidenceIntervals)}
-                >
-                  {showConfidenceIntervals ? "Hide" : "Show"} Confidence Intervals
-                </Button>
-              </div>
-              <div className="h-[400px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart data={filteredData.map((d, i) => ({
-                    ...d,
-                    ci: confidenceIntervals[i]
-                  }))}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="actual"
-                      stroke="#10B981"
-                      name="Actual Demand"
-                      strokeWidth={2}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="forecast"
-                      stroke="#F59E0B"
-                      name="Forecast"
-                      strokeWidth={2}
-                    />
-                    {showConfidenceIntervals && (
-                      <Area
-                        dataKey="ci.upper"
-                        stroke="transparent"
-                        fill="#F59E0B"
-                        fillOpacity={0.1}
-                        name="Confidence Interval"
-                      />
-                    )}
-                    {showConfidenceIntervals && (
-                      <Area
-                        dataKey="ci.lower"
-                        stroke="transparent"
-                        fill="#F59E0B"
-                        fillOpacity={0.1}
-                      />
-                    )}
-                  </ComposedChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
+            <ForecastChart
+              data={filteredData}
+              confidenceIntervals={confidenceIntervals}
+            />
           </TabsContent>
 
           <TabsContent value="decomposition">
@@ -1039,38 +834,13 @@ const Forecasting = () => {
           </TabsContent>
         </Tabs>
 
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Scenario Management</h3>
-          <div className="flex gap-4 mb-6">
-            <Input
-              placeholder="Enter scenario name"
-              value={scenarioName}
-              onChange={(e) => setScenarioName(e.target.value)}
-              className="w-[300px]"
-            />
-            <Button onClick={handleSaveScenario}>
-              <Save className="w-4 h-4 mr-2" />
-              Save Scenario
-            </Button>
-          </div>
-          <div className="flex gap-4">
-            <Select onValueChange={(value) => setSelectedScenario(savedScenarios.find(s => s.id.toString() === value))}>
-              <SelectTrigger className="w-[300px]">
-                <SelectValue placeholder="Select scenario to compare" />
-              </SelectTrigger>
-              <SelectContent>
-                {savedScenarios.map(scenario => (
-                  <SelectItem key={scenario.id} value={scenario.id.toString()}>
-                    {scenario.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button variant="outline">
-              Compare Scenarios
-            </Button>
-          </div>
-        </Card>
+        <ScenarioManagement
+          scenarioName={scenarioName}
+          setScenarioName={setScenarioName}
+          savedScenarios={savedScenarios}
+          selectedScenario={selectedScenario}
+          setSelectedScenario={setSelectedScenario}
+        />
       </div>
     </DashboardLayout>
   );
