@@ -23,7 +23,7 @@ interface ForecastWhatIfAnalysisProps {
   };
   setWhatIfParams: (params: any) => void;
   priceData: PriceData;
-  setPriceData: (data: PriceData) => void;
+  setPriceData: React.Dispatch<React.SetStateAction<PriceData>>;
   whatIfScenario: number[];
 }
 

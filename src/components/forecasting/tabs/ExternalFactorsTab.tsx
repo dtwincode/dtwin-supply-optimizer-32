@@ -60,7 +60,7 @@ export const ExternalFactorsTab = ({
                 <Button 
                   onClick={async () => {
                     try {
-                      const data = await fetchWeatherForecast(weatherLocation);
+                      await fetchWeatherForecast(weatherLocation);
                       toast({
                         title: "Success",
                         description: "Weather data fetched successfully",
@@ -133,62 +133,47 @@ export const ExternalFactorsTab = ({
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm mb-1">Event Name</label>
-              <Input 
+            <div className="space-y-2">
+              <label className="block text-sm mb-1">Event Details</label>
+              <Input
+                placeholder="Event Name"
                 value={newEvent.name || ''}
                 onChange={(e) => handleEventUpdate('name', e.target.value)}
-                placeholder="Enter event name"
               />
-            </div>
-
-            <div>
-              <label className="block text-sm mb-1">Date</label>
-              <Input 
+              <Input
                 type="date"
                 value={newEvent.date || ''}
                 onChange={(e) => handleEventUpdate('date', e.target.value)}
               />
-            </div>
-
-            <div>
-              <label className="block text-sm mb-1">Impact (-1 to 1)</label>
-              <Input 
+              <Input
                 type="number"
+                placeholder="Impact (-1 to 1)"
                 min="-1"
                 max="1"
                 step="0.1"
                 value={newEvent.impact || 0}
                 onChange={(e) => handleEventUpdate('impact', parseFloat(e.target.value))}
               />
-            </div>
-
-            <div>
-              <label className="block text-sm mb-1">Description</label>
-              <textarea 
+              <textarea
                 className="w-full p-2 border rounded"
+                placeholder="Description"
                 value={newEvent.description || ''}
                 onChange={(e) => handleEventUpdate('description', e.target.value)}
-                placeholder="Enter event description"
               />
             </div>
 
             <Button 
               onClick={() => {
                 if (newEvent.name && newEvent.date) {
-                  setMarketEvents([...marketEvents, { 
+                  setMarketEvents([...marketEvents, {
                     ...newEvent as MarketEvent,
                     id: Math.random().toString(36).substr(2, 9)
                   }]);
-                  setNewEvent({
-                    type: 'competitor_action',
-                    category: 'pricing',
-                    impact: 0
-                  });
+                  setNewEvent({});
                 }
               }}
             >
-              Add Market Event
+              Add Event
             </Button>
           </div>
 
@@ -215,63 +200,7 @@ export const ExternalFactorsTab = ({
             </div>
           </div>
         </div>
-
-        <div>
-          <h3 className="text-lg font-semibold mb-4">Price Analysis</h3>
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm mb-1">Historical Price</label>
-                <Input 
-                  type="number"
-                  placeholder="Enter price"
-                  onChange={(e) => {
-                    const price = parseFloat(e.target.value);
-                    const demand = historicalPriceData.length > 0 
-                      ? historicalPriceData[historicalPriceData.length - 1].demand 
-                      : 0;
-                    if (!isNaN(price)) {
-                      addHistoricalPricePoint(price, demand);
-                    }
-                  }}
-                />
-              </div>
-              <div>
-                <label className="block text-sm mb-1">Historical Demand</label>
-                <Input 
-                  type="number"
-                  placeholder="Enter demand"
-                  onChange={(e) => {
-                    const demand = parseFloat(e.target.value);
-                    const price = historicalPriceData.length > 0 
-                      ? historicalPriceData[historicalPriceData.length - 1].price 
-                      : 0;
-                    if (!isNaN(demand)) {
-                      addHistoricalPricePoint(price, demand);
-                    }
-                  }}
-                />
-              </div>
-            </div>
-
-            <Button onClick={calculatePriceAnalysis}>
-              Analyze Price Sensitivity
-            </Button>
-
-            {priceAnalysis && (
-              <div className="mt-4 p-4 bg-gray-50 rounded">
-                <h4 className="font-medium mb-2">Price Analysis Results</h4>
-                <div className="space-y-2">
-                  <p>Price Elasticity: {priceAnalysis.priceElasticity.toFixed(2)}</p>
-                  <p>Optimal Price: ${priceAnalysis.optimalPrice.toFixed(2)}</p>
-                  <p>Price Range: ${priceAnalysis.priceThresholds.min.toFixed(2)} - ${priceAnalysis.priceThresholds.max.toFixed(2)}</p>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
       </div>
     </Card>
   );
 };
-

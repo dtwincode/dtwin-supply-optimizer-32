@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -87,6 +86,41 @@ const Forecasting = () => {
       upper: Math.round(1400 + Math.random() * 200)
     }));
   });
+
+  const [weatherLocation, setWeatherLocation] = useState("");
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [marketEvents, setMarketEvents] = useState<MarketEvent[]>([]);
+  const [newEvent, setNewEvent] = useState<Partial<MarketEvent>>({});
+  const [priceAnalysis, setPriceAnalysis] = useState<PriceAnalysis | null>(null);
+  const [historicalPriceData, setHistoricalPriceData] = useState<{ price: number; demand: number }[]>([]);
+
+  const fetchWeatherForecast = async (location: string): Promise<WeatherData> => {
+    const mockData: WeatherData = {
+      temperature: 25,
+      humidity: 60,
+      windSpeed: 10,
+      weatherCondition: "Sunny",
+      alert: null
+    };
+    setWeatherData(mockData);
+    return mockData;
+  };
+
+  const addHistoricalPricePoint = (price: number, demand: number) => {
+    setHistoricalPriceData(prev => [...prev, { price, demand }]);
+  };
+
+  const calculatePriceAnalysis = () => {
+    setPriceAnalysis({
+      priceElasticity: -1.5,
+      optimalPrice: 100,
+      priceThresholds: {
+        min: 80,
+        max: 120,
+        optimal: 100
+      }
+    });
+  };
 
   const filteredData = useMemo(() => {
     return forecastData.filter(item => {
@@ -317,7 +351,20 @@ const Forecasting = () => {
           </TabsContent>
 
           <TabsContent value="external">
-            <ExternalFactorsTab />
+            <ExternalFactorsTab
+              weatherLocation={weatherLocation}
+              setWeatherLocation={setWeatherLocation}
+              weatherData={weatherData}
+              fetchWeatherForecast={fetchWeatherForecast}
+              marketEvents={marketEvents}
+              setMarketEvents={setMarketEvents}
+              newEvent={newEvent}
+              setNewEvent={setNewEvent}
+              priceAnalysis={priceAnalysis}
+              addHistoricalPricePoint={addHistoricalPricePoint}
+              calculatePriceAnalysis={calculatePriceAnalysis}
+              historicalPriceData={historicalPriceData}
+            />
           </TabsContent>
         </Tabs>
 
