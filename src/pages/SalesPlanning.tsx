@@ -15,35 +15,8 @@ import type { SalesPlan } from "@/types/sales";
 import { SalesPlanForm } from "@/components/sales/SalesPlanForm";
 import { SalesPlanFilter } from "@/components/sales/SalesPlanFilter";
 import { SalesPlanTable } from "@/components/sales/SalesPlanTable";
-
-const mockSalesPlans: SalesPlan[] = [
-  {
-    id: "1",
-    timeframe: {
-      startDate: "2024-01-01",
-      endDate: "2024-12-31"
-    },
-    planType: "top-down",
-    productHierarchy: {
-      category: "Electronics",
-      subcategory: "Smartphones",
-      sku: "iPhone-15"
-    },
-    location: {
-      region: "North America",
-      city: "New York",
-      warehouse: "NYC-01"
-    },
-    planningValues: {
-      targetValue: 1000000,
-      confidence: 0.8,
-      notes: "Based on historical data and market analysis"
-    },
-    status: "draft",
-    lastUpdated: "2024-03-15",
-    createdBy: "John Doe"
-  }
-];
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslation } from "@/translations";
 
 const SalesPlanning = () => {
   const [planType, setPlanType] = useState<"top-down" | "bottom-up">("top-down");
@@ -52,7 +25,8 @@ const SalesPlanning = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [salesPlans, setSalesPlans] = useState<SalesPlan[]>(mockSalesPlans);
+  const [salesPlans, setSalesPlans] = useState<SalesPlan[]>([]);
+  const { language } = useLanguage();
 
   const handleSavePlan = (newPlan: SalesPlan) => {
     setSalesPlans(prev => [...prev, newPlan]);
@@ -76,7 +50,7 @@ const SalesPlanning = () => {
     <DashboardLayout>
       <div className="space-y-6 p-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Sales Planning</h1>
+          <h1 className="text-2xl font-bold">{getTranslation('sales.title', language)}</h1>
           <div className="flex gap-4">
             <Button
               variant={planType === "top-down" ? "default" : "outline"}
@@ -84,7 +58,7 @@ const SalesPlanning = () => {
               className="gap-2"
             >
               <ArrowDown className="h-4 w-4" />
-              Top-Down
+              {getTranslation('sales.topDown', language)}
             </Button>
             <Button
               variant={planType === "bottom-up" ? "default" : "outline"}
@@ -92,18 +66,18 @@ const SalesPlanning = () => {
               className="gap-2"
             >
               <ArrowUp className="h-4 w-4" />
-              Bottom-Up
+              {getTranslation('sales.bottomUp', language)}
             </Button>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="gap-2">
                   <PlusCircle className="h-4 w-4" />
-                  Create New Sales Plan
+                  {getTranslation('sales.newPlan', language)}
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl">
                 <DialogHeader>
-                  <DialogTitle>Create New Sales Plan</DialogTitle>
+                  <DialogTitle>{getTranslation('sales.newPlan', language)}</DialogTitle>
                 </DialogHeader>
                 <SalesPlanForm 
                   onClose={() => setIsDialogOpen(false)} 

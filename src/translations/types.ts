@@ -1,4 +1,3 @@
-
 export type TranslationValue = {
   en: string;
   ar: string;
@@ -70,6 +69,18 @@ export type CommonTranslations = {
   };
 };
 
+export type SalesTranslations = {
+  title: TranslationValue;
+  newPlan: TranslationValue;
+  topDown: TranslationValue;
+  bottomUp: TranslationValue;
+  filters: {
+    category: TranslationValue;
+    region: TranslationValue;
+    status: TranslationValue;
+  };
+};
+
 export type Translations = {
   dashboard: TranslationValue;
   navigationItems: NavigationItems;
@@ -78,4 +89,5 @@ export type Translations = {
   sustainabilityMetrics: SustainabilityMetrics;
   modulesSummary: ModulesSummary;
   common: CommonTranslations;
+  sales: SalesTranslations;
 };

@@ -1,4 +1,3 @@
-
 import { CommonTranslations } from './types';
 
 export const commonTranslations: CommonTranslations = {
@@ -69,5 +68,61 @@ export const commonTranslations: CommonTranslations = {
       en: "Red Zone",
       ar: "المنطقة الحمراء"
     }
+  },
+  viewAll: {
+    en: "View All",
+    ar: "عرض الكل"
+  },
+  search: {
+    en: "Search",
+    ar: "بحث"
+  },
+  filter: {
+    en: "Filter",
+    ar: "تصفية"
+  },
+  status: {
+    en: "Status",
+    ar: "الحالة"
+  },
+  loading: {
+    en: "Loading...",
+    ar: "جاري التحميل..."
+  },
+  noData: {
+    en: "No data available",
+    ar: "لا توجد بيانات متاحة"
+  },
+  submit: {
+    en: "Submit",
+    ar: "إرسال"
+  },
+  cancel: {
+    en: "Cancel",
+    ar: "إلغاء"
+  },
+  save: {
+    en: "Save",
+    ar: "حفظ"
+  },
+  edit: {
+    en: "Edit",
+    ar: "تعديل"
+  },
+  delete: {
+    en: "Delete",
+    ar: "حذف"
+  },
+  create: {
+    en: "Create",
+    ar: "إنشاء"
+  },
+  back: {
+    en: "Back",
+    ar: "رجوع"
+  },
+  next: {
+    en: "Next",
+    ar: "التالي"
   }
 };
