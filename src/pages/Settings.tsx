@@ -75,7 +75,7 @@ const MODULES: { id: ModuleType; title: string; description: string }[] = [
 const Settings = () => {
   const { language } = useLanguage();
 
-  const { data: moduleSettings } = useQuery({
+  const { data: moduleSettings } = useQuery<ModuleSetting[]>({
     queryKey: ['moduleSettings'],
     queryFn: async () => {
       const { data, error } = await supabase
