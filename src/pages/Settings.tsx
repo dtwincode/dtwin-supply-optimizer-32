@@ -120,7 +120,9 @@ const Settings = () => {
               module === 'inventory' ? 'inventory_data' :
               module === 'sales' ? 'sales_data' :
               module === 'marketing' ? 'marketing_data' :
-              module === 'logistics' ? 'logistics_data' : null)
+              module === 'logistics' ? 'logistics_data' :
+              module === 'product_hierarchy' ? 'product_hierarchy' :
+              module === 'location_hierarchy' ? 'location_hierarchy' : null)
         .delete()
         .gt('id', '00000000-0000-0000-0000-000000000000'); // This will match all valid UUIDs
       
