@@ -6,6 +6,8 @@ import { getTranslation } from "@/translations";
 import { DataUploadDialog } from "@/components/settings/DataUploadDialog";
 import { Separator } from "@/components/ui/separator";
 import { Database } from "@/integrations/supabase/types";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 type ModuleType = Database["public"]["Enums"]["module_type"];
 
@@ -50,6 +52,18 @@ const MODULES: { id: ModuleType; title: string; description: string }[] = [
 const Settings = () => {
   const { language } = useLanguage();
 
+  const { data: moduleSettings } = useQuery({
+    queryKey: ['moduleSettings'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('module_settings')
+        .select('*');
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
   const handleDataUploaded = (module: ModuleType) => {
     console.log(`Data uploaded for ${module} module`);
   };
@@ -64,23 +78,44 @@ const Settings = () => {
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">Data Management</h3>
             <div className="space-y-6">
-              {MODULES.map((module, index) => (
-                <div key={module.id}>
-                  <div>
-                    <h4 className="text-sm font-medium mb-2">{module.title}</h4>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      {module.description}
-                    </p>
-                    <DataUploadDialog 
-                      module={module.id}
-                      onDataUploaded={() => handleDataUploaded(module.id)}
-                    />
+              {MODULES.map((module, index) => {
+                const moduleDoc = moduleSettings?.find(m => m.module === module.id)?.settings?.documentation;
+                
+                return (
+                  <div key={module.id}>
+                    <div>
+                      <h4 className="text-sm font-medium mb-2">{module.title}</h4>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        {module.description}
+                      </p>
+                      
+                      {moduleDoc && (
+                        <div className="mb-4 p-4 bg-muted rounded-lg">
+                          <h5 className="font-medium mb-2">Documentation</h5>
+                          <p className="text-sm mb-4">{moduleDoc.overview}</p>
+                          
+                          <div className="space-y-4">
+                            {moduleDoc.sections?.map((section: any, idx: number) => (
+                              <div key={idx}>
+                                <h6 className="font-medium mb-1">{section.title}</h6>
+                                <p className="text-sm whitespace-pre-line">{section.content}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <DataUploadDialog 
+                        module={module.id}
+                        onDataUploaded={() => handleDataUploaded(module.id)}
+                      />
+                    </div>
+                    {index < MODULES.length - 1 && (
+                      <Separator className="my-6" />
+                    )}
                   </div>
-                  {index < MODULES.length - 1 && (
-                    <Separator className="my-6" />
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           </Card>
         </div>
