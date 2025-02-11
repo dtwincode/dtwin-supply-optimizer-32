@@ -12,6 +12,7 @@ interface ForecastDistributionTabProps {
     category: string;
     subcategory: string;
     variance: number;
+    id: string;
   }>;
 }
 
@@ -30,7 +31,8 @@ export const ForecastDistributionTab = ({
       upper: row.forecast + confidenceInterval,
       sku: row.sku || 'N/A',
       category: row.category || 'N/A',
-      subcategory: row.subcategory || 'N/A'
+      subcategory: row.subcategory || 'N/A',
+      id: row.id
     };
   });
 

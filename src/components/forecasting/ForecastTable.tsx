@@ -8,11 +8,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { EditableCell } from "./table/EditableCell";
 import { RowActions } from "./table/RowActions";
 import { ForecastData, EditingCell } from "./table/types";
+import { Trash2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ForecastTableProps {
   data: ForecastData[];
@@ -27,6 +30,30 @@ export const ForecastTable = ({ data: initialData }: ForecastTableProps) => {
   const handleStartEdit = (rowIndex: number, column: 'forecast' | 'lower' | 'upper', value: number) => {
     setEditingCell({ row: rowIndex, col: column });
     setTempValue(value.toString());
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('forecast_data')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setData(data.filter(row => row.id !== id));
+      
+      toast({
+        title: "Success",
+        description: "Forecast data deleted successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete forecast data",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSaveEdit = (rowIndex: number) => {
@@ -120,7 +147,7 @@ export const ForecastTable = ({ data: initialData }: ForecastTableProps) => {
               <TableHead className="text-right">Forecast</TableHead>
               <TableHead className="text-right">Lower Bound</TableHead>
               <TableHead className="text-right">Upper Bound</TableHead>
-              <TableHead className="w-[100px]"></TableHead>
+              <TableHead className="w-[150px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -161,14 +188,23 @@ export const ForecastTable = ({ data: initialData }: ForecastTableProps) => {
                   />
                 </TableCell>
                 <TableCell>
-                  <RowActions
-                    isEditing={editingCell?.row === rowIndex}
-                    onSave={() => handleSaveEdit(rowIndex)}
-                    onCancel={() => {
-                      setEditingCell(null);
-                      setTempValue("");
-                    }}
-                  />
+                  <div className="flex gap-2">
+                    <RowActions
+                      isEditing={editingCell?.row === rowIndex}
+                      onSave={() => handleSaveEdit(rowIndex)}
+                      onCancel={() => {
+                        setEditingCell(null);
+                        setTempValue("");
+                      }}
+                    />
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDelete(row.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

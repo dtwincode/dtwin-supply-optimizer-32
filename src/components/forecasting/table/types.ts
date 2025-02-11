@@ -7,6 +7,7 @@ export interface ForecastData {
   sku: string;
   category: string;
   subcategory: string;
+  id: string; // Adding id for delete functionality
 }
 
 export interface EditingCell {
