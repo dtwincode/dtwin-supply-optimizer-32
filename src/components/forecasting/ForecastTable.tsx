@@ -114,6 +114,9 @@ export const ForecastTable = ({ data: initialData }: ForecastTableProps) => {
           <TableHeader>
             <TableRow>
               <TableHead>Week</TableHead>
+              <TableHead>SKU</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Subcategory</TableHead>
               <TableHead className="text-right">Forecast</TableHead>
               <TableHead className="text-right">Lower Bound</TableHead>
               <TableHead className="text-right">Upper Bound</TableHead>
@@ -124,6 +127,9 @@ export const ForecastTable = ({ data: initialData }: ForecastTableProps) => {
             {data.map((row, rowIndex) => (
               <TableRow key={row.week}>
                 <TableCell>{row.week}</TableCell>
+                <TableCell>{row.sku}</TableCell>
+                <TableCell>{row.category}</TableCell>
+                <TableCell>{row.subcategory}</TableCell>
                 <TableCell>
                   <EditableCell
                     value={row.forecast}
