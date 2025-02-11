@@ -74,7 +74,7 @@ const MODULES: { id: ModuleType; title: string; description: string }[] = [
   {
     id: "product_hierarchy",
     title: "Product Hierarchy",
-    description: "Upload and manage multi-level product hierarchy data with attributes and effective dates"
+    description: "Upload and manage SKU-based product hierarchy with device details and classifications"
   }
 ];
 

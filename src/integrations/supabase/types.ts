@@ -662,45 +662,69 @@ export type Database = {
       }
       product_hierarchy: {
         Row: {
-          attributes: Json | null
+          active: boolean | null
           code: string
           created_at: string
-          effective_from: string | null
-          effective_to: string | null
           id: string
+          l1_main_prod: string | null
+          l2_prod_line: string | null
+          l3_prod_category: string | null
+          l4_device_make: string | null
+          l5_prod_sub_category: string | null
+          l6_device_model: string | null
+          l7_device_color: string | null
+          l8_device_storage: string | null
           level: number
           level_name: string
           name: string
+          npi_product: boolean | null
           parent_code: string | null
-          status: string | null
+          planning_desc: string | null
+          sku: string
           updated_at: string
         }
         Insert: {
-          attributes?: Json | null
+          active?: boolean | null
           code: string
           created_at?: string
-          effective_from?: string | null
-          effective_to?: string | null
           id?: string
+          l1_main_prod?: string | null
+          l2_prod_line?: string | null
+          l3_prod_category?: string | null
+          l4_device_make?: string | null
+          l5_prod_sub_category?: string | null
+          l6_device_model?: string | null
+          l7_device_color?: string | null
+          l8_device_storage?: string | null
           level: number
           level_name: string
           name: string
+          npi_product?: boolean | null
           parent_code?: string | null
-          status?: string | null
+          planning_desc?: string | null
+          sku: string
           updated_at?: string
         }
         Update: {
-          attributes?: Json | null
+          active?: boolean | null
           code?: string
           created_at?: string
-          effective_from?: string | null
-          effective_to?: string | null
           id?: string
+          l1_main_prod?: string | null
+          l2_prod_line?: string | null
+          l3_prod_category?: string | null
+          l4_device_make?: string | null
+          l5_prod_sub_category?: string | null
+          l6_device_model?: string | null
+          l7_device_color?: string | null
+          l8_device_storage?: string | null
           level?: number
           level_name?: string
           name?: string
+          npi_product?: boolean | null
           parent_code?: string | null
-          status?: string | null
+          planning_desc?: string | null
+          sku?: string
           updated_at?: string
         }
         Relationships: []
