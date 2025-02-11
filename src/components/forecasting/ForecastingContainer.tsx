@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ForecastMetricsCards } from "./ForecastMetricsCards";
@@ -23,8 +22,7 @@ import {
   forecastData 
 } from "@/constants/forecasting";
 import { findBestFitModel } from "@/utils/forecasting/modelSelection";
-import { ModelConfig, ModelParameter } from "@/types/models/commonTypes";
-import { Json } from "@/integrations/supabase/types";
+import { ModelConfig } from "@/types/models/commonTypes";
 
 export const ForecastingContainer = () => {
   // Set initial dates to show our 2024 data
@@ -41,9 +39,17 @@ export const ForecastingContainer = () => {
   const [selectedChannel, setSelectedChannel] = useState<string>("all");
   const [selectedWarehouse, setSelectedWarehouse] = useState<string>("all");
   const [activeTab, setActiveTab] = useState("forecast");
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string>("all");
-  const [selectedSku, setSelectedSku] = useState<string>("all");
+
+  // New product hierarchy state
+  const [selectedL1MainProd, setSelectedL1MainProd] = useState<string>("all");
+  const [selectedL2ProdLine, setSelectedL2ProdLine] = useState<string>("all");
+  const [selectedL3ProdCategory, setSelectedL3ProdCategory] = useState<string>("all");
+  const [selectedL4DeviceMake, setSelectedL4DeviceMake] = useState<string>("all");
+  const [selectedL5ProdSubCategory, setSelectedL5ProdSubCategory] = useState<string>("all");
+  const [selectedL6DeviceModel, setSelectedL6DeviceModel] = useState<string>("all");
+  const [selectedL7DeviceColor, setSelectedL7DeviceColor] = useState<string>("all");
+  const [selectedL8DeviceStorage, setSelectedL8DeviceStorage] = useState<string>("all");
+
   const [modelConfigs, setModelConfigs] = useState(defaultModelConfigs);
   const { toast } = useToast();
 
@@ -103,9 +109,14 @@ export const ForecastingContainer = () => {
     selectedCity,
     selectedChannel,
     selectedWarehouse,
-    selectedCategory,
-    selectedSubcategory,
-    selectedSku,
+    selectedL1MainProd,
+    selectedL2ProdLine,
+    selectedL3ProdCategory,
+    selectedL4DeviceMake,
+    selectedL5ProdSubCategory,
+    selectedL6DeviceModel,
+    selectedL7DeviceColor,
+    selectedL8DeviceStorage,
     searchQuery,
     fromDate,
     toDate,
@@ -224,12 +235,22 @@ export const ForecastingContainer = () => {
             setSelectedChannel={setSelectedChannel}
             selectedWarehouse={selectedWarehouse}
             setSelectedWarehouse={setSelectedWarehouse}
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
-            selectedSubcategory={selectedSubcategory}
-            setSelectedSubcategory={setSelectedSubcategory}
-            selectedSku={selectedSku}
-            setSelectedSku={setSelectedSku}
+            selectedL1MainProd={selectedL1MainProd}
+            setSelectedL1MainProd={setSelectedL1MainProd}
+            selectedL2ProdLine={selectedL2ProdLine}
+            setSelectedL2ProdLine={setSelectedL2ProdLine}
+            selectedL3ProdCategory={selectedL3ProdCategory}
+            setSelectedL3ProdCategory={setSelectedL3ProdCategory}
+            selectedL4DeviceMake={selectedL4DeviceMake}
+            setSelectedL4DeviceMake={setSelectedL4DeviceMake}
+            selectedL5ProdSubCategory={selectedL5ProdSubCategory}
+            setSelectedL5ProdSubCategory={setSelectedL5ProdSubCategory}
+            selectedL6DeviceModel={selectedL6DeviceModel}
+            setSelectedL6DeviceModel={setSelectedL6DeviceModel}
+            selectedL7DeviceColor={selectedL7DeviceColor}
+            setSelectedL7DeviceColor={setSelectedL7DeviceColor}
+            selectedL8DeviceStorage={selectedL8DeviceStorage}
+            setSelectedL8DeviceStorage={setSelectedL8DeviceStorage}
             regions={regions}
             cities={cities}
             channelTypes={channelTypes}
@@ -279,33 +300,7 @@ export const ForecastingContainer = () => {
             onScenarioLoad={(scenario) => {
               setSelectedModel(scenario.model);
               setHorizon(scenario.horizon);
-              
-              const isModelConfig = (item: unknown): item is ModelConfig => {
-                if (!item || typeof item !== 'object') return false;
-                const config = item as any;
-                return (
-                  'id' in config &&
-                  typeof config.id === 'string' &&
-                  'name' in config &&
-                  typeof config.name === 'string' &&
-                  'parameters' in config &&
-                  Array.isArray(config.parameters) &&
-                  config.parameters.every((param: unknown) => 
-                    param && 
-                    typeof param === 'object' &&
-                    'name' in param &&
-                    'value' in param
-                  )
-                );
-              };
-
-              const rawParameters = scenario.parameters as unknown[];
-              const validConfigs: ModelConfig[] = Array.isArray(rawParameters)
-                ? rawParameters.filter(isModelConfig)
-                : [];
-              
-              setModelConfigs(validConfigs.length > 0 ? validConfigs : defaultModelConfigs);
-              
+              setModelConfigs(Array.isArray(scenario.parameters) ? scenario.parameters : defaultModelConfigs);
               toast({
                 title: "Scenario Loaded",
                 description: `Loaded scenario: ${scenario.name}`,
