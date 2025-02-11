@@ -23,6 +23,7 @@ import {
 } from "@/constants/forecasting";
 import { findBestFitModel } from "@/utils/forecasting/modelSelection";
 import { ModelConfig } from "@/types/models/commonTypes";
+import { Json } from "@/integrations/supabase/types";
 
 export const ForecastingContainer = () => {
   // Set initial dates to show our 2024 data
@@ -50,7 +51,7 @@ export const ForecastingContainer = () => {
   const [selectedL7DeviceColor, setSelectedL7DeviceColor] = useState<string>("all");
   const [selectedL8DeviceStorage, setSelectedL8DeviceStorage] = useState<string>("all");
 
-  const [modelConfigs, setModelConfigs] = useState(defaultModelConfigs);
+  const [modelConfigs, setModelConfigs] = useState<ModelConfig[]>(defaultModelConfigs);
   const { toast } = useToast();
 
   // Generate sample historical data with a more realistic pattern
@@ -97,6 +98,29 @@ export const ForecastingContainer = () => {
 
   console.log('Historical Data:', historicalData); // Debug log
 
+  // Create a filter object to pass to useForecastData
+  const filters = {
+    region: selectedRegion,
+    city: selectedCity,
+    channel: selectedChannel,
+    warehouse: selectedWarehouse,
+    productHierarchy: {
+      l1MainProd: selectedL1MainProd,
+      l2ProdLine: selectedL2ProdLine,
+      l3ProdCategory: selectedL3ProdCategory,
+      l4DeviceMake: selectedL4DeviceMake,
+      l5ProdSubCategory: selectedL5ProdSubCategory,
+      l6DeviceModel: selectedL6DeviceModel,
+      l7DeviceColor: selectedL7DeviceColor,
+      l8DeviceStorage: selectedL8DeviceStorage
+    },
+    searchQuery,
+    dateRange: {
+      from: fromDate,
+      to: toDate
+    }
+  };
+
   const { 
     filteredData, 
     metrics, 
@@ -104,24 +128,7 @@ export const ForecastingContainer = () => {
     decomposition, 
     validationResults, 
     crossValidationResults 
-  } = useForecastData(
-    selectedRegion,
-    selectedCity,
-    selectedChannel,
-    selectedWarehouse,
-    selectedL1MainProd,
-    selectedL2ProdLine,
-    selectedL3ProdCategory,
-    selectedL4DeviceMake,
-    selectedL5ProdSubCategory,
-    selectedL6DeviceModel,
-    selectedL7DeviceColor,
-    selectedL8DeviceStorage,
-    searchQuery,
-    fromDate,
-    toDate,
-    selectedModel
-  );
+  } = useForecastData(filters, selectedModel);
 
   const {
     weatherLocation,
@@ -192,6 +199,30 @@ export const ForecastingContainer = () => {
     toast({
       title: "Success",
       description: "Forecast data has been uploaded successfully",
+    });
+  };
+
+  const handleScenarioLoad = (scenario: any) => {
+    setSelectedModel(scenario.model);
+    setHorizon(scenario.horizon);
+    
+    // Ensure proper type casting for model configurations
+    if (Array.isArray(scenario.parameters)) {
+      const typedParams = scenario.parameters.map((param: Json) => {
+        if (typeof param === 'object' && param !== null) {
+          return param as ModelConfig;
+        }
+        return null;
+      }).filter((param): param is ModelConfig => param !== null);
+      
+      setModelConfigs(typedParams.length > 0 ? typedParams : defaultModelConfigs);
+    } else {
+      setModelConfigs(defaultModelConfigs);
+    }
+
+    toast({
+      title: "Scenario Loaded",
+      description: `Loaded scenario: ${scenario.name}`,
     });
   };
 
@@ -297,15 +328,7 @@ export const ForecastingContainer = () => {
             currentHorizon={horizon}
             currentParameters={modelConfigs}
             forecastData={filteredData}
-            onScenarioLoad={(scenario) => {
-              setSelectedModel(scenario.model);
-              setHorizon(scenario.horizon);
-              setModelConfigs(Array.isArray(scenario.parameters) ? scenario.parameters : defaultModelConfigs);
-              toast({
-                title: "Scenario Loaded",
-                description: `Loaded scenario: ${scenario.name}`,
-              });
-            }}
+            onScenarioLoad={handleScenarioLoad}
           />
         </div>
       </div>
