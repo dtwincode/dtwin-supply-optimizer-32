@@ -3,7 +3,7 @@ import { useState, useMemo, useEffect } from "react";
 import { supabase } from '@/integrations/supabase/client';
 import { calculateMetrics, calculateConfidenceIntervals, decomposeSeasonality, validateForecast, performCrossValidation } from "@/utils/forecasting";
 import { type ForecastDataPoint, type ForecastOutlier, type SeasonalityPattern } from '@/types/forecasting';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const generateForecast = (actual: number, modelType: string, historicalData?: number[]): number => {
   switch (modelType) {
@@ -78,14 +78,10 @@ export const useForecastData = (
           selectedModel
         });
 
-        // Extend the date range to get historical data for ARIMA
-        const extendedFromDate = new Date(fromDate);
-        extendedFromDate.setFullYear(extendedFromDate.getFullYear() - 1);
-
         let query = supabase
           .from('forecast_data')
           .select('*')
-          .gte('date', extendedFromDate.toISOString().split('T')[0])
+          .gte('date', fromDate.toISOString().split('T')[0])
           .lte('date', toDate.toISOString().split('T')[0])
           .order('date', { ascending: true });
 
@@ -118,40 +114,45 @@ export const useForecastData = (
           throw error;
         }
 
+        if (!forecastData || forecastData.length === 0) {
+          console.warn('No forecast data found for the selected filters');
+          setData([]);
+          return;
+        }
+
         console.log('Fetched forecast data:', forecastData);
 
-        // Get historical values for ARIMA
-        const historicalValues = forecastData
-          .filter(item => new Date(item.date) < fromDate)
-          .map(item => item.value);
-
-        // Transform the data to match ForecastDataPoint type with model-specific forecasts
-        const transformedData: ForecastDataPoint[] = forecastData
-          .filter(item => new Date(item.date) >= fromDate)
-          .map(item => ({
-            id: item.id,
-            week: item.date,
-            actual: item.value,
-            forecast: generateForecast(item.value, selectedModel, historicalValues),
-            variance: Math.random() * 10,
-            region: item.region || '',
-            city: item.city || '',
-            channel: item.channel || '',
-            warehouse: item.warehouse || '',
-            category: item.category || '',
-            subcategory: item.subcategory || '',
-            sku: item.sku || ''
-          }));
+        // Transform the data and generate forecasts
+        const transformedData: ForecastDataPoint[] = forecastData.map(item => ({
+          id: item.id,
+          week: item.date,
+          actual: item.value,
+          forecast: generateForecast(item.value, selectedModel, forecastData.map(d => d.value)),
+          variance: Math.random() * 10,
+          region: item.region || '',
+          city: item.city || '',
+          channel: item.channel || '',
+          warehouse: item.warehouse || '',
+          category: item.category || '',
+          subcategory: item.subcategory || '',
+          sku: item.sku || ''
+        }));
 
         setData(transformedData);
 
-        if (selectedModel === 'arima' && (!historicalValues || historicalValues.length < 12)) {
-          toast({
-            variant: "default",
-            title: "⚠️ Limited Historical Data",
-            description: "ARIMA model performs better with at least 12 months of historical data",
-          });
+        // Calculate metrics only if we have data
+        if (transformedData.length > 0) {
+          const actuals = transformedData.map(d => d.actual);
+          const forecasts = transformedData.map(d => d.forecast);
+          
+          const calculatedMetrics = calculateMetrics(actuals, forecasts);
+          setMetrics(calculatedMetrics);
+          setConfidenceIntervals(calculateConfidenceIntervals(forecasts));
+          setDecomposition(decomposeSeasonality(forecasts));
+          setValidationResults(validateForecast(actuals, forecasts));
+          setCrossValidationResults(performCrossValidation(forecasts));
         }
+
       } catch (error) {
         console.error('Error fetching forecast data:', error);
         toast({
@@ -182,19 +183,6 @@ export const useForecastData = (
       return true;
     });
   }, [data, searchQuery]);
-
-  useEffect(() => {
-    if (filteredData.length > 0) {
-      const actuals = filteredData.map(d => d.actual).filter((a): a is number => a !== null);
-      const forecasts = filteredData.map(d => d.forecast);
-      
-      setMetrics(calculateMetrics(actuals, forecasts));
-      setConfidenceIntervals(calculateConfidenceIntervals(forecasts));
-      setDecomposition(decomposeSeasonality(forecasts));
-      setValidationResults(validateForecast(actuals, forecasts));
-      setCrossValidationResults(performCrossValidation(forecasts));
-    }
-  }, [filteredData]);
 
   return {
     filteredData,
