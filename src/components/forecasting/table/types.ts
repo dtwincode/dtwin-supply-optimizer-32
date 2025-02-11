@@ -4,6 +4,9 @@ export interface ForecastData {
   forecast: number;
   lower: number;
   upper: number;
+  sku: string;
+  category: string;
+  subcategory: string;
 }
 
 export interface EditingCell {
