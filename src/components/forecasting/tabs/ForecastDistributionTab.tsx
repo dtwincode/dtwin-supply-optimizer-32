@@ -1,6 +1,6 @@
 
 import { ForecastTable } from "@/components/forecasting/ForecastTable";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { type ForecastData } from "@/components/forecasting/table/types";
 
 interface ForecastDistributionTabProps {
@@ -24,7 +24,7 @@ export const ForecastDistributionTab = ({
     const confidenceInterval = Math.sqrt(row.variance) * 1.96; // 95% confidence interval
     
     return {
-      week: format(new Date(row.date), 'MMM dd, yyyy'),
+      week: format(parseISO(row.date), 'MMM dd, yyyy'),
       forecast: row.forecast,
       lower: Math.max(0, row.forecast - confidenceInterval),
       upper: row.forecast + confidenceInterval,
