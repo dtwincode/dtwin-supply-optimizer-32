@@ -660,6 +660,51 @@ export type Database = {
         }
         Relationships: []
       }
+      product_hierarchy: {
+        Row: {
+          attributes: Json | null
+          code: string
+          created_at: string
+          effective_from: string | null
+          effective_to: string | null
+          id: string
+          level: number
+          level_name: string
+          name: string
+          parent_code: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          attributes?: Json | null
+          code: string
+          created_at?: string
+          effective_from?: string | null
+          effective_to?: string | null
+          id?: string
+          level: number
+          level_name: string
+          name: string
+          parent_code?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          attributes?: Json | null
+          code?: string
+          created_at?: string
+          effective_from?: string | null
+          effective_to?: string | null
+          id?: string
+          level?: number
+          level_name?: string
+          name?: string
+          parent_code?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

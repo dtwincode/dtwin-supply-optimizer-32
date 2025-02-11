@@ -74,7 +74,7 @@ const MODULES: { id: ModuleType; title: string; description: string }[] = [
   {
     id: "product_hierarchy",
     title: "Product Hierarchy",
-    description: "Upload and manage product hierarchy data using CSV templates"
+    description: "Upload and manage multi-level product hierarchy data with attributes and effective dates"
   }
 ];
 
@@ -116,13 +116,12 @@ const Settings = () => {
 
   const handleClearModuleData = async (module: ModuleType) => {
     try {
-      // Type assertion for table names to match Supabase's expected types
       const table = (module === 'forecasting' ? 'forecast_data' :
                     module === 'inventory' ? 'inventory_data' :
                     module === 'sales' ? 'sales_data' :
                     module === 'marketing' ? 'marketing_data' :
                     module === 'logistics' ? 'logistics_data' :
-                    module === 'product_hierarchy' ? 'forecast_data' :
+                    module === 'product_hierarchy' ? 'product_hierarchy' :
                     module === 'location_hierarchy' ? 'forecast_data' : 
                     'forecast_data') as keyof Database['public']['Tables'];
 
