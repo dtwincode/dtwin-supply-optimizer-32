@@ -23,12 +23,19 @@ export const ModelTestingTab = ({
   useEffect(() => {
     console.log('ModelTestingTab - Generating initial data');
     generateNewTestData('moving-avg', {}, '30');
-  }, []);
+  }, [generateNewTestData]); // Add generateNewTestData to dependency array
 
   return (
-    <TestingChart
-      historicalData={testData}
-      predictedData={predictedData}
-    />
+    <div>
+      {/* Add debug info */}
+      <pre className="text-xs text-gray-500 mb-4">
+        {JSON.stringify(testData, null, 2)}
+      </pre>
+      
+      <TestingChart
+        historicalData={testData}
+        predictedData={predictedData}
+      />
+    </div>
   );
 };
