@@ -22,6 +22,8 @@ import {
   forecastData 
 } from "@/constants/forecasting";
 import { findBestFitModel } from "@/utils/forecasting/modelSelection";
+import { ModelConfig } from "@/types/models/commonTypes";
+import { Json } from "@/integrations/supabase/types";
 
 export const ForecastingContainer = () => {
   // Set initial dates to show our 2024 data
@@ -249,8 +251,10 @@ export const ForecastingContainer = () => {
             onScenarioLoad={(scenario) => {
               setSelectedModel(scenario.model);
               setHorizon(scenario.horizon);
-              setModelConfigs(scenario.parameters);
-              // Update any other relevant state based on the loaded scenario
+              const parsedParameters = Array.isArray(scenario.parameters) 
+                ? scenario.parameters as ModelConfig[]
+                : defaultModelConfigs;
+              setModelConfigs(parsedParameters);
               toast({
                 title: "Scenario Loaded",
                 description: `Loaded scenario: ${scenario.name}`,
