@@ -738,6 +738,39 @@ export type Database = {
         }
         Relationships: []
       }
+      scenarios: {
+        Row: {
+          created_at: string | null
+          forecast_data: Json | null
+          horizon: string
+          id: string
+          model: string
+          name: string
+          parameters: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          forecast_data?: Json | null
+          horizon: string
+          id?: string
+          model: string
+          name: string
+          parameters?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          forecast_data?: Json | null
+          horizon?: string
+          id?: string
+          model?: string
+          name?: string
+          parameters?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       seasonality_patterns: {
         Row: {
           configuration: Json | null

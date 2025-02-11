@@ -242,9 +242,20 @@ export const ForecastingContainer = () => {
           <ScenarioManagement
             scenarioName={scenarioName}
             setScenarioName={setScenarioName}
-            savedScenarios={savedScenarios}
-            selectedScenario={selectedScenario}
-            setSelectedScenario={setSelectedScenario}
+            currentModel={selectedModel}
+            currentHorizon={horizon}
+            currentParameters={modelConfigs}
+            forecastData={filteredData}
+            onScenarioLoad={(scenario) => {
+              setSelectedModel(scenario.model);
+              setHorizon(scenario.horizon);
+              setModelConfigs(scenario.parameters);
+              // Update any other relevant state based on the loaded scenario
+              toast({
+                title: "Scenario Loaded",
+                description: `Loaded scenario: ${scenario.name}`,
+              });
+            }}
           />
         </div>
       </div>
