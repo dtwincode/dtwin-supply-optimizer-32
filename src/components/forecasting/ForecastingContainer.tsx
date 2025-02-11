@@ -135,8 +135,8 @@ export const ForecastingContainer = () => {
     selectedChannel,
     selectedWarehouse,
     searchQuery,
-    fromDate.toISOString().split('T')[0], // Convert Date to YYYY-MM-DD string
-    toDate.toISOString().split('T')[0],   // Convert Date to YYYY-MM-DD string
+    fromDate,  // Pass Date object directly
+    toDate,    // Pass Date object directly
     selectedModel,
     selectedL1MainProd,
     selectedL2ProdLine,
