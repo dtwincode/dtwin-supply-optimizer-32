@@ -182,6 +182,7 @@ export type Database = {
           city: string | null
           created_at: string
           date: string
+          forecast: number | null
           id: string
           notes: string | null
           region: string | null
@@ -189,6 +190,7 @@ export type Database = {
           subcategory: string | null
           updated_at: string
           value: number
+          variance: number | null
           warehouse: string | null
         }
         Insert: {
@@ -197,6 +199,7 @@ export type Database = {
           city?: string | null
           created_at?: string
           date: string
+          forecast?: number | null
           id?: string
           notes?: string | null
           region?: string | null
@@ -204,6 +207,7 @@ export type Database = {
           subcategory?: string | null
           updated_at?: string
           value: number
+          variance?: number | null
           warehouse?: string | null
         }
         Update: {
@@ -212,6 +216,7 @@ export type Database = {
           city?: string | null
           created_at?: string
           date?: string
+          forecast?: number | null
           id?: string
           notes?: string | null
           region?: string | null
@@ -219,6 +224,7 @@ export type Database = {
           subcategory?: string | null
           updated_at?: string
           value?: number
+          variance?: number | null
           warehouse?: string | null
         }
         Relationships: []
