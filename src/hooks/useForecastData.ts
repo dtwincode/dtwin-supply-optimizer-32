@@ -38,13 +38,13 @@ export const useForecastData = (
   selectedCity: string,
   selectedChannel: string,
   selectedWarehouse: string,
+  searchQuery: string,
+  fromDate: string,
+  toDate: string,
+  selectedModel: string,
   selectedCategory: string,
   selectedSubcategory: string,
-  selectedSku: string,
-  searchQuery: string,
-  fromDate: Date,
-  toDate: Date,
-  selectedModel: string = 'moving-avg'
+  selectedSku: string
 ) => {
   const [data, setData] = useState<ForecastDataPoint[]>([]);
   const [outliers, setOutliers] = useState<ForecastOutlier[]>([]);
@@ -81,8 +81,8 @@ export const useForecastData = (
         let query = supabase
           .from('forecast_data')
           .select('*')
-          .gte('date', fromDate.toISOString().split('T')[0])
-          .lte('date', toDate.toISOString().split('T')[0])
+          .gte('date', fromDate)
+          .lte('date', toDate)
           .order('date', { ascending: true });
 
         if (selectedRegion !== "all") {
