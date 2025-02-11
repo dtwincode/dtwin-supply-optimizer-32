@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,19 +14,19 @@ import { useState, useEffect } from "react";
 import { ModelConfig, ModelParameter } from "@/types/modelParameters";
 import { useToast } from "@/hooks/use-toast";
 import { optimizeModelParameters } from "@/utils/forecasting/modelOptimization";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ModelParametersDialogProps {
   model: ModelConfig;
   onParametersChange: (modelId: string, parameters: ModelParameter[]) => void;
-  historicalData?: number[];
 }
 
 export function ModelParametersDialog({ 
   model, 
   onParametersChange,
-  historicalData 
 }: ModelParametersDialogProps) {
   const [parameters, setParameters] = useState<ModelParameter[]>([]);
+  const [isOptimizing, setIsOptimizing] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -40,33 +41,66 @@ export function ModelParametersDialog({
     );
   };
 
-  const handleAutoOptimize = () => {
-    if (!historicalData || historicalData.length === 0) {
+  const handleAutoOptimize = async () => {
+    try {
+      setIsOptimizing(true);
+
+      // Get data from the last year by default
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setFullYear(startDate.getFullYear() - 1);
+
+      // Fetch historical data from Supabase
+      const { data: historicalData, error } = await supabase
+        .from('forecast_data')
+        .select('date, value')
+        .gte('date', startDate.toISOString().split('T')[0])
+        .lte('date', endDate.toISOString().split('T')[0])
+        .order('date', { ascending: true });
+
+      if (error) {
+        throw error;
+      }
+
+      if (!historicalData || historicalData.length === 0) {
+        toast({
+          variant: "destructive",
+          title: "Auto-optimization failed",
+          description: "No historical data found for optimization.",
+        });
+        return;
+      }
+
+      console.log('Historical data for optimization:', historicalData);
+
+      const values = historicalData.map(d => d.value);
+      const optimizedParams = optimizeModelParameters(values);
+      const modelOptimizedParams = optimizedParams.find(p => p.modelId === model.id);
+
+      if (modelOptimizedParams) {
+        setParameters(prev =>
+          prev.map(param => {
+            const optimized = modelOptimizedParams.parameters.find(
+              p => p.name === param.name
+            );
+            return optimized ? { ...param, value: optimized.value } : param;
+          })
+        );
+
+        toast({
+          title: "Parameters Optimized",
+          description: `${model.name} parameters have been automatically optimized based on historical data.`,
+        });
+      }
+    } catch (error) {
+      console.error('Error during optimization:', error);
       toast({
-        title: "Auto-optimization failed",
-        description: "Historical data is required for parameter optimization.",
         variant: "destructive",
+        title: "Optimization Error",
+        description: "Failed to optimize parameters. Please try again.",
       });
-      return;
-    }
-
-    const optimizedParams = optimizeModelParameters(historicalData);
-    const modelOptimizedParams = optimizedParams.find(p => p.modelId === model.id);
-
-    if (modelOptimizedParams) {
-      setParameters(prev =>
-        prev.map(param => {
-          const optimized = modelOptimizedParams.parameters.find(
-            p => p.name === param.name
-          );
-          return optimized ? { ...param, value: optimized.value } : param;
-        })
-      );
-
-      toast({
-        title: "Parameters Optimized",
-        description: `${model.name} parameters have been automatically optimized based on historical data.`,
-      });
+    } finally {
+      setIsOptimizing(false);
     }
   };
 
@@ -98,9 +132,10 @@ export function ModelParametersDialog({
             variant="outline" 
             onClick={handleAutoOptimize}
             className="w-full"
+            disabled={isOptimizing}
           >
             <Wand2 className="h-4 w-4 mr-2" />
-            Auto-optimize Parameters
+            {isOptimizing ? "Optimizing..." : "Auto-optimize Parameters"}
           </Button>
           {parameters.map((param) => (
             <div key={param.name} className="space-y-2">
