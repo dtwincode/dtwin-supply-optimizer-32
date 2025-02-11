@@ -147,8 +147,8 @@ export const useForecastData = (
 
         if (selectedModel === 'arima' && (!historicalValues || historicalValues.length < 12)) {
           toast({
-            variant: "warning",
-            title: "Limited Historical Data",
+            variant: "default",
+            title: "⚠️ Limited Historical Data",
             description: "ARIMA model performs better with at least 12 months of historical data",
           });
         }
