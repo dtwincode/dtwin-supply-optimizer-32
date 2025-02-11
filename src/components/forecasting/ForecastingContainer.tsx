@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ForecastMetricsCards } from "./ForecastMetricsCards";
@@ -14,15 +13,6 @@ import { useWeatherData } from "@/hooks/useWeatherData";
 import { useMarketEvents } from "@/hooks/useMarketEvents";
 import { usePriceAnalysis } from "@/hooks/usePriceAnalysis";
 import { defaultModelConfigs } from "@/types/modelParameters";
-import { findBestFitModel } from "@/utils/forecasting";
-import { 
-  savedScenarios, 
-  regions, 
-  cities, 
-  channelTypes, 
-  warehouses, 
-  forecastData 
-} from "@/constants/forecasting";
 
 export const ForecastingContainer = () => {
   // Set initial dates to show our 2024 data
@@ -155,8 +145,8 @@ export const ForecastingContainer = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4">
+    <div className="container mx-auto p-6 space-y-8">
+      <div className="grid gap-6">
         <div className="flex justify-between items-center">
           <ForecastingHeader
             selectedModel={selectedModel}
@@ -171,73 +161,83 @@ export const ForecastingContainer = () => {
           />
         </div>
 
-        <ModelVersioning modelId={selectedModel} />
+        <div className="bg-background rounded-lg shadow-sm">
+          <ModelVersioning modelId={selectedModel} />
+        </div>
 
-        <ForecastingDateRange
-          fromDate={fromDate}
-          toDate={toDate}
-          setFromDate={setFromDate}
-          setToDate={setToDate}
-        />
+        <div className="grid gap-4">
+          <ForecastingDateRange
+            fromDate={fromDate}
+            toDate={toDate}
+            setFromDate={setFromDate}
+            setToDate={setToDate}
+          />
 
-        <ForecastFilters
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          selectedRegion={selectedRegion}
-          setSelectedRegion={setSelectedRegion}
-          selectedCity={selectedCity}
-          setSelectedCity={setSelectedCity}
-          selectedChannel={selectedChannel}
-          setSelectedChannel={setSelectedChannel}
-          selectedWarehouse={selectedWarehouse}
-          setSelectedWarehouse={setSelectedWarehouse}
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-          selectedSubcategory={selectedSubcategory}
-          setSelectedSubcategory={setSelectedSubcategory}
-          selectedSku={selectedSku}
-          setSelectedSku={setSelectedSku}
-          regions={regions}
-          cities={cities}
-          channelTypes={channelTypes}
-          warehouses={warehouses}
-          forecastData={forecastData}
-        />
+          <ForecastFilters
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            selectedRegion={selectedRegion}
+            setSelectedRegion={setSelectedRegion}
+            selectedCity={selectedCity}
+            setSelectedCity={setSelectedCity}
+            selectedChannel={selectedChannel}
+            setSelectedChannel={setSelectedChannel}
+            selectedWarehouse={selectedWarehouse}
+            setSelectedWarehouse={setSelectedWarehouse}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            selectedSubcategory={selectedSubcategory}
+            setSelectedSubcategory={setSelectedSubcategory}
+            selectedSku={selectedSku}
+            setSelectedSku={setSelectedSku}
+            regions={regions}
+            cities={cities}
+            channelTypes={channelTypes}
+            warehouses={warehouses}
+            forecastData={forecastData}
+          />
+        </div>
+
+        <div className="my-6">
+          <ForecastMetricsCards metrics={metrics} />
+        </div>
+
+        <div className="bg-background rounded-lg shadow-sm p-6">
+          <ForecastingTabs
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            historicalData={historicalData}
+            filteredData={filteredData}
+            confidenceIntervals={confidenceIntervals}
+            decomposition={decomposition}
+            validationResults={validationResults}
+            crossValidationResults={crossValidationResults}
+            weatherLocation={weatherLocation}
+            setWeatherLocation={setWeatherLocation}
+            weatherData={weatherData}
+            fetchWeatherForecast={fetchWeatherForecast}
+            marketEvents={marketEvents}
+            setMarketEvents={setMarketEvents}
+            newEvent={newEvent}
+            setNewEvent={setNewEvent}
+            priceAnalysis={priceAnalysis}
+            historicalPriceData={historicalPriceData}
+            addHistoricalPricePoint={addHistoricalPricePoint}
+            calculatePriceAnalysis={calculatePriceAnalysis}
+            forecastTableData={forecastTableData}
+          />
+        </div>
+
+        <div className="bg-background rounded-lg shadow-sm p-6">
+          <ScenarioManagement
+            scenarioName={scenarioName}
+            setScenarioName={setScenarioName}
+            savedScenarios={savedScenarios}
+            selectedScenario={selectedScenario}
+            setSelectedScenario={setSelectedScenario}
+          />
+        </div>
       </div>
-
-      <ForecastMetricsCards metrics={metrics} />
-
-      <ForecastingTabs
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        historicalData={historicalData}
-        filteredData={filteredData}
-        confidenceIntervals={confidenceIntervals}
-        decomposition={decomposition}
-        validationResults={validationResults}
-        crossValidationResults={crossValidationResults}
-        weatherLocation={weatherLocation}
-        setWeatherLocation={setWeatherLocation}
-        weatherData={weatherData}
-        fetchWeatherForecast={fetchWeatherForecast}
-        marketEvents={marketEvents}
-        setMarketEvents={setMarketEvents}
-        newEvent={newEvent}
-        setNewEvent={setNewEvent}
-        priceAnalysis={priceAnalysis}
-        historicalPriceData={historicalPriceData}
-        addHistoricalPricePoint={addHistoricalPricePoint}
-        calculatePriceAnalysis={calculatePriceAnalysis}
-        forecastTableData={forecastTableData}
-      />
-
-      <ScenarioManagement
-        scenarioName={scenarioName}
-        setScenarioName={setScenarioName}
-        savedScenarios={savedScenarios}
-        selectedScenario={selectedScenario}
-        setSelectedScenario={setSelectedScenario}
-      />
     </div>
   );
 };

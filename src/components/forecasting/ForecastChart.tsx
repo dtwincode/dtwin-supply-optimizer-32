@@ -82,100 +82,106 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
   );
 
   return (
-    <Card className="p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold">Demand Forecast</h3>
-        <div className="flex gap-4">
-          <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select time range" />
-            </SelectTrigger>
-            <SelectContent>
-              {timeRangeOptions.map(option => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button
-            variant="outline"
-            onClick={() => setShowConfidenceIntervals(!showConfidenceIntervals)}
-          >
-            {showConfidenceIntervals ? "Hide" : "Show"} Confidence Intervals
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => setShowOutliers(!showOutliers)}
-          >
-            {showOutliers ? "Hide" : "Show"} Outliers
-          </Button>
+    <Card className="p-6 h-full">
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-between items-center flex-wrap gap-4">
+          <h3 className="text-lg font-semibold">Demand Forecast</h3>
+          <div className="flex gap-2 flex-wrap">
+            <Select value={timeRange} onValueChange={setTimeRange}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Select time range" />
+              </SelectTrigger>
+              <SelectContent>
+                {timeRangeOptions.map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowConfidenceIntervals(!showConfidenceIntervals)}
+            >
+              {showConfidenceIntervals ? "Hide" : "Show"} CI
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowOutliers(!showOutliers)}
+            >
+              {showOutliers ? "Hide" : "Show"} Outliers
+            </Button>
+          </div>
         </div>
-      </div>
-      <div className="h-[400px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={dataWithOutliers}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis 
-              dataKey="formattedWeek"
-              angle={-45}
-              textAnchor="end"
-              height={70}
-              interval={Math.ceil(dataWithOutliers.length / 15)}
-            />
-            <YAxis />
-            <Tooltip
-              labelFormatter={(label) => `Week of ${label}`}
-              formatter={(value: number) => [Math.round(value), "Units"]}
-            />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="actual"
-              stroke="#10B981"
-              name="Actual Demand"
-              strokeWidth={2}
-              dot={false}
-            />
-            <Line
-              type="monotone"
-              dataKey="forecast"
-              stroke="#F59E0B"
-              name="Forecast"
-              strokeWidth={2}
-              dot={false}
-            />
-            {showConfidenceIntervals && (
-              <Area
-                dataKey="ci.upper"
-                stroke="transparent"
-                fill="#F59E0B"
-                fillOpacity={0.1}
-                name="Confidence Interval"
+        
+        <div className="h-[400px] w-full">
+          <ResponsiveContainer>
+            <ComposedChart data={dataWithOutliers} margin={{ top: 10, right: 30, left: 0, bottom: 40 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis 
+                dataKey="formattedWeek"
+                angle={-45}
+                textAnchor="end"
+                height={70}
+                interval={Math.ceil(dataWithOutliers.length / 15)}
               />
-            )}
-            {showConfidenceIntervals && (
-              <Area
-                dataKey="ci.lower"
-                stroke="transparent"
-                fill="#F59E0B"
-                fillOpacity={0.1}
+              <YAxis />
+              <Tooltip
+                labelFormatter={(label) => `Week of ${label}`}
+                formatter={(value: number) => [Math.round(value), "Units"]}
               />
-            )}
-            {showOutliers && dataWithOutliers
-              .filter(point => point.isOutlier)
-              .map((point, index) => (
-                <ReferenceDot
-                  key={index}
-                  x={point.formattedWeek}
-                  y={point.actual}
-                  r={6}
-                  fill="red"
-                  stroke="none"
-                />
-              ))}
-          </ComposedChart>
-        </ResponsiveContainer>
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="actual"
+                stroke="#10B981"
+                name="Actual Demand"
+                strokeWidth={2}
+                dot={false}
+              />
+              <Line
+                type="monotone"
+                dataKey="forecast"
+                stroke="#F59E0B"
+                name="Forecast"
+                strokeWidth={2}
+                dot={false}
+              />
+              {showConfidenceIntervals && (
+                <>
+                  <Area
+                    dataKey="ci.upper"
+                    stroke="transparent"
+                    fill="#F59E0B"
+                    fillOpacity={0.1}
+                    name="Upper CI"
+                  />
+                  <Area
+                    dataKey="ci.lower"
+                    stroke="transparent"
+                    fill="#F59E0B"
+                    fillOpacity={0.1}
+                    name="Lower CI"
+                  />
+                </>
+              )}
+              {showOutliers && dataWithOutliers
+                .filter(point => point.isOutlier)
+                .map((point, index) => (
+                  <ReferenceDot
+                    key={index}
+                    x={point.formattedWeek}
+                    y={point.actual}
+                    r={6}
+                    fill="red"
+                    stroke="none"
+                  />
+                ))}
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </Card>
   );
