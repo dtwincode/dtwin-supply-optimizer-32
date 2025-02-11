@@ -113,18 +113,44 @@ const Settings = () => {
     refetchLogs();
   };
 
-  const handleClearModuleData = async (module: Database["public"]["Enums"]["module_type"]) => {
+  const handleClearModuleData = async (module: ModuleType) => {
     try {
+      let tableToDelete: string | null = null;
+      
+      switch (module) {
+        case 'forecasting':
+          tableToDelete = 'forecast_data';
+          break;
+        case 'inventory':
+          tableToDelete = 'inventory_data';
+          break;
+        case 'sales':
+          tableToDelete = 'sales_data';
+          break;
+        case 'marketing':
+          tableToDelete = 'marketing_data';
+          break;
+        case 'logistics':
+          tableToDelete = 'logistics_data';
+          break;
+        case 'product_hierarchy':
+          tableToDelete = 'product_hierarchy';
+          break;
+        case 'location_hierarchy':
+          tableToDelete = 'location_hierarchy';
+          break;
+        default:
+          throw new Error('Invalid module');
+      }
+
+      if (!tableToDelete) {
+        throw new Error('Invalid module type');
+      }
+
       const { error } = await supabase
-        .from(module === 'forecasting' ? 'forecast_data' :
-              module === 'inventory' ? 'inventory_data' :
-              module === 'sales' ? 'sales_data' :
-              module === 'marketing' ? 'marketing_data' :
-              module === 'logistics' ? 'logistics_data' :
-              module === 'product_hierarchy' ? 'product_hierarchy' :
-              module === 'location_hierarchy' ? 'location_hierarchy' : null)
+        .from(tableToDelete)
         .delete()
-        .gt('id', '00000000-0000-0000-0000-000000000000'); // This will match all valid UUIDs
+        .gt('id', '00000000-0000-0000-0000-000000000000');
       
       if (error) throw error;
 
