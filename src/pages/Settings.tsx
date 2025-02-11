@@ -1,4 +1,3 @@
-
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -14,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { LocationHierarchyUpload } from "@/components/settings/location-hierarchy/LocationHierarchyUpload";
 
 type ModuleType = Database["public"]["Enums"]["module_type"];
 
@@ -198,6 +198,8 @@ const Settings = () => {
 
             <h3 className="text-lg font-semibold mb-4">Data Management</h3>
             <div className="space-y-6">
+              <LocationHierarchyUpload />
+              
               {MODULES.map((module, index) => {
                 const moduleDoc = moduleSettings?.find(m => m.module === module.id)?.settings?.documentation;
                 

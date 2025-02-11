@@ -402,6 +402,60 @@ export type Database = {
         }
         Relationships: []
       }
+      location_hierarchy: {
+        Row: {
+          active: boolean | null
+          channel: string | null
+          channel_id: string
+          city: string | null
+          country: string | null
+          created_at: string | null
+          id: string
+          location_desc: string | null
+          location_description: string | null
+          location_id: string
+          org_id: string | null
+          region: string | null
+          sub_channel: string | null
+          updated_at: string | null
+          warehouse: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          channel?: string | null
+          channel_id: string
+          city?: string | null
+          country?: string | null
+          created_at?: string | null
+          id?: string
+          location_desc?: string | null
+          location_description?: string | null
+          location_id: string
+          org_id?: string | null
+          region?: string | null
+          sub_channel?: string | null
+          updated_at?: string | null
+          warehouse?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          channel?: string | null
+          channel_id?: string
+          city?: string | null
+          country?: string | null
+          created_at?: string | null
+          id?: string
+          location_desc?: string | null
+          location_description?: string | null
+          location_id?: string
+          org_id?: string | null
+          region?: string | null
+          sub_channel?: string | null
+          updated_at?: string | null
+          warehouse?: string | null
+        }
+        Relationships: []
+      }
       logistics_data: {
         Row: {
           actual_delivery: string | null
