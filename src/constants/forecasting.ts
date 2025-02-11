@@ -1,3 +1,4 @@
+
 export const forecastData = [
   { 
     week: "2024-W01", 
