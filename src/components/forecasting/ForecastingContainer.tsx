@@ -22,7 +22,7 @@ import {
   forecastData 
 } from "@/constants/forecasting";
 import { findBestFitModel } from "@/utils/forecasting/modelSelection";
-import { ModelConfig } from "@/types/models/commonTypes";
+import { ModelConfig, ModelParameter } from "@/types/models/commonTypes";
 import { Json } from "@/integrations/supabase/types";
 
 export const ForecastingContainer = () => {
@@ -251,10 +251,24 @@ export const ForecastingContainer = () => {
             onScenarioLoad={(scenario) => {
               setSelectedModel(scenario.model);
               setHorizon(scenario.horizon);
+              
+              const isModelConfig = (item: any): item is ModelConfig => {
+                return (
+                  typeof item === 'object' &&
+                  item !== null &&
+                  'id' in item &&
+                  'name' in item &&
+                  'parameters' in item &&
+                  Array.isArray(item.parameters)
+                );
+              };
+
               const parsedParameters = Array.isArray(scenario.parameters) 
-                ? scenario.parameters as ModelConfig[]
-                : defaultModelConfigs;
-              setModelConfigs(parsedParameters);
+                ? scenario.parameters.filter(isModelConfig)
+                : [];
+              
+              setModelConfigs(parsedParameters.length > 0 ? parsedParameters : defaultModelConfigs);
+              
               toast({
                 title: "Scenario Loaded",
                 description: `Loaded scenario: ${scenario.name}`,
