@@ -9,6 +9,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { useEffect } from "react";
 
 interface TestDataChartProps {
   data: {
@@ -18,8 +19,14 @@ interface TestDataChartProps {
 }
 
 export const TestDataChart = ({ data }: TestDataChartProps) => {
+  // Add console log to check received data
+  useEffect(() => {
+    console.log('TestDataChart - Received data:', data);
+  }, [data]);
+
   // Early return with a message if no data
   if (!data || data.length === 0) {
+    console.log('TestDataChart - No data available');
     return (
       <div className="h-[400px] flex items-center justify-center text-gray-500">
         No data available to display
@@ -32,6 +39,8 @@ export const TestDataChart = ({ data }: TestDataChartProps) => {
     ...point,
     actual: Number(point.actual) // Ensure actual is a number
   }));
+
+  console.log('TestDataChart - Formatted data:', formattedData);
 
   return (
     <div className="h-[400px]">

@@ -14,10 +14,16 @@ export const ModelTestingTab = ({
 }: ModelTestingTabProps) => {
   const { testData, generateNewTestData } = useTestData();
 
+  // Add console log to check testData
+  useEffect(() => {
+    console.log('ModelTestingTab - Initial testData:', testData);
+  }, [testData]);
+
   // Generate initial test data
   useEffect(() => {
+    console.log('ModelTestingTab - Generating initial data');
     generateNewTestData('moving-avg', {}, '30');
-  }, [generateNewTestData]);
+  }, []);
 
   return (
     <TestingChart

@@ -1,6 +1,6 @@
 
 import { Card } from "@/components/ui/card";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getModelExample } from "@/utils/forecasting/modelSelection";
 import { ChartControls } from "./test-chart/ChartControls";
 import { ModelInfo } from "./test-chart/ModelInfo";
@@ -27,7 +27,12 @@ export const TestingChart = ({
   
   const { modelParams, handleParameterChange } = useModelParameters();
   const { getParamConfig } = useParamConfig();
-  const { testData, generateNewTestData } = useTestData();
+  const { generateNewTestData } = useTestData();
+
+  // Add console log to check historicalData
+  useEffect(() => {
+    console.log('TestingChart - Received historicalData:', historicalData);
+  }, [historicalData]);
 
   const handleDateRangeChange = (from: Date, to: Date) => {
     setFromDate(from);
@@ -50,6 +55,11 @@ export const TestingChart = ({
     date: item.date,
     actual: item.actual
   }));
+
+  // Add console log to check chartData
+  useEffect(() => {
+    console.log('TestingChart - Formatted chartData:', chartData);
+  }, [chartData]);
 
   return (
     <Card className="p-6">
