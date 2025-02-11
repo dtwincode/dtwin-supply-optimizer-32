@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ForecastMetricsCards } from "./ForecastMetricsCards";
@@ -79,7 +78,8 @@ export const ForecastingContainer = () => {
     selectedSku,
     searchQuery,
     fromDate,
-    toDate
+    toDate,
+    selectedModel
   );
 
   const {
