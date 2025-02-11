@@ -13,14 +13,17 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Json } from "@/integrations/supabase/types";
 
 interface SavedScenario {
   id: string;
   name: string;
   model: string;
   horizon: string;
-  parameters: any;
-  forecast_data: any[];
+  parameters: Json;
+  forecast_data: Json;
+  created_at?: string;
+  updated_at?: string;
 }
 
 interface ScenarioManagementProps {
@@ -64,7 +67,9 @@ export const ScenarioManagement = ({
         return;
       }
 
-      setSavedScenarios(data);
+      if (data) {
+        setSavedScenarios(data as SavedScenario[]);
+      }
     };
 
     fetchScenarios();
@@ -84,8 +89,8 @@ export const ScenarioManagement = ({
       name: scenarioName,
       model: currentModel,
       horizon: currentHorizon,
-      parameters: currentParameters,
-      forecast_data: forecastData
+      parameters: currentParameters as Json,
+      forecast_data: forecastData as Json
     };
 
     const { error } = await supabase
@@ -113,7 +118,7 @@ export const ScenarioManagement = ({
       .order('created_at', { ascending: false });
       
     if (updatedScenarios) {
-      setSavedScenarios(updatedScenarios);
+      setSavedScenarios(updatedScenarios as SavedScenario[]);
     }
     
     setScenarioName("");
