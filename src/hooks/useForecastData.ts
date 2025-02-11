@@ -36,11 +36,24 @@ export const useForecastData = (
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log('Fetching forecast data with filters:', {
+          selectedRegion,
+          selectedCity,
+          selectedChannel,
+          selectedWarehouse,
+          selectedCategory,
+          selectedSubcategory,
+          selectedSku,
+          fromDate,
+          toDate
+        });
+
         let query = supabase
           .from('forecast_data')
           .select('*')
           .gte('date', fromDate.toISOString().split('T')[0])
-          .lte('date', toDate.toISOString().split('T')[0]);
+          .lte('date', toDate.toISOString().split('T')[0])
+          .order('date', { ascending: true });
 
         if (selectedRegion !== "all") {
           query = query.eq('region', selectedRegion);
@@ -67,8 +80,11 @@ export const useForecastData = (
         const { data: forecastData, error } = await query;
 
         if (error) {
+          console.error('Error fetching forecast data:', error);
           throw error;
         }
+
+        console.log('Fetched forecast data:', forecastData);
 
         // Transform the data to match ForecastDataPoint type
         const transformedData: ForecastDataPoint[] = forecastData.map(item => ({
@@ -77,13 +93,13 @@ export const useForecastData = (
           actual: item.value,
           forecast: Math.round(item.value * (1 + (Math.random() * 0.2 - 0.1))), // Simulated forecast
           variance: Math.random() * 10,
-          region: item.region,
-          city: item.city,
-          channel: item.channel,
-          warehouse: item.warehouse,
-          category: item.category,
-          subcategory: item.subcategory,
-          sku: item.sku
+          region: item.region || '',
+          city: item.city || '',
+          channel: item.channel || '',
+          warehouse: item.warehouse || '',
+          category: item.category || '',
+          subcategory: item.subcategory || '',
+          sku: item.sku || ''
         }));
 
         setData(transformedData);
