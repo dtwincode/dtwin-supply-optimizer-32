@@ -11,6 +11,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 type ModuleType = Database["public"]["Enums"]["module_type"];
 
@@ -78,6 +81,7 @@ const MODULES: { id: ModuleType; title: string; description: string }[] = [
 const Settings = () => {
   const { language } = useLanguage();
   const { user } = useAuth();
+  const { toast } = useToast();
 
   const { data: moduleSettings } = useQuery<ModuleSetting[]>({
     queryKey: ['moduleSettings'],
@@ -91,7 +95,7 @@ const Settings = () => {
     }
   });
 
-  const { data: validationLogs } = useQuery({
+  const { data: validationLogs, refetch: refetchLogs } = useQuery({
     queryKey: ['validationLogs'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -107,6 +111,61 @@ const Settings = () => {
 
   const handleDataUploaded = (module: ModuleType) => {
     console.log(`Data uploaded for ${module} module`);
+    refetchLogs();
+  };
+
+  const handleClearModuleData = async (module: ModuleType) => {
+    try {
+      let table: string;
+      switch (module) {
+        case 'forecasting':
+          table = 'forecast_data';
+          break;
+        case 'inventory':
+          table = 'inventory_data';
+          break;
+        case 'sales':
+          table = 'sales_data';
+          break;
+        case 'marketing':
+          table = 'marketing_data';
+          break;
+        case 'logistics':
+          table = 'logistics_data';
+          break;
+        default:
+          throw new Error('Invalid module');
+      }
+
+      const { error } = await supabase.from(table).delete().neq('id', '');
+      
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `All ${module} data has been deleted`,
+      });
+
+      // Log the deletion
+      await supabase.from('data_validation_logs').insert({
+        module,
+        file_name: 'bulk-delete',
+        row_count: 0,
+        error_count: 0,
+        status: 'completed',
+        processed_by: user?.id
+      });
+
+      refetchLogs();
+
+    } catch (error) {
+      console.error('Error clearing data:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Failed to clear ${module} data`,
+      });
+    }
   };
 
   return (
@@ -175,10 +234,22 @@ const Settings = () => {
                         </div>
                       )}
 
-                      <DataUploadDialog 
-                        module={module.id}
-                        onDataUploaded={() => handleDataUploaded(module.id)}
-                      />
+                      <div className="flex gap-2">
+                        <DataUploadDialog 
+                          module={module.id}
+                          onDataUploaded={() => handleDataUploaded(module.id)}
+                        />
+                        {module.id !== 'location_hierarchy' && module.id !== 'product_hierarchy' && (
+                          <Button 
+                            variant="destructive" 
+                            onClick={() => handleClearModuleData(module.id)}
+                            className="gap-2"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Clear All Data
+                          </Button>
+                        )}
+                      </div>
                     </div>
                     {index < MODULES.length - 1 && (
                       <Separator className="my-6" />
