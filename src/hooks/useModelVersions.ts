@@ -4,6 +4,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { type ModelVersion } from '@/types/forecasting';
 import { useToast } from '@/hooks/use-toast';
 
+interface AccuracyMetrics {
+  mape: number;
+  mae: number;
+  rmse: number;
+}
+
 export const useModelVersions = (modelId: string) => {
   const [versions, setVersions] = useState<ModelVersion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -21,23 +27,28 @@ export const useModelVersions = (modelId: string) => {
       if (error) throw error;
       
       // Convert the JSON data to match ModelVersion type
-      const typedData: ModelVersion[] = data.map(item => ({
-        id: item.id,
-        model_name: item.model_name,
-        version: item.version,
-        parameters: item.parameters as Record<string, any> || {},
-        metadata: item.metadata as Record<string, any> || {},
-        validation_metrics: item.validation_metrics as Record<string, any> || {},
-        training_data_snapshot: item.training_data_snapshot as Record<string, any> || {},
-        accuracy_metrics: {
-          mape: Number(item.accuracy_metrics?.mape || 0),
-          mae: Number(item.accuracy_metrics?.mae || 0),
-          rmse: Number(item.accuracy_metrics?.rmse || 0)
-        },
-        is_active: item.is_active,
-        created_at: item.created_at,
-        updated_at: item.updated_at
-      }));
+      const typedData: ModelVersion[] = data.map(item => {
+        // Ensure accuracy_metrics is properly typed and has default values
+        const accuracyMetrics = item.accuracy_metrics as AccuracyMetrics | null;
+        
+        return {
+          id: item.id,
+          model_name: item.model_name,
+          version: item.version,
+          parameters: item.parameters as Record<string, any> || {},
+          metadata: item.metadata as Record<string, any> || {},
+          validation_metrics: item.validation_metrics as Record<string, any> || {},
+          training_data_snapshot: item.training_data_snapshot as Record<string, any> || {},
+          accuracy_metrics: {
+            mape: accuracyMetrics?.mape || 0,
+            mae: accuracyMetrics?.mae || 0,
+            rmse: accuracyMetrics?.rmse || 0
+          },
+          is_active: item.is_active,
+          created_at: item.created_at,
+          updated_at: item.updated_at
+        };
+      });
       
       setVersions(typedData);
     } catch (error) {
@@ -54,6 +65,12 @@ export const useModelVersions = (modelId: string) => {
 
   const createVersion = async (versionData: Omit<ModelVersion, 'id' | 'created_at' | 'updated_at'>) => {
     try {
+      const accuracyMetrics: AccuracyMetrics = {
+        mape: versionData.accuracy_metrics?.mape || 0,
+        mae: versionData.accuracy_metrics?.mae || 0,
+        rmse: versionData.accuracy_metrics?.rmse || 0
+      };
+
       const { data, error } = await supabase
         .from('model_versions')
         .insert({
@@ -62,11 +79,7 @@ export const useModelVersions = (modelId: string) => {
           metadata: versionData.metadata || {},
           validation_metrics: versionData.validation_metrics || {},
           training_data_snapshot: versionData.training_data_snapshot || {},
-          accuracy_metrics: {
-            mape: Number(versionData.accuracy_metrics?.mape || 0),
-            mae: Number(versionData.accuracy_metrics?.mae || 0),
-            rmse: Number(versionData.accuracy_metrics?.rmse || 0)
-          }
+          accuracy_metrics: accuracyMetrics
         })
         .select()
         .single();
@@ -80,9 +93,9 @@ export const useModelVersions = (modelId: string) => {
         validation_metrics: data.validation_metrics as Record<string, any>,
         training_data_snapshot: data.training_data_snapshot as Record<string, any>,
         accuracy_metrics: {
-          mape: Number(data.accuracy_metrics?.mape || 0),
-          mae: Number(data.accuracy_metrics?.mae || 0),
-          rmse: Number(data.accuracy_metrics?.rmse || 0)
+          mape: (data.accuracy_metrics as AccuracyMetrics)?.mape || 0,
+          mae: (data.accuracy_metrics as AccuracyMetrics)?.mae || 0,
+          rmse: (data.accuracy_metrics as AccuracyMetrics)?.rmse || 0
         }
       };
 
