@@ -257,21 +257,31 @@ export const ScenarioManagement = ({
                     Math.round(value),
                     name === 'scenario1' ? selectedScenario?.name : compareScenario?.name
                   ]}
+                  contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)' }}
+                  labelStyle={{ fontWeight: 'bold' }}
                 />
-                <Legend />
+                <Legend 
+                  wrapperStyle={{ paddingTop: '10px' }}
+                  formatter={(value) => <span style={{ color: '#000', fontWeight: 'bold' }}>{value}</span>}
+                />
                 <Line
                   type="monotone"
                   dataKey="scenario1"
                   name={selectedScenario?.name}
-                  stroke="#10B981"
-                  strokeWidth={2}
+                  stroke="#8B5CF6" // Vivid Purple
+                  strokeWidth={3}
+                  dot={{ stroke: '#8B5CF6', strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6, stroke: '#8B5CF6', strokeWidth: 2 }}
                 />
                 <Line
                   type="monotone"
                   dataKey="scenario2"
                   name={compareScenario?.name}
-                  stroke="#F59E0B"
-                  strokeWidth={2}
+                  stroke="#0EA5E9" // Ocean Blue
+                  strokeWidth={3}
+                  strokeDasharray="5 5" // Adding dashed pattern for better differentiation
+                  dot={{ stroke: '#0EA5E9', strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6, stroke: '#0EA5E9', strokeWidth: 2 }}
                 />
               </LineChart>
             </ResponsiveContainer>
