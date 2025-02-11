@@ -45,6 +45,12 @@ export const TestingChart = ({
     handleParameterChange(selectedModel as keyof typeof modelParams, key, value);
   };
 
+  // Format historical data for the chart
+  const chartData = historicalData.map(item => ({
+    date: item.date,
+    actual: item.actual
+  }));
+
   return (
     <Card className="p-6">
       <div className="flex justify-between items-center mb-4">
@@ -74,7 +80,7 @@ export const TestingChart = ({
         onChange={handleParamChange}
       />
 
-      <TestDataChart data={testData} />
+      <TestDataChart data={chartData} />
     </Card>
   );
 };
