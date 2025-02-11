@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ForecastMetricsCards } from "./ForecastMetricsCards";
@@ -46,22 +47,49 @@ export const ForecastingContainer = () => {
   const [modelConfigs, setModelConfigs] = useState(defaultModelConfigs);
   const { toast } = useToast();
 
+  // Generate sample historical data with a more realistic pattern
   const [historicalData] = useState(() => {
-    return Array.from({ length: 180 }, (_, i) => ({
-      date: new Date(Date.now() - (180 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      actual: Math.round(1000 + Math.random() * 500),
-      predicted: Math.round(900 + Math.random() * 600)
-    }));
+    const baseValue = 1000;
+    const trendIncrease = 2; // Slight upward trend
+    const seasonalFactor = 0.2; // 20% seasonal variation
+    
+    return Array.from({ length: 180 }, (_, i) => {
+      // Add trend
+      const trend = baseValue + (i * trendIncrease);
+      
+      // Add seasonality (quarterly pattern)
+      const seasonal = trend * (1 + Math.sin(i * Math.PI / 26) * seasonalFactor);
+      
+      // Add some random noise (5%)
+      const noise = seasonal * (0.95 + Math.random() * 0.1);
+      
+      return {
+        date: new Date(Date.now() - (180 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        actual: Math.round(noise),
+        predicted: Math.round(seasonal)
+      };
+    });
   });
 
+  // Generate forecast table data with realistic patterns
   const [forecastTableData] = useState(() => {
-    return Array.from({ length: 12 }, (_, i) => ({
-      week: `Week ${i + 1}`,
-      forecast: Math.round(1200 + Math.random() * 300),
-      lower: Math.round(1000 + Math.random() * 200),
-      upper: Math.round(1400 + Math.random() * 200)
-    }));
+    const lastActual = historicalData[historicalData.length - 1]?.actual || 1200;
+    const weeklyGrowth = 0.01; // 1% weekly growth
+    
+    return Array.from({ length: 12 }, (_, i) => {
+      const baseForecast = lastActual * (1 + weeklyGrowth * i);
+      const uncertainty = 0.1; // 10% uncertainty range
+      
+      return {
+        week: `Week ${i + 1}`,
+        forecast: Math.round(baseForecast),
+        lower: Math.round(baseForecast * (1 - uncertainty)),
+        upper: Math.round(baseForecast * (1 + uncertainty))
+      };
+    });
   });
+
+  console.log('Historical Data:', historicalData); // Debug log
 
   const { 
     filteredData, 
