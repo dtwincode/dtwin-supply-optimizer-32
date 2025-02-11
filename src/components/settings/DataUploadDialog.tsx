@@ -11,6 +11,7 @@ import { processDataByModule } from "./data-processing/processDataByModule";
 import { TemplateDownloader } from "./template/TemplateDownloader";
 import { ValidationErrorDisplay } from "./validation/ValidationErrorDisplay";
 import { FileUpload } from "./upload/FileUpload";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function DataUploadDialog({ module, onDataUploaded }: DataUploadDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,6 +20,7 @@ export function DataUploadDialog({ module, onDataUploaded }: DataUploadDialogPro
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const [progress, setProgress] = useState(0);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const processUpload = async () => {
     if (!file) {
@@ -58,14 +60,15 @@ export function DataUploadDialog({ module, onDataUploaded }: DataUploadDialogPro
               message: error.message
             }));
 
-            // Log validation errors
+            // Log validation errors with user ID
             await supabase.from('data_validation_logs').insert({
               module,
               file_name: file.name,
               row_count: dataRows.length,
               error_count: errors.length,
               validation_errors: jsonErrors,
-              status: 'failed'
+              status: 'failed',
+              processed_by: user?.id
             });
 
             toast({
@@ -85,13 +88,14 @@ export function DataUploadDialog({ module, onDataUploaded }: DataUploadDialogPro
             throw new Error(`Error processing data: ${processError.message}`);
           }
 
-          // Log successful validation
+          // Log successful validation with user ID
           await supabase.from('data_validation_logs').insert({
             module,
             file_name: file.name,
             row_count: dataRows.length,
             error_count: 0,
-            status: 'completed'
+            status: 'completed',
+            processed_by: user?.id
           });
 
           setProgress(100);

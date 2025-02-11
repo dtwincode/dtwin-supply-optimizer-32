@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Database } from "@/integrations/supabase/types";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 type ModuleType = Database["public"]["Enums"]["module_type"];
 
@@ -74,6 +75,7 @@ const MODULES: { id: ModuleType; title: string; description: string }[] = [
 
 const Settings = () => {
   const { language } = useLanguage();
+  const { user } = useAuth();
 
   const { data: moduleSettings } = useQuery<ModuleSetting[]>({
     queryKey: ['moduleSettings'],
