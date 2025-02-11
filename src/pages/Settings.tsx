@@ -9,6 +9,8 @@ import { Database } from "@/integrations/supabase/types";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { format } from "date-fns";
+import { Badge } from "@/components/ui/badge";
 
 type ModuleType = Database["public"]["Enums"]["module_type"];
 
@@ -89,6 +91,20 @@ const Settings = () => {
     }
   });
 
+  const { data: validationLogs } = useQuery({
+    queryKey: ['validationLogs'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('data_validation_logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(5);
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
   const handleDataUploaded = (module: ModuleType) => {
     console.log(`Data uploaded for ${module} module`);
   };
@@ -101,6 +117,35 @@ const Settings = () => {
         </h2>
         <div className="grid gap-4">
           <Card className="p-6">
+            <h3 className="text-lg font-semibold mb-4">Recent Upload Logs</h3>
+            <div className="space-y-4 mb-8">
+              {validationLogs?.length === 0 && (
+                <p className="text-sm text-muted-foreground">No recent uploads</p>
+              )}
+              {validationLogs?.map((log) => (
+                <div key={log.id} className="flex items-center justify-between p-4 bg-muted rounded-lg">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{log.file_name}</span>
+                      <Badge variant={log.status === 'completed' ? 'default' : 'destructive'}>
+                        {log.status}
+                      </Badge>
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      <p>Module: {log.module}</p>
+                      <p>Rows: {log.row_count}</p>
+                      {log.error_count > 0 && (
+                        <p className="text-destructive">Errors: {log.error_count}</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {format(new Date(log.created_at), 'MMM d, yyyy HH:mm')}
+                  </div>
+                </div>
+              ))}
+            </div>
+
             <h3 className="text-lg font-semibold mb-4">Data Management</h3>
             <div className="space-y-6">
               {MODULES.map((module, index) => {
