@@ -128,7 +128,19 @@ export const ForecastingContainer = () => {
     decomposition, 
     validationResults, 
     crossValidationResults 
-  } = useForecastData(filters, selectedModel);
+  } = useForecastData(
+    selectedRegion,
+    selectedCity,
+    selectedChannel,
+    selectedWarehouse,
+    searchQuery,
+    fromDate,
+    toDate,
+    selectedModel,
+    selectedL1MainProd,
+    selectedL2ProdLine,
+    selectedL3ProdCategory
+  );
 
   const {
     weatherLocation,
@@ -210,7 +222,12 @@ export const ForecastingContainer = () => {
     if (Array.isArray(scenario.parameters)) {
       const typedParams = scenario.parameters.map((param: Json) => {
         if (typeof param === 'object' && param !== null) {
-          return param as ModelConfig;
+          const modelConfig: ModelConfig = {
+            id: (param as any).id || '',
+            name: (param as any).name || '',
+            parameters: (param as any).parameters || []
+          };
+          return modelConfig;
         }
         return null;
       }).filter((param): param is ModelConfig => param !== null);
