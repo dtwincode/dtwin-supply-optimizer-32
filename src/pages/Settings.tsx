@@ -16,6 +16,15 @@ import { useToast } from "@/hooks/use-toast";
 
 type ModuleType = Database["public"]["Enums"]["module_type"];
 
+type TableNames = 
+  | "forecast_data"
+  | "inventory_data"
+  | "sales_data"
+  | "marketing_data"
+  | "logistics_data"
+  | "product_hierarchy"
+  | "location_hierarchy";
+
 interface DocumentationSection {
   title: string;
   content: string;
@@ -115,7 +124,7 @@ const Settings = () => {
 
   const handleClearModuleData = async (module: ModuleType) => {
     try {
-      let tableToDelete: string | null = null;
+      let tableToDelete: TableNames;
       
       switch (module) {
         case 'forecasting':
@@ -141,10 +150,6 @@ const Settings = () => {
           break;
         default:
           throw new Error('Invalid module');
-      }
-
-      if (!tableToDelete) {
-        throw new Error('Invalid module type');
       }
 
       const { error } = await supabase
