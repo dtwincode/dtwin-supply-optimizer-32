@@ -75,7 +75,7 @@ const MODULES: { id: ModuleType; title: string; description: string }[] = [
 const Settings = () => {
   const { language } = useLanguage();
 
-  const { data: moduleSettings } = useQuery<ModuleSetting[]>({
+  const { data: moduleSettings } = useQuery({
     queryKey: ['moduleSettings'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -83,7 +83,7 @@ const Settings = () => {
         .select('*');
       
       if (error) throw error;
-      return data;
+      return data as ModuleSetting[];
     }
   });
 
