@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ForecastMetricsCards } from "./ForecastMetricsCards";
@@ -13,6 +14,15 @@ import { useWeatherData } from "@/hooks/useWeatherData";
 import { useMarketEvents } from "@/hooks/useMarketEvents";
 import { usePriceAnalysis } from "@/hooks/usePriceAnalysis";
 import { defaultModelConfigs } from "@/types/modelParameters";
+import { 
+  regions, 
+  cities, 
+  channelTypes, 
+  warehouses, 
+  savedScenarios,
+  forecastData 
+} from "@/constants/forecasting";
+import { findBestFitModel } from "@/utils/forecasting/modelSelection";
 
 export const ForecastingContainer = () => {
   // Set initial dates to show our 2024 data
