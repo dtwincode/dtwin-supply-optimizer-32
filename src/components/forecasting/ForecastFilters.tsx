@@ -15,12 +15,22 @@ interface ForecastFiltersProps {
   setSelectedChannel: (channel: string) => void;
   selectedWarehouse: string;
   setSelectedWarehouse: (warehouse: string) => void;
-  selectedCategory: string;
-  setSelectedCategory: (category: string) => void;
-  selectedSubcategory: string;
-  setSelectedSubcategory: (subcategory: string) => void;
-  selectedSku: string;
-  setSelectedSku: (sku: string) => void;
+  selectedL1MainProd: string;
+  setSelectedL1MainProd: (value: string) => void;
+  selectedL2ProdLine: string;
+  setSelectedL2ProdLine: (value: string) => void;
+  selectedL3ProdCategory: string;
+  setSelectedL3ProdCategory: (value: string) => void;
+  selectedL4DeviceMake: string;
+  setSelectedL4DeviceMake: (value: string) => void;
+  selectedL5ProdSubCategory: string;
+  setSelectedL5ProdSubCategory: (value: string) => void;
+  selectedL6DeviceModel: string;
+  setSelectedL6DeviceModel: (value: string) => void;
+  selectedL7DeviceColor: string;
+  setSelectedL7DeviceColor: (value: string) => void;
+  selectedL8DeviceStorage: string;
+  setSelectedL8DeviceStorage: (value: string) => void;
   regions: string[];
   cities: { [key: string]: string[] };
   channelTypes: string[];
@@ -39,12 +49,22 @@ export const ForecastFilters = ({
   setSelectedChannel,
   selectedWarehouse,
   setSelectedWarehouse,
-  selectedCategory,
-  setSelectedCategory,
-  selectedSubcategory,
-  setSelectedSubcategory,
-  selectedSku,
-  setSelectedSku,
+  selectedL1MainProd,
+  setSelectedL1MainProd,
+  selectedL2ProdLine,
+  setSelectedL2ProdLine,
+  selectedL3ProdCategory,
+  setSelectedL3ProdCategory,
+  selectedL4DeviceMake,
+  setSelectedL4DeviceMake,
+  selectedL5ProdSubCategory,
+  setSelectedL5ProdSubCategory,
+  selectedL6DeviceModel,
+  setSelectedL6DeviceModel,
+  selectedL7DeviceColor,
+  setSelectedL7DeviceColor,
+  selectedL8DeviceStorage,
+  setSelectedL8DeviceStorage,
   regions,
   cities,
   channelTypes,
@@ -81,12 +101,22 @@ export const ForecastFilters = ({
 
       <div className="flex gap-4">
         <ProductFilter
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-          selectedSubcategory={selectedSubcategory}
-          setSelectedSubcategory={setSelectedSubcategory}
-          selectedSku={selectedSku}
-          setSelectedSku={setSelectedSku}
+          selectedL1MainProd={selectedL1MainProd}
+          setSelectedL1MainProd={setSelectedL1MainProd}
+          selectedL2ProdLine={selectedL2ProdLine}
+          setSelectedL2ProdLine={setSelectedL2ProdLine}
+          selectedL3ProdCategory={selectedL3ProdCategory}
+          setSelectedL3ProdCategory={setSelectedL3ProdCategory}
+          selectedL4DeviceMake={selectedL4DeviceMake}
+          setSelectedL4DeviceMake={setSelectedL4DeviceMake}
+          selectedL5ProdSubCategory={selectedL5ProdSubCategory}
+          setSelectedL5ProdSubCategory={setSelectedL5ProdSubCategory}
+          selectedL6DeviceModel={selectedL6DeviceModel}
+          setSelectedL6DeviceModel={setSelectedL6DeviceModel}
+          selectedL7DeviceColor={selectedL7DeviceColor}
+          setSelectedL7DeviceColor={setSelectedL7DeviceColor}
+          selectedL8DeviceStorage={selectedL8DeviceStorage}
+          setSelectedL8DeviceStorage={setSelectedL8DeviceStorage}
           forecastData={forecastData}
         />
       </div>
