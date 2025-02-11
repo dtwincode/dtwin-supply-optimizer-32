@@ -1,4 +1,3 @@
-
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -114,30 +113,16 @@ const Settings = () => {
     refetchLogs();
   };
 
-  const handleClearModuleData = async (module: ModuleType) => {
+  const handleClearModuleData = async (module: Database["public"]["Enums"]["module_type"]) => {
     try {
-      let table: string;
-      switch (module) {
-        case 'forecasting':
-          table = 'forecast_data';
-          break;
-        case 'inventory':
-          table = 'inventory_data';
-          break;
-        case 'sales':
-          table = 'sales_data';
-          break;
-        case 'marketing':
-          table = 'marketing_data';
-          break;
-        case 'logistics':
-          table = 'logistics_data';
-          break;
-        default:
-          throw new Error('Invalid module');
-      }
-
-      const { error } = await supabase.from(table).delete().neq('id', '');
+      const { error } = await supabase
+        .from(module === 'forecasting' ? 'forecast_data' :
+              module === 'inventory' ? 'inventory_data' :
+              module === 'sales' ? 'sales_data' :
+              module === 'marketing' ? 'marketing_data' :
+              module === 'logistics' ? 'logistics_data' : null)
+        .delete()
+        .gt('id', '00000000-0000-0000-0000-000000000000'); // This will match all valid UUIDs
       
       if (error) throw error;
 
