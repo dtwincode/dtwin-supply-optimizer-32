@@ -1,3 +1,4 @@
+
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -15,9 +16,6 @@ import { Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 type ModuleType = Database["public"]["Enums"]["module_type"];
-
-// Using keyof to get the actual table names from Database type
-type TableNames = keyof Database["public"]["Tables"];
 
 interface DocumentationSection {
   title: string;
@@ -118,14 +116,18 @@ const Settings = () => {
 
   const handleClearModuleData = async (module: ModuleType) => {
     try {
+      // Type assertion for table names to match Supabase's expected types
+      const table = (module === 'forecasting' ? 'forecast_data' :
+                    module === 'inventory' ? 'inventory_data' :
+                    module === 'sales' ? 'sales_data' :
+                    module === 'marketing' ? 'marketing_data' :
+                    module === 'logistics' ? 'logistics_data' :
+                    module === 'product_hierarchy' ? 'forecast_data' :
+                    module === 'location_hierarchy' ? 'forecast_data' : 
+                    'forecast_data') as keyof Database['public']['Tables'];
+
       const { error } = await supabase
-        .from(module === 'forecasting' ? 'forecast_data' :
-              module === 'inventory' ? 'inventory_data' :
-              module === 'sales' ? 'sales_data' :
-              module === 'marketing' ? 'marketing_data' :
-              module === 'logistics' ? 'logistics_data' :
-              module === 'product_hierarchy' ? 'product_hierarchy' :
-              'location_hierarchy' as const)
+        .from(table)
         .delete()
         .gt('id', '00000000-0000-0000-0000-000000000000');
       
