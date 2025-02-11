@@ -19,15 +19,15 @@ export const generateTestData = (config: TestDataConfig): number[] => {
   
   switch(modelType) {
     case "moving-avg":
-      return generateMovingAverageData(length, parameters.windowSize);
+      return generateMovingAverageData(length, parameters.windowSize || 7);
     case "exp-smoothing":
-      return generateExpSmoothingData(length, parameters.alpha, parameters.beta, parameters.gamma);
+      return generateExpSmoothingData(length, parameters.alpha || 0.2, parameters.beta || 0.1, parameters.gamma || 0.1);
     case "arima":
-      return generateArimaData(length, parameters.p, parameters.d, parameters.q);
+      return generateArimaData(length, parameters.p || 1, parameters.d || 1, parameters.q || 1);
     case "prophet":
-      return generateProphetData(length, parameters.changePointPrior, parameters.seasonalityPrior);
+      return generateProphetData(length, parameters.changePointPrior || 0.05, parameters.seasonalityPrior || 0.1);
     default:
-      return [];
+      return generateMovingAverageData(length, 7); // Default to moving average
   }
 };
 
@@ -39,7 +39,8 @@ const generateMovingAverageData = (length: number, windowSize: number): number[]
     const trend = i * (baseValue * 0.01);
     const seasonality = Math.sin(2 * Math.PI * i / 52) * (baseValue * 0.1);
     const noise = (Math.random() - 0.5) * (baseValue * 0.05);
-    data.push(baseValue + trend + seasonality + noise);
+    const value = baseValue + trend + seasonality + noise;
+    data.push(Math.max(0, value)); // Ensure non-negative values
   }
   
   return data;
