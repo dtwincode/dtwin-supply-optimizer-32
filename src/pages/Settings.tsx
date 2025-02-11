@@ -11,6 +11,29 @@ import { supabase } from "@/integrations/supabase/client";
 
 type ModuleType = Database["public"]["Enums"]["module_type"];
 
+interface DocumentationSection {
+  title: string;
+  content: string;
+}
+
+interface ModuleDocumentation {
+  overview: string;
+  sections: DocumentationSection[];
+}
+
+interface ModuleSettings {
+  documentation?: ModuleDocumentation;
+  [key: string]: any;
+}
+
+interface ModuleSetting {
+  id: string;
+  module: ModuleType;
+  settings: ModuleSettings;
+  created_at: string;
+  updated_at: string;
+}
+
 const MODULES: { id: ModuleType; title: string; description: string }[] = [
   {
     id: "forecasting",
@@ -52,7 +75,7 @@ const MODULES: { id: ModuleType; title: string; description: string }[] = [
 const Settings = () => {
   const { language } = useLanguage();
 
-  const { data: moduleSettings } = useQuery({
+  const { data: moduleSettings } = useQuery<ModuleSetting[]>({
     queryKey: ['moduleSettings'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -95,7 +118,7 @@ const Settings = () => {
                           <p className="text-sm mb-4">{moduleDoc.overview}</p>
                           
                           <div className="space-y-4">
-                            {moduleDoc.sections?.map((section: any, idx: number) => (
+                            {moduleDoc.sections?.map((section: DocumentationSection, idx: number) => (
                               <div key={idx}>
                                 <h6 className="font-medium mb-1">{section.title}</h6>
                                 <p className="text-sm whitespace-pre-line">{section.content}</p>
