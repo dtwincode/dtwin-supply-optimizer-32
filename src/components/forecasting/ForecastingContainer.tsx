@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ForecastMetricsCards } from "./ForecastMetricsCards";
@@ -134,8 +135,8 @@ export const ForecastingContainer = () => {
     selectedChannel,
     selectedWarehouse,
     searchQuery,
-    fromDate,
-    toDate,
+    fromDate.toISOString().split('T')[0], // Convert Date to YYYY-MM-DD string
+    toDate.toISOString().split('T')[0],   // Convert Date to YYYY-MM-DD string
     selectedModel,
     selectedL1MainProd,
     selectedL2ProdLine,
