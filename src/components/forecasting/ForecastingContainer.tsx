@@ -252,22 +252,31 @@ export const ForecastingContainer = () => {
               setSelectedModel(scenario.model);
               setHorizon(scenario.horizon);
               
-              const isModelConfig = (item: any): item is ModelConfig => {
+              const isModelConfig = (item: unknown): item is ModelConfig => {
+                if (!item || typeof item !== 'object') return false;
+                const config = item as any;
                 return (
-                  typeof item === 'object' &&
-                  item !== null &&
-                  'id' in item &&
-                  'name' in item &&
-                  'parameters' in item &&
-                  Array.isArray(item.parameters)
+                  'id' in config &&
+                  typeof config.id === 'string' &&
+                  'name' in config &&
+                  typeof config.name === 'string' &&
+                  'parameters' in config &&
+                  Array.isArray(config.parameters) &&
+                  config.parameters.every((param: unknown) => 
+                    param && 
+                    typeof param === 'object' &&
+                    'name' in param &&
+                    'value' in param
+                  )
                 );
               };
 
-              const parsedParameters = Array.isArray(scenario.parameters) 
-                ? scenario.parameters.filter(isModelConfig)
+              const rawParameters = scenario.parameters as unknown[];
+              const validConfigs: ModelConfig[] = Array.isArray(rawParameters)
+                ? rawParameters.filter(isModelConfig)
                 : [];
               
-              setModelConfigs(parsedParameters.length > 0 ? parsedParameters : defaultModelConfigs);
+              setModelConfigs(validConfigs.length > 0 ? validConfigs : defaultModelConfigs);
               
               toast({
                 title: "Scenario Loaded",
