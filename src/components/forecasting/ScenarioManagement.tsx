@@ -14,6 +14,16 @@ import { useToast } from "@/components/ui/use-toast";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Json } from "@/integrations/supabase/types";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from "recharts";
 
 interface SavedScenario {
   id: string;
@@ -49,6 +59,7 @@ export const ScenarioManagement = ({
   const [savedScenarios, setSavedScenarios] = useState<SavedScenario[]>([]);
   const [selectedScenario, setSelectedScenario] = useState<SavedScenario | null>(null);
   const [compareScenario, setCompareScenario] = useState<SavedScenario | null>(null);
+  const [comparisonData, setComparisonData] = useState<any[]>([]);
 
   // Fetch saved scenarios
   useEffect(() => {
@@ -144,7 +155,6 @@ export const ScenarioManagement = ({
       description: "Scenario deleted successfully",
     });
 
-    // Update local state
     setSavedScenarios(savedScenarios.filter(s => s.id !== id));
     if (selectedScenario?.id === id) setSelectedScenario(null);
     if (compareScenario?.id === id) setCompareScenario(null);
@@ -152,7 +162,21 @@ export const ScenarioManagement = ({
 
   const handleCompareScenarios = () => {
     if (selectedScenario && compareScenario) {
-      // Load both scenarios for comparison
+      const scenario1Data = selectedScenario.forecast_data as any[];
+      const scenario2Data = compareScenario.forecast_data as any[];
+      
+      // Combine data for comparison
+      const combinedData = scenario1Data.map((item, index) => ({
+        week: item.week || `Week ${index + 1}`,
+        scenario1: item.forecast || item.value,
+        scenario2: scenario2Data[index]?.forecast || scenario2Data[index]?.value || 0,
+        scenario1Name: selectedScenario.name,
+        scenario2Name: compareScenario.name
+      }));
+      
+      setComparisonData(combinedData);
+      
+      // Load the first scenario for the main view
       onScenarioLoad(selectedScenario);
     }
   };
@@ -178,7 +202,6 @@ export const ScenarioManagement = ({
           onValueChange={(value) => {
             const scenario = savedScenarios.find(s => s.id === value);
             setSelectedScenario(scenario || null);
-            if (scenario) onScenarioLoad(scenario);
           }}
         >
           <SelectTrigger className="w-[300px]">
@@ -218,7 +241,45 @@ export const ScenarioManagement = ({
           Compare Scenarios
         </Button>
       </div>
-      <div className="space-y-2">
+      
+      {/* Comparison Chart */}
+      {comparisonData.length > 0 && (
+        <div className="mt-6">
+          <h4 className="text-md font-semibold mb-2">Scenario Comparison</h4>
+          <div className="h-[400px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={comparisonData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="week" />
+                <YAxis />
+                <Tooltip 
+                  formatter={(value: number, name: string) => [
+                    Math.round(value),
+                    name === 'scenario1' ? selectedScenario?.name : compareScenario?.name
+                  ]}
+                />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="scenario1"
+                  name={selectedScenario?.name}
+                  stroke="#10B981"
+                  strokeWidth={2}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="scenario2"
+                  name={compareScenario?.name}
+                  stroke="#F59E0B"
+                  strokeWidth={2}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      <div className="space-y-2 mt-4">
         {savedScenarios.map(scenario => (
           <div key={scenario.id} className="flex justify-between items-center p-2 bg-secondary/20 rounded">
             <div>
