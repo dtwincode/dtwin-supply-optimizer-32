@@ -680,6 +680,47 @@ export type Database = {
         }
         Relationships: []
       }
+      model_testing_configs: {
+        Row: {
+          created_at: string | null
+          id: string
+          scenario_id: string | null
+          testing_range: string | null
+          testing_time_period: string | null
+          training_range: string | null
+          training_time_period: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          scenario_id?: string | null
+          testing_range?: string | null
+          testing_time_period?: string | null
+          training_range?: string | null
+          training_time_period?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          scenario_id?: string | null
+          testing_range?: string | null
+          testing_time_period?: string | null
+          training_range?: string | null
+          training_time_period?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "model_testing_configs_scenario_id_fkey"
+            columns: ["scenario_id"]
+            isOneToOne: false
+            referencedRelation: "scenarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       model_version_applications: {
         Row: {
           created_at: string | null
