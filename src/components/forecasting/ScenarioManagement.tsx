@@ -24,17 +24,7 @@ import {
   Legend,
   ResponsiveContainer
 } from "recharts";
-
-interface SavedScenario {
-  id: string;
-  name: string;
-  model: string;
-  horizon: string;
-  parameters: Json;
-  forecast_data: Json;
-  created_at?: string;
-  updated_at?: string;
-}
+import { SavedScenario } from "@/types/forecasting";
 
 interface ScenarioManagementProps {
   scenarioName: string;
@@ -135,7 +125,7 @@ export const ScenarioManagement = ({
     setScenarioName("");
   };
 
-  const handleDeleteScenario = async (id: string) => {
+  const handleDeleteScenario = async (id: number) => {
     const { error } = await supabase
       .from('scenarios')
       .delete()
@@ -198,9 +188,9 @@ export const ScenarioManagement = ({
       </div>
       <div className="flex gap-4 mb-4">
         <Select 
-          value={selectedScenario?.id} 
+          value={selectedScenario?.id?.toString()} 
           onValueChange={(value) => {
-            const scenario = savedScenarios.find(s => s.id === value);
+            const scenario = savedScenarios.find(s => s.id === parseInt(value));
             setSelectedScenario(scenario || null);
           }}
         >
@@ -209,16 +199,16 @@ export const ScenarioManagement = ({
           </SelectTrigger>
           <SelectContent>
             {savedScenarios.map(scenario => (
-              <SelectItem key={scenario.id} value={scenario.id}>
+              <SelectItem key={scenario.id} value={scenario.id.toString()}>
                 {scenario.name}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Select 
-          value={compareScenario?.id}
+          value={compareScenario?.id?.toString()}
           onValueChange={(value) => {
-            const scenario = savedScenarios.find(s => s.id === value);
+            const scenario = savedScenarios.find(s => s.id === parseInt(value));
             setCompareScenario(scenario || null);
           }}
         >
@@ -227,7 +217,7 @@ export const ScenarioManagement = ({
           </SelectTrigger>
           <SelectContent>
             {savedScenarios.map(scenario => (
-              <SelectItem key={scenario.id} value={scenario.id}>
+              <SelectItem key={scenario.id} value={scenario.id.toString()}>
                 {scenario.name}
               </SelectItem>
             ))}
@@ -268,7 +258,7 @@ export const ScenarioManagement = ({
                   type="monotone"
                   dataKey="scenario1"
                   name={selectedScenario?.name}
-                  stroke="#8B5CF6" // Vivid Purple
+                  stroke="#8B5CF6"
                   strokeWidth={3}
                   dot={{ stroke: '#8B5CF6', strokeWidth: 2, r: 4 }}
                   activeDot={{ r: 6, stroke: '#8B5CF6', strokeWidth: 2 }}
@@ -277,9 +267,9 @@ export const ScenarioManagement = ({
                   type="monotone"
                   dataKey="scenario2"
                   name={compareScenario?.name}
-                  stroke="#0EA5E9" // Ocean Blue
+                  stroke="#0EA5E9"
                   strokeWidth={3}
-                  strokeDasharray="5 5" // Adding dashed pattern for better differentiation
+                  strokeDasharray="5 5"
                   dot={{ stroke: '#0EA5E9', strokeWidth: 2, r: 4 }}
                   activeDot={{ r: 6, stroke: '#0EA5E9', strokeWidth: 2 }}
                 />
