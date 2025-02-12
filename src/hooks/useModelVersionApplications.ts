@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Json } from '@/integrations/supabase/types';
 
 interface ModelVersionApplication {
   id: string;
@@ -17,7 +18,18 @@ interface ModelVersionApplication {
     rmse: number | null;
     last_evaluation_date: string | null;
   };
+  location_hierarchy?: {
+    display_name: string;
+    location_type: string;
+  };
+  product_hierarchy?: {
+    name: string;
+  };
 }
+
+type RawModelVersionApplication = Omit<ModelVersionApplication, 'performance_metrics'> & {
+  performance_metrics: Json;
+};
 
 interface UseModelVersionApplicationsProps {
   modelVersionId?: string;
@@ -27,6 +39,25 @@ export const useModelVersionApplications = ({ modelVersionId }: UseModelVersionA
   const [applications, setApplications] = useState<ModelVersionApplication[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+
+  const parseApplication = (raw: RawModelVersionApplication): ModelVersionApplication => {
+    const metrics = raw.performance_metrics as {
+      mape: number | null;
+      mae: number | null;
+      rmse: number | null;
+      last_evaluation_date: string | null;
+    };
+
+    return {
+      ...raw,
+      performance_metrics: {
+        mape: metrics?.mape ?? null,
+        mae: metrics?.mae ?? null,
+        rmse: metrics?.rmse ?? null,
+        last_evaluation_date: metrics?.last_evaluation_date ?? null,
+      },
+    };
+  };
 
   const fetchApplications = async () => {
     if (!modelVersionId) return;
@@ -44,7 +75,9 @@ export const useModelVersionApplications = ({ modelVersionId }: UseModelVersionA
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setApplications(data || []);
+      
+      const parsedData = (data || []).map(parseApplication);
+      setApplications(parsedData);
     } catch (error) {
       console.error('Error fetching model version applications:', error);
       toast({
@@ -67,12 +100,13 @@ export const useModelVersionApplications = ({ modelVersionId }: UseModelVersionA
 
       if (error) throw error;
 
-      setApplications(prev => [data, ...prev]);
+      const parsedData = parseApplication(data as RawModelVersionApplication);
+      setApplications(prev => [parsedData, ...prev]);
       toast({
         title: "Success",
         description: "Model version application created",
       });
-      return data;
+      return parsedData;
     } catch (error) {
       console.error('Error creating model version application:', error);
       toast({
@@ -95,12 +129,13 @@ export const useModelVersionApplications = ({ modelVersionId }: UseModelVersionA
 
       if (error) throw error;
 
-      setApplications(prev => prev.map(app => app.id === id ? data : app));
+      const parsedData = parseApplication(data as RawModelVersionApplication);
+      setApplications(prev => prev.map(app => app.id === id ? parsedData : app));
       toast({
         title: "Success",
         description: "Model version application updated",
       });
-      return data;
+      return parsedData;
     } catch (error) {
       console.error('Error updating model version application:', error);
       toast({
