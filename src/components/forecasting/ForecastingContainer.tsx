@@ -24,7 +24,6 @@ import {
 } from "@/constants/forecasting";
 import { findBestFitModel } from "@/utils/forecasting/modelSelection";
 import { ModelConfig } from "@/types/models/commonTypes";
-import { Json } from "@/integrations/supabase/types";
 
 export const ForecastingContainer = () => {
   // Set initial dates to show our 2024 data
@@ -261,10 +260,6 @@ export const ForecastingContainer = () => {
           />
         </div>
 
-        <div className="bg-background rounded-lg shadow-sm">
-          <ModelVersioning modelId={selectedModel} />
-        </div>
-
         <div className="grid gap-4">
           <ForecastingDateRange
             fromDate={fromDate}
@@ -306,6 +301,13 @@ export const ForecastingContainer = () => {
             warehouses={warehouses}
             forecastData={forecastData}
           />
+        </div>
+
+        {/* Model Versioning section moved here and styled */}
+        <div className="bg-background rounded-lg shadow-sm">
+          <div className="max-w-[1200px] mx-auto">
+            <ModelVersioning modelId={selectedModel} />
+          </div>
         </div>
 
         <div className="my-6">
