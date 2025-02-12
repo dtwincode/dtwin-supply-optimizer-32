@@ -1,7 +1,7 @@
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { TestingChart } from "@/components/forecasting/TestingChart";
 import { useState } from "react";
@@ -15,7 +15,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { differenceInDays } from "date-fns";
 
 interface ModelTestingTabProps {
   historicalData: any[];
@@ -30,74 +37,71 @@ export const ModelTestingTab = ({
 }: ModelTestingTabProps) => {
   const { toast } = useToast();
   const { testData, generateNewTestData } = useTestData();
-  
-  // Training period states
-  const [trainingTimePeriod, setTrainingTimePeriod] = useState<string>("");
-  const [trainingRange, setTrainingRange] = useState<string>("");
-  
-  // Testing period states
-  const [testingTimePeriod, setTestingTimePeriod] = useState<string>("");
-  const [testingRange, setTestingRange] = useState<string>("");
-  
-  // Time period options
-  const timePeriodOptions = [
-    { label: "Weekly", value: "weekly" },
-    { label: "Monthly", value: "monthly" },
-    { label: "Quarterly", value: "quarterly" },
-    { label: "Yearly", value: "yearly" }
-  ];
+
+  // Date range states
+  const [selectedRange, setSelectedRange] = useState<string>("custom");
+  const [fromDate, setFromDate] = useState<Date>(new Date('2024-01-01'));
+  const [toDate, setToDate] = useState<Date>(new Date('2024-12-26'));
 
   // Range options
   const rangeOptions = [
-    { label: "Last 4 weeks", value: "4w" },
-    { label: "Last 3 months", value: "3m" },
-    { label: "Last 6 months", value: "6m" },
-    { label: "Last year", value: "1y" }
+    { label: "Last Month", value: "1m" },
+    { label: "Last 3 Months", value: "3m" },
+    { label: "Last 6 Months", value: "6m" },
+    { label: "Last Year", value: "1y" },
+    { label: "Custom", value: "custom" }
   ];
 
-  const handleTrainingPeriodChange = (value: string) => {
-    setTrainingTimePeriod(value);
-    generateNewTestData('moving-avg', {}, value === '4w' ? '28' : value === '3m' ? '90' : value === '6m' ? '180' : '365');
+  const handleRangeChange = (value: string) => {
+    setSelectedRange(value);
+    const now = new Date();
+    let start = new Date();
+    
+    switch (value) {
+      case "1m":
+        start.setMonth(now.getMonth() - 1);
+        break;
+      case "3m":
+        start.setMonth(now.getMonth() - 3);
+        break;
+      case "6m":
+        start.setMonth(now.getMonth() - 6);
+        break;
+      case "1y":
+        start.setFullYear(now.getFullYear() - 1);
+        break;
+      default:
+        return;
+    }
+    
+    setFromDate(start);
+    setToDate(now);
   };
 
-  const handleTrainingRangeChange = (value: string) => {
-    setTrainingRange(value);
-  };
+  const handleDateChange = (type: 'from' | 'to', date: Date | undefined) => {
+    if (!date) return;
+    
+    if (type === 'from') {
+      setFromDate(date);
+      setSelectedRange('custom');
+    } else {
+      setToDate(date);
+      setSelectedRange('custom');
+    }
 
-  const handleTestingPeriodChange = (value: string) => {
-    setTestingTimePeriod(value);
-  };
-
-  const handleTestingRangeChange = (value: string) => {
-    setTestingRange(value);
+    const days = differenceInDays(toDate, fromDate);
+    generateNewTestData('moving-avg', {}, days.toString());
   };
 
   return (
     <Card className="p-6 space-y-8">
-      {/* Training Configuration */}
       <div className="space-y-6">
-        <h3 className="text-lg font-semibold">Training Configuration</h3>
-        <div className="grid grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Time Period</label>
-            <Select value={trainingTimePeriod} onValueChange={handleTrainingPeriodChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select time period" />
-              </SelectTrigger>
-              <SelectContent>
-                {timePeriodOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Range</label>
-            <Select value={trainingRange} onValueChange={handleTrainingRangeChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select range" />
+        <div className="space-y-4">
+          {/* Date Range Selector */}
+          <div className="w-full">
+            <Select value={selectedRange} onValueChange={handleRangeChange}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Date Range" />
               </SelectTrigger>
               <SelectContent>
                 {rangeOptions.map((option) => (
@@ -108,42 +112,59 @@ export const ModelTestingTab = ({
               </SelectContent>
             </Select>
           </div>
-        </div>
-      </div>
 
-      {/* Testing Configuration */}
-      <div className="space-y-6">
-        <h3 className="text-lg font-semibold">Testing Configuration</h3>
-        <div className="grid grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Time Period</label>
-            <Select value={testingTimePeriod} onValueChange={handleTestingPeriodChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select time period" />
-              </SelectTrigger>
-              <SelectContent>
-                {timePeriodOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Range</label>
-            <Select value={testingRange} onValueChange={handleTestingRangeChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select range" />
-              </SelectTrigger>
-              <SelectContent>
-                {rangeOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          {/* Date Pickers */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex-1">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !fromDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {fromDate ? format(fromDate, "MMM dd, yyyy") : "Select date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={fromDate}
+                    onSelect={(date) => handleDateChange('from', date)}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="flex-1">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !toDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {toDate ? format(toDate, "MMM dd, yyyy") : "Select date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={toDate}
+                    onSelect={(date) => handleDateChange('to', date)}
+                    initialFocus
+                    fromDate={fromDate}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
         </div>
       </div>
