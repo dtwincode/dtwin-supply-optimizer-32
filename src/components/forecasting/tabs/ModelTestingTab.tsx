@@ -30,95 +30,120 @@ export const ModelTestingTab = ({
 }: ModelTestingTabProps) => {
   const { toast } = useToast();
   const { testData, generateNewTestData } = useTestData();
-  const [selectedTrainingRange, setSelectedTrainingRange] = useState<string>("");
-  const [selectedTestingRange, setSelectedTestingRange] = useState<string>("");
   
-  // Predefined date ranges
-  const dateRanges = [
-    { label: "Last 3 months", value: "3m" },
-    { label: "Last 6 months", value: "6m" },
-    { label: "Last year", value: "1y" },
-    { label: "Custom", value: "custom" }
+  // Training period states
+  const [trainingTimePeriod, setTrainingTimePeriod] = useState<string>("");
+  const [trainingRange, setTrainingRange] = useState<string>("");
+  
+  // Testing period states
+  const [testingTimePeriod, setTestingTimePeriod] = useState<string>("");
+  const [testingRange, setTestingRange] = useState<string>("");
+  
+  // Time period options
+  const timePeriodOptions = [
+    { label: "Weekly", value: "weekly" },
+    { label: "Monthly", value: "monthly" },
+    { label: "Quarterly", value: "quarterly" },
+    { label: "Yearly", value: "yearly" }
   ];
 
+  // Range options
+  const rangeOptions = [
+    { label: "Last 4 weeks", value: "4w" },
+    { label: "Last 3 months", value: "3m" },
+    { label: "Last 6 months", value: "6m" },
+    { label: "Last year", value: "1y" }
+  ];
+
+  const handleTrainingPeriodChange = (value: string) => {
+    setTrainingTimePeriod(value);
+    generateNewTestData('moving-avg', {}, value === '4w' ? '28' : value === '3m' ? '90' : value === '6m' ? '180' : '365');
+  };
+
   const handleTrainingRangeChange = (value: string) => {
-    setSelectedTrainingRange(value);
-    generateNewTestData('moving-avg', {}, value === '3m' ? '90' : value === '6m' ? '180' : '365');
+    setTrainingRange(value);
+  };
+
+  const handleTestingPeriodChange = (value: string) => {
+    setTestingTimePeriod(value);
   };
 
   const handleTestingRangeChange = (value: string) => {
-    setSelectedTestingRange(value);
-    // Additional logic for testing period if needed
+    setTestingRange(value);
   };
 
   return (
-    <Card className="p-6 space-y-6">
+    <Card className="p-6 space-y-8">
+      {/* Training Configuration */}
       <div className="space-y-6">
-        {/* Training Period Selection */}
-        <div className="space-y-2">
-          <h3 className="text-sm font-medium">Training Period</h3>
-          <div className="flex items-center space-x-4">
-            <Select value={selectedTrainingRange} onValueChange={handleTrainingRangeChange}>
-              <SelectTrigger className="w-[200px]">
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                <SelectValue placeholder="Training Range" />
+        <h3 className="text-lg font-semibold">Training Configuration</h3>
+        <div className="grid grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Time Period</label>
+            <Select value={trainingTimePeriod} onValueChange={handleTrainingPeriodChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select time period" />
               </SelectTrigger>
               <SelectContent>
-                {dateRanges.map((range) => (
-                  <SelectItem key={range.value} value={range.value}>
-                    {range.label}
+                {timePeriodOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-
-            {selectedTrainingRange === 'custom' && (
-              <div className="flex items-center space-x-2">
-                <div className="flex items-center space-x-2 bg-muted px-3 py-2 rounded-md">
-                  <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                  <span>Jan 01, 2024</span>
-                </div>
-                <span className="text-muted-foreground">to</span>
-                <div className="flex items-center space-x-2 bg-muted px-3 py-2 rounded-md">
-                  <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                  <span>Dec 26, 2024</span>
-                </div>
-              </div>
-            )}
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Range</label>
+            <Select value={trainingRange} onValueChange={handleTrainingRangeChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select range" />
+              </SelectTrigger>
+              <SelectContent>
+                {rangeOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
+      </div>
 
-        {/* Testing Period Selection */}
-        <div className="space-y-2">
-          <h3 className="text-sm font-medium">Testing Period</h3>
-          <div className="flex items-center space-x-4">
-            <Select value={selectedTestingRange} onValueChange={handleTestingRangeChange}>
-              <SelectTrigger className="w-[200px]">
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                <SelectValue placeholder="Testing Range" />
+      {/* Testing Configuration */}
+      <div className="space-y-6">
+        <h3 className="text-lg font-semibold">Testing Configuration</h3>
+        <div className="grid grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Time Period</label>
+            <Select value={testingTimePeriod} onValueChange={handleTestingPeriodChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select time period" />
               </SelectTrigger>
               <SelectContent>
-                {dateRanges.map((range) => (
-                  <SelectItem key={range.value} value={range.value}>
-                    {range.label}
+                {timePeriodOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-
-            {selectedTestingRange === 'custom' && (
-              <div className="flex items-center space-x-2">
-                <div className="flex items-center space-x-2 bg-muted px-3 py-2 rounded-md">
-                  <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                  <span>Jan 01, 2024</span>
-                </div>
-                <span className="text-muted-foreground">to</span>
-                <div className="flex items-center space-x-2 bg-muted px-3 py-2 rounded-md">
-                  <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                  <span>Dec 26, 2024</span>
-                </div>
-              </div>
-            )}
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Range</label>
+            <Select value={testingRange} onValueChange={handleTestingRangeChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select range" />
+              </SelectTrigger>
+              <SelectContent>
+                {rangeOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>
