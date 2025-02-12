@@ -119,9 +119,11 @@ export const ModelTestingTab = ({
     generateNewTestData('moving-avg', {}, `${trainingDays},${testingDays}`);
   };
 
+  // Add console log to debug rendering
+  console.log('ModelTestingTab rendering');
+
   return (
-    <Card className="p-6 space-y-8">
-      {/* Put Training and Testing periods side by side */}
+    <Card className="p-6">
       <div className="grid grid-cols-2 gap-8">
         {/* Training Period */}
         <div className="space-y-6">
@@ -272,10 +274,12 @@ export const ModelTestingTab = ({
         </div>
       </div>
 
-      <TestingChart
-        historicalData={testData}
-        predictedData={predictedData}
-      />
+      <div className="mt-8">
+        <TestingChart
+          historicalData={testData}
+          predictedData={predictedData}
+        />
+      </div>
     </Card>
   );
 };
