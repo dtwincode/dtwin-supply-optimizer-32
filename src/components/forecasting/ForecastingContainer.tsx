@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ForecastMetricsCards } from "./ForecastMetricsCards";
@@ -24,6 +23,7 @@ import {
 } from "@/constants/forecasting";
 import { findBestFitModel } from "@/utils/forecasting/modelSelection";
 import { ModelConfig } from "@/types/models/commonTypes";
+import { Json } from "@/integrations/supabase/types";
 
 export const ForecastingContainer = () => {
   // Set initial dates to show our 2024 data
@@ -214,18 +214,25 @@ export const ForecastingContainer = () => {
     });
   };
 
-  const handleScenarioLoad = (scenario: any) => {
+  const handleScenarioLoad = (scenario: {
+    id: string;
+    name: string;
+    model: string;
+    horizon: string;
+    parameters: ModelConfig[];
+    forecast_data: any[];
+  }) => {
     setSelectedModel(scenario.model);
     setHorizon(scenario.horizon);
     
     // Ensure proper type casting for model configurations
     if (Array.isArray(scenario.parameters)) {
-      const typedParams = scenario.parameters.map((param: Json) => {
+      const typedParams = scenario.parameters.map((param) => {
         if (typeof param === 'object' && param !== null) {
           const modelConfig: ModelConfig = {
-            id: (param as any).id || '',
-            name: (param as any).name || '',
-            parameters: (param as any).parameters || []
+            id: param.id || '',
+            name: param.name || '',
+            parameters: param.parameters || []
           };
           return modelConfig;
         }
