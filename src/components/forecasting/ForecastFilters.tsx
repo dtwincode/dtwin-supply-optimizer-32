@@ -102,27 +102,32 @@ export const ForecastFilters = ({
 
   return (
     <div 
-      className="w-full relative bg-background rounded-lg shadow-sm transition-all duration-300"
+      className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40"
       onMouseLeave={() => setIsExpanded(false)}
     >
       <Button
         variant="ghost"
-        className="w-full flex items-center justify-between p-4 hover:bg-accent/50"
+        className="w-full flex items-center justify-between p-6 hover:bg-primary/5"
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <div className="flex items-center gap-2">
-          <span className="font-medium">Filters</span>
+        <div className="flex items-center gap-3">
+          <span className="text-lg font-semibold text-primary">Filters</span>
           {activeFilterCount > 0 && (
-            <span className="px-2 py-1 text-xs font-semibold bg-primary text-primary-foreground rounded-full">
+            <span className="px-3 py-1.5 text-sm font-bold bg-primary text-primary-foreground rounded-full">
               {activeFilterCount}
             </span>
           )}
         </div>
-        {isExpanded ? (
-          <ChevronUp className="h-4 w-4" />
-        ) : (
-          <ChevronDown className="h-4 w-4" />
-        )}
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">
+            {isExpanded ? "Click to collapse" : "Click to expand"}
+          </span>
+          {isExpanded ? (
+            <ChevronUp className="h-5 w-5 text-primary" />
+          ) : (
+            <ChevronDown className="h-5 w-5 text-primary" />
+          )}
+        </div>
       </Button>
 
       <AnimatePresence>
@@ -134,7 +139,7 @@ export const ForecastFilters = ({
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="p-4 space-y-4 border-t">
+            <div className="p-6 space-y-6 border-t bg-primary/5">
               <div className="flex gap-4">
                 <ForecastingSearchFilter
                   searchQuery={searchQuery}
