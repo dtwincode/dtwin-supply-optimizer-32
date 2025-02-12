@@ -24,8 +24,11 @@ export const ForecastDistributionTab = ({
     // Calculate confidence bounds using the variance
     const confidenceInterval = Math.sqrt(row.variance) * 1.96; // 95% confidence interval
     
+    // Safely format the date with a fallback
+    const formattedDate = row.date ? format(parseISO(row.date), 'MMM dd, yyyy') : 'No date';
+    
     return {
-      week: format(parseISO(row.date), 'MMM dd, yyyy'),
+      week: formattedDate,
       forecast: row.forecast,
       lower: Math.max(0, row.forecast - confidenceInterval),
       upper: row.forecast + confidenceInterval,
