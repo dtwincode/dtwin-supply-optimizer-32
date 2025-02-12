@@ -342,6 +342,50 @@ export type Database = {
           },
         ]
       }
+      forecast_test_periods: {
+        Row: {
+          accuracy_metrics: Json | null
+          created_at: string | null
+          id: string
+          scenario_id: string | null
+          testing_end_date: string
+          testing_start_date: string
+          training_end_date: string
+          training_start_date: string
+          updated_at: string | null
+        }
+        Insert: {
+          accuracy_metrics?: Json | null
+          created_at?: string | null
+          id?: string
+          scenario_id?: string | null
+          testing_end_date: string
+          testing_start_date: string
+          training_end_date: string
+          training_start_date: string
+          updated_at?: string | null
+        }
+        Update: {
+          accuracy_metrics?: Json | null
+          created_at?: string | null
+          id?: string
+          scenario_id?: string | null
+          testing_end_date?: string
+          testing_start_date?: string
+          training_end_date?: string
+          training_start_date?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forecast_test_periods_scenario_id_fkey"
+            columns: ["scenario_id"]
+            isOneToOne: false
+            referencedRelation: "scenarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inventory_data: {
         Row: {
           category: string | null
