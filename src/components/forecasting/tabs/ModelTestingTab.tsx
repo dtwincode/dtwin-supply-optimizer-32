@@ -1,27 +1,11 @@
 
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
 import { TestingChart } from "@/components/forecasting/TestingChart";
 import { useState } from "react";
 import { useTestData } from "@/hooks/useTestData";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
 import { differenceInDays } from "date-fns";
+import { PeriodSelector } from "../test-components/PeriodSelector";
 
 interface ModelTestingTabProps {
   historicalData: any[];
@@ -119,159 +103,28 @@ export const ModelTestingTab = ({
     generateNewTestData('moving-avg', {}, `${trainingDays},${testingDays}`);
   };
 
-  // Add console log to debug rendering
-  console.log('ModelTestingTab rendering');
-
   return (
     <Card className="p-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Training Period */}
-        <div className="space-y-6">
-          <h3 className="text-lg font-semibold">Training Period</h3>
-          <div className="space-y-4">
-            <div className="w-full">
-              <Select value={trainingRange} onValueChange={(value) => handleRangeChange('training', value)}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Training Period Range" />
-                </SelectTrigger>
-                <SelectContent>
-                  {rangeOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+        <PeriodSelector
+          title="Training Period"
+          range={trainingRange}
+          fromDate={trainingFromDate}
+          toDate={trainingToDate}
+          onRangeChange={(value) => handleRangeChange('training', value)}
+          onDateChange={(type, date) => handleDateChange('training', type, date)}
+          rangeOptions={rangeOptions}
+        />
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !trainingFromDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {trainingFromDate ? format(trainingFromDate, "MMM dd, yyyy") : "Select date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={trainingFromDate}
-                      onSelect={(date) => handleDateChange('training', 'from', date)}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !trainingToDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {trainingToDate ? format(trainingToDate, "MMM dd, yyyy") : "Select date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={trainingToDate}
-                      onSelect={(date) => handleDateChange('training', 'to', date)}
-                      initialFocus
-                      fromDate={trainingFromDate}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Testing Period */}
-        <div className="space-y-6">
-          <h3 className="text-lg font-semibold">Testing Period</h3>
-          <div className="space-y-4">
-            <div className="w-full">
-              <Select value={testingRange} onValueChange={(value) => handleRangeChange('testing', value)}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Testing Period Range" />
-                </SelectTrigger>
-                <SelectContent>
-                  {rangeOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !testingFromDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {testingFromDate ? format(testingFromDate, "MMM dd, yyyy") : "Select date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={testingFromDate}
-                      onSelect={(date) => handleDateChange('testing', 'from', date)}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !testingToDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {testingToDate ? format(testingToDate, "MMM dd, yyyy") : "Select date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={testingToDate}
-                      onSelect={(date) => handleDateChange('testing', 'to', date)}
-                      initialFocus
-                      fromDate={testingFromDate}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
-          </div>
-        </div>
+        <PeriodSelector
+          title="Testing Period"
+          range={testingRange}
+          fromDate={testingFromDate}
+          toDate={testingToDate}
+          onRangeChange={(value) => handleRangeChange('testing', value)}
+          onDateChange={(type, date) => handleDateChange('testing', type, date)}
+          rangeOptions={rangeOptions}
+        />
       </div>
 
       <div className="mt-8">
