@@ -48,17 +48,23 @@ export const LocationFilter = ({
     const fetchLocationHierarchy = async () => {
       try {
         setIsLoading(true);
+        console.log('Fetching location hierarchy...');
         const { data, error } = await supabase
           .from('location_hierarchy_view')
           .select('*')
           .eq('active', true)
           .order('hierarchy_level', { ascending: true });
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error fetching location hierarchy:', error);
+          throw error;
+        }
 
         if (data) {
+          console.log('Location hierarchy data:', data);
           // Process location types
           const types = Array.from(new Set(data.map(item => item.location_type).filter(Boolean)));
+          console.log('Location types:', types);
           setLocationTypes(types);
 
           // Build hierarchical structure
@@ -79,6 +85,7 @@ export const LocationFilter = ({
           };
 
           const hierarchy = buildHierarchy();
+          console.log('Built hierarchy:', hierarchy);
           setLocationHierarchy(hierarchy);
         }
       } catch (error) {
@@ -140,6 +147,17 @@ export const LocationFilter = ({
     );
   }
 
+  // If no location types are found, show a message
+  if (locationTypes.length === 0) {
+    return (
+      <div className="p-4 bg-muted/30 rounded-lg">
+        <p className="text-sm text-muted-foreground">
+          No location hierarchy found. Please add locations in settings.
+        </p>
+      </div>
+    );
+  }
+
   const renderLocationLevel = (level: number, parentId: string | null = null) => {
     const locations = locationHierarchy.filter(loc => 
       loc.hierarchy_level === level && loc.parent_id === parentId
@@ -148,6 +166,7 @@ export const LocationFilter = ({
     if (locations.length === 0) return null;
 
     const locationType = locations[0]?.location_type || `Level ${level}`;
+    console.log(`Rendering ${locationType} level with ${locations.length} locations`);
 
     return (
       <Select
@@ -182,7 +201,12 @@ export const LocationFilter = ({
 
   return (
     <div className="flex flex-wrap gap-4 p-4 bg-muted/30 rounded-lg">
-      {locationTypes.map((_, index) => renderLocationLevel(index))}
+      <div className="w-full">
+        <h3 className="text-sm font-medium mb-2">Location Filters</h3>
+        <div className="flex flex-wrap gap-4">
+          {locationTypes.map((_, index) => renderLocationLevel(index))}
+        </div>
+      </div>
     </div>
   );
 };
