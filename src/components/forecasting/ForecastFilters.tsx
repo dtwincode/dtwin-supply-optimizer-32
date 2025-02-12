@@ -1,8 +1,14 @@
 
+import { useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { ForecastingSearchFilter } from "./filters/ForecastingSearchFilter";
 import { LocationFilter } from "./filters/LocationFilter";
 import { ChannelFilter } from "./filters/ChannelFilter";
 import { ProductFilter } from "./filters/ProductFilter";
+import { Button } from "@/components/ui/button";
+
+<lov-add-dependency>framer-motion@latest</lov-add-dependency>
 
 interface ForecastFiltersProps {
   searchQuery: string;
@@ -71,55 +77,115 @@ export const ForecastFilters = ({
   warehouses,
   forecastData,
 }: ForecastFiltersProps) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // Function to get the number of active filters
+  const getActiveFilterCount = () => {
+    let count = 0;
+    if (selectedRegion !== "all") count++;
+    if (selectedCity !== "all") count++;
+    if (selectedChannel !== "all") count++;
+    if (selectedWarehouse !== "all") count++;
+    if (selectedL1MainProd !== "all") count++;
+    if (selectedL2ProdLine !== "all") count++;
+    if (selectedL3ProdCategory !== "all") count++;
+    if (selectedL4DeviceMake !== "all") count++;
+    if (selectedL5ProdSubCategory !== "all") count++;
+    if (selectedL6DeviceModel !== "all") count++;
+    if (selectedL7DeviceColor !== "all") count++;
+    if (selectedL8DeviceStorage !== "all") count++;
+    if (searchQuery) count++;
+    return count;
+  };
+
+  const activeFilterCount = getActiveFilterCount();
+
   return (
-    <div className="flex flex-col gap-4 w-full max-w-4xl">
-      <div className="flex gap-4">
-        <ForecastingSearchFilter
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-        />
-        <LocationFilter
-          selectedRegion={selectedRegion}
-          setSelectedRegion={setSelectedRegion}
-          selectedCity={selectedCity}
-          setSelectedCity={setSelectedCity}
-          regions={regions}
-          cities={cities}
-        />
-      </div>
+    <div 
+      className="w-full relative bg-background rounded-lg shadow-sm transition-all duration-300"
+      onMouseLeave={() => setIsExpanded(false)}
+    >
+      <Button
+        variant="ghost"
+        className="w-full flex items-center justify-between p-4 hover:bg-accent/50"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <div className="flex items-center gap-2">
+          <span className="font-medium">Filters</span>
+          {activeFilterCount > 0 && (
+            <span className="px-2 py-1 text-xs font-semibold bg-primary text-primary-foreground rounded-full">
+              {activeFilterCount}
+            </span>
+          )}
+        </div>
+        {isExpanded ? (
+          <ChevronUp className="h-4 w-4" />
+        ) : (
+          <ChevronDown className="h-4 w-4" />
+        )}
+      </Button>
 
-      <div className="flex gap-4">
-        <ChannelFilter
-          selectedChannel={selectedChannel}
-          setSelectedChannel={setSelectedChannel}
-          selectedWarehouse={selectedWarehouse}
-          setSelectedWarehouse={setSelectedWarehouse}
-          channelTypes={channelTypes}
-          warehouses={warehouses}
-        />
-      </div>
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="p-4 space-y-4 border-t">
+              <div className="flex gap-4">
+                <ForecastingSearchFilter
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                />
+                <LocationFilter
+                  selectedRegion={selectedRegion}
+                  setSelectedRegion={setSelectedRegion}
+                  selectedCity={selectedCity}
+                  setSelectedCity={setSelectedCity}
+                  regions={regions}
+                  cities={cities}
+                />
+              </div>
 
-      <div className="flex gap-4">
-        <ProductFilter
-          selectedL1MainProd={selectedL1MainProd}
-          setSelectedL1MainProd={setSelectedL1MainProd}
-          selectedL2ProdLine={selectedL2ProdLine}
-          setSelectedL2ProdLine={setSelectedL2ProdLine}
-          selectedL3ProdCategory={selectedL3ProdCategory}
-          setSelectedL3ProdCategory={setSelectedL3ProdCategory}
-          selectedL4DeviceMake={selectedL4DeviceMake}
-          setSelectedL4DeviceMake={setSelectedL4DeviceMake}
-          selectedL5ProdSubCategory={selectedL5ProdSubCategory}
-          setSelectedL5ProdSubCategory={setSelectedL5ProdSubCategory}
-          selectedL6DeviceModel={selectedL6DeviceModel}
-          setSelectedL6DeviceModel={setSelectedL6DeviceModel}
-          selectedL7DeviceColor={selectedL7DeviceColor}
-          setSelectedL7DeviceColor={setSelectedL7DeviceColor}
-          selectedL8DeviceStorage={selectedL8DeviceStorage}
-          setSelectedL8DeviceStorage={setSelectedL8DeviceStorage}
-          forecastData={forecastData}
-        />
-      </div>
+              <div className="flex gap-4">
+                <ChannelFilter
+                  selectedChannel={selectedChannel}
+                  setSelectedChannel={setSelectedChannel}
+                  selectedWarehouse={selectedWarehouse}
+                  setSelectedWarehouse={setSelectedWarehouse}
+                  channelTypes={channelTypes}
+                  warehouses={warehouses}
+                />
+              </div>
+
+              <div className="flex gap-4">
+                <ProductFilter
+                  selectedL1MainProd={selectedL1MainProd}
+                  setSelectedL1MainProd={setSelectedL1MainProd}
+                  selectedL2ProdLine={selectedL2ProdLine}
+                  setSelectedL2ProdLine={setSelectedL2ProdLine}
+                  selectedL3ProdCategory={selectedL3ProdCategory}
+                  setSelectedL3ProdCategory={setSelectedL3ProdCategory}
+                  selectedL4DeviceMake={selectedL4DeviceMake}
+                  setSelectedL4DeviceMake={setSelectedL4DeviceMake}
+                  selectedL5ProdSubCategory={selectedL5ProdSubCategory}
+                  setSelectedL5ProdSubCategory={setSelectedL5ProdSubCategory}
+                  selectedL6DeviceModel={selectedL6DeviceModel}
+                  setSelectedL6DeviceModel={setSelectedL6DeviceModel}
+                  selectedL7DeviceColor={selectedL7DeviceColor}
+                  setSelectedL7DeviceColor={setSelectedL7DeviceColor}
+                  selectedL8DeviceStorage={selectedL8DeviceStorage}
+                  setSelectedL8DeviceStorage={setSelectedL8DeviceStorage}
+                  forecastData={forecastData}
+                />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
