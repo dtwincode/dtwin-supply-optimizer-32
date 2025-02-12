@@ -29,12 +29,14 @@ export interface PriceAnalysis {
 }
 
 export interface SavedScenario {
-  id: number;  // Changed to number to match database schema
+  id: string;
   name: string;
   model: string;
   horizon: string;
   parameters?: Json;
   forecast_data?: Json;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface MarketEventType {
