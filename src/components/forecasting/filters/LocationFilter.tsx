@@ -6,8 +6,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+
+interface LocationNode {
+  id: string;
+  location_id: string;
+  display_name: string;
+  location_type: string;
+  parent_id: string | null;
+  hierarchy_level: number;
+  children?: LocationNode[];
+  path: string[];
+  active: boolean;
+}
 
 interface LocationFilterProps {
   selectedRegion: string;
@@ -23,97 +38,151 @@ export const LocationFilter = ({
   setSelectedRegion,
   selectedCity,
   setSelectedCity,
-  regions,
-  cities,
 }: LocationFilterProps) => {
-  const [locationData, setLocationData] = useState<{
-    regions: string[];
-    cities: { [key: string]: string[] };
-  }>({
-    regions: [],
-    cities: {},
-  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [locationHierarchy, setLocationHierarchy] = useState<LocationNode[]>([]);
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+  const [locationTypes, setLocationTypes] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchLocationHierarchy = async () => {
       try {
+        setIsLoading(true);
         const { data, error } = await supabase
-          .from('location_hierarchy')
-          .select('region, city')
-          .eq('active', true);
+          .from('location_hierarchy_view')
+          .select('*')
+          .eq('active', true)
+          .order('hierarchy_level', { ascending: true });
 
         if (error) throw error;
 
         if (data) {
-          // Process regions
-          const uniqueRegions = Array.from(new Set(data.map(item => item.region).filter(Boolean)));
-          
-          // Process cities by region
-          const citiesByRegion = data.reduce((acc, item) => {
-            if (item.region && item.city) {
-              if (!acc[item.region]) {
-                acc[item.region] = new Set();
-              }
-              acc[item.region].add(item.city);
-            }
-            return acc;
-          }, {} as { [key: string]: Set<string> });
+          // Process location types
+          const types = Array.from(new Set(data.map(item => item.location_type).filter(Boolean)));
+          setLocationTypes(types);
 
-          // Convert Sets to Arrays
-          const processedCities = Object.fromEntries(
-            Object.entries(citiesByRegion).map(([region, citySet]) => [
-              region,
-              Array.from(citySet),
-            ])
-          );
+          // Build hierarchical structure
+          const buildHierarchy = (parentId: string | null = null): LocationNode[] => {
+            return data
+              .filter(item => item.parent_id === parentId)
+              .map(item => ({
+                id: item.id,
+                location_id: item.location_id,
+                display_name: item.display_name || item.location_desc || item.location_id,
+                location_type: item.location_type,
+                parent_id: item.parent_id,
+                hierarchy_level: item.hierarchy_level,
+                path: item.path,
+                active: item.active,
+                children: buildHierarchy(item.location_id)
+              }));
+          };
 
-          setLocationData({
-            regions: uniqueRegions,
-            cities: processedCities,
-          });
+          const hierarchy = buildHierarchy();
+          setLocationHierarchy(hierarchy);
         }
       } catch (error) {
         console.error('Error fetching location hierarchy:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchLocationHierarchy();
   }, []);
 
-  const handleRegionChange = (newRegion: string) => {
-    setSelectedRegion(newRegion);
-    setSelectedCity("all"); // Reset city when region changes
+  const handleLocationSelect = (locationId: string, hierarchyLevel: number) => {
+    // Clear selections at and below the current hierarchy level
+    const newSelections = selectedLocations.filter((_, index) => index < hierarchyLevel);
+    
+    // Add the new selection if it's not "all"
+    if (locationId !== "all") {
+      newSelections[hierarchyLevel] = locationId;
+    }
+    
+    setSelectedLocations(newSelections);
+
+    // Update region and city based on the selections
+    const locationNode = findLocationNode(locationHierarchy, locationId);
+    if (locationNode) {
+      // Update based on location type
+      switch (locationNode.location_type.toLowerCase()) {
+        case 'region':
+          setSelectedRegion(locationId);
+          setSelectedCity('all');
+          break;
+        case 'city':
+          setSelectedCity(locationId);
+          break;
+        default:
+          break;
+      }
+    }
+  };
+
+  const findLocationNode = (nodes: LocationNode[], locationId: string): LocationNode | null => {
+    for (const node of nodes) {
+      if (node.location_id === locationId) return node;
+      if (node.children) {
+        const found = findLocationNode(node.children, locationId);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-2">
+        <Skeleton className="h-10 w-[180px]" />
+        <Skeleton className="h-10 w-[180px]" />
+      </div>
+    );
+  }
+
+  const renderLocationLevel = (level: number, parentId: string | null = null) => {
+    const locations = locationHierarchy.filter(loc => 
+      loc.hierarchy_level === level && loc.parent_id === parentId
+    );
+
+    if (locations.length === 0) return null;
+
+    const locationType = locations[0]?.location_type || `Level ${level}`;
+
+    return (
+      <Select
+        key={`level-${level}`}
+        value={selectedLocations[level] || "all"}
+        onValueChange={(value) => handleLocationSelect(value, level)}
+        disabled={level > 0 && !selectedLocations[level - 1]}
+      >
+        <SelectTrigger className="w-[200px]">
+          <SelectValue placeholder={`Select ${locationType}`} />
+        </SelectTrigger>
+        <SelectContent>
+          <ScrollArea className="h-[200px]">
+            <SelectItem value="all">All {locationType}s</SelectItem>
+            {locations.map(location => (
+              <SelectItem key={location.location_id} value={location.location_id}>
+                <div className="flex items-center justify-between w-full">
+                  <span>{location.display_name}</span>
+                  {location.children?.length > 0 && (
+                    <Badge variant="secondary" className="ml-2">
+                      {location.children.length}
+                    </Badge>
+                  )}
+                </div>
+              </SelectItem>
+            ))}
+          </ScrollArea>
+        </SelectContent>
+      </Select>
+    );
   };
 
   return (
-    <div className="flex gap-4">
-      <Select value={selectedRegion} onValueChange={handleRegionChange}>
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Select Region" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Regions</SelectItem>
-          {locationData.regions.map(region => (
-            <SelectItem key={region} value={region}>{region}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      
-      <Select 
-        value={selectedCity} 
-        onValueChange={setSelectedCity}
-        disabled={selectedRegion === "all"}
-      >
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Select City" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Cities</SelectItem>
-          {selectedRegion !== "all" && locationData.cities[selectedRegion]?.map(city => (
-            <SelectItem key={city} value={city}>{city}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+    <div className="flex flex-wrap gap-4 p-4 bg-muted/30 rounded-lg">
+      {locationTypes.map((_, index) => renderLocationLevel(index))}
     </div>
   );
 };

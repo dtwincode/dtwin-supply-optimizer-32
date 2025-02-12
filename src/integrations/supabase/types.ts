@@ -408,13 +408,22 @@ export type Database = {
           channel: string | null
           channel_id: string
           city: string | null
+          code: string | null
+          coordinates: Json | null
           country: string | null
           created_at: string | null
+          display_name: string | null
+          hierarchy_level: number | null
           id: string
+          last_updated_at: string | null
+          last_updated_by: string | null
           location_desc: string | null
           location_description: string | null
           location_id: string
+          location_type: string | null
+          metadata: Json | null
           org_id: string | null
+          parent_id: string | null
           region: string | null
           sub_channel: string | null
           updated_at: string | null
@@ -425,13 +434,22 @@ export type Database = {
           channel?: string | null
           channel_id: string
           city?: string | null
+          code?: string | null
+          coordinates?: Json | null
           country?: string | null
           created_at?: string | null
+          display_name?: string | null
+          hierarchy_level?: number | null
           id?: string
+          last_updated_at?: string | null
+          last_updated_by?: string | null
           location_desc?: string | null
           location_description?: string | null
           location_id: string
+          location_type?: string | null
+          metadata?: Json | null
           org_id?: string | null
+          parent_id?: string | null
           region?: string | null
           sub_channel?: string | null
           updated_at?: string | null
@@ -442,13 +460,22 @@ export type Database = {
           channel?: string | null
           channel_id?: string
           city?: string | null
+          code?: string | null
+          coordinates?: Json | null
           country?: string | null
           created_at?: string | null
+          display_name?: string | null
+          hierarchy_level?: number | null
           id?: string
+          last_updated_at?: string | null
+          last_updated_by?: string | null
           location_desc?: string | null
           location_description?: string | null
           location_id?: string
+          location_type?: string | null
+          metadata?: Json | null
           org_id?: string | null
+          parent_id?: string | null
           region?: string | null
           sub_channel?: string | null
           updated_at?: string | null
@@ -974,7 +1001,26 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      location_hierarchy_view: {
+        Row: {
+          active: boolean | null
+          channel: string | null
+          channel_id: string | null
+          city: string | null
+          country: string | null
+          display_name: string | null
+          hierarchy_level: number | null
+          id: string | null
+          level: number | null
+          location_id: string | null
+          location_type: string | null
+          parent_id: string | null
+          path: string[] | null
+          region: string | null
+          warehouse: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
