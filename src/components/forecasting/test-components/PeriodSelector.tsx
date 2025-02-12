@@ -32,7 +32,7 @@ export const PeriodSelector = ({
     <div className="space-y-6">
       <Select value={range} onValueChange={onRangeChange}>
         <SelectTrigger className="w-full h-16 px-8 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 rounded-3xl transition-all duration-200 shadow-lg">
-          <SelectValue placeholder={title} className="text-blue-900 text-lg font-semibold" />
+          <SelectValue placeholder="Select a date range" className="text-blue-900 text-lg font-semibold" />
         </SelectTrigger>
         <SelectContent className="bg-white border-2 border-blue-200 rounded-3xl shadow-2xl overflow-hidden mt-2 p-2">
           {rangeOptions.map((option) => (
