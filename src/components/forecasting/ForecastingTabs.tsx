@@ -55,8 +55,10 @@ export const ForecastingTabs = ({
   calculatePriceAnalysis,
   forecastTableData,
 }: ForecastingTabsProps) => {
+  console.log('Active tab:', activeTab); // Debug log
+
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+    <Tabs defaultValue="testing" value={activeTab} onValueChange={setActiveTab} className="w-full">
       <TabsList className="w-full">
         <TabsTrigger value="testing">Model Testing</TabsTrigger>
         <TabsTrigger value="forecast">Forecast Analysis</TabsTrigger>
