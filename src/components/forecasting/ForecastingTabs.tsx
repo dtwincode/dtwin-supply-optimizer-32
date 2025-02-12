@@ -56,8 +56,8 @@ export const ForecastingTabs = ({
   forecastTableData,
 }: ForecastingTabsProps) => {
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab}>
-      <TabsList>
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <TabsList className="w-full">
         <TabsTrigger value="testing">Model Testing</TabsTrigger>
         <TabsTrigger value="forecast">Forecast Analysis</TabsTrigger>
         <TabsTrigger value="distribution">Forecast Distribution</TabsTrigger>
@@ -67,7 +67,7 @@ export const ForecastingTabs = ({
         <TabsTrigger value="external">External Factors</TabsTrigger>
       </TabsList>
 
-      <TabsContent value="testing">
+      <TabsContent value="testing" className="mt-6">
         <ModelTestingTab
           historicalData={historicalData}
           predictedData={filteredData}
