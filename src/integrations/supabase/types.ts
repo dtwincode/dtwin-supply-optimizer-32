@@ -636,6 +636,61 @@ export type Database = {
         }
         Relationships: []
       }
+      model_version_applications: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          location_id: string | null
+          model_version_id: string | null
+          performance_metrics: Json | null
+          product_code: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          location_id?: string | null
+          model_version_id?: string | null
+          performance_metrics?: Json | null
+          product_code?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          location_id?: string | null
+          model_version_id?: string | null
+          performance_metrics?: Json | null
+          product_code?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "model_version_applications_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "location_hierarchy"
+            referencedColumns: ["location_id"]
+          },
+          {
+            foreignKeyName: "model_version_applications_model_version_id_fkey"
+            columns: ["model_version_id"]
+            isOneToOne: false
+            referencedRelation: "model_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "model_version_applications_product_code_fkey"
+            columns: ["product_code"]
+            isOneToOne: false
+            referencedRelation: "product_hierarchy"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
       model_versions: {
         Row: {
           accuracy_metrics: Json | null

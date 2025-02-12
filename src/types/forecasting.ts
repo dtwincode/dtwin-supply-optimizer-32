@@ -1,4 +1,3 @@
-
 import { Json } from '@/integrations/supabase/types';
 
 export interface WeatherData {
@@ -123,4 +122,27 @@ export interface SeasonalityPattern {
   last_updated_at: string;
   configuration: Record<string, any>;
   metadata: Record<string, any>;
+}
+
+export interface ModelVersionApplication {
+  id: string;
+  model_version_id: string;
+  location_id: string;
+  product_code: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  performance_metrics: {
+    mape: number | null;
+    mae: number | null;
+    rmse: number | null;
+    last_evaluation_date: string | null;
+  };
+  location_hierarchy?: {
+    display_name: string;
+    location_type: string;
+  };
+  product_hierarchy?: {
+    name: string;
+  };
 }
