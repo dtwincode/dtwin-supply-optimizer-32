@@ -8,7 +8,7 @@ interface TestingChartProps {
 }
 
 export const TestingChart = ({ historicalData, predictedData }: TestingChartProps) => {
-  // Add console log to check data being passed
+  // Add console logs to check data being passed
   console.log('TestingChart - historicalData:', historicalData);
   console.log('TestingChart - predictedData:', predictedData);
 
