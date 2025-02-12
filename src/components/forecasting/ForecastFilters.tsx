@@ -8,8 +8,6 @@ import { ChannelFilter } from "./filters/ChannelFilter";
 import { ProductFilter } from "./filters/ProductFilter";
 import { Button } from "@/components/ui/button";
 
-<lov-add-dependency>framer-motion@latest</lov-add-dependency>
-
 interface ForecastFiltersProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
@@ -79,7 +77,6 @@ export const ForecastFilters = ({
 }: ForecastFiltersProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Function to get the number of active filters
   const getActiveFilterCount = () => {
     let count = 0;
     if (selectedRegion !== "all") count++;
