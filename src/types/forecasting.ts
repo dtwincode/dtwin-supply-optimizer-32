@@ -32,6 +32,8 @@ export interface SavedScenario {
   name: string;
   model: string;
   horizon: string;
+  parameters?: Json;
+  forecast_data?: Json;
 }
 
 export interface MarketEventType {

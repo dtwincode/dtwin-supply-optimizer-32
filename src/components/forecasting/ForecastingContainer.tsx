@@ -218,9 +218,13 @@ export const ForecastingContainer = () => {
     setSelectedModel(scenario.model);
     setHorizon(scenario.horizon);
     
-    // Ensure proper type casting for model configurations
-    if (scenario.parameters && Array.isArray(scenario.parameters)) {
-      const typedParams = scenario.parameters.map((param: any) => {
+    // Handle parameters if they exist
+    try {
+      const parsedParams = scenario.parameters ? 
+        (Array.isArray(scenario.parameters) ? scenario.parameters : JSON.parse(scenario.parameters as string)) 
+        : [];
+      
+      const typedParams = parsedParams.map((param: any) => {
         if (typeof param === 'object' && param !== null) {
           const modelConfig: ModelConfig = {
             id: param.id || '',
@@ -233,7 +237,8 @@ export const ForecastingContainer = () => {
       }).filter((param): param is ModelConfig => param !== null);
       
       setModelConfigs(typedParams.length > 0 ? typedParams : defaultModelConfigs);
-    } else {
+    } catch (error) {
+      console.error('Error parsing scenario parameters:', error);
       setModelConfigs(defaultModelConfigs);
     }
 
