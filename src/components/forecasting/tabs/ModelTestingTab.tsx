@@ -7,7 +7,6 @@ import { TestingChart } from "@/components/forecasting/TestingChart";
 import { useState } from "react";
 import { useTestData } from "@/hooks/useTestData";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import {
   Select,
   SelectContent,
