@@ -23,7 +23,7 @@ import {
 } from "@/constants/forecasting";
 import { findBestFitModel } from "@/utils/forecasting/modelSelection";
 import { ModelConfig } from "@/types/models/commonTypes";
-import { Json } from "@/integrations/supabase/types";
+import { SavedScenario } from "@/types/forecasting";
 
 export const ForecastingContainer = () => {
   // Set initial dates to show our 2024 data
@@ -214,20 +214,13 @@ export const ForecastingContainer = () => {
     });
   };
 
-  const handleScenarioLoad = (scenario: {
-    id: string;
-    name: string;
-    model: string;
-    horizon: string;
-    parameters: ModelConfig[];
-    forecast_data: any[];
-  }) => {
+  const handleScenarioLoad = (scenario: SavedScenario) => {
     setSelectedModel(scenario.model);
     setHorizon(scenario.horizon);
     
     // Ensure proper type casting for model configurations
-    if (Array.isArray(scenario.parameters)) {
-      const typedParams = scenario.parameters.map((param) => {
+    if (scenario.parameters && Array.isArray(scenario.parameters)) {
+      const typedParams = scenario.parameters.map((param: any) => {
         if (typeof param === 'object' && param !== null) {
           const modelConfig: ModelConfig = {
             id: param.id || '',
