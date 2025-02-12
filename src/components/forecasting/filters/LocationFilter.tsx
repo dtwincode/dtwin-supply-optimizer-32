@@ -68,7 +68,7 @@ export const LocationFilter = ({
               .map(item => ({
                 id: item.id,
                 location_id: item.location_id,
-                display_name: item.display_name || item.location_desc || item.location_id,
+                display_name: item.display_name || item.location_id,
                 location_type: item.location_type,
                 parent_id: item.parent_id,
                 hierarchy_level: item.hierarchy_level,
