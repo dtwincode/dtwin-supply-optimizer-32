@@ -31,12 +31,16 @@ export const PeriodSelector = ({
   return (
     <div className="space-y-4">
       <Select value={range} onValueChange={onRangeChange}>
-        <SelectTrigger className="w-full bg-white rounded-xl border-gray-200">
-          <SelectValue placeholder={title} />
+        <SelectTrigger className="w-full h-12 px-4 bg-white hover:bg-gray-50 border border-gray-200 rounded-lg transition-colors">
+          <SelectValue placeholder={title} className="text-gray-600" />
         </SelectTrigger>
-        <SelectContent className="bg-white">
+        <SelectContent className="bg-white border border-gray-200 rounded-lg shadow-lg">
           {rangeOptions.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
+            <SelectItem 
+              key={option.value} 
+              value={option.value}
+              className="hover:bg-gray-50 focus:bg-gray-50 cursor-pointer py-2.5"
+            >
               {option.label}
             </SelectItem>
           ))}
@@ -49,20 +53,21 @@ export const PeriodSelector = ({
             <Button
               variant="outline"
               className={cn(
-                "w-full justify-start text-left font-normal bg-white rounded-xl border-gray-200",
-                !fromDate && "text-muted-foreground"
+                "w-full h-12 justify-start text-left font-normal bg-white hover:bg-gray-50 border border-gray-200 rounded-lg transition-colors",
+                !fromDate && "text-gray-400"
               )}
             >
-              <CalendarIcon className="mr-2 h-4 w-4" />
+              <CalendarIcon className="mr-2 h-4 w-4 text-gray-500" />
               {fromDate ? format(fromDate, "MMM dd, yyyy") : "Select date"}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 bg-white" align="start">
+          <PopoverContent className="w-auto p-0 bg-white rounded-lg border border-gray-200 shadow-lg" align="start">
             <Calendar
               mode="single"
               selected={fromDate}
               onSelect={(date) => onDateChange('from', date)}
               initialFocus
+              className="rounded-lg"
             />
           </PopoverContent>
         </Popover>
@@ -72,21 +77,22 @@ export const PeriodSelector = ({
             <Button
               variant="outline"
               className={cn(
-                "w-full justify-start text-left font-normal bg-white rounded-xl border-gray-200",
-                !toDate && "text-muted-foreground"
+                "w-full h-12 justify-start text-left font-normal bg-white hover:bg-gray-50 border border-gray-200 rounded-lg transition-colors",
+                !toDate && "text-gray-400"
               )}
             >
-              <CalendarIcon className="mr-2 h-4 w-4" />
+              <CalendarIcon className="mr-2 h-4 w-4 text-gray-500" />
               {toDate ? format(toDate, "MMM dd, yyyy") : "Select date"}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 bg-white" align="start">
+          <PopoverContent className="w-auto p-0 bg-white rounded-lg border border-gray-200 shadow-lg" align="start">
             <Calendar
               mode="single"
               selected={toDate}
               onSelect={(date) => onDateChange('to', date)}
               initialFocus
               fromDate={fromDate}
+              className="rounded-lg"
             />
           </PopoverContent>
         </Popover>
