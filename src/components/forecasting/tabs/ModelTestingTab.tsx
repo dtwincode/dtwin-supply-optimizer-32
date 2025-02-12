@@ -1,7 +1,7 @@
 
 import { Card } from "@/components/ui/card";
 import { TestingChart } from "@/components/forecasting/TestingChart";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTestData } from "@/hooks/useTestData";
 import { useToast } from "@/hooks/use-toast";
 import { differenceInDays } from "date-fns";
@@ -31,6 +31,18 @@ export const ModelTestingTab = ({
   const [testingFromDate, setTestingFromDate] = useState<Date>(new Date('2024-07-01'));
   const [testingToDate, setTestingToDate] = useState<Date>(new Date('2024-12-31'));
 
+  // Debug logs
+  useEffect(() => {
+    console.log('ModelTestingTab rendering with states:', {
+      trainingRange,
+      trainingFromDate,
+      trainingToDate,
+      testingRange,
+      testingFromDate,
+      testingToDate
+    });
+  }, [trainingRange, trainingFromDate, trainingToDate, testingRange, testingFromDate, testingToDate]);
+
   // Range options
   const rangeOptions = [
     { label: "Last Month", value: "1m" },
@@ -41,6 +53,7 @@ export const ModelTestingTab = ({
   ];
 
   const handleRangeChange = (periodType: 'training' | 'testing', value: string) => {
+    console.log(`Handling range change for ${periodType}:`, value);
     const now = new Date();
     let start = new Date();
     
@@ -77,6 +90,7 @@ export const ModelTestingTab = ({
     type: 'from' | 'to',
     date: Date | undefined
   ) => {
+    console.log(`Handling date change for ${periodType} ${type}:`, date);
     if (!date) return;
     
     if (periodType === 'training') {
@@ -105,7 +119,7 @@ export const ModelTestingTab = ({
 
   return (
     <Card className="p-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8" style={{ minHeight: '400px' }}>
         <PeriodSelector
           title="Training Period"
           range={trainingRange}

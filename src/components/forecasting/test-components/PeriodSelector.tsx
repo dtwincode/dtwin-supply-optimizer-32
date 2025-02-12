@@ -26,8 +26,10 @@ export const PeriodSelector = ({
   onDateChange,
   rangeOptions,
 }: PeriodSelectorProps) => {
+  console.log(`Rendering PeriodSelector for ${title}`, { range, fromDate, toDate });
+  
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-white p-4 rounded-lg shadow-sm border">
       <h3 className="text-lg font-semibold">{title}</h3>
       <div className="space-y-4">
         <div className="w-full">
