@@ -124,9 +124,9 @@ export const ModelTestingTab = ({
 
   return (
     <Card className="p-6">
-      <div className="grid grid-cols-2 gap-8">
+      <div className="flex gap-8">
         {/* Training Period */}
-        <div className="space-y-6">
+        <div className="flex-1 space-y-6">
           <h3 className="text-lg font-semibold">Training Period</h3>
           <div className="space-y-4">
             <div className="w-full">
@@ -200,7 +200,7 @@ export const ModelTestingTab = ({
         </div>
 
         {/* Testing Period */}
-        <div className="space-y-6">
+        <div className="flex-1 space-y-6">
           <h3 className="text-lg font-semibold">Testing Period</h3>
           <div className="space-y-4">
             <div className="w-full">
