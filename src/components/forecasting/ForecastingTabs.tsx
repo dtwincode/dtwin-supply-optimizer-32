@@ -70,7 +70,8 @@ export const ForecastingTabs = ({
       <TabsContent value="testing">
         <ModelTestingTab
           historicalData={historicalData}
-          predictedData={[]}
+          predictedData={filteredData}
+          scenarioId="test-scenario"
         />
       </TabsContent>
 
