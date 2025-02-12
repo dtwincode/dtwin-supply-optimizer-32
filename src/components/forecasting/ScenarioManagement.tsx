@@ -125,7 +125,7 @@ export const ScenarioManagement = ({
     setScenarioName("");
   };
 
-  const handleDeleteScenario = async (id: number) => {
+  const handleDeleteScenario = async (id: string) => {
     const { error } = await supabase
       .from('scenarios')
       .delete()
@@ -188,9 +188,9 @@ export const ScenarioManagement = ({
       </div>
       <div className="flex gap-4 mb-4">
         <Select 
-          value={selectedScenario?.id?.toString()} 
+          value={selectedScenario?.id} 
           onValueChange={(value) => {
-            const scenario = savedScenarios.find(s => s.id === parseInt(value));
+            const scenario = savedScenarios.find(s => s.id === value);
             setSelectedScenario(scenario || null);
           }}
         >
@@ -199,16 +199,16 @@ export const ScenarioManagement = ({
           </SelectTrigger>
           <SelectContent>
             {savedScenarios.map(scenario => (
-              <SelectItem key={scenario.id} value={scenario.id.toString()}>
+              <SelectItem key={scenario.id} value={scenario.id}>
                 {scenario.name}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Select 
-          value={compareScenario?.id?.toString()}
+          value={compareScenario?.id}
           onValueChange={(value) => {
-            const scenario = savedScenarios.find(s => s.id === parseInt(value));
+            const scenario = savedScenarios.find(s => s.id === value);
             setCompareScenario(scenario || null);
           }}
         >
@@ -217,7 +217,7 @@ export const ScenarioManagement = ({
           </SelectTrigger>
           <SelectContent>
             {savedScenarios.map(scenario => (
-              <SelectItem key={scenario.id} value={scenario.id.toString()}>
+              <SelectItem key={scenario.id} value={scenario.id}>
                 {scenario.name}
               </SelectItem>
             ))}
