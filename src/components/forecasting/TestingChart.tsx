@@ -21,16 +21,14 @@ export const TestingChart = ({ historicalData, predictedData }: TestingChartProp
   };
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Demand Forecast</h3>
+    <Card className="p-6">
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold mb-4">Demand Forecast</h3>
         <ForecastMetricsCards metrics={mockMetrics} />
       </div>
-      <Card className="p-6">
-        <div className="border rounded-lg p-4">
-          <TestDataChart data={historicalData} />
-        </div>
-      </Card>
-    </div>
+      <div className="border rounded-lg p-4">
+        <TestDataChart data={historicalData} />
+      </div>
+    </Card>
   );
 };
