@@ -5,7 +5,7 @@ import { type ForecastData } from "@/components/forecasting/table/types";
 
 interface ForecastDistributionTabProps {
   forecastTableData: Array<{
-    date: string;
+    date: string | null;
     value: number;
     forecast: number;
     sku: string;
@@ -22,22 +22,35 @@ export const ForecastDistributionTab = ({
   // Transform the data to include confidence bounds based on variance
   const enhancedData: ForecastData[] = forecastTableData.map((row) => {
     // Calculate confidence bounds using the variance
-    const confidenceInterval = Math.sqrt(row.variance) * 1.96; // 95% confidence interval
+    const confidenceInterval = Math.sqrt(row.variance || 0) * 1.96; // 95% confidence interval
+    const forecast = row.forecast || 0;
     
     // Safely format the date with a fallback
-    const formattedDate = row.date ? format(parseISO(row.date), 'MMM dd, yyyy') : 'No date';
+    let formattedDate = 'No date';
+    try {
+      if (row.date) {
+        formattedDate = format(parseISO(row.date), 'MMM dd, yyyy');
+      }
+    } catch (error) {
+      console.error('Error parsing date:', row.date, error);
+    }
     
     return {
       week: formattedDate,
-      forecast: row.forecast,
-      lower: Math.max(0, row.forecast - confidenceInterval),
-      upper: row.forecast + confidenceInterval,
+      forecast: forecast,
+      lower: Math.max(0, forecast - confidenceInterval),
+      upper: forecast + confidenceInterval,
       sku: row.sku || 'N/A',
       category: row.category || 'N/A',
       subcategory: row.subcategory || 'N/A',
       id: row.id
     };
   });
+
+  // Only render if we have data
+  if (!forecastTableData || forecastTableData.length === 0) {
+    return <div className="p-4 text-muted-foreground">No forecast data available</div>;
+  }
 
   return <ForecastTable data={enhancedData} />;
 };
