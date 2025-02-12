@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ForecastMetricsCards } from "./ForecastMetricsCards";
@@ -32,7 +33,7 @@ export const ForecastingContainer = () => {
   const [selectedModel, setSelectedModel] = useState("moving-avg");
   const [horizon, setHorizon] = useState("12w");
   const [scenarioName, setScenarioName] = useState("");
-  const [selectedScenario, setSelectedScenario] = useState<any>(null);
+  const [selectedScenario, setSelectedScenario] = useState<Record<string, any> | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const [selectedCity, setSelectedCity] = useState<string>("all");
