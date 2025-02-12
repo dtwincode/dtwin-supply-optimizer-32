@@ -35,7 +35,7 @@ export const PeriodSelector = ({
             <SelectTrigger className="w-full">
               <SelectValue placeholder={`${title} Range`} />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white">
               {rangeOptions.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
@@ -60,7 +60,7 @@ export const PeriodSelector = ({
                   {fromDate ? format(fromDate, "MMM dd, yyyy") : "Select date"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
+              <PopoverContent className="w-auto p-0 bg-white" align="start">
                 <Calendar
                   mode="single"
                   selected={fromDate}
@@ -85,7 +85,7 @@ export const PeriodSelector = ({
                   {toDate ? format(toDate, "MMM dd, yyyy") : "Select date"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
+              <PopoverContent className="w-auto p-0 bg-white" align="start">
                 <Calendar
                   mode="single"
                   selected={toDate}
