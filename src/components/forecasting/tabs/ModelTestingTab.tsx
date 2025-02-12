@@ -125,8 +125,8 @@ export const ModelTestingTab = ({
         <PeriodSelector
           title="Training Period"
           range={trainingRange}
-          fromDate={trainingFromDate as Date}
-          toDate={trainingToDate as Date}
+          fromDate={trainingFromDate}
+          toDate={trainingToDate}
           onRangeChange={(value) => handleRangeChange('training', value)}
           onDateChange={(type, date) => handleDateChange('training', type, date)}
           rangeOptions={rangeOptions}
@@ -135,8 +135,8 @@ export const ModelTestingTab = ({
         <PeriodSelector
           title="Testing Period"
           range={testingRange}
-          fromDate={testingFromDate as Date}
-          toDate={testingToDate as Date}
+          fromDate={testingFromDate}
+          toDate={testingToDate}
           onRangeChange={(value) => handleRangeChange('testing', value)}
           onDateChange={(type, date) => handleDateChange('testing', type, date)}
           rangeOptions={rangeOptions}

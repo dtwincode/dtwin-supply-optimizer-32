@@ -10,8 +10,8 @@ import { cn } from "@/lib/utils";
 interface PeriodSelectorProps {
   title: string;
   range: string;
-  fromDate: Date;
-  toDate: Date;
+  fromDate: Date | null;
+  toDate: Date | null;
   onRangeChange: (value: string) => void;
   onDateChange: (type: 'from' | 'to', date: Date | undefined) => void;
   rangeOptions: { label: string; value: string; }[];
@@ -58,13 +58,13 @@ export const PeriodSelector = ({
               )}
             >
               <CalendarIcon className="mr-4 h-6 w-6 text-blue-500" />
-              {fromDate ? format(fromDate, "MMM dd, yyyy") : "Select date"}
+              {fromDate ? format(fromDate, "MMM dd, yyyy") : "Select start date"}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-3 bg-white rounded-3xl border-2 border-blue-200 shadow-2xl mt-2" align="start">
             <Calendar
               mode="single"
-              selected={fromDate}
+              selected={fromDate || undefined}
               onSelect={(date) => onDateChange('from', date)}
               initialFocus
               className="rounded-2xl"
@@ -82,16 +82,16 @@ export const PeriodSelector = ({
               )}
             >
               <CalendarIcon className="mr-4 h-6 w-6 text-blue-500" />
-              {toDate ? format(toDate, "MMM dd, yyyy") : "Select date"}
+              {toDate ? format(toDate, "MMM dd, yyyy") : "Select end date"}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-3 bg-white rounded-3xl border-2 border-blue-200 shadow-2xl mt-2" align="start">
             <Calendar
               mode="single"
-              selected={toDate}
+              selected={toDate || undefined}
               onSelect={(date) => onDateChange('to', date)}
               initialFocus
-              fromDate={fromDate}
+              fromDate={fromDate || undefined}
               className="rounded-2xl"
             />
           </PopoverContent>
