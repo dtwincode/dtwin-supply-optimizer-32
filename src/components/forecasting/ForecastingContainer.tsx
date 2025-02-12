@@ -218,7 +218,6 @@ export const ForecastingContainer = () => {
     setSelectedModel(scenario.model);
     setHorizon(scenario.horizon);
     
-    // Handle parameters if they exist
     try {
       const parsedParams = scenario.parameters ? 
         (Array.isArray(scenario.parameters) ? scenario.parameters : JSON.parse(scenario.parameters as string)) 

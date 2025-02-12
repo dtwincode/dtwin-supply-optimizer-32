@@ -1,3 +1,4 @@
+
 import { Json } from '@/integrations/supabase/types';
 
 export interface WeatherData {
@@ -28,7 +29,7 @@ export interface PriceAnalysis {
 }
 
 export interface SavedScenario {
-  id: number;
+  id: number;  // Changed to number to match database schema
   name: string;
   model: string;
   horizon: string;
