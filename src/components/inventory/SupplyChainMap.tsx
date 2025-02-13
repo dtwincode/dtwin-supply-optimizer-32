@@ -33,14 +33,26 @@ export const SupplyChainMap = () => {
         return;
       }
 
-      setLocations(data.map(loc => ({
-        id: loc.location_id,
-        name: loc.location_description || loc.location_id,
-        coordinates: loc.coordinates,
-        type: loc.channel,
-        level: loc.hierarchy_level,
-        parent_id: loc.parent_id
-      })));
+      // Transform and type-check the coordinates
+      const transformedLocations = data
+        .filter(loc => loc.coordinates && typeof loc.coordinates === 'object')
+        .map(loc => ({
+          id: loc.location_id,
+          name: loc.location_description || loc.location_id,
+          coordinates: {
+            lat: Number((loc.coordinates as any).lat),
+            lng: Number((loc.coordinates as any).lng)
+          },
+          type: loc.channel,
+          level: loc.hierarchy_level,
+          parent_id: loc.parent_id
+        }))
+        .filter(loc => 
+          !isNaN(loc.coordinates.lat) && 
+          !isNaN(loc.coordinates.lng)
+        );
+
+      setLocations(transformedLocations);
     };
 
     fetchLocations();
