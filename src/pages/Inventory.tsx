@@ -12,6 +12,7 @@ import InventorySummaryCards from "@/components/inventory/InventorySummaryCards"
 import { InventoryTabs } from "@/components/inventory/InventoryTabs";
 import { InventoryTab } from "@/components/inventory/InventoryTab";
 import { InventoryChart } from "@/components/inventory/InventoryChart";
+import { SupplyChainMap } from "@/components/inventory/SupplyChainMap";
 import { inventoryData } from "@/data/inventoryData";
 import { InventoryItem } from "@/types/inventory";
 
@@ -66,6 +67,8 @@ const Inventory = () => {
         </div>
 
         <InventorySummaryCards />
+        
+        <SupplyChainMap />
         
         <InventoryChart data={filteredData} />
 
