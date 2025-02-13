@@ -4,7 +4,6 @@ import { ForecastMetricsCards } from "@/components/forecasting/ForecastMetricsCa
 import { ModelSelectionCard } from "@/components/forecasting/ModelSelectionCard";
 import { ScenarioManagement } from "@/components/forecasting/ScenarioManagement";
 import { Card } from "@/components/ui/card";
-import { findBestFitModel } from "@/utils/forecasting/modelSelection";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { SavedScenario } from "@/types/forecasting";
@@ -32,22 +31,6 @@ export const ForecastAnalysisTab = ({
     });
   };
 
-  const handleOptimize = () => {
-    const actuals = filteredData.map(d => d.actual).filter(a => a !== null) as number[];
-    const modelResults = [{
-      modelId: "moving-avg",
-      modelName: "Moving Average",
-      forecast: filteredData.map(d => d.forecast)
-    }];
-
-    const bestModel = findBestFitModel(actuals, modelResults);
-    
-    toast({
-      title: "Best Model Selected",
-      description: `${bestModel.modelName} was selected as the optimal model`,
-    });
-  };
-
   const handleScenarioLoad = (scenario: SavedScenario) => {
     setSelectedModel(scenario.model);
     setHorizon(scenario.horizon);
@@ -58,12 +41,17 @@ export const ForecastAnalysisTab = ({
     });
   };
 
+  const handleParametersChange = (modelId: string, parameters: any[]) => {
+    console.log("Parameters updated for model:", modelId, parameters);
+    // Handle parameter changes if needed
+  };
+
   return (
     <div className="space-y-6">
       <ModelSelectionCard
         selectedModel={selectedModel}
         onModelChange={handleModelChange}
-        onOptimize={handleOptimize}
+        onParametersChange={handleParametersChange}
       />
       
       <Card className="p-6">
