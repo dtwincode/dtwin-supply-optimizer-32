@@ -1,7 +1,7 @@
 
 import { Card } from "@/components/ui/card";
 import { ForecastDataPoint } from "@/types/forecasting";
-import { ResponsiveContainer, ScatterChart, XAxis, YAxis, Tooltip, CartesianGrid, Scatter } from "recharts";
+import { ResponsiveContainer, ScatterChart, XAxis, YAxis, Tooltip, CartesianGrid, Scatter, BarChart, Bar } from "recharts";
 import { BoxPlot, BoxPlotDatum } from "@nivo/boxplot";
 
 interface DescriptiveAnalysisTabProps {
@@ -62,6 +62,32 @@ export const DescriptiveAnalysisTab = ({ filteredData = [] }: DescriptiveAnalysi
     }
   ];
 
+  // Prepare histogram data
+  const prepareHistogramData = (values: number[], bins = 10) => {
+    if (values.length === 0) return [];
+    
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const binWidth = (max - min) / bins;
+    
+    const histogram = Array(bins).fill(0);
+    
+    values.forEach(value => {
+      const binIndex = Math.min(Math.floor((value - min) / binWidth), bins - 1);
+      histogram[binIndex]++;
+    });
+    
+    return histogram.map((count, i) => ({
+      binStart: min + (i * binWidth),
+      binEnd: min + ((i + 1) * binWidth),
+      count,
+      label: `${(min + (i * binWidth)).toFixed(1)} - ${(min + ((i + 1) * binWidth)).toFixed(1)}`
+    }));
+  };
+
+  const actualHistogram = prepareHistogramData(actualValues);
+  const forecastHistogram = prepareHistogramData(forecastValues);
+
   // Calculate statistics for actual values
   const actualMean = actualValues.length > 0
     ? actualValues.reduce((a, b) => a + b, 0) / actualValues.length
@@ -80,42 +106,6 @@ export const DescriptiveAnalysisTab = ({ filteredData = [] }: DescriptiveAnalysi
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="p-4">
-          <h3 className="text-lg font-semibold mb-4">Actual vs Forecast Scatter Plot</h3>
-          <div className="h-[400px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-                <CartesianGrid />
-                <XAxis type="number" dataKey="actual" name="Actual" />
-                <YAxis type="number" dataKey="forecast" name="Forecast" />
-                <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-                <Scatter 
-                  name="Values" 
-                  data={scatterData} 
-                  fill="#8884d8"
-                />
-              </ScatterChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <h3 className="text-lg font-semibold mb-4">Distribution Box Plot</h3>
-          <div className="h-[400px]">
-            <BoxPlot
-              data={boxPlotData}
-              margin={{ top: 20, right: 20, bottom: 40, left: 40 }}
-              padding={0.15}
-              minValue={0}
-              maxValue={Math.max(...[...actualValues, ...forecastValues], 0)}
-              layout="vertical"
-              valueFormat={(value) => typeof value === 'number' ? value.toFixed(2) : '0'}
-            />
-          </div>
-        </Card>
-      </div>
-
       <Card className="p-4">
         <h3 className="text-lg font-semibold mb-4">Summary Statistics</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -135,6 +125,62 @@ export const DescriptiveAnalysisTab = ({ filteredData = [] }: DescriptiveAnalysi
             <p className="text-sm text-muted-foreground">Std Dev Forecast</p>
             <p className="text-lg font-semibold">{forecastStdDev.toFixed(2)}</p>
           </div>
+        </div>
+      </Card>
+
+      <Card className="p-4">
+        <h3 className="text-lg font-semibold mb-4">Actual vs Forecast Scatter Plot</h3>
+        <div className="h-[400px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+              <CartesianGrid />
+              <XAxis type="number" dataKey="actual" name="Actual" />
+              <YAxis type="number" dataKey="forecast" name="Forecast" />
+              <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+              <Scatter 
+                name="Values" 
+                data={scatterData} 
+                fill="#8884d8"
+              />
+            </ScatterChart>
+          </ResponsiveContainer>
+        </div>
+      </Card>
+
+      <Card className="p-4">
+        <h3 className="text-lg font-semibold mb-4">Distribution Box Plot</h3>
+        <div className="h-[400px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <BoxPlot
+              data={boxPlotData}
+              margin={{ top: 20, right: 20, bottom: 40, left: 40 }}
+              padding={0.15}
+              minValue={0}
+              maxValue={Math.max(...[...actualValues, ...forecastValues], 0)}
+              layout="vertical"
+              valueFormat={(value) => typeof value === 'number' ? value.toFixed(2) : '0'}
+              width={500}
+              height={400}
+            />
+          </ResponsiveContainer>
+        </div>
+      </Card>
+
+      <Card className="p-4">
+        <h3 className="text-lg font-semibold mb-4">Distribution Histogram</h3>
+        <div className="h-[400px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={actualHistogram}
+              margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="label" angle={-45} textAnchor="end" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="count" name="Actual" fill="#8884d8" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </Card>
     </div>
