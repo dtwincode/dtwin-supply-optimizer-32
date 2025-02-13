@@ -3,7 +3,8 @@ import { Card } from "@/components/ui/card";
 import { ForecastChart } from "@/components/forecasting/ForecastChart";
 import { ForecastTable } from "@/components/forecasting/ForecastTable";
 import { format, parseISO, addWeeks } from "date-fns";
-import { type ForecastData } from "@/components/forecasting/table/types";
+import { useState } from "react";
+import { ModelSelectionCard } from "@/components/forecasting/ModelSelectionCard";
 
 interface ForecastDistributionTabProps {
   forecastTableData: Array<{
@@ -21,6 +22,12 @@ interface ForecastDistributionTabProps {
 export const ForecastDistributionTab = ({
   forecastTableData
 }: ForecastDistributionTabProps) => {
+  const [selectedModel, setSelectedModel] = useState<string>("moving-avg");
+  
+  const handleModelParametersChange = (modelId: string, parameters: any[]) => {
+    console.log('Model parameters updated:', modelId, parameters);
+  };
+
   // Transform the data to include future forecasts
   const currentDate = new Date();
   const futureWeeks = 12; // Number of weeks to forecast ahead
@@ -93,33 +100,48 @@ export const ForecastDistributionTab = ({
 
   return (
     <div className="space-y-8">
-      {/* Forecast Chart Section */}
-      <Card className="p-4">
+      {/* Model Selection Section */}
+      <Card className="p-6">
         <div className="space-y-2">
-          <div>
-            <h4 className="text-base font-medium">Future Forecast Visualization</h4>
-            <p className="text-sm text-muted-foreground">
-              Historical data and future forecast predictions with confidence intervals
-            </p>
-          </div>
-          <div className="h-[400px] w-full overflow-hidden">
-            <ForecastChart
-              data={allData}
-              confidenceIntervals={confidenceIntervals}
-            />
-          </div>
+          <h3 className="text-2xl font-bold">Step 1: Select Model</h3>
+          <p className="text-muted-foreground">
+            Choose and configure your forecasting model
+          </p>
+        </div>
+        <div className="mt-6">
+          <ModelSelectionCard
+            selectedModel={selectedModel}
+            onModelChange={setSelectedModel}
+            onParametersChange={handleModelParametersChange}
+          />
+        </div>
+      </Card>
+
+      {/* Forecast Chart Section */}
+      <Card className="p-6">
+        <div className="space-y-2">
+          <h3 className="text-2xl font-bold">Step 2: Future Forecast Visualization</h3>
+          <p className="text-muted-foreground">
+            Historical data and future forecast predictions with confidence intervals
+          </p>
+        </div>
+        <div className="h-[400px] w-full overflow-hidden mt-6">
+          <ForecastChart
+            data={allData}
+            confidenceIntervals={confidenceIntervals}
+          />
         </div>
       </Card>
 
       {/* Forecast Table Section */}
-      <Card className="p-4">
+      <Card className="p-6">
         <div className="space-y-2">
-          <div>
-            <h4 className="text-base font-medium">Forecast Distribution Details</h4>
-            <p className="text-sm text-muted-foreground">
-              Detailed view of forecast values and confidence intervals
-            </p>
-          </div>
+          <h3 className="text-2xl font-bold">Step 3: Forecast Distribution Details</h3>
+          <p className="text-muted-foreground">
+            Detailed view of forecast values and confidence intervals
+          </p>
+        </div>
+        <div className="mt-6">
           <ForecastTable data={allData.map(d => ({
             week: format(parseISO(d.week), 'MMM dd, yyyy'),
             forecast: Math.round(d.forecast),
