@@ -89,7 +89,7 @@ export const ForecastAnalysisTab = ({
                   Historical data and forecast predictions with confidence intervals
                 </p>
               </div>
-              <div className="h-[500px] w-full overflow-hidden">
+              <div className="h-[600px] w-full overflow-hidden">
                 <ForecastChart
                   data={filteredData}
                   confidenceIntervals={confidenceIntervals}
