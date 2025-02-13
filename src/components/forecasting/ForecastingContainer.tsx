@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ForecastMetricsCards } from "./ForecastMetricsCards";
@@ -307,13 +308,6 @@ export const ForecastingContainer = () => {
           />
         </div>
 
-        {/* Model Versioning section moved here and styled */}
-        <div className="bg-background rounded-lg shadow-sm">
-          <div className="max-w-[1200px] mx-auto">
-            <ModelVersioning modelId={selectedModel} />
-          </div>
-        </div>
-
         <div className="my-6">
           <ForecastMetricsCards metrics={metrics} />
         </div>
@@ -342,6 +336,13 @@ export const ForecastingContainer = () => {
             calculatePriceAnalysis={calculatePriceAnalysis}
             forecastTableData={forecastTableData}
           />
+        </div>
+
+        {/* Model Versioning moved here, before scenario management */}
+        <div className="bg-background rounded-lg shadow-sm">
+          <div className="max-w-[1200px] mx-auto">
+            <ModelVersioning modelId={selectedModel} />
+          </div>
         </div>
 
         <div className="bg-background rounded-lg shadow-sm p-6">
