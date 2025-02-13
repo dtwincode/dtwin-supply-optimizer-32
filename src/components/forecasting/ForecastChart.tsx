@@ -93,8 +93,8 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
               textAnchor="end"
               height={80}
               interval={1}
-              tick={{ fontSize: 12, fill: '#666', dy: 25 }}
-              tickMargin={35}
+              tick={{ fontSize: 12, fill: '#666', dy: 15 }}
+              tickMargin={20}
             />
             <YAxis 
               width={60}
