@@ -84,17 +84,17 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
         <ResponsiveContainer>
           <ComposedChart 
             data={dataWithOutliers} 
-            margin={{ top: 32, right: 30, left: 10, bottom: 50 }}
+            margin={{ top: 32, right: 30, left: 10, bottom: 80 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
               dataKey="formattedWeek"
               angle={-45}
               textAnchor="end"
-              height={60}
-              interval={0}
-              tick={{ fontSize: 12, dy: 20 }}
-              tickMargin={25}
+              height={80}
+              interval={1}
+              tick={{ fontSize: 12, fill: '#666', dy: 25 }}
+              tickMargin={35}
             />
             <YAxis 
               width={60}
