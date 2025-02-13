@@ -1,9 +1,7 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ForecastMetricsCards } from "./ForecastMetricsCards";
 import { ForecastingHeader } from "./ForecastingHeader";
-import { ForecastingDateRange } from "./ForecastingDateRange";
 import { ForecastingTabs } from "./ForecastingTabs";
 import { ForecastFilters } from "./ForecastFilters";
 import { ScenarioManagement } from "./ScenarioManagement";
@@ -165,6 +163,11 @@ export const ForecastingContainer = () => {
     addHistoricalPricePoint,
     calculatePriceAnalysis
   } = usePriceAnalysis();
+
+  const [trainingFromDate, setTrainingFromDate] = useState<Date>(new Date('2024-01-01'));
+  const [trainingToDate, setTrainingToDate] = useState<Date>(new Date('2024-09-30'));
+  const [testingFromDate, setTestingFromDate] = useState<Date>(new Date('2024-10-01'));
+  const [testingToDate, setTestingToDate] = useState<Date>(new Date('2024-12-31'));
 
   const handleExport = () => {
     const csvContent = [
@@ -331,6 +334,14 @@ export const ForecastingContainer = () => {
                 setSelectedL7DeviceColor={setSelectedL7DeviceColor}
                 selectedL8DeviceStorage={selectedL8DeviceStorage}
                 setSelectedL8DeviceStorage={setSelectedL8DeviceStorage}
+                trainingFromDate={trainingFromDate}
+                setTrainingFromDate={setTrainingFromDate}
+                trainingToDate={trainingToDate}
+                setTrainingToDate={setTrainingToDate}
+                testingFromDate={testingFromDate}
+                setTestingFromDate={setTestingFromDate}
+                testingToDate={testingToDate}
+                setTestingToDate={setTestingToDate}
                 regions={regions}
                 cities={cities}
                 channelTypes={channelTypes}
