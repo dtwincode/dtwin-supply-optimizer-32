@@ -250,25 +250,35 @@ export const ForecastingContainer = () => {
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="space-y-8">
-        {/* Configuration Header */}
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h2 className="text-2xl font-semibold tracking-tight">Demand Forecasting</h2>
-              <p className="text-sm text-muted-foreground">
-                Configure, analyze, and manage your demand forecasts
-              </p>
-            </div>
-            <DataUploadDialog 
-              module="forecasting"
-              onDataUploaded={handleDataUploaded}
-            />
+    <div className="flex flex-col h-full">
+      {/* Header Section */}
+      <div className="border-b bg-background">
+        <div className="container flex items-center justify-between py-4">
+          <div>
+            <h2 className="text-2xl font-semibold tracking-tight">Demand Forecasting</h2>
+            <p className="text-sm text-muted-foreground">
+              Configure, analyze, and manage your demand forecasts
+            </p>
           </div>
-          <Separator />
-        </section>
+          <DataUploadDialog 
+            module="forecasting"
+            onDataUploaded={handleDataUploaded}
+          />
+        </div>
+      </div>
 
+      {/* Tabs Navigation */}
+      <div className="border-b bg-background">
+        <div className="container">
+          <ForecastingTabs
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+          />
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="container py-6 space-y-8">
         {/* Step 1: Model Selection and Controls */}
         <Card className="p-6">
           <div className="space-y-6">
@@ -352,28 +362,11 @@ export const ForecastingContainer = () => {
           </div>
         </Card>
 
-        {/* Step 4: Detailed Analysis */}
-        <Card className="p-6">
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">4</span>
-              <h3 className="text-lg font-semibold">Detailed Analysis</h3>
-            </div>
-
-            <div className="space-y-6">
-              <ForecastingTabs
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-              />
-            </div>
-          </div>
-        </Card>
-
-        {/* Step 5: Version Control */}
+        {/* Version Control */}
         <Card className="p-6">
           <div className="space-y-6">
             <div className="flex items-center gap-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">5</span>
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">4</span>
               <h3 className="text-lg font-semibold">Model Version Control</h3>
             </div>
 
@@ -383,11 +376,11 @@ export const ForecastingContainer = () => {
           </div>
         </Card>
 
-        {/* Step 6: Scenario Management */}
+        {/* Scenario Management */}
         <Card className="p-6">
           <div className="space-y-6">
             <div className="flex items-center gap-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">6</span>
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">5</span>
               <h3 className="text-lg font-semibold">Scenario Management</h3>
             </div>
 
