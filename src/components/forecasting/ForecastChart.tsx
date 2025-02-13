@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import {
   LineChart,
@@ -52,8 +51,24 @@ const formatWeek = (week: string) => {
   }
 };
 
+const calculateConfidenceIntervals = (forecast: number, std: number, confidenceLevel: number) => {
+  const zScores: { [key: string]: number } = {
+    '99': 2.576,
+    '95': 1.96,
+    '90': 1.645,
+    '80': 1.28
+  };
+  
+  const z = zScores[confidenceLevel.toString()] || 1.96; // default to 95% if level not found
+  return {
+    upper: forecast + z * std,
+    lower: forecast - z * std
+  };
+};
+
 export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps) => {
   const [showConfidenceIntervals, setShowConfidenceIntervals] = useState(false);
+  const [confidenceLevel, setConfidenceLevel] = useState<string>("95");
   const [selectionType, setSelectionType] = useState<"date" | "period" | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("weekly");
   const [periodCount, setPeriodCount] = useState<string>("4");
@@ -117,6 +132,14 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
     detectOutliers(filteredData),
     [filteredData]
   );
+
+  const adjustedConfidenceIntervals = useMemo(() => {
+    return confidenceIntervals.map(ci => {
+      const std = (ci.upper - ci.lower) / (2 * 1.96); // reverse engineer the standard deviation
+      const forecast = (ci.upper + ci.lower) / 2; // get the forecast value
+      return calculateConfidenceIntervals(forecast, std, parseInt(confidenceLevel));
+    });
+  }, [confidenceIntervals, confidenceLevel]);
 
   const handlePeriodChange = (period: TimePeriod) => {
     setSelectedPeriod(period);
@@ -238,18 +261,35 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
               <div className="p-4 bg-gray-50 rounded-lg flex-1">
                 <h4 className="text-sm font-medium text-gray-700 mb-3">Visualization Options</h4>
                 <div className="flex gap-3 flex-wrap">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className={cn(
-                      "bg-white",
-                      showConfidenceIntervals && "bg-primary/10"
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className={cn(
+                        "bg-white",
+                        showConfidenceIntervals && "bg-primary/10"
+                      )}
+                      onClick={() => setShowConfidenceIntervals(!showConfidenceIntervals)}
+                    >
+                      {showConfidenceIntervals ? <EyeOff className="mr-2 h-4 w-4" /> : <Eye className="mr-2 h-4 w-4" />}
+                      {showConfidenceIntervals ? "Hide" : "Show"} CI
+                    </Button>
+                    
+                    {showConfidenceIntervals && (
+                      <Select value={confidenceLevel} onValueChange={setConfidenceLevel}>
+                        <SelectTrigger className="w-[100px] h-9 bg-white">
+                          <SelectValue placeholder="CI Level" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="99">99%</SelectItem>
+                          <SelectItem value="95">95%</SelectItem>
+                          <SelectItem value="90">90%</SelectItem>
+                          <SelectItem value="80">80%</SelectItem>
+                        </SelectContent>
+                      </Select>
                     )}
-                    onClick={() => setShowConfidenceIntervals(!showConfidenceIntervals)}
-                  >
-                    {showConfidenceIntervals ? <EyeOff className="mr-2 h-4 w-4" /> : <Eye className="mr-2 h-4 w-4" />}
-                    {showConfidenceIntervals ? "Hide" : "Show"} Confidence Intervals
-                  </Button>
+                  </div>
+                  
                   <Button
                     variant="outline"
                     size="sm"
@@ -304,18 +344,24 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
               {showConfidenceIntervals && (
                 <>
                   <Area
-                    dataKey="ci.upper"
+                    dataKey={(data) => {
+                      const index = dataWithOutliers.indexOf(data);
+                      return adjustedConfidenceIntervals[index]?.upper;
+                    }}
                     stroke="transparent"
                     fill="#F59E0B"
                     fillOpacity={0.1}
-                    name="Upper CI"
+                    name={`Upper CI (${confidenceLevel}%)`}
                   />
                   <Area
-                    dataKey="ci.lower"
+                    dataKey={(data) => {
+                      const index = dataWithOutliers.indexOf(data);
+                      return adjustedConfidenceIntervals[index]?.lower;
+                    }}
                     stroke="transparent"
                     fill="#F59E0B"
                     fillOpacity={0.1}
-                    name="Lower CI"
+                    name={`Lower CI (${confidenceLevel}%)`}
                   />
                 </>
               )}
