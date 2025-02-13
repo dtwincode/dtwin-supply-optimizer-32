@@ -74,7 +74,8 @@ export const ForecastDistributionTab = ({
   }, []);
 
   const handleDeleteConfiguration = async (configId: string, event: React.MouseEvent) => {
-    event.stopPropagation(); // Prevent triggering the select item click
+    event.preventDefault(); // Prevent any default select behavior
+    event.stopPropagation(); // Prevent the select from closing
 
     try {
       const { error } = await supabase
@@ -338,14 +339,14 @@ export const ForecastDistributionTab = ({
                     <SelectItem 
                       key={config.id} 
                       value={config.id}
-                      className="flex items-center justify-between group"
                     >
-                      <div className="flex items-center justify-between w-full pr-2">
+                      <div className="flex items-center justify-between w-full">
                         <span>{config.productName}</span>
                         <Button
+                          type="button"
                           variant="ghost"
                           size="sm"
-                          className="opacity-0 group-hover:opacity-100 h-6 w-6 p-0"
+                          className="ml-2 h-6 w-6 p-0 hover:bg-destructive hover:text-destructive-foreground"
                           onClick={(e) => handleDeleteConfiguration(config.id, e)}
                         >
                           <X className="h-4 w-4" />
