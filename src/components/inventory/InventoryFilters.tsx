@@ -1,5 +1,11 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface InventoryFiltersProps {
   selectedLocation: string;
@@ -32,6 +38,33 @@ interface InventoryFiltersProps {
   locations: string[];
 }
 
+const CollapsibleSection = ({ 
+  title, 
+  isExpanded, 
+  onToggle, 
+  children 
+}: { 
+  title: string; 
+  isExpanded: boolean; 
+  onToggle: () => void; 
+  children: React.ReactNode;
+}) => (
+  <Card className="w-full p-4 mb-4">
+    <Button
+      variant="ghost"
+      className="w-full flex items-center justify-between p-2 hover:bg-transparent"
+      onClick={onToggle}
+    >
+      <span className="text-lg font-semibold text-blue-600">{title}</span>
+      <span className="text-gray-500 flex items-center gap-2">
+        Click to {isExpanded ? 'collapse' : 'expand'}
+        {isExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+      </span>
+    </Button>
+    {isExpanded && <div className="mt-4">{children}</div>}
+  </Card>
+);
+
 const InventoryFilters = ({
   selectedLocation,
   setSelectedLocation,
@@ -62,22 +95,25 @@ const InventoryFilters = ({
   channelTypes,
   locations,
 }: InventoryFiltersProps) => {
+  const [timePeriodExpanded, setTimePeriodExpanded] = useState(false);
+  const [productHierarchyExpanded, setProductHierarchyExpanded] = useState(false);
+  const [locationHierarchyExpanded, setLocationHierarchyExpanded] = useState(false);
+
   return (
-    <div className="flex flex-col gap-4 w-full max-w-4xl">
-      <div className="flex gap-4">
-        <Input
-          placeholder="Search products, SKUs, locations..."
-          className="w-[300px]"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-        <Select value={selectedCategory} onValueChange={(value) => {
-          setSelectedCategory(value);
-          setSelectedSubcategory("all");
-          setSelectedSKU("all");
-        }}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select Category" />
+    <div className="space-y-4 w-full max-w-7xl mx-auto">
+      <div className="flex flex-wrap gap-4 mb-6">
+        <div className="relative flex-grow">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <Input
+            placeholder="Search products, SKUs, locations..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 w-full"
+          />
+        </div>
+        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="All Categories" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
@@ -88,14 +124,11 @@ const InventoryFilters = ({
         </Select>
         <Select 
           value={selectedSubcategory} 
-          onValueChange={(value) => {
-            setSelectedSubcategory(value);
-            setSelectedSKU("all");
-          }}
+          onValueChange={setSelectedSubcategory}
           disabled={selectedCategory === "all"}
         >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select Subcategory" />
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="All Subcategories" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Subcategories</SelectItem>
@@ -109,8 +142,8 @@ const InventoryFilters = ({
           onValueChange={setSelectedSKU}
           disabled={selectedSubcategory === "all"}
         >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select SKU" />
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="All SKUs" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All SKUs</SelectItem>
@@ -120,68 +153,96 @@ const InventoryFilters = ({
           </SelectContent>
         </Select>
       </div>
-      <div className="flex gap-4">
-        <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select Region" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Regions</SelectItem>
-            {regions.map(region => (
-              <SelectItem key={region} value={region}>{region}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select 
-          value={selectedCity} 
-          onValueChange={setSelectedCity}
-          disabled={selectedRegion === "all"}
+
+      <div className="grid grid-cols-1 gap-4">
+        <CollapsibleSection
+          title="Time Period Selection"
+          isExpanded={timePeriodExpanded}
+          onToggle={() => setTimePeriodExpanded(!timePeriodExpanded)}
         >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select City" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Cities</SelectItem>
-            {selectedRegion !== "all" && cities[selectedRegion as keyof typeof cities].map(city => (
-              <SelectItem key={city} value={city}>{city}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="flex gap-4">
-        <Select value={selectedChannel} onValueChange={setSelectedChannel}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Channel Type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Channels</SelectItem>
-            {channelTypes.map(channel => (
-              <SelectItem key={channel} value={channel}>{channel}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={selectedFamily} onValueChange={setSelectedFamily}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Product Family" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Families</SelectItem>
-            {productFamilies.map(family => (
-              <SelectItem key={family} value={family}>{family}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={selectedWarehouse} onValueChange={setSelectedWarehouse}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Warehouse" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Warehouses</SelectItem>
-            {locations.map(loc => (
-              <SelectItem key={loc} value={loc}>{loc}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          {/* Time period selection content will go here */}
+          <div className="text-gray-500">Time period selection options will be implemented here</div>
+        </CollapsibleSection>
+
+        <CollapsibleSection
+          title="Product Hierarchy"
+          isExpanded={productHierarchyExpanded}
+          onToggle={() => setProductHierarchyExpanded(!productHierarchyExpanded)}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Select value={selectedFamily} onValueChange={setSelectedFamily}>
+              <SelectTrigger>
+                <SelectValue placeholder="All Families" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Families</SelectItem>
+                {productFamilies.map(family => (
+                  <SelectItem key={family} value={family}>{family}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CollapsibleSection>
+
+        <CollapsibleSection
+          title="Location Hierarchy"
+          isExpanded={locationHierarchyExpanded}
+          onToggle={() => setLocationHierarchyExpanded(!locationHierarchyExpanded)}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+              <SelectTrigger>
+                <SelectValue placeholder="All Regions" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Regions</SelectItem>
+                {regions.map(region => (
+                  <SelectItem key={region} value={region}>{region}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select 
+              value={selectedCity} 
+              onValueChange={setSelectedCity}
+              disabled={selectedRegion === "all"}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="All Cities" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Cities</SelectItem>
+                {selectedRegion !== "all" && cities[selectedRegion]?.map(city => (
+                  <SelectItem key={city} value={city}>{city}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={selectedChannel} onValueChange={setSelectedChannel}>
+              <SelectTrigger>
+                <SelectValue placeholder="All Channels" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Channels</SelectItem>
+                {channelTypes.map(channel => (
+                  <SelectItem key={channel} value={channel}>{channel}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={selectedWarehouse} onValueChange={setSelectedWarehouse}>
+              <SelectTrigger>
+                <SelectValue placeholder="All Warehouses" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Warehouses</SelectItem>
+                {locations.map(location => (
+                  <SelectItem key={location} value={location}>{location}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CollapsibleSection>
       </div>
     </div>
   );
