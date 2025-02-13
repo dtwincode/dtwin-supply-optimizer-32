@@ -138,7 +138,7 @@ const Forecasting = () => {
               
               {/* Time Period Selection */}
               <div className="space-y-4">
-                <h3 className="text-sm font-medium">Time Period</h3>
+                <h3 className="text-sm font-medium">Time Period Training</h3>
                 <ForecastingDateRange
                   fromDate={fromDate}
                   toDate={toDate}
