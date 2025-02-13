@@ -69,6 +69,7 @@ export const ForecastingTabs = ({
   const tabs = [
     { name: "Forecast Analysis", path: "/forecasting" },
     { name: "Distribution", path: "/forecasting/distribution" },
+    { name: "Descriptive Analysis", path: "/forecasting/descriptive" },
     { name: "Pattern Analysis", path: "/forecasting/pattern" },
     { name: "What-If Analysis", path: "/forecasting/what-if" },
     { name: "Model Validation", path: "/forecasting/validation" },

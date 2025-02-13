@@ -1,4 +1,3 @@
-
 import DashboardLayout from "@/components/DashboardLayout";
 import { ForecastingTabs } from "@/components/forecasting/ForecastingTabs";
 import { ForecastAnalysisTab } from "@/components/forecasting/tabs/ForecastAnalysisTab";
@@ -18,6 +17,7 @@ import { ForecastingDateRange } from "@/components/forecasting/ForecastingDateRa
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { DescriptiveAnalysisTab } from "@/components/forecasting/tabs/DescriptiveAnalysisTab";
 
 const Forecasting = () => {
   const [isTimeExpanded, setIsTimeExpanded] = useState(false);
@@ -325,6 +325,11 @@ const Forecasting = () => {
             <Route path="distribution" element={
               <ForecastDistributionTab 
                 forecastTableData={dummyData.forecastTableData}
+              />
+            } />
+            <Route path="descriptive" element={
+              <DescriptiveAnalysisTab
+                filteredData={dummyData.filteredData}
               />
             } />
             <Route path="pattern" element={
