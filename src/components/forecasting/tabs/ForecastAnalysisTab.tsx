@@ -80,7 +80,7 @@ export const ForecastAnalysisTab = ({
         </div>
 
         <div className="space-y-6">
-          {/* Chart */}
+          {/* Chart in its own card */}
           <Card className="p-6">
             <div className="space-y-4">
               <div>
@@ -89,7 +89,7 @@ export const ForecastAnalysisTab = ({
                   Historical data and forecast predictions with confidence intervals
                 </p>
               </div>
-              <div className="h-[500px]">
+              <div className="h-[500px] w-full">
                 <ForecastChart
                   data={filteredData}
                   confidenceIntervals={confidenceIntervals}
@@ -116,23 +116,27 @@ export const ForecastAnalysisTab = ({
               <p className="text-sm text-muted-foreground mt-1">Root Mean Square Error</p>
             </Card>
           </div>
-
-          {/* Model Versioning */}
-          <Card className="p-6">
-            <div className="space-y-4">
-              <div>
-                <h4 className="text-base font-medium">Model Versions</h4>
-                <p className="text-sm text-muted-foreground">
-                  Track and manage different versions of your model
-                </p>
-              </div>
-              <ModelVersioning modelId={selectedModel} />
-            </div>
-          </Card>
         </div>
       </div>
 
-      <Separator />
+      {/* Model Versioning in its own section with proper spacing */}
+      <div className="mt-8">
+        <Card className="p-6">
+          <div className="space-y-4">
+            <div>
+              <h4 className="text-base font-medium">Model Versions</h4>
+              <p className="text-sm text-muted-foreground">
+                Track and manage different versions of your model
+              </p>
+            </div>
+            <div className="mt-4">
+              <ModelVersioning modelId={selectedModel} />
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      <Separator className="my-8" />
 
       {/* Step 3: Scenario Management */}
       <div>
