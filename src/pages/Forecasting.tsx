@@ -1,4 +1,3 @@
-
 import DashboardLayout from "@/components/DashboardLayout";
 import { ForecastingTabs } from "@/components/forecasting/ForecastingTabs";
 import { ForecastAnalysisTab } from "@/components/forecasting/tabs/ForecastAnalysisTab";
@@ -12,6 +11,8 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import { useState } from "react";
 import { ProductFilter } from "@/components/forecasting/filters/ProductFilter";
 import { ForecastDataPoint } from "@/types/forecasting";
+import { Card } from "@/components/ui/card";
+import { ForecastingDateRange } from "@/components/forecasting/ForecastingDateRange";
 
 const Forecasting = () => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -23,6 +24,11 @@ const Forecasting = () => {
   const [selectedL6DeviceModel, setSelectedL6DeviceModel] = useState<string>("all");
   const [selectedL7DeviceColor, setSelectedL7DeviceColor] = useState<string>("all");
   const [selectedL8DeviceStorage, setSelectedL8DeviceStorage] = useState<string>("all");
+
+  const [trainingFromDate, setTrainingFromDate] = useState<Date>(new Date('2024-01-01'));
+  const [trainingToDate, setTrainingToDate] = useState<Date>(new Date('2024-09-30'));
+  const [testingFromDate, setTestingFromDate] = useState<Date>(new Date('2024-10-01'));
+  const [testingToDate, setTestingToDate] = useState<Date>(new Date('2024-12-31'));
 
   const dummyData = {
     filteredData: [{
@@ -126,7 +132,35 @@ const Forecasting = () => {
         </div>
 
         <div className="px-6 space-y-6 mt-6">
-          {/* Step 2: Model Selection and Controls */}
+          {/* Time Period Selection */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-2">
+              <h3 className="text-lg font-semibold">Time Period Selection</h3>
+            </div>
+            
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <Card className="p-6">
+                <h4 className="text-base font-medium mb-4">Training Period</h4>
+                <ForecastingDateRange
+                  fromDate={trainingFromDate}
+                  toDate={trainingToDate}
+                  setFromDate={setTrainingFromDate}
+                  setToDate={setTrainingToDate}
+                />
+              </Card>
+              <Card className="p-6">
+                <h4 className="text-base font-medium mb-4">Testing Period</h4>
+                <ForecastingDateRange
+                  fromDate={testingFromDate}
+                  toDate={testingToDate}
+                  setFromDate={setTestingFromDate}
+                  setToDate={setTestingToDate}
+                />
+              </Card>
+            </div>
+          </div>
+
+          {/* Product Hierarchy */}
           <div className="space-y-6">
             <div className="flex items-center gap-2">
               <h3 className="text-lg font-semibold">Product Hierarchy</h3>
