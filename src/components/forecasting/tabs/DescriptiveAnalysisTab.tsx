@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { ForecastDataPoint } from "@/types/forecasting";
 import { ResponsiveContainer, ScatterChart, XAxis, YAxis, Tooltip, CartesianGrid, Scatter, BarChart, Bar, Line, ComposedChart } from "recharts";
@@ -87,7 +88,7 @@ export const DescriptiveAnalysisTab = ({ filteredData = [] }: DescriptiveAnalysi
 
   // Enhanced histogram data preparation with distribution line
   const prepareHistogramData = (values: number[], bins = 10) => {
-    if (values.length === 0) return { histogramData: [], lineData: [] };
+    if (values.length === 0) return [];
     
     const min = Math.min(...values);
     const max = Math.max(...values);
