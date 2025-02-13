@@ -25,14 +25,8 @@ export const InventoryChart = ({ data }: InventoryChartProps) => {
   const [fromDate, setFromDate] = useState<Date>(new Date());
   const [toDate, setToDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() + 30)));
 
-  // Filter data based on date range
   const getFilteredData = () => {
-    const filtered = data.filter(item => {
-      const itemDate = new Date();  // Use current date for demo, replace with actual date field
-      return itemDate >= fromDate && itemDate <= toDate;
-    });
-
-    return filtered.map(item => ({
+    return data.map(item => ({
       name: item.name,
       red: item.redZoneSize || 0,
       yellow: item.yellowZoneSize || 0,
