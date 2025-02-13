@@ -364,25 +364,6 @@ export const ForecastingContainer = () => {
               <ForecastingTabs
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
-                historicalData={historicalData}
-                filteredData={filteredData}
-                confidenceIntervals={confidenceIntervals}
-                decomposition={decomposition}
-                validationResults={validationResults}
-                crossValidationResults={crossValidationResults}
-                weatherLocation={weatherLocation}
-                setWeatherLocation={setWeatherLocation}
-                weatherData={weatherData}
-                fetchWeatherForecast={fetchWeatherForecast}
-                marketEvents={marketEvents}
-                setMarketEvents={setMarketEvents}
-                newEvent={newEvent}
-                setNewEvent={setNewEvent}
-                priceAnalysis={priceAnalysis}
-                historicalPriceData={historicalPriceData}
-                addHistoricalPricePoint={addHistoricalPricePoint}
-                calculatePriceAnalysis={calculatePriceAnalysis}
-                forecastTableData={forecastTableData}
               />
             </div>
           </div>
