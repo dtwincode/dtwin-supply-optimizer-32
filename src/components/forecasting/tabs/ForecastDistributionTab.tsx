@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { X } from "lucide-react";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
-import { SavedModelConfig } from "@/types/models/commonTypes";
+import { SavedModelConfig, ModelParameter } from "@/types/models/commonTypes";
 
 interface ForecastDistributionTabProps {
   forecastTableData: Array<{
@@ -55,7 +55,7 @@ export const ForecastDistributionTab = ({
             productId: config.product_id,
             productName: config.product_name,
             modelId: config.model_id,
-            parameters: config.parameters,
+            parameters: (config.parameters as ModelParameter[]) || [],
             autoRun: config.auto_run
           })));
         }
@@ -96,7 +96,7 @@ export const ForecastDistributionTab = ({
     }
   };
 
-  const handleModelParametersChange = (modelId: string, parameters: any[]) => {
+  const handleModelParametersChange = (modelId: string, parameters: ModelParameter[]) => {
     console.log('Model parameters updated:', modelId, parameters);
     if (autoRun && selectedConfigId) {
       fetchProductForecastData(selectedConfigId);
@@ -114,7 +114,7 @@ export const ForecastDistributionTab = ({
         product_id: currentProduct.id,
         product_name: currentProduct.name,
         model_id: selectedModel,
-        parameters: [],
+        parameters: [] as ModelParameter[],
         auto_run: autoRun
       };
 
@@ -133,7 +133,7 @@ export const ForecastDistributionTab = ({
           productId: data[0].product_id,
           productName: data[0].product_name,
           modelId: data[0].model_id,
-          parameters: data[0].parameters,
+          parameters: (data[0].parameters as ModelParameter[]) || [],
           autoRun: data[0].auto_run
         };
 
