@@ -142,13 +142,11 @@ const Forecasting = () => {
           <Separator className="my-6" />
         </div>
 
-        {/* Tabs first */}
         <div className="px-6">
           <ForecastingTabs />
         </div>
 
         <div className="px-6 space-y-6 mt-6">
-          {/* Time Period Selection */}
           <div 
             className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40"
             onMouseLeave={() => setIsTimeExpanded(false)}
@@ -209,7 +207,6 @@ const Forecasting = () => {
             </AnimatePresence>
           </div>
 
-          {/* Product Hierarchy */}
           <div 
             className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40"
             onMouseLeave={() => setIsProductExpanded(false)}
@@ -269,7 +266,6 @@ const Forecasting = () => {
             </AnimatePresence>
           </div>
 
-          {/* Location Hierarchy */}
           <div 
             className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40"
             onMouseLeave={() => setIsLocationExpanded(false)}
@@ -318,7 +314,6 @@ const Forecasting = () => {
             </AnimatePresence>
           </div>
 
-          {/* Routes */}
           <Routes>
             <Route index element={
               <ForecastAnalysisTab 
@@ -365,6 +360,7 @@ const Forecasting = () => {
                 historicalPriceData={dummyData.historicalPriceData}
               />
             } />
+            <Route path="*" element={<Navigate to="/forecasting" replace />} />
           </Routes>
         </div>
       </div>
