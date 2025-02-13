@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { ForecastChart } from "@/components/forecasting/ForecastChart";
@@ -41,7 +40,38 @@ export const ForecastDistributionTab = ({
   const [alertThreshold, setAlertThreshold] = useState(15);
   const { toast } = useToast();
 
-  // Essential functions
+  useEffect(() => {
+    const loadSavedConfigs = async () => {
+      const { data, error } = await supabase
+        .from('saved_model_configs')
+        .select('*');
+
+      if (error) {
+        console.error('Error loading configurations:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load saved configurations",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (data) {
+        const configs: SavedModelConfig[] = data.map(config => ({
+          id: config.id,
+          productId: config.product_id,
+          productName: config.product_name,
+          modelId: config.model_id,
+          parameters: config.parameters || [],
+          autoRun: config.auto_run
+        }));
+        setSavedConfigs(configs);
+      }
+    };
+
+    loadSavedConfigs();
+  }, []);
+
   const handleSaveConfiguration = async () => {
     try {
       const timestamp = new Date().getTime();
@@ -256,6 +286,35 @@ export const ForecastDistributionTab = ({
             </div>
           </div>
 
+          {/* Saved Configurations List */}
+          <div className="space-y-2">
+            <Label>Saved Configurations</Label>
+            <Select
+              value={selectedConfigId || ""}
+              onValueChange={(value) => {
+                setSelectedConfigId(value);
+                const config = savedConfigs.find(c => c.id === value);
+                if (config) {
+                  setSelectedModel(config.modelId);
+                  setAutoRun(config.autoRun);
+                }
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a configuration" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {savedConfigs.map((config) => (
+                    <SelectItem key={config.id} value={config.id}>
+                      {config.productName}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
           <ModelSelectionCard
             selectedModel={selectedModel}
             onModelChange={setSelectedModel}
@@ -292,6 +351,7 @@ export const ForecastDistributionTab = ({
             className="w-full"
             variant="secondary"
             onClick={handleGenerateForecast}
+            disabled={!selectedConfigId}
           >
             Generate Forecast
           </Button>
