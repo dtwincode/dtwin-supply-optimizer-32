@@ -15,8 +15,12 @@ import {
 } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { CalendarIcon } from "lucide-react";
 import { useState, useMemo } from "react";
-import { format, subMonths, isAfter, isBefore, parseISO } from "date-fns";
+import { format, isAfter, isBefore, parseISO } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface ForecastChartProps {
   data: any[];
@@ -54,39 +58,60 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("weekly");
   const [periodCount, setPeriodCount] = useState<string>("4");
   const [showOutliers, setShowOutliers] = useState(true);
+  const [fromDate, setFromDate] = useState<Date | undefined>(undefined);
+  const [toDate, setToDate] = useState<Date | undefined>(undefined);
 
   const filteredData = useMemo(() => {
-    if (!selectionType || !selectedPeriod) return data;
+    if (!selectionType) return data;
     
-    const today = new Date();
-    let cutoffDate = new Date(today);
-
-    switch (selectedPeriod) {
-      case "weekly":
-        cutoffDate.setDate(today.getDate() - (parseInt(periodCount) * 7));
-        break;
-      case "monthly":
-        cutoffDate.setMonth(today.getMonth() - parseInt(periodCount));
-        break;
-      case "quarterly":
-        cutoffDate.setMonth(today.getMonth() - (parseInt(periodCount) * 3));
-        break;
-      case "yearly":
-        cutoffDate.setFullYear(today.getFullYear() - parseInt(periodCount));
-        break;
+    if (selectionType === "date") {
+      if (!fromDate || !toDate) return data;
+      
+      return data
+        .filter(d => {
+          const date = parseISO(d.week);
+          return isAfter(date, fromDate) && isBefore(date, toDate);
+        })
+        .map((d, i) => ({
+          ...d,
+          ci: confidenceIntervals[i],
+          formattedWeek: formatWeek(d.week)
+        }));
     }
     
-    return data
-      .filter(d => {
-        const date = parseISO(d.week);
-        return isAfter(date, cutoffDate) && isBefore(date, today);
-      })
-      .map((d, i) => ({
-        ...d,
-        ci: confidenceIntervals[i],
-        formattedWeek: formatWeek(d.week)
-      }));
-  }, [data, confidenceIntervals, selectionType, selectedPeriod, periodCount]);
+    if (selectionType === "period") {
+      const today = new Date();
+      let cutoffDate = new Date(today);
+
+      switch (selectedPeriod) {
+        case "weekly":
+          cutoffDate.setDate(today.getDate() - (parseInt(periodCount) * 7));
+          break;
+        case "monthly":
+          cutoffDate.setMonth(today.getMonth() - parseInt(periodCount));
+          break;
+        case "quarterly":
+          cutoffDate.setMonth(today.getMonth() - (parseInt(periodCount) * 3));
+          break;
+        case "yearly":
+          cutoffDate.setFullYear(today.getFullYear() - parseInt(periodCount));
+          break;
+      }
+      
+      return data
+        .filter(d => {
+          const date = parseISO(d.week);
+          return isAfter(date, cutoffDate) && isBefore(date, today);
+        })
+        .map((d, i) => ({
+          ...d,
+          ci: confidenceIntervals[i],
+          formattedWeek: formatWeek(d.week)
+        }));
+    }
+
+    return data;
+  }, [data, confidenceIntervals, selectionType, selectedPeriod, periodCount, fromDate, toDate]);
 
   const dataWithOutliers = useMemo(() => 
     detectOutliers(filteredData),
@@ -121,6 +146,57 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
                 </SelectContent>
               </Select>
             </div>
+
+            {selectionType === "date" && (
+              <div className="flex gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-[180px] justify-start text-left font-normal",
+                        !fromDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {fromDate ? format(fromDate, "MMM dd, yyyy") : "Select date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={fromDate}
+                      onSelect={setFromDate}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-[180px] justify-start text-left font-normal",
+                        !toDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {toDate ? format(toDate, "MMM dd, yyyy") : "Select date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={toDate}
+                      onSelect={setToDate}
+                      initialFocus
+                      fromDate={fromDate}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            )}
 
             {selectionType === "period" && (
               <div className="flex gap-2">
