@@ -37,13 +37,13 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
 
   const dataWithOutliers = data.map(point => ({
     ...point,
-    formattedWeek: format(parseISO(point.week), 'MMM d, yyyy'),
+    formattedWeek: format(parseISO(point.week), 'MMM d'),
     isOutlier: Math.abs(point.actual - point.forecast) > (point.variance * 2)
   }));
 
   return (
     <div className="w-full h-full">
-      <div className="flex items-center justify-end gap-6 mb-2">
+      <div className="flex flex-wrap items-center justify-end gap-4 mb-6">
         <div className="flex items-center space-x-2">
           <Switch
             id="ci-toggle"
@@ -80,37 +80,44 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
         </div>
       </div>
       
-      <div className="h-[350px]">
+      <div className="h-[400px]">
         <ResponsiveContainer>
           <ComposedChart 
             data={dataWithOutliers} 
-            margin={{ top: 20, right: 30, left: 10, bottom: 70 }}
+            margin={{ top: 32, right: 30, left: 10, bottom: 50 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
               dataKey="formattedWeek"
               angle={-45}
               textAnchor="end"
-              height={70}
-              interval={Math.ceil(dataWithOutliers.length / 12)}
-              tick={{ dy: 30 }}
-              tickMargin={35}
+              height={60}
+              interval={0}
+              tick={{ fontSize: 12, dy: 20 }}
+              tickMargin={25}
             />
             <YAxis 
               width={60}
-              domain={[0, 'auto']}
+              domain={['auto', 'auto']}
               allowDataOverflow={false}
+              tick={{ fontSize: 12 }}
             />
             <Tooltip
               labelFormatter={(label) => `Week of ${label}`}
               formatter={(value: number) => [Math.round(value), "Units"]}
+              contentStyle={{
+                backgroundColor: 'white',
+                border: '1px solid #ccc',
+                borderRadius: '4px',
+                padding: '8px'
+              }}
             />
             <Legend 
               verticalAlign="top"
               height={36}
               wrapperStyle={{ 
-                paddingTop: "20px",
-                paddingBottom: "20px"
+                paddingTop: "0px",
+                paddingBottom: "24px"
               }}
             />
             {showCI && (
@@ -120,20 +127,20 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
                     const index = dataWithOutliers.indexOf(data);
                     return confidenceIntervals[index]?.upper;
                   }}
-                  stroke="transparent"
+                  stroke="none"
                   fill="#F59E0B"
-                  fillOpacity={0.1}
-                  name="Upper CI"
+                  fillOpacity={0.08}
+                  name="Confidence Interval"
                 />
                 <Area
                   dataKey={(data) => {
                     const index = dataWithOutliers.indexOf(data);
                     return confidenceIntervals[index]?.lower;
                   }}
-                  stroke="transparent"
+                  stroke="none"
                   fill="#F59E0B"
-                  fillOpacity={0.1}
-                  name="Lower CI"
+                  fillOpacity={0.08}
+                  name=" "
                 />
               </>
             )}
@@ -142,7 +149,7 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
               dataKey="forecast"
               stroke="#F59E0B"
               name="Forecast"
-              strokeWidth={2}
+              strokeWidth={2.5}
               dot={false}
               isAnimationActive={false}
             />
@@ -151,20 +158,21 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
               dataKey="actual"
               stroke="#10B981"
               name="Actual Demand"
-              strokeWidth={2}
+              strokeWidth={2.5}
               dot={false}
               isAnimationActive={false}
             />
             {showOutliers && dataWithOutliers
-              .filter(point => point.isOutlier)
+              .filter(point => point.isOutlier && point.actual !== null)
               .map((point, index) => (
                 <ReferenceDot
                   key={index}
                   x={point.formattedWeek}
                   y={point.actual}
-                  r={6}
+                  r={4}
                   fill="red"
-                  stroke="none"
+                  stroke="white"
+                  strokeWidth={1}
                 />
               ))}
           </ComposedChart>
