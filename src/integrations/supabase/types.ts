@@ -9,6 +9,42 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      active_models: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_running: boolean | null
+          last_run: string | null
+          model_id: string
+          model_name: string
+          model_parameters: Json | null
+          product_filters: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_running?: boolean | null
+          last_run?: string | null
+          model_id: string
+          model_name: string
+          model_parameters?: Json | null
+          product_filters?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_running?: boolean | null
+          last_run?: string | null
+          model_id?: string
+          model_name?: string
+          model_parameters?: Json | null
+          product_filters?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       data_quality_metrics: {
         Row: {
           accuracy_score: number | null
