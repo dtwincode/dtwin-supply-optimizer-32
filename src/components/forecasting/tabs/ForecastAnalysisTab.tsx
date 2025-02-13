@@ -4,6 +4,7 @@ import { ForecastMetricsCards } from "@/components/forecasting/ForecastMetricsCa
 import { ModelSelectionCard } from "@/components/forecasting/ModelSelectionCard";
 import { ModelVersioning } from "@/components/forecasting/ModelVersioning";
 import { ScenarioManagement } from "@/components/forecasting/ScenarioManagement";
+import { ForecastingDateRange } from "@/components/forecasting/ForecastingDateRange";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -23,6 +24,10 @@ export const ForecastAnalysisTab = ({
   const [scenarioName, setScenarioName] = useState("");
   const [selectedModel, setSelectedModel] = useState("moving-avg");
   const [horizon, setHorizon] = useState("12w");
+  const [trainingFromDate, setTrainingFromDate] = useState<Date>(new Date('2024-01-01'));
+  const [trainingToDate, setTrainingToDate] = useState<Date>(new Date('2024-09-30'));
+  const [testingFromDate, setTestingFromDate] = useState<Date>(new Date('2024-10-01'));
+  const [testingToDate, setTestingToDate] = useState<Date>(new Date('2024-12-31'));
 
   const handleModelChange = (modelId: string) => {
     setSelectedModel(modelId);
@@ -80,12 +85,44 @@ export const ForecastAnalysisTab = ({
 
       <Separator />
 
-      {/* Step 2: Forecast Visualization & Metrics */}
+      {/* Step 2: Time Period Selection */}
+      <div>
+        <div className="space-y-2 mb-4">
+          <h3 className="text-lg font-semibold">Step 2: Select Time Periods</h3>
+          <p className="text-sm text-muted-foreground">
+            Define training and testing periods for your forecast
+          </p>
+        </div>
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <Card className="p-6">
+            <h4 className="text-base font-medium mb-4">Training Period</h4>
+            <ForecastingDateRange
+              fromDate={trainingFromDate}
+              toDate={trainingToDate}
+              setFromDate={setTrainingFromDate}
+              setToDate={setTrainingToDate}
+            />
+          </Card>
+          <Card className="p-6">
+            <h4 className="text-base font-medium mb-4">Testing Period</h4>
+            <ForecastingDateRange
+              fromDate={testingFromDate}
+              toDate={testingToDate}
+              setFromDate={setTestingFromDate}
+              setToDate={setTestingToDate}
+            />
+          </Card>
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Step 3: Forecast Results & Visualization */}
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
         {/* Left Column - Metrics */}
         <div className="xl:col-span-1">
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold">Step 2: Review Performance</h3>
+            <h3 className="text-lg font-semibold">Step 3: Review Performance</h3>
             <p className="text-sm text-muted-foreground">
               Analyze forecast accuracy and metrics
             </p>
@@ -125,10 +162,10 @@ export const ForecastAnalysisTab = ({
 
       <Separator />
 
-      {/* Step 3: Scenario Management */}
+      {/* Step 4: Scenario Management */}
       <div>
         <div className="space-y-2 mb-4">
-          <h3 className="text-lg font-semibold">Step 3: Save & Manage Scenarios</h3>
+          <h3 className="text-lg font-semibold">Step 4: Save & Manage Scenarios</h3>
           <p className="text-sm text-muted-foreground">
             Save your current forecast configuration or load existing scenarios
           </p>
