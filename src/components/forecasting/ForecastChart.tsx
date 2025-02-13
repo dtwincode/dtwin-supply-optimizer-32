@@ -18,6 +18,13 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { ForecastingDateRange } from "./ForecastingDateRange";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ForecastChartProps {
   data: any[];
@@ -29,6 +36,7 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
   const [showOutliers, setShowOutliers] = useState(true);
   const [fromDate, setFromDate] = useState<Date>(new Date('2024-01-01'));
   const [toDate, setToDate] = useState<Date>(new Date('2024-12-26'));
+  const [confidenceLevel, setConfidenceLevel] = useState<string>("0.95");
 
   const dataWithOutliers = data.map(point => ({
     ...point,
@@ -57,6 +65,24 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
             />
             <Label htmlFor="ci-toggle">Show Confidence Intervals</Label>
           </div>
+          {showCI && (
+            <div className="flex items-center space-x-2">
+              <Label htmlFor="ci-level">CI Level:</Label>
+              <Select
+                value={confidenceLevel}
+                onValueChange={setConfidenceLevel}
+              >
+                <SelectTrigger className="w-[100px]">
+                  <SelectValue placeholder="Select CI" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0.90">90%</SelectItem>
+                  <SelectItem value="0.95">95%</SelectItem>
+                  <SelectItem value="0.99">99%</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           <div className="flex items-center space-x-2">
             <Switch
               id="outliers-toggle"

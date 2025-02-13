@@ -2,7 +2,14 @@
 import { type ModelMetrics } from './metricsCalculation';
 
 export const calculateConfidenceIntervals = (forecast: number[], confidence: number = 0.95) => {
-  const z = 1.96; // 95% confidence interval
+  // Map common confidence levels to their z-scores
+  const zScores: { [key: number]: number } = {
+    0.90: 1.645,
+    0.95: 1.96,
+    0.99: 2.576
+  };
+  
+  const z = zScores[confidence] || 1.96; // Default to 95% if invalid confidence level
   const std = Math.sqrt(forecast.reduce((sum, f) => sum + Math.pow(f - (forecast.reduce((a, b) => a + b) / forecast.length), 2), 0) / forecast.length);
   
   return forecast.map(f => ({
