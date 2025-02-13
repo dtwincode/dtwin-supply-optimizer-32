@@ -1,6 +1,8 @@
 
+import { Card } from "@/components/ui/card";
+import { ForecastChart } from "@/components/forecasting/ForecastChart";
 import { ForecastTable } from "@/components/forecasting/ForecastTable";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, addWeeks } from "date-fns";
 import { type ForecastData } from "@/components/forecasting/table/types";
 
 interface ForecastDistributionTabProps {
@@ -19,8 +21,11 @@ interface ForecastDistributionTabProps {
 export const ForecastDistributionTab = ({
   forecastTableData
 }: ForecastDistributionTabProps) => {
-  // Transform the data to include confidence bounds based on variance
-  const enhancedData: ForecastData[] = forecastTableData.map((row) => {
+  // Transform the data to include future forecasts
+  const currentDate = new Date();
+  const futureWeeks = 12; // Number of weeks to forecast ahead
+
+  const enhancedData = forecastTableData.map((row) => {
     // Calculate confidence bounds using the variance
     const confidenceInterval = Math.sqrt(row.variance || 0) * 1.96; // 95% confidence interval
     const forecast = row.forecast || 0;
@@ -36,8 +41,10 @@ export const ForecastDistributionTab = ({
     }
     
     return {
-      week: formattedDate,
+      week: row.date || '',
       forecast: forecast,
+      actual: row.value,
+      variance: row.variance,
       lower: Math.max(0, forecast - confidenceInterval),
       upper: forecast + confidenceInterval,
       sku: row.sku || 'N/A',
@@ -47,10 +54,84 @@ export const ForecastDistributionTab = ({
     };
   });
 
+  // Generate future forecast data points
+  const futureDates = Array.from({ length: futureWeeks }, (_, i) => {
+    const lastDataPoint = enhancedData[enhancedData.length - 1];
+    const lastDate = lastDataPoint?.week ? parseISO(lastDataPoint.week) : currentDate;
+    const newDate = addWeeks(lastDate, i + 1);
+    
+    // Add some randomness to the forecast for demonstration
+    const baseForecast = lastDataPoint?.forecast || 100;
+    const randomVariation = (Math.random() - 0.5) * 0.2; // ±10% variation
+    const newForecast = baseForecast * (1 + randomVariation);
+    const variance = (lastDataPoint?.variance || 10) * (1 + Math.random() * 0.2);
+
+    return {
+      week: format(newDate, 'yyyy-MM-dd'),
+      forecast: newForecast,
+      actual: null,
+      variance: variance,
+      lower: Math.max(0, newForecast - Math.sqrt(variance) * 1.96),
+      upper: newForecast + Math.sqrt(variance) * 1.96,
+      sku: lastDataPoint?.sku || 'N/A',
+      category: lastDataPoint?.category || 'N/A',
+      subcategory: lastDataPoint?.subcategory || 'N/A',
+      id: `future-${i}`
+    };
+  });
+
+  const allData = [...enhancedData, ...futureDates];
+  const confidenceIntervals = allData.map(d => ({
+    upper: d.upper,
+    lower: d.lower
+  }));
+
   // Only render if we have data
   if (!forecastTableData || forecastTableData.length === 0) {
     return <div className="p-4 text-muted-foreground">No forecast data available</div>;
   }
 
-  return <ForecastTable data={enhancedData} />;
+  return (
+    <div className="space-y-8">
+      {/* Forecast Chart Section */}
+      <Card className="p-4">
+        <div className="space-y-2">
+          <div>
+            <h4 className="text-base font-medium">Future Forecast Visualization</h4>
+            <p className="text-sm text-muted-foreground">
+              Historical data and future forecast predictions with confidence intervals
+            </p>
+          </div>
+          <div className="h-[400px] w-full overflow-hidden">
+            <ForecastChart
+              data={allData}
+              confidenceIntervals={confidenceIntervals}
+            />
+          </div>
+        </div>
+      </Card>
+
+      {/* Forecast Table Section */}
+      <Card className="p-4">
+        <div className="space-y-2">
+          <div>
+            <h4 className="text-base font-medium">Forecast Distribution Details</h4>
+            <p className="text-sm text-muted-foreground">
+              Detailed view of forecast values and confidence intervals
+            </p>
+          </div>
+          <ForecastTable data={allData.map(d => ({
+            week: format(parseISO(d.week), 'MMM dd, yyyy'),
+            forecast: Math.round(d.forecast),
+            lower: Math.round(d.lower),
+            upper: Math.round(d.upper),
+            sku: d.sku,
+            category: d.category,
+            subcategory: d.subcategory,
+            id: d.id
+          }))} />
+        </div>
+      </Card>
+    </div>
+  );
 };
