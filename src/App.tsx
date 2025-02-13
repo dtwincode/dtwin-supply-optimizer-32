@@ -18,6 +18,12 @@ import AskAI from "./pages/AskAI";
 import Tickets from "./pages/Tickets";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import { ForecastAnalysisTab } from "./components/forecasting/tabs/ForecastAnalysisTab";
+import { ForecastDistributionTab } from "./components/forecasting/tabs/ForecastDistributionTab";
+import { DecompositionTab } from "./components/forecasting/tabs/DecompositionTab";
+import { WhatIfAnalysisTab } from "./components/forecasting/tabs/WhatIfAnalysisTab";
+import { ValidationTab } from "./components/forecasting/tabs/ValidationTab";
+import { ExternalFactorsTab } from "./components/forecasting/tabs/ExternalFactorsTab";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +40,12 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/inventory" element={<Inventory />} />
               <Route path="/forecasting" element={<Forecasting />} />
+              <Route path="/forecasting/forecast" element={<ForecastAnalysisTab />} />
+              <Route path="/forecasting/distribution" element={<ForecastDistributionTab />} />
+              <Route path="/forecasting/decomposition" element={<DecompositionTab />} />
+              <Route path="/forecasting/scenarios" element={<WhatIfAnalysisTab />} />
+              <Route path="/forecasting/validation" element={<ValidationTab />} />
+              <Route path="/forecasting/external" element={<ExternalFactorsTab />} />
               <Route path="/logistics" element={<Logistics />} />
               <Route path="/sales-planning" element={<SalesPlanning />} />
               <Route path="/marketing" element={<Marketing />} />
