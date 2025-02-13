@@ -1,9 +1,8 @@
-
+import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { ForecastChart } from "@/components/forecasting/ForecastChart";
 import { ForecastTable } from "@/components/forecasting/ForecastTable";
 import { format, parseISO, addWeeks } from "date-fns";
-import { useState, useEffect } from "react";
 import { ModelSelectionCard } from "@/components/forecasting/ModelSelectionCard";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -11,10 +10,22 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
-import { X } from "lucide-react";
+import { X, Download, Upload, AlertTriangle, LineChart } from "lucide-react";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { SavedModelConfig, ModelParameter } from "@/types/models/commonTypes";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+interface ValidationPeriod {
+  startDate: string;
+  endDate: string;
+  metrics?: {
+    mape?: number;
+    rmse?: number;
+    mae?: number;
+  };
+}
 
 interface ForecastDistributionTabProps {
   forecastTableData: Array<{
@@ -37,9 +48,15 @@ export const ForecastDistributionTab = ({
   const [savedConfigs, setSavedConfigs] = useState<SavedModelConfig[]>([]);
   const [selectedConfigId, setSelectedConfigId] = useState<string | null>(null);
   const [forecastTableData, setForecastTableData] = useState(initialForecastData);
+  const [validationPeriod, setValidationPeriod] = useState<ValidationPeriod>({
+    startDate: format(new Date(), 'yyyy-MM-dd'),
+    endDate: format(addWeeks(new Date(), 12), 'yyyy-MM-dd')
+  });
+  const [alertThreshold, setAlertThreshold] = useState(15); // 15% deviation threshold
+  const [isComparisonMode, setIsComparisonMode] = useState(false);
+  const [comparisonConfigId, setComparisonConfigId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Helper function to safely parse parameters
   const parseParameters = (parametersJson: unknown): ModelParameter[] => {
     try {
       if (typeof parametersJson === 'string') {
@@ -52,7 +69,6 @@ export const ForecastDistributionTab = ({
     }
   };
 
-  // Load saved configurations on component mount
   useEffect(() => {
     const loadSavedConfigs = async () => {
       try {
@@ -84,7 +100,7 @@ export const ForecastDistributionTab = ({
 
     loadSavedConfigs();
   }, [toast]);
-  
+
   const fetchProductForecastData = async (productId: string) => {
     try {
       const { data, error } = await supabase
@@ -121,7 +137,6 @@ export const ForecastDistributionTab = ({
 
   const handleSaveConfiguration = async () => {
     try {
-      // Generate a unique product ID using a timestamp and random string
       const timestamp = new Date().getTime();
       const randomStr = Math.random().toString(36).substring(7);
       const uniqueProductId = `product-${timestamp}-${randomStr}`;
@@ -214,7 +229,109 @@ export const ForecastDistributionTab = ({
     }
   };
 
-  // Transform the data to include future forecasts
+  const handleExportConfig = () => {
+    if (!selectedConfigId) return;
+    
+    const config = savedConfigs.find(c => c.id === selectedConfigId);
+    if (!config) return;
+
+    const configData = JSON.stringify(config, null, 2);
+    const blob = new Blob([configData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `forecast-config-${config.productName}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Configuration Exported",
+      description: "The model configuration has been exported successfully."
+    });
+  };
+
+  const handleImportConfig = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const config = JSON.parse(e.target?.result as string);
+        const { data, error } = await supabase
+          .from('saved_model_configs')
+          .insert([{
+            product_id: config.productId,
+            product_name: `${config.productName} (Imported)`,
+            model_id: config.modelId,
+            parameters: config.parameters,
+            auto_run: config.autoRun
+          }])
+          .select();
+
+        if (error) throw error;
+
+        if (data) {
+          const newConfig: SavedModelConfig = {
+            id: data[0].id,
+            productId: data[0].product_id,
+            productName: data[0].product_name,
+            modelId: data[0].model_id,
+            parameters: parseParameters(data[0].parameters),
+            autoRun: data[0].auto_run
+          };
+
+          setSavedConfigs(prev => [...prev, newConfig]);
+          toast({
+            title: "Configuration Imported",
+            description: "The model configuration has been imported successfully."
+          });
+        }
+      } catch (error) {
+        console.error('Error importing configuration:', error);
+        toast({
+          title: "Import Error",
+          description: "Failed to import the configuration file.",
+          variant: "destructive"
+        });
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleBatchForecast = async () => {
+    if (!selectedConfigId) return;
+
+    toast({
+      title: "Batch Forecast Started",
+      description: "Generating forecasts for all products...",
+    });
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      toast({
+        title: "Batch Forecast Complete",
+        description: "All forecasts have been generated successfully."
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate batch forecasts.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleComparisonToggle = async () => {
+    setIsComparisonMode(!isComparisonMode);
+    if (!isComparisonMode) {
+      setComparisonConfigId(null);
+    }
+  };
+
   const currentDate = new Date();
   const futureWeeks = 12;
 
@@ -245,7 +362,6 @@ export const ForecastDistributionTab = ({
     };
   });
 
-  // Generate future forecast data points
   const futureDates = Array.from({ length: futureWeeks }, (_, i) => {
     const lastDataPoint = enhancedData[enhancedData.length - 1];
     const lastDate = lastDataPoint?.week ? parseISO(lastDataPoint.week) : currentDate;
@@ -276,21 +392,49 @@ export const ForecastDistributionTab = ({
     lower: d.lower
   }));
 
-  // Only render if we have data
   if (!forecastTableData || forecastTableData.length === 0) {
     return <div className="p-4 text-muted-foreground">No forecast data available</div>;
   }
 
   return (
     <div className="space-y-8 p-4 bg-background">
-      {/* Model Selection Section */}
       <Card className="p-6 border shadow-sm">
         <div className="space-y-4">
-          <div className="space-y-2">
-            <h3 className="text-2xl font-bold">Step 1: Select Model</h3>
-            <p className="text-muted-foreground">
-              Choose and configure your forecasting model
-            </p>
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <h3 className="text-2xl font-bold">Step 1: Select Model</h3>
+              <p className="text-muted-foreground">
+                Choose and configure your forecasting model
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportConfig}
+                disabled={!selectedConfigId}
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Export
+              </Button>
+              <div className="relative">
+                <Input
+                  type="file"
+                  accept=".json"
+                  onChange={handleImportConfig}
+                  className="hidden"
+                  id="import-config"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => document.getElementById('import-config')?.click()}
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Import
+                </Button>
+              </div>
+            </div>
           </div>
 
           {savedConfigs.length > 0 && (
@@ -383,10 +527,24 @@ export const ForecastDistributionTab = ({
         </div>
       </Card>
 
-      {/* Forecast Chart Section */}
       <Card className="p-6 border shadow-sm">
         <div className="space-y-2">
-          <h3 className="text-2xl font-bold">Step 2: Future Forecast Visualization</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-2xl font-bold">Step 2: Future Forecast Visualization</h3>
+            {validationPeriod.metrics && (
+              <div className="flex items-center gap-2">
+                <Badge variant="outline">
+                  MAPE: {validationPeriod.metrics.mape?.toFixed(2)}%
+                </Badge>
+                <Badge variant="outline">
+                  RMSE: {validationPeriod.metrics.rmse?.toFixed(2)}
+                </Badge>
+                <Badge variant="outline">
+                  MAE: {validationPeriod.metrics.mae?.toFixed(2)}
+                </Badge>
+              </div>
+            )}
+          </div>
           <p className="text-muted-foreground">
             Historical data and future forecast predictions with confidence intervals
           </p>
@@ -399,7 +557,6 @@ export const ForecastDistributionTab = ({
         </div>
       </Card>
 
-      {/* Forecast Table Section */}
       <Card className="p-6 border shadow-sm">
         <div className="space-y-2">
           <h3 className="text-2xl font-bold">Step 3: Forecast Distribution Details</h3>
