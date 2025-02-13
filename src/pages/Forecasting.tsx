@@ -15,7 +15,7 @@ import { PeriodSelector } from "@/components/forecasting/date-range/PeriodSelect
 import { LocationFilter } from "@/components/forecasting/filters/LocationFilter";
 import { ProductFilter } from "@/components/forecasting/filters/ProductFilter";
 import { ForecastingDateRange } from "@/components/forecasting/ForecastingDateRange";
-import { ForecastDataPoint } from "@/utils/forecasting/productFilters";
+import { ForecastDataPoint } from "@/types/forecasting";
 
 const Forecasting = () => {
   const [fromDate, setFromDate] = useState<Date>(new Date('2024-01-01'));
@@ -30,30 +30,28 @@ const Forecasting = () => {
   const [selectedL8DeviceStorage, setSelectedL8DeviceStorage] = useState<string>("all");
 
   const dummyData = {
-    filteredData: [
-      {
-        id: "1",
-        week: "2024-01-01",
-        actual: 100,
-        forecast: 105,
-        variance: 5,
-        region: "North",
-        city: "Example City",
-        channel: "Retail",
-        warehouse: "Main",
-        category: "Electronics",
-        subcategory: "Phones",
-        sku: "SKU123",
-        l1_main_prod: "Electronics",
-        l2_prod_line: "Mobile Devices",
-        l3_prod_category: "Smartphones",
-        l4_device_make: "Example Brand",
-        l5_prod_sub_category: "Flagship",
-        l6_device_model: "Model X",
-        l7_device_color: "Black",
-        l8_device_storage: "128GB"
-      }
-    ] as ForecastDataPoint[],
+    filteredData: [{
+      id: "1",
+      week: "2024-01-01",
+      actual: 100,
+      forecast: 105,
+      variance: 5,
+      region: "North",
+      city: "Example City",
+      channel: "Retail",
+      warehouse: "Main",
+      category: "Electronics",
+      subcategory: "Phones",
+      sku: "SKU123",
+      l1_main_prod: "Electronics",
+      l2_prod_line: "Mobile Devices",
+      l3_prod_category: "Smartphones",
+      l4_device_make: "Example Brand",
+      l5_prod_sub_category: "Flagship",
+      l6_device_model: "Model X",
+      l7_device_color: "Black",
+      l8_device_storage: "128GB"
+    }] satisfies ForecastDataPoint[],
     confidenceIntervals: [
       { upper: 110, lower: 90 }
     ],
