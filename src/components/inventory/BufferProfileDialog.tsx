@@ -75,66 +75,70 @@ export const BufferProfileDialog = ({ onSuccess }: BufferProfileDialogProps) => 
       <DialogTrigger asChild>
         <Button variant="outline">Create Buffer Profile</Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Create Buffer Profile</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              value={formData.name || ''}
-              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-              required
-            />
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                value={formData.name || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                required
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="variabilityFactor">Variability</Label>
+              <Select
+                value={formData.variabilityFactor}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, variabilityFactor: value as BufferProfile['variabilityFactor'] }))}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select variability" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="high_variability">High</SelectItem>
+                  <SelectItem value="medium_variability">Medium</SelectItem>
+                  <SelectItem value="low_variability">Low</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="variabilityFactor">Variability Factor</Label>
-            <Select
-              value={formData.variabilityFactor}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, variabilityFactor: value as BufferProfile['variabilityFactor'] }))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select variability" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="high_variability">High Variability</SelectItem>
-                <SelectItem value="medium_variability">Medium Variability</SelectItem>
-                <SelectItem value="low_variability">Low Variability</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="leadTimeFactor">Lead Time</Label>
+              <Select
+                value={formData.leadTimeFactor}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, leadTimeFactor: value as BufferProfile['leadTimeFactor'] }))}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select lead time" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="short">Short</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="long">Long</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="moq">MOQ</Label>
+              <Input
+                id="moq"
+                type="number"
+                value={formData.moq || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, moq: parseInt(e.target.value) }))}
+                className="mt-1"
+              />
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="leadTimeFactor">Lead Time Factor</Label>
-            <Select
-              value={formData.leadTimeFactor}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, leadTimeFactor: value as BufferProfile['leadTimeFactor'] }))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select lead time" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="short">Short</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="long">Long</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="moq">Minimum Order Quantity</Label>
-            <Input
-              id="moq"
-              type="number"
-              value={formData.moq || ''}
-              onChange={(e) => setFormData(prev => ({ ...prev, moq: parseInt(e.target.value) }))}
-            />
-          </div>
-
-          <div className="space-y-2">
+          <div>
             <Label htmlFor="lotSizeFactor">Lot Size Factor</Label>
             <Input
               id="lotSizeFactor"
@@ -142,24 +146,24 @@ export const BufferProfileDialog = ({ onSuccess }: BufferProfileDialogProps) => 
               step="0.1"
               value={formData.lotSizeFactor || ''}
               onChange={(e) => setFormData(prev => ({ ...prev, lotSizeFactor: parseFloat(e.target.value) }))}
+              className="mt-1"
             />
           </div>
 
-          <div className="space-y-2">
+          <div>
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
               value={formData.description || ''}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              placeholder="Enter description..."
+              placeholder="Brief description of the buffer profile..."
+              className="mt-1 h-16"
             />
           </div>
 
-          <div className="pt-4">
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "Creating..." : "Create Buffer Profile"}
-            </Button>
-          </div>
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Creating..." : "Create Buffer Profile"}
+          </Button>
         </form>
       </DialogContent>
     </Dialog>
