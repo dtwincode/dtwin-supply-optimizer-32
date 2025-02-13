@@ -61,7 +61,6 @@ export const useForecastData = (
   
   const { toast } = useToast();
 
-  // Fetch data from Supabase
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -135,7 +134,15 @@ export const useForecastData = (
           warehouse: item.warehouse || '',
           category: item.category || '',
           subcategory: item.subcategory || '',
-          sku: item.sku || ''
+          sku: item.sku || '',
+          l1_main_prod: item.l1_main_prod || '',
+          l2_prod_line: item.l2_prod_line || '',
+          l3_prod_category: item.l3_prod_category || '',
+          l4_device_make: item.l4_device_make || '',
+          l5_prod_sub_category: item.l5_prod_sub_category || '',
+          l6_device_model: item.l6_device_model || '',
+          l7_device_color: item.l7_device_color || '',
+          l8_device_storage: item.l8_device_storage || ''
         }));
 
         setData(transformedData);
