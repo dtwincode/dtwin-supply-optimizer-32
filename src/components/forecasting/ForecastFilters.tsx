@@ -7,9 +7,7 @@ import { LocationFilter } from "./filters/LocationFilter";
 import { ChannelFilter } from "./filters/ChannelFilter";
 import { ProductFilter } from "./filters/ProductFilter";
 import { Button } from "@/components/ui/button";
-import { ForecastingDateRange } from "./ForecastingDateRange";
 import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 
 interface ForecastFiltersProps {
   searchQuery: string;
@@ -38,14 +36,6 @@ interface ForecastFiltersProps {
   setSelectedL7DeviceColor: (value: string) => void;
   selectedL8DeviceStorage: string;
   setSelectedL8DeviceStorage: (value: string) => void;
-  trainingFromDate: Date;
-  setTrainingFromDate: (date: Date) => void;
-  trainingToDate: Date;
-  setTrainingToDate: (date: Date) => void;
-  testingFromDate: Date;
-  setTestingFromDate: (date: Date) => void;
-  testingToDate: Date;
-  setTestingToDate: (date: Date) => void;
   regions: string[];
   cities: { [key: string]: string[] };
   channelTypes: string[];
@@ -80,14 +70,6 @@ export const ForecastFilters = ({
   setSelectedL7DeviceColor,
   selectedL8DeviceStorage,
   setSelectedL8DeviceStorage,
-  trainingFromDate,
-  setTrainingFromDate,
-  trainingToDate,
-  setTrainingToDate,
-  testingFromDate,
-  setTestingFromDate,
-  testingToDate,
-  setTestingToDate,
   regions,
   cities,
   channelTypes,
@@ -118,29 +100,6 @@ export const ForecastFilters = ({
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <Card className="p-6">
-          <h4 className="text-base font-medium mb-4">Training Period</h4>
-          <ForecastingDateRange
-            fromDate={trainingFromDate}
-            toDate={trainingToDate}
-            setFromDate={setTrainingFromDate}
-            setToDate={setTrainingToDate}
-          />
-        </Card>
-        <Card className="p-6">
-          <h4 className="text-base font-medium mb-4">Testing Period</h4>
-          <ForecastingDateRange
-            fromDate={testingFromDate}
-            toDate={testingToDate}
-            setFromDate={setTestingFromDate}
-            setToDate={setTestingToDate}
-          />
-        </Card>
-      </div>
-
-      <Separator />
-
       <div 
         className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40"
         onMouseLeave={() => setIsExpanded(false)}
