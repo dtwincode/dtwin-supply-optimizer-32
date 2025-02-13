@@ -2,8 +2,6 @@
 import { ForecastChart } from "@/components/forecasting/ForecastChart";
 import { Card } from "@/components/ui/card";
 import {
-  BoxPlot,
-  ScatterPlot,
   Line,
   ComposedChart,
   LineChart,
@@ -14,7 +12,8 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer
+  ResponsiveContainer,
+  Rectangle
 } from "recharts";
 
 interface ForecastAnalysisTabProps {
@@ -65,6 +64,61 @@ const createHistogramData = (data: any[]) => {
   return bins;
 };
 
+const CustomBoxPlot = (props: any) => {
+  const { x, y, width, height, q1, q3, median, min, max } = props;
+  const boxWidth = width * 0.5;
+  const centerX = x + width / 2;
+
+  return (
+    <g>
+      {/* Vertical line from min to max */}
+      <line
+        x1={centerX}
+        y1={y + height - (height * (min - min)) / (max - min)}
+        x2={centerX}
+        y2={y + height - (height * (max - min)) / (max - min)}
+        stroke="#8884d8"
+        strokeWidth={1}
+      />
+      {/* Box from Q1 to Q3 */}
+      <rect
+        x={centerX - boxWidth / 2}
+        y={y + height - (height * (q3 - min)) / (max - min)}
+        width={boxWidth}
+        height={(height * (q3 - q1)) / (max - min)}
+        fill="#8884d8"
+        fillOpacity={0.3}
+        stroke="#8884d8"
+      />
+      {/* Median line */}
+      <line
+        x1={centerX - boxWidth / 2}
+        y1={y + height - (height * (median - min)) / (max - min)}
+        x2={centerX + boxWidth / 2}
+        y2={y + height - (height * (median - min)) / (max - min)}
+        stroke="#8884d8"
+        strokeWidth={2}
+      />
+      {/* Min whisker */}
+      <line
+        x1={centerX - boxWidth / 4}
+        y1={y + height - (height * (min - min)) / (max - min)}
+        x2={centerX + boxWidth / 4}
+        y2={y + height - (height * (min - min)) / (max - min)}
+        stroke="#8884d8"
+      />
+      {/* Max whisker */}
+      <line
+        x1={centerX - boxWidth / 4}
+        y1={y + height - (height * (max - min)) / (max - min)}
+        x2={centerX + boxWidth / 4}
+        y2={y + height - (height * (max - min)) / (max - min)}
+        stroke="#8884d8"
+      />
+    </g>
+  );
+};
+
 export const ForecastAnalysisTab = ({
   filteredData,
   confidenceIntervals
@@ -77,7 +131,8 @@ export const ForecastAnalysisTab = ({
     median: stats.median,
     q3: stats.q3,
     min: stats.min,
-    max: stats.max
+    max: stats.max,
+    name: "Distribution"
   }];
 
   return (
@@ -98,27 +153,22 @@ export const ForecastAnalysisTab = ({
               <ComposedChart
                 data={boxPlotData}
                 margin={{ top: 20, right: 30, left: 30, bottom: 5 }}
-                layout="vertical"
               >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" />
-                <YAxis type="category" dataKey="name" />
-                <Tooltip />
-                <Legend />
-                <BoxPlot
-                  dataKey="median"
-                  q1={stats.q1}
-                  q3={stats.q3}
-                  minimum={stats.min}
-                  maximum={stats.max}
-                  fill="#8884d8"
-                  strokeWidth={2}
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip
+                  formatter={(value: any) => [value.toFixed(2), "Value"]}
                 />
-                {stats.outliers.map((outlier, index) => (
-                  <ScatterPlot
+                <Legend />
+                {boxPlotData.map((entry, index) => (
+                  <CustomBoxPlot
                     key={index}
-                    data={[{ x: outlier, y: 0 }]}
-                    fill="red"
+                    q1={entry.q1}
+                    q3={entry.q3}
+                    median={entry.median}
+                    min={entry.min}
+                    max={entry.max}
                   />
                 ))}
               </ComposedChart>
