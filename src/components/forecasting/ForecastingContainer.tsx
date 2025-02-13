@@ -252,7 +252,43 @@ export const ForecastingContainer = () => {
   return (
     <div className="container mx-auto p-6">
       <div className="space-y-8">
-        {/* Step 1: Configuration Header */}
+        {/* Step 1: Detailed Analysis - Moved to top */}
+        <Card className="p-6">
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">1</span>
+              <h3 className="text-lg font-semibold">Detailed Analysis</h3>
+            </div>
+
+            <div className="space-y-6">
+              <ForecastingTabs
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                historicalData={historicalData}
+                filteredData={filteredData}
+                confidenceIntervals={confidenceIntervals}
+                decomposition={decomposition}
+                validationResults={validationResults}
+                crossValidationResults={crossValidationResults}
+                weatherLocation={weatherLocation}
+                setWeatherLocation={setWeatherLocation}
+                weatherData={weatherData}
+                fetchWeatherForecast={fetchWeatherForecast}
+                marketEvents={marketEvents}
+                setMarketEvents={setMarketEvents}
+                newEvent={newEvent}
+                setNewEvent={setNewEvent}
+                priceAnalysis={priceAnalysis}
+                historicalPriceData={historicalPriceData}
+                addHistoricalPricePoint={addHistoricalPricePoint}
+                calculatePriceAnalysis={calculatePriceAnalysis}
+                forecastTableData={forecastTableData}
+              />
+            </div>
+          </div>
+        </Card>
+
+        {/* Configuration Header */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
@@ -273,7 +309,7 @@ export const ForecastingContainer = () => {
         <Card className="p-6">
           <div className="space-y-6">
             <div className="flex items-center gap-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">1</span>
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">2</span>
               <h3 className="text-lg font-semibold">Configure Model</h3>
             </div>
             
@@ -291,7 +327,7 @@ export const ForecastingContainer = () => {
         <Card className="p-6">
           <div className="space-y-6">
             <div className="flex items-center gap-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">2</span>
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">3</span>
               <h3 className="text-lg font-semibold">Select Data Range & Filters</h3>
             </div>
 
@@ -344,7 +380,7 @@ export const ForecastingContainer = () => {
         <Card className="p-6">
           <div className="space-y-6">
             <div className="flex items-center gap-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">3</span>
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">4</span>
               <h3 className="text-lg font-semibold">Key Performance Metrics</h3>
             </div>
             
@@ -352,43 +388,7 @@ export const ForecastingContainer = () => {
           </div>
         </Card>
 
-        {/* Step 5: Detailed Analysis */}
-        <Card className="p-6">
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">4</span>
-              <h3 className="text-lg font-semibold">Detailed Analysis</h3>
-            </div>
-
-            <div className="space-y-6">
-              <ForecastingTabs
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-                historicalData={historicalData}
-                filteredData={filteredData}
-                confidenceIntervals={confidenceIntervals}
-                decomposition={decomposition}
-                validationResults={validationResults}
-                crossValidationResults={crossValidationResults}
-                weatherLocation={weatherLocation}
-                setWeatherLocation={setWeatherLocation}
-                weatherData={weatherData}
-                fetchWeatherForecast={fetchWeatherForecast}
-                marketEvents={marketEvents}
-                setMarketEvents={setMarketEvents}
-                newEvent={newEvent}
-                setNewEvent={setNewEvent}
-                priceAnalysis={priceAnalysis}
-                historicalPriceData={historicalPriceData}
-                addHistoricalPricePoint={addHistoricalPricePoint}
-                calculatePriceAnalysis={calculatePriceAnalysis}
-                forecastTableData={forecastTableData}
-              />
-            </div>
-          </div>
-        </Card>
-
-        {/* Step 6: Version Control */}
+        {/* Step 5: Version Control */}
         <Card className="p-6">
           <div className="space-y-6">
             <div className="flex items-center gap-2">
@@ -402,7 +402,7 @@ export const ForecastingContainer = () => {
           </div>
         </Card>
 
-        {/* Step 7: Scenario Management */}
+        {/* Step 6: Scenario Management */}
         <Card className="p-6">
           <div className="space-y-6">
             <div className="flex items-center gap-2">
