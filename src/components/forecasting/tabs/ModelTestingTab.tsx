@@ -21,15 +21,15 @@ export const ModelTestingTab = ({
   const { toast } = useToast();
   const { testData, generateNewTestData } = useTestData();
 
-  // Training period states with default values
-  const [trainingRange, setTrainingRange] = useState<string>("1m"); // Set default to "1m"
-  const [trainingFromDate, setTrainingFromDate] = useState<Date | null>(new Date()); // Initialize with current date
-  const [trainingToDate, setTrainingToDate] = useState<Date | null>(new Date()); // Initialize with current date
+  // Training period states - initialize as empty
+  const [trainingRange, setTrainingRange] = useState<string>("custom");
+  const [trainingFromDate, setTrainingFromDate] = useState<Date | null>(null);
+  const [trainingToDate, setTrainingToDate] = useState<Date | null>(null);
 
-  // Testing period states with default values
-  const [testingRange, setTestingRange] = useState<string>("1m"); // Set default to "1m"
-  const [testingFromDate, setTestingFromDate] = useState<Date | null>(new Date()); // Initialize with current date
-  const [testingToDate, setTestingToDate] = useState<Date | null>(new Date()); // Initialize with current date
+  // Testing period states - initialize as empty
+  const [testingRange, setTestingRange] = useState<string>("custom");
+  const [testingFromDate, setTestingFromDate] = useState<Date | null>(null);
+  const [testingToDate, setTestingToDate] = useState<Date | null>(null);
 
   // Range options
   const rangeOptions = [
@@ -39,12 +39,6 @@ export const ModelTestingTab = ({
     { label: "Last Year", value: "1y" },
     { label: "Custom", value: "custom" }
   ];
-
-  // Initialize periods on component mount
-  useEffect(() => {
-    handleRangeChange('training', "1m");
-    handleRangeChange('testing', "1m");
-  }, []);
 
   const handleRangeChange = (periodType: 'training' | 'testing', value: string) => {
     console.log(`Handling range change for ${periodType}:`, value);
