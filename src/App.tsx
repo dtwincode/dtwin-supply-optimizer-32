@@ -9,7 +9,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import Index from "./pages/index";
 import Auth from "./pages/Auth";
 import Inventory from "./pages/Inventory";
-import Forecasting, { ForecastingProvider } from "./pages/Forecasting";
+import Forecasting from "./pages/Forecasting";
 import Logistics from "./pages/Logistics";
 import SalesPlanning from "./pages/SalesPlanning";
 import Reports from "./pages/Reports";
@@ -18,12 +18,6 @@ import AskAI from "./pages/AskAI";
 import Tickets from "./pages/Tickets";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
-import { ForecastAnalysisTab } from "./components/forecasting/tabs/ForecastAnalysisTab";
-import { ForecastDistributionTab } from "./components/forecasting/tabs/ForecastDistributionTab";
-import { DecompositionTab } from "./components/forecasting/tabs/DecompositionTab";
-import { WhatIfAnalysisTab } from "./components/forecasting/tabs/WhatIfAnalysisTab";
-import { ValidationTab } from "./components/forecasting/tabs/ValidationTab";
-import { ExternalFactorsTab } from "./components/forecasting/tabs/ExternalFactorsTab";
 
 const queryClient = new QueryClient();
 
@@ -39,15 +33,7 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/" element={<Index />} />
               <Route path="/inventory" element={<Inventory />} />
-              <Route path="/forecasting" element={<ForecastingProvider />}>
-                <Route index element={<Forecasting />} />
-                <Route path="forecast" element={<ForecastAnalysisTab />} />
-                <Route path="distribution" element={<ForecastDistributionTab />} />
-                <Route path="decomposition" element={<DecompositionTab />} />
-                <Route path="scenarios" element={<WhatIfAnalysisTab />} />
-                <Route path="validation" element={<ValidationTab />} />
-                <Route path="external" element={<ExternalFactorsTab />} />
-              </Route>
+              <Route path="/forecasting" element={<Forecasting />} />
               <Route path="/logistics" element={<Logistics />} />
               <Route path="/sales-planning" element={<SalesPlanning />} />
               <Route path="/marketing" element={<Marketing />} />

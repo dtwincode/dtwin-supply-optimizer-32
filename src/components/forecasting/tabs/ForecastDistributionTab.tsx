@@ -1,13 +1,9 @@
 
 import { ForecastTable } from "@/components/forecasting/ForecastTable";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useNavigate, useOutletContext } from "react-router-dom";
-import { ChevronLeft } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { type ForecastData } from "@/components/forecasting/table/types";
 
-interface ForecastContextType {
+interface ForecastDistributionTabProps {
   forecastTableData: Array<{
     date: string | null;
     value: number;
@@ -20,10 +16,9 @@ interface ForecastContextType {
   }>;
 }
 
-export const ForecastDistributionTab = () => {
-  const navigate = useNavigate();
-  const { forecastTableData } = useOutletContext<ForecastContextType>();
-  
+export const ForecastDistributionTab = ({
+  forecastTableData
+}: ForecastDistributionTabProps) => {
   // Transform the data to include confidence bounds based on variance
   const enhancedData: ForecastData[] = forecastTableData.map((row) => {
     // Calculate confidence bounds using the variance
@@ -52,23 +47,10 @@ export const ForecastDistributionTab = () => {
     };
   });
 
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-4">
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate("/forecasting")}
-          className="flex items-center gap-2"
-        >
-          <ChevronLeft className="h-4 w-4" />
-          Back to Forecasting
-        </Button>
-      </div>
-      
-      <Card className="p-6">
-        <h2 className="text-2xl font-semibold mb-6">Forecast Distribution</h2>
-        <ForecastTable data={enhancedData} />
-      </Card>
-    </div>
-  );
+  // Only render if we have data
+  if (!forecastTableData || forecastTableData.length === 0) {
+    return <div className="p-4 text-muted-foreground">No forecast data available</div>;
+  }
+
+  return <ForecastTable data={enhancedData} />;
 };
