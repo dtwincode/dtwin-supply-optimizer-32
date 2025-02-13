@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -21,15 +22,6 @@ const Inventory = () => {
   const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState<string>("all");
-  const [selectedFamily, setSelectedFamily] = useState<string>("all");
-  const [selectedRegion, setSelectedRegion] = useState<string>("all");
-  const [selectedCity, setSelectedCity] = useState<string>("all");
-  const [selectedChannel, setSelectedChannel] = useState<string>("all");
-  const [selectedWarehouse, setSelectedWarehouse] = useState<string>("all");
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string>("all");
-  const [selectedSKU, setSelectedSKU] = useState<string>("all");
 
   const handleCreatePurchaseOrder = (item: InventoryItem) => {
     toast({
@@ -39,15 +31,6 @@ const Inventory = () => {
   };
 
   const filteredData = inventoryData.filter(item => {
-    if (selectedLocation !== "all" && item.location !== selectedLocation) return false;
-    if (selectedFamily !== "all" && item.productFamily !== selectedFamily) return false;
-    if (selectedRegion !== "all" && item.region !== selectedRegion) return false;
-    if (selectedCity !== "all" && item.city !== selectedCity) return false;
-    if (selectedChannel !== "all" && item.channel !== selectedChannel) return false;
-    if (selectedWarehouse !== "all" && item.warehouse !== selectedWarehouse) return false;
-    if (selectedCategory !== "all" && item.category !== selectedCategory) return false;
-    if (selectedSubcategory !== "all" && item.subcategory !== selectedSubcategory) return false;
-    if (selectedSKU !== "all" && item.sku !== selectedSKU) return false;
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       return (
@@ -65,22 +48,6 @@ const Inventory = () => {
     currentPage * ITEMS_PER_PAGE
   );
 
-  // Get unique values for filters
-  const categories = [...new Set(inventoryData.map(item => item.category))] as string[];
-  const subcategories = [...new Set(inventoryData
-    .filter(item => selectedCategory === "all" || item.category === selectedCategory)
-    .map(item => item.subcategory))] as string[];
-  const skus = [...new Set(inventoryData
-    .filter(item => 
-      (selectedCategory === "all" || item.category === selectedCategory) &&
-      (selectedSubcategory === "all" || item.subcategory === selectedSubcategory)
-    )
-    .map(item => item.sku))] as string[];
-  const productFamilies = [...new Set(inventoryData.map(item => item.productFamily))] as string[];
-  const regions = [...new Set(inventoryData.map(item => item.region))] as string[];
-  const channelTypes = [...new Set(inventoryData.map(item => item.channel))] as string[];
-  const locations = [...new Set(inventoryData.map(item => item.location))] as string[];
-
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -92,40 +59,8 @@ const Inventory = () => {
                 : 'Manage and track inventory levels'}
             </p>
             <InventoryFilters
-              selectedLocation={selectedLocation}
-              setSelectedLocation={setSelectedLocation}
-              selectedFamily={selectedFamily}
-              setSelectedFamily={setSelectedFamily}
-              selectedRegion={selectedRegion}
-              setSelectedRegion={setSelectedRegion}
-              selectedCity={selectedCity}
-              setSelectedCity={setSelectedCity}
-              selectedChannel={selectedChannel}
-              setSelectedChannel={setSelectedChannel}
-              selectedWarehouse={selectedWarehouse}
-              setSelectedWarehouse={setSelectedWarehouse}
-              selectedCategory={selectedCategory}
-              setSelectedCategory={setSelectedCategory}
-              selectedSubcategory={selectedSubcategory}
-              setSelectedSubcategory={setSelectedSubcategory}
-              selectedSKU={selectedSKU}
-              setSelectedSKU={setSelectedSKU}
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
-              categories={categories}
-              subcategories={subcategories}
-              skus={skus}
-              productFamilies={productFamilies}
-              regions={regions}
-              cities={{
-                "Central Region": ["Riyadh", "Al-Kharj", "Al-Qassim"],
-                "Eastern Region": ["Dammam", "Al-Khobar", "Dhahran"],
-                "Western Region": ["Jeddah", "Mecca", "Medina"],
-                "Northern Region": ["Tabuk", "Hail", "Al-Jawf"],
-                "Southern Region": ["Abha", "Jizan", "Najran"]
-              }}
-              channelTypes={channelTypes}
-              locations={locations}
             />
           </div>
         </div>
