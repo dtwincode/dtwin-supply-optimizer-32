@@ -1,8 +1,68 @@
 
 import { cn } from "@/lib/utils";
 import { Link, useLocation } from "react-router-dom";
+import { ForecastDataPoint } from "@/types/forecasting";
 
-export const ForecastingTabs = () => {
+interface ForecastingTabsProps {
+  activeTab?: string;
+  setActiveTab?: (tab: string) => void;
+  historicalData?: Array<{ date: string; actual: number; predicted: number; }>;
+  filteredData?: ForecastDataPoint[];
+  confidenceIntervals?: Array<{ upper: number; lower: number; }>;
+  decomposition?: {
+    trend: (number | null)[];
+    seasonal: (number | null)[];
+  };
+  validationResults?: {
+    biasTest: boolean;
+    residualNormality: boolean;
+    heteroskedasticityTest: boolean;
+  };
+  crossValidationResults?: {
+    trainMetrics: { mape: number; mae: number; rmse: number; };
+    testMetrics: { mape: number; mae: number; rmse: number; };
+    validationMetrics: { mape: number; mae: number; rmse: number; };
+  };
+  weatherLocation?: string;
+  setWeatherLocation?: (location: string) => void;
+  weatherData?: any;
+  fetchWeatherForecast?: (location: string) => Promise<any>;
+  marketEvents?: any[];
+  setMarketEvents?: (events: any[]) => void;
+  newEvent?: any;
+  setNewEvent?: (event: any) => void;
+  priceAnalysis?: any;
+  historicalPriceData?: any[];
+  addHistoricalPricePoint?: () => void;
+  calculatePriceAnalysis?: () => void;
+  forecastTableData?: any[];
+  whatIfScenario?: any[];
+}
+
+export const ForecastingTabs = ({
+  activeTab,
+  setActiveTab,
+  historicalData,
+  filteredData,
+  confidenceIntervals,
+  decomposition,
+  validationResults,
+  crossValidationResults,
+  weatherLocation,
+  setWeatherLocation,
+  weatherData,
+  fetchWeatherForecast,
+  marketEvents,
+  setMarketEvents,
+  newEvent,
+  setNewEvent,
+  priceAnalysis,
+  historicalPriceData,
+  addHistoricalPricePoint,
+  calculatePriceAnalysis,
+  forecastTableData,
+  whatIfScenario
+}: ForecastingTabsProps) => {
   const location = useLocation();
   const currentPath = location.pathname;
 
