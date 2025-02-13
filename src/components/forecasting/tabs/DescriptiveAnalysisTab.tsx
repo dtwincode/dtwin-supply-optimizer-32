@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { ForecastDataPoint } from "@/types/forecasting";
 import { ResponsiveContainer, ScatterChart, XAxis, YAxis, Tooltip, CartesianGrid, Scatter, BarChart, Bar, Line, ComposedChart } from "recharts";
@@ -79,13 +78,6 @@ export const DescriptiveAnalysisTab = ({ filteredData = [] }: DescriptiveAnalysi
     };
   };
 
-  const boxPlotData = [
-    {
-      group: 'Distribution',
-      ...prepareBoxPlotData(values)
-    }
-  ];
-
   // Enhanced histogram data preparation with distribution line
   const prepareHistogramData = (values: number[], bins = 10) => {
     if (values.length === 0) return [];
@@ -124,17 +116,103 @@ export const DescriptiveAnalysisTab = ({ filteredData = [] }: DescriptiveAnalysi
     return histogramData;
   };
 
+  // Calculate additional statistics
+  const calculateStatistics = (data: number[]) => {
+    if (data.length === 0) return {
+      mean: 0,
+      median: 0,
+      mode: 0,
+      stdDev: 0,
+      variance: 0,
+      skewness: 0,
+      kurtosis: 0,
+      range: 0,
+      q1: 0,
+      q3: 0,
+      iqr: 0,
+      min: 0,
+      max: 0,
+      confidenceInterval95: [0, 0],
+      outliers: [],
+      percentile25: 0,
+      percentile75: 0
+    };
+
+    const sorted = [...data].sort((a, b) => a - b);
+    const n = data.length;
+    const mean = data.reduce((a, b) => a + b, 0) / n;
+    const variance = data.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / n;
+    const stdDev = Math.sqrt(variance);
+
+    // Calculate mode
+    const frequency: { [key: number]: number } = {};
+    data.forEach(value => {
+      frequency[value] = (frequency[value] || 0) + 1;
+    });
+    const mode = Object.entries(frequency)
+      .reduce((a, b) => (b[1] > a[1] ? b : a), [0, 0])[0];
+
+    // Calculate quartiles and IQR
+    const q1 = sorted[Math.floor(n * 0.25)];
+    const q3 = sorted[Math.floor(n * 0.75)];
+    const iqr = q3 - q1;
+
+    // Calculate skewness and kurtosis
+    const skewness = data.reduce((a, b) => 
+      a + Math.pow((b - mean) / stdDev, 3), 0) / n;
+    
+    const kurtosis = data.reduce((a, b) => 
+      a + Math.pow((b - mean) / stdDev, 4), 0) / n - 3;
+
+    // Calculate 95% confidence interval
+    const marginOfError = 1.96 * (stdDev / Math.sqrt(n));
+    const confidenceInterval95 = [mean - marginOfError, mean + marginOfError];
+
+    // Detect outliers using 1.5 * IQR rule
+    const outliers = data.filter(
+      value => value < (q1 - 1.5 * iqr) || value > (q3 + 1.5 * iqr)
+    );
+
+    return {
+      mean,
+      median: sorted[Math.floor(n / 2)],
+      mode: Number(mode),
+      stdDev,
+      variance,
+      skewness,
+      kurtosis,
+      range: sorted[n - 1] - sorted[0],
+      q1,
+      q3,
+      iqr,
+      min: sorted[0],
+      max: sorted[n - 1],
+      confidenceInterval95,
+      outliers,
+      percentile25: q1,
+      percentile75: q3
+    };
+  };
+
+  const boxPlotData = [
+    {
+      group: 'Distribution',
+      ...prepareBoxPlotData(values)
+    }
+  ];
+
+  const stats = calculateStatistics(values);
   const histogramData = prepareHistogramData(values);
   const distributionType = detectDistributionType(values);
 
   // Calculate basic statistics
-  const mean = values.length > 0
+  const meanOriginal = values.length > 0
     ? values.reduce((a, b) => a + b, 0) / values.length
     : 0;
-  const stdDev = values.length > 0
-    ? Math.sqrt(values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length)
+  const stdDevOriginal = values.length > 0
+    ? Math.sqrt(values.reduce((a, b) => a + Math.pow(b - meanOriginal, 2), 0) / values.length)
     : 0;
-  const median = values.length > 0
+  const medianOriginal = values.length > 0
     ? values.sort((a, b) => a - b)[Math.floor(values.length / 2)]
     : 0;
 
@@ -174,7 +252,19 @@ export const DescriptiveAnalysisTab = ({ filteredData = [] }: DescriptiveAnalysi
 
       <Card className="p-4">
         <h3 className="text-lg font-semibold mb-4">Distribution Type</h3>
-        <p className="text-lg font-medium text-primary">{distributionType}</p>
+        <div className="space-y-2">
+          <p className="text-lg font-medium text-primary">{distributionType}</p>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm text-muted-foreground">Skewness</p>
+              <p className="font-medium">{stats.skewness.toFixed(3)}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Kurtosis</p>
+              <p className="font-medium">{stats.kurtosis.toFixed(3)}</p>
+            </div>
+          </div>
+        </div>
       </Card>
 
       <Card className="p-4">
@@ -198,22 +288,73 @@ export const DescriptiveAnalysisTab = ({ filteredData = [] }: DescriptiveAnalysi
 
       <Card className="p-4">
         <h3 className="text-lg font-semibold mb-4">Descriptive Statistics</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           <div className="p-4 bg-secondary/10 rounded-lg">
             <p className="text-sm text-muted-foreground">Mean</p>
-            <p className="text-lg font-semibold">{mean.toFixed(2)}</p>
+            <p className="text-lg font-semibold">{stats.mean.toFixed(2)}</p>
           </div>
           <div className="p-4 bg-secondary/10 rounded-lg">
             <p className="text-sm text-muted-foreground">Median</p>
-            <p className="text-lg font-semibold">{median.toFixed(2)}</p>
+            <p className="text-lg font-semibold">{stats.median.toFixed(2)}</p>
+          </div>
+          <div className="p-4 bg-secondary/10 rounded-lg">
+            <p className="text-sm text-muted-foreground">Mode</p>
+            <p className="text-lg font-semibold">{stats.mode.toFixed(2)}</p>
           </div>
           <div className="p-4 bg-secondary/10 rounded-lg">
             <p className="text-sm text-muted-foreground">Standard Deviation</p>
-            <p className="text-lg font-semibold">{stdDev.toFixed(2)}</p>
+            <p className="text-lg font-semibold">{stats.stdDev.toFixed(2)}</p>
+          </div>
+          <div className="p-4 bg-secondary/10 rounded-lg">
+            <p className="text-sm text-muted-foreground">Variance</p>
+            <p className="text-lg font-semibold">{stats.variance.toFixed(2)}</p>
+          </div>
+          <div className="p-4 bg-secondary/10 rounded-lg">
+            <p className="text-sm text-muted-foreground">Range</p>
+            <p className="text-lg font-semibold">{stats.range.toFixed(2)}</p>
+          </div>
+          <div className="p-4 bg-secondary/10 rounded-lg">
+            <p className="text-sm text-muted-foreground">IQR</p>
+            <p className="text-lg font-semibold">{stats.iqr.toFixed(2)}</p>
           </div>
           <div className="p-4 bg-secondary/10 rounded-lg">
             <p className="text-sm text-muted-foreground">Sample Size</p>
             <p className="text-lg font-semibold">{values.length}</p>
+          </div>
+        </div>
+      </Card>
+
+      <Card className="p-4">
+        <h3 className="text-lg font-semibold mb-4">Additional Insights</h3>
+        <div className="space-y-4">
+          <div>
+            <h4 className="font-medium mb-2">95% Confidence Interval</h4>
+            <p>
+              [{stats.confidenceInterval95[0].toFixed(2)}, {stats.confidenceInterval95[1].toFixed(2)}]
+            </p>
+          </div>
+          <div>
+            <h4 className="font-medium mb-2">Quartiles</h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <p className="text-sm text-muted-foreground">Q1 (25th)</p>
+                <p>{stats.q1.toFixed(2)}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Q3 (75th)</p>
+                <p>{stats.q3.toFixed(2)}</p>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h4 className="font-medium mb-2">Outliers ({stats.outliers.length})</h4>
+            {stats.outliers.length > 0 ? (
+              <p className="text-sm">
+                {stats.outliers.map(v => v.toFixed(2)).join(', ')}
+              </p>
+            ) : (
+              <p className="text-sm text-muted-foreground">No outliers detected</p>
+            )}
           </div>
         </div>
       </Card>
