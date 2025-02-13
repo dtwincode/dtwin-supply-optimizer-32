@@ -184,6 +184,14 @@ export type Database = {
           date: string
           forecast: number | null
           id: string
+          l1_main_prod: string | null
+          l2_prod_line: string | null
+          l3_prod_category: string | null
+          l4_device_make: string | null
+          l5_prod_sub_category: string | null
+          l6_device_model: string | null
+          l7_device_color: string | null
+          l8_device_storage: string | null
           notes: string | null
           region: string | null
           sku: string | null
@@ -201,6 +209,14 @@ export type Database = {
           date: string
           forecast?: number | null
           id?: string
+          l1_main_prod?: string | null
+          l2_prod_line?: string | null
+          l3_prod_category?: string | null
+          l4_device_make?: string | null
+          l5_prod_sub_category?: string | null
+          l6_device_model?: string | null
+          l7_device_color?: string | null
+          l8_device_storage?: string | null
           notes?: string | null
           region?: string | null
           sku?: string | null
@@ -218,6 +234,14 @@ export type Database = {
           date?: string
           forecast?: number | null
           id?: string
+          l1_main_prod?: string | null
+          l2_prod_line?: string | null
+          l3_prod_category?: string | null
+          l4_device_make?: string | null
+          l5_prod_sub_category?: string | null
+          l6_device_model?: string | null
+          l7_device_color?: string | null
+          l8_device_storage?: string | null
           notes?: string | null
           region?: string | null
           sku?: string | null

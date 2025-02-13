@@ -1,4 +1,3 @@
-
 import { Json } from '@/integrations/supabase/types';
 
 export interface WeatherData {
@@ -62,6 +61,14 @@ export interface ForecastDataPoint {
   category: string;
   subcategory: string;
   sku: string;
+  l1_main_prod: string;
+  l2_prod_line: string;
+  l3_prod_category: string;
+  l4_device_make: string;
+  l5_prod_sub_category: string;
+  l6_device_model: string;
+  l7_device_color: string;
+  l8_device_storage: string;
 }
 
 export interface WhatIfParams {
