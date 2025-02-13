@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ForecastMetricsCards } from "./ForecastMetricsCards";
@@ -361,29 +360,7 @@ export const ForecastingContainer = () => {
               <h3 className="text-lg font-semibold">Detailed Analysis</h3>
             </div>
 
-            <ForecastingTabs
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              historicalData={historicalData}
-              filteredData={filteredData}
-              confidenceIntervals={confidenceIntervals}
-              decomposition={decomposition}
-              validationResults={validationResults}
-              crossValidationResults={crossValidationResults}
-              weatherLocation={weatherLocation}
-              setWeatherLocation={setWeatherLocation}
-              weatherData={weatherData}
-              fetchWeatherForecast={fetchWeatherForecast}
-              marketEvents={marketEvents}
-              setMarketEvents={setMarketEvents}
-              newEvent={newEvent}
-              setNewEvent={setNewEvent}
-              priceAnalysis={priceAnalysis}
-              historicalPriceData={historicalPriceData}
-              addHistoricalPricePoint={addHistoricalPricePoint}
-              calculatePriceAnalysis={calculatePriceAnalysis}
-              forecastTableData={forecastTableData}
-            />
+            <ForecastingTabs />
           </div>
         </Card>
 
