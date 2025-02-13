@@ -45,7 +45,7 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
   }));
 
   return (
-    <Card className="p-4 bg-white rounded-lg">
+    <Card className="p-4 bg-white rounded-lg relative z-0">
       <div className="space-y-4">
         <div className="border rounded-lg p-4 bg-slate-50">
           <ForecastingDateRange
@@ -94,7 +94,7 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
         </div>
       </div>
       
-      <div className="h-[450px] mt-4">
+      <div className="h-[450px] mt-4 relative z-0">
         <ResponsiveContainer>
           <ComposedChart data={dataWithOutliers} margin={{ top: 10, right: 30, left: 0, bottom: 40 }}>
             <CartesianGrid strokeDasharray="3 3" />
