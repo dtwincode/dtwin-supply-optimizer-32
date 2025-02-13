@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { Route, Routes, Navigate } from "react-router-dom";
 import { useState } from "react";
 import { ProductFilter } from "@/components/forecasting/filters/ProductFilter";
+import { LocationFilter } from "@/components/forecasting/filters/LocationFilter";
 import { ForecastDataPoint } from "@/types/forecasting";
 import { Card } from "@/components/ui/card";
 import { ForecastingDateRange } from "@/components/forecasting/ForecastingDateRange";
@@ -21,6 +22,9 @@ import { AnimatePresence, motion } from "framer-motion";
 const Forecasting = () => {
   const [isTimeExpanded, setIsTimeExpanded] = useState(false);
   const [isProductExpanded, setIsProductExpanded] = useState(false);
+  const [isLocationExpanded, setIsLocationExpanded] = useState(false);
+  
+  // Product hierarchy states
   const [selectedL1MainProd, setSelectedL1MainProd] = useState<string>("all");
   const [selectedL2ProdLine, setSelectedL2ProdLine] = useState<string>("all");
   const [selectedL3ProdCategory, setSelectedL3ProdCategory] = useState<string>("all");
@@ -30,6 +34,11 @@ const Forecasting = () => {
   const [selectedL7DeviceColor, setSelectedL7DeviceColor] = useState<string>("all");
   const [selectedL8DeviceStorage, setSelectedL8DeviceStorage] = useState<string>("all");
 
+  // Location hierarchy states
+  const [selectedRegion, setSelectedRegion] = useState<string>("all");
+  const [selectedCity, setSelectedCity] = useState<string>("all");
+
+  // Time period states
   const [trainingFromDate, setTrainingFromDate] = useState<Date>(new Date('2024-01-01'));
   const [trainingToDate, setTrainingToDate] = useState<Date>(new Date('2024-09-30'));
   const [testingFromDate, setTestingFromDate] = useState<Date>(new Date('2024-10-01'));
@@ -251,6 +260,55 @@ const Forecasting = () => {
                       selectedL8DeviceStorage={selectedL8DeviceStorage}
                       setSelectedL8DeviceStorage={setSelectedL8DeviceStorage}
                       forecastData={dummyData.filteredData}
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Location Hierarchy */}
+          <div 
+            className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40"
+            onMouseLeave={() => setIsLocationExpanded(false)}
+          >
+            <Button
+              variant="ghost"
+              className="w-full flex items-center justify-between p-6 hover:bg-primary/5"
+              onClick={() => setIsLocationExpanded(!isLocationExpanded)}
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-lg font-semibold text-primary">Location Hierarchy</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  {isLocationExpanded ? "Click to collapse" : "Click to expand"}
+                </span>
+                {isLocationExpanded ? (
+                  <ChevronUp className="h-5 w-5 text-primary" />
+                ) : (
+                  <ChevronDown className="h-5 w-5 text-primary" />
+                )}
+              </div>
+            </Button>
+
+            <AnimatePresence>
+              {isLocationExpanded && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden"
+                >
+                  <div className="p-6 space-y-6 border-t bg-primary/5">
+                    <LocationFilter
+                      selectedRegion={selectedRegion}
+                      setSelectedRegion={setSelectedRegion}
+                      selectedCity={selectedCity}
+                      setSelectedCity={setSelectedCity}
+                      regions={[]}
+                      cities={{}}
                     />
                   </div>
                 </motion.div>
