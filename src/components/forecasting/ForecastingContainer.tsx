@@ -356,7 +356,7 @@ export const ForecastingContainer = () => {
         {/* Step 5: Detailed Analysis */}
         <Card className="p-6">
           <div className="space-y-6">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mb-6">
               <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">4</span>
               <h3 className="text-lg font-semibold">Detailed Analysis</h3>
             </div>
