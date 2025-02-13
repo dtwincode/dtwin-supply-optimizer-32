@@ -6,58 +6,26 @@ import { DecompositionTab } from "./tabs/DecompositionTab";
 import { WhatIfAnalysisTab } from "./tabs/WhatIfAnalysisTab";
 import { ValidationTab } from "./tabs/ValidationTab";
 import { ExternalFactorsTab } from "./tabs/ExternalFactorsTab";
+import { useNavigate } from "react-router-dom";
 
 interface ForecastingTabsProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  historicalData: any[];
-  filteredData: any[];
-  confidenceIntervals: { upper: number; lower: number }[];
-  decomposition: any;
-  validationResults: any;
-  crossValidationResults: any;
-  weatherLocation: string;
-  setWeatherLocation: (location: string) => void;
-  weatherData: any;
-  fetchWeatherForecast: () => Promise<any>;
-  marketEvents: any[];
-  setMarketEvents: (events: any[]) => void;
-  newEvent: any;
-  setNewEvent: (event: any) => void;
-  priceAnalysis: any;
-  historicalPriceData: any[];
-  addHistoricalPricePoint: (price: number, demand: number) => void;
-  calculatePriceAnalysis: () => void;
-  forecastTableData: any[];
 }
 
 export const ForecastingTabs = ({
   activeTab,
   setActiveTab,
-  historicalData,
-  filteredData,
-  confidenceIntervals,
-  decomposition,
-  validationResults,
-  crossValidationResults,
-  weatherLocation,
-  setWeatherLocation,
-  weatherData,
-  fetchWeatherForecast,
-  marketEvents,
-  setMarketEvents,
-  newEvent,
-  setNewEvent,
-  priceAnalysis,
-  historicalPriceData,
-  addHistoricalPricePoint,
-  calculatePriceAnalysis,
-  forecastTableData,
 }: ForecastingTabsProps) => {
-  console.log('Active tab:', activeTab); // Debug log
+  const navigate = useNavigate();
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    navigate(`/forecasting/${value}`);
+  };
 
   return (
-    <Tabs defaultValue="forecast" value={activeTab} onValueChange={setActiveTab} className="w-full">
+    <Tabs defaultValue="forecast" value={activeTab} onValueChange={handleTabChange} className="w-full">
       <TabsList className="w-full">
         <TabsTrigger value="forecast">Forecast Analysis</TabsTrigger>
         <TabsTrigger value="distribution">Forecast Distribution</TabsTrigger>
@@ -68,52 +36,27 @@ export const ForecastingTabs = ({
       </TabsList>
 
       <TabsContent value="forecast">
-        <ForecastAnalysisTab
-          filteredData={filteredData}
-          confidenceIntervals={confidenceIntervals}
-        />
+        <ForecastAnalysisTab />
       </TabsContent>
 
       <TabsContent value="distribution">
-        <ForecastDistributionTab forecastTableData={forecastTableData} />
+        <ForecastDistributionTab />
       </TabsContent>
 
       <TabsContent value="decomposition">
-        <DecompositionTab
-          filteredData={filteredData}
-          decomposition={decomposition}
-        />
+        <DecompositionTab />
       </TabsContent>
 
       <TabsContent value="scenarios">
-        <WhatIfAnalysisTab
-          filteredData={filteredData}
-          whatIfScenario={[]}
-        />
+        <WhatIfAnalysisTab />
       </TabsContent>
 
       <TabsContent value="validation">
-        <ValidationTab
-          validationResults={validationResults}
-          crossValidationResults={crossValidationResults}
-        />
+        <ValidationTab />
       </TabsContent>
 
       <TabsContent value="external">
-        <ExternalFactorsTab
-          weatherLocation={weatherLocation}
-          setWeatherLocation={setWeatherLocation}
-          weatherData={weatherData}
-          fetchWeatherForecast={fetchWeatherForecast}
-          marketEvents={marketEvents}
-          setMarketEvents={setMarketEvents}
-          newEvent={newEvent}
-          setNewEvent={setNewEvent}
-          priceAnalysis={priceAnalysis}
-          addHistoricalPricePoint={addHistoricalPricePoint}
-          calculatePriceAnalysis={calculatePriceAnalysis}
-          historicalPriceData={historicalPriceData}
-        />
+        <ExternalFactorsTab />
       </TabsContent>
     </Tabs>
   );
