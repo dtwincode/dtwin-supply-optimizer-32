@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ForecastMetricsCards } from "./ForecastMetricsCards";
@@ -26,6 +27,13 @@ import { ModelConfig } from "@/types/models/commonTypes";
 import { SavedScenario } from "@/types/forecasting";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { ForecastAnalysisTab } from "./tabs/ForecastAnalysisTab";
+import { ForecastDistributionTab } from "./tabs/ForecastDistributionTab";
+import { DecompositionTab } from "./tabs/DecompositionTab";
+import { WhatIfAnalysisTab } from "./tabs/WhatIfAnalysisTab";
+import { ValidationTab } from "./tabs/ValidationTab";
+import { ExternalFactorsTab } from "./tabs/ExternalFactorsTab";
 
 export const ForecastingContainer = () => {
   // Set initial dates to show our 2024 data
@@ -361,6 +369,56 @@ export const ForecastingContainer = () => {
             </div>
 
             <ForecastingTabs />
+            
+            <div className="mt-6">
+              <Routes>
+                <Route path="/" element={
+                  <ForecastAnalysisTab 
+                    filteredData={filteredData}
+                    confidenceIntervals={confidenceIntervals}
+                  />
+                } />
+                <Route path="/distribution" element={
+                  <ForecastDistributionTab 
+                    forecastTableData={forecastTableData}
+                  />
+                } />
+                <Route path="/pattern" element={
+                  <DecompositionTab
+                    filteredData={filteredData}
+                    decomposition={decomposition}
+                  />
+                } />
+                <Route path="/what-if" element={
+                  <WhatIfAnalysisTab
+                    filteredData={filteredData}
+                    whatIfScenario={[]}
+                  />
+                } />
+                <Route path="/validation" element={
+                  <ValidationTab
+                    validationResults={validationResults}
+                    crossValidationResults={crossValidationResults}
+                  />
+                } />
+                <Route path="/external" element={
+                  <ExternalFactorsTab
+                    weatherLocation={weatherLocation}
+                    setWeatherLocation={setWeatherLocation}
+                    weatherData={weatherData}
+                    fetchWeatherForecast={fetchWeatherForecast}
+                    marketEvents={marketEvents}
+                    setMarketEvents={setMarketEvents}
+                    newEvent={newEvent}
+                    setNewEvent={setNewEvent}
+                    priceAnalysis={priceAnalysis}
+                    addHistoricalPricePoint={addHistoricalPricePoint}
+                    calculatePriceAnalysis={calculatePriceAnalysis}
+                    historicalPriceData={historicalPriceData}
+                  />
+                } />
+              </Routes>
+            </div>
           </div>
         </Card>
 
