@@ -45,6 +45,52 @@ export type Database = {
         }
         Relationships: []
       }
+      buffer_profiles: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          lead_time_factor: Database["public"]["Enums"]["lead_time_type"] | null
+          lot_size_factor: number | null
+          moq: number | null
+          name: string
+          updated_at: string
+          variability_factor:
+            | Database["public"]["Enums"]["variability_type"]
+            | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          lead_time_factor?:
+            | Database["public"]["Enums"]["lead_time_type"]
+            | null
+          lot_size_factor?: number | null
+          moq?: number | null
+          name: string
+          updated_at?: string
+          variability_factor?:
+            | Database["public"]["Enums"]["variability_type"]
+            | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          lead_time_factor?:
+            | Database["public"]["Enums"]["lead_time_type"]
+            | null
+          lot_size_factor?: number | null
+          moq?: number | null
+          name?: string
+          updated_at?: string
+          variability_factor?:
+            | Database["public"]["Enums"]["variability_type"]
+            | null
+        }
+        Relationships: []
+      }
       data_quality_metrics: {
         Row: {
           accuracy_score: number | null
@@ -119,6 +165,51 @@ export type Database = {
           validation_errors?: Json | null
         }
         Relationships: []
+      }
+      decoupling_points: {
+        Row: {
+          buffer_profile_id: string
+          created_at: string
+          description: string | null
+          id: string
+          location_id: string
+          type: Database["public"]["Enums"]["decoupling_type"]
+          updated_at: string
+        }
+        Insert: {
+          buffer_profile_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          location_id: string
+          type: Database["public"]["Enums"]["decoupling_type"]
+          updated_at?: string
+        }
+        Update: {
+          buffer_profile_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          location_id?: string
+          type?: Database["public"]["Enums"]["decoupling_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "decoupling_points_buffer_profile_id_fkey"
+            columns: ["buffer_profile_id"]
+            isOneToOne: false
+            referencedRelation: "buffer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "decoupling_points_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "location_hierarchy"
+            referencedColumns: ["location_id"]
+          },
+        ]
       }
       forecast_accuracy: {
         Row: {
@@ -453,6 +544,7 @@ export type Database = {
           city: string | null
           created_at: string
           current_stock: number
+          decoupling_point_id: string | null
           id: string
           location: string | null
           max_stock: number
@@ -472,6 +564,7 @@ export type Database = {
           city?: string | null
           created_at?: string
           current_stock: number
+          decoupling_point_id?: string | null
           id?: string
           location?: string | null
           max_stock: number
@@ -491,6 +584,7 @@ export type Database = {
           city?: string | null
           created_at?: string
           current_stock?: number
+          decoupling_point_id?: string | null
           id?: string
           location?: string | null
           max_stock?: number
@@ -504,7 +598,15 @@ export type Database = {
           updated_at?: string
           warehouse?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "inventory_data_decoupling_point_id_fkey"
+            columns: ["decoupling_point_id"]
+            isOneToOne: false
+            referencedRelation: "decoupling_points"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       location_hierarchy: {
         Row: {
@@ -1292,6 +1394,12 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      decoupling_type:
+        | "strategic"
+        | "customer_order"
+        | "stock_point"
+        | "intermediate"
+      lead_time_type: "short" | "medium" | "long"
       module_type:
         | "forecasting"
         | "inventory"
@@ -1300,6 +1408,10 @@ export type Database = {
         | "logistics"
         | "location_hierarchy"
         | "product_hierarchy"
+      variability_type:
+        | "high_variability"
+        | "medium_variability"
+        | "low_variability"
     }
     CompositeTypes: {
       [_ in never]: never
