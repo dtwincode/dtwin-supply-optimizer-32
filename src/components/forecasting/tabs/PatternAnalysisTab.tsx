@@ -103,13 +103,9 @@ export const PatternAnalysisTab = ({ data }: PatternAnalysisTabProps) => {
         if (zScore > 2) {
           const anomaly: PatternAnomaly = {
             id: `anomaly-${i}`,
-            data_point_id: 'current',
-            detection_method: 'z-score',
-            confidence_score: 0.95,
-            is_verified: false,
+            timestamp: d.date,
             value: d.value,
             expected_value: avg,
-            timestamp: d.date,
             deviation_score: zScore,
             type: 'outlier',
             confidence: 0.95
@@ -119,15 +115,19 @@ export const PatternAnalysisTab = ({ data }: PatternAnalysisTabProps) => {
         return null;
       }).filter((o): o is PatternAnomaly => o !== null);
 
-      // Store outliers
+      // Store outliers in database with additional fields
       if (rawOutliers.length > 0) {
-        const { data: outlierData, error: outlierError } = await supabase
+        const { error: outlierError } = await supabase
           .from('forecast_outliers')
           .insert(rawOutliers.map(o => ({
-            data_point_id: o.data_point_id,
-            detection_method: o.detection_method,
-            confidence_score: o.confidence_score,
-            is_verified: o.is_verified
+            detection_method: 'z-score',
+            confidence_score: o.confidence,
+            is_verified: false,
+            metadata: {
+              value: o.value,
+              expected_value: o.expected_value,
+              deviation_score: o.deviation_score
+            }
           })));
 
         if (outlierError) {
