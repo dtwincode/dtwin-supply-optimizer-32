@@ -1,6 +1,5 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ModelTestingTab } from "./tabs/ModelTestingTab";
 import { ForecastAnalysisTab } from "./tabs/ForecastAnalysisTab";
 import { ForecastDistributionTab } from "./tabs/ForecastDistributionTab";
 import { DecompositionTab } from "./tabs/DecompositionTab";
@@ -58,9 +57,8 @@ export const ForecastingTabs = ({
   console.log('Active tab:', activeTab); // Debug log
 
   return (
-    <Tabs defaultValue="testing" value={activeTab} onValueChange={setActiveTab} className="w-full">
+    <Tabs defaultValue="forecast" value={activeTab} onValueChange={setActiveTab} className="w-full">
       <TabsList className="w-full">
-        <TabsTrigger value="testing">Model Testing</TabsTrigger>
         <TabsTrigger value="forecast">Forecast Analysis</TabsTrigger>
         <TabsTrigger value="distribution">Forecast Distribution</TabsTrigger>
         <TabsTrigger value="decomposition">Pattern Analysis</TabsTrigger>
@@ -68,14 +66,6 @@ export const ForecastingTabs = ({
         <TabsTrigger value="validation">Forecast Validation</TabsTrigger>
         <TabsTrigger value="external">External Factors</TabsTrigger>
       </TabsList>
-
-      <TabsContent value="testing" className="mt-6">
-        <ModelTestingTab
-          historicalData={historicalData}
-          predictedData={filteredData}
-          scenarioId="test-scenario"
-        />
-      </TabsContent>
 
       <TabsContent value="forecast">
         <ForecastAnalysisTab
