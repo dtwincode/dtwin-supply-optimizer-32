@@ -33,7 +33,7 @@ interface ForecastingTabsProps {
   setNewEvent?: (event: any) => void;
   priceAnalysis?: any;
   historicalPriceData?: any[];
-  addHistoricalPricePoint?: () => void;
+  addHistoricalPricePoint?: (price: number, demand: number) => void;
   calculatePriceAnalysis?: () => void;
   forecastTableData?: any[];
   whatIfScenario?: any[];
