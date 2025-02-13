@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Dialog,
@@ -23,7 +22,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { BufferProfile, DecouplingPoint } from '@/types/inventory';
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface DecouplingPointDialogProps {
   locationId: string;
@@ -31,10 +29,10 @@ interface DecouplingPointDialogProps {
 }
 
 const TYPE_DESCRIPTIONS = {
-  strategic: "Strategic points: Major inventory hubs (15-20% of network nodes)",
-  customer_order: "Customer order points: Direct demand (30-40% of customer locations)",
-  stock_point: "Stock points: Optimal inventory (40-50% of distribution nodes)",
-  intermediate: "Intermediate points: Internal operations (10-15% of manufacturing)"
+  strategic: "Strategic points (15-20% of nodes)",
+  customer_order: "Customer order points (30-40%)",
+  stock_point: "Stock points (40-50%)",
+  intermediate: "Intermediate points (10-15%)"
 };
 
 export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPointDialogProps) => {
@@ -49,7 +47,6 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
 
   React.useEffect(() => {
     const fetchData = async () => {
-      // Fetch buffer profiles
       const { data: profileData, error: profileError } = await supabase
         .from('buffer_profiles')
         .select('*');
@@ -59,7 +56,6 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
         return;
       }
 
-      // Fetch locations
       const { data: locationData, error: locationError } = await supabase
         .from('location_hierarchy')
         .select('location_id, location_description')
@@ -137,7 +133,7 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
       <DialogTrigger asChild>
         <Button variant="outline">Define Decoupling Point</Button>
       </DialogTrigger>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Define Decoupling Point</DialogTitle>
           <DialogDescription>
@@ -145,87 +141,83 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
           </DialogDescription>
         </DialogHeader>
 
-        <Alert className="mb-4">
+        <Alert variant="default" className="mb-4">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            Carefully consider placement as it impacts inventory positioning.
+            Consider placement impact on inventory positioning
           </AlertDescription>
         </Alert>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <ScrollArea className="h-[400px] pr-4">
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="location">Location</Label>
-                <Select
-                  value={formData.locationId}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, locationId: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select location" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {locations.map((location) => (
-                      <SelectItem key={location.id} value={location.id}>
-                        {location.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+        <form onSubmit={handleSubmit} className="grid gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="location">Location</Label>
+            <Select
+              value={formData.locationId}
+              onValueChange={(value) => setFormData(prev => ({ ...prev, locationId: value }))}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select location" />
+              </SelectTrigger>
+              <SelectContent>
+                {locations.map((location) => (
+                  <SelectItem key={location.id} value={location.id}>
+                    {location.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-              <div>
-                <Label htmlFor="type">Type</Label>
-                <Select
-                  value={formData.type}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, type: value as DecouplingPoint['type'] }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(TYPE_DESCRIPTIONS).map(([type, description]) => (
-                      <SelectItem key={type} value={type}>
-                        {description}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+          <div className="space-y-2">
+            <Label htmlFor="type">Type</Label>
+            <Select
+              value={formData.type}
+              onValueChange={(value) => setFormData(prev => ({ ...prev, type: value as DecouplingPoint['type'] }))}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select type" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(TYPE_DESCRIPTIONS).map(([type, description]) => (
+                  <SelectItem key={type} value={type}>
+                    {description}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-              <div>
-                <Label htmlFor="bufferProfile">Buffer Profile</Label>
-                <Select
-                  value={formData.bufferProfileId}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, bufferProfileId: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select buffer profile" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {bufferProfiles.map((profile) => (
-                      <SelectItem key={profile.id} value={profile.id}>
-                        {profile.name} ({profile.variabilityFactor}, {profile.leadTimeFactor})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+          <div className="space-y-2">
+            <Label htmlFor="bufferProfile">Buffer Profile</Label>
+            <Select
+              value={formData.bufferProfileId}
+              onValueChange={(value) => setFormData(prev => ({ ...prev, bufferProfileId: value }))}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select buffer profile" />
+              </SelectTrigger>
+              <SelectContent>
+                {bufferProfiles.map((profile) => (
+                  <SelectItem key={profile.id} value={profile.id}>
+                    {profile.name} ({profile.variabilityFactor}, {profile.leadTimeFactor})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-              <div>
-                <Label htmlFor="description">Description & Rationale</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Explain the rationale for this decoupling point placement..."
-                  className="h-20"
-                />
-              </div>
-            </div>
-          </ScrollArea>
+          <div className="space-y-2">
+            <Label htmlFor="description">Description & Rationale</Label>
+            <Textarea
+              id="description"
+              value={formData.description || ''}
+              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              placeholder="Explain the rationale for this decoupling point placement..."
+              className="h-20 resize-none"
+            />
+          </div>
 
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting} className="w-full">
             {isSubmitting ? "Creating..." : "Create Decoupling Point"}
           </Button>
         </form>
