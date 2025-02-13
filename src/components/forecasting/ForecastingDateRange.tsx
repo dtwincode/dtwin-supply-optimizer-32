@@ -1,8 +1,11 @@
 
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, ChevronDown } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { DateRangeSelector } from "./date-range/DateRangeSelector";
+import { PeriodSelector, TimePeriod } from "./date-range/PeriodSelector";
 import {
   Select,
   SelectContent,
@@ -10,9 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
-import { DateRangeSelector } from "./date-range/DateRangeSelector";
-import { PeriodSelector, TimePeriod } from "./date-range/PeriodSelector";
 
 interface ForecastingDateRangeProps {
   fromDate: Date;
@@ -27,8 +27,7 @@ export const ForecastingDateRange = ({
   setFromDate,
   setToDate,
 }: ForecastingDateRangeProps) => {
-  const [open, setOpen] = useState(false);
-  const [selectionType, setSelectionType] = useState<"date" | "period" | null>(null);
+  const [selectionType, setSelectionType] = useState<"date" | "period">("period");
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("weekly");
   const [periodCount, setPeriodCount] = useState<string>("4");
 
@@ -57,85 +56,42 @@ export const ForecastingDateRange = ({
     setToDate(newToDate);
   };
 
-  const selectedDateRange = fromDate && toDate ? (
-    `${format(fromDate, "MMM dd, yyyy")} - ${format(toDate, "MMM dd, yyyy")}`
-  ) : "Select date range";
-
   return (
-    <div className="relative">
+    <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <Button
-          variant="outline"
-          className={cn(
-            "flex-1 justify-start text-left font-normal border-dashed",
-            !fromDate && "text-muted-foreground"
-          )}
+        <Select
+          value={selectionType}
+          onValueChange={(value: "date" | "period") => setSelectionType(value)}
         >
-          <CalendarIcon className="h-4 w-4 mr-2" />
-          {selectedDateRange}
-        </Button>
-        
-        <div className="relative">
-          <div 
-            onMouseEnter={() => setOpen(true)}
-            onMouseLeave={() => setOpen(false)}
-          >
-            <Button 
-              variant="ghost" 
-              size="icon"
-              className="h-10 w-10 p-0"
-            >
-              <ChevronDown className="h-4 w-4" />
-            </Button>
-            
-            {open && (
-              <div 
-                className="absolute right-0 mt-2 z-50 bg-popover text-popover-foreground rounded-md border shadow-md"
-                onMouseEnter={() => setOpen(true)}
-                onMouseLeave={() => setOpen(false)}
-              >
-                <div className="w-[400px] p-4">
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="font-medium mb-2">Select Time Range</h3>
-                      <Select
-                        value={selectionType || undefined}
-                        onValueChange={(value: "date" | "period") => setSelectionType(value)}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Choose range type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="date">Date Range</SelectItem>
-                          <SelectItem value="period">Time Period</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select range type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="period">Time Period</SelectItem>
+            <SelectItem value="date">Date Range</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
-                    {selectionType === "date" ? (
-                      <DateRangeSelector
-                        fromDate={fromDate}
-                        toDate={toDate}
-                        setFromDate={setFromDate}
-                        setToDate={setToDate}
-                      />
-                    ) : selectionType === "period" ? (
-                      <PeriodSelector
-                        selectedPeriod={selectedPeriod}
-                        periodCount={periodCount}
-                        onPeriodChange={handlePeriodChange}
-                        onPeriodCountChange={(count) => {
-                          setPeriodCount(count);
-                          handlePeriodChange(selectedPeriod);
-                        }}
-                      />
-                    ) : null}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+      <div className="mt-2">
+        {selectionType === "date" ? (
+          <DateRangeSelector
+            fromDate={fromDate}
+            toDate={toDate}
+            setFromDate={setFromDate}
+            setToDate={setToDate}
+          />
+        ) : (
+          <PeriodSelector
+            selectedPeriod={selectedPeriod}
+            periodCount={periodCount}
+            onPeriodChange={handlePeriodChange}
+            onPeriodCountChange={(count) => {
+              setPeriodCount(count);
+              handlePeriodChange(selectedPeriod);
+            }}
+          />
+        )}
       </div>
     </div>
   );
