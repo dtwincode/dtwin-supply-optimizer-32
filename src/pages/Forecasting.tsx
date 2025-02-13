@@ -1,3 +1,4 @@
+
 import DashboardLayout from "@/components/DashboardLayout";
 import { ForecastingTabs } from "@/components/forecasting/ForecastingTabs";
 import { ForecastAnalysisTab } from "@/components/forecasting/tabs/ForecastAnalysisTab";
@@ -360,7 +361,7 @@ const Forecasting = () => {
                 historicalPriceData={dummyData.historicalPriceData}
               />
             } />
-            <Route path="*" element={<Navigate to="/forecasting" replace />} />
+            <Route path="*" element={<Navigate to="./" replace />} />
           </Routes>
         </div>
       </div>
