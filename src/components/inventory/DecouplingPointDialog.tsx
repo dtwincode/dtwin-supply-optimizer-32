@@ -24,6 +24,18 @@ import { BufferProfile, DecouplingPoint } from '@/types/inventory';
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+
+interface LocationWithHierarchy {
+  id: string;
+  name: string;
+  level: number;
+  parent_id: string | null;
+  channel: string;
+  city: string;
+  region: string;
+  warehouse: string;
+}
 
 interface DecouplingPointDialogProps {
   locationId: string;
@@ -37,11 +49,18 @@ const TYPE_DESCRIPTIONS = {
   intermediate: "Intermediate points (10-15%)"
 };
 
+const TYPE_RECOMMENDATIONS = {
+  strategic: "Ideal for main distribution centers and key hubs",
+  customer_order: "Best for retail locations and direct customer fulfillment",
+  stock_point: "Suitable for warehouses and regional distribution points",
+  intermediate: "For supporting locations between major nodes"
+};
+
 export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPointDialogProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [bufferProfiles, setBufferProfiles] = React.useState<BufferProfile[]>([]);
-  const [locations, setLocations] = React.useState<Array<{id: string, name: string}>>([]);
+  const [locations, setLocations] = React.useState<LocationWithHierarchy[]>([]);
   const [formData, setFormData] = React.useState<Partial<DecouplingPoint>>({
     locationId,
     type: 'stock_point',
@@ -60,7 +79,7 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
 
       const { data: locationData, error: locationError } = await supabase
         .from('location_hierarchy')
-        .select('location_id, location_description')
+        .select('location_id, location_description, hierarchy_level, parent_id, channel, city, region, warehouse')
         .eq('active', true);
 
       if (locationError) {
@@ -81,6 +100,12 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
       setLocations(locationData.map(loc => ({
         id: loc.location_id,
         name: loc.location_description || loc.location_id,
+        level: loc.hierarchy_level,
+        parent_id: loc.parent_id,
+        channel: loc.channel,
+        city: loc.city,
+        region: loc.region,
+        warehouse: loc.warehouse
       })));
     };
 
@@ -130,6 +155,34 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
     }
   };
 
+  const getLocationDetails = (location: LocationWithHierarchy) => {
+    const parentLocation = location.parent_id 
+      ? locations.find(l => l.id === location.parent_id)
+      : null;
+
+    return (
+      <div className="flex flex-col space-y-1">
+        <div className="flex items-center gap-2">
+          <span>{location.name}</span>
+          <Badge variant="outline" className="text-xs">
+            Level {location.level}
+          </Badge>
+          <Badge variant="secondary" className="text-xs">
+            {location.channel}
+          </Badge>
+        </div>
+        <div className="text-xs text-muted-foreground">
+          {location.city}, {location.region} • {location.warehouse}
+          {parentLocation && (
+            <span className="block">
+              Reports to: {parentLocation.name}
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -165,7 +218,7 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
                   <SelectContent>
                     {locations.map((location) => (
                       <SelectItem key={location.id} value={location.id}>
-                        {location.name}
+                        {getLocationDetails(location)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -184,7 +237,12 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
                   <SelectContent>
                     {Object.entries(TYPE_DESCRIPTIONS).map(([type, description]) => (
                       <SelectItem key={type} value={type}>
-                        {description}
+                        <div className="flex flex-col space-y-1">
+                          <div>{description}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {TYPE_RECOMMENDATIONS[type as keyof typeof TYPE_RECOMMENDATIONS]}
+                          </div>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -203,7 +261,14 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
                   <SelectContent>
                     {bufferProfiles.map((profile) => (
                       <SelectItem key={profile.id} value={profile.id}>
-                        {profile.name}
+                        <div className="flex flex-col space-y-1">
+                          <div>{profile.name}</div>
+                          {profile.description && (
+                            <div className="text-xs text-muted-foreground">
+                              {profile.description}
+                            </div>
+                          )}
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -217,7 +282,7 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
                   value={formData.description || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                   placeholder="Explain the rationale for this decoupling point placement..."
-                  className="h-16 resize-none"
+                  className="h-20 resize-none"
                 />
               </div>
 
