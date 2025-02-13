@@ -16,6 +16,8 @@ import {
 import { ModelConfig } from "@/types/models/commonTypes";
 import { basicModels } from "@/types/models/basicModels";
 import { seasonalModels } from "@/types/models/seasonalModels";
+import { ModelParametersTuning } from "./ModelParametersTuning";
+import { useState } from "react";
 
 interface ModelSelectionCardProps {
   selectedModel: string;
@@ -30,6 +32,15 @@ export const ModelSelectionCard = ({
 }: ModelSelectionCardProps) => {
   const { versions, isLoading } = useModelVersions(selectedModel);
   const allModels = [...basicModels, ...seasonalModels];
+  const [parameters, setParameters] = useState<{ [key: string]: number }>({});
+
+  const handleParameterChange = (key: string, value: number) => {
+    setParameters(prev => ({
+      ...prev,
+      [key]: value
+    }));
+    console.log(`Parameter ${key} changed to ${value}`);
+  };
 
   return (
     <Card className="p-6">
@@ -88,6 +99,12 @@ export const ModelSelectionCard = ({
                 </p>
               </div>
             )}
+
+            <ModelParametersTuning
+              modelId={selectedModel}
+              onParameterChange={handleParameterChange}
+              currentValues={parameters}
+            />
           </div>
 
           <div className="space-y-4">

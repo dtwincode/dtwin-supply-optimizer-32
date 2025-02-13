@@ -19,7 +19,10 @@ export const ForecastAnalysisTab = ({
 
   const handleModelChange = (modelId: string) => {
     console.log("Selected model:", modelId);
-    // Additional model change logic will be implemented later
+    toast({
+      title: "Model Changed",
+      description: `Switched to ${modelId} model`,
+    });
   };
 
   const handleOptimize = () => {
