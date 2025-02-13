@@ -19,8 +19,7 @@ export const ForecastAnalysisTab = ({
           metrics={{
             mape: 12.5,
             mae: 45.2,
-            rmse: 52.8,
-            accuracy: 87.5
+            rmse: 52.8
           }}
         />
       </Card>
