@@ -1,7 +1,6 @@
-
 import { Card } from "@/components/ui/card";
 import { ForecastDataPoint } from "@/types/forecasting";
-import { ResponsiveContainer, ScatterChart, XAxis, YAxis, Tooltip, CartesianGrid, Scatter, BarChart, Bar } from "recharts";
+import { ResponsiveContainer, ScatterChart, XAxis, YAxis, Tooltip, CartesianGrid, Scatter, BarChart, Bar, Line, ComposedChart } from "recharts";
 import { BoxPlot, BoxPlotDatum } from "@nivo/boxplot";
 
 interface DescriptiveAnalysisTabProps {
@@ -86,27 +85,42 @@ export const DescriptiveAnalysisTab = ({ filteredData = [] }: DescriptiveAnalysi
     }
   ];
 
-  // Prepare histogram data
+  // Enhanced histogram data preparation with distribution line
   const prepareHistogramData = (values: number[], bins = 10) => {
-    if (values.length === 0) return [];
+    if (values.length === 0) return { histogramData: [], lineData: [] };
     
     const min = Math.min(...values);
     const max = Math.max(...values);
     const binWidth = (max - min) / bins;
     
     const histogram = Array(bins).fill(0);
-    
     values.forEach(value => {
       const binIndex = Math.min(Math.floor((value - min) / binWidth), bins - 1);
       histogram[binIndex]++;
     });
-    
-    return histogram.map((count, i) => ({
-      binStart: min + (i * binWidth),
-      binEnd: min + ((i + 1) * binWidth),
-      count,
-      label: `${(min + (i * binWidth)).toFixed(1)} - ${(min + ((i + 1) * binWidth)).toFixed(1)}`
-    }));
+
+    // Calculate mean and standard deviation for normal distribution line
+    const mean = values.reduce((a, b) => a + b, 0) / values.length;
+    const stdDev = Math.sqrt(
+      values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length
+    );
+
+    // Generate histogram data
+    const histogramData = histogram.map((count, i) => {
+      const x = min + (i * binWidth);
+      const normalValue = (1 / (stdDev * Math.sqrt(2 * Math.PI))) * 
+        Math.exp(-0.5 * Math.pow((x - mean) / stdDev, 2)) * values.length * binWidth;
+      
+      return {
+        binStart: x,
+        binEnd: min + ((i + 1) * binWidth),
+        count,
+        normalDist: normalValue,
+        label: `${x.toFixed(1)} - ${(min + ((i + 1) * binWidth)).toFixed(1)}`
+      };
+    });
+
+    return histogramData;
   };
 
   const histogramData = prepareHistogramData(values);
@@ -126,24 +140,34 @@ export const DescriptiveAnalysisTab = ({ filteredData = [] }: DescriptiveAnalysi
   return (
     <div className="space-y-6">
       <Card className="p-4">
-        <h3 className="text-lg font-semibold mb-4">Descriptive Statistics</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="p-4 bg-secondary/10 rounded-lg">
-            <p className="text-sm text-muted-foreground">Mean</p>
-            <p className="text-lg font-semibold">{mean.toFixed(2)}</p>
-          </div>
-          <div className="p-4 bg-secondary/10 rounded-lg">
-            <p className="text-sm text-muted-foreground">Median</p>
-            <p className="text-lg font-semibold">{median.toFixed(2)}</p>
-          </div>
-          <div className="p-4 bg-secondary/10 rounded-lg">
-            <p className="text-sm text-muted-foreground">Standard Deviation</p>
-            <p className="text-lg font-semibold">{stdDev.toFixed(2)}</p>
-          </div>
-          <div className="p-4 bg-secondary/10 rounded-lg">
-            <p className="text-sm text-muted-foreground">Sample Size</p>
-            <p className="text-lg font-semibold">{values.length}</p>
-          </div>
+        <h3 className="text-lg font-semibold mb-4">Distribution Histogram</h3>
+        <div className="h-[400px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart
+              data={histogramData}
+              margin={{ top: 20, right: 20, bottom: 60, left: 20 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis 
+                dataKey="label" 
+                angle={-45} 
+                textAnchor="end"
+                height={60}
+                interval={0}
+              />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="count" name="Frequency" fill="#8884d8" opacity={0.8} />
+              <Line
+                type="monotone"
+                dataKey="normalDist"
+                stroke="#ff7300"
+                name="Distribution Line"
+                strokeWidth={2}
+                dot={false}
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
         </div>
       </Card>
 
@@ -172,20 +196,24 @@ export const DescriptiveAnalysisTab = ({ filteredData = [] }: DescriptiveAnalysi
       </Card>
 
       <Card className="p-4">
-        <h3 className="text-lg font-semibold mb-4">Distribution Histogram</h3>
-        <div className="h-[400px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={histogramData}
-              margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="label" angle={-45} textAnchor="end" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="count" name="Frequency" fill="#8884d8" />
-            </BarChart>
-          </ResponsiveContainer>
+        <h3 className="text-lg font-semibold mb-4">Descriptive Statistics</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="p-4 bg-secondary/10 rounded-lg">
+            <p className="text-sm text-muted-foreground">Mean</p>
+            <p className="text-lg font-semibold">{mean.toFixed(2)}</p>
+          </div>
+          <div className="p-4 bg-secondary/10 rounded-lg">
+            <p className="text-sm text-muted-foreground">Median</p>
+            <p className="text-lg font-semibold">{median.toFixed(2)}</p>
+          </div>
+          <div className="p-4 bg-secondary/10 rounded-lg">
+            <p className="text-sm text-muted-foreground">Standard Deviation</p>
+            <p className="text-lg font-semibold">{stdDev.toFixed(2)}</p>
+          </div>
+          <div className="p-4 bg-secondary/10 rounded-lg">
+            <p className="text-sm text-muted-foreground">Sample Size</p>
+            <p className="text-lg font-semibold">{values.length}</p>
+          </div>
         </div>
       </Card>
     </div>
