@@ -1034,6 +1034,39 @@ export type Database = {
         }
         Relationships: []
       }
+      purchase_orders: {
+        Row: {
+          created_at: string
+          id: string
+          order_date: string | null
+          po_number: string
+          quantity: number
+          sku: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_date?: string | null
+          po_number: string
+          quantity: number
+          sku: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_date?: string | null
+          po_number?: string
+          quantity?: number
+          sku?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       sales_data: {
         Row: {
           category: string | null

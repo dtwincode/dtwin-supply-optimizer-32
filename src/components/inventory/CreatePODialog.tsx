@@ -33,7 +33,6 @@ export const CreatePODialog = ({ item, bufferZones, onSuccess }: CreatePODialogP
     setIsSubmitting(true);
 
     try {
-      // Create PO using new schema-typed insert
       const poData = {
         sku: item.sku,
         quantity: quantity,
