@@ -12,6 +12,7 @@ import { useWeatherData } from "@/hooks/useWeatherData";
 import { useMarketEvents } from "@/hooks/useMarketEvents";
 import { usePriceAnalysis } from "@/hooks/usePriceAnalysis";
 import { defaultModelConfigs } from "@/types/modelParameters";
+import { DateRangeSelector } from "./date-range/DateRangeSelector";
 import { 
   regions, 
   cities, 
@@ -164,6 +165,7 @@ export const ForecastingContainer = () => {
     calculatePriceAnalysis
   } = usePriceAnalysis();
 
+  // Time period states
   const [trainingFromDate, setTrainingFromDate] = useState<Date>(new Date('2024-01-01'));
   const [trainingToDate, setTrainingToDate] = useState<Date>(new Date('2024-09-30'));
   const [testingFromDate, setTestingFromDate] = useState<Date>(new Date('2024-10-01'));
@@ -273,11 +275,42 @@ export const ForecastingContainer = () => {
           <Separator />
         </section>
 
-        {/* Step 2: Model Selection and Controls */}
+        {/* Step 1: Time Period Selection */}
         <Card className="p-6">
           <div className="space-y-6">
             <div className="flex items-center gap-2">
               <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">1</span>
+              <h3 className="text-lg font-semibold">Select Time Periods</h3>
+            </div>
+            
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <Card className="p-6">
+                <h4 className="text-base font-medium mb-4">Training Period</h4>
+                <DateRangeSelector
+                  fromDate={trainingFromDate}
+                  toDate={trainingToDate}
+                  setFromDate={setTrainingFromDate}
+                  setToDate={setTrainingToDate}
+                />
+              </Card>
+              <Card className="p-6">
+                <h4 className="text-base font-medium mb-4">Testing Period</h4>
+                <DateRangeSelector
+                  fromDate={testingFromDate}
+                  toDate={testingToDate}
+                  setFromDate={setTestingFromDate}
+                  setToDate={setTestingToDate}
+                />
+              </Card>
+            </div>
+          </div>
+        </Card>
+
+        {/* Step 2: Model Selection and Controls */}
+        <Card className="p-6">
+          <div className="space-y-6">
+            <div className="flex items-center gap-2">
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">2</span>
               <h3 className="text-lg font-semibold">Configure Model</h3>
             </div>
             
@@ -295,18 +328,11 @@ export const ForecastingContainer = () => {
         <Card className="p-6">
           <div className="space-y-6">
             <div className="flex items-center gap-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">2</span>
-              <h3 className="text-lg font-semibold">Select Data Range & Filters</h3>
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">3</span>
+              <h3 className="text-lg font-semibold">Select Data Filters</h3>
             </div>
 
             <div className="grid gap-6">
-              <ForecastingDateRange
-                fromDate={fromDate}
-                toDate={toDate}
-                setFromDate={setFromDate}
-                setToDate={setToDate}
-              />
-
               <ForecastFilters
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
@@ -334,14 +360,6 @@ export const ForecastingContainer = () => {
                 setSelectedL7DeviceColor={setSelectedL7DeviceColor}
                 selectedL8DeviceStorage={selectedL8DeviceStorage}
                 setSelectedL8DeviceStorage={setSelectedL8DeviceStorage}
-                trainingFromDate={trainingFromDate}
-                setTrainingFromDate={setTrainingFromDate}
-                trainingToDate={trainingToDate}
-                setTrainingToDate={setTrainingToDate}
-                testingFromDate={testingFromDate}
-                setTestingFromDate={setTestingFromDate}
-                testingToDate={testingToDate}
-                setTestingToDate={setTestingToDate}
                 regions={regions}
                 cities={cities}
                 channelTypes={channelTypes}
@@ -356,7 +374,7 @@ export const ForecastingContainer = () => {
         <Card className="p-6">
           <div className="space-y-6">
             <div className="flex items-center gap-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">3</span>
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">4</span>
               <h3 className="text-lg font-semibold">Key Performance Metrics</h3>
             </div>
             
@@ -368,7 +386,7 @@ export const ForecastingContainer = () => {
         <Card className="p-6">
           <div className="space-y-6">
             <div className="flex items-center gap-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">4</span>
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">5</span>
               <h3 className="text-lg font-semibold">Detailed Analysis</h3>
             </div>
 
@@ -402,7 +420,7 @@ export const ForecastingContainer = () => {
         <Card className="p-6">
           <div className="space-y-6">
             <div className="flex items-center gap-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">5</span>
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">6</span>
               <h3 className="text-lg font-semibold">Model Version Control</h3>
             </div>
 
@@ -416,7 +434,7 @@ export const ForecastingContainer = () => {
         <Card className="p-6">
           <div className="space-y-6">
             <div className="flex items-center gap-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">6</span>
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">7</span>
               <h3 className="text-lg font-semibold">Scenario Management</h3>
             </div>
 
