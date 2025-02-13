@@ -96,7 +96,11 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
               tick={{ dy: 30 }}
               tickMargin={35}
             />
-            <YAxis width={60} />
+            <YAxis 
+              width={60}
+              domain={[0, 'auto']}
+              allowDataOverflow={false}
+            />
             <Tooltip
               labelFormatter={(label) => `Week of ${label}`}
               formatter={(value: number) => [Math.round(value), "Units"]}
@@ -108,22 +112,6 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
                 paddingTop: "20px",
                 paddingBottom: "20px"
               }}
-            />
-            <Line
-              type="monotone"
-              dataKey="actual"
-              stroke="#10B981"
-              name="Actual Demand"
-              strokeWidth={2}
-              dot={false}
-            />
-            <Line
-              type="monotone"
-              dataKey="forecast"
-              stroke="#F59E0B"
-              name="Forecast"
-              strokeWidth={2}
-              dot={false}
             />
             {showCI && (
               <>
@@ -149,6 +137,24 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
                 />
               </>
             )}
+            <Line
+              type="monotone"
+              dataKey="forecast"
+              stroke="#F59E0B"
+              name="Forecast"
+              strokeWidth={2}
+              dot={false}
+              isAnimationActive={false}
+            />
+            <Line
+              type="monotone"
+              dataKey="actual"
+              stroke="#10B981"
+              name="Actual Demand"
+              strokeWidth={2}
+              dot={false}
+              isAnimationActive={false}
+            />
             {showOutliers && dataWithOutliers
               .filter(point => point.isOutlier)
               .map((point, index) => (
