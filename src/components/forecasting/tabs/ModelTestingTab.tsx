@@ -1,7 +1,7 @@
 
 import { Card } from "@/components/ui/card";
 import { TestingChart } from "@/components/forecasting/TestingChart";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTestData } from "@/hooks/useTestData";
 import { useToast } from "@/hooks/use-toast";
 import { differenceInDays } from "date-fns";
@@ -21,18 +21,17 @@ export const ModelTestingTab = ({
   const { toast } = useToast();
   const { testData, generateNewTestData } = useTestData();
 
-  // Training period states - initialize as empty
-  const [trainingRange, setTrainingRange] = useState<string>("custom");
+  // Initialize all states as empty/null
+  const [trainingRange, setTrainingRange] = useState<string>("");
   const [trainingFromDate, setTrainingFromDate] = useState<Date | null>(null);
   const [trainingToDate, setTrainingToDate] = useState<Date | null>(null);
 
-  // Testing period states - initialize as empty
-  const [testingRange, setTestingRange] = useState<string>("custom");
+  const [testingRange, setTestingRange] = useState<string>("");
   const [testingFromDate, setTestingFromDate] = useState<Date | null>(null);
   const [testingToDate, setTestingToDate] = useState<Date | null>(null);
 
-  // Range options
   const rangeOptions = [
+    { label: "Select period", value: "" },
     { label: "Last Month", value: "1m" },
     { label: "Last 3 Months", value: "3m" },
     { label: "Last 6 Months", value: "6m" },
@@ -41,9 +40,22 @@ export const ModelTestingTab = ({
   ];
 
   const handleRangeChange = (periodType: 'training' | 'testing', value: string) => {
-    console.log(`Handling range change for ${periodType}:`, value);
     const now = new Date();
     let start = new Date();
+    
+    if (value === "") {
+      // Reset dates when no selection
+      if (periodType === 'training') {
+        setTrainingRange("");
+        setTrainingFromDate(null);
+        setTrainingToDate(null);
+      } else {
+        setTestingRange("");
+        setTestingFromDate(null);
+        setTestingToDate(null);
+      }
+      return;
+    }
     
     switch (value) {
       case "1m":
