@@ -27,7 +27,7 @@ export const ForecastingDateRange = ({
   setFromDate,
   setToDate,
 }: ForecastingDateRangeProps) => {
-  const [selectionType, setSelectionType] = useState<"date" | "period">("period");
+  const [selectionType, setSelectionType] = useState<"date" | "period" | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("weekly");
   const [periodCount, setPeriodCount] = useState<string>("4");
 
@@ -60,11 +60,11 @@ export const ForecastingDateRange = ({
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <Select
-          value={selectionType}
+          value={selectionType || ""}
           onValueChange={(value: "date" | "period") => setSelectionType(value)}
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select range type" />
+            <SelectValue placeholder="Choose selection type" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="period">Time Period</SelectItem>
@@ -73,26 +73,28 @@ export const ForecastingDateRange = ({
         </Select>
       </div>
 
-      <div className="mt-2">
-        {selectionType === "date" ? (
-          <DateRangeSelector
-            fromDate={fromDate}
-            toDate={toDate}
-            setFromDate={setFromDate}
-            setToDate={setToDate}
-          />
-        ) : (
-          <PeriodSelector
-            selectedPeriod={selectedPeriod}
-            periodCount={periodCount}
-            onPeriodChange={handlePeriodChange}
-            onPeriodCountChange={(count) => {
-              setPeriodCount(count);
-              handlePeriodChange(selectedPeriod);
-            }}
-          />
-        )}
-      </div>
+      {selectionType && (
+        <div className="mt-2">
+          {selectionType === "date" ? (
+            <DateRangeSelector
+              fromDate={fromDate}
+              toDate={toDate}
+              setFromDate={setFromDate}
+              setToDate={setToDate}
+            />
+          ) : (
+            <PeriodSelector
+              selectedPeriod={selectedPeriod}
+              periodCount={periodCount}
+              onPeriodChange={handlePeriodChange}
+              onPeriodCountChange={(count) => {
+                setPeriodCount(count);
+                handlePeriodChange(selectedPeriod);
+              }}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 };
