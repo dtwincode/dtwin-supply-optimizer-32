@@ -112,7 +112,10 @@ export const ForecastDistributionTab = ({
   const handleModelParametersChange = (modelId: string, parameters: ModelParameter[]) => {
     console.log('Model parameters updated:', modelId, parameters);
     if (autoRun && selectedConfigId) {
-      fetchProductForecastData(selectedConfigId);
+      const selectedConfig = savedConfigs.find(config => config.id === selectedConfigId);
+      if (selectedConfig) {
+        fetchProductForecastData(selectedConfig.productId);
+      }
     }
   };
 
@@ -167,6 +170,9 @@ export const ForecastDistributionTab = ({
 
   const removeConfiguration = async (configId: string) => {
     try {
+      const config = savedConfigs.find(c => c.id === configId);
+      if (!config) return;
+
       const { error } = await supabase
         .from('saved_model_configs')
         .delete()
@@ -301,7 +307,7 @@ export const ForecastDistributionTab = ({
                   <SelectGroup>
                     <SelectLabel>Saved Configurations</SelectLabel>
                     {savedConfigs.map((config) => (
-                      <SelectItem key={config.productId} value={config.productId}>
+                      <SelectItem key={config.id} value={config.id}>
                         {config.productName} ({config.modelId})
                       </SelectItem>
                     ))}
@@ -344,9 +350,9 @@ export const ForecastDistributionTab = ({
                 <div className="space-y-2">
                   {savedConfigs.map((config) => (
                     <div 
-                      key={config.productId}
+                      key={config.id}
                       className={`flex items-center justify-between rounded-lg p-2 ${
-                        selectedConfigId === config.productId 
+                        selectedConfigId === config.id 
                           ? 'bg-primary/20' 
                           : 'bg-secondary/20'
                       }`}
@@ -357,14 +363,14 @@ export const ForecastDistributionTab = ({
                         {config.autoRun && (
                           <Badge variant="outline">Auto-run</Badge>
                         )}
-                        {selectedConfigId === config.productId && (
+                        {selectedConfigId === config.id && (
                           <Badge variant="default">Selected</Badge>
                         )}
                       </div>
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => removeConfiguration(config.productId)}
+                        onClick={() => removeConfiguration(config.id)}
                       >
                         <X className="h-4 w-4" />
                       </Button>
