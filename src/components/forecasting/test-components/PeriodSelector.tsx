@@ -28,18 +28,24 @@ export const PeriodSelector = ({
 }: PeriodSelectorProps) => {
   console.log(`Rendering PeriodSelector for ${title}`, { range, fromDate, toDate });
   
+  const handleRangeSelection = (newValue: string) => {
+    console.log('Handling range selection:', newValue);
+    onRangeChange(newValue);
+  };
+  
   return (
     <div className="space-y-6">
-      <Select value={range} onValueChange={onRangeChange}>
+      <h3 className="text-lg font-semibold mb-2">{title}</h3>
+      <Select value={range} onValueChange={handleRangeSelection}>
         <SelectTrigger className="w-full h-16 px-8 bg-white hover:bg-gray-50 border border-gray-200 rounded-xl transition-all duration-200">
-          <SelectValue placeholder="Date Range" />
+          <SelectValue placeholder="Select period" />
         </SelectTrigger>
         <SelectContent>
           {rangeOptions.map((option) => (
             <SelectItem 
               key={option.value} 
               value={option.value}
-              className="cursor-pointer"
+              className="cursor-pointer py-2"
             >
               {option.label}
             </SelectItem>
