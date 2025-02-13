@@ -1,4 +1,3 @@
-
 import DashboardLayout from "@/components/DashboardLayout";
 import { ForecastingTabs } from "@/components/forecasting/ForecastingTabs";
 import { ForecastAnalysisTab } from "@/components/forecasting/tabs/ForecastAnalysisTab";
@@ -316,74 +315,63 @@ const Forecasting = () => {
             </AnimatePresence>
           </div>
 
-          <div className="p-6">
-            <Routes>
-              <Route 
-                path="/" 
-                element={
-                  <ForecastAnalysisTab 
-                    filteredData={dummyData.filteredData}
-                    confidenceIntervals={dummyData.confidenceIntervals}
-                  />
-                } 
+          {/* Routes */}
+          <Routes>
+            <Route path="" element={
+              <ForecastAnalysisTab 
+                filteredData={dummyData.filteredData}
+                confidenceIntervals={dummyData.confidenceIntervals}
               />
-              <Route 
-                path="/distribution" 
-                element={
-                  <ForecastDistributionTab 
-                    forecastTableData={dummyData.forecastTableData}
-                  />
-                } 
+            } />
+            <Route path="distribution" element={
+              <ForecastDistributionTab 
+                forecastTableData={[{
+                  date: "2024-01-01",
+                  value: 100,
+                  forecast: 105,
+                  sku: "SKU123",
+                  category: "Electronics",
+                  subcategory: "Phones",
+                  variance: 25,
+                  id: "1"
+                }]}
               />
-              <Route 
-                path="/pattern" 
-                element={
-                  <DecompositionTab
-                    filteredData={dummyData.filteredData}
-                    decomposition={dummyData.decomposition}
-                  />
-                } 
+            } />
+            <Route path="pattern" element={
+              <DecompositionTab
+                filteredData={dummyData.filteredData}
+                decomposition={dummyData.decomposition}
               />
-              <Route 
-                path="/what-if" 
-                element={
-                  <WhatIfAnalysisTab
-                    filteredData={dummyData.filteredData}
-                    whatIfScenario={dummyData.whatIfScenario}
-                  />
-                } 
+            } />
+            <Route path="what-if" element={
+              <WhatIfAnalysisTab
+                filteredData={dummyData.filteredData}
+                whatIfScenario={dummyData.whatIfScenario}
               />
-              <Route 
-                path="/validation" 
-                element={
-                  <ValidationTab
-                    validationResults={dummyData.validationResults}
-                    crossValidationResults={dummyData.crossValidationResults}
-                  />
-                } 
+            } />
+            <Route path="validation" element={
+              <ValidationTab
+                validationResults={dummyData.validationResults}
+                crossValidationResults={dummyData.crossValidationResults}
               />
-              <Route 
-                path="/external" 
-                element={
-                  <ExternalFactorsTab
-                    weatherLocation={dummyData.weatherLocation}
-                    setWeatherLocation={dummyData.setWeatherLocation}
-                    weatherData={dummyData.weatherData}
-                    fetchWeatherForecast={dummyData.fetchWeatherForecast}
-                    marketEvents={dummyData.marketEvents}
-                    setMarketEvents={dummyData.setMarketEvents}
-                    newEvent={dummyData.newEvent}
-                    setNewEvent={dummyData.setNewEvent}
-                    priceAnalysis={dummyData.priceAnalysis}
-                    addHistoricalPricePoint={dummyData.addHistoricalPricePoint}
-                    calculatePriceAnalysis={dummyData.calculatePriceAnalysis}
-                    historicalPriceData={dummyData.historicalPriceData}
-                  />
-                } 
+            } />
+            <Route path="external" element={
+              <ExternalFactorsTab
+                weatherLocation={dummyData.weatherLocation}
+                setWeatherLocation={dummyData.setWeatherLocation}
+                weatherData={dummyData.weatherData}
+                fetchWeatherForecast={dummyData.fetchWeatherForecast}
+                marketEvents={dummyData.marketEvents}
+                setMarketEvents={dummyData.setMarketEvents}
+                newEvent={dummyData.newEvent}
+                setNewEvent={dummyData.setNewEvent}
+                priceAnalysis={dummyData.priceAnalysis}
+                addHistoricalPricePoint={dummyData.addHistoricalPricePoint}
+                calculatePriceAnalysis={dummyData.calculatePriceAnalysis}
+                historicalPriceData={dummyData.historicalPriceData}
               />
-              <Route path="*" element={<Navigate to="/forecasting" replace />} />
-            </Routes>
-          </div>
+            } />
+          </Routes>
         </div>
       </div>
     </DashboardLayout>
