@@ -1,11 +1,5 @@
 
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { CalendarIcon, ChevronDown } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -17,6 +11,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
+import { DateRangeSelector } from "./date-range/DateRangeSelector";
+import { PeriodSelector, TimePeriod } from "./date-range/PeriodSelector";
 
 interface ForecastingDateRangeProps {
   fromDate: Date;
@@ -24,8 +20,6 @@ interface ForecastingDateRangeProps {
   setFromDate: (date: Date) => void;
   setToDate: (date: Date) => void;
 }
-
-type TimePeriod = "weekly" | "monthly" | "quarterly" | "yearly";
 
 export const ForecastingDateRange = ({
   fromDate,
@@ -61,11 +55,6 @@ export const ForecastingDateRange = ({
 
     setFromDate(newFromDate);
     setToDate(newToDate);
-  };
-
-  const handlePeriodCountChange = (count: string) => {
-    setPeriodCount(count);
-    handlePeriodChange(selectedPeriod);
   };
 
   const selectedDateRange = fromDate && toDate ? (
@@ -124,86 +113,22 @@ export const ForecastingDateRange = ({
                     </div>
 
                     {selectionType === "date" ? (
-                      <div className="flex gap-2">
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "w-[180px] justify-start text-left font-normal",
-                                !fromDate && "text-muted-foreground"
-                              )}
-                            >
-                              <CalendarIcon className="mr-2 h-4 w-4" />
-                              {fromDate ? format(fromDate, "MMM dd, yyyy") : "Start date"}
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={fromDate}
-                              onSelect={(date) => date && setFromDate(date)}
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "w-[180px] justify-start text-left font-normal",
-                                !toDate && "text-muted-foreground"
-                              )}
-                            >
-                              <CalendarIcon className="mr-2 h-4 w-4" />
-                              {toDate ? format(toDate, "MMM dd, yyyy") : "End date"}
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={toDate}
-                              onSelect={(date) => date && setToDate(date)}
-                              initialFocus
-                              fromDate={fromDate}
-                            />
-                          </PopoverContent>
-                        </Popover>
-                      </div>
+                      <DateRangeSelector
+                        fromDate={fromDate}
+                        toDate={toDate}
+                        setFromDate={setFromDate}
+                        setToDate={setToDate}
+                      />
                     ) : selectionType === "period" ? (
-                      <div className="flex gap-2">
-                        <Select value={selectedPeriod} onValueChange={handlePeriodChange}>
-                          <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Select period" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="weekly">Weekly</SelectItem>
-                            <SelectItem value="monthly">Monthly</SelectItem>
-                            <SelectItem value="quarterly">Quarterly</SelectItem>
-                            <SelectItem value="yearly">Yearly</SelectItem>
-                          </SelectContent>
-                        </Select>
-
-                        <Select 
-                          value={periodCount} 
-                          onValueChange={handlePeriodCountChange}
-                        >
-                          <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Select count" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {[1, 2, 3, 4, 6, 8, 12, 24, 36].map((num) => (
-                              <SelectItem key={num} value={num.toString()}>
-                                Last {num} {selectedPeriod === "weekly" ? "weeks" : 
-                                         selectedPeriod === "monthly" ? "months" :
-                                         selectedPeriod === "quarterly" ? "quarters" : "years"}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                      <PeriodSelector
+                        selectedPeriod={selectedPeriod}
+                        periodCount={periodCount}
+                        onPeriodChange={handlePeriodChange}
+                        onPeriodCountChange={(count) => {
+                          setPeriodCount(count);
+                          handlePeriodChange(selectedPeriod);
+                        }}
+                      />
                     ) : null}
                   </div>
                 </div>
