@@ -21,27 +21,15 @@ export const ModelTestingTab = ({
   const { toast } = useToast();
   const { testData, generateNewTestData } = useTestData();
 
-  // Training period states
-  const [trainingRange, setTrainingRange] = useState<string>("custom");
-  const [trainingFromDate, setTrainingFromDate] = useState<Date | null>(null);
-  const [trainingToDate, setTrainingToDate] = useState<Date | null>(null);
+  // Training period states with default values
+  const [trainingRange, setTrainingRange] = useState<string>("1m"); // Set default to "1m"
+  const [trainingFromDate, setTrainingFromDate] = useState<Date | null>(new Date()); // Initialize with current date
+  const [trainingToDate, setTrainingToDate] = useState<Date | null>(new Date()); // Initialize with current date
 
-  // Testing period states
-  const [testingRange, setTestingRange] = useState<string>("custom");
-  const [testingFromDate, setTestingFromDate] = useState<Date | null>(null);
-  const [testingToDate, setTestingToDate] = useState<Date | null>(null);
-
-  // Debug logs
-  useEffect(() => {
-    console.log('ModelTestingTab rendering with states:', {
-      trainingRange,
-      trainingFromDate,
-      trainingToDate,
-      testingRange,
-      testingFromDate,
-      testingToDate
-    });
-  }, [trainingRange, trainingFromDate, trainingToDate, testingRange, testingFromDate, testingToDate]);
+  // Testing period states with default values
+  const [testingRange, setTestingRange] = useState<string>("1m"); // Set default to "1m"
+  const [testingFromDate, setTestingFromDate] = useState<Date | null>(new Date()); // Initialize with current date
+  const [testingToDate, setTestingToDate] = useState<Date | null>(new Date()); // Initialize with current date
 
   // Range options
   const rangeOptions = [
@@ -51,6 +39,12 @@ export const ModelTestingTab = ({
     { label: "Last Year", value: "1y" },
     { label: "Custom", value: "custom" }
   ];
+
+  // Initialize periods on component mount
+  useEffect(() => {
+    handleRangeChange('training', "1m");
+    handleRangeChange('testing', "1m");
+  }, []);
 
   const handleRangeChange = (periodType: 'training' | 'testing', value: string) => {
     console.log(`Handling range change for ${periodType}:`, value);
@@ -96,6 +90,13 @@ export const ModelTestingTab = ({
         setTestingToDate(now);
       }
     }
+
+    // Update test data if we have all dates
+    if (trainingFromDate && trainingToDate && testingFromDate && testingToDate) {
+      const trainingDays = differenceInDays(trainingToDate, trainingFromDate);
+      const testingDays = differenceInDays(testingToDate, testingFromDate);
+      generateNewTestData('moving-avg', {}, `${trainingDays},${testingDays}`);
+    }
   };
 
   const handleDateChange = (
@@ -124,7 +125,7 @@ export const ModelTestingTab = ({
       }
     }
 
-    // Update test data based on the new date ranges
+    // Update test data if we have all dates
     if (trainingFromDate && trainingToDate && testingFromDate && testingToDate) {
       const trainingDays = differenceInDays(trainingToDate, trainingFromDate);
       const testingDays = differenceInDays(testingToDate, testingFromDate);
