@@ -252,42 +252,6 @@ export const ForecastingContainer = () => {
   return (
     <div className="container mx-auto p-6">
       <div className="space-y-8">
-        {/* Step 1: Detailed Analysis - Moved to top */}
-        <Card className="p-6">
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">1</span>
-              <h3 className="text-lg font-semibold">Detailed Analysis</h3>
-            </div>
-
-            <div className="space-y-6">
-              <ForecastingTabs
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-                historicalData={historicalData}
-                filteredData={filteredData}
-                confidenceIntervals={confidenceIntervals}
-                decomposition={decomposition}
-                validationResults={validationResults}
-                crossValidationResults={crossValidationResults}
-                weatherLocation={weatherLocation}
-                setWeatherLocation={setWeatherLocation}
-                weatherData={weatherData}
-                fetchWeatherForecast={fetchWeatherForecast}
-                marketEvents={marketEvents}
-                setMarketEvents={setMarketEvents}
-                newEvent={newEvent}
-                setNewEvent={setNewEvent}
-                priceAnalysis={priceAnalysis}
-                historicalPriceData={historicalPriceData}
-                addHistoricalPricePoint={addHistoricalPricePoint}
-                calculatePriceAnalysis={calculatePriceAnalysis}
-                forecastTableData={forecastTableData}
-              />
-            </div>
-          </div>
-        </Card>
-
         {/* Configuration Header */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
@@ -305,11 +269,11 @@ export const ForecastingContainer = () => {
           <Separator />
         </section>
 
-        {/* Step 2: Model Selection and Controls */}
+        {/* Step 1: Model Selection and Controls */}
         <Card className="p-6">
           <div className="space-y-6">
             <div className="flex items-center gap-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">2</span>
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">1</span>
               <h3 className="text-lg font-semibold">Configure Model</h3>
             </div>
             
@@ -323,11 +287,11 @@ export const ForecastingContainer = () => {
           </div>
         </Card>
 
-        {/* Step 3: Data Filters */}
+        {/* Step 2: Data Filters */}
         <Card className="p-6">
           <div className="space-y-6">
             <div className="flex items-center gap-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">3</span>
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">2</span>
               <h3 className="text-lg font-semibold">Select Data Range & Filters</h3>
             </div>
 
@@ -376,15 +340,51 @@ export const ForecastingContainer = () => {
           </div>
         </Card>
 
-        {/* Step 4: Key Metrics */}
+        {/* Step 3: Key Metrics */}
         <Card className="p-6">
           <div className="space-y-6">
             <div className="flex items-center gap-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">4</span>
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">3</span>
               <h3 className="text-lg font-semibold">Key Performance Metrics</h3>
             </div>
             
             <ForecastMetricsCards metrics={metrics} />
+          </div>
+        </Card>
+
+        {/* Step 4: Detailed Analysis */}
+        <Card className="p-6">
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">4</span>
+              <h3 className="text-lg font-semibold">Detailed Analysis</h3>
+            </div>
+
+            <div className="space-y-6">
+              <ForecastingTabs
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                historicalData={historicalData}
+                filteredData={filteredData}
+                confidenceIntervals={confidenceIntervals}
+                decomposition={decomposition}
+                validationResults={validationResults}
+                crossValidationResults={crossValidationResults}
+                weatherLocation={weatherLocation}
+                setWeatherLocation={setWeatherLocation}
+                weatherData={weatherData}
+                fetchWeatherForecast={fetchWeatherForecast}
+                marketEvents={marketEvents}
+                setMarketEvents={setMarketEvents}
+                newEvent={newEvent}
+                setNewEvent={setNewEvent}
+                priceAnalysis={priceAnalysis}
+                historicalPriceData={historicalPriceData}
+                addHistoricalPricePoint={addHistoricalPricePoint}
+                calculatePriceAnalysis={calculatePriceAnalysis}
+                forecastTableData={forecastTableData}
+              />
+            </div>
           </div>
         </Card>
 
