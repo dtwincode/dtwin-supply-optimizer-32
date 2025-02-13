@@ -1,40 +1,64 @@
 
+export interface BufferProfile {
+  id: string;
+  name: string;
+  description?: string;
+  variabilityFactor: 'high_variability' | 'medium_variability' | 'low_variability';
+  leadTimeFactor: 'short' | 'medium' | 'long';
+  moq?: number;
+  lotSizeFactor?: number;
+}
+
+export interface DecouplingPoint {
+  id: string;
+  locationId: string;
+  type: 'strategic' | 'customer_order' | 'stock_point' | 'intermediate';
+  description?: string;
+  bufferProfileId: string;
+}
+
+export interface PurchaseOrder {
+  id: string;
+  poNumber: string;
+  sku: string;
+  quantity: number;
+  createdBy: string;
+  status: string;
+  supplier?: string;
+  expectedDeliveryDate?: string;
+  orderDate: string;
+}
+
 export interface InventoryItem {
-  id: number;
+  id: string;
   sku: string;
   name: string;
   currentStock: number;
-  bufferZone: string;
-  minStock: number;
-  maxStock: number;
-  leadTime: string;
   category: string;
   subcategory: string;
-  lastUpdated: string;
-  decouplingPoint: {
-    type: string;
-    location: string;
-    reason: string;
-    variabilityFactor: string;
-    bufferProfile: string;
-  };
   location: string;
   productFamily: string;
-  netFlow: {
-    onHand: number;
-    onOrder: number;
-    qualifiedDemand: number;
-    netFlowPosition: number;
-    avgDailyUsage: number;
-    orderCycle: number;
-    redZone: number;
-    yellowZone: number;
-    greenZone: number;
-  };
   region: string;
   city: string;
   channel: string;
   warehouse: string;
+  decouplingPointId?: string;
+  adu?: number; // Average Daily Usage
+  leadTimeDays?: number;
+  variabilityFactor?: number;
+  // Buffer Zones
+  redZoneSize?: number;
+  yellowZoneSize?: number;
+  greenZoneSize?: number;
+  // Net Flow Components
+  onHand: number;
+  onOrder: number;
+  qualifiedDemand: number;
+  netFlowPosition: number;
+  planningPriority?: string;
+  // Buffer Management
+  bufferPenetration?: number;
+  // ADU Calculation Methods
   aduCalculation?: {
     past30Days: number;
     past60Days: number;
@@ -42,18 +66,13 @@ export interface InventoryItem {
     forecastedADU: number;
     blendedADU: number;
   };
+  // Dynamic Adjustments
   dynamicAdjustments?: {
     seasonality: number;
     trend: number;
     marketStrategy: number;
   };
-  planningHorizon?: string;
-  orderSpike?: {
-    threshold: number;
-    horizon: string;
-    qualified: boolean;
-  };
-  bufferPenetration: number;
+  // Supply Chain Metrics
   supplySignals?: {
     leadTimeAlert: boolean;
     qualityAlert: boolean;
@@ -61,16 +80,32 @@ export interface InventoryItem {
   };
 }
 
-export interface DynamicAdjustmentFactor {
-  seasonality: number;
-  trend: number;
-  marketStrategy: number;
+export interface InventoryFilters {
+  searchQuery: string;
+  selectedLocation: string;
+  selectedFamily: string;
+  selectedRegion: string;
+  selectedCity: string;
+  selectedChannel: string;
+  selectedWarehouse: string;
+  selectedCategory: string;
+  selectedSubcategory: string;
+  selectedSKU: string;
+  timeRange?: {
+    start: string;
+    end: string;
+  };
 }
 
-export interface ADUCalculation {
-  past30Days: number;
-  past60Days: number;
-  past90Days: number;
-  forecastedADU: number;
-  blendedADU: number;
+export interface BufferZones {
+  red: number;
+  yellow: number;
+  green: number;
+}
+
+export interface NetFlowPosition {
+  onHand: number;
+  onOrder: number;
+  qualifiedDemand: number;
+  netFlowPosition: number;
 }
