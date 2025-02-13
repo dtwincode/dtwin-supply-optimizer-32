@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { X } from "lucide-react";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ModelConfig {
   productId: string;
@@ -40,6 +41,7 @@ export const ForecastDistributionTab = ({
   const [selectedModel, setSelectedModel] = useState<string>("moving-avg");
   const [autoRun, setAutoRun] = useState(true);
   const [savedConfigs, setSavedConfigs] = useState<ModelConfig[]>([]);
+  const [selectedConfigId, setSelectedConfigId] = useState<string | null>(null);
   const { toast } = useToast();
   
   const handleModelParametersChange = (modelId: string, parameters: any[]) => {
@@ -47,27 +49,24 @@ export const ForecastDistributionTab = ({
   };
 
   const handleSaveConfiguration = () => {
-    // Get the current product from the filter (this would come from your filter state)
     const currentProduct = {
-      id: "product-x", // This would come from your actual product selection
-      name: "Product X" // This would come from your actual product selection
+      id: "product-x",
+      name: "Product X"
     };
 
     const newConfig: ModelConfig = {
       productId: currentProduct.id,
       productName: currentProduct.name,
       modelId: selectedModel,
-      parameters: [], // This would be populated from your model parameters
+      parameters: [],
       autoRun: autoRun
     };
 
-    // Check if configuration for this product already exists
     const existingConfigIndex = savedConfigs.findIndex(
       config => config.productId === currentProduct.id
     );
 
     if (existingConfigIndex !== -1) {
-      // Update existing configuration
       const updatedConfigs = [...savedConfigs];
       updatedConfigs[existingConfigIndex] = newConfig;
       setSavedConfigs(updatedConfigs);
@@ -76,7 +75,6 @@ export const ForecastDistributionTab = ({
         description: `Model configuration for ${currentProduct.name} has been updated.`
       });
     } else {
-      // Add new configuration
       setSavedConfigs([...savedConfigs, newConfig]);
       toast({
         title: "Configuration Saved",
@@ -87,10 +85,27 @@ export const ForecastDistributionTab = ({
 
   const removeConfiguration = (productId: string) => {
     setSavedConfigs(savedConfigs.filter(config => config.productId !== productId));
+    if (selectedConfigId === productId) {
+      setSelectedConfigId(null);
+    }
     toast({
       title: "Configuration Removed",
       description: "The model configuration has been removed."
     });
+  };
+
+  const handleConfigSelect = (productId: string) => {
+    setSelectedConfigId(productId);
+    const selectedConfig = savedConfigs.find(config => config.productId === productId);
+    if (selectedConfig) {
+      setSelectedModel(selectedConfig.modelId);
+      setAutoRun(selectedConfig.autoRun);
+      // Here you would also update the chart and table data based on the selected configuration
+      toast({
+        title: "Configuration Loaded",
+        description: `Loaded forecast configuration for ${selectedConfig.productName}`
+      });
+    }
   };
 
   // Transform the data to include future forecasts
@@ -175,6 +190,30 @@ export const ForecastDistributionTab = ({
             </p>
           </div>
 
+          {savedConfigs.length > 0 && (
+            <div className="space-y-2">
+              <Label>View Saved Configuration</Label>
+              <Select
+                value={selectedConfigId || ""}
+                onValueChange={handleConfigSelect}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a saved configuration" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Saved Configurations</SelectLabel>
+                    {savedConfigs.map((config) => (
+                      <SelectItem key={config.productId} value={config.productId}>
+                        {config.productName} ({config.modelId})
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           <div className="flex items-center space-x-2">
             <Switch
               id="auto-run"
@@ -207,13 +246,20 @@ export const ForecastDistributionTab = ({
                   {savedConfigs.map((config) => (
                     <div 
                       key={config.productId}
-                      className="flex items-center justify-between bg-secondary/20 rounded-lg p-2"
+                      className={`flex items-center justify-between rounded-lg p-2 ${
+                        selectedConfigId === config.productId 
+                          ? 'bg-primary/20' 
+                          : 'bg-secondary/20'
+                      }`}
                     >
                       <div className="flex items-center space-x-2">
                         <span className="font-medium">{config.productName}</span>
                         <Badge variant="secondary">{config.modelId}</Badge>
                         {config.autoRun && (
                           <Badge variant="outline">Auto-run</Badge>
+                        )}
+                        {selectedConfigId === config.productId && (
+                          <Badge variant="default">Selected</Badge>
                         )}
                       </div>
                       <Button
