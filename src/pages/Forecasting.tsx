@@ -96,69 +96,40 @@ const Forecasting = () => {
 
         <div className="p-6">
           <Routes>
-            <Route 
-              path="/" 
-              element={
-                <ForecastAnalysisTab 
-                  filteredData={dummyData.filteredData}
-                  confidenceIntervals={dummyData.confidenceIntervals}
-                />
-              } 
-            />
-            <Route 
-              path="/distribution" 
-              element={
-                <ForecastDistributionTab 
-                  forecastTableData={dummyData.forecastTableData}
-                />
-              } 
-            />
-            <Route 
-              path="/pattern" 
-              element={
-                <DecompositionTab
-                  filteredData={dummyData.filteredData}
-                  decomposition={dummyData.decomposition}
-                />
-              } 
-            />
-            <Route 
-              path="/what-if" 
-              element={
-                <WhatIfAnalysisTab
-                  filteredData={dummyData.filteredData}
-                  whatIfScenario={dummyData.whatIfScenario}
-                />
-              } 
-            />
-            <Route 
-              path="/validation" 
-              element={
-                <ValidationTab
-                  validationResults={dummyData.validationResults}
-                  crossValidationResults={dummyData.crossValidationResults}
-                />
-              } 
-            />
-            <Route 
-              path="/external" 
-              element={
-                <ExternalFactorsTab
-                  weatherLocation={dummyData.weatherLocation}
-                  setWeatherLocation={dummyData.setWeatherLocation}
-                  weatherData={dummyData.weatherData}
-                  fetchWeatherForecast={dummyData.fetchWeatherForecast}
-                  marketEvents={dummyData.marketEvents}
-                  setMarketEvents={dummyData.setMarketEvents}
-                  newEvent={dummyData.newEvent}
-                  setNewEvent={dummyData.setNewEvent}
-                  priceAnalysis={dummyData.priceAnalysis}
-                  addHistoricalPricePoint={dummyData.addHistoricalPricePoint}
-                  calculatePriceAnalysis={dummyData.calculatePriceAnalysis}
-                  historicalPriceData={dummyData.historicalPriceData}
-                />
-              } 
-            />
+            <Route path="/forecasting" element={<ForecastAnalysisTab 
+              filteredData={dummyData.filteredData}
+              confidenceIntervals={dummyData.confidenceIntervals}
+            />} />
+            <Route path="/forecasting/distribution" element={<ForecastDistributionTab 
+              forecastTableData={dummyData.forecastTableData}
+            />} />
+            <Route path="/forecasting/pattern" element={<DecompositionTab
+              filteredData={dummyData.filteredData}
+              decomposition={dummyData.decomposition}
+            />} />
+            <Route path="/forecasting/what-if" element={<WhatIfAnalysisTab
+              filteredData={dummyData.filteredData}
+              whatIfScenario={dummyData.whatIfScenario}
+            />} />
+            <Route path="/forecasting/validation" element={<ValidationTab
+              validationResults={dummyData.validationResults}
+              crossValidationResults={dummyData.crossValidationResults}
+            />} />
+            <Route path="/forecasting/external" element={<ExternalFactorsTab
+              weatherLocation={dummyData.weatherLocation}
+              setWeatherLocation={dummyData.setWeatherLocation}
+              weatherData={dummyData.weatherData}
+              fetchWeatherForecast={dummyData.fetchWeatherForecast}
+              marketEvents={dummyData.marketEvents}
+              setMarketEvents={dummyData.setMarketEvents}
+              newEvent={dummyData.newEvent}
+              setNewEvent={dummyData.setNewEvent}
+              priceAnalysis={dummyData.priceAnalysis}
+              addHistoricalPricePoint={dummyData.addHistoricalPricePoint}
+              calculatePriceAnalysis={dummyData.calculatePriceAnalysis}
+              historicalPriceData={dummyData.historicalPriceData}
+            />} />
+            <Route path="/" element={<Navigate to="/forecasting" replace />} />
             <Route path="*" element={<Navigate to="/forecasting" replace />} />
           </Routes>
         </div>
