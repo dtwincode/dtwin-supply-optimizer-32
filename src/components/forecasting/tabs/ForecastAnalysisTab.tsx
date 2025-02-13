@@ -54,7 +54,7 @@ export const ForecastAnalysisTab = ({
   return (
     <div className="space-y-8">
       {/* Step 1: Model Selection & Configuration */}
-      <div className="relative z-10">
+      <div>
         <div className="space-y-2 mb-4">
           <h3 className="text-lg font-semibold">Step 1: Select Model</h3>
           <p className="text-sm text-muted-foreground">
@@ -71,7 +71,7 @@ export const ForecastAnalysisTab = ({
       <Separator />
 
       {/* Step 2: Forecast Results & Visualization */}
-      <div className="relative z-0">
+      <div>
         <div className="space-y-2 mb-6">
           <h3 className="text-lg font-semibold">Step 2: Review Performance</h3>
           <p className="text-sm text-muted-foreground">
@@ -89,7 +89,7 @@ export const ForecastAnalysisTab = ({
                   Historical data and forecast predictions with confidence intervals
                 </p>
               </div>
-              <div className="h-[500px] w-full relative">
+              <div className="h-[500px] w-full overflow-hidden">
                 <ForecastChart
                   data={filteredData}
                   confidenceIntervals={confidenceIntervals}
@@ -120,7 +120,7 @@ export const ForecastAnalysisTab = ({
       </div>
 
       {/* Model Versioning in its own section with proper spacing */}
-      <div className="relative z-0 mt-8">
+      <div className="mt-8">
         <Card className="p-6">
           <div className="space-y-4">
             <div>
@@ -139,7 +139,7 @@ export const ForecastAnalysisTab = ({
       <Separator className="my-8" />
 
       {/* Step 3: Scenario Management */}
-      <div className="relative z-0">
+      <div>
         <div className="space-y-2 mb-4">
           <h3 className="text-lg font-semibold">Step 3: Save & Manage Scenarios</h3>
           <p className="text-sm text-muted-foreground">
