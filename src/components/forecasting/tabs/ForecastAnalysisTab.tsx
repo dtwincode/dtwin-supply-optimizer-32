@@ -81,15 +81,15 @@ export const ForecastAnalysisTab = ({
 
         <div className="space-y-6">
           {/* Chart in its own card */}
-          <Card className="p-6">
-            <div className="space-y-4">
+          <Card className="p-4">
+            <div className="space-y-2">
               <div>
                 <h4 className="text-base font-medium">Forecast Visualization</h4>
                 <p className="text-sm text-muted-foreground">
                   Historical data and forecast predictions with confidence intervals
                 </p>
               </div>
-              <div className="h-[600px] w-full overflow-hidden">
+              <div className="h-[400px] w-full overflow-hidden">
                 <ForecastChart
                   data={filteredData}
                   confidenceIntervals={confidenceIntervals}

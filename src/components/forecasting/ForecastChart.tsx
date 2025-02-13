@@ -43,7 +43,7 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
 
   return (
     <div className="w-full h-full">
-      <div className="flex items-center justify-end gap-6 mb-4">
+      <div className="flex items-center justify-end gap-6 mb-2">
         <div className="flex items-center space-x-2">
           <Switch
             id="ci-toggle"
@@ -80,24 +80,24 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
         </div>
       </div>
       
-      <div className="h-[450px]">
+      <div className="h-[350px]">
         <ResponsiveContainer>
-          <ComposedChart data={dataWithOutliers} margin={{ top: 10, right: 30, left: 10, bottom: 80 }}>
+          <ComposedChart data={dataWithOutliers} margin={{ top: 5, right: 30, left: 10, bottom: 65 }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
               dataKey="formattedWeek"
               angle={-45}
               textAnchor="end"
-              height={80}
+              height={60}
               interval={Math.ceil(dataWithOutliers.length / 15)}
-              tick={{ dy: 25 }}
+              tick={{ dy: 20 }}
             />
             <YAxis width={60} />
             <Tooltip
               labelFormatter={(label) => `Week of ${label}`}
               formatter={(value: number) => [Math.round(value), "Units"]}
             />
-            <Legend wrapperStyle={{ paddingTop: "20px" }} />
+            <Legend wrapperStyle={{ paddingTop: "10px" }} />
             <Line
               type="monotone"
               dataKey="actual"
