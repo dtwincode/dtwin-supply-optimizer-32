@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { ForecastChart } from "@/components/forecasting/ForecastChart";
 import { ForecastTable } from "@/components/forecasting/ForecastTable";
@@ -55,7 +54,7 @@ export const ForecastDistributionTab = ({
             productId: config.product_id,
             productName: config.product_name,
             modelId: config.model_id,
-            parameters: (config.parameters as ModelParameter[]) || [],
+            parameters: Array.isArray(config.parameters) ? config.parameters : [],
             autoRun: config.auto_run
           })));
         }
@@ -120,9 +119,7 @@ export const ForecastDistributionTab = ({
 
       const { data, error } = await supabase
         .from('saved_model_configs')
-        .upsert([configData], {
-          onConflict: 'product_id'
-        })
+        .upsert([configData])
         .select();
 
       if (error) throw error;
@@ -133,7 +130,7 @@ export const ForecastDistributionTab = ({
           productId: data[0].product_id,
           productName: data[0].product_name,
           modelId: data[0].model_id,
-          parameters: (data[0].parameters as ModelParameter[]) || [],
+          parameters: Array.isArray(data[0].parameters) ? data[0].parameters : [],
           autoRun: data[0].auto_run
         };
 
