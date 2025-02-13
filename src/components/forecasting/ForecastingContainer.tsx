@@ -9,6 +9,7 @@ import { ForecastFilters } from "./ForecastFilters";
 import { ScenarioManagement } from "./ScenarioManagement";
 import { ModelVersioning } from "./ModelVersioning";
 import { DataUploadDialog } from "../settings/DataUploadDialog";
+import { ForecastChart } from "./ForecastChart";
 import { useForecastData } from "@/hooks/useForecastData";
 import { useWeatherData } from "@/hooks/useWeatherData";
 import { useMarketEvents } from "@/hooks/useMarketEvents";
