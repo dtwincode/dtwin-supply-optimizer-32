@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { ForecastChart } from "@/components/forecasting/ForecastChart";
 import { ForecastTable } from "@/components/forecasting/ForecastTable";
 import { format, parseISO, addWeeks } from "date-fns";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ModelSelectionCard } from "@/components/forecasting/ModelSelectionCard";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -13,6 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { X } from "lucide-react";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ModelConfig {
   productId: string;
@@ -36,16 +37,45 @@ interface ForecastDistributionTabProps {
 }
 
 export const ForecastDistributionTab = ({
-  forecastTableData
+  forecastTableData: initialForecastData
 }: ForecastDistributionTabProps) => {
   const [selectedModel, setSelectedModel] = useState<string>("moving-avg");
   const [autoRun, setAutoRun] = useState(true);
   const [savedConfigs, setSavedConfigs] = useState<ModelConfig[]>([]);
   const [selectedConfigId, setSelectedConfigId] = useState<string | null>(null);
+  const [forecastTableData, setForecastTableData] = useState(initialForecastData);
   const { toast } = useToast();
   
+  // Fetch forecast data for a specific product
+  const fetchProductForecastData = async (productId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('forecast_data')
+        .select('*')
+        .eq('sku', productId)
+        .order('date', { ascending: true });
+
+      if (error) throw error;
+
+      if (data) {
+        setForecastTableData(data);
+        console.log('Fetched forecast data for product:', productId, data);
+      }
+    } catch (error) {
+      console.error('Error fetching forecast data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch forecast data for the selected product",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleModelParametersChange = (modelId: string, parameters: any[]) => {
     console.log('Model parameters updated:', modelId, parameters);
+    if (autoRun && selectedConfigId) {
+      fetchProductForecastData(selectedConfigId);
+    }
   };
 
   const handleSaveConfiguration = () => {
@@ -87,6 +117,7 @@ export const ForecastDistributionTab = ({
     setSavedConfigs(savedConfigs.filter(config => config.productId !== productId));
     if (selectedConfigId === productId) {
       setSelectedConfigId(null);
+      setForecastTableData(initialForecastData); // Reset to initial data
     }
     toast({
       title: "Configuration Removed",
@@ -94,12 +125,13 @@ export const ForecastDistributionTab = ({
     });
   };
 
-  const handleConfigSelect = (productId: string) => {
+  const handleConfigSelect = async (productId: string) => {
     setSelectedConfigId(productId);
     const selectedConfig = savedConfigs.find(config => config.productId === productId);
     if (selectedConfig) {
       setSelectedModel(selectedConfig.modelId);
       setAutoRun(selectedConfig.autoRun);
+      await fetchProductForecastData(productId);
       toast({
         title: "Configuration Loaded",
         description: `Loaded forecast configuration for ${selectedConfig.productName}`
@@ -109,14 +141,12 @@ export const ForecastDistributionTab = ({
 
   // Transform the data to include future forecasts
   const currentDate = new Date();
-  const futureWeeks = 12; // Number of weeks to forecast ahead
+  const futureWeeks = 12;
 
   const enhancedData = forecastTableData.map((row) => {
-    // Calculate confidence bounds using the variance
-    const confidenceInterval = Math.sqrt(row.variance || 0) * 1.96; // 95% confidence interval
+    const confidenceInterval = Math.sqrt(row.variance || 0) * 1.96;
     const forecast = row.forecast || 0;
     
-    // Safely format the date with a fallback
     let formattedDate = 'No date';
     try {
       if (row.date) {
@@ -146,9 +176,8 @@ export const ForecastDistributionTab = ({
     const lastDate = lastDataPoint?.week ? parseISO(lastDataPoint.week) : currentDate;
     const newDate = addWeeks(lastDate, i + 1);
     
-    // Add some randomness to the forecast for demonstration
     const baseForecast = lastDataPoint?.forecast || 100;
-    const randomVariation = (Math.random() - 0.5) * 0.2; // ±10% variation
+    const randomVariation = (Math.random() - 0.5) * 0.2;
     const newForecast = baseForecast * (1 + randomVariation);
     const variance = (lastDataPoint?.variance || 10) * (1 + Math.random() * 0.2);
 
