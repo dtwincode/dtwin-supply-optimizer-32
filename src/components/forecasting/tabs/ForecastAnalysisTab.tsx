@@ -47,45 +47,58 @@ export const ForecastAnalysisTab = ({
   };
 
   return (
-    <div className="space-y-6">
-      <ModelSelectionCard
-        selectedModel={selectedModel}
-        onModelChange={handleModelChange}
-        onParametersChange={handleParametersChange}
-      />
-      
-      <Card className="p-6">
-        <ForecastMetricsCards 
-          metrics={{
-            mape: 12.5,
-            mae: 45.2,
-            rmse: 52.8
-          }}
+    <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+      {/* Left Column - Model Selection and Metrics */}
+      <div className="xl:col-span-1 space-y-6">
+        <ModelSelectionCard
+          selectedModel={selectedModel}
+          onModelChange={handleModelChange}
+          onParametersChange={handleParametersChange}
         />
-      </Card>
-      
-      <Card className="p-6">
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Forecast Visualization</h3>
-          <p className="text-sm text-muted-foreground">
-            Historical data and forecast predictions with confidence intervals
-          </p>
-          <ForecastChart
-            data={filteredData}
-            confidenceIntervals={confidenceIntervals}
+        
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Forecast Metrics</h3>
+          <ForecastMetricsCards 
+            metrics={{
+              mape: 12.5,
+              mae: 45.2,
+              rmse: 52.8
+            }}
           />
-        </div>
-      </Card>
+        </Card>
 
-      <ScenarioManagement
-        scenarioName={scenarioName}
-        setScenarioName={setScenarioName}
-        currentModel={selectedModel}
-        currentHorizon={horizon}
-        currentParameters={{}}
-        forecastData={filteredData}
-        onScenarioLoad={handleScenarioLoad}
-      />
+        <ScenarioManagement
+          scenarioName={scenarioName}
+          setScenarioName={setScenarioName}
+          currentModel={selectedModel}
+          currentHorizon={horizon}
+          currentParameters={{}}
+          forecastData={filteredData}
+          onScenarioLoad={handleScenarioLoad}
+        />
+      </div>
+
+      {/* Right Column - Chart */}
+      <div className="xl:col-span-3">
+        <Card className="p-6">
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="text-lg font-semibold">Forecast Visualization</h3>
+                <p className="text-sm text-muted-foreground">
+                  Historical data and forecast predictions with confidence intervals
+                </p>
+              </div>
+            </div>
+            <div className="h-[600px]"> {/* Fixed height for better visualization */}
+              <ForecastChart
+                data={filteredData}
+                confidenceIntervals={confidenceIntervals}
+              />
+            </div>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 };

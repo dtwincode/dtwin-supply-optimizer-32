@@ -19,20 +19,14 @@ export const ModelSelectionCard = ({
 
   return (
     <Card className="p-6">
-      <div className="flex items-center justify-between">
+      <div className="space-y-4">
         <div className="space-y-1">
           <h3 className="text-lg font-semibold">Model Selection</h3>
           <p className="text-sm text-muted-foreground">
-            Choose and configure your forecasting model
+            Choose and configure your model
           </p>
         </div>
-        <ModelParametersDialog
-          model={currentModel}
-          onParametersChange={onParametersChange}
-        />
-      </div>
 
-      <div className="mt-4">
         <Select
           value={selectedModel}
           onValueChange={onModelChange}
@@ -51,6 +45,11 @@ export const ModelSelectionCard = ({
             </SelectGroup>
           </SelectContent>
         </Select>
+
+        <ModelParametersDialog
+          model={currentModel}
+          onParametersChange={onParametersChange}
+        />
       </div>
     </Card>
   );
