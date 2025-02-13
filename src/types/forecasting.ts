@@ -127,34 +127,44 @@ export interface ForecastOutlier {
 export interface SeasonalityPattern {
   id: string;
   dataset_id: string;
-  pattern_type: string;
+  pattern_type: string; // 'weekly' | 'monthly' | 'yearly'
   frequency: number;
-  strength: number;
+  strength: number; // 0-1 scale
   detected_at: string;
   last_updated_at: string;
   configuration: Record<string, any>;
   metadata: Record<string, any>;
 }
 
-export interface ModelVersionApplication {
+export interface ChangePoint {
   id: string;
-  model_version_id: string;
-  location_id: string;
-  product_code: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-  performance_metrics: {
-    mape: number | null;
-    mae: number | null;
-    rmse: number | null;
-    last_evaluation_date: string | null;
-  };
-  location_hierarchy?: {
-    display_name: string;
-    location_type: string;
-  };
-  product_hierarchy?: {
-    name: string;
-  };
+  timestamp: string;
+  confidence: number;
+  type: 'level_shift' | 'trend_change' | 'variance_change';
+  magnitude: number;
+}
+
+export interface StatisticalTest {
+  name: string;
+  statistic: number;
+  pValue: number;
+  criticalValues: Record<string, number>;
+  result: 'significant' | 'not_significant';
+}
+
+export interface PatternAnomaly {
+  id: string;
+  timestamp: string;
+  value: number;
+  expected_value: number;
+  deviation_score: number;
+  type: 'outlier' | 'structural_break' | 'pattern_break';
+  confidence: number;
+}
+
+export interface PatternAnalysisResult {
+  seasonality: SeasonalityPattern[];
+  changePoints: ChangePoint[];
+  statisticalTests: StatisticalTest[];
+  anomalies: PatternAnomaly[];
 }
