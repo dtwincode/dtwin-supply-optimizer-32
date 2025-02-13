@@ -67,12 +67,12 @@ export const ForecastingTabs = ({
   const currentPath = location.pathname;
 
   const tabs = [
-    { name: "Forecast Analysis", path: "./" },
-    { name: "Distribution", path: "./distribution" },
-    { name: "Pattern Analysis", path: "./pattern" },
-    { name: "What-If Analysis", path: "./what-if" },
-    { name: "Model Validation", path: "./validation" },
-    { name: "External Factors", path: "./external" }
+    { name: "Forecast Analysis", path: "/forecasting" },
+    { name: "Distribution", path: "/forecasting/distribution" },
+    { name: "Pattern Analysis", path: "/forecasting/pattern" },
+    { name: "What-If Analysis", path: "/forecasting/what-if" },
+    { name: "Model Validation", path: "/forecasting/validation" },
+    { name: "External Factors", path: "/forecasting/external" }
   ];
 
   return (
@@ -85,8 +85,7 @@ export const ForecastingTabs = ({
             className={cn(
               "px-3 py-4 text-sm font-medium transition-colors hover:text-primary",
               "border-b-2 -mb-px",
-              (currentPath === '/forecasting' && tab.path === './') || 
-              currentPath.endsWith(tab.path.slice(2))
+              currentPath === tab.path
                 ? "border-primary text-primary"
                 : "border-transparent text-muted-foreground"
             )}

@@ -361,7 +361,7 @@ const Forecasting = () => {
                 historicalPriceData={dummyData.historicalPriceData}
               />
             } />
-            <Route path="*" element={<Navigate to="./" replace />} />
+            <Route path="*" element={<Navigate to="/forecasting" replace />} />
           </Routes>
         </div>
       </div>
