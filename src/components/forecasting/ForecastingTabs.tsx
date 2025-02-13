@@ -57,17 +57,17 @@ export const ForecastingTabs = ({
   console.log('Active tab:', activeTab); // Debug log
 
   return (
-    <Tabs defaultValue="forecast" value={activeTab} onValueChange={setActiveTab} className="w-full">
+    <Tabs defaultValue="analysis" value={activeTab} onValueChange={setActiveTab} className="w-full">
       <TabsList className="w-full">
-        <TabsTrigger value="forecast">Forecast Analysis</TabsTrigger>
-        <TabsTrigger value="distribution">Forecast Distribution</TabsTrigger>
-        <TabsTrigger value="decomposition">Pattern Analysis</TabsTrigger>
-        <TabsTrigger value="scenarios">What-If Analysis</TabsTrigger>
-        <TabsTrigger value="validation">Forecast Validation</TabsTrigger>
-        <TabsTrigger value="external">External Factors</TabsTrigger>
+        <TabsTrigger value="analysis">Forecast Performance</TabsTrigger>
+        <TabsTrigger value="distribution">Statistical Analysis</TabsTrigger>
+        <TabsTrigger value="decomposition">Trend Analysis</TabsTrigger>
+        <TabsTrigger value="scenarios">Scenario Planning</TabsTrigger>
+        <TabsTrigger value="accuracy">Model Accuracy</TabsTrigger>
+        <TabsTrigger value="factors">External Influences</TabsTrigger>
       </TabsList>
 
-      <TabsContent value="forecast">
+      <TabsContent value="analysis">
         <ForecastAnalysisTab
           filteredData={filteredData}
           confidenceIntervals={confidenceIntervals}
@@ -92,14 +92,14 @@ export const ForecastingTabs = ({
         />
       </TabsContent>
 
-      <TabsContent value="validation">
+      <TabsContent value="accuracy">
         <ValidationTab
           validationResults={validationResults}
           crossValidationResults={crossValidationResults}
         />
       </TabsContent>
 
-      <TabsContent value="external">
+      <TabsContent value="factors">
         <ExternalFactorsTab
           weatherLocation={weatherLocation}
           setWeatherLocation={setWeatherLocation}
