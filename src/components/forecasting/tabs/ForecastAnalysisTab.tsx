@@ -54,76 +54,75 @@ export const ForecastAnalysisTab = ({
   return (
     <div className="space-y-6">
       {/* Step 1: Model Selection & Configuration */}
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-        {/* Left Column - Model Settings */}
-        <div className="xl:col-span-1">
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold">Step 1: Select Model</h3>
-            <p className="text-sm text-muted-foreground">
-              Choose and configure your forecasting model
-            </p>
-          </div>
-          <ModelSelectionCard
-            selectedModel={selectedModel}
-            onModelChange={handleModelChange}
-            onParametersChange={handleParametersChange}
-          />
+      <div>
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold">Step 1: Select Model</h3>
+          <p className="text-sm text-muted-foreground">
+            Choose and configure your forecasting model
+          </p>
         </div>
-
-        {/* Right Column - Version Management */}
-        <div className="xl:col-span-3">
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold">Model Versions</h3>
-            <p className="text-sm text-muted-foreground">
-              Track and manage different versions of your model
-            </p>
-          </div>
-          <ModelVersioning modelId={selectedModel} />
-        </div>
+        <ModelSelectionCard
+          selectedModel={selectedModel}
+          onModelChange={handleModelChange}
+          onParametersChange={handleParametersChange}
+        />
       </div>
 
       <Separator />
 
       {/* Step 2: Forecast Results & Visualization */}
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-        {/* Left Column - Metrics */}
-        <div className="xl:col-span-1">
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold">Step 2: Review Performance</h3>
-            <p className="text-sm text-muted-foreground">
-              Analyze forecast accuracy and metrics
-            </p>
+      <div>
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold">Step 2: Review Performance</h3>
+          <p className="text-sm text-muted-foreground">
+            Analyze forecast accuracy and metrics
+          </p>
+        </div>
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 mt-4">
+          {/* Left Column - Metrics */}
+          <div className="xl:col-span-1">
+            <Card className="p-6">
+              <h4 className="text-base font-medium mb-4">Forecast Metrics</h4>
+              <ForecastMetricsCards 
+                metrics={{
+                  mape: 12.5,
+                  mae: 45.2,
+                  rmse: 52.8
+                }}
+              />
+            </Card>
           </div>
-          <Card className="p-6">
-            <h4 className="text-base font-medium mb-4">Forecast Metrics</h4>
-            <ForecastMetricsCards 
-              metrics={{
-                mape: 12.5,
-                mae: 45.2,
-                rmse: 52.8
-              }}
-            />
-          </Card>
+
+          {/* Right Column - Chart */}
+          <div className="xl:col-span-3">
+            <Card className="p-6">
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-base font-medium">Forecast Visualization</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Historical data and forecast predictions with confidence intervals
+                  </p>
+                </div>
+                <div className="h-[500px]">
+                  <ForecastChart
+                    data={filteredData}
+                    confidenceIntervals={confidenceIntervals}
+                  />
+                </div>
+              </div>
+            </Card>
+          </div>
         </div>
 
-        {/* Right Column - Chart */}
-        <div className="xl:col-span-3">
-          <Card className="p-6">
-            <div className="space-y-4">
-              <div>
-                <h4 className="text-base font-medium">Forecast Visualization</h4>
-                <p className="text-sm text-muted-foreground">
-                  Historical data and forecast predictions with confidence intervals
-                </p>
-              </div>
-              <div className="h-[500px]">
-                <ForecastChart
-                  data={filteredData}
-                  confidenceIntervals={confidenceIntervals}
-                />
-              </div>
-            </div>
-          </Card>
+        {/* Model Versioning - Now under the chart */}
+        <div className="mt-6">
+          <div className="space-y-2 mb-4">
+            <h4 className="text-base font-medium">Model Versions</h4>
+            <p className="text-sm text-muted-foreground">
+              Track and manage different versions of your model
+            </p>
+          </div>
+          <ModelVersioning modelId={selectedModel} />
         </div>
       </div>
 
