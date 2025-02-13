@@ -44,13 +44,16 @@ export function ModelParametersDialog({
   const handleAutoOptimize = async () => {
     try {
       setIsOptimizing(true);
+      toast({
+        title: "Optimizing Parameters",
+        description: "Please wait while we find the optimal parameters...",
+      });
 
       // Get data from the last year by default
       const endDate = new Date();
       const startDate = new Date();
       startDate.setFullYear(startDate.getFullYear() - 1);
 
-      // Fetch historical data from Supabase
       const { data: historicalData, error } = await supabase
         .from('forecast_data')
         .select('date, value')
@@ -63,15 +66,8 @@ export function ModelParametersDialog({
       }
 
       if (!historicalData || historicalData.length === 0) {
-        toast({
-          variant: "destructive",
-          title: "Auto-optimization failed",
-          description: "No historical data found for optimization.",
-        });
-        return;
+        throw new Error("No historical data found for optimization.");
       }
-
-      console.log('Historical data for optimization:', historicalData);
 
       const values = historicalData.map(d => d.value);
       const optimizedParams = optimizeModelParameters(values);
