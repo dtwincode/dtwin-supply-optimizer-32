@@ -2,12 +2,13 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { ForecastingTabs } from "@/components/forecasting/ForecastingTabs";
 import { ForecastAnalysisTab } from "@/components/forecasting/tabs/ForecastAnalysisTab";
 import { ForecastDistributionTab } from "@/components/forecasting/tabs/ForecastDistributionTab";
+import { DescriptiveAnalysisTab } from "@/components/forecasting/tabs/DescriptiveAnalysisTab";
 import { DecompositionTab } from "@/components/forecasting/tabs/DecompositionTab";
 import { WhatIfAnalysisTab } from "@/components/forecasting/tabs/WhatIfAnalysisTab";
 import { ValidationTab } from "@/components/forecasting/tabs/ValidationTab";
 import { ExternalFactorsTab } from "@/components/forecasting/tabs/ExternalFactorsTab";
 import { Separator } from "@/components/ui/separator";
-import { Route, Routes, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, Outlet } from "react-router-dom";
 import { useState } from "react";
 import { ProductFilter } from "@/components/forecasting/filters/ProductFilter";
 import { LocationFilter } from "@/components/forecasting/filters/LocationFilter";
@@ -17,7 +18,6 @@ import { ForecastingDateRange } from "@/components/forecasting/ForecastingDateRa
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { DescriptiveAnalysisTab } from "@/components/forecasting/tabs/DescriptiveAnalysisTab";
 
 const Forecasting = () => {
   const [isTimeExpanded, setIsTimeExpanded] = useState(false);
@@ -129,9 +129,6 @@ const Forecasting = () => {
     whatIfScenario: []
   };
 
-  const location = useLocation();
-  const currentPath = location.pathname;
-
   return (
     <DashboardLayout>
       <div className="flex flex-col">
@@ -148,6 +145,7 @@ const Forecasting = () => {
         </div>
 
         <div className="px-6 space-y-6 mt-6">
+          
           <div 
             className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40"
             onMouseLeave={() => setIsTimeExpanded(false)}
@@ -316,57 +314,13 @@ const Forecasting = () => {
           </div>
 
           <Routes>
-            <Route index element={
-              <ForecastAnalysisTab 
-                filteredData={dummyData.filteredData}
-                confidenceIntervals={dummyData.confidenceIntervals}
-              />
-            } />
-            <Route path="distribution" element={
-              <ForecastDistributionTab 
-                forecastTableData={dummyData.forecastTableData}
-              />
-            } />
-            <Route path="descriptive" element={
-              <DescriptiveAnalysisTab
-                filteredData={dummyData.filteredData}
-              />
-            } />
-            <Route path="pattern" element={
-              <DecompositionTab
-                filteredData={dummyData.filteredData}
-                decomposition={dummyData.decomposition}
-              />
-            } />
-            <Route path="what-if" element={
-              <WhatIfAnalysisTab
-                filteredData={dummyData.filteredData}
-                whatIfScenario={dummyData.whatIfScenario}
-              />
-            } />
-            <Route path="validation" element={
-              <ValidationTab
-                validationResults={dummyData.validationResults}
-                crossValidationResults={dummyData.crossValidationResults}
-              />
-            } />
-            <Route path="external" element={
-              <ExternalFactorsTab
-                weatherLocation={dummyData.weatherLocation}
-                setWeatherLocation={dummyData.setWeatherLocation}
-                weatherData={dummyData.weatherData}
-                fetchWeatherForecast={dummyData.fetchWeatherForecast}
-                marketEvents={dummyData.marketEvents}
-                setMarketEvents={dummyData.setMarketEvents}
-                newEvent={dummyData.newEvent}
-                setNewEvent={dummyData.setNewEvent}
-                priceAnalysis={dummyData.priceAnalysis}
-                addHistoricalPricePoint={dummyData.addHistoricalPricePoint}
-                calculatePriceAnalysis={dummyData.calculatePriceAnalysis}
-                historicalPriceData={dummyData.historicalPriceData}
-              />
-            } />
-            <Route path="*" element={<Navigate to="/forecasting" replace />} />
+            <Route index element={<ForecastAnalysisTab filteredData={dummyData.filteredData} confidenceIntervals={dummyData.confidenceIntervals} />} />
+            <Route path="distribution" element={<ForecastDistributionTab forecastTableData={dummyData.forecastTableData} />} />
+            <Route path="descriptive" element={<DescriptiveAnalysisTab filteredData={dummyData.filteredData} />} />
+            <Route path="pattern" element={<DecompositionTab filteredData={dummyData.filteredData} decomposition={dummyData.decomposition} />} />
+            <Route path="what-if" element={<WhatIfAnalysisTab filteredData={dummyData.filteredData} whatIfScenario={dummyData.whatIfScenario} />} />
+            <Route path="validation" element={<ValidationTab validationResults={dummyData.validationResults} crossValidationResults={dummyData.crossValidationResults} />} />
+            <Route path="external" element={<ExternalFactorsTab {...dummyData} />} />
           </Routes>
         </div>
       </div>
