@@ -9,13 +9,44 @@ interface DescriptiveAnalysisTabProps {
 }
 
 export const DescriptiveAnalysisTab = ({ filteredData = [] }: DescriptiveAnalysisTabProps) => {
-  // Transform data for scatter plot (actual vs forecast)
-  const scatterData = filteredData.map(d => ({
-    actual: d.actual ?? 0,
-    forecast: d.forecast ?? 0,
-  }));
+  // Transform data for value analysis
+  const values = filteredData
+    .map(d => d.actual)
+    .filter((val): val is number => val !== null);
 
-  // Transform data for box plot with the correct BoxPlotDatum structure
+  // Calculate distribution type
+  const detectDistributionType = (data: number[]): string => {
+    if (data.length < 3) return "Insufficient data";
+    
+    // Calculate skewness
+    const mean = data.reduce((a, b) => a + b, 0) / data.length;
+    const variance = data.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / data.length;
+    const stdDev = Math.sqrt(variance);
+    
+    const skewness = data.reduce((a, b) => 
+      a + Math.pow((b - mean) / stdDev, 3), 0) / data.length;
+    
+    // Calculate kurtosis
+    const kurtosis = data.reduce((a, b) => 
+      a + Math.pow((b - mean) / stdDev, 4), 0) / data.length - 3;
+
+    // Determine distribution type based on skewness and kurtosis
+    if (Math.abs(skewness) < 0.5 && Math.abs(kurtosis) < 0.5) {
+      return "Normal Distribution";
+    } else if (skewness > 1) {
+      return "Right-Skewed Distribution";
+    } else if (skewness < -1) {
+      return "Left-Skewed Distribution";
+    } else if (kurtosis > 1) {
+      return "Heavy-Tailed Distribution";
+    } else if (kurtosis < -1) {
+      return "Light-Tailed Distribution";
+    } else {
+      return "Non-Normal Distribution";
+    }
+  };
+
+  // Transform data for box plot
   const prepareBoxPlotData = (values: number[]): BoxPlotDatum => {
     if (values.length === 0) return {
       group: '',
@@ -48,17 +79,10 @@ export const DescriptiveAnalysisTab = ({ filteredData = [] }: DescriptiveAnalysi
     };
   };
 
-  const actualValues = filteredData.map(d => d.actual).filter((val): val is number => val !== null);
-  const forecastValues = filteredData.map(d => d.forecast).filter(Boolean);
-
   const boxPlotData = [
     {
-      group: 'Actual',
-      ...prepareBoxPlotData(actualValues)
-    },
-    {
-      group: 'Forecast',
-      ...prepareBoxPlotData(forecastValues)
+      group: 'Distribution',
+      ...prepareBoxPlotData(values)
     }
   ];
 
@@ -85,78 +109,59 @@ export const DescriptiveAnalysisTab = ({ filteredData = [] }: DescriptiveAnalysi
     }));
   };
 
-  const actualHistogram = prepareHistogramData(actualValues);
-  const forecastHistogram = prepareHistogramData(forecastValues);
+  const histogramData = prepareHistogramData(values);
+  const distributionType = detectDistributionType(values);
 
-  // Calculate statistics for actual values
-  const actualMean = actualValues.length > 0
-    ? actualValues.reduce((a, b) => a + b, 0) / actualValues.length
+  // Calculate basic statistics
+  const mean = values.length > 0
+    ? values.reduce((a, b) => a + b, 0) / values.length
     : 0;
-  const actualStdDev = actualValues.length > 0
-    ? Math.sqrt(actualValues.reduce((a, b) => a + Math.pow(b - actualMean, 2), 0) / actualValues.length)
+  const stdDev = values.length > 0
+    ? Math.sqrt(values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length)
     : 0;
-
-  // Calculate statistics for forecast values
-  const forecastMean = forecastValues.length > 0
-    ? forecastValues.reduce((a, b) => a + b, 0) / forecastValues.length
-    : 0;
-  const forecastStdDev = forecastValues.length > 0
-    ? Math.sqrt(forecastValues.reduce((a, b) => a + Math.pow(b - forecastMean, 2), 0) / forecastValues.length)
+  const median = values.length > 0
+    ? values.sort((a, b) => a - b)[Math.floor(values.length / 2)]
     : 0;
 
   return (
     <div className="space-y-6">
       <Card className="p-4">
-        <h3 className="text-lg font-semibold mb-4">Summary Statistics</h3>
+        <h3 className="text-lg font-semibold mb-4">Descriptive Statistics</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="p-4 bg-secondary/10 rounded-lg">
-            <p className="text-sm text-muted-foreground">Mean Actual</p>
-            <p className="text-lg font-semibold">{actualMean.toFixed(2)}</p>
+            <p className="text-sm text-muted-foreground">Mean</p>
+            <p className="text-lg font-semibold">{mean.toFixed(2)}</p>
           </div>
           <div className="p-4 bg-secondary/10 rounded-lg">
-            <p className="text-sm text-muted-foreground">Mean Forecast</p>
-            <p className="text-lg font-semibold">{forecastMean.toFixed(2)}</p>
+            <p className="text-sm text-muted-foreground">Median</p>
+            <p className="text-lg font-semibold">{median.toFixed(2)}</p>
           </div>
           <div className="p-4 bg-secondary/10 rounded-lg">
-            <p className="text-sm text-muted-foreground">Std Dev Actual</p>
-            <p className="text-lg font-semibold">{actualStdDev.toFixed(2)}</p>
+            <p className="text-sm text-muted-foreground">Standard Deviation</p>
+            <p className="text-lg font-semibold">{stdDev.toFixed(2)}</p>
           </div>
           <div className="p-4 bg-secondary/10 rounded-lg">
-            <p className="text-sm text-muted-foreground">Std Dev Forecast</p>
-            <p className="text-lg font-semibold">{forecastStdDev.toFixed(2)}</p>
+            <p className="text-sm text-muted-foreground">Sample Size</p>
+            <p className="text-lg font-semibold">{values.length}</p>
           </div>
         </div>
       </Card>
 
       <Card className="p-4">
-        <h3 className="text-lg font-semibold mb-4">Actual vs Forecast Scatter Plot</h3>
-        <div className="h-[400px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-              <CartesianGrid />
-              <XAxis type="number" dataKey="actual" name="Actual" />
-              <YAxis type="number" dataKey="forecast" name="Forecast" />
-              <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-              <Scatter 
-                name="Values" 
-                data={scatterData} 
-                fill="#8884d8"
-              />
-            </ScatterChart>
-          </ResponsiveContainer>
-        </div>
+        <h3 className="text-lg font-semibold mb-4">Distribution Type</h3>
+        <p className="text-lg font-medium text-primary">{distributionType}</p>
       </Card>
 
       <Card className="p-4">
-        <h3 className="text-lg font-semibold mb-4">Distribution Box Plot</h3>
+        <h3 className="text-lg font-semibold mb-4">Box Plot Analysis</h3>
         <div className="h-[400px]">
           <ResponsiveContainer width="100%" height="100%">
             <BoxPlot
               data={boxPlotData}
               margin={{ top: 20, right: 20, bottom: 40, left: 40 }}
               padding={0.15}
-              minValue={0}
-              maxValue={Math.max(...[...actualValues, ...forecastValues], 0)}
+              minValue={Math.min(...values)}
+              maxValue={Math.max(...values)}
               layout="vertical"
               valueFormat={(value) => typeof value === 'number' ? value.toFixed(2) : '0'}
               width={500}
@@ -171,14 +176,14 @@ export const DescriptiveAnalysisTab = ({ filteredData = [] }: DescriptiveAnalysi
         <div className="h-[400px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
-              data={actualHistogram}
+              data={histogramData}
               margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="label" angle={-45} textAnchor="end" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="count" name="Actual" fill="#8884d8" />
+              <Bar dataKey="count" name="Frequency" fill="#8884d8" />
             </BarChart>
           </ResponsiveContainer>
         </div>
