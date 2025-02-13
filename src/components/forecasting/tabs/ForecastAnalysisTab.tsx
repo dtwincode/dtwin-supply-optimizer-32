@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { SavedScenario } from "@/types/forecasting";
+import { Separator } from "@/components/ui/separator";
 
 interface ForecastAnalysisTabProps {
   filteredData: any[];
@@ -47,28 +48,91 @@ export const ForecastAnalysisTab = ({
   };
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-      {/* Left Column - Model Selection and Settings */}
-      <div className="xl:col-span-1 space-y-6">
-        <ModelSelectionCard
-          selectedModel={selectedModel}
-          onModelChange={handleModelChange}
-          onParametersChange={handleParametersChange}
-        />
-        
-        <ModelVersioning modelId={selectedModel} />
-        
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Forecast Metrics</h3>
-          <ForecastMetricsCards 
-            metrics={{
-              mape: 12.5,
-              mae: 45.2,
-              rmse: 52.8
-            }}
+    <div className="space-y-6">
+      {/* Step 1: Model Selection & Configuration */}
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+        {/* Left Column - Model Settings */}
+        <div className="xl:col-span-1">
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">Step 1: Select Model</h3>
+            <p className="text-sm text-muted-foreground">
+              Choose and configure your forecasting model
+            </p>
+          </div>
+          <ModelSelectionCard
+            selectedModel={selectedModel}
+            onModelChange={handleModelChange}
+            onParametersChange={handleParametersChange}
           />
-        </Card>
+        </div>
 
+        {/* Right Column - Version Management */}
+        <div className="xl:col-span-3">
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">Model Versions</h3>
+            <p className="text-sm text-muted-foreground">
+              Track and manage different versions of your model
+            </p>
+          </div>
+          <ModelVersioning modelId={selectedModel} />
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Step 2: Forecast Visualization & Metrics */}
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+        {/* Left Column - Metrics */}
+        <div className="xl:col-span-1">
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">Step 2: Review Performance</h3>
+            <p className="text-sm text-muted-foreground">
+              Analyze forecast accuracy and metrics
+            </p>
+          </div>
+          <Card className="p-6">
+            <h4 className="text-base font-medium mb-4">Forecast Metrics</h4>
+            <ForecastMetricsCards 
+              metrics={{
+                mape: 12.5,
+                mae: 45.2,
+                rmse: 52.8
+              }}
+            />
+          </Card>
+        </div>
+
+        {/* Right Column - Chart */}
+        <div className="xl:col-span-3">
+          <Card className="p-6">
+            <div className="space-y-4">
+              <div>
+                <h4 className="text-base font-medium">Forecast Visualization</h4>
+                <p className="text-sm text-muted-foreground">
+                  Historical data and forecast predictions with confidence intervals
+                </p>
+              </div>
+              <div className="h-[500px]">
+                <ForecastChart
+                  data={filteredData}
+                  confidenceIntervals={confidenceIntervals}
+                />
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Step 3: Scenario Management */}
+      <div>
+        <div className="space-y-2 mb-4">
+          <h3 className="text-lg font-semibold">Step 3: Save & Manage Scenarios</h3>
+          <p className="text-sm text-muted-foreground">
+            Save your current forecast configuration or load existing scenarios
+          </p>
+        </div>
         <ScenarioManagement
           scenarioName={scenarioName}
           setScenarioName={setScenarioName}
@@ -78,28 +142,6 @@ export const ForecastAnalysisTab = ({
           forecastData={filteredData}
           onScenarioLoad={handleScenarioLoad}
         />
-      </div>
-
-      {/* Right Column - Chart */}
-      <div className="xl:col-span-3">
-        <Card className="p-6">
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <div>
-                <h3 className="text-lg font-semibold">Forecast Visualization</h3>
-                <p className="text-sm text-muted-foreground">
-                  Historical data and forecast predictions with confidence intervals
-                </p>
-              </div>
-            </div>
-            <div className="h-[600px]">
-              <ForecastChart
-                data={filteredData}
-                confidenceIntervals={confidenceIntervals}
-              />
-            </div>
-          </div>
-        </Card>
       </div>
     </div>
   );
