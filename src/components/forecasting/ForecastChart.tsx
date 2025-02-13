@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import {
   LineChart,
@@ -152,233 +153,259 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
   return (
     <Card className="p-6 h-full">
       <div className="flex flex-col gap-6">
-        <div className="flex justify-between items-start flex-wrap gap-4">
-          <h3 className="text-lg font-semibold">Demand Forecast</h3>
+        <div className="flex flex-col gap-6">
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-semibold">Demand Forecast</h3>
+          </div>
           
-          <div className="flex flex-col gap-4 w-full max-w-[600px]">
-            <div className="p-4 bg-gray-50 rounded-lg space-y-4">
-              <div className="flex items-center gap-2 mb-2">
-                <h4 className="text-sm font-medium text-gray-700">Time Range Selection</h4>
+          <div className="grid md:grid-cols-[300px,1fr] gap-6">
+            {/* Left Panel - Controls */}
+            <div className="space-y-6">
+              {/* Step 1: Time Range Selection */}
+              <div className="p-4 bg-gray-50 rounded-lg space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-white text-sm font-medium">1</span>
+                  <h4 className="text-sm font-medium text-gray-700">Select Time Range</h4>
+                </div>
+                
+                <Select
+                  value={selectionType || undefined}
+                  onValueChange={(value: "date" | "period") => setSelectionType(value)}
+                >
+                  <SelectTrigger className="w-full bg-white">
+                    <SelectValue placeholder="Choose range type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="date">Date Range</SelectItem>
+                    <SelectItem value="period">Time Period</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {selectionType === "date" && (
+                  <div className="space-y-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal bg-white",
+                            !fromDate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {fromDate ? format(fromDate, "MMM dd, yyyy") : "From date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={fromDate}
+                          onSelect={setFromDate}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal bg-white",
+                            !toDate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {toDate ? format(toDate, "MMM dd, yyyy") : "To date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={toDate}
+                          onSelect={setToDate}
+                          initialFocus
+                          fromDate={fromDate}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                )}
+
+                {selectionType === "period" && (
+                  <div className="space-y-2">
+                    <Select value={selectedPeriod} onValueChange={handlePeriodChange}>
+                      <SelectTrigger className="w-full bg-white">
+                        <SelectValue placeholder="Select period type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="weekly">Weekly</SelectItem>
+                        <SelectItem value="monthly">Monthly</SelectItem>
+                        <SelectItem value="quarterly">Quarterly</SelectItem>
+                        <SelectItem value="yearly">Yearly</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <Select value={periodCount} onValueChange={handlePeriodCountChange}>
+                      <SelectTrigger className="w-full bg-white">
+                        <SelectValue placeholder="Select duration" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[1, 2, 3, 4, 6, 8, 12, 24, 36].map((num) => (
+                          <SelectItem key={num} value={num.toString()}>
+                            Last {num} {selectedPeriod === "weekly" ? "weeks" : 
+                                      selectedPeriod === "monthly" ? "months" :
+                                      selectedPeriod === "quarterly" ? "quarters" : "years"}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </div>
-              
-              <Select
-                value={selectionType || undefined}
-                onValueChange={(value: "date" | "period") => setSelectionType(value)}
-              >
-                <SelectTrigger className="w-full bg-white">
-                  <SelectValue placeholder="Select time type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="date">Date Range</SelectItem>
-                  <SelectItem value="period">Time Period</SelectItem>
-                </SelectContent>
-              </Select>
 
-              {selectionType === "date" && (
-                <div className="flex gap-2 flex-wrap">
-                  <Popover>
-                    <PopoverTrigger asChild>
+              {/* Step 2: Visualization Options */}
+              <div className="p-4 bg-gray-50 rounded-lg space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-white text-sm font-medium">2</span>
+                  <h4 className="text-sm font-medium text-gray-700">Customize View</h4>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm text-gray-600">Confidence Intervals</label>
+                    <div className="flex items-center gap-2">
                       <Button
                         variant="outline"
+                        size="sm"
                         className={cn(
-                          "w-[180px] justify-start text-left font-normal bg-white",
-                          !fromDate && "text-muted-foreground"
+                          "bg-white flex-1",
+                          showConfidenceIntervals && "bg-primary/10"
                         )}
+                        onClick={() => setShowConfidenceIntervals(!showConfidenceIntervals)}
                       >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {fromDate ? format(fromDate, "MMM dd, yyyy") : "From date"}
+                        {showConfidenceIntervals ? <EyeOff className="mr-2 h-4 w-4" /> : <Eye className="mr-2 h-4 w-4" />}
+                        {showConfidenceIntervals ? "Hide" : "Show"} CI
                       </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={fromDate}
-                        onSelect={setFromDate}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                      
+                      {showConfidenceIntervals && (
+                        <Select value={confidenceLevel} onValueChange={setConfidenceLevel}>
+                          <SelectTrigger className="w-[100px] h-9 bg-white">
+                            <SelectValue placeholder="CI Level" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="99">99%</SelectItem>
+                            <SelectItem value="95">95%</SelectItem>
+                            <SelectItem value="90">90%</SelectItem>
+                            <SelectItem value="80">80%</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    </div>
+                  </div>
 
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-[180px] justify-start text-left font-normal bg-white",
-                          !toDate && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {toDate ? format(toDate, "MMM dd, yyyy") : "To date"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={toDate}
-                        onSelect={setToDate}
-                        initialFocus
-                        fromDate={fromDate}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              )}
-
-              {selectionType === "period" && (
-                <div className="flex gap-2 flex-wrap">
-                  <Select value={selectedPeriod} onValueChange={handlePeriodChange}>
-                    <SelectTrigger className="w-[180px] bg-white">
-                      <SelectValue placeholder="Select period" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="weekly">Weekly</SelectItem>
-                      <SelectItem value="monthly">Monthly</SelectItem>
-                      <SelectItem value="quarterly">Quarterly</SelectItem>
-                      <SelectItem value="yearly">Yearly</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  <Select value={periodCount} onValueChange={handlePeriodCountChange}>
-                    <SelectTrigger className="w-[180px] bg-white">
-                      <SelectValue placeholder="Select count" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[1, 2, 3, 4, 6, 8, 12, 24, 36].map((num) => (
-                        <SelectItem key={num} value={num.toString()}>
-                          Last {num} {selectedPeriod === "weekly" ? "weeks" : 
-                                    selectedPeriod === "monthly" ? "months" :
-                                    selectedPeriod === "quarterly" ? "quarters" : "years"}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-            </div>
-
-            <div className="flex gap-4 flex-wrap">
-              <div className="p-4 bg-gray-50 rounded-lg flex-1">
-                <h4 className="text-sm font-medium text-gray-700 mb-3">Visualization Options</h4>
-                <div className="flex gap-3 flex-wrap">
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm text-gray-600">Outliers</label>
                     <Button
                       variant="outline"
                       size="sm"
                       className={cn(
                         "bg-white",
-                        showConfidenceIntervals && "bg-primary/10"
+                        showOutliers && "bg-primary/10"
                       )}
-                      onClick={() => setShowConfidenceIntervals(!showConfidenceIntervals)}
+                      onClick={() => setShowOutliers(!showOutliers)}
                     >
-                      {showConfidenceIntervals ? <EyeOff className="mr-2 h-4 w-4" /> : <Eye className="mr-2 h-4 w-4" />}
-                      {showConfidenceIntervals ? "Hide" : "Show"} CI
+                      {showOutliers ? <EyeOff className="mr-2 h-4 w-4" /> : <Eye className="mr-2 h-4 w-4" />}
+                      {showOutliers ? "Hide" : "Show"} Outliers
                     </Button>
-                    
-                    {showConfidenceIntervals && (
-                      <Select value={confidenceLevel} onValueChange={setConfidenceLevel}>
-                        <SelectTrigger className="w-[100px] h-9 bg-white">
-                          <SelectValue placeholder="CI Level" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="99">99%</SelectItem>
-                          <SelectItem value="95">95%</SelectItem>
-                          <SelectItem value="90">90%</SelectItem>
-                          <SelectItem value="80">80%</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
                   </div>
-                  
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className={cn(
-                      "bg-white",
-                      showOutliers && "bg-primary/10"
-                    )}
-                    onClick={() => setShowOutliers(!showOutliers)}
-                  >
-                    {showOutliers ? <EyeOff className="mr-2 h-4 w-4" /> : <Eye className="mr-2 h-4 w-4" />}
-                    {showOutliers ? "Hide" : "Show"} Outliers
-                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Panel - Chart */}
+            <div className="flex flex-col gap-4">
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-white text-sm font-medium">3</span>
+                  <h4 className="text-sm font-medium text-gray-700">View Results</h4>
+                </div>
+                
+                <div className="bg-white rounded-lg p-4 h-[500px]">
+                  <ResponsiveContainer>
+                    <ComposedChart data={dataWithOutliers} margin={{ top: 10, right: 30, left: 0, bottom: 40 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="formattedWeek"
+                        angle={-45}
+                        textAnchor="end"
+                        height={70}
+                        interval={Math.ceil(dataWithOutliers.length / 15)}
+                      />
+                      <YAxis />
+                      <Tooltip
+                        labelFormatter={(label) => `Week of ${label}`}
+                        formatter={(value: number) => [Math.round(value), "Units"]}
+                      />
+                      <Legend />
+                      <Line
+                        type="monotone"
+                        dataKey="actual"
+                        stroke="#10B981"
+                        name="Actual Demand"
+                        strokeWidth={2}
+                        dot={false}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="forecast"
+                        stroke="#F59E0B"
+                        name="Forecast"
+                        strokeWidth={2}
+                        dot={false}
+                      />
+                      {showConfidenceIntervals && (
+                        <>
+                          <Area
+                            dataKey={(data) => {
+                              const index = dataWithOutliers.indexOf(data);
+                              return adjustedConfidenceIntervals[index]?.upper;
+                            }}
+                            stroke="transparent"
+                            fill="#F59E0B"
+                            fillOpacity={0.1}
+                            name={`Upper CI (${confidenceLevel}%)`}
+                          />
+                          <Area
+                            dataKey={(data) => {
+                              const index = dataWithOutliers.indexOf(data);
+                              return adjustedConfidenceIntervals[index]?.lower;
+                            }}
+                            stroke="transparent"
+                            fill="#F59E0B"
+                            fillOpacity={0.1}
+                            name={`Lower CI (${confidenceLevel}%)`}
+                          />
+                        </>
+                      )}
+                      {showOutliers && dataWithOutliers
+                        .filter(point => point.isOutlier)
+                        .map((point, index) => (
+                          <ReferenceDot
+                            key={index}
+                            x={point.formattedWeek}
+                            y={point.actual}
+                            r={6}
+                            fill="red"
+                            stroke="none"
+                          />
+                        ))}
+                    </ComposedChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-        
-        <div className="h-[400px] w-full">
-          <ResponsiveContainer>
-            <ComposedChart data={dataWithOutliers} margin={{ top: 10, right: 30, left: 0, bottom: 40 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="formattedWeek"
-                angle={-45}
-                textAnchor="end"
-                height={70}
-                interval={Math.ceil(dataWithOutliers.length / 15)}
-              />
-              <YAxis />
-              <Tooltip
-                labelFormatter={(label) => `Week of ${label}`}
-                formatter={(value: number) => [Math.round(value), "Units"]}
-              />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="actual"
-                stroke="#10B981"
-                name="Actual Demand"
-                strokeWidth={2}
-                dot={false}
-              />
-              <Line
-                type="monotone"
-                dataKey="forecast"
-                stroke="#F59E0B"
-                name="Forecast"
-                strokeWidth={2}
-                dot={false}
-              />
-              {showConfidenceIntervals && (
-                <>
-                  <Area
-                    dataKey={(data) => {
-                      const index = dataWithOutliers.indexOf(data);
-                      return adjustedConfidenceIntervals[index]?.upper;
-                    }}
-                    stroke="transparent"
-                    fill="#F59E0B"
-                    fillOpacity={0.1}
-                    name={`Upper CI (${confidenceLevel}%)`}
-                  />
-                  <Area
-                    dataKey={(data) => {
-                      const index = dataWithOutliers.indexOf(data);
-                      return adjustedConfidenceIntervals[index]?.lower;
-                    }}
-                    stroke="transparent"
-                    fill="#F59E0B"
-                    fillOpacity={0.1}
-                    name={`Lower CI (${confidenceLevel}%)`}
-                  />
-                </>
-              )}
-              {showOutliers && dataWithOutliers
-                .filter(point => point.isOutlier)
-                .map((point, index) => (
-                  <ReferenceDot
-                    key={index}
-                    x={point.formattedWeek}
-                    y={point.actual}
-                    r={6}
-                    fill="red"
-                    stroke="none"
-                  />
-                ))}
-            </ComposedChart>
-          </ResponsiveContainer>
         </div>
       </div>
     </Card>
