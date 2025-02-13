@@ -2,6 +2,7 @@
 import { ForecastChart } from "@/components/forecasting/ForecastChart";
 import { ForecastMetricsCards } from "@/components/forecasting/ForecastMetricsCards";
 import { ModelSelectionCard } from "@/components/forecasting/ModelSelectionCard";
+import { ModelVersioning } from "@/components/forecasting/ModelVersioning";
 import { ScenarioManagement } from "@/components/forecasting/ScenarioManagement";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -43,18 +44,19 @@ export const ForecastAnalysisTab = ({
 
   const handleParametersChange = (modelId: string, parameters: any[]) => {
     console.log("Parameters updated for model:", modelId, parameters);
-    // Handle parameter changes if needed
   };
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-      {/* Left Column - Model Selection and Metrics */}
+      {/* Left Column - Model Selection and Settings */}
       <div className="xl:col-span-1 space-y-6">
         <ModelSelectionCard
           selectedModel={selectedModel}
           onModelChange={handleModelChange}
           onParametersChange={handleParametersChange}
         />
+        
+        <ModelVersioning modelId={selectedModel} />
         
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4">Forecast Metrics</h3>
@@ -90,7 +92,7 @@ export const ForecastAnalysisTab = ({
                 </p>
               </div>
             </div>
-            <div className="h-[600px]"> {/* Fixed height for better visualization */}
+            <div className="h-[600px]">
               <ForecastChart
                 data={filteredData}
                 confidenceIntervals={confidenceIntervals}
