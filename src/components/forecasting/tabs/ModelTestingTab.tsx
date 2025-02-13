@@ -21,7 +21,6 @@ export const ModelTestingTab = ({
   const { toast } = useToast();
   const { testData, generateNewTestData } = useTestData();
 
-  // Initialize all states as empty/null
   const [trainingRange, setTrainingRange] = useState<string>("");
   const [trainingFromDate, setTrainingFromDate] = useState<Date | null>(null);
   const [trainingToDate, setTrainingToDate] = useState<Date | null>(null);
@@ -44,15 +43,22 @@ export const ModelTestingTab = ({
     let start = new Date();
     
     if (value === "") {
-      // Reset dates when no selection
       if (periodType === 'training') {
         setTrainingRange("");
         setTrainingFromDate(null);
         setTrainingToDate(null);
+        toast({
+          title: "Training period reset",
+          description: "Please select a new training period",
+        });
       } else {
         setTestingRange("");
         setTestingFromDate(null);
         setTestingToDate(null);
+        toast({
+          title: "Testing period reset",
+          description: "Please select a new testing period",
+        });
       }
       return;
     }
@@ -74,9 +80,17 @@ export const ModelTestingTab = ({
         if (periodType === 'training') {
           setTrainingFromDate(null);
           setTrainingToDate(null);
+          toast({
+            title: "Custom training period selected",
+            description: "Please select your training date range",
+          });
         } else {
           setTestingFromDate(null);
           setTestingToDate(null);
+          toast({
+            title: "Custom testing period selected",
+            description: "Please select your testing date range",
+          });
         }
         break;
       default:
@@ -88,20 +102,35 @@ export const ModelTestingTab = ({
       if (value !== 'custom') {
         setTrainingFromDate(start);
         setTrainingToDate(now);
+        toast({
+          title: "Training period updated",
+          description: `Set to: ${value === "1m" ? "Last Month" : 
+                                value === "3m" ? "Last 3 Months" : 
+                                value === "6m" ? "Last 6 Months" : "Last Year"}`,
+        });
       }
     } else {
       setTestingRange(value);
       if (value !== 'custom') {
         setTestingFromDate(start);
         setTestingToDate(now);
+        toast({
+          title: "Testing period updated",
+          description: `Set to: ${value === "1m" ? "Last Month" : 
+                                value === "3m" ? "Last 3 Months" : 
+                                value === "6m" ? "Last 6 Months" : "Last Year"}`,
+        });
       }
     }
 
-    // Update test data if we have all dates
     if (trainingFromDate && trainingToDate && testingFromDate && testingToDate) {
       const trainingDays = differenceInDays(trainingToDate, trainingFromDate);
       const testingDays = differenceInDays(testingToDate, testingFromDate);
       generateNewTestData('moving-avg', {}, `${trainingDays},${testingDays}`);
+      toast({
+        title: "Data updated",
+        description: "Test data has been regenerated with new periods",
+      });
     }
   };
 
@@ -110,32 +139,50 @@ export const ModelTestingTab = ({
     type: 'from' | 'to',
     date: Date | undefined
   ) => {
-    console.log(`Handling date change for ${periodType} ${type}:`, date);
     if (!date) return;
     
     if (periodType === 'training') {
       if (type === 'from') {
         setTrainingFromDate(date);
         setTrainingRange('custom');
+        toast({
+          title: "Training start date set",
+          description: "Please select an end date if not already selected",
+        });
       } else {
         setTrainingToDate(date);
         setTrainingRange('custom');
+        toast({
+          title: "Training end date set",
+          description: "Training period has been updated",
+        });
       }
     } else {
       if (type === 'from') {
         setTestingFromDate(date);
         setTestingRange('custom');
+        toast({
+          title: "Testing start date set",
+          description: "Please select an end date if not already selected",
+        });
       } else {
         setTestingToDate(date);
         setTestingRange('custom');
+        toast({
+          title: "Testing end date set",
+          description: "Testing period has been updated",
+        });
       }
     }
 
-    // Update test data if we have all dates
     if (trainingFromDate && trainingToDate && testingFromDate && testingToDate) {
       const trainingDays = differenceInDays(trainingToDate, trainingFromDate);
       const testingDays = differenceInDays(testingToDate, testingFromDate);
       generateNewTestData('moving-avg', {}, `${trainingDays},${testingDays}`);
+      toast({
+        title: "Data updated",
+        description: "Test data has been regenerated with new dates",
+      });
     }
   };
 
