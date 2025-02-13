@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -7,6 +6,9 @@ import { LocationFilter } from "./filters/LocationFilter";
 import { ChannelFilter } from "./filters/ChannelFilter";
 import { ProductFilter } from "./filters/ProductFilter";
 import { Button } from "@/components/ui/button";
+import { ForecastingDateRange } from "./ForecastingDateRange";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 interface ForecastFiltersProps {
   searchQuery: string;
@@ -35,6 +37,14 @@ interface ForecastFiltersProps {
   setSelectedL7DeviceColor: (value: string) => void;
   selectedL8DeviceStorage: string;
   setSelectedL8DeviceStorage: (value: string) => void;
+  trainingFromDate: Date;
+  setTrainingFromDate: (date: Date) => void;
+  trainingToDate: Date;
+  setTrainingToDate: (date: Date) => void;
+  testingFromDate: Date;
+  setTestingFromDate: (date: Date) => void;
+  testingToDate: Date;
+  setTestingToDate: (date: Date) => void;
   regions: string[];
   cities: { [key: string]: string[] };
   channelTypes: string[];
@@ -69,6 +79,14 @@ export const ForecastFilters = ({
   setSelectedL7DeviceColor,
   selectedL8DeviceStorage,
   setSelectedL8DeviceStorage,
+  trainingFromDate,
+  setTrainingFromDate,
+  trainingToDate,
+  setTrainingToDate,
+  testingFromDate,
+  setTestingFromDate,
+  testingToDate,
+  setTestingToDate,
   regions,
   cities,
   channelTypes,
@@ -98,96 +116,121 @@ export const ForecastFilters = ({
   const activeFilterCount = getActiveFilterCount();
 
   return (
-    <div 
-      className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40"
-      onMouseLeave={() => setIsExpanded(false)}
-    >
-      <Button
-        variant="ghost"
-        className="w-full flex items-center justify-between p-6 hover:bg-primary/5"
-        onClick={() => setIsExpanded(!isExpanded)}
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <Card className="p-6">
+          <h4 className="text-base font-medium mb-4">Training Period</h4>
+          <ForecastingDateRange
+            fromDate={trainingFromDate}
+            toDate={trainingToDate}
+            setFromDate={setTrainingFromDate}
+            setToDate={setTrainingToDate}
+          />
+        </Card>
+        <Card className="p-6">
+          <h4 className="text-base font-medium mb-4">Testing Period</h4>
+          <ForecastingDateRange
+            fromDate={testingFromDate}
+            toDate={testingToDate}
+            setFromDate={setTestingFromDate}
+            setToDate={setTestingToDate}
+          />
+        </Card>
+      </div>
+
+      <Separator />
+
+      <div 
+        className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40"
+        onMouseLeave={() => setIsExpanded(false)}
       >
-        <div className="flex items-center gap-3">
-          <span className="text-lg font-semibold text-primary">Filters</span>
-          {activeFilterCount > 0 && (
-            <span className="px-3 py-1.5 text-sm font-bold bg-primary text-primary-foreground rounded-full">
-              {activeFilterCount}
+        <Button
+          variant="ghost"
+          className="w-full flex items-center justify-between p-6 hover:bg-primary/5"
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-lg font-semibold text-primary">Filters</span>
+            {activeFilterCount > 0 && (
+              <span className="px-3 py-1.5 text-sm font-bold bg-primary text-primary-foreground rounded-full">
+                {activeFilterCount}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">
+              {isExpanded ? "Click to collapse" : "Click to expand"}
             </span>
+            {isExpanded ? (
+              <ChevronUp className="h-5 w-5 text-primary" />
+            ) : (
+              <ChevronDown className="h-5 w-5 text-primary" />
+            )}
+          </div>
+        </Button>
+
+        <AnimatePresence>
+          {isExpanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="p-6 space-y-6 border-t bg-primary/5">
+                <div className="flex gap-4">
+                  <ForecastingSearchFilter
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                  />
+                  <LocationFilter
+                    selectedRegion={selectedRegion}
+                    setSelectedRegion={setSelectedRegion}
+                    selectedCity={selectedCity}
+                    setSelectedCity={setSelectedCity}
+                    regions={regions}
+                    cities={cities}
+                  />
+                </div>
+
+                <div className="flex gap-4">
+                  <ChannelFilter
+                    selectedChannel={selectedChannel}
+                    setSelectedChannel={setSelectedChannel}
+                    selectedWarehouse={selectedWarehouse}
+                    setSelectedWarehouse={setSelectedWarehouse}
+                    channelTypes={channelTypes}
+                    warehouses={warehouses}
+                  />
+                </div>
+
+                <div className="flex gap-4">
+                  <ProductFilter
+                    selectedL1MainProd={selectedL1MainProd}
+                    setSelectedL1MainProd={setSelectedL1MainProd}
+                    selectedL2ProdLine={selectedL2ProdLine}
+                    setSelectedL2ProdLine={setSelectedL2ProdLine}
+                    selectedL3ProdCategory={selectedL3ProdCategory}
+                    setSelectedL3ProdCategory={setSelectedL3ProdCategory}
+                    selectedL4DeviceMake={selectedL4DeviceMake}
+                    setSelectedL4DeviceMake={setSelectedL4DeviceMake}
+                    selectedL5ProdSubCategory={selectedL5ProdSubCategory}
+                    setSelectedL5ProdSubCategory={setSelectedL5ProdSubCategory}
+                    selectedL6DeviceModel={selectedL6DeviceModel}
+                    setSelectedL6DeviceModel={setSelectedL6DeviceModel}
+                    selectedL7DeviceColor={selectedL7DeviceColor}
+                    setSelectedL7DeviceColor={setSelectedL7DeviceColor}
+                    selectedL8DeviceStorage={selectedL8DeviceStorage}
+                    setSelectedL8DeviceStorage={setSelectedL8DeviceStorage}
+                    forecastData={forecastData}
+                  />
+                </div>
+              </div>
+            </motion.div>
           )}
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">
-            {isExpanded ? "Click to collapse" : "Click to expand"}
-          </span>
-          {isExpanded ? (
-            <ChevronUp className="h-5 w-5 text-primary" />
-          ) : (
-            <ChevronDown className="h-5 w-5 text-primary" />
-          )}
-        </div>
-      </Button>
-
-      <AnimatePresence>
-        {isExpanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
-          >
-            <div className="p-6 space-y-6 border-t bg-primary/5">
-              <div className="flex gap-4">
-                <ForecastingSearchFilter
-                  searchQuery={searchQuery}
-                  setSearchQuery={setSearchQuery}
-                />
-                <LocationFilter
-                  selectedRegion={selectedRegion}
-                  setSelectedRegion={setSelectedRegion}
-                  selectedCity={selectedCity}
-                  setSelectedCity={setSelectedCity}
-                  regions={regions}
-                  cities={cities}
-                />
-              </div>
-
-              <div className="flex gap-4">
-                <ChannelFilter
-                  selectedChannel={selectedChannel}
-                  setSelectedChannel={setSelectedChannel}
-                  selectedWarehouse={selectedWarehouse}
-                  setSelectedWarehouse={setSelectedWarehouse}
-                  channelTypes={channelTypes}
-                  warehouses={warehouses}
-                />
-              </div>
-
-              <div className="flex gap-4">
-                <ProductFilter
-                  selectedL1MainProd={selectedL1MainProd}
-                  setSelectedL1MainProd={setSelectedL1MainProd}
-                  selectedL2ProdLine={selectedL2ProdLine}
-                  setSelectedL2ProdLine={setSelectedL2ProdLine}
-                  selectedL3ProdCategory={selectedL3ProdCategory}
-                  setSelectedL3ProdCategory={setSelectedL3ProdCategory}
-                  selectedL4DeviceMake={selectedL4DeviceMake}
-                  setSelectedL4DeviceMake={setSelectedL4DeviceMake}
-                  selectedL5ProdSubCategory={selectedL5ProdSubCategory}
-                  setSelectedL5ProdSubCategory={setSelectedL5ProdSubCategory}
-                  selectedL6DeviceModel={selectedL6DeviceModel}
-                  setSelectedL6DeviceModel={setSelectedL6DeviceModel}
-                  selectedL7DeviceColor={selectedL7DeviceColor}
-                  setSelectedL7DeviceColor={setSelectedL7DeviceColor}
-                  selectedL8DeviceStorage={selectedL8DeviceStorage}
-                  setSelectedL8DeviceStorage={setSelectedL8DeviceStorage}
-                  forecastData={forecastData}
-                />
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        </AnimatePresence>
+      </div>
     </div>
   );
 };
