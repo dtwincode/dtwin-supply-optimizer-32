@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { ForecastChart } from "@/components/forecasting/ForecastChart";
 import { ForecastTable } from "@/components/forecasting/ForecastTable";
@@ -104,45 +103,24 @@ export const ForecastDistributionTab = ({
   };
 
   const handleSaveConfiguration = async () => {
-    const currentProduct = {
-      id: "product-x",
-      name: "Product X"
-    };
-
     try {
-      // First check if the configuration exists
-      const { data: existingConfig } = await supabase
-        .from('saved_model_configs')
-        .select('id')
-        .eq('product_id', currentProduct.id)
-        .single();
-
+      // Generate a unique product ID using a timestamp and random string
+      const timestamp = new Date().getTime();
+      const randomStr = Math.random().toString(36).substring(7);
+      const uniqueProductId = `product-${timestamp}-${randomStr}`;
+      
       const configData = {
-        product_id: currentProduct.id,
-        product_name: currentProduct.name,
+        product_id: uniqueProductId,
+        product_name: `Configuration ${savedConfigs.length + 1}`,
         model_id: selectedModel,
-        parameters: JSON.stringify([]) as any, // Convert to JSON string for storage
+        parameters: JSON.stringify([]) as any,
         auto_run: autoRun
       };
 
-      let result;
-      
-      if (existingConfig) {
-        // Update existing configuration
-        result = await supabase
-          .from('saved_model_configs')
-          .update(configData)
-          .eq('id', existingConfig.id)
-          .select();
-      } else {
-        // Insert new configuration
-        result = await supabase
-          .from('saved_model_configs')
-          .insert([configData])
-          .select();
-      }
-
-      const { data, error } = result;
+      const { data, error } = await supabase
+        .from('saved_model_configs')
+        .insert([configData])
+        .select();
 
       if (error) throw error;
 
@@ -156,19 +134,11 @@ export const ForecastDistributionTab = ({
           autoRun: data[0].auto_run
         };
 
-        setSavedConfigs(prev => {
-          const existingIndex = prev.findIndex(config => config.productId === currentProduct.id);
-          if (existingIndex !== -1) {
-            const updated = [...prev];
-            updated[existingIndex] = newConfig;
-            return updated;
-          }
-          return [...prev, newConfig];
-        });
+        setSavedConfigs(prev => [...prev, newConfig]);
 
         toast({
           title: "Success",
-          description: `Model configuration for ${currentProduct.name} has been saved.`
+          description: `Model configuration "${newConfig.productName}" has been saved.`
         });
       }
     } catch (error) {
