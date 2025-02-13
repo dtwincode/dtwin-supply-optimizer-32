@@ -8,4 +8,3 @@ export * from './weather';
 export * from './pricing';
 export * from './marketEvents';
 export * from './scenarios';
-export * from './testDataGenerator';
