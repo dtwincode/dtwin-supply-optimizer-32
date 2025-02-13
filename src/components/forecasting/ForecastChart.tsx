@@ -17,7 +17,6 @@ import { format, parseISO } from "date-fns";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import { ForecastingDateRange } from "./ForecastingDateRange";
 import {
   Select,
   SelectContent,
@@ -34,8 +33,6 @@ interface ForecastChartProps {
 export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps) => {
   const [showCI, setShowCI] = useState(true);
   const [showOutliers, setShowOutliers] = useState(true);
-  const [fromDate, setFromDate] = useState<Date>(new Date('2024-01-01'));
-  const [toDate, setToDate] = useState<Date>(new Date('2024-12-26'));
   const [confidenceLevel, setConfidenceLevel] = useState<string>("0.95");
 
   const dataWithOutliers = data.map(point => ({
@@ -46,55 +43,44 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
 
   return (
     <div className="w-full h-full">
-      <div className="space-y-4">
-        <div className="border rounded-lg p-4 bg-slate-50">
-          <ForecastingDateRange
-            fromDate={fromDate}
-            toDate={toDate}
-            setFromDate={setFromDate}
-            setToDate={setToDate}
+      <div className="flex items-center justify-end gap-6 mb-4">
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="ci-toggle"
+            checked={showCI}
+            onCheckedChange={setShowCI}
           />
+          <Label htmlFor="ci-toggle">Show Confidence Intervals</Label>
         </div>
-
-        <div className="flex items-center justify-end gap-6">
+        {showCI && (
           <div className="flex items-center space-x-2">
-            <Switch
-              id="ci-toggle"
-              checked={showCI}
-              onCheckedChange={setShowCI}
-            />
-            <Label htmlFor="ci-toggle">Show Confidence Intervals</Label>
+            <Label htmlFor="ci-level">CI Level:</Label>
+            <Select
+              value={confidenceLevel}
+              onValueChange={setConfidenceLevel}
+            >
+              <SelectTrigger className="w-[100px]">
+                <SelectValue placeholder="Select CI" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="0.90">90%</SelectItem>
+                <SelectItem value="0.95">95%</SelectItem>
+                <SelectItem value="0.99">99%</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-          {showCI && (
-            <div className="flex items-center space-x-2">
-              <Label htmlFor="ci-level">CI Level:</Label>
-              <Select
-                value={confidenceLevel}
-                onValueChange={setConfidenceLevel}
-              >
-                <SelectTrigger className="w-[100px]">
-                  <SelectValue placeholder="Select CI" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="0.90">90%</SelectItem>
-                  <SelectItem value="0.95">95%</SelectItem>
-                  <SelectItem value="0.99">99%</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="outliers-toggle"
-              checked={showOutliers}
-              onCheckedChange={setShowOutliers}
-            />
-            <Label htmlFor="outliers-toggle">Show Outliers</Label>
-          </div>
+        )}
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="outliers-toggle"
+            checked={showOutliers}
+            onCheckedChange={setShowOutliers}
+          />
+          <Label htmlFor="outliers-toggle">Show Outliers</Label>
         </div>
       </div>
       
-      <div className="h-[450px] mt-4">
+      <div className="h-[450px]">
         <ResponsiveContainer>
           <ComposedChart data={dataWithOutliers} margin={{ top: 10, right: 30, left: 10, bottom: 80 }}>
             <CartesianGrid strokeDasharray="3 3" />
