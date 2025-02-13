@@ -1,4 +1,3 @@
-
 import DashboardLayout from "@/components/DashboardLayout";
 import { ForecastingTabs } from "@/components/forecasting/ForecastingTabs";
 import { ForecastAnalysisTab } from "@/components/forecasting/tabs/ForecastAnalysisTab";
@@ -18,8 +17,10 @@ import { ForecastingDateRange } from "@/components/forecasting/ForecastingDateRa
 import { ForecastDataPoint } from "@/types/forecasting";
 
 const Forecasting = () => {
-  const [fromDate, setFromDate] = useState<Date>(new Date('2024-01-01'));
-  const [toDate, setToDate] = useState<Date>(new Date('2024-12-26'));
+  const [trainingFromDate, setTrainingFromDate] = useState<Date>(new Date('2024-01-01'));
+  const [trainingToDate, setTrainingToDate] = useState<Date>(new Date('2024-09-30'));
+  const [testingFromDate, setTestingFromDate] = useState<Date>(new Date('2024-10-01'));
+  const [testingToDate, setTestingToDate] = useState<Date>(new Date('2024-12-31'));
   const [selectedL1MainProd, setSelectedL1MainProd] = useState<string>("all");
   const [selectedL2ProdLine, setSelectedL2ProdLine] = useState<string>("all");
   const [selectedL3ProdCategory, setSelectedL3ProdCategory] = useState<string>("all");
@@ -137,14 +138,28 @@ const Forecasting = () => {
               <h2 className="text-lg font-semibold">Forecast Filters</h2>
               
               {/* Time Period Selection */}
-              <div className="space-y-4">
-                <h3 className="text-sm font-medium">Time Period Training</h3>
-                <ForecastingDateRange
-                  fromDate={fromDate}
-                  toDate={toDate}
-                  setFromDate={setFromDate}
-                  setToDate={setToDate}
-                />
+              <div className="space-y-6">
+                {/* Training Period */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">Training Period</h3>
+                  <ForecastingDateRange
+                    fromDate={trainingFromDate}
+                    toDate={trainingToDate}
+                    setFromDate={setTrainingFromDate}
+                    setToDate={setTrainingToDate}
+                  />
+                </div>
+
+                {/* Testing Period */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">Testing Period</h3>
+                  <ForecastingDateRange
+                    fromDate={testingFromDate}
+                    toDate={testingToDate}
+                    setFromDate={setTestingFromDate}
+                    setToDate={setTestingToDate}
+                  />
+                </div>
               </div>
 
               {/* Product Hierarchy */}
