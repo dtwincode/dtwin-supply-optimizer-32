@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { ForecastChart } from "@/components/forecasting/ForecastChart";
 import { ForecastTable } from "@/components/forecasting/ForecastTable";
@@ -38,6 +39,19 @@ export const ForecastDistributionTab = ({
   const [forecastTableData, setForecastTableData] = useState(initialForecastData);
   const { toast } = useToast();
 
+  // Helper function to safely parse parameters
+  const parseParameters = (parametersJson: unknown): ModelParameter[] => {
+    try {
+      if (typeof parametersJson === 'string') {
+        const parsed = JSON.parse(parametersJson);
+        return Array.isArray(parsed) ? parsed : [];
+      }
+      return [];
+    } catch {
+      return [];
+    }
+  };
+
   // Load saved configurations on component mount
   useEffect(() => {
     const loadSavedConfigs = async () => {
@@ -54,7 +68,7 @@ export const ForecastDistributionTab = ({
             productId: config.product_id,
             productName: config.product_name,
             modelId: config.model_id,
-            parameters: (config.parameters as unknown as ModelParameter[]) || [],
+            parameters: parseParameters(config.parameters),
             autoRun: config.auto_run
           })));
         }
@@ -113,7 +127,7 @@ export const ForecastDistributionTab = ({
         product_id: uniqueProductId,
         product_name: `Configuration ${savedConfigs.length + 1}`,
         model_id: selectedModel,
-        parameters: JSON.stringify([]) as any,
+        parameters: JSON.stringify([]) as string,
         auto_run: autoRun
       };
 
@@ -130,7 +144,7 @@ export const ForecastDistributionTab = ({
           productId: data[0].product_id,
           productName: data[0].product_name,
           modelId: data[0].model_id,
-          parameters: (JSON.parse(data[0].parameters || '[]') as ModelParameter[]),
+          parameters: parseParameters(data[0].parameters),
           autoRun: data[0].auto_run
         };
 
