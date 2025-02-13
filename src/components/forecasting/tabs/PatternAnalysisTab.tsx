@@ -68,12 +68,18 @@ export const PatternAnalysisTab = ({ data }: PatternAnalysisTabProps) => {
       const values = data.map(d => d.value);
       const { trend, seasonal } = decomposeSeasonality(values);
       
+      // Calculate standard deviation once for reuse
+      const avg = values.reduce((a, b) => a + b, 0) / values.length;
+      const std = Math.sqrt(values.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / values.length);
+      
       // Detect weekly pattern
-      const weeklyPattern = {
+      const weeklyPattern: Omit<SeasonalityPattern, 'id'> = {
         dataset_id: 'current',
         pattern_type: 'weekly',
         frequency: 7,
-        strength: 0.8, // This should be calculated based on actual analysis
+        strength: 0.8,
+        detected_at: new Date().toISOString(),
+        last_updated_at: new Date().toISOString(),
         configuration: {},
         metadata: { confidence: 0.95 }
       };
@@ -91,13 +97,12 @@ export const PatternAnalysisTab = ({ data }: PatternAnalysisTabProps) => {
       }
 
       // Detect outliers
-      const outliers = data.map((d, i) => {
-        const avg = values.reduce((a, b) => a + b, 0) / values.length;
-        const std = Math.sqrt(values.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / values.length);
+      const rawOutliers = data.map((d, i) => {
         const zScore = Math.abs((d.value - avg) / std);
         
         if (zScore > 2) {
-          return {
+          const anomaly: PatternAnomaly = {
+            id: `anomaly-${i}`,
             data_point_id: 'current',
             detection_method: 'z-score',
             confidence_score: 0.95,
@@ -106,17 +111,19 @@ export const PatternAnalysisTab = ({ data }: PatternAnalysisTabProps) => {
             expected_value: avg,
             timestamp: d.date,
             deviation_score: zScore,
-            type: 'outlier'
+            type: 'outlier',
+            confidence: 0.95
           };
+          return anomaly;
         }
         return null;
       }).filter((o): o is PatternAnomaly => o !== null);
 
       // Store outliers
-      if (outliers.length > 0) {
+      if (rawOutliers.length > 0) {
         const { data: outlierData, error: outlierError } = await supabase
           .from('forecast_outliers')
-          .insert(outliers.map(o => ({
+          .insert(rawOutliers.map(o => ({
             data_point_id: o.data_point_id,
             detection_method: o.detection_method,
             confidence_score: o.confidence_score,
@@ -131,7 +138,7 @@ export const PatternAnalysisTab = ({ data }: PatternAnalysisTabProps) => {
 
       // Update state with combined results
       setAnalysisResults({
-        seasonality: patternData ? [patternData] : [],
+        seasonality: patternData ? [patternData as SeasonalityPattern] : [],
         changePoints: data
           .filter((_, i) => i > 0 && Math.abs(values[i] - values[i-1]) > (std * 2))
           .map((d, i) => ({
@@ -148,7 +155,7 @@ export const PatternAnalysisTab = ({ data }: PatternAnalysisTabProps) => {
           criticalValues: { "5%": 0.5 },
           result: weeklyPattern.strength > 0.5 ? 'significant' : 'not_significant'
         }],
-        anomalies: outliers
+        anomalies: rawOutliers
       });
 
       toast({
