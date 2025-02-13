@@ -10,19 +10,22 @@ import {
 } from "@/components/ui/select";
 import { ModelParametersDialog } from "./ModelParametersDialog";
 import { useState } from "react";
+import { ModelConfig } from "@/types/models/commonTypes";
 
 interface ForecastingHeaderProps {
   selectedModel: string;
   setSelectedModel: (model: string) => void;
-  onExportCSV: () => void;
-  onExportExcel: () => void;
+  handleExport: () => void;
+  findBestModel: () => void;
+  modelConfigs: ModelConfig[];
 }
 
 export const ForecastingHeader = ({
   selectedModel,
   setSelectedModel,
-  onExportCSV,
-  onExportExcel,
+  handleExport,
+  findBestModel,
+  modelConfigs,
 }: ForecastingHeaderProps) => {
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4">
@@ -44,14 +47,18 @@ export const ForecastingHeader = ({
           <Settings className="w-4 h-4" />
           Parameters
         </Button>
+
+        <Button variant="outline" onClick={findBestModel} className="flex items-center gap-2">
+          Find Best Model
+        </Button>
       </div>
 
       <div className="flex gap-2">
-        <Button variant="outline" onClick={onExportCSV} className="flex items-center gap-2">
+        <Button variant="outline" onClick={handleExport} className="flex items-center gap-2">
           <FileDown className="w-4 h-4" />
           Export CSV
         </Button>
-        <Button variant="outline" onClick={onExportExcel} className="flex items-center gap-2">
+        <Button variant="outline" onClick={handleExport} className="flex items-center gap-2">
           <FileDown className="w-4 h-4" />
           Export Excel
         </Button>

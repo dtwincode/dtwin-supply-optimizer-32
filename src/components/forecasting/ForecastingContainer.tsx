@@ -173,27 +173,22 @@ export const ForecastingContainer = () => {
 
   const handleExport = () => {
     const csvContent = [
-      ["Week", "Actual", "Forecast", "Variance", "Region", "City", "Channel", "Category", "Subcategory", "SKU"],
+      ["Date", "Actual", "Forecast", "Error"],
       ...filteredData.map(d => [
         d.week,
-        d.actual,
+        d.actual ?? '',
         d.forecast,
-        d.variance,
-        d.region,
-        d.city,
-        d.channel,
-        d.category,
-        d.subcategory,
-        d.sku
+        d.variance ?? ''
       ])
     ].map(row => row.join(",")).join("\n");
 
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "forecast_data.csv";
-    a.click();
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "forecast_data.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const findBestModel = () => {
