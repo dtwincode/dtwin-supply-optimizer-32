@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ForecastMetricsCards } from "./ForecastMetricsCards";
@@ -355,35 +354,37 @@ export const ForecastingContainer = () => {
 
         {/* Step 5: Detailed Analysis */}
         <Card className="p-6">
-          <div className="space-y-6">
-            <div className="flex items-center gap-2 mb-6">
+          <div>
+            <div className="flex items-center gap-2 mb-4">
               <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">4</span>
               <h3 className="text-lg font-semibold">Detailed Analysis</h3>
             </div>
 
-            <ForecastingTabs
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              historicalData={historicalData}
-              filteredData={filteredData}
-              confidenceIntervals={confidenceIntervals}
-              decomposition={decomposition}
-              validationResults={validationResults}
-              crossValidationResults={crossValidationResults}
-              weatherLocation={weatherLocation}
-              setWeatherLocation={setWeatherLocation}
-              weatherData={weatherData}
-              fetchWeatherForecast={fetchWeatherForecast}
-              marketEvents={marketEvents}
-              setMarketEvents={setMarketEvents}
-              newEvent={newEvent}
-              setNewEvent={setNewEvent}
-              priceAnalysis={priceAnalysis}
-              historicalPriceData={historicalPriceData}
-              addHistoricalPricePoint={addHistoricalPricePoint}
-              calculatePriceAnalysis={calculatePriceAnalysis}
-              forecastTableData={forecastTableData}
-            />
+            <div className="space-y-6">
+              <ForecastingTabs
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                historicalData={historicalData}
+                filteredData={filteredData}
+                confidenceIntervals={confidenceIntervals}
+                decomposition={decomposition}
+                validationResults={validationResults}
+                crossValidationResults={crossValidationResults}
+                weatherLocation={weatherLocation}
+                setWeatherLocation={setWeatherLocation}
+                weatherData={weatherData}
+                fetchWeatherForecast={fetchWeatherForecast}
+                marketEvents={marketEvents}
+                setMarketEvents={setMarketEvents}
+                newEvent={newEvent}
+                setNewEvent={setNewEvent}
+                priceAnalysis={priceAnalysis}
+                historicalPriceData={historicalPriceData}
+                addHistoricalPricePoint={addHistoricalPricePoint}
+                calculatePriceAnalysis={calculatePriceAnalysis}
+                forecastTableData={forecastTableData}
+              />
+            </div>
           </div>
         </Card>
 
