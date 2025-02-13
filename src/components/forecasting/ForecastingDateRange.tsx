@@ -29,7 +29,7 @@ export const ForecastingDateRange = ({
   setFromDate,
   setToDate,
 }: ForecastingDateRangeProps) => {
-  const [selectionType, setSelectionType] = useState<"date" | "period">("date");
+  const [selectionType, setSelectionType] = useState<"date" | "period" | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("weekly");
   const [periodCount, setPeriodCount] = useState<string>("4");
 
@@ -67,7 +67,7 @@ export const ForecastingDateRange = ({
     <div className="space-y-4">
       <div className="flex gap-4 items-center">
         <Select
-          value={selectionType}
+          value={selectionType || undefined}
           onValueChange={(value: "date" | "period") => setSelectionType(value)}
         >
           <SelectTrigger className="w-[180px]">
@@ -129,7 +129,7 @@ export const ForecastingDateRange = ({
             </PopoverContent>
           </Popover>
         </div>
-      ) : (
+      ) : selectionType === "period" ? (
         <div className="flex gap-2">
           <Select value={selectedPeriod} onValueChange={handlePeriodChange}>
             <SelectTrigger className="w-[180px]">
@@ -158,7 +158,7 @@ export const ForecastingDateRange = ({
             </SelectContent>
           </Select>
         </div>
-      )}
+      ) : null}
     </div>
   );
 };
