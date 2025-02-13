@@ -125,7 +125,12 @@ const Forecasting = () => {
           <Separator className="my-6" />
         </div>
 
-        <div className="px-6 space-y-6">
+        {/* Tabs first */}
+        <div className="px-6">
+          <ForecastingTabs />
+        </div>
+
+        <div className="px-6 space-y-6 mt-6">
           {/* Filters Section */}
           <Card className="p-6">
             <div className="space-y-6">
@@ -167,8 +172,6 @@ const Forecasting = () => {
               </div>
             </div>
           </Card>
-
-          <ForecastingTabs />
 
           <div className="p-6">
             <Routes>
