@@ -1,3 +1,4 @@
+
 import DashboardLayout from "@/components/DashboardLayout";
 import { ForecastingTabs } from "@/components/forecasting/ForecastingTabs";
 import { ForecastAnalysisTab } from "@/components/forecasting/tabs/ForecastAnalysisTab";
@@ -9,22 +10,11 @@ import { ExternalFactorsTab } from "@/components/forecasting/tabs/ExternalFactor
 import { Separator } from "@/components/ui/separator";
 import { Route, Routes, Navigate } from "react-router-dom";
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
-import { PeriodSelector } from "@/components/forecasting/date-range/PeriodSelector";
-import { LocationFilter } from "@/components/forecasting/filters/LocationFilter";
 import { ProductFilter } from "@/components/forecasting/filters/ProductFilter";
-import { ForecastingDateRange } from "@/components/forecasting/ForecastingDateRange";
 import { ForecastDataPoint } from "@/types/forecasting";
 
 const Forecasting = () => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [trainingFromDate, setTrainingFromDate] = useState<Date>(new Date('2024-01-01'));
-  const [trainingToDate, setTrainingToDate] = useState<Date>(new Date('2024-09-30'));
-  const [testingFromDate, setTestingFromDate] = useState<Date>(new Date('2024-10-01'));
-  const [testingToDate, setTestingToDate] = useState<Date>(new Date('2024-12-31'));
   const [selectedL1MainProd, setSelectedL1MainProd] = useState<string>("all");
   const [selectedL2ProdLine, setSelectedL2ProdLine] = useState<string>("all");
   const [selectedL3ProdCategory, setSelectedL3ProdCategory] = useState<string>("all");
@@ -136,80 +126,31 @@ const Forecasting = () => {
         </div>
 
         <div className="px-6 space-y-6 mt-6">
-          {/* Filters Section */}
-          <div 
-            className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40"
-            onMouseLeave={() => setIsExpanded(false)}
-          >
-            <Button
-              variant="ghost"
-              className="w-full flex items-center justify-between p-6 hover:bg-primary/5"
-              onClick={() => setIsExpanded(!isExpanded)}
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-lg font-semibold text-primary">Filters</span>
-                {/* Add badge for active filters if needed */}
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  {isExpanded ? "Click to collapse" : "Click to expand"}
-                </span>
-                {isExpanded ? (
-                  <ChevronUp className="h-5 w-5 text-primary" />
-                ) : (
-                  <ChevronDown className="h-5 w-5 text-primary" />
-                )}
-              </div>
-            </Button>
-
-            <AnimatePresence>
-              {isExpanded && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="overflow-hidden"
-                >
-                  <div className="p-6 space-y-6 border-t bg-primary/5">
-                    {/* Time Period Selection */}
-                    <div className="space-y-4">
-                      <h3 className="text-sm font-medium">Time Period Training</h3>
-                      <ForecastingDateRange
-                        fromDate={trainingFromDate}
-                        toDate={trainingToDate}
-                        setFromDate={setTrainingFromDate}
-                        setToDate={setTrainingToDate}
-                      />
-                    </div>
-
-                    {/* Product Hierarchy */}
-                    <div className="space-y-4">
-                      <h3 className="text-sm font-medium">Product Hierarchy</h3>
-                      <ProductFilter
-                        selectedL1MainProd={selectedL1MainProd}
-                        setSelectedL1MainProd={setSelectedL1MainProd}
-                        selectedL2ProdLine={selectedL2ProdLine}
-                        setSelectedL2ProdLine={setSelectedL2ProdLine}
-                        selectedL3ProdCategory={selectedL3ProdCategory}
-                        setSelectedL3ProdCategory={setSelectedL3ProdCategory}
-                        selectedL4DeviceMake={selectedL4DeviceMake}
-                        setSelectedL4DeviceMake={setSelectedL4DeviceMake}
-                        selectedL5ProdSubCategory={selectedL5ProdSubCategory}
-                        setSelectedL5ProdSubCategory={setSelectedL5ProdSubCategory}
-                        selectedL6DeviceModel={selectedL6DeviceModel}
-                        setSelectedL6DeviceModel={setSelectedL6DeviceModel}
-                        selectedL7DeviceColor={selectedL7DeviceColor}
-                        setSelectedL7DeviceColor={setSelectedL7DeviceColor}
-                        selectedL8DeviceStorage={selectedL8DeviceStorage}
-                        setSelectedL8DeviceStorage={setSelectedL8DeviceStorage}
-                        forecastData={dummyData.filteredData}
-                      />
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+          {/* Step 2: Model Selection and Controls */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-2">
+              <h3 className="text-lg font-semibold">Product Hierarchy</h3>
+            </div>
+            
+            <ProductFilter
+              selectedL1MainProd={selectedL1MainProd}
+              setSelectedL1MainProd={setSelectedL1MainProd}
+              selectedL2ProdLine={selectedL2ProdLine}
+              setSelectedL2ProdLine={setSelectedL2ProdLine}
+              selectedL3ProdCategory={selectedL3ProdCategory}
+              setSelectedL3ProdCategory={setSelectedL3ProdCategory}
+              selectedL4DeviceMake={selectedL4DeviceMake}
+              setSelectedL4DeviceMake={setSelectedL4DeviceMake}
+              selectedL5ProdSubCategory={selectedL5ProdSubCategory}
+              setSelectedL5ProdSubCategory={setSelectedL5ProdSubCategory}
+              selectedL6DeviceModel={selectedL6DeviceModel}
+              setSelectedL6DeviceModel={setSelectedL6DeviceModel}
+              selectedL7DeviceColor={selectedL7DeviceColor}
+              setSelectedL7DeviceColor={setSelectedL7DeviceColor}
+              selectedL8DeviceStorage={selectedL8DeviceStorage}
+              setSelectedL8DeviceStorage={setSelectedL8DeviceStorage}
+              forecastData={dummyData.filteredData}
+            />
           </div>
 
           <div className="p-6">
