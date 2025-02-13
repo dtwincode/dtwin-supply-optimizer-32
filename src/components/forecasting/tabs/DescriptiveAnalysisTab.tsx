@@ -1,7 +1,17 @@
+
 import { Card } from "@/components/ui/card";
 import { ForecastDataPoint } from "@/types/forecasting";
 import { ResponsiveContainer, ScatterChart, XAxis, YAxis, Tooltip, CartesianGrid, Scatter, BarChart, Bar, Line, ComposedChart } from "recharts";
 import { BoxPlot, BoxPlotDatum } from "@nivo/boxplot";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { ArrowDown, HelpCircle } from "lucide-react";
+import {
+  Tooltip as UITooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface DescriptiveAnalysisTabProps {
   filteredData?: ForecastDataPoint[];
@@ -217,147 +227,289 @@ export const DescriptiveAnalysisTab = ({ filteredData = [] }: DescriptiveAnalysi
     : 0;
 
   return (
-    <div className="space-y-6">
-      <Card className="p-4">
-        <h3 className="text-lg font-semibold mb-4">Distribution Histogram</h3>
-        <div className="h-[400px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart
-              data={histogramData}
-              margin={{ top: 20, right: 20, bottom: 60, left: 20 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="label" 
-                angle={-45} 
-                textAnchor="end"
-                height={60}
-                interval={0}
-              />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="count" name="Frequency" fill="#8884d8" opacity={0.8} />
-              <Line
-                type="monotone"
-                dataKey="normalDist"
-                stroke="#ff7300"
-                name="Distribution Line"
-                strokeWidth={2}
-                dot={false}
-              />
-            </ComposedChart>
-          </ResponsiveContainer>
+    <div className="space-y-6 p-4">
+      <div className="bg-secondary/5 p-6 rounded-lg">
+        <h2 className="text-2xl font-semibold mb-4">Descriptive Analysis Overview</h2>
+        <p className="text-muted-foreground mb-6">
+          This analysis provides insights into your data distribution and statistical measures. Follow the sections below to understand your data better.
+        </p>
+        
+        <div className="flex items-center gap-2 text-primary">
+          <ArrowDown className="animate-bounce" size={20} />
+          <span className="font-medium">Start exploring below</span>
         </div>
-      </Card>
+      </div>
 
-      <Card className="p-4">
-        <h3 className="text-lg font-semibold mb-4">Distribution Type</h3>
-        <div className="space-y-2">
-          <p className="text-lg font-medium text-primary">{distributionType}</p>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-muted-foreground">Skewness</p>
-              <p className="font-medium">{stats.skewness.toFixed(3)}</p>
+      <Tabs defaultValue="distribution" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
+          <TabsTrigger value="distribution">Distribution Analysis</TabsTrigger>
+          <TabsTrigger value="statistics">Statistical Measures</TabsTrigger>
+          <TabsTrigger value="boxplot">Box Plot Analysis</TabsTrigger>
+          <TabsTrigger value="insights">Additional Insights</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="distribution" className="space-y-6">
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Distribution Histogram</h3>
+              <TooltipProvider>
+                <UITooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <HelpCircle className="h-5 w-5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>The histogram shows the frequency distribution of your data with a normal distribution line overlay</p>
+                  </TooltipContent>
+                </UITooltip>
+              </TooltipProvider>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Kurtosis</p>
-              <p className="font-medium">{stats.kurtosis.toFixed(3)}</p>
+            <div className="h-[400px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart
+                  data={histogramData}
+                  margin={{ top: 20, right: 20, bottom: 60, left: 20 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="label" 
+                    angle={-45} 
+                    textAnchor="end"
+                    height={60}
+                    interval={0}
+                  />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="count" name="Frequency" fill="#8884d8" opacity={0.8} />
+                  <Line
+                    type="monotone"
+                    dataKey="normalDist"
+                    stroke="#ff7300"
+                    name="Distribution Line"
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                </ComposedChart>
+              </ResponsiveContainer>
             </div>
-          </div>
-        </div>
-      </Card>
 
-      <Card className="p-4">
-        <h3 className="text-lg font-semibold mb-4">Box Plot Analysis</h3>
-        <div className="h-[400px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BoxPlot
-              data={boxPlotData}
-              margin={{ top: 20, right: 20, bottom: 40, left: 40 }}
-              padding={0.15}
-              minValue={Math.min(...values)}
-              maxValue={Math.max(...values)}
-              layout="vertical"
-              valueFormat={(value) => typeof value === 'number' ? value.toFixed(2) : '0'}
-              width={500}
-              height={400}
-            />
-          </ResponsiveContainer>
-        </div>
-      </Card>
-
-      <Card className="p-4">
-        <h3 className="text-lg font-semibold mb-4">Descriptive Statistics</h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          <div className="p-4 bg-secondary/10 rounded-lg">
-            <p className="text-sm text-muted-foreground">Mean</p>
-            <p className="text-lg font-semibold">{stats.mean.toFixed(2)}</p>
-          </div>
-          <div className="p-4 bg-secondary/10 rounded-lg">
-            <p className="text-sm text-muted-foreground">Median</p>
-            <p className="text-lg font-semibold">{stats.median.toFixed(2)}</p>
-          </div>
-          <div className="p-4 bg-secondary/10 rounded-lg">
-            <p className="text-sm text-muted-foreground">Mode</p>
-            <p className="text-lg font-semibold">{stats.mode.toFixed(2)}</p>
-          </div>
-          <div className="p-4 bg-secondary/10 rounded-lg">
-            <p className="text-sm text-muted-foreground">Standard Deviation</p>
-            <p className="text-lg font-semibold">{stats.stdDev.toFixed(2)}</p>
-          </div>
-          <div className="p-4 bg-secondary/10 rounded-lg">
-            <p className="text-sm text-muted-foreground">Variance</p>
-            <p className="text-lg font-semibold">{stats.variance.toFixed(2)}</p>
-          </div>
-          <div className="p-4 bg-secondary/10 rounded-lg">
-            <p className="text-sm text-muted-foreground">Range</p>
-            <p className="text-lg font-semibold">{stats.range.toFixed(2)}</p>
-          </div>
-          <div className="p-4 bg-secondary/10 rounded-lg">
-            <p className="text-sm text-muted-foreground">IQR</p>
-            <p className="text-lg font-semibold">{stats.iqr.toFixed(2)}</p>
-          </div>
-          <div className="p-4 bg-secondary/10 rounded-lg">
-            <p className="text-sm text-muted-foreground">Sample Size</p>
-            <p className="text-lg font-semibold">{values.length}</p>
-          </div>
-        </div>
-      </Card>
-
-      <Card className="p-4">
-        <h3 className="text-lg font-semibold mb-4">Additional Insights</h3>
-        <div className="space-y-4">
-          <div>
-            <h4 className="font-medium mb-2">95% Confidence Interval</h4>
-            <p>
-              [{stats.confidenceInterval95[0].toFixed(2)}, {stats.confidenceInterval95[1].toFixed(2)}]
-            </p>
-          </div>
-          <div>
-            <h4 className="font-medium mb-2">Quartiles</h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Q1 (25th)</p>
-                <p>{stats.q1.toFixed(2)}</p>
+            <div className="mt-6 p-4 bg-secondary/10 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <h4 className="font-medium">Distribution Type:</h4>
+                <span className="text-primary font-semibold">{distributionType}</span>
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Q3 (75th)</p>
-                <p>{stats.q3.toFixed(2)}</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Skewness</p>
+                  <p className="font-medium">{stats.skewness.toFixed(3)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Kurtosis</p>
+                  <p className="font-medium">{stats.kurtosis.toFixed(3)}</p>
+                </div>
               </div>
             </div>
-          </div>
-          <div>
-            <h4 className="font-medium mb-2">Outliers ({stats.outliers.length})</h4>
-            {stats.outliers.length > 0 ? (
-              <p className="text-sm">
-                {stats.outliers.map(v => v.toFixed(2)).join(', ')}
-              </p>
-            ) : (
-              <p className="text-sm text-muted-foreground">No outliers detected</p>
-            )}
-          </div>
-        </div>
-      </Card>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="statistics" className="space-y-6">
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold mb-6">Key Statistical Measures</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              <div className="p-4 bg-secondary/10 rounded-lg">
+                <TooltipProvider>
+                  <UITooltip>
+                    <TooltipTrigger className="w-full text-left">
+                      <p className="text-sm text-muted-foreground">Mean</p>
+                      <p className="text-lg font-semibold">{stats.mean.toFixed(2)}</p>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>The average value of all data points</p>
+                    </TooltipContent>
+                  </UITooltip>
+                </TooltipProvider>
+              </div>
+              <div className="p-4 bg-secondary/10 rounded-lg">
+                <TooltipProvider>
+                  <UITooltip>
+                    <TooltipTrigger className="w-full text-left">
+                      <p className="text-sm text-muted-foreground">Median</p>
+                      <p className="text-lg font-semibold">{stats.median.toFixed(2)}</p>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>The middle value when data is sorted</p>
+                    </TooltipContent>
+                  </UITooltip>
+                </TooltipProvider>
+              </div>
+              <div className="p-4 bg-secondary/10 rounded-lg">
+                <TooltipProvider>
+                  <UITooltip>
+                    <TooltipTrigger className="w-full text-left">
+                      <p className="text-sm text-muted-foreground">Mode</p>
+                      <p className="text-lg font-semibold">{stats.mode.toFixed(2)}</p>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>The most frequently occurring value</p>
+                    </TooltipContent>
+                  </UITooltip>
+                </TooltipProvider>
+              </div>
+              <div className="p-4 bg-secondary/10 rounded-lg">
+                <TooltipProvider>
+                  <UITooltip>
+                    <TooltipTrigger className="w-full text-left">
+                      <p className="text-sm text-muted-foreground">Standard Deviation</p>
+                      <p className="text-lg font-semibold">{stats.stdDev.toFixed(2)}</p>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Measure of data spread around the mean</p>
+                    </TooltipContent>
+                  </UITooltip>
+                </TooltipProvider>
+              </div>
+              <div className="p-4 bg-secondary/10 rounded-lg">
+                <TooltipProvider>
+                  <UITooltip>
+                    <TooltipTrigger className="w-full text-left">
+                      <p className="text-sm text-muted-foreground">Variance</p>
+                      <p className="text-lg font-semibold">{stats.variance.toFixed(2)}</p>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Square of standard deviation</p>
+                    </TooltipContent>
+                  </UITooltip>
+                </TooltipProvider>
+              </div>
+              <div className="p-4 bg-secondary/10 rounded-lg">
+                <TooltipProvider>
+                  <UITooltip>
+                    <TooltipTrigger className="w-full text-left">
+                      <p className="text-sm text-muted-foreground">Range</p>
+                      <p className="text-lg font-semibold">{stats.range.toFixed(2)}</p>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Difference between highest and lowest values</p>
+                    </TooltipContent>
+                  </UITooltip>
+                </TooltipProvider>
+              </div>
+              <div className="p-4 bg-secondary/10 rounded-lg">
+                <TooltipProvider>
+                  <UITooltip>
+                    <TooltipTrigger className="w-full text-left">
+                      <p className="text-sm text-muted-foreground">IQR</p>
+                      <p className="text-lg font-semibold">{stats.iqr.toFixed(2)}</p>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Interquartile Range (Q3 - Q1)</p>
+                    </TooltipContent>
+                  </UITooltip>
+                </TooltipProvider>
+              </div>
+              <div className="p-4 bg-secondary/10 rounded-lg">
+                <TooltipProvider>
+                  <UITooltip>
+                    <TooltipTrigger className="w-full text-left">
+                      <p className="text-sm text-muted-foreground">Sample Size</p>
+                      <p className="text-lg font-semibold">{values.length}</p>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Total number of data points</p>
+                    </TooltipContent>
+                  </UITooltip>
+                </TooltipProvider>
+              </div>
+            </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="boxplot" className="space-y-6">
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Box Plot Analysis</h3>
+              <TooltipProvider>
+                <UITooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <HelpCircle className="h-5 w-5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Box plot shows data distribution through quartiles, median, and potential outliers</p>
+                  </TooltipContent>
+                </UITooltip>
+              </TooltipProvider>
+            </div>
+            <div className="h-[400px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BoxPlot
+                  data={boxPlotData}
+                  margin={{ top: 20, right: 20, bottom: 40, left: 40 }}
+                  padding={0.15}
+                  minValue={Math.min(...values)}
+                  maxValue={Math.max(...values)}
+                  layout="vertical"
+                  valueFormat={(value) => typeof value === 'number' ? value.toFixed(2) : '0'}
+                  width={500}
+                  height={400}
+                />
+              </ResponsiveContainer>
+            </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="insights" className="space-y-6">
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold mb-6">Additional Statistical Insights</h3>
+            <div className="space-y-6">
+              <div className="p-4 bg-secondary/10 rounded-lg">
+                <h4 className="font-medium mb-2">95% Confidence Interval</h4>
+                <p className="text-lg">
+                  [{stats.confidenceInterval95[0].toFixed(2)}, {stats.confidenceInterval95[1].toFixed(2)}]
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  We can be 95% confident that the true population mean falls within this interval
+                </p>
+              </div>
+
+              <div className="p-4 bg-secondary/10 rounded-lg">
+                <h4 className="font-medium mb-2">Quartile Analysis</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Q1 (25th percentile)</p>
+                    <p className="text-lg font-medium">{stats.q1.toFixed(2)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Q3 (75th percentile)</p>
+                    <p className="text-lg font-medium">{stats.q3.toFixed(2)}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-secondary/10 rounded-lg">
+                <h4 className="font-medium mb-2">Outlier Analysis</h4>
+                <p className="text-lg font-medium mb-2">Found {stats.outliers.length} outliers</p>
+                {stats.outliers.length > 0 ? (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">Outlier values:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {stats.outliers.map((v, i) => (
+                        <span key={i} className="px-2 py-1 bg-background rounded-md text-sm">
+                          {v.toFixed(2)}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No outliers detected in the dataset</p>
+                )}
+              </div>
+            </div>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
