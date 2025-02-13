@@ -9,8 +9,25 @@ import { ValidationTab } from "@/components/forecasting/tabs/ValidationTab";
 import { ExternalFactorsTab } from "@/components/forecasting/tabs/ExternalFactorsTab";
 import { Separator } from "@/components/ui/separator";
 import { Route, Routes, Navigate } from "react-router-dom";
+import { useState } from "react";
+import { Card } from "@/components/ui/card";
+import { PeriodSelector } from "@/components/forecasting/date-range/PeriodSelector";
+import { LocationFilter } from "@/components/forecasting/filters/LocationFilter";
+import { ProductFilter } from "@/components/forecasting/filters/ProductFilter";
+import { ForecastingDateRange } from "@/components/forecasting/ForecastingDateRange";
 
 const Forecasting = () => {
+  const [fromDate, setFromDate] = useState<Date>(new Date('2024-01-01'));
+  const [toDate, setToDate] = useState<Date>(new Date('2024-12-26'));
+  const [selectedL1MainProd, setSelectedL1MainProd] = useState<string>("all");
+  const [selectedL2ProdLine, setSelectedL2ProdLine] = useState<string>("all");
+  const [selectedL3ProdCategory, setSelectedL3ProdCategory] = useState<string>("all");
+  const [selectedL4DeviceMake, setSelectedL4DeviceMake] = useState<string>("all");
+  const [selectedL5ProdSubCategory, setSelectedL5ProdSubCategory] = useState<string>("all");
+  const [selectedL6DeviceModel, setSelectedL6DeviceModel] = useState<string>("all");
+  const [selectedL7DeviceColor, setSelectedL7DeviceColor] = useState<string>("all");
+  const [selectedL8DeviceStorage, setSelectedL8DeviceStorage] = useState<string>("all");
+
   const dummyData = {
     filteredData: [
       {
@@ -45,6 +62,16 @@ const Forecasting = () => {
       testMetrics: { mape: 6, mae: 4, rmse: 5 },
       validationMetrics: { mape: 5.5, mae: 3.5, rmse: 4.5 }
     },
+    forecastTableData: [{
+      date: "2024-01-01",
+      value: 100,
+      forecast: 105,
+      sku: "SKU123",
+      category: "Electronics",
+      subcategory: "Phones",
+      variance: 5,
+      id: "1"
+    }],
     weatherLocation: "New York",
     setWeatherLocation: (location: string) => {},
     weatherData: {
@@ -77,7 +104,6 @@ const Forecasting = () => {
     historicalPriceData: [],
     addHistoricalPricePoint: () => {},
     calculatePriceAnalysis: () => {},
-    forecastTableData: [],
     whatIfScenario: []
   };
 
@@ -92,75 +118,119 @@ const Forecasting = () => {
           <Separator className="my-6" />
         </div>
 
-        <ForecastingTabs />
+        <div className="px-6 space-y-6">
+          {/* Filters Section */}
+          <Card className="p-6">
+            <div className="space-y-6">
+              <h2 className="text-lg font-semibold">Forecast Filters</h2>
+              
+              {/* Time Period Selection */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium">Time Period</h3>
+                <ForecastingDateRange
+                  fromDate={fromDate}
+                  toDate={toDate}
+                  setFromDate={setFromDate}
+                  setToDate={setToDate}
+                />
+              </div>
 
-        <div className="p-6">
-          <Routes>
-            <Route 
-              path="/" 
-              element={
-                <ForecastAnalysisTab 
-                  filteredData={dummyData.filteredData}
-                  confidenceIntervals={dummyData.confidenceIntervals}
+              {/* Product Hierarchy */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium">Product Hierarchy</h3>
+                <ProductFilter
+                  selectedL1MainProd={selectedL1MainProd}
+                  setSelectedL1MainProd={setSelectedL1MainProd}
+                  selectedL2ProdLine={selectedL2ProdLine}
+                  setSelectedL2ProdLine={setSelectedL2ProdLine}
+                  selectedL3ProdCategory={selectedL3ProdCategory}
+                  setSelectedL3ProdCategory={setSelectedL3ProdCategory}
+                  selectedL4DeviceMake={selectedL4DeviceMake}
+                  setSelectedL4DeviceMake={setSelectedL4DeviceMake}
+                  selectedL5ProdSubCategory={selectedL5ProdSubCategory}
+                  setSelectedL5ProdSubCategory={setSelectedL5ProdSubCategory}
+                  selectedL6DeviceModel={selectedL6DeviceModel}
+                  setSelectedL6DeviceModel={setSelectedL6DeviceModel}
+                  selectedL7DeviceColor={selectedL7DeviceColor}
+                  setSelectedL7DeviceColor={setSelectedL7DeviceColor}
+                  selectedL8DeviceStorage={selectedL8DeviceStorage}
+                  setSelectedL8DeviceStorage={setSelectedL8DeviceStorage}
+                  forecastData={dummyData.filteredData}
                 />
-              } 
-            />
-            <Route 
-              path="/distribution" 
-              element={
-                <ForecastDistributionTab 
-                  forecastTableData={dummyData.forecastTableData}
-                />
-              } 
-            />
-            <Route 
-              path="/pattern" 
-              element={
-                <DecompositionTab
-                  filteredData={dummyData.filteredData}
-                  decomposition={dummyData.decomposition}
-                />
-              } 
-            />
-            <Route 
-              path="/what-if" 
-              element={
-                <WhatIfAnalysisTab
-                  filteredData={dummyData.filteredData}
-                  whatIfScenario={dummyData.whatIfScenario}
-                />
-              } 
-            />
-            <Route 
-              path="/validation" 
-              element={
-                <ValidationTab
-                  validationResults={dummyData.validationResults}
-                  crossValidationResults={dummyData.crossValidationResults}
-                />
-              } 
-            />
-            <Route 
-              path="/external" 
-              element={
-                <ExternalFactorsTab
-                  weatherLocation={dummyData.weatherLocation}
-                  setWeatherLocation={dummyData.setWeatherLocation}
-                  weatherData={dummyData.weatherData}
-                  fetchWeatherForecast={dummyData.fetchWeatherForecast}
-                  marketEvents={dummyData.marketEvents}
-                  setMarketEvents={dummyData.setMarketEvents}
-                  newEvent={dummyData.newEvent}
-                  setNewEvent={dummyData.setNewEvent}
-                  priceAnalysis={dummyData.priceAnalysis}
-                  addHistoricalPricePoint={dummyData.addHistoricalPricePoint}
-                  calculatePriceAnalysis={dummyData.calculatePriceAnalysis}
-                  historicalPriceData={dummyData.historicalPriceData}
-                />
-              } 
-            />
-            <Route path="*" element={<Navigate to="/forecasting" replace />} />
-          </Routes>
+              </div>
+            </div>
+          </Card>
+
+          <ForecastingTabs />
+
+          <div className="p-6">
+            <Routes>
+              <Route 
+                path="/" 
+                element={
+                  <ForecastAnalysisTab 
+                    filteredData={dummyData.filteredData}
+                    confidenceIntervals={dummyData.confidenceIntervals}
+                  />
+                } 
+              />
+              <Route 
+                path="/distribution" 
+                element={
+                  <ForecastDistributionTab 
+                    forecastTableData={dummyData.forecastTableData}
+                  />
+                } 
+              />
+              <Route 
+                path="/pattern" 
+                element={
+                  <DecompositionTab
+                    filteredData={dummyData.filteredData}
+                    decomposition={dummyData.decomposition}
+                  />
+                } 
+              />
+              <Route 
+                path="/what-if" 
+                element={
+                  <WhatIfAnalysisTab
+                    filteredData={dummyData.filteredData}
+                    whatIfScenario={dummyData.whatIfScenario}
+                  />
+                } 
+              />
+              <Route 
+                path="/validation" 
+                element={
+                  <ValidationTab
+                    validationResults={dummyData.validationResults}
+                    crossValidationResults={dummyData.crossValidationResults}
+                  />
+                } 
+              />
+              <Route 
+                path="/external" 
+                element={
+                  <ExternalFactorsTab
+                    weatherLocation={dummyData.weatherLocation}
+                    setWeatherLocation={dummyData.setWeatherLocation}
+                    weatherData={dummyData.weatherData}
+                    fetchWeatherForecast={dummyData.fetchWeatherForecast}
+                    marketEvents={dummyData.marketEvents}
+                    setMarketEvents={dummyData.setMarketEvents}
+                    newEvent={dummyData.newEvent}
+                    setNewEvent={dummyData.setNewEvent}
+                    priceAnalysis={dummyData.priceAnalysis}
+                    addHistoricalPricePoint={dummyData.addHistoricalPricePoint}
+                    calculatePriceAnalysis={dummyData.calculatePriceAnalysis}
+                    historicalPriceData={dummyData.historicalPriceData}
+                  />
+                } 
+              />
+              <Route path="*" element={<Navigate to="/forecasting" replace />} />
+            </Routes>
+          </div>
         </div>
       </div>
     </DashboardLayout>
