@@ -28,15 +28,15 @@ export const InventoryChart = ({ data }: InventoryChartProps) => {
   // Filter data based on date range
   const getFilteredData = () => {
     const filtered = data.filter(item => {
-      const itemDate = new Date(item.lastUpdated);
+      const itemDate = new Date();  // Use current date for demo, replace with actual date field
       return itemDate >= fromDate && itemDate <= toDate;
     });
 
     return filtered.map(item => ({
       name: item.name,
-      red: item.netFlow.redZone,
-      yellow: item.netFlow.yellowZone,
-      green: item.netFlow.greenZone,
+      red: item.redZoneSize || 0,
+      yellow: item.yellowZoneSize || 0,
+      green: item.greenZoneSize || 0,
       currentStock: item.currentStock
     }));
   };

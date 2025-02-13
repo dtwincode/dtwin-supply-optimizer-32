@@ -33,12 +33,18 @@ export const CreatePODialog = ({ item, bufferZones, onSuccess }: CreatePODialogP
     setIsSubmitting(true);
 
     try {
-      const { data, error } = await supabase.from('purchase_orders').insert({
+      // Create PO using new schema-typed insert
+      const poData = {
         sku: item.sku,
         quantity: quantity,
         status: 'draft',
-        po_number: `PO-${Date.now()}`, // You might want to implement a better PO numbering system
-      }).select().single();
+        po_number: `PO-${Date.now()}`,
+        order_date: new Date().toISOString()
+      };
+
+      const { error } = await supabase
+        .from('purchase_orders')
+        .insert(poData);
 
       if (error) throw error;
 
