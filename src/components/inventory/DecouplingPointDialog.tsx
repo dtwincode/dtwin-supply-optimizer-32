@@ -47,7 +47,18 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
         return;
       }
 
-      setBufferProfiles(data);
+      // Map the database response to match our BufferProfile interface
+      const mappedProfiles: BufferProfile[] = data.map(profile => ({
+        id: profile.id,
+        name: profile.name,
+        description: profile.description,
+        variabilityFactor: profile.variability_factor,
+        leadTimeFactor: profile.lead_time_factor,
+        moq: profile.moq,
+        lotSizeFactor: profile.lot_size_factor,
+      }));
+
+      setBufferProfiles(mappedProfiles);
     };
 
     fetchBufferProfiles();
