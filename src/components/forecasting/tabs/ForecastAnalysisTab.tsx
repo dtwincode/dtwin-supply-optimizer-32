@@ -22,7 +22,34 @@ interface ForecastAnalysisTabProps {
 }
 
 const calculateDescriptiveStats = (data: any[]) => {
-  const values = data.map(d => d.actual).filter(v => v !== null) as number[];
+  if (!data || data.length === 0) {
+    return {
+      min: 0,
+      max: 0,
+      q1: 0,
+      median: 0,
+      q3: 0,
+      mean: 0,
+      outliers: []
+    };
+  }
+
+  const values = data
+    .map(d => d.actual)
+    .filter(v => v !== null && v !== undefined) as number[];
+
+  if (values.length === 0) {
+    return {
+      min: 0,
+      max: 0,
+      q1: 0,
+      median: 0,
+      q3: 0,
+      mean: 0,
+      outliers: []
+    };
+  }
+
   values.sort((a, b) => a - b);
   
   const min = Math.min(...values);
@@ -44,7 +71,18 @@ const calculateDescriptiveStats = (data: any[]) => {
 };
 
 const createHistogramData = (data: any[]) => {
-  const values = data.map(d => d.actual).filter(v => v !== null) as number[];
+  if (!data || data.length === 0) {
+    return [];
+  }
+
+  const values = data
+    .map(d => d.actual)
+    .filter(v => v !== null && v !== undefined) as number[];
+
+  if (values.length === 0) {
+    return [];
+  }
+
   const min = Math.min(...values);
   const max = Math.max(...values);
   const binCount = 10;
@@ -66,6 +104,14 @@ const createHistogramData = (data: any[]) => {
 
 const CustomBoxPlot = (props: any) => {
   const { x, y, width, height, q1, q3, median, min, max } = props;
+  
+  if (!x || !y || !width || !height || 
+      q1 === undefined || q3 === undefined || 
+      median === undefined || min === undefined || 
+      max === undefined) {
+    return null;
+  }
+
   const boxWidth = width * 0.5;
   const centerX = x + width / 2;
 
@@ -135,6 +181,17 @@ export const ForecastAnalysisTab = ({
     name: "Distribution"
   }];
 
+  if (!filteredData || filteredData.length === 0) {
+    return (
+      <div className="space-y-6">
+        <Card className="p-4">
+          <h3 className="text-lg font-semibold mb-4">No Data Available</h3>
+          <p className="text-gray-500">Please select different filters or ensure data is loaded.</p>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <Card className="p-4">
@@ -156,9 +213,13 @@ export const ForecastAnalysisTab = ({
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
-                <YAxis />
+                <YAxis domain={[stats.min, stats.max]} />
                 <Tooltip
-                  formatter={(value: any) => [value.toFixed(2), "Value"]}
+                  formatter={(value: any) => 
+                    value !== undefined && value !== null 
+                      ? [value.toFixed(2), "Value"]
+                      : ["N/A", "Value"]
+                  }
                 />
                 <Legend />
                 {boxPlotData.map((entry, index) => (
@@ -184,11 +245,17 @@ export const ForecastAnalysisTab = ({
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   dataKey="binStart"
-                  tickFormatter={(value) => Math.round(value).toString()}
+                  tickFormatter={(value) => 
+                    value !== undefined ? Math.round(value).toString() : "N/A"
+                  }
                 />
                 <YAxis />
                 <Tooltip
-                  labelFormatter={(label) => `Range: ${Math.round(label)} - ${Math.round(label + (histogramData[1]?.binStart - histogramData[0]?.binStart))}`}
+                  labelFormatter={(label) => 
+                    label !== undefined && histogramData.length > 1
+                      ? `Range: ${Math.round(label)} - ${Math.round(label + (histogramData[1].binStart - histogramData[0].binStart))}`
+                      : "N/A"
+                  }
                 />
                 <Legend />
                 <Bar dataKey="count" fill="#82ca9d" name="Frequency" />
@@ -203,27 +270,27 @@ export const ForecastAnalysisTab = ({
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <div className="p-4 bg-slate-50 rounded-lg">
             <div className="text-sm text-slate-500">Mean</div>
-            <div className="text-lg font-semibold">{stats.mean.toFixed(2)}</div>
+            <div className="text-lg font-semibold">{stats.mean?.toFixed(2) ?? "N/A"}</div>
           </div>
           <div className="p-4 bg-slate-50 rounded-lg">
             <div className="text-sm text-slate-500">Median</div>
-            <div className="text-lg font-semibold">{stats.median.toFixed(2)}</div>
+            <div className="text-lg font-semibold">{stats.median?.toFixed(2) ?? "N/A"}</div>
           </div>
           <div className="p-4 bg-slate-50 rounded-lg">
             <div className="text-sm text-slate-500">Q1</div>
-            <div className="text-lg font-semibold">{stats.q1.toFixed(2)}</div>
+            <div className="text-lg font-semibold">{stats.q1?.toFixed(2) ?? "N/A"}</div>
           </div>
           <div className="p-4 bg-slate-50 rounded-lg">
             <div className="text-sm text-slate-500">Q3</div>
-            <div className="text-lg font-semibold">{stats.q3.toFixed(2)}</div>
+            <div className="text-lg font-semibold">{stats.q3?.toFixed(2) ?? "N/A"}</div>
           </div>
           <div className="p-4 bg-slate-50 rounded-lg">
             <div className="text-sm text-slate-500">Min</div>
-            <div className="text-lg font-semibold">{stats.min.toFixed(2)}</div>
+            <div className="text-lg font-semibold">{stats.min?.toFixed(2) ?? "N/A"}</div>
           </div>
           <div className="p-4 bg-slate-50 rounded-lg">
             <div className="text-sm text-slate-500">Max</div>
-            <div className="text-lg font-semibold">{stats.max.toFixed(2)}</div>
+            <div className="text-lg font-semibold">{stats.max?.toFixed(2) ?? "N/A"}</div>
           </div>
         </div>
       </Card>
