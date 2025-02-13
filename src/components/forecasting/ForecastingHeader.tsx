@@ -15,16 +15,7 @@ import { ModelConfig } from "@/types/models/commonTypes";
 import { Card } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-
-interface ActiveModel {
-  id: string;
-  model_id: string;
-  model_name: string;
-  is_running: boolean;
-  last_run?: Date;
-  product_filters: Record<string, any>;
-  model_parameters: Record<string, any>;
-}
+import { ActiveModel, ActiveModelInsert } from "@/types/models/activeModels";
 
 interface ForecastingHeaderProps {
   selectedModel: string;
@@ -49,7 +40,7 @@ export const ForecastingHeader = ({
       try {
         const { data, error } = await supabase
           .from('active_models')
-          .select('*');
+          .select('*') as { data: ActiveModel[] | null; error: any };
 
         if (error) throw error;
         setActiveModels(data || []);
@@ -100,18 +91,20 @@ export const ForecastingHeader = ({
       return;
     }
 
+    const newModel: ActiveModelInsert = {
+      model_id: selectedModel,
+      model_name: modelConfig.name,
+      is_running: true,
+      product_filters: {},
+      model_parameters: modelConfig.parameters
+    };
+
     try {
       const { data, error } = await supabase
         .from('active_models')
-        .insert({
-          model_id: selectedModel,
-          model_name: modelConfig.name,
-          is_running: true,
-          product_filters: {},
-          model_parameters: modelConfig.parameters
-        })
+        .insert(newModel)
         .select()
-        .single();
+        .single() as { data: ActiveModel | null; error: any };
 
       if (error) throw error;
 
@@ -137,7 +130,7 @@ export const ForecastingHeader = ({
       const { error } = await supabase
         .from('active_models')
         .update({ is_running: !model.is_running })
-        .eq('id', modelId);
+        .eq('id', modelId) as { error: any };
 
       if (error) throw error;
     } catch (error) {
@@ -155,7 +148,7 @@ export const ForecastingHeader = ({
       const { error } = await supabase
         .from('active_models')
         .delete()
-        .eq('id', modelId);
+        .eq('id', modelId) as { error: any };
 
       if (error) throw error;
 
@@ -232,7 +225,7 @@ export const ForecastingHeader = ({
                   <div className="space-y-1">
                     <p className="font-medium">{model.model_name}</p>
                     <p className="text-xs text-muted-foreground">
-                      Last run: {new Date(model.last_run || '').toLocaleTimeString()}
+                      Last run: {new Date(model.last_run).toLocaleTimeString()}
                     </p>
                   </div>
                   <div className="flex items-center gap-4">
