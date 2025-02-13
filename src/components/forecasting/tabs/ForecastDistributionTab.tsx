@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { supabase } from "@/integrations/supabase/client";
 import { SavedModelConfig, ModelParameter } from "@/types/models/commonTypes";
 import { Input } from "@/components/ui/input";
+import { X } from "lucide-react";
 
 interface ForecastDistributionTabProps {
   forecastTableData: Array<{
@@ -62,7 +63,7 @@ export const ForecastDistributionTab = ({
           productId: config.product_id,
           productName: config.product_name,
           modelId: config.model_id,
-          parameters: config.parameters || [],
+          parameters: [] as ModelParameter[],  // Fixed type issue
           autoRun: config.auto_run
         }));
         setSavedConfigs(configs);
@@ -71,6 +72,36 @@ export const ForecastDistributionTab = ({
 
     loadSavedConfigs();
   }, []);
+
+  const handleDeleteConfiguration = async (configId: string, event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent triggering the select item click
+
+    try {
+      const { error } = await supabase
+        .from('saved_model_configs')
+        .delete()
+        .eq('id', configId);
+
+      if (error) throw error;
+
+      setSavedConfigs(prev => prev.filter(config => config.id !== configId));
+      if (selectedConfigId === configId) {
+        setSelectedConfigId(null);
+      }
+
+      toast({
+        title: "Success",
+        description: "Configuration deleted successfully"
+      });
+    } catch (error) {
+      console.error('Error deleting configuration:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete configuration",
+        variant: "destructive"
+      });
+    }
+  };
 
   const handleSaveConfiguration = async () => {
     try {
@@ -251,7 +282,6 @@ export const ForecastDistributionTab = ({
   // UI Rendering
   return (
     <div className="space-y-6 p-4">
-      {/* Model Configuration Section */}
       <Card className="p-6">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -286,7 +316,6 @@ export const ForecastDistributionTab = ({
             </div>
           </div>
 
-          {/* Saved Configurations List */}
           <div className="space-y-2">
             <Label>Saved Configurations</Label>
             <Select
@@ -306,8 +335,22 @@ export const ForecastDistributionTab = ({
               <SelectContent>
                 <SelectGroup>
                   {savedConfigs.map((config) => (
-                    <SelectItem key={config.id} value={config.id}>
-                      {config.productName}
+                    <SelectItem 
+                      key={config.id} 
+                      value={config.id}
+                      className="flex items-center justify-between group"
+                    >
+                      <div className="flex items-center justify-between w-full pr-2">
+                        <span>{config.productName}</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="opacity-0 group-hover:opacity-100 h-6 w-6 p-0"
+                          onClick={(e) => handleDeleteConfiguration(config.id, e)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectGroup>
@@ -358,7 +401,6 @@ export const ForecastDistributionTab = ({
         </div>
       </Card>
 
-      {/* Forecast Visualization */}
       <Card className="p-6">
         <div className="space-y-2">
           <h3 className="text-xl font-semibold">Forecast Visualization</h3>
@@ -371,7 +413,6 @@ export const ForecastDistributionTab = ({
         </div>
       </Card>
 
-      {/* Forecast Details Table */}
       <Card className="p-6">
         <div className="space-y-2">
           <h3 className="text-xl font-semibold">Forecast Details</h3>
