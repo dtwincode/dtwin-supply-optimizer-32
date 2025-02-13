@@ -1,8 +1,8 @@
 
 import { Card } from "@/components/ui/card";
 import { ForecastDataPoint } from "@/types/forecasting";
-import { ResponsiveContainer, ScatterPlot, XAxis, YAxis, Tooltip, CartesianGrid, Scatter } from "recharts";
-import { BoxPlot, ResponsiveBoxPlot } from "@nivo/boxplot";
+import { ResponsiveContainer, ScatterChart, XAxis, YAxis, Tooltip, CartesianGrid, Scatter } from "recharts";
+import { BoxPlot } from "@nivo/boxplot";
 
 interface DescriptiveAnalysisTabProps {
   filteredData?: ForecastDataPoint[];
@@ -11,15 +11,21 @@ interface DescriptiveAnalysisTabProps {
 export const DescriptiveAnalysisTab = ({ filteredData = [] }: DescriptiveAnalysisTabProps) => {
   // Transform data for scatter plot (actual vs forecast)
   const scatterData = filteredData.map(d => ({
-    actual: d.actual,
-    forecast: d.forecast,
+    actual: d.actual ?? 0,
+    forecast: d.forecast ?? 0,
   }));
 
   // Transform data for box plot
-  const boxPlotData = {
-    actual: filteredData.map(d => d.actual).filter(Boolean) as number[],
-    forecast: filteredData.map(d => d.forecast).filter(Boolean) as number[],
-  };
+  const boxPlotData = [
+    {
+      group: 'Actual',
+      values: filteredData.map(d => d.actual).filter((val): val is number => val !== null)
+    },
+    {
+      group: 'Forecast',
+      values: filteredData.map(d => d.forecast).filter(Boolean)
+    }
+  ];
 
   return (
     <div className="space-y-6">
@@ -48,18 +54,10 @@ export const DescriptiveAnalysisTab = ({ filteredData = [] }: DescriptiveAnalysi
           <div className="h-[400px]">
             <ResponsiveContainer width="100%" height="100%">
               <BoxPlot
-                data={[
-                  {
-                    group: 'Actual',
-                    values: boxPlotData.actual
-                  },
-                  {
-                    group: 'Forecast',
-                    values: boxPlotData.forecast
-                  }
-                ]}
+                data={boxPlotData}
                 margin={{ top: 20, right: 20, bottom: 40, left: 40 }}
                 padding={0.15}
+                valueFormat={(value) => typeof value === 'number' ? value.toFixed(2) : '0'}
               />
             </ResponsiveContainer>
           </div>
@@ -72,21 +70,21 @@ export const DescriptiveAnalysisTab = ({ filteredData = [] }: DescriptiveAnalysi
           <div className="p-4 bg-secondary/10 rounded-lg">
             <p className="text-sm text-muted-foreground">Mean Actual</p>
             <p className="text-lg font-semibold">
-              {(boxPlotData.actual.reduce((a, b) => a + b, 0) / boxPlotData.actual.length).toFixed(2)}
+              {(boxPlotData[0].values.reduce((a, b) => a + b, 0) / boxPlotData[0].values.length || 0).toFixed(2)}
             </p>
           </div>
           <div className="p-4 bg-secondary/10 rounded-lg">
             <p className="text-sm text-muted-foreground">Mean Forecast</p>
             <p className="text-lg font-semibold">
-              {(boxPlotData.forecast.reduce((a, b) => a + b, 0) / boxPlotData.forecast.length).toFixed(2)}
+              {(boxPlotData[1].values.reduce((a, b) => a + b, 0) / boxPlotData[1].values.length || 0).toFixed(2)}
             </p>
           </div>
           <div className="p-4 bg-secondary/10 rounded-lg">
             <p className="text-sm text-muted-foreground">Std Dev Actual</p>
             <p className="text-lg font-semibold">
               {Math.sqrt(
-                boxPlotData.actual.reduce((a, b) => a + Math.pow(b - boxPlotData.actual.reduce((a, b) => a + b, 0) / boxPlotData.actual.length, 2), 0) / 
-                boxPlotData.actual.length
+                boxPlotData[0].values.reduce((a, b) => a + Math.pow(b - (boxPlotData[0].values.reduce((a, b) => a + b, 0) / boxPlotData[0].values.length), 2), 0) / 
+                boxPlotData[0].values.length || 0
               ).toFixed(2)}
             </p>
           </div>
@@ -94,8 +92,8 @@ export const DescriptiveAnalysisTab = ({ filteredData = [] }: DescriptiveAnalysi
             <p className="text-sm text-muted-foreground">Std Dev Forecast</p>
             <p className="text-lg font-semibold">
               {Math.sqrt(
-                boxPlotData.forecast.reduce((a, b) => a + Math.pow(b - boxPlotData.forecast.reduce((a, b) => a + b, 0) / boxPlotData.forecast.length, 2), 0) / 
-                boxPlotData.forecast.length
+                boxPlotData[1].values.reduce((a, b) => a + Math.pow(b - (boxPlotData[1].values.reduce((a, b) => a + b, 0) / boxPlotData[1].values.length), 2), 0) / 
+                boxPlotData[1].values.length || 0
               ).toFixed(2)}
             </p>
           </div>
