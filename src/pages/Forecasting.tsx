@@ -16,9 +16,8 @@ import { ForecastDataPoint } from "@/types/forecasting";
 import { Card } from "@/components/ui/card";
 import { ForecastingDateRange } from "@/components/forecasting/ForecastingDateRange";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp, FileDown, Settings } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const Forecasting = () => {
   const [isTimeExpanded, setIsTimeExpanded] = useState(false);
@@ -44,17 +43,6 @@ const Forecasting = () => {
   const [trainingToDate, setTrainingToDate] = useState<Date>(new Date('2024-09-30'));
   const [testingFromDate, setTestingFromDate] = useState<Date>(new Date('2024-10-01'));
   const [testingToDate, setTestingToDate] = useState<Date>(new Date('2024-12-31'));
-
-  const [forecastHorizon, setForecastHorizon] = useState<string>("12w");
-  const [selectedModelId, setSelectedModelId] = useState<string>("moving-avg");
-  const [trainingPeriod, setTrainingPeriod] = useState({
-    from: new Date('2024-01-01'),
-    to: new Date('2024-09-30')
-  });
-  const [forecastPeriod, setForecastPeriod] = useState({
-    from: new Date('2024-10-01'),
-    to: new Date('2024-12-31')
-  });
 
   const dummyData = {
     filteredData: [{
@@ -196,19 +184,19 @@ const Forecasting = () => {
                       <Card className="p-6">
                         <h4 className="text-base font-medium mb-4">Training Period</h4>
                         <ForecastingDateRange
-                          fromDate={trainingPeriod.from}
-                          toDate={trainingPeriod.to}
-                          setFromDate={(date) => setTrainingPeriod(prev => ({ ...prev, from: date }))}
-                          setToDate={(date) => setTrainingPeriod(prev => ({ ...prev, to: date }))}
+                          fromDate={trainingFromDate}
+                          toDate={trainingToDate}
+                          setFromDate={setTrainingFromDate}
+                          setToDate={setTrainingToDate}
                         />
                       </Card>
                       <Card className="p-6">
-                        <h4 className="text-base font-medium mb-4">Forecast Period</h4>
+                        <h4 className="text-base font-medium mb-4">Testing Period</h4>
                         <ForecastingDateRange
-                          fromDate={forecastPeriod.from}
-                          toDate={forecastPeriod.to}
-                          setFromDate={(date) => setForecastPeriod(prev => ({ ...prev, from: date }))}
-                          setToDate={(date) => setForecastPeriod(prev => ({ ...prev, to: date }))}
+                          fromDate={testingFromDate}
+                          toDate={testingToDate}
+                          setFromDate={setTestingFromDate}
+                          setToDate={setTestingToDate}
                         />
                       </Card>
                     </div>
@@ -217,69 +205,6 @@ const Forecasting = () => {
               )}
             </AnimatePresence>
           </div>
-
-          
-          <Card className="p-6">
-            <div className="space-y-6">
-              <div className="flex items-center gap-2">
-                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">2</span>
-                <h3 className="text-lg font-semibold">Model Selection</h3>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Choose and configure your forecasting model
-              </p>
-
-              <div className="space-y-4">
-                <Select value={selectedModelId} onValueChange={setSelectedModelId}>
-                  <SelectTrigger className="w-full md:w-[300px]">
-                    <SelectValue placeholder="Select a model" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="moving-avg">Moving Average</SelectItem>
-                    <SelectItem value="exp-smoothing">Exponential Smoothing</SelectItem>
-                    <SelectItem value="arima">ARIMA</SelectItem>
-                    <SelectItem value="prophet">Prophet</SelectItem>
-                    <SelectItem value="sarima">Seasonal ARIMA</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <div className="flex gap-4">
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <Settings className="w-4 h-4" />
-                    Parameters
-                  </Button>
-                  <Button variant="outline" className="flex items-center gap-2"
-                    onClick={() => {
-                      // Export to CSV
-                      const csvContent = [
-                        ["Date", "Actual", "Forecast", "Error"],
-                        ...dummyData.filteredData.map(d => [
-                          d.week,
-                          d.actual ?? '',
-                          d.forecast,
-                          d.variance ?? ''
-                        ])
-                      ].map(row => row.join(",")).join("\n");
-
-                      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                      const link = document.createElement("a");
-                      link.href = URL.createObjectURL(blob);
-                      link.download = "forecast_data.csv";
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                    }}>
-                    <FileDown className="w-4 h-4" />
-                    Export CSV
-                  </Button>
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <FileDown className="w-4 h-4" />
-                    Export Excel
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </Card>
 
           <div 
             className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40"
