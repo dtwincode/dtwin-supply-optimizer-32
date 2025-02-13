@@ -82,22 +82,33 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
       
       <div className="h-[350px]">
         <ResponsiveContainer>
-          <ComposedChart data={dataWithOutliers} margin={{ top: 5, right: 30, left: 10, bottom: 65 }}>
+          <ComposedChart 
+            data={dataWithOutliers} 
+            margin={{ top: 20, right: 30, left: 10, bottom: 70 }}
+          >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
               dataKey="formattedWeek"
               angle={-45}
               textAnchor="end"
-              height={60}
-              interval={Math.ceil(dataWithOutliers.length / 15)}
-              tick={{ dy: 20 }}
+              height={70}
+              interval={Math.ceil(dataWithOutliers.length / 12)}
+              tick={{ dy: 30 }}
+              tickMargin={35}
             />
             <YAxis width={60} />
             <Tooltip
               labelFormatter={(label) => `Week of ${label}`}
               formatter={(value: number) => [Math.round(value), "Units"]}
             />
-            <Legend wrapperStyle={{ paddingTop: "10px" }} />
+            <Legend 
+              verticalAlign="top"
+              height={36}
+              wrapperStyle={{ 
+                paddingTop: "20px",
+                paddingBottom: "20px"
+              }}
+            />
             <Line
               type="monotone"
               dataKey="actual"
