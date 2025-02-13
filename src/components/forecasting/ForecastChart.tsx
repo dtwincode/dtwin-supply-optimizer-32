@@ -37,7 +37,7 @@ const detectOutliers = (data: any[]) => {
   const stdDev = Math.sqrt(
     values.reduce((sq, n) => sq + Math.pow(n - mean, 2), 0) / values.length
   );
-  const threshold = 2; // Number of standard deviations to consider as outlier
+  const threshold = 2;
 
   return data.map(point => ({
     ...point,
@@ -56,10 +56,12 @@ const formatWeek = (week: string) => {
 
 export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps) => {
   const [showConfidenceIntervals, setShowConfidenceIntervals] = useState(false);
-  const [timeRange, setTimeRange] = useState("6m");
+  const [timeRange, setTimeRange] = useState<string | undefined>(undefined);
   const [showOutliers, setShowOutliers] = useState(true);
 
   const filteredData = useMemo(() => {
+    if (!timeRange) return data;
+    
     const now = new Date();
     const cutoffDate = timeRange === "all" ? new Date(0) : 
       subMonths(now, parseInt(timeRange));
@@ -88,7 +90,7 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
           <h3 className="text-lg font-semibold">Demand Forecast</h3>
           <div className="flex gap-2 flex-wrap">
             <Select value={timeRange} onValueChange={setTimeRange}>
-              <SelectTrigger className="w-[150px]">
+              <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select time range" />
               </SelectTrigger>
               <SelectContent>
