@@ -25,6 +25,8 @@ import {
 import { findBestFitModel } from "@/utils/forecasting/modelSelection";
 import { ModelConfig } from "@/types/models/commonTypes";
 import { SavedScenario } from "@/types/forecasting";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 export const ForecastingContainer = () => {
   // Set initial dates to show our 2024 data
@@ -249,113 +251,175 @@ export const ForecastingContainer = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
-      <div className="grid gap-6">
-        <div className="flex justify-between items-center">
-          <ForecastingHeader
-            selectedModel={selectedModel}
-            setSelectedModel={setSelectedModel}
-            handleExport={handleExport}
-            findBestModel={findBestModel}
-            modelConfigs={modelConfigs}
-          />
-          <DataUploadDialog 
-            module="forecasting"
-            onDataUploaded={handleDataUploaded}
-          />
-        </div>
-
-        <div className="grid gap-4">
-          <ForecastingDateRange
-            fromDate={fromDate}
-            toDate={toDate}
-            setFromDate={setFromDate}
-            setToDate={setToDate}
-          />
-
-          <ForecastFilters
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            selectedRegion={selectedRegion}
-            setSelectedRegion={setSelectedRegion}
-            selectedCity={selectedCity}
-            setSelectedCity={setSelectedCity}
-            selectedChannel={selectedChannel}
-            setSelectedChannel={setSelectedChannel}
-            selectedWarehouse={selectedWarehouse}
-            setSelectedWarehouse={setSelectedWarehouse}
-            selectedL1MainProd={selectedL1MainProd}
-            setSelectedL1MainProd={setSelectedL1MainProd}
-            selectedL2ProdLine={selectedL2ProdLine}
-            setSelectedL2ProdLine={setSelectedL2ProdLine}
-            selectedL3ProdCategory={selectedL3ProdCategory}
-            setSelectedL3ProdCategory={setSelectedL3ProdCategory}
-            selectedL4DeviceMake={selectedL4DeviceMake}
-            setSelectedL4DeviceMake={setSelectedL4DeviceMake}
-            selectedL5ProdSubCategory={selectedL5ProdSubCategory}
-            setSelectedL5ProdSubCategory={setSelectedL5ProdSubCategory}
-            selectedL6DeviceModel={selectedL6DeviceModel}
-            setSelectedL6DeviceModel={setSelectedL6DeviceModel}
-            selectedL7DeviceColor={selectedL7DeviceColor}
-            setSelectedL7DeviceColor={setSelectedL7DeviceColor}
-            selectedL8DeviceStorage={selectedL8DeviceStorage}
-            setSelectedL8DeviceStorage={setSelectedL8DeviceStorage}
-            regions={regions}
-            cities={cities}
-            channelTypes={channelTypes}
-            warehouses={warehouses}
-            forecastData={forecastData}
-          />
-        </div>
-
-        <div className="my-6">
-          <ForecastMetricsCards metrics={metrics} />
-        </div>
-
-        <div className="bg-background rounded-lg shadow-sm p-6">
-          <ForecastingTabs
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-            historicalData={historicalData}
-            filteredData={filteredData}
-            confidenceIntervals={confidenceIntervals}
-            decomposition={decomposition}
-            validationResults={validationResults}
-            crossValidationResults={crossValidationResults}
-            weatherLocation={weatherLocation}
-            setWeatherLocation={setWeatherLocation}
-            weatherData={weatherData}
-            fetchWeatherForecast={fetchWeatherForecast}
-            marketEvents={marketEvents}
-            setMarketEvents={setMarketEvents}
-            newEvent={newEvent}
-            setNewEvent={setNewEvent}
-            priceAnalysis={priceAnalysis}
-            historicalPriceData={historicalPriceData}
-            addHistoricalPricePoint={addHistoricalPricePoint}
-            calculatePriceAnalysis={calculatePriceAnalysis}
-            forecastTableData={forecastTableData}
-          />
-        </div>
-
-        {/* Model Versioning moved here, before scenario management */}
-        <div className="bg-background rounded-lg shadow-sm">
-          <div className="max-w-[1200px] mx-auto">
-            <ModelVersioning modelId={selectedModel} />
+    <div className="container mx-auto p-6">
+      <div className="space-y-8">
+        {/* Step 1: Configuration Header */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <h2 className="text-2xl font-semibold tracking-tight">Demand Forecasting</h2>
+              <p className="text-sm text-muted-foreground">
+                Configure, analyze, and manage your demand forecasts
+              </p>
+            </div>
+            <DataUploadDialog 
+              module="forecasting"
+              onDataUploaded={handleDataUploaded}
+            />
           </div>
-        </div>
+          <Separator />
+        </section>
 
-        <div className="bg-background rounded-lg shadow-sm p-6">
-          <ScenarioManagement
-            scenarioName={scenarioName}
-            setScenarioName={setScenarioName}
-            currentModel={selectedModel}
-            currentHorizon={horizon}
-            currentParameters={modelConfigs}
-            forecastData={filteredData}
-            onScenarioLoad={handleScenarioLoad}
-          />
-        </div>
+        {/* Step 2: Model Selection and Controls */}
+        <Card className="p-6">
+          <div className="space-y-6">
+            <div className="flex items-center gap-2">
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">1</span>
+              <h3 className="text-lg font-semibold">Configure Model</h3>
+            </div>
+            
+            <ForecastingHeader
+              selectedModel={selectedModel}
+              setSelectedModel={setSelectedModel}
+              handleExport={handleExport}
+              findBestModel={findBestModel}
+              modelConfigs={modelConfigs}
+            />
+          </div>
+        </Card>
+
+        {/* Step 3: Data Filters */}
+        <Card className="p-6">
+          <div className="space-y-6">
+            <div className="flex items-center gap-2">
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">2</span>
+              <h3 className="text-lg font-semibold">Select Data Range & Filters</h3>
+            </div>
+
+            <div className="grid gap-6">
+              <ForecastingDateRange
+                fromDate={fromDate}
+                toDate={toDate}
+                setFromDate={setFromDate}
+                setToDate={setToDate}
+              />
+
+              <ForecastFilters
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                selectedRegion={selectedRegion}
+                setSelectedRegion={setSelectedRegion}
+                selectedCity={selectedCity}
+                setSelectedCity={setSelectedCity}
+                selectedChannel={selectedChannel}
+                setSelectedChannel={setSelectedChannel}
+                selectedWarehouse={selectedWarehouse}
+                setSelectedWarehouse={setSelectedWarehouse}
+                selectedL1MainProd={selectedL1MainProd}
+                setSelectedL1MainProd={setSelectedL1MainProd}
+                selectedL2ProdLine={selectedL2ProdLine}
+                setSelectedL2ProdLine={setSelectedL2ProdLine}
+                selectedL3ProdCategory={selectedL3ProdCategory}
+                setSelectedL3ProdCategory={setSelectedL3ProdCategory}
+                selectedL4DeviceMake={selectedL4DeviceMake}
+                setSelectedL4DeviceMake={setSelectedL4DeviceMake}
+                selectedL5ProdSubCategory={selectedL5ProdSubCategory}
+                setSelectedL5ProdSubCategory={setSelectedL5ProdSubCategory}
+                selectedL6DeviceModel={selectedL6DeviceModel}
+                setSelectedL6DeviceModel={setSelectedL6DeviceModel}
+                selectedL7DeviceColor={selectedL7DeviceColor}
+                setSelectedL7DeviceColor={setSelectedL7DeviceColor}
+                selectedL8DeviceStorage={selectedL8DeviceStorage}
+                setSelectedL8DeviceStorage={setSelectedL8DeviceStorage}
+                regions={regions}
+                cities={cities}
+                channelTypes={channelTypes}
+                warehouses={warehouses}
+                forecastData={forecastData}
+              />
+            </div>
+          </div>
+        </Card>
+
+        {/* Step 4: Key Metrics */}
+        <Card className="p-6">
+          <div className="space-y-6">
+            <div className="flex items-center gap-2">
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">3</span>
+              <h3 className="text-lg font-semibold">Key Performance Metrics</h3>
+            </div>
+            
+            <ForecastMetricsCards metrics={metrics} />
+          </div>
+        </Card>
+
+        {/* Step 5: Detailed Analysis */}
+        <Card className="p-6">
+          <div className="space-y-6">
+            <div className="flex items-center gap-2">
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">4</span>
+              <h3 className="text-lg font-semibold">Detailed Analysis</h3>
+            </div>
+
+            <ForecastingTabs
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              historicalData={historicalData}
+              filteredData={filteredData}
+              confidenceIntervals={confidenceIntervals}
+              decomposition={decomposition}
+              validationResults={validationResults}
+              crossValidationResults={crossValidationResults}
+              weatherLocation={weatherLocation}
+              setWeatherLocation={setWeatherLocation}
+              weatherData={weatherData}
+              fetchWeatherForecast={fetchWeatherForecast}
+              marketEvents={marketEvents}
+              setMarketEvents={setMarketEvents}
+              newEvent={newEvent}
+              setNewEvent={setNewEvent}
+              priceAnalysis={priceAnalysis}
+              historicalPriceData={historicalPriceData}
+              addHistoricalPricePoint={addHistoricalPricePoint}
+              calculatePriceAnalysis={calculatePriceAnalysis}
+              forecastTableData={forecastTableData}
+            />
+          </div>
+        </Card>
+
+        {/* Step 6: Version Control */}
+        <Card className="p-6">
+          <div className="space-y-6">
+            <div className="flex items-center gap-2">
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">5</span>
+              <h3 className="text-lg font-semibold">Model Version Control</h3>
+            </div>
+
+            <div className="max-w-[1200px] mx-auto">
+              <ModelVersioning modelId={selectedModel} />
+            </div>
+          </div>
+        </Card>
+
+        {/* Step 7: Scenario Management */}
+        <Card className="p-6">
+          <div className="space-y-6">
+            <div className="flex items-center gap-2">
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">6</span>
+              <h3 className="text-lg font-semibold">Scenario Management</h3>
+            </div>
+
+            <ScenarioManagement
+              scenarioName={scenarioName}
+              setScenarioName={setScenarioName}
+              currentModel={selectedModel}
+              currentHorizon={horizon}
+              currentParameters={modelConfigs}
+              forecastData={filteredData}
+              onScenarioLoad={handleScenarioLoad}
+            />
+          </div>
+        </Card>
       </div>
     </div>
   );
