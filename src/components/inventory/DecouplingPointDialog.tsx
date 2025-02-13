@@ -6,10 +6,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AlertTriangle } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -21,11 +22,19 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { BufferProfile, DecouplingPoint } from '@/types/inventory';
 import { Textarea } from "@/components/ui/textarea";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface DecouplingPointDialogProps {
   locationId: string;
   onSuccess?: () => void;
 }
+
+const TYPE_DESCRIPTIONS = {
+  strategic: "Strategic points act as major inventory hubs. Benchmark: 15-20% of total network nodes.",
+  customer_order: "Customer order points serve direct demand. Benchmark: 30-40% of customer-facing locations.",
+  stock_point: "Stock points maintain optimal inventory levels. Benchmark: 40-50% of distribution nodes.",
+  intermediate: "Intermediate points support internal operations. Benchmark: 10-15% of manufacturing nodes."
+};
 
 export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPointDialogProps) => {
   const { toast } = useToast();
@@ -66,6 +75,15 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.bufferProfileId) {
+      toast({
+        title: "Error",
+        description: "Please select a buffer profile",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -103,10 +121,21 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
       <DialogTrigger asChild>
         <Button variant="outline">Define Decoupling Point</Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Define Decoupling Point</DialogTitle>
+          <DialogDescription>
+            Configure a decoupling point based on supply chain benchmarks and best practices.
+          </DialogDescription>
         </DialogHeader>
+
+        <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Carefully consider the placement of decoupling points as they significantly impact inventory positioning and service levels.
+          </AlertDescription>
+        </Alert>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="type">Type</Label>
@@ -118,10 +147,14 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
                 <SelectValue placeholder="Select type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="strategic">Strategic</SelectItem>
-                <SelectItem value="customer_order">Customer Order</SelectItem>
-                <SelectItem value="stock_point">Stock Point</SelectItem>
-                <SelectItem value="intermediate">Intermediate</SelectItem>
+                {Object.entries(TYPE_DESCRIPTIONS).map(([type, description]) => (
+                  <SelectItem key={type} value={type}>
+                    <div>
+                      <div className="font-medium">{type.replace('_', ' ').toUpperCase()}</div>
+                      <div className="text-sm text-muted-foreground">{description}</div>
+                    </div>
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -138,7 +171,13 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
               <SelectContent>
                 {bufferProfiles.map((profile) => (
                   <SelectItem key={profile.id} value={profile.id}>
-                    {profile.name}
+                    <div>
+                      <div className="font-medium">{profile.name}</div>
+                      <div className="text-sm text-muted-foreground">
+                        Variability: {profile.variabilityFactor.replace('_', ' ')}, 
+                        Lead Time: {profile.leadTimeFactor}
+                      </div>
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -146,12 +185,13 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">Description & Rationale</Label>
             <Textarea
               id="description"
               value={formData.description || ''}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              placeholder="Enter description..."
+              placeholder="Explain the rationale for this decoupling point placement..."
+              className="h-24"
             />
           </div>
 
