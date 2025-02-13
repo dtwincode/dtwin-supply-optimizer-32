@@ -7,7 +7,7 @@ import { WhatIfAnalysisTab } from "@/components/forecasting/tabs/WhatIfAnalysisT
 import { ValidationTab } from "@/components/forecasting/tabs/ValidationTab";
 import { ExternalFactorsTab } from "@/components/forecasting/tabs/ExternalFactorsTab";
 import { Separator } from "@/components/ui/separator";
-import { Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes, Navigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { ProductFilter } from "@/components/forecasting/filters/ProductFilter";
 import { LocationFilter } from "@/components/forecasting/filters/LocationFilter";
@@ -127,6 +127,9 @@ const Forecasting = () => {
     calculatePriceAnalysis: () => {},
     whatIfScenario: []
   };
+
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   return (
     <DashboardLayout>
@@ -317,7 +320,7 @@ const Forecasting = () => {
 
           {/* Routes */}
           <Routes>
-            <Route path="" element={
+            <Route index element={
               <ForecastAnalysisTab 
                 filteredData={dummyData.filteredData}
                 confidenceIntervals={dummyData.confidenceIntervals}
@@ -325,16 +328,7 @@ const Forecasting = () => {
             } />
             <Route path="distribution" element={
               <ForecastDistributionTab 
-                forecastTableData={[{
-                  date: "2024-01-01",
-                  value: 100,
-                  forecast: 105,
-                  sku: "SKU123",
-                  category: "Electronics",
-                  subcategory: "Phones",
-                  variance: 25,
-                  id: "1"
-                }]}
+                forecastTableData={dummyData.forecastTableData}
               />
             } />
             <Route path="pattern" element={
