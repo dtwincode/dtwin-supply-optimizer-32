@@ -18,49 +18,64 @@ interface Location {
   parent_id: string | null;
 }
 
+// Sample data for Saudi Arabia locations
+const sampleLocations: Location[] = [
+  {
+    id: "riyadh_dc",
+    name: "Riyadh Distribution Center",
+    coordinates: { lat: 24.7136, lng: 46.6753 },
+    type: "distribution",
+    level: 1,
+    parent_id: null
+  },
+  {
+    id: "jeddah_dc",
+    name: "Jeddah Distribution Center",
+    coordinates: { lat: 21.5433, lng: 39.1728 },
+    type: "distribution",
+    level: 1,
+    parent_id: null
+  },
+  {
+    id: "dammam_ws",
+    name: "Dammam Wholesale",
+    coordinates: { lat: 26.4207, lng: 50.0888 },
+    type: "wholesale",
+    level: 2,
+    parent_id: "riyadh_dc"
+  },
+  {
+    id: "mecca_ws",
+    name: "Mecca Wholesale",
+    coordinates: { lat: 21.3891, lng: 39.8579 },
+    type: "wholesale",
+    level: 2,
+    parent_id: "jeddah_dc"
+  },
+  {
+    id: "medina_rt",
+    name: "Medina Retail Store",
+    coordinates: { lat: 24.5247, lng: 39.5692 },
+    type: "retail",
+    level: 3,
+    parent_id: "mecca_ws"
+  },
+  {
+    id: "taif_rt",
+    name: "Taif Retail Store",
+    coordinates: { lat: 21.4375, lng: 40.5125 },
+    type: "retail",
+    level: 3,
+    parent_id: "mecca_ws"
+  }
+];
+
 export const SupplyChainMap = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [locations, setLocations] = React.useState<Location[]>([]);
+  const [locations] = React.useState<Location[]>(sampleLocations);
   const [mapboxToken, setMapboxToken] = useState('');
   const [isMapInitialized, setIsMapInitialized] = useState(false);
-
-  useEffect(() => {
-    const fetchLocations = async () => {
-      const { data, error } = await supabase
-        .from('location_hierarchy')
-        .select('location_id, location_description, coordinates, channel, hierarchy_level, parent_id')
-        .eq('active', true);
-
-      if (error) {
-        console.error('Error fetching locations:', error);
-        return;
-      }
-
-      // Transform and type-check the coordinates
-      const transformedLocations = data
-        .filter(loc => loc.coordinates && typeof loc.coordinates === 'object')
-        .map(loc => ({
-          id: loc.location_id,
-          name: loc.location_description || loc.location_id,
-          coordinates: {
-            lat: Number((loc.coordinates as any).lat),
-            lng: Number((loc.coordinates as any).lng)
-          },
-          type: loc.channel,
-          level: loc.hierarchy_level,
-          parent_id: loc.parent_id
-        }))
-        .filter(loc => 
-          !isNaN(loc.coordinates.lat) && 
-          !isNaN(loc.coordinates.lng)
-        );
-
-      setLocations(transformedLocations);
-    };
-
-    fetchLocations();
-  }, []);
 
   const initializeMap = () => {
     if (!mapContainer.current || !locations.length || !mapboxToken || isMapInitialized) return;
