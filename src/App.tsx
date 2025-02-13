@@ -9,7 +9,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import Index from "./pages/index";
 import Auth from "./pages/Auth";
 import Inventory from "./pages/Inventory";
-import Forecasting from "./pages/Forecasting";
+import Forecasting, { ForecastingProvider } from "./pages/Forecasting";
 import Logistics from "./pages/Logistics";
 import SalesPlanning from "./pages/SalesPlanning";
 import Reports from "./pages/Reports";
@@ -39,13 +39,15 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/" element={<Index />} />
               <Route path="/inventory" element={<Inventory />} />
-              <Route path="/forecasting" element={<Forecasting />} />
-              <Route path="/forecasting/forecast" element={<ForecastAnalysisTab />} />
-              <Route path="/forecasting/distribution" element={<ForecastDistributionTab />} />
-              <Route path="/forecasting/decomposition" element={<DecompositionTab />} />
-              <Route path="/forecasting/scenarios" element={<WhatIfAnalysisTab />} />
-              <Route path="/forecasting/validation" element={<ValidationTab />} />
-              <Route path="/forecasting/external" element={<ExternalFactorsTab />} />
+              <Route path="/forecasting" element={<ForecastingProvider />}>
+                <Route index element={<Forecasting />} />
+                <Route path="forecast" element={<ForecastAnalysisTab />} />
+                <Route path="distribution" element={<ForecastDistributionTab />} />
+                <Route path="decomposition" element={<DecompositionTab />} />
+                <Route path="scenarios" element={<WhatIfAnalysisTab />} />
+                <Route path="validation" element={<ValidationTab />} />
+                <Route path="external" element={<ExternalFactorsTab />} />
+              </Route>
               <Route path="/logistics" element={<Logistics />} />
               <Route path="/sales-planning" element={<SalesPlanning />} />
               <Route path="/marketing" element={<Marketing />} />
