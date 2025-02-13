@@ -1,8 +1,12 @@
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import { CalendarIcon, ChevronDown } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import {
@@ -29,7 +33,6 @@ export const ForecastingDateRange = ({
   setFromDate,
   setToDate,
 }: ForecastingDateRangeProps) => {
-  const [isOpen, setIsOpen] = useState(false);
   const [selectionType, setSelectionType] = useState<"date" | "period" | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("weekly");
   const [periodCount, setPeriodCount] = useState<string>("4");
@@ -70,8 +73,8 @@ export const ForecastingDateRange = ({
 
   return (
     <div className="relative">
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
-        <PopoverTrigger asChild>
+      <HoverCard>
+        <HoverCardTrigger asChild>
           <Button
             variant="outline"
             className={cn(
@@ -83,14 +86,10 @@ export const ForecastingDateRange = ({
               <CalendarIcon className="h-4 w-4" />
               <span>{selectedDateRange}</span>
             </div>
-            {isOpen ? (
-              <ChevronUp className="h-4 w-4 opacity-50" />
-            ) : (
-              <ChevronDown className="h-4 w-4 opacity-50" />
-            )}
+            <ChevronDown className="h-4 w-4 opacity-50" />
           </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-full p-4" align="start">
+        </HoverCardTrigger>
+        <HoverCardContent className="w-[400px] p-4" align="start">
           <div className="space-y-4">
             <div>
               <h3 className="font-medium mb-2">Select Time Range</h3>
@@ -110,8 +109,8 @@ export const ForecastingDateRange = ({
 
             {selectionType === "date" ? (
               <div className="flex gap-2">
-                <Popover>
-                  <PopoverTrigger asChild>
+                <HoverCard>
+                  <HoverCardTrigger asChild>
                     <Button
                       variant="outline"
                       className={cn(
@@ -122,19 +121,19 @@ export const ForecastingDateRange = ({
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {fromDate ? format(fromDate, "MMM dd, yyyy") : "Start date"}
                     </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
+                  </HoverCardTrigger>
+                  <HoverCardContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
                       selected={fromDate}
                       onSelect={(date) => date && setFromDate(date)}
                       initialFocus
                     />
-                  </PopoverContent>
-                </Popover>
+                  </HoverCardContent>
+                </HoverCard>
 
-                <Popover>
-                  <PopoverTrigger asChild>
+                <HoverCard>
+                  <HoverCardTrigger asChild>
                     <Button
                       variant="outline"
                       className={cn(
@@ -145,22 +144,17 @@ export const ForecastingDateRange = ({
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {toDate ? format(toDate, "MMM dd, yyyy") : "End date"}
                     </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
+                  </HoverCardTrigger>
+                  <HoverCardContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
                       selected={toDate}
-                      onSelect={(date) => {
-                        if (date) {
-                          setToDate(date);
-                          setIsOpen(false);
-                        }
-                      }}
+                      onSelect={(date) => date && setToDate(date)}
                       initialFocus
                       fromDate={fromDate}
                     />
-                  </PopoverContent>
-                </Popover>
+                  </HoverCardContent>
+                </HoverCard>
               </div>
             ) : selectionType === "period" ? (
               <div className="flex gap-2">
@@ -178,10 +172,7 @@ export const ForecastingDateRange = ({
 
                 <Select 
                   value={periodCount} 
-                  onValueChange={(value) => {
-                    handlePeriodCountChange(value);
-                    setIsOpen(false);
-                  }}
+                  onValueChange={handlePeriodCountChange}
                 >
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Select count" />
@@ -199,8 +190,8 @@ export const ForecastingDateRange = ({
               </div>
             ) : null}
           </div>
-        </PopoverContent>
-      </Popover>
+        </HoverCardContent>
+      </HoverCard>
     </div>
   );
 };
