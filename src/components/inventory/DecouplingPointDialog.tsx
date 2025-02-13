@@ -23,6 +23,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { BufferProfile, DecouplingPoint } from '@/types/inventory';
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface DecouplingPointDialogProps {
   locationId: string;
@@ -134,94 +135,98 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
       <DialogTrigger asChild>
         <Button variant="outline">Define Decoupling Point</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader className="space-y-1.5">
-          <DialogTitle>Define Decoupling Point</DialogTitle>
-          <DialogDescription>
-            Configure a decoupling point based on supply chain benchmarks.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-[425px] max-h-[90vh] p-0">
+        <ScrollArea className="max-h-[90vh] overflow-y-auto">
+          <div className="p-6 space-y-4">
+            <DialogHeader className="space-y-1.5">
+              <DialogTitle>Define Decoupling Point</DialogTitle>
+              <DialogDescription>
+                Configure a decoupling point based on supply chain benchmarks.
+              </DialogDescription>
+            </DialogHeader>
 
-        <Alert variant="default" className="py-2">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            Consider placement impact on inventory positioning
-          </AlertDescription>
-        </Alert>
+            <Alert variant="default" className="py-2">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                Consider placement impact on inventory positioning
+              </AlertDescription>
+            </Alert>
 
-        <form onSubmit={handleSubmit} className="grid gap-3">
-          <div className="grid gap-2">
-            <Label htmlFor="location">Location</Label>
-            <Select
-              value={formData.locationId}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, locationId: value }))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select location" />
-              </SelectTrigger>
-              <SelectContent>
-                {locations.map((location) => (
-                  <SelectItem key={location.id} value={location.id}>
-                    {location.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="location">Location</Label>
+                <Select
+                  value={formData.locationId}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, locationId: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {locations.map((location) => (
+                      <SelectItem key={location.id} value={location.id}>
+                        {location.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="type">Type</Label>
+                <Select
+                  value={formData.type}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, type: value as DecouplingPoint['type'] }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(TYPE_DESCRIPTIONS).map(([type, description]) => (
+                      <SelectItem key={type} value={type}>
+                        {description}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="bufferProfile">Buffer Profile</Label>
+                <Select
+                  value={formData.bufferProfileId}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, bufferProfileId: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select buffer profile" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {bufferProfiles.map((profile) => (
+                      <SelectItem key={profile.id} value={profile.id}>
+                        {profile.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Description & Rationale</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Explain the rationale for this decoupling point placement..."
+                  className="h-16 resize-none"
+                />
+              </div>
+
+              <Button type="submit" disabled={isSubmitting} className="w-full">
+                {isSubmitting ? "Creating..." : "Create Decoupling Point"}
+              </Button>
+            </form>
           </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="type">Type</Label>
-            <Select
-              value={formData.type}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, type: value as DecouplingPoint['type'] }))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select type" />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(TYPE_DESCRIPTIONS).map(([type, description]) => (
-                  <SelectItem key={type} value={type}>
-                    {description}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="bufferProfile">Buffer Profile</Label>
-            <Select
-              value={formData.bufferProfileId}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, bufferProfileId: value }))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select buffer profile" />
-              </SelectTrigger>
-              <SelectContent>
-                {bufferProfiles.map((profile) => (
-                  <SelectItem key={profile.id} value={profile.id}>
-                    {profile.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="description">Description & Rationale</Label>
-            <Textarea
-              id="description"
-              value={formData.description || ''}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              placeholder="Explain the rationale for this decoupling point placement..."
-              className="h-16 resize-none"
-            />
-          </div>
-
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Creating..." : "Create Decoupling Point"}
-          </Button>
-        </form>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
