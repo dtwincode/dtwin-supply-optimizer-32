@@ -2,19 +2,29 @@ import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { ForecastChart } from "@/components/forecasting/ForecastChart";
 import { ForecastTable } from "@/components/forecasting/ForecastTable";
-import { format, parseISO, addWeeks } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { ModelSelectionCard } from "@/components/forecasting/ModelSelectionCard";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
-import { Download, Upload, AlertTriangle, X } from "lucide-react";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Download, Upload, Info, X, ChevronRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { SavedModelConfig, ModelParameter } from "@/types/models/commonTypes";
-import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface ForecastDistributionTabProps {
   forecastTableData: Array<{
@@ -38,6 +48,7 @@ export const ForecastDistributionTab = ({
   const [selectedConfigId, setSelectedConfigId] = useState<string | null>(null);
   const [forecastTableData, setForecastTableData] = useState(initialForecastData);
   const [alertThreshold, setAlertThreshold] = useState(15);
+  const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -315,39 +326,92 @@ export const ForecastDistributionTab = ({
           </div>
 
           <div className="space-y-2">
-            <Label>Saved Configurations</Label>
-            <div className="flex flex-col gap-2">
-              {savedConfigs.map((config) => (
-                <div 
-                  key={config.id}
-                  className={`flex items-center justify-between p-2 border rounded-lg ${
-                    selectedConfigId === config.id ? 'bg-secondary' : 'bg-background'
-                  }`}
-                >
-                  <button
-                    className="flex-1 text-left px-2"
-                    onClick={() => {
-                      setSelectedConfigId(config.id);
-                      setSelectedModel(config.modelId);
-                      setAutoRun(config.autoRun);
-                    }}
-                  >
-                    {config.productName}
-                  </button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDeleteConfiguration(config.id)}
-                    className="h-8 w-8 p-0 hover:bg-destructive hover:text-destructive-foreground"
-                  >
-                    <X className="h-4 w-4" />
+            <div className="flex items-center justify-between">
+              <Label>Saved Configurations</Label>
+              <Dialog open={isConfigDialogOpen} onOpenChange={setIsConfigDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    View Configurations
                   </Button>
-                </div>
-              ))}
-              {savedConfigs.length === 0 && (
-                <p className="text-muted-foreground text-sm p-2">No saved configurations</p>
-              )}
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Saved Model Configurations</DialogTitle>
+                  </DialogHeader>
+                  <ScrollArea className="h-[400px] pr-4">
+                    <div className="space-y-2">
+                      {savedConfigs.map((config) => (
+                        <Card
+                          key={config.id}
+                          className={`p-4 ${
+                            selectedConfigId === config.id ? 'border-primary' : ''
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <h4 className="font-medium">{config.productName}</h4>
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                                      <Info className="h-4 w-4" />
+                                    </Button>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-80">
+                                    <div className="space-y-2">
+                                      <h5 className="font-medium">Configuration Details</h5>
+                                      <div className="text-sm">
+                                        <p><span className="font-medium">Model:</span> {config.modelId}</p>
+                                        <p><span className="font-medium">Auto-run:</span> {config.autoRun ? 'Yes' : 'No'}</p>
+                                        <p><span className="font-medium">ID:</span> {config.productId}</p>
+                                      </div>
+                                    </div>
+                                  </PopoverContent>
+                                </Popover>
+                              </div>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                Model: {config.modelId}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedConfigId(config.id);
+                                  setSelectedModel(config.modelId);
+                                  setAutoRun(config.autoRun);
+                                  setIsConfigDialogOpen(false);
+                                }}
+                              >
+                                Select
+                                <ChevronRight className="ml-2 h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleDeleteConfiguration(config.id)}
+                                className="h-8 w-8 hover:bg-destructive hover:text-destructive-foreground"
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+                      {savedConfigs.length === 0 && (
+                        <p className="text-muted-foreground text-sm p-2">No saved configurations</p>
+                      )}
+                    </div>
+                  </ScrollArea>
+                </DialogContent>
+              </Dialog>
             </div>
+            {selectedConfigId && (
+              <div className="text-sm text-muted-foreground">
+                Selected: {savedConfigs.find(c => c.id === selectedConfigId)?.productName}
+              </div>
+            )}
           </div>
 
           <ModelSelectionCard
