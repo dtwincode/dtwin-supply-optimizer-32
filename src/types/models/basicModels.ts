@@ -17,8 +17,30 @@ export const basicModels: ModelConfig[] = [
     ]
   },
   {
-    id: "exp-smoothing",
-    name: "Exponential Smoothing",
+    id: "weighted-ma",
+    name: "Weighted Moving Average",
+    parameters: [
+      {
+        name: "windowSize",
+        value: 3,
+        min: 2,
+        max: 12,
+        step: 1,
+        description: "Number of periods to include in the weighted moving average"
+      },
+      {
+        name: "decayFactor",
+        value: 0.2,
+        min: 0.1,
+        max: 0.9,
+        step: 0.1,
+        description: "Weight decay factor for older observations"
+      }
+    ]
+  },
+  {
+    id: "single-exp",
+    name: "Single Exponential Smoothing",
     parameters: [
       {
         name: "alpha",
@@ -26,7 +48,21 @@ export const basicModels: ModelConfig[] = [
         min: 0,
         max: 1,
         step: 0.1,
-        description: "Smoothing factor for level (α)"
+        description: "Smoothing factor (α) for level"
+      }
+    ]
+  },
+  {
+    id: "double-exp",
+    name: "Double Exponential Smoothing",
+    parameters: [
+      {
+        name: "alpha",
+        value: 0.3,
+        min: 0,
+        max: 1,
+        step: 0.1,
+        description: "Smoothing factor (α) for level"
       },
       {
         name: "beta",
@@ -34,7 +70,29 @@ export const basicModels: ModelConfig[] = [
         min: 0,
         max: 1,
         step: 0.1,
-        description: "Smoothing factor for trend (β)"
+        description: "Smoothing factor (β) for trend"
+      }
+    ]
+  },
+  {
+    id: "triple-exp",
+    name: "Triple Exponential Smoothing",
+    parameters: [
+      {
+        name: "alpha",
+        value: 0.3,
+        min: 0,
+        max: 1,
+        step: 0.1,
+        description: "Smoothing factor (α) for level"
+      },
+      {
+        name: "beta",
+        value: 0.1,
+        min: 0,
+        max: 1,
+        step: 0.1,
+        description: "Smoothing factor (β) for trend"
       },
       {
         name: "gamma",
@@ -42,7 +100,15 @@ export const basicModels: ModelConfig[] = [
         min: 0,
         max: 1,
         step: 0.1,
-        description: "Smoothing factor for seasonality (γ)"
+        description: "Smoothing factor (γ) for seasonality"
+      },
+      {
+        name: "seasonalPeriods",
+        value: 12,
+        min: 2,
+        max: 52,
+        step: 1,
+        description: "Number of periods in a seasonal cycle"
       }
     ]
   },

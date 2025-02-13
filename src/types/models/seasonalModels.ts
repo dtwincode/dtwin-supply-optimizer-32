@@ -37,14 +37,6 @@ export const seasonalModels: ModelConfig[] = [
         max: 1,
         step: 1,
         description: "Seasonality mode (0: additive, 1: multiplicative)"
-      },
-      {
-        name: "growthCeiling",
-        value: 1000,
-        min: 100,
-        max: 10000,
-        step: 100,
-        description: "Maximum capacity for logistic growth"
       }
     ]
   },
@@ -129,28 +121,14 @@ export const seasonalModels: ModelConfig[] = [
         max: 5,
         step: 1,
         description: "Number of harmonic terms"
-      }
-    ]
-  },
-  {
-    id: "var",
-    name: "Vector Autoregression (VAR)",
-    parameters: [
-      {
-        name: "p",
-        value: 1,
-        min: 1,
-        max: 10,
-        step: 1,
-        description: "Order of VAR model"
       },
       {
-        name: "deterministic",
-        value: 1,
-        min: 0,
-        max: 2,
+        name: "seasonalPeriods",
+        value: 12,
+        min: 2,
+        max: 52,
         step: 1,
-        description: "Deterministic terms (0: none, 1: constant, 2: trend)"
+        description: "Number of periods in seasonal pattern"
       }
     ]
   }
