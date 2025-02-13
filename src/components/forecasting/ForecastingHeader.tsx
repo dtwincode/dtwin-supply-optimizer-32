@@ -10,16 +10,20 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { ModelParametersDialog } from "./ModelParametersDialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ModelConfig } from "@/types/models/commonTypes";
 import { Card } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ActiveModel {
   id: string;
-  name: string;
-  isRunning: boolean;
-  lastRun?: Date;
+  model_id: string;
+  model_name: string;
+  is_running: boolean;
+  last_run?: Date;
+  product_filters: Record<string, any>;
+  model_parameters: Record<string, any>;
 }
 
 interface ForecastingHeaderProps {
@@ -38,12 +42,56 @@ export const ForecastingHeader = ({
   modelConfigs,
 }: ForecastingHeaderProps) => {
   const [activeModels, setActiveModels] = useState<ActiveModel[]>([]);
-  
-  const handleModelActivation = () => {
+
+  // Fetch active models on component mount
+  useEffect(() => {
+    const fetchActiveModels = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('active_models')
+          .select('*');
+
+        if (error) throw error;
+        setActiveModels(data || []);
+      } catch (error) {
+        console.error('Error fetching active models:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to fetch active models",
+        });
+      }
+    };
+
+    fetchActiveModels();
+
+    // Subscribe to realtime updates
+    const channel = supabase
+      .channel('active_models_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'active_models'
+        },
+        (payload) => {
+          console.log('Realtime update:', payload);
+          fetchActiveModels(); // Refresh the list when changes occur
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const handleModelActivation = async () => {
     const modelConfig = modelConfigs.find(m => m.id === selectedModel);
     if (!modelConfig) return;
 
-    const isAlreadyActive = activeModels.some(m => m.id === selectedModel);
+    const isAlreadyActive = activeModels.some(m => m.model_id === selectedModel);
     if (isAlreadyActive) {
       toast({
         title: "Model Already Active",
@@ -52,33 +100,77 @@ export const ForecastingHeader = ({
       return;
     }
 
-    setActiveModels(prev => [...prev, {
-      id: selectedModel,
-      name: modelConfig.name,
-      isRunning: true,
-      lastRun: new Date()
-    }]);
+    try {
+      const { data, error } = await supabase
+        .from('active_models')
+        .insert({
+          model_id: selectedModel,
+          model_name: modelConfig.name,
+          is_running: true,
+          product_filters: {},
+          model_parameters: modelConfig.parameters
+        })
+        .select()
+        .single();
 
-    toast({
-      title: "Model Activated",
-      description: `${modelConfig.name} has been added to active models.`,
-    });
+      if (error) throw error;
+
+      toast({
+        title: "Model Activated",
+        description: `${modelConfig.name} has been added to active models.`,
+      });
+    } catch (error) {
+      console.error('Error activating model:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to activate model",
+      });
+    }
   };
 
-  const toggleModelRunning = (modelId: string) => {
-    setActiveModels(prev => prev.map(model => 
-      model.id === modelId 
-        ? { ...model, isRunning: !model.isRunning }
-        : model
-    ));
+  const toggleModelRunning = async (modelId: string) => {
+    const model = activeModels.find(m => m.id === modelId);
+    if (!model) return;
+
+    try {
+      const { error } = await supabase
+        .from('active_models')
+        .update({ is_running: !model.is_running })
+        .eq('id', modelId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error toggling model:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update model status",
+      });
+    }
   };
 
-  const removeActiveModel = (modelId: string) => {
-    setActiveModels(prev => prev.filter(model => model.id !== modelId));
-    toast({
-      title: "Model Removed",
-      description: "The model has been removed from active models.",
-    });
+  const removeActiveModel = async (modelId: string) => {
+    try {
+      const { error } = await supabase
+        .from('active_models')
+        .delete()
+        .eq('id', modelId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Model Removed",
+        description: "The model has been removed from active models.",
+      });
+    } catch (error) {
+      console.error('Error removing model:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to remove model",
+      });
+    }
   };
 
   return (
@@ -138,14 +230,14 @@ export const ForecastingHeader = ({
               <Card key={model.id} className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <p className="font-medium">{model.name}</p>
+                    <p className="font-medium">{model.model_name}</p>
                     <p className="text-xs text-muted-foreground">
-                      Last run: {model.lastRun?.toLocaleTimeString()}
+                      Last run: {new Date(model.last_run || '').toLocaleTimeString()}
                     </p>
                   </div>
                   <div className="flex items-center gap-4">
                     <Switch
-                      checked={model.isRunning}
+                      checked={model.is_running}
                       onCheckedChange={() => toggleModelRunning(model.id)}
                     />
                     <Button
