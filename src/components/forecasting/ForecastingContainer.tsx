@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ForecastMetricsCards } from "./ForecastMetricsCards";
@@ -352,17 +353,36 @@ export const ForecastingContainer = () => {
           </div>
         </Card>
 
-        {/* Step 5: Analysis Content */}
+        {/* Step 5: Detailed Analysis */}
         <Card className="p-6">
           <div className="space-y-6">
             <div className="flex items-center gap-2">
               <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">4</span>
-              <h3 className="text-lg font-semibold">Forecast Analysis</h3>
+              <h3 className="text-lg font-semibold">Detailed Analysis</h3>
             </div>
 
-            <ForecastAnalysisTab
+            <ForecastingTabs
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              historicalData={historicalData}
               filteredData={filteredData}
               confidenceIntervals={confidenceIntervals}
+              decomposition={decomposition}
+              validationResults={validationResults}
+              crossValidationResults={crossValidationResults}
+              weatherLocation={weatherLocation}
+              setWeatherLocation={setWeatherLocation}
+              weatherData={weatherData}
+              fetchWeatherForecast={fetchWeatherForecast}
+              marketEvents={marketEvents}
+              setMarketEvents={setMarketEvents}
+              newEvent={newEvent}
+              setNewEvent={setNewEvent}
+              priceAnalysis={priceAnalysis}
+              historicalPriceData={historicalPriceData}
+              addHistoricalPricePoint={addHistoricalPricePoint}
+              calculatePriceAnalysis={calculatePriceAnalysis}
+              forecastTableData={forecastTableData}
             />
           </div>
         </Card>
@@ -400,28 +420,6 @@ export const ForecastingContainer = () => {
             />
           </div>
         </Card>
-      </div>
-    </div>
-  );
-};
-
-const ForecastAnalysisTab = ({ filteredData, confidenceIntervals }) => {
-  return (
-    <div>
-      <h3 className="text-lg font-semibold">Forecast Analysis</h3>
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">1</span>
-          <h4 className="text-md font-semibold">Historical Data</h4>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">2</span>
-          <h4 className="text-md font-semibold">Forecasted Data</h4>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">3</span>
-          <h4 className="text-md font-semibold">Confidence Intervals</h4>
-        </div>
       </div>
     </div>
   );
