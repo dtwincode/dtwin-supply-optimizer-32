@@ -10,12 +10,11 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
-import { Download, Upload, AlertTriangle } from "lucide-react";
+import { Download, Upload, AlertTriangle, X } from "lucide-react";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { SavedModelConfig, ModelParameter } from "@/types/models/commonTypes";
 import { Input } from "@/components/ui/input";
-import { X } from "lucide-react";
 
 interface ForecastDistributionTabProps {
   forecastTableData: Array<{
@@ -42,41 +41,38 @@ export const ForecastDistributionTab = ({
   const { toast } = useToast();
 
   useEffect(() => {
-    const loadSavedConfigs = async () => {
-      const { data, error } = await supabase
-        .from('saved_model_configs')
-        .select('*');
-
-      if (error) {
-        console.error('Error loading configurations:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load saved configurations",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      if (data) {
-        const configs: SavedModelConfig[] = data.map(config => ({
-          id: config.id,
-          productId: config.product_id,
-          productName: config.product_name,
-          modelId: config.model_id,
-          parameters: [] as ModelParameter[],  // Fixed type issue
-          autoRun: config.auto_run
-        }));
-        setSavedConfigs(configs);
-      }
-    };
-
     loadSavedConfigs();
   }, []);
 
-  const handleDeleteConfiguration = async (configId: string, event: React.MouseEvent) => {
-    event.preventDefault(); // Prevent any default select behavior
-    event.stopPropagation(); // Prevent the select from closing
+  const loadSavedConfigs = async () => {
+    const { data, error } = await supabase
+      .from('saved_model_configs')
+      .select('*');
 
+    if (error) {
+      console.error('Error loading configurations:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load saved configurations",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (data) {
+      const configs: SavedModelConfig[] = data.map(config => ({
+        id: config.id,
+        productId: config.product_id,
+        productName: config.product_name,
+        modelId: config.model_id,
+        parameters: [],
+        autoRun: config.auto_run
+      }));
+      setSavedConfigs(configs);
+    }
+  };
+
+  const handleDeleteConfiguration = async (configId: string) => {
     try {
       const { error } = await supabase
         .from('saved_model_configs')
@@ -86,6 +82,7 @@ export const ForecastDistributionTab = ({
       if (error) throw error;
 
       setSavedConfigs(prev => prev.filter(config => config.id !== configId));
+      
       if (selectedConfigId === configId) {
         setSelectedConfigId(null);
       }
@@ -319,46 +316,38 @@ export const ForecastDistributionTab = ({
 
           <div className="space-y-2">
             <Label>Saved Configurations</Label>
-            <Select
-              value={selectedConfigId || ""}
-              onValueChange={(value) => {
-                setSelectedConfigId(value);
-                const config = savedConfigs.find(c => c.id === value);
-                if (config) {
-                  setSelectedModel(config.modelId);
-                  setAutoRun(config.autoRun);
-                }
-              }}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a configuration" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {savedConfigs.map((config) => (
-                    <SelectItem 
-                      key={config.id} 
-                      value={config.id}
-                      className="flex items-center justify-between"
-                    >
-                      <div className="flex items-center justify-between w-full gap-2">
-                        <span>{config.productName}</span>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6 p-0 ml-auto hover:bg-destructive hover:text-destructive-foreground shrink-0"
-                          onClick={(e) => handleDeleteConfiguration(config.id, e)}
-                          aria-label="Delete configuration"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+            <div className="flex flex-col gap-2">
+              {savedConfigs.map((config) => (
+                <div 
+                  key={config.id}
+                  className={`flex items-center justify-between p-2 border rounded-lg ${
+                    selectedConfigId === config.id ? 'bg-secondary' : 'bg-background'
+                  }`}
+                >
+                  <button
+                    className="flex-1 text-left px-2"
+                    onClick={() => {
+                      setSelectedConfigId(config.id);
+                      setSelectedModel(config.modelId);
+                      setAutoRun(config.autoRun);
+                    }}
+                  >
+                    {config.productName}
+                  </button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDeleteConfiguration(config.id)}
+                    className="h-8 w-8 p-0 hover:bg-destructive hover:text-destructive-foreground"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+              {savedConfigs.length === 0 && (
+                <p className="text-muted-foreground text-sm p-2">No saved configurations</p>
+              )}
+            </div>
           </div>
 
           <ModelSelectionCard
