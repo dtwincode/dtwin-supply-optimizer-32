@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Eye, EyeOff } from "lucide-react";
 import { useState, useMemo } from "react";
 import { format, isAfter, isBefore, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -128,16 +128,21 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
 
   return (
     <Card className="p-6 h-full">
-      <div className="flex flex-col gap-4">
-        <div className="flex justify-between items-center flex-wrap gap-4">
+      <div className="flex flex-col gap-6">
+        <div className="flex justify-between items-start flex-wrap gap-4">
           <h3 className="text-lg font-semibold">Demand Forecast</h3>
-          <div className="flex flex-col gap-4">
-            <div className="flex gap-2">
+          
+          <div className="flex flex-col gap-4 w-full max-w-[600px]">
+            <div className="p-4 bg-gray-50 rounded-lg space-y-4">
+              <div className="flex items-center gap-2 mb-2">
+                <h4 className="text-sm font-medium text-gray-700">Time Range Selection</h4>
+              </div>
+              
               <Select
                 value={selectionType || undefined}
                 onValueChange={(value: "date" | "period") => setSelectionType(value)}
               >
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-full bg-white">
                   <SelectValue placeholder="Select time type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -145,105 +150,120 @@ export const ForecastChart = ({ data, confidenceIntervals }: ForecastChartProps)
                   <SelectItem value="period">Time Period</SelectItem>
                 </SelectContent>
               </Select>
+
+              {selectionType === "date" && (
+                <div className="flex gap-2 flex-wrap">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-[180px] justify-start text-left font-normal bg-white",
+                          !fromDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {fromDate ? format(fromDate, "MMM dd, yyyy") : "From date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={fromDate}
+                        onSelect={setFromDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-[180px] justify-start text-left font-normal bg-white",
+                          !toDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {toDate ? format(toDate, "MMM dd, yyyy") : "To date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={toDate}
+                        onSelect={setToDate}
+                        initialFocus
+                        fromDate={fromDate}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              )}
+
+              {selectionType === "period" && (
+                <div className="flex gap-2 flex-wrap">
+                  <Select value={selectedPeriod} onValueChange={handlePeriodChange}>
+                    <SelectTrigger className="w-[180px] bg-white">
+                      <SelectValue placeholder="Select period" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="weekly">Weekly</SelectItem>
+                      <SelectItem value="monthly">Monthly</SelectItem>
+                      <SelectItem value="quarterly">Quarterly</SelectItem>
+                      <SelectItem value="yearly">Yearly</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <Select value={periodCount} onValueChange={handlePeriodCountChange}>
+                    <SelectTrigger className="w-[180px] bg-white">
+                      <SelectValue placeholder="Select count" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[1, 2, 3, 4, 6, 8, 12, 24, 36].map((num) => (
+                        <SelectItem key={num} value={num.toString()}>
+                          Last {num} {selectedPeriod === "weekly" ? "weeks" : 
+                                    selectedPeriod === "monthly" ? "months" :
+                                    selectedPeriod === "quarterly" ? "quarters" : "years"}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
 
-            {selectionType === "date" && (
-              <div className="flex gap-2">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-[180px] justify-start text-left font-normal",
-                        !fromDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {fromDate ? format(fromDate, "MMM dd, yyyy") : "Select date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={fromDate}
-                      onSelect={setFromDate}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-[180px] justify-start text-left font-normal",
-                        !toDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {toDate ? format(toDate, "MMM dd, yyyy") : "Select date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={toDate}
-                      onSelect={setToDate}
-                      initialFocus
-                      fromDate={fromDate}
-                    />
-                  </PopoverContent>
-                </Popover>
+            <div className="flex gap-4 flex-wrap">
+              <div className="p-4 bg-gray-50 rounded-lg flex-1">
+                <h4 className="text-sm font-medium text-gray-700 mb-3">Visualization Options</h4>
+                <div className="flex gap-3 flex-wrap">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      "bg-white",
+                      showConfidenceIntervals && "bg-primary/10"
+                    )}
+                    onClick={() => setShowConfidenceIntervals(!showConfidenceIntervals)}
+                  >
+                    {showConfidenceIntervals ? <EyeOff className="mr-2 h-4 w-4" /> : <Eye className="mr-2 h-4 w-4" />}
+                    {showConfidenceIntervals ? "Hide" : "Show"} Confidence Intervals
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      "bg-white",
+                      showOutliers && "bg-primary/10"
+                    )}
+                    onClick={() => setShowOutliers(!showOutliers)}
+                  >
+                    {showOutliers ? <EyeOff className="mr-2 h-4 w-4" /> : <Eye className="mr-2 h-4 w-4" />}
+                    {showOutliers ? "Hide" : "Show"} Outliers
+                  </Button>
+                </div>
               </div>
-            )}
-
-            {selectionType === "period" && (
-              <div className="flex gap-2">
-                <Select value={selectedPeriod} onValueChange={handlePeriodChange}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Select period" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="weekly">Weekly</SelectItem>
-                    <SelectItem value="monthly">Monthly</SelectItem>
-                    <SelectItem value="quarterly">Quarterly</SelectItem>
-                    <SelectItem value="yearly">Yearly</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select value={periodCount} onValueChange={handlePeriodCountChange}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Select count" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[1, 2, 3, 4, 6, 8, 12, 24, 36].map((num) => (
-                      <SelectItem key={num} value={num.toString()}>
-                        Last {num} {selectedPeriod === "weekly" ? "weeks" : 
-                                  selectedPeriod === "monthly" ? "months" :
-                                  selectedPeriod === "quarterly" ? "quarters" : "years"}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowConfidenceIntervals(!showConfidenceIntervals)}
-              >
-                {showConfidenceIntervals ? "Hide" : "Show"} CI
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowOutliers(!showOutliers)}
-              >
-                {showOutliers ? "Hide" : "Show"} Outliers
-              </Button>
             </div>
           </div>
         </div>
