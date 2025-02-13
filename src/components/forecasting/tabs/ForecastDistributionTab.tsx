@@ -100,7 +100,6 @@ export const ForecastDistributionTab = ({
     if (selectedConfig) {
       setSelectedModel(selectedConfig.modelId);
       setAutoRun(selectedConfig.autoRun);
-      // Here you would also update the chart and table data based on the selected configuration
       toast({
         title: "Configuration Loaded",
         description: `Loaded forecast configuration for ${selectedConfig.productName}`
@@ -179,9 +178,9 @@ export const ForecastDistributionTab = ({
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-4 bg-background">
       {/* Model Selection Section */}
-      <Card className="p-6">
+      <Card className="p-6 border shadow-sm">
         <div className="space-y-4">
           <div className="space-y-2">
             <h3 className="text-2xl font-bold">Step 1: Select Model</h3>
@@ -192,12 +191,12 @@ export const ForecastDistributionTab = ({
 
           {savedConfigs.length > 0 && (
             <div className="space-y-2">
-              <Label>View Saved Configuration</Label>
+              <Label className="text-base font-medium">View Saved Configuration</Label>
               <Select
                 value={selectedConfigId || ""}
                 onValueChange={handleConfigSelect}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full h-10">
                   <SelectValue placeholder="Select a saved configuration" />
                 </SelectTrigger>
                 <SelectContent>
@@ -214,13 +213,15 @@ export const ForecastDistributionTab = ({
             </div>
           )}
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 py-2">
             <Switch
               id="auto-run"
               checked={autoRun}
               onCheckedChange={setAutoRun}
             />
-            <Label htmlFor="auto-run">Auto-run forecasts when configuration changes</Label>
+            <Label htmlFor="auto-run" className="text-sm">
+              Auto-run forecasts when configuration changes
+            </Label>
           </div>
 
           <div className="mt-6">
@@ -232,7 +233,7 @@ export const ForecastDistributionTab = ({
           </div>
 
           <Button 
-            className="mt-4"
+            className="mt-4 w-full sm:w-auto"
             onClick={handleSaveConfiguration}
           >
             Save Configuration for Current Product
@@ -279,7 +280,7 @@ export const ForecastDistributionTab = ({
       </Card>
 
       {/* Forecast Chart Section */}
-      <Card className="p-6">
+      <Card className="p-6 border shadow-sm">
         <div className="space-y-2">
           <h3 className="text-2xl font-bold">Step 2: Future Forecast Visualization</h3>
           <p className="text-muted-foreground">
@@ -295,7 +296,7 @@ export const ForecastDistributionTab = ({
       </Card>
 
       {/* Forecast Table Section */}
-      <Card className="p-6">
+      <Card className="p-6 border shadow-sm">
         <div className="space-y-2">
           <h3 className="text-2xl font-bold">Step 3: Forecast Distribution Details</h3>
           <p className="text-muted-foreground">
