@@ -330,7 +330,7 @@ export const ForecastDistributionTab = ({
                 }
               }}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select a configuration" />
               </SelectTrigger>
               <SelectContent>
@@ -339,15 +339,17 @@ export const ForecastDistributionTab = ({
                     <SelectItem 
                       key={config.id} 
                       value={config.id}
+                      className="flex items-center justify-between"
                     >
-                      <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center justify-between w-full gap-2">
                         <span>{config.productName}</span>
                         <Button
                           type="button"
                           variant="ghost"
-                          size="sm"
-                          className="ml-2 h-6 w-6 p-0 hover:bg-destructive hover:text-destructive-foreground"
+                          size="icon"
+                          className="h-6 w-6 p-0 ml-auto hover:bg-destructive hover:text-destructive-foreground shrink-0"
                           onClick={(e) => handleDeleteConfiguration(config.id, e)}
+                          aria-label="Delete configuration"
                         >
                           <X className="h-4 w-4" />
                         </Button>
