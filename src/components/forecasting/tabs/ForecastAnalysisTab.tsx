@@ -2,9 +2,12 @@
 import { ForecastChart } from "@/components/forecasting/ForecastChart";
 import { ForecastMetricsCards } from "@/components/forecasting/ForecastMetricsCards";
 import { ModelSelectionCard } from "@/components/forecasting/ModelSelectionCard";
+import { ScenarioManagement } from "@/components/forecasting/ScenarioManagement";
 import { Card } from "@/components/ui/card";
 import { findBestFitModel } from "@/utils/forecasting/modelSelection";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { SavedScenario } from "@/types/forecasting";
 
 interface ForecastAnalysisTabProps {
   filteredData: any[];
@@ -16,8 +19,12 @@ export const ForecastAnalysisTab = ({
   confidenceIntervals
 }: ForecastAnalysisTabProps) => {
   const { toast } = useToast();
+  const [scenarioName, setScenarioName] = useState("");
+  const [selectedModel, setSelectedModel] = useState("moving-avg");
+  const [horizon, setHorizon] = useState("12w");
 
   const handleModelChange = (modelId: string) => {
+    setSelectedModel(modelId);
     console.log("Selected model:", modelId);
     toast({
       title: "Model Changed",
@@ -41,10 +48,20 @@ export const ForecastAnalysisTab = ({
     });
   };
 
+  const handleScenarioLoad = (scenario: SavedScenario) => {
+    setSelectedModel(scenario.model);
+    setHorizon(scenario.horizon);
+    
+    toast({
+      title: "Scenario Loaded",
+      description: `Loaded scenario: ${scenario.name}`,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <ModelSelectionCard
-        selectedModel="moving-avg"
+        selectedModel={selectedModel}
         onModelChange={handleModelChange}
         onOptimize={handleOptimize}
       />
@@ -73,6 +90,16 @@ export const ForecastAnalysisTab = ({
           />
         </div>
       </Card>
+
+      <ScenarioManagement
+        scenarioName={scenarioName}
+        setScenarioName={setScenarioName}
+        currentModel={selectedModel}
+        currentHorizon={horizon}
+        currentParameters={{}}
+        forecastData={filteredData}
+        onScenarioLoad={handleScenarioLoad}
+      />
     </div>
   );
 };
