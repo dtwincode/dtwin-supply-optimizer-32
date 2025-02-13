@@ -13,3 +13,11 @@ export interface ModelConfig {
   name: string;
   parameters: ModelParameter[];
 }
+
+export interface SavedModelConfig {
+  productId: string;
+  productName: string;
+  modelId: string;
+  parameters: ModelParameter[];
+  autoRun: boolean;
+}

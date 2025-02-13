@@ -5,6 +5,21 @@ import { ForecastTable } from "@/components/forecasting/ForecastTable";
 import { format, parseISO, addWeeks } from "date-fns";
 import { useState } from "react";
 import { ModelSelectionCard } from "@/components/forecasting/ModelSelectionCard";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useToast } from "@/hooks/use-toast";
+import { X } from "lucide-react";
+
+interface ModelConfig {
+  productId: string;
+  productName: string;
+  modelId: string;
+  parameters: any[];
+  autoRun: boolean;
+}
 
 interface ForecastDistributionTabProps {
   forecastTableData: Array<{
@@ -23,9 +38,59 @@ export const ForecastDistributionTab = ({
   forecastTableData
 }: ForecastDistributionTabProps) => {
   const [selectedModel, setSelectedModel] = useState<string>("moving-avg");
+  const [autoRun, setAutoRun] = useState(true);
+  const [savedConfigs, setSavedConfigs] = useState<ModelConfig[]>([]);
+  const { toast } = useToast();
   
   const handleModelParametersChange = (modelId: string, parameters: any[]) => {
     console.log('Model parameters updated:', modelId, parameters);
+  };
+
+  const handleSaveConfiguration = () => {
+    // Get the current product from the filter (this would come from your filter state)
+    const currentProduct = {
+      id: "product-x", // This would come from your actual product selection
+      name: "Product X" // This would come from your actual product selection
+    };
+
+    const newConfig: ModelConfig = {
+      productId: currentProduct.id,
+      productName: currentProduct.name,
+      modelId: selectedModel,
+      parameters: [], // This would be populated from your model parameters
+      autoRun: autoRun
+    };
+
+    // Check if configuration for this product already exists
+    const existingConfigIndex = savedConfigs.findIndex(
+      config => config.productId === currentProduct.id
+    );
+
+    if (existingConfigIndex !== -1) {
+      // Update existing configuration
+      const updatedConfigs = [...savedConfigs];
+      updatedConfigs[existingConfigIndex] = newConfig;
+      setSavedConfigs(updatedConfigs);
+      toast({
+        title: "Configuration Updated",
+        description: `Model configuration for ${currentProduct.name} has been updated.`
+      });
+    } else {
+      // Add new configuration
+      setSavedConfigs([...savedConfigs, newConfig]);
+      toast({
+        title: "Configuration Saved",
+        description: `Model configuration for ${currentProduct.name} has been saved.`
+      });
+    }
+  };
+
+  const removeConfiguration = (productId: string) => {
+    setSavedConfigs(savedConfigs.filter(config => config.productId !== productId));
+    toast({
+      title: "Configuration Removed",
+      description: "The model configuration has been removed."
+    });
   };
 
   // Transform the data to include future forecasts
@@ -102,18 +167,68 @@ export const ForecastDistributionTab = ({
     <div className="space-y-8">
       {/* Model Selection Section */}
       <Card className="p-6">
-        <div className="space-y-2">
-          <h3 className="text-2xl font-bold">Step 1: Select Model</h3>
-          <p className="text-muted-foreground">
-            Choose and configure your forecasting model
-          </p>
-        </div>
-        <div className="mt-6">
-          <ModelSelectionCard
-            selectedModel={selectedModel}
-            onModelChange={setSelectedModel}
-            onParametersChange={handleModelParametersChange}
-          />
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <h3 className="text-2xl font-bold">Step 1: Select Model</h3>
+            <p className="text-muted-foreground">
+              Choose and configure your forecasting model
+            </p>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="auto-run"
+              checked={autoRun}
+              onCheckedChange={setAutoRun}
+            />
+            <Label htmlFor="auto-run">Auto-run forecasts when configuration changes</Label>
+          </div>
+
+          <div className="mt-6">
+            <ModelSelectionCard
+              selectedModel={selectedModel}
+              onModelChange={setSelectedModel}
+              onParametersChange={handleModelParametersChange}
+            />
+          </div>
+
+          <Button 
+            className="mt-4"
+            onClick={handleSaveConfiguration}
+          >
+            Save Configuration for Current Product
+          </Button>
+
+          {savedConfigs.length > 0 && (
+            <div className="mt-4">
+              <h4 className="text-sm font-medium mb-2">Saved Configurations</h4>
+              <ScrollArea className="h-[100px] w-full rounded-md border p-4">
+                <div className="space-y-2">
+                  {savedConfigs.map((config) => (
+                    <div 
+                      key={config.productId}
+                      className="flex items-center justify-between bg-secondary/20 rounded-lg p-2"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <span className="font-medium">{config.productName}</span>
+                        <Badge variant="secondary">{config.modelId}</Badge>
+                        {config.autoRun && (
+                          <Badge variant="outline">Auto-run</Badge>
+                        )}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeConfiguration(config.productId)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+          )}
         </div>
       </Card>
 
