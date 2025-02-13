@@ -1,7 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { FileDown, Wand2 } from "lucide-react";
+import { FileDown, Settings } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -10,56 +9,51 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ModelParametersDialog } from "./ModelParametersDialog";
+import { useState } from "react";
 
 interface ForecastingHeaderProps {
   selectedModel: string;
   setSelectedModel: (model: string) => void;
-  handleExport: () => void;
-  findBestModel: () => void;
-  modelConfigs: any[];
+  onExportCSV: () => void;
+  onExportExcel: () => void;
 }
 
 export const ForecastingHeader = ({
   selectedModel,
   setSelectedModel,
-  handleExport,
-  findBestModel,
-  modelConfigs,
+  onExportCSV,
+  onExportExcel,
 }: ForecastingHeaderProps) => {
   return (
-    <div className="flex justify-between items-center">
-      <div className="flex gap-4">
+    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4">
+      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
         <Select value={selectedModel} onValueChange={setSelectedModel}>
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Select Model" />
           </SelectTrigger>
           <SelectContent>
-            {modelConfigs.map(model => (
-              <SelectItem key={model.id} value={model.id}>
-                {model.name}
-              </SelectItem>
-            ))}
+            <SelectItem value="moving-avg">Moving Average</SelectItem>
+            <SelectItem value="exp-smoothing">Exponential Smoothing</SelectItem>
+            <SelectItem value="arima">ARIMA</SelectItem>
+            <SelectItem value="prophet">Prophet</SelectItem>
+            <SelectItem value="sarima">Seasonal ARIMA</SelectItem>
           </SelectContent>
         </Select>
-        {selectedModel && (
-          <ModelParametersDialog
-            model={modelConfigs.find(m => m.id === selectedModel)!}
-            onParametersChange={(modelId, parameters) => {
-              console.log("Parameters updated:", modelId, parameters);
-            }}
-          />
-        )}
-        <Button 
-          variant="outline" 
-          onClick={findBestModel}
-          className="flex items-center gap-2"
-        >
-          <Wand2 className="w-4 h-4" />
-          Find Best Model
+        
+        <Button variant="outline" className="flex items-center gap-2">
+          <Settings className="w-4 h-4" />
+          Parameters
         </Button>
-        <Button variant="outline" onClick={handleExport}>
-          <FileDown className="w-4 h-4 mr-2" />
-          Export
+      </div>
+
+      <div className="flex gap-2">
+        <Button variant="outline" onClick={onExportCSV} className="flex items-center gap-2">
+          <FileDown className="w-4 h-4" />
+          Export CSV
+        </Button>
+        <Button variant="outline" onClick={onExportExcel} className="flex items-center gap-2">
+          <FileDown className="w-4 h-4" />
+          Export Excel
         </Button>
       </div>
     </div>
