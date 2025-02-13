@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { ForecastChart } from "@/components/forecasting/ForecastChart";
 import { ForecastTable } from "@/components/forecasting/ForecastTable";
@@ -54,7 +55,7 @@ export const ForecastDistributionTab = ({
             productId: config.product_id,
             productName: config.product_name,
             modelId: config.model_id,
-            parameters: Array.isArray(config.parameters) ? config.parameters : [],
+            parameters: (config.parameters as unknown as ModelParameter[]) || [],
             autoRun: config.auto_run
           })));
         }
@@ -109,18 +110,39 @@ export const ForecastDistributionTab = ({
     };
 
     try {
+      // First check if the configuration exists
+      const { data: existingConfig } = await supabase
+        .from('saved_model_configs')
+        .select('id')
+        .eq('product_id', currentProduct.id)
+        .single();
+
       const configData = {
         product_id: currentProduct.id,
         product_name: currentProduct.name,
         model_id: selectedModel,
-        parameters: [] as ModelParameter[],
+        parameters: JSON.stringify([]) as any, // Convert to JSON string for storage
         auto_run: autoRun
       };
 
-      const { data, error } = await supabase
-        .from('saved_model_configs')
-        .upsert([configData])
-        .select();
+      let result;
+      
+      if (existingConfig) {
+        // Update existing configuration
+        result = await supabase
+          .from('saved_model_configs')
+          .update(configData)
+          .eq('id', existingConfig.id)
+          .select();
+      } else {
+        // Insert new configuration
+        result = await supabase
+          .from('saved_model_configs')
+          .insert([configData])
+          .select();
+      }
+
+      const { data, error } = result;
 
       if (error) throw error;
 
@@ -130,7 +152,7 @@ export const ForecastDistributionTab = ({
           productId: data[0].product_id,
           productName: data[0].product_name,
           modelId: data[0].model_id,
-          parameters: Array.isArray(data[0].parameters) ? data[0].parameters : [],
+          parameters: (JSON.parse(data[0].parameters || '[]') as ModelParameter[]),
           autoRun: data[0].auto_run
         };
 
