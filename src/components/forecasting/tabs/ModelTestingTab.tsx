@@ -22,12 +22,12 @@ export const ModelTestingTab = ({
   const { testData, generateNewTestData } = useTestData();
 
   // Training period states
-  const [trainingRange, setTrainingRange] = useState<string>("");
+  const [trainingRange, setTrainingRange] = useState<string>("custom");
   const [trainingFromDate, setTrainingFromDate] = useState<Date | null>(null);
   const [trainingToDate, setTrainingToDate] = useState<Date | null>(null);
 
   // Testing period states
-  const [testingRange, setTestingRange] = useState<string>("");
+  const [testingRange, setTestingRange] = useState<string>("custom");
   const [testingFromDate, setTestingFromDate] = useState<Date | null>(null);
   const [testingToDate, setTestingToDate] = useState<Date | null>(null);
 
@@ -70,18 +70,31 @@ export const ModelTestingTab = ({
       case "1y":
         start.setFullYear(now.getFullYear() - 1);
         break;
+      case "custom":
+        if (periodType === 'training') {
+          setTrainingFromDate(null);
+          setTrainingToDate(null);
+        } else {
+          setTestingFromDate(null);
+          setTestingToDate(null);
+        }
+        break;
       default:
         return;
     }
     
     if (periodType === 'training') {
       setTrainingRange(value);
-      setTrainingFromDate(start);
-      setTrainingToDate(now);
+      if (value !== 'custom') {
+        setTrainingFromDate(start);
+        setTrainingToDate(now);
+      }
     } else {
       setTestingRange(value);
-      setTestingFromDate(start);
-      setTestingToDate(now);
+      if (value !== 'custom') {
+        setTestingFromDate(start);
+        setTestingToDate(now);
+      }
     }
   };
 
