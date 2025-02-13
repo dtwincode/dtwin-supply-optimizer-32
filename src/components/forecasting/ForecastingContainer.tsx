@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ForecastMetricsCards } from "./ForecastMetricsCards";
@@ -28,6 +27,7 @@ import { ModelConfig } from "@/types/models/commonTypes";
 import { SavedScenario } from "@/types/forecasting";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const ForecastingContainer = () => {
   // Set initial dates to show our 2024 data
@@ -251,6 +251,144 @@ export const ForecastingContainer = () => {
     });
   };
 
+  const renderMainContent = () => {
+    switch (activeTab) {
+      case "forecast":
+        return (
+          <div className="container py-6 space-y-8">
+            {/* Step 1: Model Selection and Controls */}
+            <Card className="p-6">
+              <div className="space-y-6">
+                <div className="flex items-center gap-2">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">1</span>
+                  <h3 className="text-lg font-semibold">Configure Model</h3>
+                </div>
+                
+                <ForecastingHeader
+                  selectedModel={selectedModel}
+                  setSelectedModel={setSelectedModel}
+                  handleExport={handleExport}
+                  findBestModel={findBestModel}
+                  modelConfigs={modelConfigs}
+                />
+              </div>
+            </Card>
+
+            {/* Step 2: Data Filters */}
+            <Card className="p-6">
+              <div className="space-y-6">
+                <div className="flex items-center gap-2">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">2</span>
+                  <h3 className="text-lg font-semibold">Select Data Range & Filters</h3>
+                </div>
+
+                <div className="grid gap-6">
+                  <ForecastingDateRange
+                    fromDate={fromDate}
+                    toDate={toDate}
+                    setFromDate={setFromDate}
+                    setToDate={setToDate}
+                  />
+
+                  <ForecastFilters
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                    selectedRegion={selectedRegion}
+                    setSelectedRegion={setSelectedRegion}
+                    selectedCity={selectedCity}
+                    setSelectedCity={setSelectedCity}
+                    selectedChannel={selectedChannel}
+                    setSelectedChannel={setSelectedChannel}
+                    selectedWarehouse={selectedWarehouse}
+                    setSelectedWarehouse={setSelectedWarehouse}
+                    selectedL1MainProd={selectedL1MainProd}
+                    setSelectedL1MainProd={setSelectedL1MainProd}
+                    selectedL2ProdLine={selectedL2ProdLine}
+                    setSelectedL2ProdLine={setSelectedL2ProdLine}
+                    selectedL3ProdCategory={selectedL3ProdCategory}
+                    setSelectedL3ProdCategory={setSelectedL3ProdCategory}
+                    selectedL4DeviceMake={selectedL4DeviceMake}
+                    setSelectedL4DeviceMake={setSelectedL4DeviceMake}
+                    selectedL5ProdSubCategory={selectedL5ProdSubCategory}
+                    setSelectedL5ProdSubCategory={setSelectedL5ProdSubCategory}
+                    selectedL6DeviceModel={selectedL6DeviceModel}
+                    setSelectedL6DeviceModel={setSelectedL6DeviceModel}
+                    selectedL7DeviceColor={selectedL7DeviceColor}
+                    setSelectedL7DeviceColor={setSelectedL7DeviceColor}
+                    selectedL8DeviceStorage={selectedL8DeviceStorage}
+                    setSelectedL8DeviceStorage={setSelectedL8DeviceStorage}
+                    regions={regions}
+                    cities={cities}
+                    channelTypes={channelTypes}
+                    warehouses={warehouses}
+                    forecastData={forecastData}
+                  />
+                </div>
+              </div>
+            </Card>
+
+            {/* Step 3: Key Metrics */}
+            <Card className="p-6">
+              <div className="space-y-6">
+                <div className="flex items-center gap-2">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">3</span>
+                  <h3 className="text-lg font-semibold">Key Performance Metrics</h3>
+                </div>
+                
+                <ForecastMetricsCards metrics={metrics} />
+              </div>
+            </Card>
+
+            {/* Step 4: Forecast Analysis */}
+            <Card className="p-6">
+              <div className="space-y-6">
+                <div className="flex items-center gap-2">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">4</span>
+                  <h3 className="text-lg font-semibold">Forecast Analysis</h3>
+                </div>
+                
+                <div className="bg-card rounded-lg border p-6">
+                  <ForecastChart 
+                    data={filteredData}
+                    confidenceIntervals={confidenceIntervals}
+                  />
+                </div>
+              </div>
+            </Card>
+          </div>
+        );
+      case "distribution":
+        return (
+          <div className="container py-6">
+            <Card className="p-6">
+              <h2 className="text-2xl font-semibold mb-6">Forecast Distribution</h2>
+              {/* Add distribution content here */}
+            </Card>
+          </div>
+        );
+      case "decomposition":
+        return (
+          <div className="container py-6">
+            <Card className="p-6">
+              <h2 className="text-2xl font-semibold mb-6">Pattern Analysis</h2>
+              {/* Add decomposition content here */}
+            </Card>
+          </div>
+        );
+      case "scenarios":
+        return (
+          <div className="container py-6">
+            <Card className="p-6">
+              <h2 className="text-2xl font-semibold mb-6">What-If Analysis</h2>
+              {/* Add scenarios content here */}
+            </Card>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="flex flex-col h-full">
       {/* Header Section */}
@@ -279,142 +417,8 @@ export const ForecastingContainer = () => {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="container py-6 space-y-8">
-        {/* Step 1: Model Selection and Controls */}
-        <Card className="p-6">
-          <div className="space-y-6">
-            <div className="flex items-center gap-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">1</span>
-              <h3 className="text-lg font-semibold">Configure Model</h3>
-            </div>
-            
-            <ForecastingHeader
-              selectedModel={selectedModel}
-              setSelectedModel={setSelectedModel}
-              handleExport={handleExport}
-              findBestModel={findBestModel}
-              modelConfigs={modelConfigs}
-            />
-          </div>
-        </Card>
-
-        {/* Step 2: Data Filters */}
-        <Card className="p-6">
-          <div className="space-y-6">
-            <div className="flex items-center gap-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">2</span>
-              <h3 className="text-lg font-semibold">Select Data Range & Filters</h3>
-            </div>
-
-            <div className="grid gap-6">
-              <ForecastingDateRange
-                fromDate={fromDate}
-                toDate={toDate}
-                setFromDate={setFromDate}
-                setToDate={setToDate}
-              />
-
-              <ForecastFilters
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                selectedRegion={selectedRegion}
-                setSelectedRegion={setSelectedRegion}
-                selectedCity={selectedCity}
-                setSelectedCity={setSelectedCity}
-                selectedChannel={selectedChannel}
-                setSelectedChannel={setSelectedChannel}
-                selectedWarehouse={selectedWarehouse}
-                setSelectedWarehouse={setSelectedWarehouse}
-                selectedL1MainProd={selectedL1MainProd}
-                setSelectedL1MainProd={setSelectedL1MainProd}
-                selectedL2ProdLine={selectedL2ProdLine}
-                setSelectedL2ProdLine={setSelectedL2ProdLine}
-                selectedL3ProdCategory={selectedL3ProdCategory}
-                setSelectedL3ProdCategory={setSelectedL3ProdCategory}
-                selectedL4DeviceMake={selectedL4DeviceMake}
-                setSelectedL4DeviceMake={setSelectedL4DeviceMake}
-                selectedL5ProdSubCategory={selectedL5ProdSubCategory}
-                setSelectedL5ProdSubCategory={setSelectedL5ProdSubCategory}
-                selectedL6DeviceModel={selectedL6DeviceModel}
-                setSelectedL6DeviceModel={setSelectedL6DeviceModel}
-                selectedL7DeviceColor={selectedL7DeviceColor}
-                setSelectedL7DeviceColor={setSelectedL7DeviceColor}
-                selectedL8DeviceStorage={selectedL8DeviceStorage}
-                setSelectedL8DeviceStorage={setSelectedL8DeviceStorage}
-                regions={regions}
-                cities={cities}
-                channelTypes={channelTypes}
-                warehouses={warehouses}
-                forecastData={forecastData}
-              />
-            </div>
-          </div>
-        </Card>
-
-        {/* Step 3: Key Metrics */}
-        <Card className="p-6">
-          <div className="space-y-6">
-            <div className="flex items-center gap-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">3</span>
-              <h3 className="text-lg font-semibold">Key Performance Metrics</h3>
-            </div>
-            
-            <ForecastMetricsCards metrics={metrics} />
-          </div>
-        </Card>
-
-        {/* Step 4: Forecast Chart */}
-        <Card className="p-6">
-          <div className="space-y-6">
-            <div className="flex items-center gap-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">4</span>
-              <h3 className="text-lg font-semibold">Forecast Analysis</h3>
-            </div>
-            
-            <div className="bg-card rounded-lg border p-6">
-              <ForecastChart 
-                data={filteredData}
-                confidenceIntervals={confidenceIntervals}
-              />
-            </div>
-          </div>
-        </Card>
-
-        {/* Step 5: Version Control */}
-        <Card className="p-6">
-          <div className="space-y-6">
-            <div className="flex items-center gap-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">5</span>
-              <h3 className="text-lg font-semibold">Model Version Control</h3>
-            </div>
-
-            <div className="max-w-[1200px] mx-auto">
-              <ModelVersioning modelId={selectedModel} />
-            </div>
-          </div>
-        </Card>
-
-        {/* Step 6: Scenario Management */}
-        <Card className="p-6">
-          <div className="space-y-6">
-            <div className="flex items-center gap-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">6</span>
-              <h3 className="text-lg font-semibold">Scenario Management</h3>
-            </div>
-
-            <ScenarioManagement
-              scenarioName={scenarioName}
-              setScenarioName={setScenarioName}
-              currentModel={selectedModel}
-              currentHorizon={horizon}
-              currentParameters={modelConfigs}
-              forecastData={filteredData}
-              onScenarioLoad={handleScenarioLoad}
-            />
-          </div>
-        </Card>
-      </div>
+      {/* Tab Content */}
+      {renderMainContent()}
     </div>
   );
 };
