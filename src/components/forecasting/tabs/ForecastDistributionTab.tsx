@@ -14,14 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { X } from "lucide-react";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
-
-interface ModelConfig {
-  productId: string;
-  productName: string;
-  modelId: string;
-  parameters: any[];
-  autoRun: boolean;
-}
+import { SavedModelConfig } from "@/types/models/commonTypes";
 
 interface ForecastDistributionTabProps {
   forecastTableData: Array<{
@@ -41,12 +34,44 @@ export const ForecastDistributionTab = ({
 }: ForecastDistributionTabProps) => {
   const [selectedModel, setSelectedModel] = useState<string>("moving-avg");
   const [autoRun, setAutoRun] = useState(true);
-  const [savedConfigs, setSavedConfigs] = useState<ModelConfig[]>([]);
+  const [savedConfigs, setSavedConfigs] = useState<SavedModelConfig[]>([]);
   const [selectedConfigId, setSelectedConfigId] = useState<string | null>(null);
   const [forecastTableData, setForecastTableData] = useState(initialForecastData);
   const { toast } = useToast();
+
+  // Load saved configurations on component mount
+  useEffect(() => {
+    const loadSavedConfigs = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('saved_model_configs')
+          .select('*');
+
+        if (error) throw error;
+
+        if (data) {
+          setSavedConfigs(data.map(config => ({
+            id: config.id,
+            productId: config.product_id,
+            productName: config.product_name,
+            modelId: config.model_id,
+            parameters: config.parameters,
+            autoRun: config.auto_run
+          })));
+        }
+      } catch (error) {
+        console.error('Error loading saved configurations:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load saved configurations",
+          variant: "destructive"
+        });
+      }
+    };
+
+    loadSavedConfigs();
+  }, [toast]);
   
-  // Fetch forecast data for a specific product
   const fetchProductForecastData = async (productId: string) => {
     try {
       const { data, error } = await supabase
@@ -78,60 +103,101 @@ export const ForecastDistributionTab = ({
     }
   };
 
-  const handleSaveConfiguration = () => {
+  const handleSaveConfiguration = async () => {
     const currentProduct = {
       id: "product-x",
       name: "Product X"
     };
 
-    const newConfig: ModelConfig = {
-      productId: currentProduct.id,
-      productName: currentProduct.name,
-      modelId: selectedModel,
-      parameters: [],
-      autoRun: autoRun
-    };
+    try {
+      const configData = {
+        product_id: currentProduct.id,
+        product_name: currentProduct.name,
+        model_id: selectedModel,
+        parameters: [],
+        auto_run: autoRun
+      };
 
-    const existingConfigIndex = savedConfigs.findIndex(
-      config => config.productId === currentProduct.id
-    );
+      const { data, error } = await supabase
+        .from('saved_model_configs')
+        .upsert([configData], {
+          onConflict: 'product_id'
+        })
+        .select();
 
-    if (existingConfigIndex !== -1) {
-      const updatedConfigs = [...savedConfigs];
-      updatedConfigs[existingConfigIndex] = newConfig;
-      setSavedConfigs(updatedConfigs);
+      if (error) throw error;
+
+      if (data && data[0]) {
+        const newConfig: SavedModelConfig = {
+          id: data[0].id,
+          productId: data[0].product_id,
+          productName: data[0].product_name,
+          modelId: data[0].model_id,
+          parameters: data[0].parameters,
+          autoRun: data[0].auto_run
+        };
+
+        setSavedConfigs(prev => {
+          const existingIndex = prev.findIndex(config => config.productId === currentProduct.id);
+          if (existingIndex !== -1) {
+            const updated = [...prev];
+            updated[existingIndex] = newConfig;
+            return updated;
+          }
+          return [...prev, newConfig];
+        });
+
+        toast({
+          title: "Success",
+          description: `Model configuration for ${currentProduct.name} has been saved.`
+        });
+      }
+    } catch (error) {
+      console.error('Error saving configuration:', error);
       toast({
-        title: "Configuration Updated",
-        description: `Model configuration for ${currentProduct.name} has been updated.`
-      });
-    } else {
-      setSavedConfigs([...savedConfigs, newConfig]);
-      toast({
-        title: "Configuration Saved",
-        description: `Model configuration for ${currentProduct.name} has been saved.`
+        title: "Error",
+        description: "Failed to save configuration",
+        variant: "destructive"
       });
     }
   };
 
-  const removeConfiguration = (productId: string) => {
-    setSavedConfigs(savedConfigs.filter(config => config.productId !== productId));
-    if (selectedConfigId === productId) {
-      setSelectedConfigId(null);
-      setForecastTableData(initialForecastData); // Reset to initial data
+  const removeConfiguration = async (configId: string) => {
+    try {
+      const { error } = await supabase
+        .from('saved_model_configs')
+        .delete()
+        .eq('id', configId);
+
+      if (error) throw error;
+
+      setSavedConfigs(prev => prev.filter(config => config.id !== configId));
+      if (selectedConfigId === configId) {
+        setSelectedConfigId(null);
+        setForecastTableData(initialForecastData);
+      }
+
+      toast({
+        title: "Success",
+        description: "Configuration removed successfully"
+      });
+    } catch (error) {
+      console.error('Error removing configuration:', error);
+      toast({
+        title: "Error",
+        description: "Failed to remove configuration",
+        variant: "destructive"
+      });
     }
-    toast({
-      title: "Configuration Removed",
-      description: "The model configuration has been removed."
-    });
   };
 
-  const handleConfigSelect = async (productId: string) => {
-    setSelectedConfigId(productId);
-    const selectedConfig = savedConfigs.find(config => config.productId === productId);
+  const handleConfigSelect = async (configId: string) => {
+    setSelectedConfigId(configId);
+    const selectedConfig = savedConfigs.find(config => config.id === configId);
     if (selectedConfig) {
       setSelectedModel(selectedConfig.modelId);
       setAutoRun(selectedConfig.autoRun);
-      await fetchProductForecastData(productId);
+      await fetchProductForecastData(selectedConfig.productId);
       toast({
         title: "Configuration Loaded",
         description: `Loaded forecast configuration for ${selectedConfig.productName}`

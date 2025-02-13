@@ -1094,6 +1094,39 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_model_configs: {
+        Row: {
+          auto_run: boolean | null
+          created_at: string | null
+          id: string
+          model_id: string
+          parameters: Json | null
+          product_id: string
+          product_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          auto_run?: boolean | null
+          created_at?: string | null
+          id?: string
+          model_id: string
+          parameters?: Json | null
+          product_id: string
+          product_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          auto_run?: boolean | null
+          created_at?: string | null
+          id?: string
+          model_id?: string
+          parameters?: Json | null
+          product_id?: string
+          product_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       scenarios: {
         Row: {
           created_at: string | null

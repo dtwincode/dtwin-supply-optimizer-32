@@ -15,6 +15,7 @@ export interface ModelConfig {
 }
 
 export interface SavedModelConfig {
+  id: string;
   productId: string;
   productName: string;
   modelId: string;
