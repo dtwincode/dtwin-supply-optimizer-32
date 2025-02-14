@@ -12,6 +12,15 @@ export type InventoryTranslations = {
   buffers: TranslationValue;
   adu: TranslationValue;
   alerts: TranslationValue;
+  // Table Headers
+  sku: TranslationValue;
+  name: TranslationValue;
+  currentStock: TranslationValue;
+  bufferZone: TranslationValue;
+  location: TranslationValue;
+  productFamily: TranslationValue;
+  actions: TranslationValue;
+  // Additional translations
   inventorymanagement: TranslationValue;
   skuCount: TranslationValue;
   purchaseOrderCreated: TranslationValue;
@@ -69,5 +78,34 @@ export const inventoryTranslations: InventoryTranslations = {
   purchaseOrderCreated: {
     en: "Purchase order created!",
     ar: "تم إنشاء أمر الشراء!"
+  },
+  // Table Headers
+  sku: {
+    en: "SKU",
+    ar: "رمز المنتج"
+  },
+  name: {
+    en: "Name",
+    ar: "الاسم"
+  },
+  currentStock: {
+    en: "Current Stock",
+    ar: "المخزون الحالي"
+  },
+  bufferZone: {
+    en: "Buffer Zone",
+    ar: "منطقة المخزون"
+  },
+  location: {
+    en: "Location",
+    ar: "الموقع"
+  },
+  productFamily: {
+    en: "Product Family",
+    ar: "عائلة المنتج"
+  },
+  actions: {
+    en: "Actions",
+    ar: "الإجراءات"
   }
 };
