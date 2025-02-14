@@ -1,52 +1,14 @@
-
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, AlertTriangle, Tag } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-
-interface LeadTimeData {
-  id: string;
-  sku: string;
-  supplier_id: string;
-  predicted_lead_time: number;
-  confidence_score: number;
-  prediction_date: string;
-}
-
-interface LeadTimeAnomaly {
-  id: string;
-  sku: string;
-  anomaly_type: string;
-  anomaly_score: number;
-  detection_date: string;
-}
-
-interface Classification {
-  leadTimeCategory: 'short' | 'medium' | 'long';
-  variabilityLevel: 'low' | 'medium' | 'high';
-  criticality: 'low' | 'medium' | 'high';
-}
-
-interface SKUClassification {
-  sku: string;
-  classification: Classification;
-  lastUpdated: string;
-}
-
-interface ReplenishmentData {
-  sku: string;
-  internalTransferTime: number;
-  replenishmentLeadTime: number;
-  totalCycleTime: number;
-  lastUpdated: string;
-  locationFrom: string;
-  locationTo: string;
-}
+import { Loader2, AlertTriangle } from "lucide-react";
+import { LeadTimeData, LeadTimeAnomaly, SKUClassification, ReplenishmentData } from "./types";
+import { LeadTimePredictions } from "./LeadTimePredictions";
+import { SKUClassifications } from "./SKUClassifications";
+import { ReplenishmentTimes } from "./ReplenishmentTimes";
+import { Button } from "@/components/ui/button";
 
 export function AILeadLink() {
   const [activeTab, setActiveTab] = useState("predictions");
@@ -150,19 +112,6 @@ export function AILeadLink() {
     }
   };
 
-  const getClassificationBadgeColor = (level: string) => {
-    switch (level) {
-      case 'high':
-        return 'bg-red-100 text-red-800';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'low':
-        return 'bg-green-100 text-green-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-[400px]">
@@ -184,102 +133,16 @@ export function AILeadLink() {
             <TabsTrigger value="settings">Settings &amp; Configuration</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="replenishment" className="space-y-4">
-            <div className="grid gap-4">
-              {replenishmentData.map((item) => (
-                <Card key={item.sku} className="p-4">
-                  <div className="flex flex-col gap-2">
-                    <div className="flex justify-between items-start">
-                      <h4 className="font-medium">{item.sku}</h4>
-                      <Badge variant="outline">
-                        Total Cycle: {item.totalCycleTime} days
-                      </Badge>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4 mt-2">
-                      <div>
-                        <p className="text-sm font-medium">Internal Transfer Time</p>
-                        <p className="text-2xl font-bold">{item.internalTransferTime} days</p>
-                        <p className="text-sm text-muted-foreground">
-                          From: {item.locationFrom}<br />
-                          To: {item.locationTo}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">Replenishment Lead Time</p>
-                        <p className="text-2xl font-bold">{item.replenishmentLeadTime} days</p>
-                        <p className="text-sm text-muted-foreground">
-                          Last updated: {new Date(item.lastUpdated).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
+          <TabsContent value="predictions" className="space-y-4">
+            <LeadTimePredictions data={leadTimeData} />
           </TabsContent>
 
           <TabsContent value="classification" className="space-y-4">
-            <div className="grid gap-4">
-              {skuClassifications.map((item) => (
-                <Card key={item.sku} className="p-4">
-                  <div className="flex items-start gap-4">
-                    <Tag className="w-5 h-5" />
-                    <div className="flex-1">
-                      <div className="flex justify-between items-start">
-                        <h4 className="font-medium">{item.sku}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Updated: {new Date(item.lastUpdated).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div className="mt-2 flex gap-2 flex-wrap">
-                        <Badge className={getClassificationBadgeColor(item.classification.leadTimeCategory)}>
-                          Lead Time: {item.classification.leadTimeCategory}
-                        </Badge>
-                        <Badge className={getClassificationBadgeColor(item.classification.variabilityLevel)}>
-                          Variability: {item.classification.variabilityLevel}
-                        </Badge>
-                        <Badge className={getClassificationBadgeColor(item.classification.criticality)}>
-                          Criticality: {item.classification.criticality}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
+            <SKUClassifications classifications={skuClassifications} />
           </TabsContent>
 
-          <TabsContent value="predictions" className="space-y-4">
-            <div className="h-[400px] mt-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={leadTimeData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="prediction_date" 
-                    tickFormatter={(value) => new Date(value).toLocaleDateString()}
-                  />
-                  <YAxis />
-                  <Tooltip
-                    labelFormatter={(value) => new Date(value).toLocaleDateString()}
-                  />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="predicted_lead_time"
-                    name="Predicted Lead Time"
-                    stroke="#8884d8"
-                    strokeWidth={2}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="confidence_score"
-                    name="Confidence Score"
-                    stroke="#82ca9d"
-                    strokeWidth={2}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
+          <TabsContent value="replenishment" className="space-y-4">
+            <ReplenishmentTimes data={replenishmentData} />
           </TabsContent>
 
           <TabsContent value="anomalies" className="space-y-4">
