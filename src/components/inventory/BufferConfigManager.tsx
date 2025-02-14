@@ -64,6 +64,11 @@ export const BufferConfigManager = () => {
       return;
     }
 
+    // Ensure metadata is an object or default to empty object
+    const metadata = typeof data.metadata === 'object' && data.metadata !== null 
+      ? data.metadata as Record<string, any>
+      : {};
+
     const configData: BufferFactorConfig = {
       id: data.id,
       shortLeadTimeFactor: data.short_lead_time_factor,
@@ -77,7 +82,7 @@ export const BufferConfigManager = () => {
       isActive: data.is_active,
       industry: data.industry,
       isBenchmarkBased: data.is_benchmark_based,
-      metadata: data.metadata || {}
+      metadata: metadata
     };
 
     setConfig(configData);
