@@ -7,6 +7,7 @@ import { DecouplingPointDialog } from "./DecouplingPointDialog";
 import { ADUVisualization } from "./ADUVisualization";
 import { Brain } from "lucide-react";
 import { inventoryData } from "@/data/inventoryData";
+import { AILeadLink } from "./AILeadLink";
 
 interface InventoryTabsProps {
   children: React.ReactNode;
@@ -95,20 +96,7 @@ export const InventoryTabs = ({ children }: InventoryTabsProps) => {
 
       <TabsContent value="ai-leadlink">
         <div className="p-6">
-          <h3 className="text-lg font-semibold">AI LeadLink Analysis</h3>
-          <p className="text-muted-foreground mt-2">
-            AI-powered analysis for optimizing lead times and replenishment strategies.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-            <div className="space-y-4">
-              <h4 className="font-medium">Lead Time Analysis</h4>
-              {/* Lead time analysis content will go here */}
-            </div>
-            <div className="space-y-4">
-              <h4 className="font-medium">Replenishment Optimization</h4>
-              {/* Replenishment optimization content will go here */}
-            </div>
-          </div>
+          <AILeadLink />
         </div>
       </TabsContent>
     </Tabs>
