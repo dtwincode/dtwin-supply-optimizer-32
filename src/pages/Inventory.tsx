@@ -13,7 +13,6 @@ import { InventoryTabs } from "@/components/inventory/InventoryTabs";
 import { InventoryTab } from "@/components/inventory/InventoryTab";
 import { InventoryChart } from "@/components/inventory/InventoryChart";
 import { SupplyChainMap } from "@/components/inventory/SupplyChainMap";
-import { BufferConfigManager } from "@/components/inventory/BufferConfigManager";
 import { inventoryData } from "@/data/inventoryData";
 import { InventoryItem } from "@/types/inventory";
 
@@ -72,11 +71,6 @@ const Inventory = () => {
         <SupplyChainMap />
         
         <InventoryChart data={filteredData} />
-
-        {/* Add Buffer Configuration Manager */}
-        <Card className="mb-6">
-          <BufferConfigManager />
-        </Card>
 
         <Card>
           <InventoryTabs>
