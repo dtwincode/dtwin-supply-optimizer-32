@@ -36,11 +36,22 @@ interface SKUClassification {
   lastUpdated: string;
 }
 
+interface ReplenishmentData {
+  sku: string;
+  internalTransferTime: number;
+  replenishmentLeadTime: number;
+  totalCycleTime: number;
+  lastUpdated: string;
+  locationFrom: string;
+  locationTo: string;
+}
+
 export function AILeadLink() {
   const [activeTab, setActiveTab] = useState("predictions");
   const [leadTimeData, setLeadTimeData] = useState<LeadTimeData[]>([]);
   const [anomalies, setAnomalies] = useState<LeadTimeAnomaly[]>([]);
   const [skuClassifications, setSkuClassifications] = useState<SKUClassification[]>([]);
+  const [replenishmentData, setReplenishmentData] = useState<ReplenishmentData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
@@ -76,16 +87,49 @@ export function AILeadLink() {
 
       if (classificationsError) throw classificationsError;
 
-      // Transform classification data
-      const transformedClassifications: SKUClassification[] = classificationsData.map(item => ({
-        sku: item.sku,
-        classification: item.new_classification,
-        lastUpdated: item.changed_at
+      // Transform classification data - now with proper type checking
+      const transformedClassifications: SKUClassification[] = classificationsData
+        .filter(item => item.new_classification && 
+                       typeof item.new_classification === 'object' &&
+                       'leadTimeCategory' in item.new_classification &&
+                       'variabilityLevel' in item.new_classification &&
+                       'criticality' in item.new_classification)
+        .map(item => ({
+          sku: item.sku,
+          classification: {
+            leadTimeCategory: item.new_classification.leadTimeCategory as 'short' | 'medium' | 'long',
+            variabilityLevel: item.new_classification.variabilityLevel as 'low' | 'medium' | 'high',
+            criticality: item.new_classification.criticality as 'low' | 'medium' | 'high'
+          },
+          lastUpdated: item.changed_at
       }));
+
+      // Sample replenishment data (you'll need to create a proper table for this)
+      const sampleReplenishmentData: ReplenishmentData[] = [
+        {
+          sku: "SKU001",
+          internalTransferTime: 2,
+          replenishmentLeadTime: 5,
+          totalCycleTime: 7,
+          lastUpdated: new Date().toISOString(),
+          locationFrom: "Central Warehouse",
+          locationTo: "Store A"
+        },
+        {
+          sku: "SKU002",
+          internalTransferTime: 3,
+          replenishmentLeadTime: 4,
+          totalCycleTime: 7,
+          lastUpdated: new Date().toISOString(),
+          locationFrom: "Regional DC",
+          locationTo: "Store B"
+        }
+      ];
 
       setLeadTimeData(predictionsData);
       setAnomalies(anomaliesData);
       setSkuClassifications(transformedClassifications);
+      setReplenishmentData(sampleReplenishmentData);
     } catch (error) {
       console.error('Error fetching data:', error);
       toast({
@@ -123,13 +167,48 @@ export function AILeadLink() {
     <div className="space-y-6">
       <Card className="p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="predictions">Lead Time Predictions</TabsTrigger>
             <TabsTrigger value="classification">SKU Classification</TabsTrigger>
+            <TabsTrigger value="replenishment">Replenishment Times</TabsTrigger>
             <TabsTrigger value="anomalies">Anomaly Detection</TabsTrigger>
             <TabsTrigger value="performance">Model Performance</TabsTrigger>
             <TabsTrigger value="settings">Settings &amp; Configuration</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="replenishment" className="space-y-4">
+            <div className="grid gap-4">
+              {replenishmentData.map((item) => (
+                <Card key={item.sku} className="p-4">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex justify-between items-start">
+                      <h4 className="font-medium">{item.sku}</h4>
+                      <Badge variant="outline">
+                        Total Cycle: {item.totalCycleTime} days
+                      </Badge>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 mt-2">
+                      <div>
+                        <p className="text-sm font-medium">Internal Transfer Time</p>
+                        <p className="text-2xl font-bold">{item.internalTransferTime} days</p>
+                        <p className="text-sm text-muted-foreground">
+                          From: {item.locationFrom}<br />
+                          To: {item.locationTo}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">Replenishment Lead Time</p>
+                        <p className="text-2xl font-bold">{item.replenishmentLeadTime} days</p>
+                        <p className="text-sm text-muted-foreground">
+                          Last updated: {new Date(item.lastUpdated).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
 
           <TabsContent value="classification" className="space-y-4">
             <div className="grid gap-4">
