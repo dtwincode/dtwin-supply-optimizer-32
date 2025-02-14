@@ -166,6 +166,44 @@ export type Database = {
         }
         Relationships: []
       }
+      ddmrp_metrics_history: {
+        Row: {
+          created_at: string
+          id: string
+          inventory_item_id: string | null
+          metric_type: string
+          metric_value: number
+          recorded_at: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          inventory_item_id?: string | null
+          metric_type: string
+          metric_value: number
+          recorded_at?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          inventory_item_id?: string | null
+          metric_type?: string
+          metric_value?: number
+          recorded_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ddmrp_metrics_history_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_data"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       decoupling_points: {
         Row: {
           buffer_profile_id: string
@@ -541,16 +579,25 @@ export type Database = {
         Row: {
           adu: number | null
           adu_calculation: Json | null
+          buffer_health_assessment: number | null
           buffer_penetration: number | null
           category: string | null
           channel: string | null
           city: string | null
           created_at: string
           current_stock: number
+          decoupled_lead_time: number | null
           decoupling_point_id: string | null
+          demand_driven_fill_rate: number | null
+          demand_sensing_accuracy: number | null
+          demand_variability_factor: number | null
           dynamic_adjustments: Json | null
+          economic_order_qty: number | null
           green_zone_size: number | null
           id: string
+          inventory_carrying_cost: number | null
+          inventory_turns_ratio: number | null
+          lead_time_compression_index: number | null
           lead_time_days: number | null
           location: string | null
           max_stock: number
@@ -560,14 +607,18 @@ export type Database = {
           notes: string | null
           on_hand: number | null
           on_order: number | null
+          order_spike_threshold: number | null
+          original_lead_time: number | null
           planning_priority: string | null
           product_family: string | null
           qualified_demand: number | null
           red_zone_size: number | null
           region: string | null
+          service_level: number | null
           sku: string
           subcategory: string | null
           supply_signals: Json | null
+          supply_variability_factor: number | null
           updated_at: string
           variability_factor: number | null
           warehouse: string | null
@@ -576,16 +627,25 @@ export type Database = {
         Insert: {
           adu?: number | null
           adu_calculation?: Json | null
+          buffer_health_assessment?: number | null
           buffer_penetration?: number | null
           category?: string | null
           channel?: string | null
           city?: string | null
           created_at?: string
           current_stock: number
+          decoupled_lead_time?: number | null
           decoupling_point_id?: string | null
+          demand_driven_fill_rate?: number | null
+          demand_sensing_accuracy?: number | null
+          demand_variability_factor?: number | null
           dynamic_adjustments?: Json | null
+          economic_order_qty?: number | null
           green_zone_size?: number | null
           id?: string
+          inventory_carrying_cost?: number | null
+          inventory_turns_ratio?: number | null
+          lead_time_compression_index?: number | null
           lead_time_days?: number | null
           location?: string | null
           max_stock: number
@@ -595,14 +655,18 @@ export type Database = {
           notes?: string | null
           on_hand?: number | null
           on_order?: number | null
+          order_spike_threshold?: number | null
+          original_lead_time?: number | null
           planning_priority?: string | null
           product_family?: string | null
           qualified_demand?: number | null
           red_zone_size?: number | null
           region?: string | null
+          service_level?: number | null
           sku: string
           subcategory?: string | null
           supply_signals?: Json | null
+          supply_variability_factor?: number | null
           updated_at?: string
           variability_factor?: number | null
           warehouse?: string | null
@@ -611,16 +675,25 @@ export type Database = {
         Update: {
           adu?: number | null
           adu_calculation?: Json | null
+          buffer_health_assessment?: number | null
           buffer_penetration?: number | null
           category?: string | null
           channel?: string | null
           city?: string | null
           created_at?: string
           current_stock?: number
+          decoupled_lead_time?: number | null
           decoupling_point_id?: string | null
+          demand_driven_fill_rate?: number | null
+          demand_sensing_accuracy?: number | null
+          demand_variability_factor?: number | null
           dynamic_adjustments?: Json | null
+          economic_order_qty?: number | null
           green_zone_size?: number | null
           id?: string
+          inventory_carrying_cost?: number | null
+          inventory_turns_ratio?: number | null
+          lead_time_compression_index?: number | null
           lead_time_days?: number | null
           location?: string | null
           max_stock?: number
@@ -630,14 +703,18 @@ export type Database = {
           notes?: string | null
           on_hand?: number | null
           on_order?: number | null
+          order_spike_threshold?: number | null
+          original_lead_time?: number | null
           planning_priority?: string | null
           product_family?: string | null
           qualified_demand?: number | null
           red_zone_size?: number | null
           region?: string | null
+          service_level?: number | null
           sku?: string
           subcategory?: string | null
           supply_signals?: Json | null
+          supply_variability_factor?: number | null
           updated_at?: string
           variability_factor?: number | null
           warehouse?: string | null

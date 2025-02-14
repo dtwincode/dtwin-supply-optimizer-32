@@ -78,6 +78,20 @@ export interface InventoryItem {
     qualityAlert: boolean;
     orderDelayRisk: string;
   };
+  // Additional DDMRP Metrics
+  decoupledLeadTime?: number;
+  orderSpikeThreshold?: number;
+  economicOrderQty?: number;
+  demandVariabilityFactor?: number;
+  supplyVariabilityFactor?: number;
+  serviceLevel?: number;
+  bufferHealthAssessment?: number;
+  inventoryTurnsRatio?: number;
+  leadTimeCompressionIndex?: number;
+  demandDrivenFillRate?: number;
+  inventoryCarryingCost?: number;
+  demandSensingAccuracy?: number;
+  originalLeadTime?: number;
 }
 
 export interface InventoryFilters {
@@ -108,4 +122,14 @@ export interface NetFlowPosition {
   onOrder: number;
   qualifiedDemand: number;
   netFlowPosition: number;
+}
+
+export interface DDMRPMetricsHistory {
+  id: string;
+  inventoryItemId: string;
+  metricType: string;
+  metricValue: number;
+  recordedAt: string;
+  createdAt: string;
+  updatedAt: string;
 }
