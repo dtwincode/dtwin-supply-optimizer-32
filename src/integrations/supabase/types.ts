@@ -90,6 +90,7 @@ export type Database = {
           industry: Database["public"]["Enums"]["industry_type"] | null
           is_active: boolean
           is_benchmark_based: boolean | null
+          is_global: boolean | null
           long_lead_time_factor: number
           medium_lead_time_factor: number
           medium_lead_time_threshold: number
@@ -97,6 +98,7 @@ export type Database = {
           replenishment_time_factor: number
           short_lead_time_factor: number
           short_lead_time_threshold: number
+          sku: string | null
           updated_at: string
         }
         Insert: {
@@ -107,6 +109,7 @@ export type Database = {
           industry?: Database["public"]["Enums"]["industry_type"] | null
           is_active?: boolean
           is_benchmark_based?: boolean | null
+          is_global?: boolean | null
           long_lead_time_factor?: number
           medium_lead_time_factor?: number
           medium_lead_time_threshold?: number
@@ -114,6 +117,7 @@ export type Database = {
           replenishment_time_factor?: number
           short_lead_time_factor?: number
           short_lead_time_threshold?: number
+          sku?: string | null
           updated_at?: string
         }
         Update: {
@@ -124,6 +128,7 @@ export type Database = {
           industry?: Database["public"]["Enums"]["industry_type"] | null
           is_active?: boolean
           is_benchmark_based?: boolean | null
+          is_global?: boolean | null
           long_lead_time_factor?: number
           medium_lead_time_factor?: number
           medium_lead_time_threshold?: number
@@ -131,9 +136,18 @@ export type Database = {
           replenishment_time_factor?: number
           short_lead_time_factor?: number
           short_lead_time_threshold?: number
+          sku?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "buffer_factor_configs_sku_fkey"
+            columns: ["sku"]
+            isOneToOne: false
+            referencedRelation: "inventory_data"
+            referencedColumns: ["sku"]
+          },
+        ]
       }
       buffer_profiles: {
         Row: {

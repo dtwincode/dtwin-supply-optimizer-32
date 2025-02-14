@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,11 +25,33 @@ export const BufferConfigManager = () => {
   const [benchmarks, setBenchmarks] = useState<BufferFactorBenchmark[]>([]);
   const [selectedIndustry, setSelectedIndustry] = useState<IndustryType | ''>('');
   const [useBenchmark, setUseBenchmark] = useState(false);
+  const [isGlobal, setIsGlobal] = useState(true);
+  const [selectedSKU, setSelectedSKU] = useState<string>('');
+  const [availableSKUs, setAvailableSKUs] = useState<{ sku: string; name: string }[]>([]);
 
   useEffect(() => {
     loadActiveConfig();
     loadBenchmarks();
+    loadSKUs();
   }, []);
+
+  const loadSKUs = async () => {
+    const { data, error } = await supabase
+      .from('inventory_data')
+      .select('sku, name')
+      .order('sku');
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load SKUs",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setAvailableSKUs(data);
+  };
 
   const loadBenchmarks = async () => {
     const { data, error } = await supabase
@@ -48,13 +71,25 @@ export const BufferConfigManager = () => {
   };
 
   const loadActiveConfig = async () => {
-    const { data, error } = await supabase
+    let query = supabase
       .from('buffer_factor_configs')
       .select('*')
-      .eq('is_active', true)
-      .single();
+      .eq('is_active', true);
+
+    if (!isGlobal && selectedSKU) {
+      query = query.eq('sku', selectedSKU);
+    } else {
+      query = query.eq('is_global', true);
+    }
+
+    const { data, error } = await query.single();
 
     if (error) {
+      if (error.code === 'PGRST116') {
+        // No active config found
+        setConfig(null);
+        return;
+      }
       toast({
         title: "Error",
         description: "Failed to load buffer configuration",
@@ -63,7 +98,6 @@ export const BufferConfigManager = () => {
       return;
     }
 
-    // Ensure metadata is an object or default to empty object
     const metadata = typeof data.metadata === 'object' && data.metadata !== null 
       ? data.metadata as Record<string, any>
       : {};
@@ -122,7 +156,9 @@ export const BufferConfigManager = () => {
         green_zone_factor: config.greenZoneFactor,
         description: config.description,
         industry: selectedIndustry || null,
-        is_benchmark_based: useBenchmark
+        is_benchmark_based: useBenchmark,
+        is_global: isGlobal,
+        sku: isGlobal ? null : selectedSKU
       })
       .eq('id', config.id);
 
@@ -140,9 +176,37 @@ export const BufferConfigManager = () => {
       title: "Success",
       description: "Buffer configuration updated successfully",
     });
+    
+    // Reload the configuration to ensure we have the latest data
+    loadActiveConfig();
   };
 
-  if (!config) return null;
+  const handleScopeChange = (newIsGlobal: boolean) => {
+    setIsGlobal(newIsGlobal);
+    if (newIsGlobal) {
+      setSelectedSKU('');
+    }
+    loadActiveConfig();
+  };
+
+  const handleSKUChange = (sku: string) => {
+    setSelectedSKU(sku);
+    loadActiveConfig();
+  };
+
+  if (!config && !isEditing) {
+    return (
+      <Card className="p-6">
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-medium">Buffer Configuration</h3>
+            <Button onClick={() => setIsEditing(true)}>Create Configuration</Button>
+          </div>
+          <p className="text-muted-foreground">No active buffer configuration found.</p>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="p-6">
@@ -160,6 +224,37 @@ export const BufferConfigManager = () => {
         </div>
 
         <div className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <Switch
+              checked={isGlobal}
+              onCheckedChange={handleScopeChange}
+              disabled={!isEditing}
+            />
+            <Label>Global Configuration</Label>
+          </div>
+
+          {!isGlobal && (
+            <div className="space-y-2">
+              <Label>SKU</Label>
+              <Select
+                value={selectedSKU}
+                onValueChange={handleSKUChange}
+                disabled={!isEditing}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select SKU" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableSKUs.map((sku) => (
+                    <SelectItem key={sku.sku} value={sku.sku}>
+                      {sku.sku} - {sku.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           <div className="flex items-center space-x-2">
             <Switch
               checked={useBenchmark}
@@ -195,12 +290,12 @@ export const BufferConfigManager = () => {
             <div className="space-y-4">
               <h4 className="font-medium">Lead Time Factors</h4>
               <div className="space-y-2">
-                <Label>Short Lead Time (≤ {config.shortLeadTimeThreshold} days)</Label>
+                <Label>Short Lead Time (≤ {config?.shortLeadTimeThreshold} days)</Label>
                 <Input
                   type="number"
                   step="0.1"
-                  value={config.shortLeadTimeFactor}
-                  onChange={(e) => setConfig({
+                  value={config?.shortLeadTimeFactor}
+                  onChange={(e) => config && setConfig({
                     ...config,
                     shortLeadTimeFactor: parseFloat(e.target.value)
                   })}
@@ -208,12 +303,12 @@ export const BufferConfigManager = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Medium Lead Time (≤ {config.mediumLeadTimeThreshold} days)</Label>
+                <Label>Medium Lead Time (≤ {config?.mediumLeadTimeThreshold} days)</Label>
                 <Input
                   type="number"
                   step="0.1"
-                  value={config.mediumLeadTimeFactor}
-                  onChange={(e) => setConfig({
+                  value={config?.mediumLeadTimeFactor}
+                  onChange={(e) => config && setConfig({
                     ...config,
                     mediumLeadTimeFactor: parseFloat(e.target.value)
                   })}
@@ -225,8 +320,8 @@ export const BufferConfigManager = () => {
                 <Input
                   type="number"
                   step="0.1"
-                  value={config.longLeadTimeFactor}
-                  onChange={(e) => setConfig({
+                  value={config?.longLeadTimeFactor}
+                  onChange={(e) => config && setConfig({
                     ...config,
                     longLeadTimeFactor: parseFloat(e.target.value)
                   })}
@@ -243,8 +338,8 @@ export const BufferConfigManager = () => {
                   type="number"
                   min="0"
                   step="1"
-                  value={config.replenishmentTimeFactor}
-                  onChange={(e) => setConfig({
+                  value={config?.replenishmentTimeFactor}
+                  onChange={(e) => config && setConfig({
                     ...config,
                     replenishmentTimeFactor: parseInt(e.target.value, 10)
                   })}
@@ -256,8 +351,8 @@ export const BufferConfigManager = () => {
                 <Input
                   type="number"
                   step="0.1"
-                  value={config.greenZoneFactor}
-                  onChange={(e) => setConfig({
+                  value={config?.greenZoneFactor}
+                  onChange={(e) => config && setConfig({
                     ...config,
                     greenZoneFactor: parseFloat(e.target.value)
                   })}
@@ -270,8 +365,8 @@ export const BufferConfigManager = () => {
           <div className="space-y-2">
             <Label>Description</Label>
             <Input
-              value={config.description || ''}
-              onChange={(e) => setConfig({
+              value={config?.description || ''}
+              onChange={(e) => config && setConfig({
                 ...config,
                 description: e.target.value
               })}
