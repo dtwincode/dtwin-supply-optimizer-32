@@ -9,13 +9,13 @@ export const InventoryTableHeader = () => {
   return (
     <TableHeader>
       <TableRow>
-        <TableHead>{getTranslation("inventory.sku", language)}</TableHead>
-        <TableHead>{getTranslation("inventory.name", language)}</TableHead>
-        <TableHead>{getTranslation("inventory.currentStock", language)}</TableHead>
-        <TableHead>{getTranslation("inventory.bufferZone", language)}</TableHead>
-        <TableHead>{getTranslation("inventory.location", language)}</TableHead>
-        <TableHead>{getTranslation("inventory.productFamily", language)}</TableHead>
-        <TableHead>{getTranslation("inventory.actions", language)}</TableHead>
+        <TableHead>{getTranslation("sku", language)}</TableHead>
+        <TableHead>{getTranslation("name", language)}</TableHead>
+        <TableHead>{getTranslation("currentStock", language)}</TableHead>
+        <TableHead>{getTranslation("bufferZone", language)}</TableHead>
+        <TableHead>{getTranslation("location", language)}</TableHead>
+        <TableHead>{getTranslation("productFamily", language)}</TableHead>
+        <TableHead>{getTranslation("actions", language)}</TableHead>
       </TableRow>
     </TableHeader>
   );
