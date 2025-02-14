@@ -6,6 +6,7 @@ import { InventoryTableHeader } from "./InventoryTableHeader";
 import { BufferStatusBadge } from "./BufferStatusBadge";
 import { BufferVisualizer } from "./BufferVisualizer";
 import { CreatePODialog } from "./CreatePODialog";
+import { ADUVisualization } from "./ADUVisualization";
 import { 
   calculateBufferZones,
   calculateNetFlowPosition,
@@ -23,44 +24,52 @@ export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) =
   const { language } = useLanguage();
 
   return (
-    <div className="p-6">
-      <Table>
-        <InventoryTableHeader />
-        <TableBody>
-          {paginatedData.map((item) => {
-            const bufferZones = calculateBufferZones(item);
-            const netFlow = calculateNetFlowPosition(item);
-            const bufferPenetration = calculateBufferPenetration(netFlow.netFlowPosition, bufferZones);
-            const status = getBufferStatus(bufferPenetration);
+    <div className="space-y-6 p-6">
+      {paginatedData.map((item) => {
+        const bufferZones = calculateBufferZones(item);
+        const netFlow = calculateNetFlowPosition(item);
+        const bufferPenetration = calculateBufferPenetration(netFlow.netFlowPosition, bufferZones);
+        const status = getBufferStatus(bufferPenetration);
 
-            return (
-              <TableRow key={item.id}>
-                <TableCell className="font-medium">{item.sku}</TableCell>
-                <TableCell>{item.name}</TableCell>
-                <TableCell>{item.onHand}</TableCell>
-                <TableCell>
-                  <BufferStatusBadge status={status} />
-                </TableCell>
-                <TableCell>
-                  <BufferVisualizer 
-                    netFlowPosition={netFlow.netFlowPosition}
-                    bufferZones={bufferZones}
-                  />
-                </TableCell>
-                <TableCell>{item.location}</TableCell>
-                <TableCell>{item.productFamily}</TableCell>
-                <TableCell>
-                  <CreatePODialog 
-                    item={item}
-                    bufferZones={bufferZones}
-                    onSuccess={() => onCreatePO(item)}
-                  />
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+        return (
+          <div key={item.id} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <ADUVisualization item={item} />
+              <div className="space-y-4">
+                <Table>
+                  <InventoryTableHeader />
+                  <TableBody>
+                    <TableRow>
+                      <TableCell className="font-medium">{item.sku}</TableCell>
+                      <TableCell>{item.name}</TableCell>
+                      <TableCell>{item.onHand}</TableCell>
+                      <TableCell>
+                        <BufferStatusBadge status={status} />
+                      </TableCell>
+                      <TableCell>
+                        <BufferVisualizer 
+                          netFlowPosition={netFlow.netFlowPosition}
+                          bufferZones={bufferZones}
+                          adu={item.adu}
+                        />
+                      </TableCell>
+                      <TableCell>{item.location}</TableCell>
+                      <TableCell>{item.productFamily}</TableCell>
+                      <TableCell>
+                        <CreatePODialog 
+                          item={item}
+                          bufferZones={bufferZones}
+                          onSuccess={() => onCreatePO(item)}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 };
