@@ -133,6 +133,8 @@ export interface DDMRPMetricsHistory {
   updatedAt: string;
 }
 
+export type IndustryType = 'manufacturing' | 'retail' | 'distribution' | 'electronics' | 'automotive' | 'consumer_goods' | 'pharmaceuticals';
+
 export interface BufferFactorConfig {
   id: string;
   shortLeadTimeFactor: number;
@@ -144,5 +146,7 @@ export interface BufferFactorConfig {
   greenZoneFactor: number;
   description?: string;
   isActive: boolean;
+  industry?: IndustryType;
+  isBenchmarkBased?: boolean;
   metadata?: Record<string, any>;
 }

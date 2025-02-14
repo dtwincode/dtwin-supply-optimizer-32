@@ -7,11 +7,11 @@ import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/components/ui/use-toast";
-import { BufferFactorConfig } from '@/types/inventory';
+import { BufferFactorConfig, IndustryType } from '@/types/inventory';
 import { supabase } from "@/integrations/supabase/client";
 
 interface BufferFactorBenchmark {
-  industry: string;
+  industry: IndustryType;
   short_lead_time_factor: number;
   medium_lead_time_factor: number;
   long_lead_time_factor: number;
@@ -23,7 +23,7 @@ export const BufferConfigManager = () => {
   const [config, setConfig] = useState<BufferFactorConfig | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [benchmarks, setBenchmarks] = useState<BufferFactorBenchmark[]>([]);
-  const [selectedIndustry, setSelectedIndustry] = useState<string>('');
+  const [selectedIndustry, setSelectedIndustry] = useState<IndustryType | ''>('');
   const [useBenchmark, setUseBenchmark] = useState(false);
 
   useEffect(() => {
@@ -64,7 +64,7 @@ export const BufferConfigManager = () => {
       return;
     }
 
-    setConfig({
+    const configData: BufferFactorConfig = {
       id: data.id,
       shortLeadTimeFactor: data.short_lead_time_factor,
       mediumLeadTimeFactor: data.medium_lead_time_factor,
@@ -78,15 +78,16 @@ export const BufferConfigManager = () => {
       industry: data.industry,
       isBenchmarkBased: data.is_benchmark_based,
       metadata: data.metadata || {}
-    });
-    
+    };
+
+    setConfig(configData);
     setUseBenchmark(data.is_benchmark_based || false);
     if (data.industry) {
       setSelectedIndustry(data.industry);
     }
   };
 
-  const handleIndustryChange = (industry: string) => {
+  const handleIndustryChange = (industry: IndustryType) => {
     setSelectedIndustry(industry);
     const benchmark = benchmarks.find(b => b.industry === industry);
     if (benchmark && config) {
