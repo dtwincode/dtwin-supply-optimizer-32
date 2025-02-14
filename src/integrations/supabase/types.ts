@@ -45,6 +45,54 @@ export type Database = {
         }
         Relationships: []
       }
+      buffer_factor_configs: {
+        Row: {
+          created_at: string
+          description: string | null
+          green_zone_factor: number
+          id: string
+          is_active: boolean
+          long_lead_time_factor: number
+          medium_lead_time_factor: number
+          medium_lead_time_threshold: number
+          metadata: Json | null
+          replenishment_time_factor: number
+          short_lead_time_factor: number
+          short_lead_time_threshold: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          green_zone_factor?: number
+          id?: string
+          is_active?: boolean
+          long_lead_time_factor?: number
+          medium_lead_time_factor?: number
+          medium_lead_time_threshold?: number
+          metadata?: Json | null
+          replenishment_time_factor?: number
+          short_lead_time_factor?: number
+          short_lead_time_threshold?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          green_zone_factor?: number
+          id?: string
+          is_active?: boolean
+          long_lead_time_factor?: number
+          medium_lead_time_factor?: number
+          medium_lead_time_threshold?: number
+          metadata?: Json | null
+          replenishment_time_factor?: number
+          short_lead_time_factor?: number
+          short_lead_time_threshold?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       buffer_profiles: {
         Row: {
           created_at: string
@@ -1521,6 +1569,7 @@ export type Database = {
         | "customer_order"
         | "stock_point"
         | "intermediate"
+      lead_time_category: "short" | "medium" | "long"
       lead_time_type: "short" | "medium" | "long"
       module_type:
         | "forecasting"

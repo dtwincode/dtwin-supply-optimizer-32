@@ -1,6 +1,53 @@
-import { InventoryItem, BufferZones, NetFlowPosition } from "@/types/inventory";
 
-export const calculateBufferZones = (item: InventoryItem): BufferZones => {
+import { InventoryItem, BufferZones, NetFlowPosition, BufferFactorConfig } from "@/types/inventory";
+import { supabase } from "@/integrations/supabase/client";
+
+let activeBufferConfig: BufferFactorConfig | null = null;
+
+export const fetchActiveBufferConfig = async (): Promise<BufferFactorConfig> => {
+  if (activeBufferConfig) return activeBufferConfig;
+
+  const { data, error } = await supabase
+    .from('buffer_factor_configs')
+    .select('*')
+    .eq('is_active', true)
+    .single();
+
+  if (error) {
+    console.error('Error fetching buffer config:', error);
+    // Fall back to default values if fetch fails
+    return {
+      id: 'default',
+      shortLeadTimeFactor: 0.7,
+      mediumLeadTimeFactor: 1.0,
+      longLeadTimeFactor: 1.3,
+      shortLeadTimeThreshold: 7,
+      mediumLeadTimeThreshold: 14,
+      replenishmentTimeFactor: 1.0,
+      greenZoneFactor: 0.7,
+      isActive: true
+    };
+  }
+
+  // Map database columns to camelCase interface
+  activeBufferConfig = {
+    id: data.id,
+    shortLeadTimeFactor: data.short_lead_time_factor,
+    mediumLeadTimeFactor: data.medium_lead_time_factor,
+    longLeadTimeFactor: data.long_lead_time_factor,
+    shortLeadTimeThreshold: data.short_lead_time_threshold,
+    mediumLeadTimeThreshold: data.medium_lead_time_threshold,
+    replenishmentTimeFactor: data.replenishment_time_factor,
+    greenZoneFactor: data.green_zone_factor,
+    description: data.description,
+    isActive: data.is_active,
+    metadata: data.metadata
+  };
+
+  return activeBufferConfig;
+};
+
+export const calculateBufferZones = async (item: InventoryItem): Promise<BufferZones> => {
   if (!item.adu || !item.leadTimeDays) {
     return {
       red: 0,
@@ -9,23 +56,25 @@ export const calculateBufferZones = (item: InventoryItem): BufferZones => {
     };
   }
 
-  // Lead time category factors
-  const leadTimeFactors = {
-    short: 0.7,
-    medium: 1.0,
-    long: 1.3
-  };
+  const config = await fetchActiveBufferConfig();
 
-  // Get the appropriate lead time factor
-  const leadTimeFactor = leadTimeFactors[item.leadTimeDays <= 7 ? 'short' : item.leadTimeDays <= 14 ? 'medium' : 'long'];
+  // Determine lead time category and factor
+  let leadTimeFactor: number;
+  if (item.leadTimeDays <= config.shortLeadTimeThreshold) {
+    leadTimeFactor = config.shortLeadTimeFactor;
+  } else if (item.leadTimeDays <= config.mediumLeadTimeThreshold) {
+    leadTimeFactor = config.mediumLeadTimeFactor;
+  } else {
+    leadTimeFactor = config.longLeadTimeFactor;
+  }
   
   // Variability factor (if not provided, default to 1)
   const variabilityFactor = item.variabilityFactor || 1;
 
-  // Calculate zones using the DDMRP formulas
-  const redZone = Math.round(item.adu * leadTimeFactor * variabilityFactor); // Red Zone = ADU × Lead Time Factor
-  const yellowZone = Math.round(item.adu * item.leadTimeDays); // Yellow Zone = ADU × Replenishment Time
-  const greenZone = Math.round(yellowZone * 0.7); // Green Zone = Yellow Zone × Top of Green Factor (using 0.7 as default)
+  // Calculate zones using the configurable DDMRP formulas
+  const redZone = Math.round(item.adu * leadTimeFactor * variabilityFactor);
+  const yellowZone = Math.round(item.adu * item.leadTimeDays * config.replenishmentTimeFactor);
+  const greenZone = Math.round(yellowZone * config.greenZoneFactor);
 
   return {
     red: redZone,
@@ -95,14 +144,19 @@ export const getBufferStatus = (bufferPenetration: number): 'green' | 'yellow' |
 };
 
 export const bufferZoneFormulas = {
-  redZone: "Red Zone = ADU × Lead Time Factor",
-  yellowZone: "Yellow Zone = ADU × Replenishment Time",
-  greenZone: "Green Zone = Yellow Zone × Top of Green Factor",
+  redZone: "Red Zone = ADU × Lead Time Factor × Variability Factor",
+  yellowZone: "Yellow Zone = ADU × Replenishment Time × Replenishment Factor",
+  greenZone: "Green Zone = Yellow Zone × Green Zone Factor",
   notes: `
     Where:
     - ADU = Average Daily Usage
-    - Lead Time Factor varies based on lead time category (short: 0.7, medium: 1.0, long: 1.3)
+    - Lead Time Factor varies based on lead time category:
+      • Short (≤ 7 days): 0.7
+      • Medium (≤ 14 days): 1.0
+      • Long (> 14 days): 1.3
     - Replenishment Time is measured in days
-    - Top of Green Factor is typically 0.7 (70% of Yellow Zone)
+    - Replenishment Factor adjusts for order processing time
+    - Green Zone Factor determines safety stock level
+    All factors are configurable in the buffer configuration settings.
   `
 };

@@ -1,4 +1,3 @@
-
 export interface BufferProfile {
   id: string;
   name: string;
@@ -132,4 +131,18 @@ export interface DDMRPMetricsHistory {
   recordedAt: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface BufferFactorConfig {
+  id: string;
+  shortLeadTimeFactor: number;
+  mediumLeadTimeFactor: number;
+  longLeadTimeFactor: number;
+  shortLeadTimeThreshold: number;
+  mediumLeadTimeThreshold: number;
+  replenishmentTimeFactor: number;
+  greenZoneFactor: number;
+  description?: string;
+  isActive: boolean;
+  metadata?: Record<string, any>;
 }
