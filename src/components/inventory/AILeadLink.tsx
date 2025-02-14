@@ -86,7 +86,7 @@ export function AILeadLink() {
             <TabsTrigger value="predictions">Lead Time Predictions</TabsTrigger>
             <TabsTrigger value="anomalies">Anomaly Detection</TabsTrigger>
             <TabsTrigger value="performance">Model Performance</TabsTrigger>
-            <TabsTrigger value="settings">Settings & Configuration</TabsTrigger>
+            <TabsTrigger value="settings">Settings &amp; Configuration</TabsTrigger>
           </TabsList>
 
           <TabsContent value="predictions" className="space-y-4">
@@ -185,7 +185,7 @@ export function AILeadLink() {
                 <div>
                   <h4 className="font-medium text-sm mb-2">Anomaly Detection Sensitivity</h4>
                   <p className="text-sm text-muted-foreground">
-                    Set to medium - triggers alerts for deviations > 2σ
+                    Set to medium - triggers alerts for deviations &gt; 2σ
                   </p>
                 </div>
                 <Button className="mt-4">Update Settings</Button>
