@@ -22,28 +22,32 @@ export const BufferVisualizer = ({ netFlowPosition, bufferZones, adu }: BufferVi
   return (
     <div className="w-full space-y-2">
       <div className="flex justify-between items-center text-sm text-muted-foreground">
-        <div className="flex items-center gap-2">
-          <span>Base Buffer Level: {totalBuffer}</span>
-          <HoverCard>
-            <HoverCardTrigger asChild>
-              <InfoIcon className="h-4 w-4 cursor-help" />
-            </HoverCardTrigger>
-            <HoverCardContent className="w-80">
-              <div className="space-y-2">
-                <h4 className="font-semibold">Base Buffer Level (BBL)</h4>
-                <p className="text-sm">BBL = Red Zone + Yellow Zone + Green Zone</p>
-                <div className="text-sm text-muted-foreground">
-                  Current values:
-                  <ul className="list-disc pl-4 mt-1">
-                    <li>Red Zone: {bufferZones.red}</li>
-                    <li>Yellow Zone: {bufferZones.yellow}</li>
-                    <li>Green Zone: {bufferZones.green}</li>
-                    <li>Total BBL: {totalBuffer}</li>
-                  </ul>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span>Base Buffer Level: {totalBuffer}</span>
+            <HoverCard>
+              <HoverCardTrigger asChild>
+                <InfoIcon className="h-4 w-4 cursor-help" />
+              </HoverCardTrigger>
+              <HoverCardContent className="w-80">
+                <div className="space-y-2">
+                  <h4 className="font-semibold">Base Buffer Level (BBL)</h4>
+                  <p className="text-sm">BBL = Red Zone + Yellow Zone + Green Zone</p>
+                  <div className="text-sm text-muted-foreground">
+                    Current values:
+                    <ul className="list-disc pl-4 mt-1">
+                      <li>Red Zone: {bufferZones.red}</li>
+                      <li>Yellow Zone: {bufferZones.yellow}</li>
+                      <li>Green Zone: {bufferZones.green}</li>
+                      <li>Total BBL: {totalBuffer}</li>
+                    </ul>
+                  </div>
                 </div>
-              </div>
-            </HoverCardContent>
-          </HoverCard>
+              </HoverCardContent>
+            </HoverCard>
+          </div>
+          <span>|</span>
+          <span>Buffer Penetration: {Math.round(bufferPenetration)}%</span>
         </div>
         <div className="flex items-center gap-1">
           <span>ADU: {adu?.toFixed(2) || 'N/A'}</span>
