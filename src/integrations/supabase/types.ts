@@ -195,6 +195,39 @@ export type Database = {
         }
         Relationships: []
       }
+      classification_rules_history: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          effective_from: string
+          effective_to: string | null
+          id: string
+          rule_definition: Json
+          rule_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          effective_from: string
+          effective_to?: string | null
+          id?: string
+          rule_definition: Json
+          rule_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          rule_definition?: Json
+          rule_type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       data_quality_metrics: {
         Row: {
           accuracy_score: number | null
@@ -352,6 +385,36 @@ export type Database = {
             referencedColumns: ["location_id"]
           },
         ]
+      }
+      external_factors: {
+        Row: {
+          created_at: string | null
+          factor_type: string
+          factor_value: Json
+          id: string
+          impact_score: number | null
+          recorded_date: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          factor_type: string
+          factor_value: Json
+          id?: string
+          impact_score?: number | null
+          recorded_date?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          factor_type?: string
+          factor_value?: Json
+          id?: string
+          impact_score?: number | null
+          recorded_date?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       forecast_accuracy: {
         Row: {
@@ -834,6 +897,84 @@ export type Database = {
           },
         ]
       }
+      lead_time_anomalies: {
+        Row: {
+          anomaly_score: number | null
+          anomaly_type: string
+          created_at: string | null
+          description: string | null
+          detection_date: string | null
+          id: string
+          resolution_status: string | null
+          sku: string
+          supplier_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          anomaly_score?: number | null
+          anomaly_type: string
+          created_at?: string | null
+          description?: string | null
+          detection_date?: string | null
+          id?: string
+          resolution_status?: string | null
+          sku: string
+          supplier_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          anomaly_score?: number | null
+          anomaly_type?: string
+          created_at?: string | null
+          description?: string | null
+          detection_date?: string | null
+          id?: string
+          resolution_status?: string | null
+          sku?: string
+          supplier_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      lead_time_predictions: {
+        Row: {
+          confidence_score: number
+          created_at: string | null
+          factors_considered: Json | null
+          id: string
+          predicted_lead_time: number
+          prediction_date: string | null
+          sku: string
+          supplier_id: string
+          updated_at: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          confidence_score: number
+          created_at?: string | null
+          factors_considered?: Json | null
+          id?: string
+          predicted_lead_time: number
+          prediction_date?: string | null
+          sku: string
+          supplier_id: string
+          updated_at?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          confidence_score?: number
+          created_at?: string | null
+          factors_considered?: Json | null
+          id?: string
+          predicted_lead_time?: number
+          prediction_date?: string | null
+          sku?: string
+          supplier_id?: string
+          updated_at?: string | null
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
       location_hierarchy: {
         Row: {
           active: boolean | null
@@ -1109,6 +1250,39 @@ export type Database = {
           },
         ]
       }
+      model_training_history: {
+        Row: {
+          created_at: string | null
+          id: string
+          model_version: string
+          trained_at: string | null
+          training_metrics: Json | null
+          training_parameters: Json | null
+          updated_at: string | null
+          validation_metrics: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          model_version: string
+          trained_at?: string | null
+          training_metrics?: Json | null
+          training_parameters?: Json | null
+          updated_at?: string | null
+          validation_metrics?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          model_version?: string
+          trained_at?: string | null
+          training_metrics?: Json | null
+          training_parameters?: Json | null
+          updated_at?: string | null
+          validation_metrics?: Json | null
+        }
+        Relationships: []
+      }
       model_version_applications: {
         Row: {
           created_at: string | null
@@ -1235,6 +1409,47 @@ export type Database = {
           validation_rules?: Json | null
         }
         Relationships: []
+      }
+      prediction_accuracy_tracking: {
+        Row: {
+          actual_lead_time: number | null
+          analysis_date: string | null
+          created_at: string | null
+          id: string
+          impact_on_buffer: number | null
+          prediction_error: number | null
+          prediction_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          actual_lead_time?: number | null
+          analysis_date?: string | null
+          created_at?: string | null
+          id?: string
+          impact_on_buffer?: number | null
+          prediction_error?: number | null
+          prediction_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          actual_lead_time?: number | null
+          analysis_date?: string | null
+          created_at?: string | null
+          id?: string
+          impact_on_buffer?: number | null
+          prediction_error?: number | null
+          prediction_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prediction_accuracy_tracking_prediction_id_fkey"
+            columns: ["prediction_id"]
+            isOneToOne: false
+            referencedRelation: "lead_time_predictions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       price_analysis: {
         Row: {
@@ -1554,6 +1769,39 @@ export type Database = {
           metadata?: Json | null
           pattern_type?: string
           strength?: number | null
+        }
+        Relationships: []
+      }
+      sku_classification_history: {
+        Row: {
+          change_reason: string | null
+          changed_at: string | null
+          created_at: string | null
+          id: string
+          new_classification: Json | null
+          previous_classification: Json | null
+          sku: string
+          updated_at: string | null
+        }
+        Insert: {
+          change_reason?: string | null
+          changed_at?: string | null
+          created_at?: string | null
+          id?: string
+          new_classification?: Json | null
+          previous_classification?: Json | null
+          sku: string
+          updated_at?: string | null
+        }
+        Update: {
+          change_reason?: string | null
+          changed_at?: string | null
+          created_at?: string | null
+          id?: string
+          new_classification?: Json | null
+          previous_classification?: Json | null
+          sku?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
