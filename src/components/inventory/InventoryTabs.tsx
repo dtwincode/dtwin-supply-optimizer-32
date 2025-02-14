@@ -4,6 +4,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
 import { BufferProfileDialog } from "./BufferProfileDialog";
 import { DecouplingPointDialog } from "./DecouplingPointDialog";
+import { ADUVisualization } from "./ADUVisualization";
+import { inventoryData } from "@/data/inventoryData";
 
 interface InventoryTabsProps {
   children: React.ReactNode;
@@ -70,8 +72,12 @@ export const InventoryTabs = ({ children }: InventoryTabsProps) => {
 
       <TabsContent value="adu">
         <div className="p-6">
-          <h3 className="text-lg font-semibold">Average Daily Usage</h3>
-          {/* ADU content will go here */}
+          <h3 className="text-lg font-semibold">Average Daily Usage Analysis</h3>
+          <div className="grid grid-cols-1 gap-6 mt-4">
+            {inventoryData.map((item) => (
+              <ADUVisualization key={item.id} item={item} />
+            ))}
+          </div>
         </div>
       </TabsContent>
 
