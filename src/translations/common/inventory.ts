@@ -79,7 +79,7 @@ export const inventoryTranslations: InventoryTranslations = {
     en: "Purchase order created!",
     ar: "تم إنشاء أمر الشراء!"
   },
-  // Table Headers
+  // Table Headers - simplified without 'inventory.' prefix
   sku: {
     en: "SKU",
     ar: "رمز المنتج"
@@ -109,3 +109,4 @@ export const inventoryTranslations: InventoryTranslations = {
     ar: "الإجراءات"
   }
 };
+
