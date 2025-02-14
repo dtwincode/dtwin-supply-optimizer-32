@@ -6,7 +6,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, AlertTriangle } from "lucide-react";
+import { Loader2, AlertTriangle, Tag } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface LeadTimeData {
   id: string;
@@ -25,10 +26,21 @@ interface LeadTimeAnomaly {
   detection_date: string;
 }
 
+interface SKUClassification {
+  sku: string;
+  classification: {
+    leadTimeCategory: 'short' | 'medium' | 'long';
+    variabilityLevel: 'low' | 'medium' | 'high';
+    criticality: 'low' | 'medium' | 'high';
+  };
+  lastUpdated: string;
+}
+
 export function AILeadLink() {
   const [activeTab, setActiveTab] = useState("predictions");
   const [leadTimeData, setLeadTimeData] = useState<LeadTimeData[]>([]);
   const [anomalies, setAnomalies] = useState<LeadTimeAnomaly[]>([]);
+  const [skuClassifications, setSkuClassifications] = useState<SKUClassification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
@@ -56,17 +68,46 @@ export function AILeadLink() {
 
       if (anomaliesError) throw anomaliesError;
 
+      // Fetch SKU classifications
+      const { data: classificationsData, error: classificationsError } = await supabase
+        .from('sku_classification_history')
+        .select('*')
+        .order('changed_at', { ascending: false });
+
+      if (classificationsError) throw classificationsError;
+
+      // Transform classification data
+      const transformedClassifications: SKUClassification[] = classificationsData.map(item => ({
+        sku: item.sku,
+        classification: item.new_classification,
+        lastUpdated: item.changed_at
+      }));
+
       setLeadTimeData(predictionsData);
       setAnomalies(anomaliesData);
+      setSkuClassifications(transformedClassifications);
     } catch (error) {
       console.error('Error fetching data:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch lead time data",
+        description: "Failed to fetch data",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const getClassificationBadgeColor = (level: string) => {
+    switch (level) {
+      case 'high':
+        return 'bg-red-100 text-red-800';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'low':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -82,12 +123,44 @@ export function AILeadLink() {
     <div className="space-y-6">
       <Card className="p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="predictions">Lead Time Predictions</TabsTrigger>
+            <TabsTrigger value="classification">SKU Classification</TabsTrigger>
             <TabsTrigger value="anomalies">Anomaly Detection</TabsTrigger>
             <TabsTrigger value="performance">Model Performance</TabsTrigger>
             <TabsTrigger value="settings">Settings &amp; Configuration</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="classification" className="space-y-4">
+            <div className="grid gap-4">
+              {skuClassifications.map((item) => (
+                <Card key={item.sku} className="p-4">
+                  <div className="flex items-start gap-4">
+                    <Tag className="w-5 h-5" />
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start">
+                        <h4 className="font-medium">{item.sku}</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Updated: {new Date(item.lastUpdated).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="mt-2 flex gap-2 flex-wrap">
+                        <Badge className={getClassificationBadgeColor(item.classification.leadTimeCategory)}>
+                          Lead Time: {item.classification.leadTimeCategory}
+                        </Badge>
+                        <Badge className={getClassificationBadgeColor(item.classification.variabilityLevel)}>
+                          Variability: {item.classification.variabilityLevel}
+                        </Badge>
+                        <Badge className={getClassificationBadgeColor(item.classification.criticality)}>
+                          Criticality: {item.classification.criticality}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
 
           <TabsContent value="predictions" className="space-y-4">
             <div className="h-[400px] mt-4">
