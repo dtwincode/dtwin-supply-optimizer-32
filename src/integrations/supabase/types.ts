@@ -45,13 +45,51 @@ export type Database = {
         }
         Relationships: []
       }
+      buffer_factor_benchmarks: {
+        Row: {
+          created_at: string
+          description: string | null
+          green_zone_factor: number
+          id: string
+          industry: Database["public"]["Enums"]["industry_type"]
+          long_lead_time_factor: number
+          medium_lead_time_factor: number
+          short_lead_time_factor: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          green_zone_factor: number
+          id?: string
+          industry: Database["public"]["Enums"]["industry_type"]
+          long_lead_time_factor: number
+          medium_lead_time_factor: number
+          short_lead_time_factor: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          green_zone_factor?: number
+          id?: string
+          industry?: Database["public"]["Enums"]["industry_type"]
+          long_lead_time_factor?: number
+          medium_lead_time_factor?: number
+          short_lead_time_factor?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       buffer_factor_configs: {
         Row: {
           created_at: string
           description: string | null
           green_zone_factor: number
           id: string
+          industry: Database["public"]["Enums"]["industry_type"] | null
           is_active: boolean
+          is_benchmark_based: boolean | null
           long_lead_time_factor: number
           medium_lead_time_factor: number
           medium_lead_time_threshold: number
@@ -66,7 +104,9 @@ export type Database = {
           description?: string | null
           green_zone_factor?: number
           id?: string
+          industry?: Database["public"]["Enums"]["industry_type"] | null
           is_active?: boolean
+          is_benchmark_based?: boolean | null
           long_lead_time_factor?: number
           medium_lead_time_factor?: number
           medium_lead_time_threshold?: number
@@ -81,7 +121,9 @@ export type Database = {
           description?: string | null
           green_zone_factor?: number
           id?: string
+          industry?: Database["public"]["Enums"]["industry_type"] | null
           is_active?: boolean
+          is_benchmark_based?: boolean | null
           long_lead_time_factor?: number
           medium_lead_time_factor?: number
           medium_lead_time_threshold?: number
@@ -1569,6 +1611,14 @@ export type Database = {
         | "customer_order"
         | "stock_point"
         | "intermediate"
+      industry_type:
+        | "manufacturing"
+        | "retail"
+        | "distribution"
+        | "electronics"
+        | "automotive"
+        | "consumer_goods"
+        | "pharmaceuticals"
       lead_time_category: "short" | "medium" | "long"
       lead_time_type: "short" | "medium" | "long"
       module_type:
