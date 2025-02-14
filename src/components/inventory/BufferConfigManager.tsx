@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -347,7 +346,7 @@ export const BufferConfigManager = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Green Zone Factor</Label>
+                <Label>Top of Green Factor (TGF)</Label>
                 <Input
                   type="number"
                   step="0.1"
