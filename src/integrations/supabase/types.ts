@@ -539,64 +539,109 @@ export type Database = {
       }
       inventory_data: {
         Row: {
+          adu: number | null
+          adu_calculation: Json | null
+          buffer_penetration: number | null
           category: string | null
           channel: string | null
           city: string | null
           created_at: string
           current_stock: number
           decoupling_point_id: string | null
+          dynamic_adjustments: Json | null
+          green_zone_size: number | null
           id: string
+          lead_time_days: number | null
           location: string | null
           max_stock: number
           min_stock: number
           name: string
+          net_flow_position: number | null
           notes: string | null
+          on_hand: number | null
+          on_order: number | null
+          planning_priority: string | null
           product_family: string | null
+          qualified_demand: number | null
+          red_zone_size: number | null
           region: string | null
           sku: string
           subcategory: string | null
+          supply_signals: Json | null
           updated_at: string
+          variability_factor: number | null
           warehouse: string | null
+          yellow_zone_size: number | null
         }
         Insert: {
+          adu?: number | null
+          adu_calculation?: Json | null
+          buffer_penetration?: number | null
           category?: string | null
           channel?: string | null
           city?: string | null
           created_at?: string
           current_stock: number
           decoupling_point_id?: string | null
+          dynamic_adjustments?: Json | null
+          green_zone_size?: number | null
           id?: string
+          lead_time_days?: number | null
           location?: string | null
           max_stock: number
           min_stock: number
           name: string
+          net_flow_position?: number | null
           notes?: string | null
+          on_hand?: number | null
+          on_order?: number | null
+          planning_priority?: string | null
           product_family?: string | null
+          qualified_demand?: number | null
+          red_zone_size?: number | null
           region?: string | null
           sku: string
           subcategory?: string | null
+          supply_signals?: Json | null
           updated_at?: string
+          variability_factor?: number | null
           warehouse?: string | null
+          yellow_zone_size?: number | null
         }
         Update: {
+          adu?: number | null
+          adu_calculation?: Json | null
+          buffer_penetration?: number | null
           category?: string | null
           channel?: string | null
           city?: string | null
           created_at?: string
           current_stock?: number
           decoupling_point_id?: string | null
+          dynamic_adjustments?: Json | null
+          green_zone_size?: number | null
           id?: string
+          lead_time_days?: number | null
           location?: string | null
           max_stock?: number
           min_stock?: number
           name?: string
+          net_flow_position?: number | null
           notes?: string | null
+          on_hand?: number | null
+          on_order?: number | null
+          planning_priority?: string | null
           product_family?: string | null
+          qualified_demand?: number | null
+          red_zone_size?: number | null
           region?: string | null
           sku?: string
           subcategory?: string | null
+          supply_signals?: Json | null
           updated_at?: string
+          variability_factor?: number | null
           warehouse?: string | null
+          yellow_zone_size?: number | null
         }
         Relationships: [
           {
