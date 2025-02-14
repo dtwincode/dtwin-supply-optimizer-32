@@ -26,13 +26,15 @@ interface LeadTimeAnomaly {
   detection_date: string;
 }
 
+interface Classification {
+  leadTimeCategory: 'short' | 'medium' | 'long';
+  variabilityLevel: 'low' | 'medium' | 'high';
+  criticality: 'low' | 'medium' | 'high';
+}
+
 interface SKUClassification {
   sku: string;
-  classification: {
-    leadTimeCategory: 'short' | 'medium' | 'long';
-    variabilityLevel: 'low' | 'medium' | 'high';
-    criticality: 'low' | 'medium' | 'high';
-  };
+  classification: Classification;
   lastUpdated: string;
 }
 
@@ -87,24 +89,30 @@ export function AILeadLink() {
 
       if (classificationsError) throw classificationsError;
 
-      // Transform classification data - now with proper type checking
+      // Transform classification data with type checking
       const transformedClassifications: SKUClassification[] = classificationsData
-        .filter(item => item.new_classification && 
-                       typeof item.new_classification === 'object' &&
-                       'leadTimeCategory' in item.new_classification &&
-                       'variabilityLevel' in item.new_classification &&
-                       'criticality' in item.new_classification)
-        .map(item => ({
-          sku: item.sku,
-          classification: {
-            leadTimeCategory: item.new_classification.leadTimeCategory as 'short' | 'medium' | 'long',
-            variabilityLevel: item.new_classification.variabilityLevel as 'low' | 'medium' | 'high',
-            criticality: item.new_classification.criticality as 'low' | 'medium' | 'high'
-          },
-          lastUpdated: item.changed_at
-      }));
+        .filter(item => {
+          const classification = item.new_classification as any;
+          return classification &&
+                 typeof classification === 'object' &&
+                 'leadTimeCategory' in classification &&
+                 'variabilityLevel' in classification &&
+                 'criticality' in classification;
+        })
+        .map(item => {
+          const classification = item.new_classification as any;
+          return {
+            sku: item.sku,
+            classification: {
+              leadTimeCategory: classification.leadTimeCategory,
+              variabilityLevel: classification.variabilityLevel,
+              criticality: classification.criticality
+            },
+            lastUpdated: item.changed_at
+          };
+        });
 
-      // Sample replenishment data (you'll need to create a proper table for this)
+      // Sample replenishment data
       const sampleReplenishmentData: ReplenishmentData[] = [
         {
           sku: "SKU001",
