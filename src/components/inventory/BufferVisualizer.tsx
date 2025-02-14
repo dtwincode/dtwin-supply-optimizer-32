@@ -33,8 +33,16 @@ export const BufferVisualizer = ({ netFlowPosition, bufferZones, adu }: BufferVi
                 <div className="space-y-2">
                   <h4 className="font-semibold">Base Buffer Level (BBL)</h4>
                   <p className="text-sm">BBL = Red Zone + Yellow Zone + Green Zone</p>
-                  <div className="text-sm text-muted-foreground">
-                    Current values:
+                  <div className="text-sm text-muted-foreground mt-2">
+                    <h5 className="font-medium">Zone Calculations:</h5>
+                    <ul className="list-disc pl-4 mt-1 space-y-1">
+                      <li>Red Zone = ADU × Lead Time Factor</li>
+                      <li>Yellow Zone = ADU × Replenishment Time</li>
+                      <li>Green Zone = Yellow Zone × Top of Green Factor</li>
+                    </ul>
+                  </div>
+                  <div className="text-sm text-muted-foreground mt-2">
+                    <h5 className="font-medium">Current values:</h5>
                     <ul className="list-disc pl-4 mt-1">
                       <li>Red Zone: {bufferZones.red}</li>
                       <li>Yellow Zone: {bufferZones.yellow}</li>

@@ -1,7 +1,14 @@
-
 import { InventoryItem, BufferZones, NetFlowPosition } from "@/types/inventory";
 
 export const calculateBufferZones = (item: InventoryItem): BufferZones => {
+  if (!item.adu || !item.leadTimeDays) {
+    return {
+      red: 0,
+      yellow: 0,
+      green: 0
+    };
+  }
+
   // Lead time category factors
   const leadTimeFactors = {
     short: 0.7,
@@ -9,21 +16,21 @@ export const calculateBufferZones = (item: InventoryItem): BufferZones => {
     long: 1.3
   };
 
-  // Variability factors
-  const variabilityFactors = {
-    low_variability: 0.8,
-    medium_variability: 1.0,
-    high_variability: 1.2
-  };
-
+  // Get the appropriate lead time factor
   const leadTimeFactor = leadTimeFactors[item.leadTimeDays <= 7 ? 'short' : item.leadTimeDays <= 14 ? 'medium' : 'long'];
+  
+  // Variability factor (if not provided, default to 1)
   const variabilityFactor = item.variabilityFactor || 1;
-  const baseBuffer = (item.adu || 0) * leadTimeFactor * variabilityFactor;
+
+  // Calculate zones using the DDMRP formulas
+  const redZone = Math.round(item.adu * leadTimeFactor * variabilityFactor); // Red Zone = ADU × Lead Time Factor
+  const yellowZone = Math.round(item.adu * item.leadTimeDays); // Yellow Zone = ADU × Replenishment Time
+  const greenZone = Math.round(yellowZone * 0.7); // Green Zone = Yellow Zone × Top of Green Factor (using 0.7 as default)
 
   return {
-    red: Math.round(baseBuffer * 0.33),
-    yellow: Math.round(baseBuffer * 0.33),
-    green: Math.round(baseBuffer * 0.34)
+    red: redZone,
+    yellow: yellowZone,
+    green: greenZone
   };
 };
 
@@ -85,4 +92,17 @@ export const getBufferStatus = (bufferPenetration: number): 'green' | 'yellow' |
   if (bufferPenetration <= 33) return 'green';
   if (bufferPenetration <= 66) return 'yellow';
   return 'red';
+};
+
+export const bufferZoneFormulas = {
+  redZone: "Red Zone = ADU × Lead Time Factor",
+  yellowZone: "Yellow Zone = ADU × Replenishment Time",
+  greenZone: "Green Zone = Yellow Zone × Top of Green Factor",
+  notes: `
+    Where:
+    - ADU = Average Daily Usage
+    - Lead Time Factor varies based on lead time category (short: 0.7, medium: 1.0, long: 1.3)
+    - Replenishment Time is measured in days
+    - Top of Green Factor is typically 0.7 (70% of Yellow Zone)
+  `
 };
