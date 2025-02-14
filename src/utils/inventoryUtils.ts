@@ -25,9 +25,13 @@ export const fetchActiveBufferConfig = async (): Promise<BufferFactorConfig> => 
       mediumLeadTimeThreshold: 14,
       replenishmentTimeFactor: 1.0,
       greenZoneFactor: 0.7,
-      isActive: true
+      isActive: true,
+      metadata: {}
     };
   }
+
+  // Ensure metadata is an object, or default to empty object
+  const metadata = typeof data.metadata === 'object' ? data.metadata : {};
 
   // Map database columns to camelCase interface
   activeBufferConfig = {
@@ -41,7 +45,7 @@ export const fetchActiveBufferConfig = async (): Promise<BufferFactorConfig> => 
     greenZoneFactor: data.green_zone_factor,
     description: data.description,
     isActive: data.is_active,
-    metadata: data.metadata
+    metadata: metadata as Record<string, any>
   };
 
   return activeBufferConfig;

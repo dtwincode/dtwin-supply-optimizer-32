@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +31,9 @@ export const BufferConfigManager = () => {
       return;
     }
 
+    // Ensure metadata is an object, or default to empty object
+    const metadata = typeof data.metadata === 'object' ? data.metadata : {};
+
     setConfig({
       id: data.id,
       shortLeadTimeFactor: data.short_lead_time_factor,
@@ -43,7 +45,7 @@ export const BufferConfigManager = () => {
       greenZoneFactor: data.green_zone_factor,
       description: data.description,
       isActive: data.is_active,
-      metadata: data.metadata
+      metadata: metadata as Record<string, any>
     });
   };
 

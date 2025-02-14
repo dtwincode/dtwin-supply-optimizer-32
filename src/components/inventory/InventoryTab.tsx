@@ -13,6 +13,7 @@ import {
   getBufferStatus 
 } from "@/utils/inventoryUtils";
 import { InventoryItem } from "@/types/inventory";
+import { useEffect, useState } from "react";
 
 interface InventoryTabProps {
   paginatedData: InventoryItem[];
@@ -21,14 +22,43 @@ interface InventoryTabProps {
 
 export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) => {
   const { language } = useLanguage();
+  const [itemBuffers, setItemBuffers] = useState<Record<string, {
+    bufferZones: { red: number; yellow: number; green: number; };
+    netFlow: { netFlowPosition: number; onHand: number; onOrder: number; qualifiedDemand: number; };
+    bufferPenetration: number;
+    status: 'green' | 'yellow' | 'red';
+  }>>({});
+
+  useEffect(() => {
+    const loadBufferData = async () => {
+      const bufferData: Record<string, any> = {};
+      
+      for (const item of paginatedData) {
+        const bufferZones = await calculateBufferZones(item);
+        const netFlow = calculateNetFlowPosition(item);
+        const bufferPenetration = calculateBufferPenetration(netFlow.netFlowPosition, bufferZones);
+        const status = getBufferStatus(bufferPenetration);
+        
+        bufferData[item.id] = {
+          bufferZones,
+          netFlow,
+          bufferPenetration,
+          status
+        };
+      }
+      
+      setItemBuffers(bufferData);
+    };
+
+    loadBufferData();
+  }, [paginatedData]);
 
   return (
     <div className="space-y-6 p-6">
       {paginatedData.map((item) => {
-        const bufferZones = calculateBufferZones(item);
-        const netFlow = calculateNetFlowPosition(item);
-        const bufferPenetration = calculateBufferPenetration(netFlow.netFlowPosition, bufferZones);
-        const status = getBufferStatus(bufferPenetration);
+        const bufferData = itemBuffers[item.id];
+        
+        if (!bufferData) return null; // Skip rendering until buffer data is loaded
 
         return (
           <div key={item.id} className="space-y-4">
@@ -40,12 +70,12 @@ export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) =
                   <TableCell>{item.name}</TableCell>
                   <TableCell>{item.onHand}</TableCell>
                   <TableCell>
-                    <BufferStatusBadge status={status} />
+                    <BufferStatusBadge status={bufferData.status} />
                   </TableCell>
                   <TableCell>
                     <BufferVisualizer 
-                      netFlowPosition={netFlow.netFlowPosition}
-                      bufferZones={bufferZones}
+                      netFlowPosition={bufferData.netFlow.netFlowPosition}
+                      bufferZones={bufferData.bufferZones}
                       adu={item.adu}
                     />
                   </TableCell>
@@ -54,7 +84,7 @@ export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) =
                   <TableCell>
                     <CreatePODialog 
                       item={item}
-                      bufferZones={bufferZones}
+                      bufferZones={bufferData.bufferZones}
                       onSuccess={() => onCreatePO(item)}
                     />
                   </TableCell>
