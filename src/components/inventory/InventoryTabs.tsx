@@ -5,6 +5,7 @@ import { getTranslation } from "@/translations";
 import { BufferProfileDialog } from "./BufferProfileDialog";
 import { DecouplingPointDialog } from "./DecouplingPointDialog";
 import { ADUVisualization } from "./ADUVisualization";
+import { Brain } from "lucide-react";
 import { inventoryData } from "@/data/inventoryData";
 
 interface InventoryTabsProps {
@@ -16,7 +17,7 @@ export const InventoryTabs = ({ children }: InventoryTabsProps) => {
 
   return (
     <Tabs defaultValue="inventory" className="w-full">
-      <TabsList className="grid w-full grid-cols-6 lg:w-[1000px] p-4">
+      <TabsList className="grid w-full grid-cols-7 lg:w-[1000px] p-4">
         <TabsTrigger value="inventory">
           {getTranslation("common.inventory", language)}
         </TabsTrigger>
@@ -34,6 +35,10 @@ export const InventoryTabs = ({ children }: InventoryTabsProps) => {
         </TabsTrigger>
         <TabsTrigger value="alerts">
           {getTranslation("common.alerts", language)}
+        </TabsTrigger>
+        <TabsTrigger value="ai-leadlink" className="flex items-center gap-2">
+          <Brain className="w-4 h-4" />
+          AI LeadLink
         </TabsTrigger>
       </TabsList>
 
@@ -85,6 +90,25 @@ export const InventoryTabs = ({ children }: InventoryTabsProps) => {
         <div className="p-6">
           <h3 className="text-lg font-semibold">Inventory Alerts</h3>
           {/* Alerts content will go here */}
+        </div>
+      </TabsContent>
+
+      <TabsContent value="ai-leadlink">
+        <div className="p-6">
+          <h3 className="text-lg font-semibold">AI LeadLink Analysis</h3>
+          <p className="text-muted-foreground mt-2">
+            AI-powered analysis for optimizing lead times and replenishment strategies.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div className="space-y-4">
+              <h4 className="font-medium">Lead Time Analysis</h4>
+              {/* Lead time analysis content will go here */}
+            </div>
+            <div className="space-y-4">
+              <h4 className="font-medium">Replenishment Optimization</h4>
+              {/* Replenishment optimization content will go here */}
+            </div>
+          </div>
         </div>
       </TabsContent>
     </Tabs>
