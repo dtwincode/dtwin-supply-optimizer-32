@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -237,16 +236,17 @@ export const BufferConfigManager = () => {
             </div>
 
             <div className="space-y-4">
-              <h4 className="font-medium">Zone Factors</h4>
+              <h4 className="font-medium">Zone Parameters</h4>
               <div className="space-y-2">
-                <Label>Replenishment Time Factor</Label>
+                <Label>Replenishment Time (days)</Label>
                 <Input
                   type="number"
-                  step="0.1"
+                  min="0"
+                  step="1"
                   value={config.replenishmentTimeFactor}
                   onChange={(e) => setConfig({
                     ...config,
-                    replenishmentTimeFactor: parseFloat(e.target.value)
+                    replenishmentTimeFactor: parseInt(e.target.value, 10)
                   })}
                   disabled={!isEditing}
                 />
