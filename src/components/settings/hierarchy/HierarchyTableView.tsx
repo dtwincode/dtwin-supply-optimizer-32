@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from 'react';
 import { Card } from "@/components/ui/card";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
@@ -48,7 +49,7 @@ export function HierarchyTableView({
     return map;
   }, [data, columns]);
 
-  const { data: existingMappings, isLoading } = useQuery({
+  const { data: existingMappings, isLoading: isMappingsLoading } = useQuery({
     queryKey: ['hierarchyMappings', tableName],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -60,6 +61,20 @@ export function HierarchyTableView({
       return data;
     },
     staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: columnSelections } = useQuery({
+    queryKey: ['columnSelections', tableName],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('hierarchy_column_selections')
+        .select('selected_columns')
+        .eq('table_name', tableName)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
+    }
   });
 
   const saveMappingsMutation = useMutation({
@@ -104,20 +119,6 @@ export function HierarchyTableView({
     }
   });
 
-  const { data: columnSelections } = useQuery({
-    queryKey: ['columnSelections', tableName],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('hierarchy_column_selections')
-        .select('*')
-        .eq('table_name', tableName)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data;
-    }
-  });
-
   const saveColumnSelectionsMutation = useMutation({
     mutationFn: async (selectedColumns: Set<string>) => {
       const columnsArray = Array.from(selectedColumns);
@@ -149,27 +150,23 @@ export function HierarchyTableView({
   });
 
   useEffect(() => {
-    if (!isLoading && existingMappings) {
+    if (!isMappingsLoading && existingMappings) {
       const initialMappings = combinedHeaders.map(header => ({
         column: header.column,
         level: existingMappings.find(m => m.column_name === header.column)?.hierarchy_level?.toString() || null
       }));
       setMappings(initialMappings);
-
-      const mappedColumns = new Set(
-        existingMappings
-          .filter(m => m.hierarchy_level !== null)
-          .map(m => m.column_name)
-      );
-      setSelectedColumns(mappedColumns);
     }
-  }, [combinedHeaders, existingMappings, isLoading]);
+  }, [combinedHeaders, existingMappings, isMappingsLoading]);
 
   useEffect(() => {
     if (columnSelections?.selected_columns) {
       setSelectedColumns(new Set(columnSelections.selected_columns));
+    } else {
+      // If no selections exist yet, initialize with all columns
+      setSelectedColumns(new Set(columns));
     }
-  }, [columnSelections]);
+  }, [columnSelections, columns]);
 
   const handleLevelChange = (column: string, level: string) => {
     setMappings(prev => 
