@@ -129,6 +129,20 @@ const Forecasting = () => {
     whatIfScenario: []
   };
 
+  const handleSectionToggle = (section: 'time' | 'product' | 'location') => {
+    switch (section) {
+      case 'time':
+        setIsTimeExpanded(!isTimeExpanded);
+        break;
+      case 'product':
+        setIsProductExpanded(!isProductExpanded);
+        break;
+      case 'location':
+        setIsLocationExpanded(!isLocationExpanded);
+        break;
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="flex flex-col">
@@ -145,15 +159,12 @@ const Forecasting = () => {
         </div>
 
         <div className="px-6 space-y-6 mt-6">
-          
-          <div 
-            className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40"
-            onMouseLeave={() => setIsTimeExpanded(false)}
-          >
+          {/* Time Period Selection */}
+          <div className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40">
             <Button
               variant="ghost"
               className="w-full flex items-center justify-between p-6 hover:bg-primary/5"
-              onClick={() => setIsTimeExpanded(!isTimeExpanded)}
+              onClick={() => handleSectionToggle('time')}
             >
               <div className="flex items-center gap-3">
                 <span className="text-lg font-semibold text-primary">Time Period Selection</span>
@@ -170,50 +181,38 @@ const Forecasting = () => {
               </div>
             </Button>
 
-            <AnimatePresence>
-              {isTimeExpanded && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="overflow-hidden"
-                >
-                  <div className="p-6 space-y-6 border-t bg-primary/5">
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                      <Card className="p-6">
-                        <h4 className="text-base font-medium mb-4">Training Period</h4>
-                        <ForecastingDateRange
-                          fromDate={trainingFromDate}
-                          toDate={trainingToDate}
-                          setFromDate={setTrainingFromDate}
-                          setToDate={setTrainingToDate}
-                        />
-                      </Card>
-                      <Card className="p-6">
-                        <h4 className="text-base font-medium mb-4">Testing Period</h4>
-                        <ForecastingDateRange
-                          fromDate={testingFromDate}
-                          toDate={testingToDate}
-                          setFromDate={setTestingFromDate}
-                          setToDate={setTestingToDate}
-                        />
-                      </Card>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {isTimeExpanded && (
+              <div className="p-6 space-y-6 border-t bg-primary/5">
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                  <Card className="p-6">
+                    <h4 className="text-base font-medium mb-4">Training Period</h4>
+                    <ForecastingDateRange
+                      fromDate={trainingFromDate}
+                      toDate={trainingToDate}
+                      setFromDate={setTrainingFromDate}
+                      setToDate={setTrainingToDate}
+                    />
+                  </Card>
+                  <Card className="p-6">
+                    <h4 className="text-base font-medium mb-4">Testing Period</h4>
+                    <ForecastingDateRange
+                      fromDate={testingFromDate}
+                      toDate={testingToDate}
+                      setFromDate={setTestingFromDate}
+                      setToDate={setTestingToDate}
+                    />
+                  </Card>
+                </div>
+              </div>
+            )}
           </div>
 
-          <div 
-            className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40"
-            onMouseLeave={() => setIsProductExpanded(false)}
-          >
+          {/* Product Hierarchy */}
+          <div className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40">
             <Button
               variant="ghost"
               className="w-full flex items-center justify-between p-6 hover:bg-primary/5"
-              onClick={() => setIsProductExpanded(!isProductExpanded)}
+              onClick={() => handleSectionToggle('product')}
             >
               <div className="flex items-center gap-3">
                 <span className="text-lg font-semibold text-primary">Product Hierarchy</span>
@@ -230,49 +229,37 @@ const Forecasting = () => {
               </div>
             </Button>
 
-            <AnimatePresence>
-              {isProductExpanded && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="overflow-hidden"
-                >
-                  <div className="p-6 space-y-6 border-t bg-primary/5">
-                    <ProductFilter
-                      selectedL1MainProd={selectedL1MainProd}
-                      setSelectedL1MainProd={setSelectedL1MainProd}
-                      selectedL2ProdLine={selectedL2ProdLine}
-                      setSelectedL2ProdLine={setSelectedL2ProdLine}
-                      selectedL3ProdCategory={selectedL3ProdCategory}
-                      setSelectedL3ProdCategory={setSelectedL3ProdCategory}
-                      selectedL4DeviceMake={selectedL4DeviceMake}
-                      setSelectedL4DeviceMake={setSelectedL4DeviceMake}
-                      selectedL5ProdSubCategory={selectedL5ProdSubCategory}
-                      setSelectedL5ProdSubCategory={setSelectedL5ProdSubCategory}
-                      selectedL6DeviceModel={selectedL6DeviceModel}
-                      setSelectedL6DeviceModel={setSelectedL6DeviceModel}
-                      selectedL7DeviceColor={selectedL7DeviceColor}
-                      setSelectedL7DeviceColor={setSelectedL7DeviceColor}
-                      selectedL8DeviceStorage={selectedL8DeviceStorage}
-                      setSelectedL8DeviceStorage={setSelectedL8DeviceStorage}
-                      forecastData={dummyData.filteredData}
-                    />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {isProductExpanded && (
+              <div className="p-6 space-y-6 border-t bg-primary/5">
+                <ProductFilter
+                  selectedL1MainProd={selectedL1MainProd}
+                  setSelectedL1MainProd={setSelectedL1MainProd}
+                  selectedL2ProdLine={selectedL2ProdLine}
+                  setSelectedL2ProdLine={setSelectedL2ProdLine}
+                  selectedL3ProdCategory={selectedL3ProdCategory}
+                  setSelectedL3ProdCategory={setSelectedL3ProdCategory}
+                  selectedL4DeviceMake={selectedL4DeviceMake}
+                  setSelectedL4DeviceMake={setSelectedL4DeviceMake}
+                  selectedL5ProdSubCategory={selectedL5ProdSubCategory}
+                  setSelectedL5ProdSubCategory={setSelectedL5ProdSubCategory}
+                  selectedL6DeviceModel={selectedL6DeviceModel}
+                  setSelectedL6DeviceModel={setSelectedL6DeviceModel}
+                  selectedL7DeviceColor={selectedL7DeviceColor}
+                  setSelectedL7DeviceColor={setSelectedL7DeviceColor}
+                  selectedL8DeviceStorage={selectedL8DeviceStorage}
+                  setSelectedL8DeviceStorage={setSelectedL8DeviceStorage}
+                  forecastData={dummyData.filteredData}
+                />
+              </div>
+            )}
           </div>
 
-          <div 
-            className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40"
-            onMouseLeave={() => setIsLocationExpanded(false)}
-          >
+          {/* Location Hierarchy */}
+          <div className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40">
             <Button
               variant="ghost"
               className="w-full flex items-center justify-between p-6 hover:bg-primary/5"
-              onClick={() => setIsLocationExpanded(!isLocationExpanded)}
+              onClick={() => handleSectionToggle('location')}
             >
               <div className="flex items-center gap-3">
                 <span className="text-lg font-semibold text-primary">Location Hierarchy</span>
@@ -289,28 +276,18 @@ const Forecasting = () => {
               </div>
             </Button>
 
-            <AnimatePresence>
-              {isLocationExpanded && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="overflow-hidden"
-                >
-                  <div className="p-6 space-y-6 border-t bg-primary/5">
-                    <LocationFilter
-                      selectedRegion={selectedRegion}
-                      setSelectedRegion={setSelectedRegion}
-                      selectedCity={selectedCity}
-                      setSelectedCity={setSelectedCity}
-                      regions={[]}
-                      cities={{}}
-                    />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {isLocationExpanded && (
+              <div className="p-6 space-y-6 border-t bg-primary/5">
+                <LocationFilter
+                  selectedRegion={selectedRegion}
+                  setSelectedRegion={setSelectedRegion}
+                  selectedCity={selectedCity}
+                  setSelectedCity={setSelectedCity}
+                  regions={[]}
+                  cities={{}}
+                />
+              </div>
+            )}
           </div>
 
           <Routes>
