@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, type ReactNode } from 'react';
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,7 +19,7 @@ interface ColumnHeader {
 
 interface HierarchyTableViewProps {
   tableName: string;
-  data: Record<string, any>[];  // Explicitly type data as an array of records
+  data: Record<string, any>[];
   columns: string[];
   combinedHeaders: ColumnHeader[];
 }
@@ -35,8 +35,12 @@ interface Filters {
   [key: string]: string;
 }
 
+interface TableRowData {
+  [key: string]: string | number | null | undefined;
+}
+
 const SHOW_ALL_VALUE = "__show_all__";
-const ROWS_PER_PAGE = 50; // Increased to reduce page changes
+const ROWS_PER_PAGE = 50;
 
 export function HierarchyTableView({ 
   tableName, 
@@ -227,6 +231,12 @@ export function HierarchyTableView({
     }
   };
 
+  const renderCell = (row: TableRowData, column: string): ReactNode => {
+    const value = row[column];
+    if (value === null || value === undefined) return '';
+    return String(value);
+  };
+
   return (
     <div className="space-y-6">
       <Card className="p-6">
@@ -358,14 +368,11 @@ export function HierarchyTableView({
                       <TableRow key={rowIndex}>
                         {combinedHeaders
                           .filter(header => selectedColumns.has(header.column))
-                          .map(({ column }, colIndex) => {
-                            const cellValue = row[column];
-                            return (
-                              <TableCell key={`${rowIndex}-${colIndex}`}>
-                                {cellValue !== null && cellValue !== undefined ? String(cellValue) : ''}
-                              </TableCell>
-                            );
-                          })}
+                          .map(({ column }) => (
+                            <TableCell key={`${rowIndex}-${column}`}>
+                              {renderCell(row, column)}
+                            </TableCell>
+                          ))}
                       </TableRow>
                     ))}
                   </TableBody>
