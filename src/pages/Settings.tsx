@@ -31,12 +31,12 @@ const Settings = () => {
   const { data: tempUploadsCount, isLoading: isCheckingUploads } = useQuery({
     queryKey: ['tempUploadsCount'],
     queryFn: async () => {
-      const { count, error } = await supabase
+      const { data, error } = await supabase
         .from('temp_hierarchy_uploads')
-        .count();
+        .select('*', { count: 'exact', head: true });
       
       if (error) throw error;
-      return count || 0;
+      return data?.length || 0;
     }
   });
 
