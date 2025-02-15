@@ -96,7 +96,9 @@ export function HierarchyTableView({
       if (error) throw error;
 
       // Invalidate and refetch the query to update the cached data
-      await queryClient.invalidateQueries(['hierarchyMappings', tableName]);
+      await queryClient.invalidateQueries({
+        queryKey: ['hierarchyMappings', tableName]
+      });
 
       toast({
         title: "Success",
