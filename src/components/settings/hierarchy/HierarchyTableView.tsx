@@ -111,11 +111,9 @@ export function HierarchyTableView({
         .from('hierarchy_column_selections')
         .select('*')
         .eq('table_name', tableName)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 is "not found" error
-        throw error;
-      }
+      if (error) throw error;
       return data;
     }
   });

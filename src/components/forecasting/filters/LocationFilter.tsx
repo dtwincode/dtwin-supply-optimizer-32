@@ -30,7 +30,6 @@ export function LocationFilter({
 }: LocationFilterProps) {
   const [availableColumns, setAvailableColumns] = useState<string[]>([]);
 
-  // Fetch the selected columns for location hierarchy
   const { data: columnSelections } = useQuery({
     queryKey: ['columnSelections', 'location_hierarchy'],
     queryFn: async () => {
@@ -38,7 +37,7 @@ export function LocationFilter({
         .from('hierarchy_column_selections')
         .select('selected_columns')
         .eq('table_name', 'location_hierarchy')
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data?.selected_columns || [];
@@ -51,7 +50,6 @@ export function LocationFilter({
     }
   }, [columnSelections]);
 
-  // Only show filters for columns that were selected in the hierarchy settings
   const showRegionFilter = availableColumns.includes('region');
   const showCityFilter = availableColumns.includes('city');
 
