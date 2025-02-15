@@ -6,20 +6,19 @@ import { useToast } from "@/hooks/use-toast";
 import { Upload, Trash2, Save } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { HierarchyTableView } from '../hierarchy/HierarchyTableView';
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Progress } from "@/components/ui/progress";
 
 export function LocationHierarchyUpload() {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [columns, setColumns] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
   const [savedFileName, setSavedFileName] = useState<string | null>(null);
-  const [previewData, setPreviewData] = useState<any[]>([]);
-  const [combinedHeaders, setCombinedHeaders] = useState<Array<{column: string, sampleData: string}>>([]);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const { data: locationData, refetch } = useQuery({
+  // Query for location hierarchy data
+  const { data: locationData } = useQuery({
     queryKey: ['locationHierarchy'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -32,20 +31,40 @@ export function LocationHierarchyUpload() {
     }
   });
 
+  // Query for preview data
+  const { data: previewState } = useQuery({
+    queryKey: ['locationHierarchyPreview'],
+    queryFn: () => {
+      return {
+        columns: [] as string[],
+        previewData: [] as any[],
+        combinedHeaders: [] as Array<{column: string, sampleData: string}>
+      };
+    },
+    staleTime: Infinity, // Never mark the data as stale
+    gcTime: Infinity, // Never garbage collect the data
+  });
+
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const uploadedFile = event.target.files?.[0];
     if (!uploadedFile) return;
     setFile(uploadedFile);
     setProgress(0);
     setSavedFileName(null);
-    setColumns([]); // Reset columns when a new file is selected
   };
 
   const handleDeleteFile = () => {
     setFile(null);
     setProgress(0);
     setSavedFileName(null);
-    setColumns([]); // Reset columns when file is deleted
+    
+    // Clear the preview data from React Query cache
+    queryClient.setQueryData(['locationHierarchyPreview'], {
+      columns: [],
+      previewData: [],
+      combinedHeaders: []
+    });
+    
     // Reset the file input
     const fileInput = document.getElementById('location-file') as HTMLInputElement;
     if (fileInput) {
@@ -108,7 +127,6 @@ export function LocationHierarchyUpload() {
     setProgress(10);
 
     try {
-      // Upload file to storage
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(7)}.${fileExt}`;
       
@@ -128,13 +146,13 @@ export function LocationHierarchyUpload() {
       if (error) throw error;
 
       setProgress(90);
-      if (data?.headers) {
-        console.log('Received headers from process-hierarchy:', data.headers);
-        setColumns(data.headers);
-        setCombinedHeaders(data.combinedHeaders || []);
-        setPreviewData(data.data || []);
-      } else {
-        console.warn('No headers found in response:', data);
+      if (data.headers) {
+        // Update the preview data in React Query cache
+        queryClient.setQueryData(['locationHierarchyPreview'], {
+          columns: data.headers,
+          previewData: data.data || [],
+          combinedHeaders: data.combinedHeaders || []
+        });
       }
 
       setSavedFileName(fileName);
@@ -143,8 +161,6 @@ export function LocationHierarchyUpload() {
         title: "Success",
         description: "File uploaded successfully. Click the save icon to save the reference.",
       });
-
-      refetch();
     } catch (error) {
       console.error('Upload error:', error);
       toast({
@@ -221,18 +237,13 @@ export function LocationHierarchyUpload() {
         </div>
       </Card>
 
-      {columns.length > 0 && (
-        <>
-          <div className="text-sm text-muted-foreground mb-2">
-            Found {columns.length} columns in the uploaded file
-          </div>
-          <HierarchyTableView 
-            tableName="location_hierarchy"
-            data={previewData}
-            columns={columns}
-            combinedHeaders={combinedHeaders}
-          />
-        </>
+      {previewState && previewState.columns.length > 0 && previewState.previewData.length > 0 && (
+        <HierarchyTableView 
+          tableName="location_hierarchy"
+          data={previewState.previewData}
+          columns={previewState.columns}
+          combinedHeaders={previewState.combinedHeaders}
+        />
       )}
     </div>
   );
