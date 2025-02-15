@@ -125,7 +125,10 @@ export const LocationFilter = ({
   }
 
   return (
-    <div className="flex flex-wrap gap-4 p-4 bg-muted/30 rounded-lg">
+    <div 
+      className="flex flex-wrap gap-4 p-4 bg-muted/30 rounded-lg"
+      onClick={(e) => e.stopPropagation()}
+    >
       <div className="w-full">
         <h3 className="text-sm font-medium mb-2">Location Filters</h3>
         <div className="flex flex-wrap gap-4">
@@ -141,31 +144,36 @@ export const LocationFilter = ({
                 .join(' ');
 
               return (
-                <Select
-                  key={columnName}
-                  value={selectedLocations[columnName] || "all"}
-                  onValueChange={(value) => handleLocationSelect(value, columnName)}
-                >
-                  <SelectTrigger className="w-[200px] bg-white">
-                    <SelectValue placeholder={`Select ${displayName}`} />
-                  </SelectTrigger>
-                  <SelectContent className="min-w-[200px] bg-white">
-                    <ScrollArea className="max-h-[200px]">
-                      <SelectItem value="all" className="text-black">
-                        All {displayName}s
-                      </SelectItem>
-                      {values.map(value => (
-                        <SelectItem 
-                          key={value} 
-                          value={value}
-                          className="text-black"
-                        >
-                          {value}
+                <div key={columnName} onClick={(e) => e.stopPropagation()}>
+                  <Select
+                    value={selectedLocations[columnName] || "all"}
+                    onValueChange={(value) => handleLocationSelect(value, columnName)}
+                  >
+                    <SelectTrigger className="w-[200px] bg-white">
+                      <SelectValue placeholder={`Select ${displayName}`} />
+                    </SelectTrigger>
+                    <SelectContent 
+                      className="w-[200px] bg-white"
+                      position="popper"
+                      sideOffset={4}
+                    >
+                      <ScrollArea className="max-h-[200px]">
+                        <SelectItem value="all" className="text-black">
+                          All {displayName}s
                         </SelectItem>
-                      ))}
-                    </ScrollArea>
-                  </SelectContent>
-                </Select>
+                        {values.map(value => (
+                          <SelectItem 
+                            key={value} 
+                            value={value}
+                            className="text-black"
+                          >
+                            {value}
+                          </SelectItem>
+                        ))}
+                      </ScrollArea>
+                    </SelectContent>
+                  </Select>
+                </div>
               );
             })}
         </div>
