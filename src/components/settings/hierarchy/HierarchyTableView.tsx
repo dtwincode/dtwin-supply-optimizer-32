@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
-import { HierarchyColumnMapping } from './HierarchyColumnMapping';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -101,10 +100,28 @@ export function HierarchyTableView({
                 <thead>
                   <tr>
                     {combinedHeaders.map(({ column, sampleData }) => (
-                      <th key={column} className="px-4 py-2 text-left bg-muted">
-                        <div className="font-semibold">{column}</div>
-                        <div className="text-xs text-muted-foreground mt-1">
-                          Example: {sampleData}
+                      <th key={column} className="px-4 py-2 text-left bg-muted space-y-2">
+                        <div className="flex flex-col space-y-2">
+                          <div className="font-semibold">{column}</div>
+                          <Select
+                            value={mappings.find(m => m.column === column)?.level || 'none'}
+                            onValueChange={(value) => handleLevelChange(column, value as HierarchyLevel | 'none')}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select level" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="none">None</SelectItem>
+                              {['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8'].map((level) => (
+                                <SelectItem key={level} value={level}>
+                                  {level}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <div className="text-xs text-muted-foreground">
+                            Example: {sampleData}
+                          </div>
                         </div>
                       </th>
                     ))}
@@ -125,38 +142,12 @@ export function HierarchyTableView({
             </div>
           </div>
 
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Map Hierarchy Levels</h3>
-            <div className="grid gap-4">
-              {mappings.map(({ column, level }) => (
-                <div key={column} className="grid grid-cols-2 gap-4 items-center">
-                  <div className="font-medium">{column}</div>
-                  <Select
-                    value={level || 'none'}
-                    onValueChange={(value) => handleLevelChange(column, value as HierarchyLevel | 'none')}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">None</SelectItem>
-                      {['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8'].map((level) => (
-                        <SelectItem key={level} value={level}>
-                          {level}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              ))}
-            </div>
-            <button
-              onClick={handleSave}
-              className="mt-6 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 rounded-md"
-            >
-              Save Mappings
-            </button>
-          </div>
+          <button
+            onClick={handleSave}
+            className="mt-6 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 rounded-md"
+          >
+            Save Mappings
+          </button>
         </div>
       </Card>
     </div>
