@@ -45,13 +45,18 @@ export function LocationFilter({
   });
 
   useEffect(() => {
-    if (columnSelections) {
+    // Ensure columnSelections is an array before setting it
+    if (columnSelections && Array.isArray(columnSelections)) {
       setAvailableColumns(columnSelections);
+    } else {
+      // Default to showing all columns if no selections are found
+      setAvailableColumns(['region', 'city']);
     }
   }, [columnSelections]);
 
-  const showRegionFilter = availableColumns.includes('region');
-  const showCityFilter = availableColumns.includes('city');
+  // Default to true if availableColumns is not properly initialized
+  const showRegionFilter = Array.isArray(availableColumns) ? availableColumns.includes('region') : true;
+  const showCityFilter = Array.isArray(availableColumns) ? availableColumns.includes('city') : true;
 
   return (
     <Card className="p-6 w-full">
