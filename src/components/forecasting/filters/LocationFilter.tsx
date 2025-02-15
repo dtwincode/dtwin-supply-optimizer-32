@@ -1,3 +1,4 @@
+
 import {
   Select,
   SelectContent,
@@ -47,13 +48,18 @@ export const LocationFilter = ({
   const [selectedLocations, setSelectedLocations] = useState<string[]>(() => {
     const savedSelections = localStorage.getItem(LOCATION_SELECTIONS_KEY);
     if (savedSelections) {
-      return JSON.parse(savedSelections);
+      const parsed = JSON.parse(savedSelections);
+      // Immediately update parent filters with saved selections
+      if (parsed[0] && parsed[0] !== 'all') setSelectedRegion(parsed[0]);
+      if (parsed[1] && parsed[1] !== 'all') setSelectedCity(parsed[1]);
+      return parsed;
     }
     return [selectedRegion !== 'all' ? selectedRegion : '', selectedCity !== 'all' ? selectedCity : ''];
   });
   const [hierarchyLevels, setHierarchyLevels] = useState<Array<{ level: number; type: string }>>([]);
   const { toast } = useToast();
 
+  // Sync component state with props when they change
   useEffect(() => {
     const newSelections = [...selectedLocations];
     if (selectedRegion !== 'all' && selectedRegion !== selectedLocations[0]) {
@@ -133,6 +139,13 @@ export const LocationFilter = ({
 
   const handleSaveSelections = () => {
     localStorage.setItem(LOCATION_SELECTIONS_KEY, JSON.stringify(selectedLocations));
+    // Also update parent filters to ensure immediate reflection
+    if (selectedLocations[0]) {
+      setSelectedRegion(selectedLocations[0]);
+    }
+    if (selectedLocations[1]) {
+      setSelectedCity(selectedLocations[1]);
+    }
     toast({
       title: "Selections saved",
       description: "Your location filters have been saved successfully.",
