@@ -20,22 +20,22 @@ export const InventoryTabs = ({ children }: InventoryTabsProps) => {
     <Tabs defaultValue="inventory" className="w-full">
       <TabsList className="grid w-full grid-cols-7 lg:w-[1000px] p-4">
         <TabsTrigger value="inventory">
-          Inventory
+          {getTranslation("inventory", language)}
         </TabsTrigger>
         <TabsTrigger value="netflow">
-          Net Flow
+          {getTranslation("netFlow", language)}
         </TabsTrigger>
         <TabsTrigger value="decoupling">
-          Decoupling
+          {getTranslation("decouplingPoint", language)}
         </TabsTrigger>
         <TabsTrigger value="buffers">
-          Buffers
+          {getTranslation("buffers", language)}
         </TabsTrigger>
         <TabsTrigger value="adu">
-          ADU
+          {getTranslation("adu", language)}
         </TabsTrigger>
         <TabsTrigger value="alerts">
-          Alerts
+          {getTranslation("alerts", language)}
         </TabsTrigger>
         <TabsTrigger value="ai-leadlink" className="flex items-center gap-2">
           <Brain className="w-4 h-4" />

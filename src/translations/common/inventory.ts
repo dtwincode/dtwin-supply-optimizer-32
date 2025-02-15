@@ -40,7 +40,7 @@ export const inventoryTranslations: InventoryTranslations = {
     ar: "صافي التدفق"
   },
   unitsLabel: {
-    en: "units",
+    en: "Units",
     ar: "وحدات"
   },
   createPO: {
@@ -52,7 +52,7 @@ export const inventoryTranslations: InventoryTranslations = {
     ar: "نقطة الفصل"
   },
   netFlow: {
-    en: "Net Flow Analysis",
+    en: "Net Flow",
     ar: "تحليل التدفق الصافي"
   },
   buffers: {
@@ -76,7 +76,7 @@ export const inventoryTranslations: InventoryTranslations = {
     ar: "وحدات تخزين"
   },
   purchaseOrderCreated: {
-    en: "Purchase order created!",
+    en: "Purchase Order Created!",
     ar: "تم إنشاء أمر الشراء!"
   },
   sku: {
