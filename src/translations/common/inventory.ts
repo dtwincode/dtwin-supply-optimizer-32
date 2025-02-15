@@ -1,4 +1,3 @@
-
 import { TranslationValue } from '../types';
 
 export type InventoryTranslations = {
@@ -28,8 +27,8 @@ export type InventoryTranslations = {
 
 export const inventoryTranslations: InventoryTranslations = {
   inventory: {
-    en: "Inventory Management",
-    ar: "إدارة المخزون"
+    en: "Stock",
+    ar: "المخزون"
   },
   bufferZones: {
     en: "Buffer Zones",
@@ -79,7 +78,6 @@ export const inventoryTranslations: InventoryTranslations = {
     en: "Purchase order created!",
     ar: "تم إنشاء أمر الشراء!"
   },
-  // Table Headers - simplified without 'inventory.' prefix
   sku: {
     en: "SKU",
     ar: "رمز المنتج"
@@ -109,4 +107,3 @@ export const inventoryTranslations: InventoryTranslations = {
     ar: "الإجراءات"
   }
 };
-
