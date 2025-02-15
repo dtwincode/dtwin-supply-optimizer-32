@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from 'react';
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -301,7 +300,7 @@ export function HierarchyTableView({
                 </div>
               </div>
               
-              <ScrollArea className="h-[600px] rounded-md border">
+              <ScrollArea className="h-[600px]">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -355,13 +354,13 @@ export function HierarchyTableView({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {currentData.map((row, index) => (
-                      <TableRow key={index}>
+                    {currentData.map((row, rowIndex) => (
+                      <TableRow key={`row-${rowIndex}`}>
                         {combinedHeaders
                           .filter(header => selectedColumns.has(header.column))
-                          .map(({ column }) => (
-                            <TableCell key={column}>
-                              {row[column]}
+                          .map(({ column }, colIndex) => (
+                            <TableCell key={`${rowIndex}-${colIndex}`}>
+                              {String(row[column] || '')}
                             </TableCell>
                         ))}
                       </TableRow>
