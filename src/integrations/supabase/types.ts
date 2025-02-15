@@ -742,6 +742,39 @@ export type Database = {
           },
         ]
       }
+      hierarchy_column_mappings: {
+        Row: {
+          column_name: string
+          created_at: string | null
+          hierarchy_level:
+            | Database["public"]["Enums"]["hierarchy_level_type"]
+            | null
+          id: string
+          table_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          column_name: string
+          created_at?: string | null
+          hierarchy_level?:
+            | Database["public"]["Enums"]["hierarchy_level_type"]
+            | null
+          id?: string
+          table_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          column_name?: string
+          created_at?: string | null
+          hierarchy_level?:
+            | Database["public"]["Enums"]["hierarchy_level_type"]
+            | null
+          id?: string
+          table_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       inventory_data: {
         Row: {
           adu: number | null
@@ -1873,6 +1906,15 @@ export type Database = {
         | "customer_order"
         | "stock_point"
         | "intermediate"
+      hierarchy_level_type:
+        | "L1"
+        | "L2"
+        | "L3"
+        | "L4"
+        | "L5"
+        | "L6"
+        | "L7"
+        | "L8"
       industry_type:
         | "manufacturing"
         | "retail"

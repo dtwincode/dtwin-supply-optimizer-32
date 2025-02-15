@@ -1,99 +1,92 @@
 
-import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Upload } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Upload } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
+import { HierarchyTableView } from '../hierarchy/HierarchyTableView';
+import { useQuery } from "@tanstack/react-query";
 
-export const LocationHierarchyUpload = () => {
-  const [isUploading, setIsUploading] = useState(false);
+export function LocationHierarchyUpload() {
+  const [file, setFile] = useState<File | null>(null);
   const { toast } = useToast();
 
+  const { data: locationData, refetch } = useQuery({
+    queryKey: ['locationHierarchy'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('location_hierarchy')
+        .select('*')
+        .limit(100);
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const uploadedFile = event.target.files?.[0];
+    if (!uploadedFile) return;
 
-    setIsUploading(true);
-    const reader = new FileReader();
+    setFile(uploadedFile);
 
-    reader.onload = async (e) => {
-      try {
-        const text = e.target?.result as string;
-        const rows = text.split('\n');
-        const headers = rows[0].toLowerCase().split(',').map(h => h.trim());
-        const dataRows = rows.slice(1).filter(row => row.trim());
+    const formData = new FormData();
+    formData.append('file', uploadedFile);
+    formData.append('type', 'location');
 
-        const locationData = dataRows.map(row => {
-          const values = row.split(',').map(v => v.trim());
-          return {
-            channel_id: values[headers.indexOf('channel id')],
-            location_description: values[headers.indexOf('location des')],
-            location_id: values[headers.indexOf('location id')],
-            location_desc: values[headers.indexOf('location desc')],
-            city: values[headers.indexOf('city')],
-            region: values[headers.indexOf('region')],
-            country: values[headers.indexOf('country')],
-            channel: values[headers.indexOf('channel')],
-            sub_channel: values[headers.indexOf('sub channel')],
-            warehouse: values[headers.indexOf('warehouse')],
-            org_id: values[headers.indexOf('org_id')],
-            active: values[headers.indexOf('active')]?.toLowerCase() === 'true'
-          };
-        });
+    try {
+      const response = await fetch('/api/upload-hierarchy', {
+        method: 'POST',
+        body: formData,
+      });
 
-        const { error } = await supabase
-          .from('location_hierarchy')
-          .insert(locationData);
+      if (!response.ok) throw new Error('Upload failed');
 
-        if (error) throw error;
+      toast({
+        title: "Success",
+        description: "Location hierarchy file uploaded successfully",
+      });
 
-        toast({
-          title: "Success",
-          description: "Location hierarchy data uploaded successfully",
-        });
-
-      } catch (error) {
-        console.error('Error uploading location hierarchy:', error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to upload location hierarchy data",
-        });
-      } finally {
-        setIsUploading(false);
-      }
-    };
-
-    reader.readAsText(file);
+      refetch();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to upload location hierarchy file",
+      });
+    }
   };
 
   return (
-    <Card className="p-6">
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Location Hierarchy Upload</h3>
-        <p className="text-sm text-muted-foreground">
-          Upload your location hierarchy data using a CSV file. The file should include columns for Channel ID, Location Description, Location ID, etc.
-        </p>
+    <div className="space-y-6">
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold mb-4">Upload Location Hierarchy</h3>
         <div className="flex items-center gap-4">
           <Button
             variant="outline"
-            disabled={isUploading}
             onClick={() => document.getElementById('location-file')?.click()}
-            className="gap-2"
           >
-            <Upload className="h-4 w-4" />
-            {isUploading ? "Uploading..." : "Upload CSV"}
+            <Upload className="w-4 h-4 mr-2" />
+            Select File
           </Button>
           <input
             id="location-file"
             type="file"
-            accept=".csv"
+            accept=".csv,.xlsx"
             className="hidden"
             onChange={handleFileUpload}
           />
+          {file && <span className="text-sm text-muted-foreground">{file.name}</span>}
         </div>
-      </div>
-    </Card>
+      </Card>
+
+      {locationData && locationData.length > 0 && (
+        <HierarchyTableView 
+          tableName="location_hierarchy"
+          data={locationData}
+        />
+      )}
+    </div>
   );
-};
+}
