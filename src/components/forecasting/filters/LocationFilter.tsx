@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 interface LocationNode {
   id: string;
@@ -39,81 +40,76 @@ export const LocationFilter = ({
   selectedCity,
   setSelectedCity,
 }: LocationFilterProps) => {
-  const [isLoading, setIsLoading] = useState(true);
   const [locationHierarchy, setLocationHierarchy] = useState<LocationNode[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
-  const [hierarchyLevels, setHierarchyLevels] = useState<Array<{ level: number; type: string }>>([]);
 
-  // Fetch location hierarchy and mappings
+  // Fetch hierarchy mappings
+  const { data: hierarchyMappings, isLoading: isMappingsLoading } = useQuery({
+    queryKey: ['hierarchyMappings', 'location_hierarchy'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('hierarchy_column_mappings')
+        .select('*')
+        .eq('table_name', 'location_hierarchy')
+        .order('hierarchy_level', { ascending: true });
+
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  // Fetch location hierarchy data
+  const { data: locations, isLoading: isLocationsLoading } = useQuery({
+    queryKey: ['locationHierarchy'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('location_hierarchy_view')
+        .select('*')
+        .eq('active', true)
+        .order('hierarchy_level', { ascending: true });
+
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  // Process hierarchy levels from mappings
+  const hierarchyLevels = useMemo(() => {
+    if (!hierarchyMappings) return [];
+    
+    return hierarchyMappings
+      .filter(m => m.hierarchy_level !== null)
+      .map(m => ({
+        level: m.hierarchy_level,
+        type: m.column_name
+      }))
+      .sort((a, b) => a.level - b.level);
+  }, [hierarchyMappings]);
+
+  // Build hierarchical structure
   useEffect(() => {
-    const fetchLocationHierarchy = async () => {
-      try {
-        setIsLoading(true);
-        console.log('Fetching location hierarchy...');
-        
-        // First get the hierarchy mappings
-        const { data: mappings, error: mappingsError } = await supabase
-          .from('hierarchy_column_mappings')
-          .select('*')
-          .eq('table_name', 'location_hierarchy')
-          .order('hierarchy_level', { ascending: true });
+    if (!locations || !hierarchyMappings) return;
 
-        if (mappingsError) throw mappingsError;
-
-        // Then get the location hierarchy data
-        const { data: locations, error: locationsError } = await supabase
-          .from('location_hierarchy_view')
-          .select('*')
-          .eq('active', true)
-          .order('hierarchy_level', { ascending: true });
-
-        if (locationsError) throw locationsError;
-
-        if (locations && mappings) {
-          console.log('Location hierarchy data:', locations);
-          console.log('Hierarchy mappings:', mappings);
-
-          // Process hierarchy levels from mappings
-          const levels = mappings
-            .filter(m => m.hierarchy_level !== null)
-            .map(m => ({
-              level: m.hierarchy_level,
-              type: m.column_name
-            }))
-            .sort((a, b) => a.level - b.level);
-
-          setHierarchyLevels(levels);
-
-          // Build hierarchical structure
-          const buildHierarchy = (parentId: string | null = null): LocationNode[] => {
-            return locations
-              .filter(item => item.parent_id === parentId)
-              .map(item => ({
-                id: item.id,
-                location_id: item.location_id,
-                display_name: item.display_name || item.location_id,
-                location_type: item.location_type,
-                parent_id: item.parent_id,
-                hierarchy_level: item.hierarchy_level,
-                path: item.path || [],
-                active: item.active,
-                children: buildHierarchy(item.location_id)
-              }));
-          };
-
-          const hierarchy = buildHierarchy();
-          console.log('Built hierarchy:', hierarchy);
-          setLocationHierarchy(hierarchy);
-        }
-      } catch (error) {
-        console.error('Error fetching location hierarchy:', error);
-      } finally {
-        setIsLoading(false);
-      }
+    const buildHierarchy = (parentId: string | null = null): LocationNode[] => {
+      return locations
+        .filter(item => item.parent_id === parentId)
+        .map(item => ({
+          id: item.id,
+          location_id: item.location_id,
+          display_name: item.display_name || item.location_id,
+          location_type: item.location_type,
+          parent_id: item.parent_id,
+          hierarchy_level: item.hierarchy_level,
+          path: item.path || [],
+          active: item.active,
+          children: buildHierarchy(item.location_id)
+        }));
     };
 
-    fetchLocationHierarchy();
-  }, []);
+    const hierarchy = buildHierarchy();
+    console.log('Built hierarchy:', hierarchy);
+    setLocationHierarchy(hierarchy);
+  }, [locations, hierarchyMappings]);
 
   const handleLocationSelect = (locationId: string, hierarchyLevel: number) => {
     // Clear selections at and below the current hierarchy level
@@ -176,7 +172,7 @@ export const LocationFilter = ({
     return null;
   };
 
-  if (isLoading) {
+  if (isMappingsLoading || isLocationsLoading) {
     return (
       <div className="space-y-2">
         <Skeleton className="h-10 w-[180px]" />
@@ -186,7 +182,7 @@ export const LocationFilter = ({
   }
 
   // If no hierarchy levels are found, show a message
-  if (hierarchyLevels.length === 0) {
+  if (!hierarchyLevels.length) {
     return (
       <div className="p-4 bg-muted/30 rounded-lg">
         <p className="text-sm text-muted-foreground">
