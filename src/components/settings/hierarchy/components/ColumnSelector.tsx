@@ -65,10 +65,13 @@ export function ColumnSelector({
     },
     onSuccess: (newSelections) => {
       onSelectedColumnsChange(newSelections);
-      queryClient.invalidateQueries([
-        ['columnSelections', tableName],
-        ['hierarchyMappings', tableName]
-      ]);
+      // Invalidate both queries using the correct syntax
+      queryClient.invalidateQueries({
+        queryKey: ['columnSelections', tableName]
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['hierarchyMappings', tableName]
+      });
       toast({
         title: "Success",
         description: "Column deleted successfully",
