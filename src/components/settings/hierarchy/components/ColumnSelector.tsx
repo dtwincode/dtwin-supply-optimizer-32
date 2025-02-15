@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -32,58 +31,22 @@ export function ColumnSelector({
         .maybeSingle();
 
       if (error) throw error;
-      // Ensure we return an array even if data is null
       return data?.selected_columns || [];
     },
-    // Prevent stale data from being shown
     staleTime: 0,
-    // Always refetch on window focus
     refetchOnWindowFocus: true
-  });
-
-  // Update column selections in the database
-  const updateColumnSelections = useMutation({
-    mutationFn: async (columns: string[]) => {
-      const { error } = await supabase
-        .from('hierarchy_column_selections')
-        .upsert({
-          table_name: 'location_hierarchy',
-          selected_columns: columns
-        }, {
-          onConflict: 'table_name'
-        });
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['columnSelections'] });
-      toast({
-        title: "Success",
-        description: "Column selections saved successfully",
-      });
-    },
-    onError: (error) => {
-      console.error('Error saving column selections:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to save column selections",
-      });
-    }
   });
 
   // Initialize selected columns from database
   useEffect(() => {
     if (Array.isArray(columnSelectionsData)) {
-      // Only create a new Set if we have valid array data
       setSelectedColumns(new Set(columnSelectionsData));
     } else {
-      // If no data, initialize with an empty Set
       setSelectedColumns(new Set());
     }
   }, [columnSelectionsData]);
 
-  const handleColumnToggle = async (column: string) => {
+  const handleColumnToggle = (column: string) => {
     const newSelection = new Set(selectedColumns);
     if (newSelection.has(column)) {
       newSelection.delete(column);
@@ -91,20 +54,15 @@ export function ColumnSelector({
       newSelection.add(column);
     }
     setSelectedColumns(newSelection);
-    
-    // Save to database
-    await updateColumnSelections.mutateAsync(Array.from(newSelection));
   };
 
-  const handleSelectAll = async () => {
+  const handleSelectAll = () => {
     const allColumns = new Set(combinedHeaders.map(header => header.column));
     setSelectedColumns(allColumns);
-    await updateColumnSelections.mutateAsync(Array.from(allColumns));
   };
 
-  const handleUnselectAll = async () => {
+  const handleUnselectAll = () => {
     setSelectedColumns(new Set());
-    await updateColumnSelections.mutateAsync([]);
   };
 
   if (isLoading) {

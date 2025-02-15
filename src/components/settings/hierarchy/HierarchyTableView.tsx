@@ -8,7 +8,7 @@ import { ColumnSelector } from "./components/ColumnSelector";
 import { Pagination } from "./components/Pagination";
 import { HierarchyTable } from "./components/HierarchyTable";
 import { Button } from "@/components/ui/button";
-import { Save, Loader2 } from "lucide-react";
+import { Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { HierarchyTableViewProps, ColumnMapping, TableRowData } from "./types";
 
@@ -164,6 +164,66 @@ export function HierarchyTableView({
     }
   });
 
+  const saveConfigurationMutation = useMutation({
+    mutationFn: async ({ mappings, selectedColumns }: { 
+      mappings: ColumnMapping[], 
+      selectedColumns: Set<string> 
+    }) => {
+      const validMappings = mappings.filter((m): m is ColumnMapping & { level: string } => 
+        m.level !== null && selectedColumns.has(m.column)
+      );
+
+      const { error: deleteError } = await supabase
+        .from('hierarchy_column_mappings')
+        .delete()
+        .eq('table_name', tableName);
+
+      if (deleteError) throw deleteError;
+
+      if (validMappings.length > 0) {
+        const { error: insertError } = await supabase
+          .from('hierarchy_column_mappings')
+          .insert(
+            validMappings.map(m => ({
+              table_name: tableName,
+              column_name: m.column,
+              hierarchy_level: m.level ? parseFloat(m.level) : null
+            }))
+          );
+
+        if (insertError) throw insertError;
+      }
+
+      const columnsArray = Array.from(selectedColumns);
+      const { error: selectionsError } = await supabase
+        .from('hierarchy_column_selections')
+        .upsert({
+          table_name: tableName,
+          selected_columns: columnsArray
+        }, {
+          onConflict: 'table_name'
+        });
+
+      if (selectionsError) throw selectionsError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['hierarchyMappings', tableName] });
+      queryClient.invalidateQueries({ queryKey: ['columnSelections', tableName] });
+      toast({
+        title: "Success",
+        description: "Hierarchy configuration saved successfully",
+      });
+    },
+    onError: (error) => {
+      console.error('Error saving configuration:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to save hierarchy configuration",
+      });
+    }
+  });
+
   useEffect(() => {
     if (!isMappingsLoading && !isSelectionsLoading && !isInitialized) {
       if (existingMappings) {
@@ -265,6 +325,13 @@ export function HierarchyTableView({
     }
   };
 
+  const handleSaveConfiguration = async () => {
+    await saveConfigurationMutation.mutateAsync({
+      mappings,
+      selectedColumns
+    });
+  };
+
   const handleColumnToggle = (column: string) => {
     const newSelectedColumns = new Set(selectedColumns);
     if (newSelectedColumns.has(column)) {
@@ -296,38 +363,16 @@ export function HierarchyTableView({
               startIndex={startIndex}
               endIndex={endIndex}
               totalItems={filteredData.length}
-              onSave={handleSave}
-              isSaving={saveMappingsMutation.isPending}
             />
-            <div className="flex gap-4">
-              <Button
-                onClick={handleSave}
-                size="lg"
-                className="h-12 px-6 gap-2 text-base font-medium"
-                disabled={saveMappingsMutation.isPending}
-              >
-                {saveMappingsMutation.isPending ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <Save className="w-5 h-5" />
-                )}
-                {saveMappingsMutation.isPending ? "Saving..." : "Save Mappings"}
-              </Button>
-              <Button
-                onClick={handleSaveSelections}
-                size="lg"
-                variant="outline"
-                className="h-12 px-6 gap-2 text-base font-medium bg-white"
-                disabled={isSavingSelections}
-              >
-                {isSavingSelections ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <Save className="w-5 h-5" />
-                )}
-                {isSavingSelections ? "Saving..." : "Save Selections"}
-              </Button>
-            </div>
+            <Button
+              onClick={handleSaveConfiguration}
+              size="lg"
+              className="h-12 px-6 gap-2 text-base font-medium"
+              disabled={saveConfigurationMutation.isPending}
+            >
+              <Save className="w-5 h-5" />
+              {saveConfigurationMutation.isPending ? "Saving..." : "Save Configuration"}
+            </Button>
           </div>
 
           <Separator className="my-6" />
