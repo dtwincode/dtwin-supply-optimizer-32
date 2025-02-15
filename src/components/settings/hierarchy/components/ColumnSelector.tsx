@@ -30,8 +30,13 @@ export function ColumnSelector({
         .maybeSingle();
 
       if (error) throw error;
+      // Ensure we return an array even if data is null
       return data?.selected_columns || [];
-    }
+    },
+    // Prevent stale data from being shown
+    staleTime: 0,
+    // Always refetch on window focus
+    refetchOnWindowFocus: true
   });
 
   // Update column selections in the database
@@ -67,8 +72,12 @@ export function ColumnSelector({
 
   // Initialize selected columns from database
   useEffect(() => {
-    if (columnSelectionsData) {
+    if (Array.isArray(columnSelectionsData)) {
+      // Only create a new Set if we have valid array data
       setSelectedColumns(new Set(columnSelectionsData));
+    } else {
+      // If no data, initialize with an empty Set
+      setSelectedColumns(new Set());
     }
   }, [columnSelectionsData]);
 
