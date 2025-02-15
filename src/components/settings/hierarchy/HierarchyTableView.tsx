@@ -8,6 +8,8 @@ import { HierarchyTableHeader } from "./components/HierarchyTableHeader";
 import { ColumnSelector } from "./components/ColumnSelector";
 import { Pagination } from "./components/Pagination";
 import { HierarchyTable } from "./components/HierarchyTable";
+import { Button } from "@/components/ui/button";
+import { Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { HierarchyTableViewProps, ColumnMapping, TableRowData } from "./types";
 
@@ -25,6 +27,7 @@ export function HierarchyTableView({
   const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set(columns));
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [currentPage, setCurrentPage] = useState(1);
+  const [tableData, setTableData] = useState<TableRowData[]>(data);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -159,8 +162,8 @@ export function HierarchyTableView({
   };
 
   const filteredData = useMemo(() => {
-    return processDataInBatches(data, filters);
-  }, [data, filters]);
+    return processDataInBatches(tableData, filters);
+  }, [tableData, filters]);
 
   const {
     totalPages,
@@ -184,6 +187,26 @@ export function HierarchyTableView({
       m.level !== null && selectedColumns.has(m.column)
     );
     saveMappingsMutation.mutate(validMappings);
+  };
+
+  const handleSaveSelections = () => {
+    // Filter the data to only include selected columns
+    const filteredTableData = tableData.map(row => {
+      const newRow: TableRowData = {};
+      Object.keys(row).forEach(key => {
+        if (selectedColumns.has(key)) {
+          newRow[key] = row[key];
+        }
+      });
+      return newRow;
+    });
+    
+    setTableData(filteredTableData);
+    
+    toast({
+      title: "Success",
+      description: "Selected columns saved successfully. Unselected columns have been removed from the view.",
+    });
   };
 
   const handleColumnToggle = (column: string) => {
@@ -213,13 +236,23 @@ export function HierarchyTableView({
     <div className="space-y-6">
       <Card className="p-6">
         <div className="space-y-6">
-          <HierarchyTableHeader
-            startIndex={startIndex}
-            endIndex={endIndex}
-            totalItems={filteredData.length}
-            onSave={handleSave}
-            isSaving={saveMappingsMutation.isPending}
-          />
+          <div className="flex justify-between items-center">
+            <HierarchyTableHeader
+              startIndex={startIndex}
+              endIndex={endIndex}
+              totalItems={filteredData.length}
+              onSave={handleSave}
+              isSaving={saveMappingsMutation.isPending}
+            />
+            <Button
+              onClick={handleSaveSelections}
+              variant="outline"
+              className="ml-2"
+            >
+              <Save className="w-4 h-4 mr-2" />
+              Save Selections
+            </Button>
+          </div>
 
           <Separator className="my-6" />
 
