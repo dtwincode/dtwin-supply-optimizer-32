@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useMemo } from 'react';
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,7 +37,7 @@ interface Filters {
 }
 
 const SHOW_ALL_VALUE = "__show_all__";
-const ROWS_PER_PAGE = 10;
+const ROWS_PER_PAGE = 50; // Increased to reduce page changes
 
 export function HierarchyTableView({ 
   tableName, 
@@ -49,17 +50,36 @@ export function HierarchyTableView({
   const queryClient = useQueryClient();
   const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set(columns));
   const [filters, setFilters] = useState<Filters>({});
-  const [filteredData, setFilteredData] = useState(data);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const getUniqueValues = (column: string) => {
-    const values = new Set<string>();
-    data.forEach(row => {
-      if (row[column] !== null && row[column] !== undefined) {
-        values.add(String(row[column]));
-      }
+  // Memoize the filtered data to prevent unnecessary recalculations
+  const filteredData = useMemo(() => {
+    return data.filter(row => {
+      return Object.entries(filters).every(([column, filterValue]) => {
+        if (!filterValue || filterValue === SHOW_ALL_VALUE) return true;
+        const cellValue = String(row[column] || '');
+        return cellValue === filterValue;
+      });
     });
-    return Array.from(values).sort();
+  }, [data, filters]);
+
+  // Memoize the unique values for each column
+  const uniqueValuesMap = useMemo(() => {
+    const map = new Map<string, Set<string>>();
+    columns.forEach(column => {
+      const values = new Set<string>();
+      data.forEach(row => {
+        if (row[column] !== null && row[column] !== undefined) {
+          values.add(String(row[column]));
+        }
+      });
+      map.set(column, values);
+    });
+    return map;
+  }, [data, columns]);
+
+  const getUniqueValues = (column: string) => {
+    return Array.from(uniqueValuesMap.get(column) || new Set()).sort();
   };
 
   const { data: existingMappings, isLoading } = useQuery({
@@ -71,47 +91,39 @@ export function HierarchyTableView({
         .select('*')
         .eq('table_name', tableName);
 
-      if (error) {
-        console.error('Error fetching mappings:', error);
-        throw error;
-      }
-      console.log('Fetched mappings:', data);
+      if (error) throw error;
       return data;
     },
-    staleTime: 0,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
   useEffect(() => {
     if (!isLoading && existingMappings) {
-      const initialMappings = combinedHeaders.map(header => {
-        const existingMapping = existingMappings.find(m => m.column_name === header.column);
-        return {
-          column: header.column,
-          level: existingMapping?.hierarchy_level || null
-        };
-      });
+      const initialMappings = combinedHeaders.map(header => ({
+        column: header.column,
+        level: existingMappings.find(m => m.column_name === header.column)?.hierarchy_level || null
+      }));
       setMappings(initialMappings);
     }
   }, [combinedHeaders, existingMappings, isLoading]);
 
-  useEffect(() => {
-    const filtered = data.filter(row => {
-      return Object.entries(filters).every(([column, filterValue]) => {
-        if (!filterValue || filterValue === SHOW_ALL_VALUE) return true;
-        const cellValue = String(row[column] || '');
-        return cellValue === filterValue;
-      });
-    });
-    setFilteredData(filtered);
-    setCurrentPage(1);
-  }, [data, filters]);
-
-  const totalPages = Math.ceil(filteredData.length / ROWS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ROWS_PER_PAGE;
-  const endIndex = startIndex + ROWS_PER_PAGE;
-  const currentData = filteredData.slice(startIndex, endIndex);
+  // Memoize pagination calculations
+  const {
+    totalPages,
+    startIndex,
+    endIndex,
+    currentData
+  } = useMemo(() => {
+    const total = Math.ceil(filteredData.length / ROWS_PER_PAGE);
+    const start = (currentPage - 1) * ROWS_PER_PAGE;
+    const end = start + ROWS_PER_PAGE;
+    return {
+      totalPages: total,
+      startIndex: start,
+      endIndex: end,
+      currentData: filteredData.slice(start, end)
+    };
+  }, [filteredData, currentPage]);
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
@@ -262,9 +274,9 @@ export function HierarchyTableView({
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between mb-4">
                 <div className="text-sm text-muted-foreground">
-                  Showing {startIndex + 1} to {Math.min(endIndex, filteredData.length)} of {filteredData.length} rows (Total: {data.length} rows)
+                  Showing {startIndex + 1} to {Math.min(endIndex, filteredData.length)} of {filteredData.length} rows
                 </div>
                 <div className="flex items-center space-x-2">
                   <Button
@@ -289,14 +301,14 @@ export function HierarchyTableView({
                 </div>
               </div>
               
-              <div className="rounded-md border">
+              <ScrollArea className="h-[600px] rounded-md border">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       {combinedHeaders
                         .filter(header => selectedColumns.has(header.column))
                         .map(({ column, sampleData }) => (
-                          <TableHead key={column} className="min-w-[200px]">
+                          <TableHead key={column} className="min-w-[200px] sticky top-0 bg-background">
                             <div className="space-y-2 py-2">
                               <div className="font-medium">{column}</div>
                               <Select
@@ -361,7 +373,7 @@ export function HierarchyTableView({
                     No results found for the current filters
                   </div>
                 )}
-              </div>
+              </ScrollArea>
             </div>
           </div>
         </div>
