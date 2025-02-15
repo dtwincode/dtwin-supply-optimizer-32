@@ -66,8 +66,9 @@ export function ProductHierarchyUpload() {
       if (error) throw error;
 
       toast({
-        title: "Success",
-        description: "File reference saved successfully",
+        title: "✅ Successfully Saved!",
+        description: `The file "${file.name}" has been successfully saved to the database.`,
+        duration: 3000,
       });
     } catch (error) {
       console.error('Save error:', error);
