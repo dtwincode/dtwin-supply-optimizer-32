@@ -60,8 +60,8 @@ export function HierarchyTableView({
       if (error) throw error;
       return data;
     },
-    staleTime: Infinity, // Keep the data cached indefinitely
-    gcTime: 1000 * 60 * 60, // Garbage collect after 1 hour
+    staleTime: Infinity,
+    gcTime: 1000 * 60 * 60,
   });
 
   const { data: columnSelections, isLoading: isSelectionsLoading } = useQuery({
@@ -76,8 +76,8 @@ export function HierarchyTableView({
       if (error) throw error;
       return data;
     },
-    staleTime: Infinity, // Keep the data cached indefinitely
-    gcTime: 1000 * 60 * 60, // Garbage collect after 1 hour
+    staleTime: Infinity,
+    gcTime: 1000 * 60 * 60,
   });
 
   const saveMappingsMutation = useMutation({
@@ -126,14 +126,7 @@ export function HierarchyTableView({
     mutationFn: async (selectedColumns: Set<string>) => {
       const columnsArray = Array.from(selectedColumns);
       
-      const { error: functionError } = await supabase
-        .rpc('remove_unselected_columns', {
-          p_table_name: tableName,
-          p_selected_columns: columnsArray
-        });
-
-      if (functionError) throw functionError;
-
+      // Simply save the column selections without modifying the data
       const { error } = await supabase
         .from('hierarchy_column_selections')
         .upsert({
@@ -148,6 +141,19 @@ export function HierarchyTableView({
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['columnSelections', tableName]
+      });
+      
+      toast({
+        title: "Success",
+        description: `Successfully saved ${selectedColumns.size} column selections.`,
+      });
+    },
+    onError: (error) => {
+      console.error('Error saving selections:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to save column selections",
       });
     }
   });
@@ -247,34 +253,7 @@ export function HierarchyTableView({
   const handleSaveSelections = async () => {
     setIsSavingSelections(true);
     try {
-      const filteredTableData = tableData.map(row => {
-        const newRow: TableRowData = {};
-        Object.keys(row).forEach(key => {
-          if (selectedColumns.has(key)) {
-            newRow[key] = row[key];
-          }
-        });
-        return newRow;
-      });
-      
       await saveColumnSelectionsMutation.mutateAsync(selectedColumns);
-      setTableData(filteredTableData);
-      
-      await queryClient.invalidateQueries({
-        queryKey: ['columnSelections', tableName]
-      });
-      
-      toast({
-        title: "Success",
-        description: `Successfully saved ${selectedColumns.size} columns. Unselected columns have been removed from the database.`,
-      });
-    } catch (error) {
-      console.error('Error saving selections:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to save column selections and remove data",
-      });
     } finally {
       setIsSavingSelections(false);
     }
