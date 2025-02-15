@@ -87,7 +87,6 @@ export function ProductHierarchyUpload() {
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(7)}.${fileExt}`;
-      setSavedFileName(fileName);
       
       setProgress(30);
       const { error: uploadError } = await supabase.storage
@@ -109,10 +108,13 @@ export function ProductHierarchyUpload() {
         setColumns(data.headers);
       }
 
+      // Only set savedFileName after successful upload
+      setSavedFileName(fileName);
+
       setProgress(100);
       toast({
         title: "Success",
-        description: "Product hierarchy file uploaded and processed successfully",
+        description: "File uploaded successfully. Click the save icon to save the reference.",
       });
 
       refetch();
@@ -123,6 +125,7 @@ export function ProductHierarchyUpload() {
         title: "Error",
         description: "Failed to upload and process product hierarchy file",
       });
+      setSavedFileName(null);
     } finally {
       setIsUploading(false);
     }

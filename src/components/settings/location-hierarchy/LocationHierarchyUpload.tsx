@@ -88,7 +88,6 @@ export function LocationHierarchyUpload() {
       // Upload file to storage
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(7)}.${fileExt}`;
-      setSavedFileName(fileName);
       
       setProgress(30);
       const { error: uploadError } = await supabase.storage
@@ -110,10 +109,13 @@ export function LocationHierarchyUpload() {
         setColumns(data.headers);
       }
 
+      // Only set savedFileName after successful upload
+      setSavedFileName(fileName);
+
       setProgress(100);
       toast({
         title: "Success",
-        description: "File uploaded successfully. Please map the columns to hierarchy levels.",
+        description: "File uploaded successfully. Click the save icon to save the reference.",
       });
 
       refetch();
@@ -124,6 +126,7 @@ export function LocationHierarchyUpload() {
         title: "Error",
         description: "Failed to upload file",
       });
+      setSavedFileName(null);
     } finally {
       setIsUploading(false);
     }
