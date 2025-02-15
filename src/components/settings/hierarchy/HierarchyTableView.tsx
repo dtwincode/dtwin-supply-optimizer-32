@@ -111,37 +111,25 @@ export function HierarchyTableView({
   const handleSaveConfiguration = async () => {
     setIsSavingSelections(true);
     try {
-      const { error: selectionsError } = await supabase
-        .from('hierarchy_column_selections')
-        .upsert({
-          table_name: tableName,
-          selected_columns: Array.from(selectedColumns)
-        }, {
-          onConflict: 'table_name'
-        });
+      const mappingsJson = JSON.stringify(
+        mappings
+          .filter(m => m.level !== null)
+          .map(m => ({
+            column: m.column,
+            level: m.level
+          }))
+      );
 
-      if (selectionsError) throw selectionsError;
+      const { error } = await supabase.rpc(
+        'process_hierarchy_configuration',
+        {
+          p_table_name: tableName,
+          p_selected_columns: Array.from(selectedColumns),
+          p_mappings: mappingsJson
+        }
+      );
 
-      const validMappings = mappings
-        .filter(m => m.level !== null && selectedColumns.has(m.column))
-        .map(m => ({
-          table_name: tableName,
-          column_name: m.column,
-          hierarchy_level: parseFloat(m.level!)
-        }));
-
-      await supabase
-        .from('hierarchy_column_mappings')
-        .delete()
-        .eq('table_name', tableName);
-
-      if (validMappings.length > 0) {
-        const { error: mappingsError } = await supabase
-          .from('hierarchy_column_mappings')
-          .insert(validMappings);
-
-        if (mappingsError) throw mappingsError;
-      }
+      if (error) throw error;
 
       queryClient.invalidateQueries({ queryKey: ['hierarchyMappings', tableName] });
       queryClient.invalidateQueries({ queryKey: ['columnSelections', tableName] });
