@@ -32,6 +32,9 @@ interface LocationFilterProps {
   cities: { [key: string]: string[] };
 }
 
+// Local storage key for persisting selections
+const LOCATION_SELECTIONS_KEY = 'location_filter_selections';
+
 export const LocationFilter = ({
   selectedRegion,
   setSelectedRegion,
@@ -40,8 +43,33 @@ export const LocationFilter = ({
 }: LocationFilterProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [locationHierarchy, setLocationHierarchy] = useState<LocationNode[]>([]);
-  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+  const [selectedLocations, setSelectedLocations] = useState<string[]>(() => {
+    // Initialize from localStorage if available
+    const savedSelections = localStorage.getItem(LOCATION_SELECTIONS_KEY);
+    if (savedSelections) {
+      return JSON.parse(savedSelections);
+    }
+    // Initialize with current props if no saved state
+    return [selectedRegion !== 'all' ? selectedRegion : '', selectedCity !== 'all' ? selectedCity : ''];
+  });
   const [hierarchyLevels, setHierarchyLevels] = useState<Array<{ level: number; type: string }>>([]);
+
+  // Sync component state with props on mount and when props change
+  useEffect(() => {
+    const newSelections = [...selectedLocations];
+    if (selectedRegion !== 'all' && selectedRegion !== selectedLocations[0]) {
+      newSelections[0] = selectedRegion;
+    }
+    if (selectedCity !== 'all' && selectedCity !== selectedLocations[1]) {
+      newSelections[1] = selectedCity;
+    }
+    setSelectedLocations(newSelections);
+  }, [selectedRegion, selectedCity]);
+
+  // Persist selections to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem(LOCATION_SELECTIONS_KEY, JSON.stringify(selectedLocations));
+  }, [selectedLocations]);
 
   useEffect(() => {
     const fetchLocationHierarchy = async () => {
@@ -130,13 +158,21 @@ export const LocationFilter = ({
       switch (locationNode.location_type.toLowerCase()) {
         case 'region':
           setSelectedRegion(locationId);
-          setSelectedCity('all');
+          setSelectedCity('all'); // Reset city when region changes
           break;
         case 'city':
           setSelectedCity(locationId);
           break;
         default:
           break;
+      }
+    } else if (locationId === "all") {
+      // Handle "all" selection
+      if (hierarchyLevel === 0) {
+        setSelectedRegion('all');
+        setSelectedCity('all');
+      } else if (hierarchyLevel === 1) {
+        setSelectedCity('all');
       }
     }
   };
