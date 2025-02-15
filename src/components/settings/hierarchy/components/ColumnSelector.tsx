@@ -5,6 +5,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
+import { CheckSquare, XSquare } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type { ColumnHeader } from "../types";
 
 interface ColumnSelectorProps {
@@ -94,6 +96,17 @@ export function ColumnSelector({
     await updateColumnSelections.mutateAsync(Array.from(newSelection));
   };
 
+  const handleSelectAll = async () => {
+    const allColumns = new Set(combinedHeaders.map(header => header.column));
+    setSelectedColumns(allColumns);
+    await updateColumnSelections.mutateAsync(Array.from(allColumns));
+  };
+
+  const handleUnselectAll = async () => {
+    setSelectedColumns(new Set());
+    await updateColumnSelections.mutateAsync([]);
+  };
+
   if (isLoading) {
     return (
       <div className="mb-6">
@@ -104,7 +117,29 @@ export function ColumnSelector({
 
   return (
     <div className="mb-6">
-      <h4 className="text-sm font-medium mb-3">Column Selection</h4>
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="text-sm font-medium">Column Selection</h4>
+        <div className="flex gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleSelectAll}
+            className="h-8 px-2"
+          >
+            <CheckSquare className="h-4 w-4 mr-1" />
+            Select All
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleUnselectAll}
+            className="h-8 px-2"
+          >
+            <XSquare className="h-4 w-4 mr-1" />
+            Unselect All
+          </Button>
+        </div>
+      </div>
       <ScrollArea className="h-[120px] w-full rounded-md border p-4">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {combinedHeaders.map(({ column }) => (
