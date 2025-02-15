@@ -81,140 +81,6 @@ export function HierarchyTableView({
     gcTime: 1000 * 60 * 60,
   });
 
-  const saveMappingsMutation = useMutation({
-    mutationFn: async (validMappings: ColumnMapping[]) => {
-      const { error: deleteError } = await supabase
-        .from('hierarchy_column_mappings')
-        .delete()
-        .eq('table_name', tableName);
-
-      if (deleteError) throw deleteError;
-
-      if (validMappings.length > 0) {
-        const { error: insertError } = await supabase
-          .from('hierarchy_column_mappings')
-          .insert(
-            validMappings.map(m => ({
-              table_name: tableName,
-              column_name: m.column,
-              hierarchy_level: m.level ? parseFloat(m.level) : null
-            }))
-          );
-
-        if (insertError) throw insertError;
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['hierarchyMappings', tableName]
-      });
-      toast({
-        title: "Success",
-        description: "Hierarchy mappings saved successfully",
-      });
-    },
-    onError: (error) => {
-      console.error('Error saving mappings:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to save hierarchy mappings",
-      });
-    }
-  });
-
-  const saveColumnSelectionsMutation = useMutation({
-    mutationFn: async (selectedColumns: Set<string>) => {
-      const columnsArray = Array.from(selectedColumns);
-      
-      // First, delete any existing selections for this table
-      const { error: deleteError } = await supabase
-        .from('hierarchy_column_selections')
-        .delete()
-        .eq('table_name', tableName);
-
-      if (deleteError) throw deleteError;
-
-      // Then insert the new selections
-      const { error: insertError } = await supabase
-        .from('hierarchy_column_selections')
-        .insert({
-          table_name: tableName,
-          selected_columns: columnsArray
-        });
-
-      if (insertError) throw insertError;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['columnSelections', tableName]
-      });
-      
-      toast({
-        title: "Success",
-        description: `Successfully saved ${selectedColumns.size} column selections.`,
-      });
-    },
-    onError: (error) => {
-      console.error('Error saving selections:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to save column selections",
-      });
-    }
-  });
-
-  const saveConfigurationMutation = useMutation({
-    mutationFn: async ({ mappings, selectedColumns }: { 
-      mappings: ColumnMapping[], 
-      selectedColumns: Set<string> 
-    }) => {
-      const columnsArray = Array.from(selectedColumns);
-      const validMappings = mappings
-        .filter((m): m is ColumnMapping & { level: string } => 
-          m.level !== null && selectedColumns.has(m.column)
-        )
-        .map(mapping => ({
-          column: mapping.column,
-          level: mapping.level
-        }));
-
-      console.log('Sending configuration:', {
-        tableName,
-        columnsArray,
-        validMappings
-      });
-
-      const { error } = await supabase.rpc('process_hierarchy_configuration', {
-        p_table_name: tableName,
-        p_selected_columns: columnsArray,
-        p_mappings: validMappings
-      });
-
-      if (error) {
-        console.error('RPC error:', error);
-        throw error;
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['hierarchyMappings', tableName] });
-      queryClient.invalidateQueries({ queryKey: ['columnSelections', tableName] });
-      toast({
-        title: "Success",
-        description: "Hierarchy configuration saved successfully",
-      });
-    },
-    onError: (error) => {
-      console.error('Error saving configuration:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to save hierarchy configuration. Please try again.",
-      });
-    }
-  });
-
   useEffect(() => {
     if (!isMappingsLoading && !isSelectionsLoading && !isInitialized) {
       if (existingMappings) {
@@ -300,29 +166,6 @@ export function HierarchyTableView({
     };
   }, [filteredData, currentPage]);
 
-  const handleSave = async () => {
-    const validMappings = mappings.filter((m): m is ColumnMapping & { level: string } => 
-      m.level !== null && selectedColumns.has(m.column)
-    );
-    await saveMappingsMutation.mutateAsync(validMappings);
-  };
-
-  const handleSaveSelections = async () => {
-    setIsSavingSelections(true);
-    try {
-      await saveColumnSelectionsMutation.mutateAsync(selectedColumns);
-    } finally {
-      setIsSavingSelections(false);
-    }
-  };
-
-  const handleSaveConfiguration = async () => {
-    await saveConfigurationMutation.mutateAsync({
-      mappings,
-      selectedColumns
-    });
-  };
-
   const handleColumnToggle = (column: string) => {
     const newSelectedColumns = new Set(selectedColumns);
     if (newSelectedColumns.has(column)) {
@@ -382,13 +225,12 @@ export function HierarchyTableView({
               totalItems={filteredData.length}
             />
             <Button
-              onClick={handleSaveConfiguration}
+              onClick={() => {}}
               size="lg"
               className="h-12 px-6 gap-2 text-base font-medium"
-              disabled={saveConfigurationMutation.isPending}
             >
               <Save className="w-5 h-5" />
-              {saveConfigurationMutation.isPending ? "Saving..." : "Save Configuration"}
+              Save Configuration
             </Button>
           </div>
 
@@ -430,3 +272,4 @@ export function HierarchyTableView({
     </div>
   );
 }
+
