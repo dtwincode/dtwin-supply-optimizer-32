@@ -26,12 +26,7 @@ interface LocationData {
 }
 
 interface DatabaseLocationData {
-  data: {
-    data: LocationData[];
-  };
-  metadata?: {
-    selected_columns?: string[];
-  };
+  data: LocationData[];
 }
 
 export function LocationFilter({
@@ -39,38 +34,35 @@ export function LocationFilter({
   onFilterChange,
 }: LocationFilterProps) {
   const [filterOptions, setFilterOptions] = useState<{ [key: string]: Set<string> }>({
-    region: new Set(['North', 'South', 'East', 'West']),
-    city: new Set(['New York', 'Los Angeles', 'Chicago', 'Houston']),
+    region: new Set(),
+    city: new Set(),
   });
 
-  // Fetch location data from Supabase
   const { data: locationData, isLoading } = useQuery({
     queryKey: ['locations'],
     queryFn: async () => {
-      const { data: dbData, error } = await supabase
-        .from('permanent_hierarchy_data')
-        .select('data, metadata')
-        .eq('hierarchy_type', 'location')
-        .eq('is_active', true)
-        .single();
+      const { data, error } = await supabase
+        .from('location_hierarchy')
+        .select('region, city')
+        .eq('active', true);
 
       if (error) {
         console.error('Error fetching location data:', error);
         return null;
       }
 
-      return dbData as DatabaseLocationData;
+      return data as LocationData[];
     }
   });
 
   useEffect(() => {
-    if (locationData?.data?.data) {
+    if (locationData) {
       const options: { [key: string]: Set<string> } = {
         region: new Set(),
         city: new Set(),
       };
 
-      locationData.data.data.forEach((location: LocationData) => {
+      locationData.forEach((location: LocationData) => {
         if (location.region) options.region.add(location.region);
         if (location.city) options.city.add(location.city);
       });
