@@ -15,6 +15,8 @@ export function LocationHierarchyUpload() {
   const [columns, setColumns] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
   const [savedFileName, setSavedFileName] = useState<string | null>(null);
+  const [previewData, setPreviewData] = useState<any[]>([]);
+  const [combinedHeaders, setCombinedHeaders] = useState<Array<{column: string, sampleData: string}>>([]);
   const { toast } = useToast();
 
   const { data: locationData, refetch } = useQuery({
@@ -129,13 +131,13 @@ export function LocationHierarchyUpload() {
       if (data?.headers) {
         console.log('Received headers from process-hierarchy:', data.headers);
         setColumns(data.headers);
+        setCombinedHeaders(data.combinedHeaders || []);
+        setPreviewData(data.data || []);
       } else {
         console.warn('No headers found in response:', data);
       }
 
-      // Only set savedFileName after successful upload
       setSavedFileName(fileName);
-
       setProgress(100);
       toast({
         title: "Success",
@@ -226,8 +228,9 @@ export function LocationHierarchyUpload() {
           </div>
           <HierarchyTableView 
             tableName="location_hierarchy"
-            data={locationData || []}
+            data={previewData}
             columns={columns}
+            combinedHeaders={combinedHeaders}
           />
         </>
       )}
