@@ -36,7 +36,8 @@ interface Filters {
 }
 
 interface TableRowData {
-  [key: string]: string | number | null | undefined;
+  id: string | number;
+  [key: string]: any;
 }
 
 const SHOW_ALL_VALUE = "__show_all__";
@@ -115,7 +116,7 @@ export function HierarchyTableView({
         const cellValue = String(row[column] || '');
         return cellValue === filterValue;
       });
-    });
+    }) as TableRowData[];
   }, [data, filters]);
 
   const {
@@ -135,7 +136,7 @@ export function HierarchyTableView({
     };
   }, [filteredData, currentPage]);
 
-  const renderCell = (value: any): ReactNode => {
+  const renderCell = (value: any): string => {
     if (value === null || value === undefined) return '';
     return String(value);
   };
@@ -360,17 +361,23 @@ export function HierarchyTableView({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {(currentData as Record<string, any>[]).map((row, index) => (
-                      <TableRow key={`row-${index}`}>
-                        {combinedHeaders
-                          .filter(header => selectedColumns.has(header.column))
-                          .map(({ column }) => (
-                            <TableCell key={`cell-${index}-${column}`}>
-                              {renderCell(row[column])}
-                            </TableCell>
-                          ))}
-                      </TableRow>
-                    ))}
+                    {currentData.map((row: TableRowData, rowIndex: number) => {
+                      const rowKey = `row-${rowIndex}-${String(row.id || rowIndex)}`;
+                      return (
+                        <TableRow key={rowKey}>
+                          {combinedHeaders
+                            .filter(header => selectedColumns.has(header.column))
+                            .map(({ column }) => {
+                              const cellKey = `${rowKey}-${column}`;
+                              return (
+                                <TableCell key={cellKey}>
+                                  {renderCell(row[column])}
+                                </TableCell>
+                              );
+                            })}
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
                 {filteredData.length === 0 && (
