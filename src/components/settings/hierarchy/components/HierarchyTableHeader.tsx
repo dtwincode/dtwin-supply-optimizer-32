@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Save } from "lucide-react";
 
 interface HierarchyTableHeaderProps {
   startIndex: number;
@@ -49,6 +50,7 @@ export function HierarchyTableHeader({
         className="ml-auto"
         disabled={isSaving}
       >
+        <Save className="h-4 w-4" />
         {isSaving ? "Saving..." : "Save Mappings"}
       </Button>
     </div>
