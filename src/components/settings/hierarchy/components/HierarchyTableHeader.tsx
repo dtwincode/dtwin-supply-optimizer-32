@@ -7,13 +7,15 @@ interface HierarchyTableHeaderProps {
   endIndex: number;
   totalItems: number;
   onSave: () => Promise<void>;
+  isSaving: boolean;
 }
 
 export function HierarchyTableHeader({ 
   startIndex, 
   endIndex, 
   totalItems,
-  onSave 
+  onSave,
+  isSaving 
 }: HierarchyTableHeaderProps) {
   const { toast } = useToast();
 
@@ -45,8 +47,9 @@ export function HierarchyTableHeader({
       <Button
         onClick={handleSave}
         className="ml-auto"
+        disabled={isSaving}
       >
-        Save Mappings
+        {isSaving ? "Saving..." : "Save Mappings"}
       </Button>
     </div>
   );
