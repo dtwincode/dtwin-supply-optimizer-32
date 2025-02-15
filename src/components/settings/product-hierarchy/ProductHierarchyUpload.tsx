@@ -11,6 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 export function ProductHierarchyUpload() {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [columns, setColumns] = useState<string[]>([]);
   const { toast } = useToast();
 
   const { data: productData, refetch } = useQuery({
@@ -47,12 +48,16 @@ export function ProductHierarchyUpload() {
 
       if (uploadError) throw uploadError;
 
-      // Then call the process-hierarchy function
+      // Then call the process-hierarchy function to get headers
       const { data, error } = await supabase.functions.invoke('process-hierarchy', {
-        body: { fileName, type: 'product' }, // Add type to differentiate product hierarchy
+        body: { fileName, type: 'product' },
       });
 
       if (error) throw error;
+
+      if (data.headers) {
+        setColumns(data.headers);
+      }
 
       toast({
         title: "Success",
@@ -96,10 +101,11 @@ export function ProductHierarchyUpload() {
         </div>
       </Card>
 
-      {productData && productData.length > 0 && (
+      {productData && productData.length > 0 && columns.length > 0 && (
         <HierarchyTableView 
           tableName="product_hierarchy"
           data={productData}
+          columns={columns}
         />
       )}
     </div>
