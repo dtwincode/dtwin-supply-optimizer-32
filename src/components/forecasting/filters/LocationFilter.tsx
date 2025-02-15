@@ -28,6 +28,12 @@ interface LocationData {
   channel?: string;
 }
 
+interface DatabaseLocationData {
+  data: {
+    data: LocationData[];
+  }
+}
+
 export function LocationFilter({
   selectedRegion,
   setSelectedRegion,
@@ -57,9 +63,11 @@ export function LocationFilter({
         return null;
       }
 
-      // Parse the JSON data properly
-      if (data?.data && typeof data.data === 'object' && 'data' in data.data) {
-        return data.data;
+      // Validate and type the data
+      if (data && typeof data.data === 'object' && 
+          'data' in data.data && 
+          Array.isArray((data.data as any).data)) {
+        return data as DatabaseLocationData;
       }
 
       return null;
@@ -67,7 +75,7 @@ export function LocationFilter({
   });
 
   useEffect(() => {
-    if (locationData?.data && Array.isArray(locationData.data)) {
+    if (locationData?.data?.data) {
       const options = {
         region: new Set<string>(),
         city: new Set<string>(),
@@ -75,7 +83,9 @@ export function LocationFilter({
         channel: new Set<string>(),
       };
 
-      locationData.data.forEach((location: LocationData) => {
+      const locations = locationData.data.data as LocationData[];
+      
+      locations.forEach((location: LocationData) => {
         if (location.region) options.region.add(location.region);
         if (location.city) options.city.add(location.city);
         if (location.warehouse) options.warehouse.add(location.warehouse);
