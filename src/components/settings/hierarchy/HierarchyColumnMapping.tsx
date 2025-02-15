@@ -59,11 +59,11 @@ export function HierarchyColumnMapping({ tableName, columns, onMappingSaved }: H
     }
   }, [columns, existingMappings]);
 
-  const handleLevelChange = (columnName: string, level: HierarchyLevel | '') => {
+  const handleLevelChange = (columnName: string, level: HierarchyLevel | 'none') => {
     setMappings(prev => 
       prev.map(mapping => 
         mapping.name === columnName 
-          ? { ...mapping, level: level || null } 
+          ? { ...mapping, level: level === 'none' ? null : level } 
           : mapping
       )
     );
@@ -120,14 +120,14 @@ export function HierarchyColumnMapping({ tableName, columns, onMappingSaved }: H
           <div key={mapping.name} className="grid grid-cols-2 gap-4 items-center">
             <div>{mapping.name}</div>
             <Select
-              value={mapping.level || ''}
-              onValueChange={(value) => handleLevelChange(mapping.name, value as HierarchyLevel | '')}
+              value={mapping.level || 'none'}
+              onValueChange={(value) => handleLevelChange(mapping.name, value as HierarchyLevel | 'none')}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select level" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="none">None</SelectItem>
                 {HIERARCHY_LEVELS.map((level) => (
                   <SelectItem key={level} value={level}>
                     {level}
