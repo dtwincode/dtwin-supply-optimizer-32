@@ -61,7 +61,7 @@ export function HierarchyTableView({
       return data;
     },
     staleTime: Infinity, // Keep the data cached indefinitely
-    cacheTime: 1000 * 60 * 60, // Cache for 1 hour
+    gcTime: 1000 * 60 * 60, // Garbage collect after 1 hour
   });
 
   const { data: columnSelections, isLoading: isSelectionsLoading } = useQuery({
@@ -77,7 +77,7 @@ export function HierarchyTableView({
       return data;
     },
     staleTime: Infinity, // Keep the data cached indefinitely
-    cacheTime: 1000 * 60 * 60, // Cache for 1 hour
+    gcTime: 1000 * 60 * 60, // Garbage collect after 1 hour
   });
 
   const saveMappingsMutation = useMutation({
