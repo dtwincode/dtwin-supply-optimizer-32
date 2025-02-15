@@ -61,12 +61,18 @@ export function LocationFilter({
         .select('*')
         .eq('hierarchy_type', 'location')
         .eq('is_active', true)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error) {
+        console.error('Error fetching location data:', error);
+        return {
+          regions: [],
+          cities: {}
+        };
+      }
 
       // Ensure data is an array and has the correct shape
-      const hierarchyData = Array.isArray(data?.data) ? data.data as LocationData[] : [];
+      const hierarchyData = Array.isArray(data?.data) ? data?.data as LocationData[] : [];
       
       // Process the data to get unique regions and cities
       const uniqueRegions = new Set<string>();
