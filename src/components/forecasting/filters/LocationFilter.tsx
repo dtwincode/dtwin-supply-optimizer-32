@@ -53,11 +53,7 @@ export function LocationFilter({
         return defaultColumns;
       }
 
-      // Ensure we return an array of strings
-      if (data?.selected_columns && Array.isArray(data.selected_columns)) {
-        return data.selected_columns.filter(col => typeof col === 'string');
-      }
-      return defaultColumns;
+      return data?.selected_columns || defaultColumns;
     }
   });
 
@@ -88,21 +84,18 @@ export function LocationFilter({
       const hierarchyData = Array.isArray(data?.data) ? data.data as LocationData[] : [];
       console.log('Processed hierarchy data:', hierarchyData);
       
-      // Only process columns that are selected in hierarchy settings
       const uniqueRegions = new Set<string>();
       const citiesByRegion: { [key: string]: Set<string> } = {};
 
-      const selectedCols = Array.isArray(columnSelections) ? columnSelections : defaultColumns;
-      console.log('Selected columns:', selectedCols);
-
-      hierarchyData.forEach((row: LocationData) => {
-        if (selectedCols.includes('region') && row.region) {
-          uniqueRegions.add(row.region);
-          if (selectedCols.includes('city') && row.city) {
-            if (!citiesByRegion[row.region]) {
-              citiesByRegion[row.region] = new Set<string>();
+      // Process the hierarchy data
+      hierarchyData.forEach((location: LocationData) => {
+        if (location.region) {
+          uniqueRegions.add(location.region);
+          if (location.city) {
+            if (!citiesByRegion[location.region]) {
+              citiesByRegion[location.region] = new Set<string>();
             }
-            citiesByRegion[row.region].add(row.city);
+            citiesByRegion[location.region].add(location.city);
           }
         }
       });
@@ -124,17 +117,12 @@ export function LocationFilter({
   });
 
   useEffect(() => {
-    // Ensure columnSelections is an array before setting it
     if (Array.isArray(columnSelections)) {
       setAvailableColumns(columnSelections);
     } else {
       setAvailableColumns(defaultColumns);
     }
   }, [columnSelections]);
-
-  // Ensure availableColumns is an array before using includes
-  const showRegionFilter = Array.isArray(availableColumns) && availableColumns.includes('region');
-  const showCityFilter = Array.isArray(availableColumns) && availableColumns.includes('city');
 
   if (isLoadingColumns || isLoadingLocations) {
     return (
@@ -152,51 +140,47 @@ export function LocationFilter({
       <div className="space-y-4">
         <h3 className="text-lg font-medium mb-4">Location Filters</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {showRegionFilter && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Region</label>
-              <Select
-                value={selectedRegion}
-                onValueChange={setSelectedRegion}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select region" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Regions</SelectItem>
-                  {locationsData?.regions.map((region) => (
-                    <SelectItem key={region} value={region}>
-                      {region}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Region</label>
+            <Select
+              value={selectedRegion}
+              onValueChange={setSelectedRegion}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select region" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Regions</SelectItem>
+                {locationsData?.regions.map((region) => (
+                  <SelectItem key={region} value={region}>
+                    {region}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">City</label>
+            <Select
+              value={selectedCity}
+              onValueChange={setSelectedCity}
+              disabled={selectedRegion === "all"}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select city" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Cities</SelectItem>
+                {selectedRegion !== "all" &&
+                  locationsData?.cities[selectedRegion]?.map((city) => (
+                    <SelectItem key={city} value={city}>
+                      {city}
                     </SelectItem>
                   ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
-          {showCityFilter && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium">City</label>
-              <Select
-                value={selectedCity}
-                onValueChange={setSelectedCity}
-                disabled={selectedRegion === "all"}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select city" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Cities</SelectItem>
-                  {selectedRegion !== "all" &&
-                    locationsData?.cities[selectedRegion]?.map((city) => (
-                      <SelectItem key={city} value={city}>
-                        {city}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
     </Card>
