@@ -36,7 +36,6 @@ interface Filters {
 }
 
 interface TableRowData {
-  id: string | number;
   [key: string]: any;
 }
 
@@ -363,15 +362,21 @@ export function HierarchyTableView({
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {currentData.map((row, index) => (
-                          <TableRow key={`row-${index}`}>
+                        {currentData.map((row: TableRowData, rowIndex: number) => (
+                          <TableRow key={`row-${rowIndex}`}>
                             {combinedHeaders
                               .filter(header => selectedColumns.has(header.column))
-                              .map(({ column }) => (
-                                <TableCell key={`cell-${index}-${column}`} className="min-w-[200px]">
-                                  {String(row[column] || '')}
-                                </TableCell>
-                              ))}
+                              .map(({ column }) => {
+                                const cellValue = row[column];
+                                return (
+                                  <TableCell 
+                                    key={`cell-${rowIndex}-${column}`} 
+                                    className="min-w-[200px]"
+                                  >
+                                    {cellValue !== null && cellValue !== undefined ? String(cellValue) : ''}
+                                  </TableCell>
+                                );
+                              })}
                           </TableRow>
                         ))}
                       </TableBody>
