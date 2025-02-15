@@ -241,77 +241,93 @@ export function HierarchyTableView({
               </ScrollArea>
             </div>
 
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    {combinedHeaders
-                      .filter(header => selectedColumns.has(header.column))
-                      .map(({ column, sampleData }) => (
-                        <TableHead key={column} className="min-w-[200px]">
-                          <div className="space-y-2 py-2">
-                            <div className="font-medium">{column}</div>
-                            <Select
-                              value={mappings.find(m => m.column === column)?.level || 'none'}
-                              onValueChange={(value) => handleLevelChange(column, value as HierarchyLevel | 'none')}
-                            >
-                              <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select level" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="none">None</SelectItem>
-                                {['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8'].map((level) => (
-                                  <SelectItem key={level} value={level}>
-                                    {level}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <Select
-                              value={filters[column] || SHOW_ALL_VALUE}
-                              onValueChange={(value) => handleFilterChange(column, value)}
-                            >
-                              <SelectTrigger className="w-full">
-                                <SelectValue placeholder={`Filter ${column}...`} />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value={SHOW_ALL_VALUE}>Show all</SelectItem>
-                                {getUniqueValues(column).map((value) => (
-                                  <SelectItem key={value} value={value}>
-                                    {value}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <div className="text-xs text-muted-foreground">
-                              Example: {sampleData}
-                            </div>
-                          </div>
-                        </TableHead>
-                    ))}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredData
-                    .slice(0, 5)
-                    .map((row, index) => (
-                      <TableRow key={index}>
-                        {combinedHeaders
-                          .filter(header => selectedColumns.has(header.column))
-                          .map(({ column }) => (
-                            <TableCell key={column}>
-                              {row[column]}
-                            </TableCell>
-                        ))}
-                      </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              {filteredData.length === 0 && (
-                <div className="text-center py-4 text-sm text-muted-foreground">
-                  No results found for the current filters
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-muted-foreground">
+                  Showing {Math.min(5, filteredData.length)} of {filteredData.length} rows (Total: {data.length} rows)
                 </div>
-              )}
+                {filteredData.length !== data.length && (
+                  <div className="text-sm text-muted-foreground">
+                    Filtered: {filteredData.length} matches
+                  </div>
+                )}
+              </div>
+              
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      {combinedHeaders
+                        .filter(header => selectedColumns.has(header.column))
+                        .map(({ column, sampleData }) => (
+                          <TableHead key={column} className="min-w-[200px]">
+                            <div className="space-y-2 py-2">
+                              <div className="font-medium">{column}</div>
+                              <Select
+                                value={mappings.find(m => m.column === column)?.level || 'none'}
+                                onValueChange={(value) => handleLevelChange(column, value as HierarchyLevel | 'none')}
+                              >
+                                <SelectTrigger className="w-full">
+                                  <SelectValue placeholder="Select level" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="none">None</SelectItem>
+                                  {['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8'].map((level) => (
+                                    <SelectItem key={level} value={level}>
+                                      {level}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <Select
+                                value={filters[column] || SHOW_ALL_VALUE}
+                                onValueChange={(value) => handleFilterChange(column, value)}
+                              >
+                                <SelectTrigger className="w-full">
+                                  <SelectValue placeholder={`Filter ${column}...`} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value={SHOW_ALL_VALUE}>Show all</SelectItem>
+                                  {getUniqueValues(column).map((value) => (
+                                    <SelectItem key={value} value={value}>
+                                      {value}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <div className="text-xs text-muted-foreground">
+                                Unique values: {getUniqueValues(column).length}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                Example: {sampleData}
+                              </div>
+                            </div>
+                          </TableHead>
+                      ))}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredData
+                      .slice(0, 5)
+                      .map((row, index) => (
+                        <TableRow key={index}>
+                          {combinedHeaders
+                            .filter(header => selectedColumns.has(header.column))
+                            .map(({ column }) => (
+                              <TableCell key={column}>
+                                {row[column]}
+                              </TableCell>
+                          ))}
+                        </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                {filteredData.length === 0 && (
+                  <div className="text-center py-4 text-sm text-muted-foreground">
+                    No results found for the current filters
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
