@@ -28,6 +28,12 @@ interface LocationData {
   channel?: string;
 }
 
+interface DatabaseLocationData {
+  data: {
+    data: LocationData[];
+  }
+}
+
 export function LocationFilter({
   selectedRegion,
   setSelectedRegion,
@@ -41,26 +47,48 @@ export function LocationFilter({
     channel: new Set(),
   });
 
-  // Fetch location data
+  // Fetch location data from permanent_hierarchy_data
   const { data: locationData, isLoading } = useQuery({
     queryKey: ['locations'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('forecast_data')
-        .select('region, city')
-        .not('region', 'is', null);
+      const { data: dbData, error } = await supabase
+        .from('permanent_hierarchy_data')
+        .select('data')
+        .eq('hierarchy_type', 'location')
+        .eq('is_active', true)
+        .single();
 
       if (error) {
         console.error('Error fetching location data:', error);
         return null;
       }
 
-      return data;
+      // First cast to unknown, then validate the structure
+      const rawData = dbData as unknown;
+      
+      // Type guard function to validate LocationData
+      const isLocationData = (item: any): item is LocationData => {
+        return typeof item === 'object' && item !== null;
+      };
+
+      // Validate the data structure
+      if (rawData && 
+          typeof rawData === 'object' && 
+          'data' in rawData && 
+          typeof rawData.data === 'object' &&
+          rawData.data !== null &&
+          'data' in rawData.data &&
+          Array.isArray(rawData.data.data) &&
+          rawData.data.data.every(isLocationData)) {
+        return rawData as DatabaseLocationData;
+      }
+
+      return null;
     }
   });
 
   useEffect(() => {
-    if (locationData && locationData.length > 0) {
+    if (locationData?.data?.data) {
       const options = {
         region: new Set<string>(),
         city: new Set<string>(),
@@ -68,15 +96,27 @@ export function LocationFilter({
         channel: new Set<string>(),
       };
 
-      locationData.forEach((row) => {
-        if (row.region) options.region.add(row.region);
-        if (row.city) options.city.add(row.city);
+      const locations = locationData.data.data;
+      
+      locations.forEach((location: LocationData) => {
+        if (location.region) options.region.add(location.region);
+        if (location.city) options.city.add(location.city);
+        if (location.warehouse) options.warehouse.add(location.warehouse);
+        if (location.channel) options.channel.add(location.channel);
       });
 
       setFilterOptions(options);
       console.log('Filter options updated:', options);
     }
   }, [locationData]);
+
+  // Filter cities based on selected region
+  const filteredCities = Array.from(filterOptions.city).filter((city) => {
+    if (selectedRegion === 'all') return true;
+    return locationData?.data?.data.some(
+      (location) => location.city === city && location.region === selectedRegion
+    );
+  });
 
   if (isLoading) {
     return (
@@ -125,7 +165,7 @@ export function LocationFilter({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All cities</SelectItem>
-                {Array.from(filterOptions.city).sort().map((city) => (
+                {filteredCities.sort().map((city) => (
                   <SelectItem key={city} value={city}>
                     {city}
                   </SelectItem>
