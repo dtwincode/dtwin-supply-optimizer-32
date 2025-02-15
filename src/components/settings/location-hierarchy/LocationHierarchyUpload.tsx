@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 
 export function LocationHierarchyUpload() {
   const [file, setFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
 
   const { data: locationData, refetch } = useQuery({
@@ -30,31 +31,44 @@ export function LocationHierarchyUpload() {
     if (!uploadedFile) return;
 
     setFile(uploadedFile);
-
-    const formData = new FormData();
-    formData.append('file', uploadedFile);
-    formData.append('type', 'location');
+    setIsUploading(true);
 
     try {
-      const response = await fetch('/api/upload-hierarchy', {
-        method: 'POST',
-        body: formData,
+      const formData = new FormData();
+      formData.append('file', uploadedFile);
+
+      // First, upload the file to Supabase storage
+      const fileExt = uploadedFile.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(7)}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('hierarchy-uploads')
+        .upload(fileName, uploadedFile);
+
+      if (uploadError) throw uploadError;
+
+      // Then call the process-hierarchy function
+      const { data, error } = await supabase.functions.invoke('process-hierarchy', {
+        body: { fileName },
       });
 
-      if (!response.ok) throw new Error('Upload failed');
+      if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Location hierarchy file uploaded successfully",
+        description: "Location hierarchy file uploaded and processed successfully",
       });
 
       refetch();
     } catch (error) {
+      console.error('Upload error:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to upload location hierarchy file",
+        description: "Failed to upload and process location hierarchy file",
       });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -66,9 +80,10 @@ export function LocationHierarchyUpload() {
           <Button
             variant="outline"
             onClick={() => document.getElementById('location-file')?.click()}
+            disabled={isUploading}
           >
             <Upload className="w-4 h-4 mr-2" />
-            Select File
+            {isUploading ? 'Uploading...' : 'Select File'}
           </Button>
           <input
             id="location-file"
