@@ -51,7 +51,7 @@ export function LocationFilter({
   const { data: locationData, isLoading } = useQuery({
     queryKey: ['locations'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: dbData, error } = await supabase
         .from('permanent_hierarchy_data')
         .select('data')
         .eq('hierarchy_type', 'location')
@@ -63,11 +63,24 @@ export function LocationFilter({
         return null;
       }
 
-      // Validate and type the data
-      if (data && typeof data.data === 'object' && 
-          'data' in data.data && 
-          Array.isArray((data.data as any).data)) {
-        return data as DatabaseLocationData;
+      // First cast to unknown, then validate the structure
+      const rawData = dbData as unknown;
+      
+      // Type guard function to validate LocationData
+      const isLocationData = (item: any): item is LocationData => {
+        return typeof item === 'object' && item !== null;
+      };
+
+      // Validate the data structure
+      if (rawData && 
+          typeof rawData === 'object' && 
+          'data' in rawData && 
+          typeof rawData.data === 'object' &&
+          rawData.data !== null &&
+          'data' in rawData.data &&
+          Array.isArray(rawData.data.data) &&
+          rawData.data.data.every(isLocationData)) {
+        return rawData as DatabaseLocationData;
       }
 
       return null;
@@ -83,7 +96,7 @@ export function LocationFilter({
         channel: new Set<string>(),
       };
 
-      const locations = locationData.data.data as LocationData[];
+      const locations = locationData.data.data;
       
       locations.forEach((location: LocationData) => {
         if (location.region) options.region.add(location.region);
