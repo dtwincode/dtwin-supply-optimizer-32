@@ -147,22 +147,24 @@ export const LocationFilter = ({
                   value={selectedLocations[columnName] || "all"}
                   onValueChange={(value) => handleLocationSelect(value, columnName)}
                 >
-                  <SelectTrigger className="w-[200px]">
+                  <SelectTrigger className="w-[200px] bg-background">
                     <SelectValue placeholder={`Select ${displayName}`} />
                   </SelectTrigger>
                   <SelectContent 
-                    className="w-[200px]"
-                    align="start"
+                    className="w-[200px] bg-background z-[100]"
+                    position="popper"
                     side="bottom"
+                    sideOffset={4}
                   >
                     <ScrollArea className="h-[200px]">
-                      <SelectItem value="all">
+                      <SelectItem value="all" className="cursor-pointer">
                         All {displayName}s
                       </SelectItem>
                       {values.map(value => (
                         <SelectItem 
                           key={value} 
                           value={value}
+                          className="cursor-pointer"
                         >
                           {value}
                         </SelectItem>
