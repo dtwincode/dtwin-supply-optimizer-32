@@ -1,13 +1,14 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { Card } from "@/components/ui/card";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Separator } from "@/components/ui/separator";
 import { HierarchyTableHeader } from "./components/HierarchyTableHeader";
 import { ColumnSelector } from "./components/ColumnSelector";
 import { Pagination } from "./components/Pagination";
 import { HierarchyTable } from "./components/HierarchyTable";
+import { useToast } from "@/hooks/use-toast";
 import type { HierarchyTableViewProps, ColumnMapping, TableRowData } from "./types";
 
 const SHOW_ALL_VALUE = "__show_all__";
@@ -25,6 +26,7 @@ export function HierarchyTableView({
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [currentPage, setCurrentPage] = useState(1);
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const uniqueValuesMap = useMemo(() => {
     const map = new Map<string, Set<string>>();
@@ -43,9 +45,98 @@ export function HierarchyTableView({
     return map;
   }, [data, columns]);
 
-  const getUniqueValues = (column: string): string[] => {
-    const values = uniqueValuesMap.get(column);
-    return values ? Array.from(values).sort() : [];
+  const { data: existingMappings, isLoading } = useQuery({
+    queryKey: ['hierarchyMappings', tableName],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('hierarchy_column_mappings')
+        .select('*')
+        .eq('table_name', tableName);
+
+      if (error) throw error;
+      return data;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Save mappings mutation
+  const saveMappingsMutation = useMutation({
+    mutationFn: async (validMappings: ColumnMapping[]) => {
+      // First delete existing mappings for this table
+      const { error: deleteError } = await supabase
+        .from('hierarchy_column_mappings')
+        .delete()
+        .eq('table_name', tableName);
+
+      if (deleteError) throw deleteError;
+
+      // Only insert mappings that have a level
+      if (validMappings.length > 0) {
+        const { error: insertError } = await supabase
+          .from('hierarchy_column_mappings')
+          .insert(
+            validMappings.map(m => ({
+              table_name: tableName,
+              column_name: m.column,
+              hierarchy_level: m.level ? parseFloat(m.level) : null
+            }))
+          );
+
+        if (insertError) throw insertError;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['hierarchyMappings', tableName]
+      });
+      toast({
+        title: "Success",
+        description: "Hierarchy mappings saved successfully",
+      });
+    },
+    onError: (error) => {
+      console.error('Error saving mappings:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to save hierarchy mappings",
+      });
+    }
+  });
+
+  useEffect(() => {
+    if (!isLoading && existingMappings) {
+      const initialMappings = combinedHeaders.map(header => ({
+        column: header.column,
+        level: existingMappings.find(m => m.column_name === header.column)?.hierarchy_level?.toString() || null
+      }));
+      setMappings(initialMappings);
+
+      // Set initially selected columns based on existing mappings
+      const mappedColumns = new Set(
+        existingMappings
+          .filter(m => m.hierarchy_level !== null)
+          .map(m => m.column_name)
+      );
+      setSelectedColumns(mappedColumns);
+    }
+  }, [combinedHeaders, existingMappings, isLoading]);
+
+  const handleLevelChange = (column: string, level: string) => {
+    setMappings(prev => 
+      prev.map(mapping => 
+        mapping.column === column 
+          ? { ...mapping, level: level === 'none' ? null : level } 
+          : mapping
+      )
+    );
+  };
+
+  const handleFilterChange = (column: string, value: string) => {
+    setFilters(prev => ({
+      ...prev,
+      [column]: value === SHOW_ALL_VALUE ? '' : value
+    }));
   };
 
   const processDataInBatches = (data: TableRowData[], filters: Record<string, string>) => {
@@ -65,47 +156,6 @@ export function HierarchyTableView({
     }
     
     return results;
-  };
-
-  const { data: existingMappings, isLoading } = useQuery({
-    queryKey: ['hierarchyMappings', tableName],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('hierarchy_column_mappings')
-        .select('*')
-        .eq('table_name', tableName);
-
-      if (error) throw error;
-      return data;
-    },
-    staleTime: 5 * 60 * 1000,
-  });
-
-  useEffect(() => {
-    if (!isLoading && existingMappings) {
-      const initialMappings = combinedHeaders.map(header => ({
-        column: header.column,
-        level: existingMappings.find(m => m.column_name === header.column)?.hierarchy_level?.toString() || null
-      }));
-      setMappings(initialMappings);
-    }
-  }, [combinedHeaders, existingMappings, isLoading]);
-
-  const handleLevelChange = (column: string, level: string) => {
-    setMappings(prev => 
-      prev.map(mapping => 
-        mapping.column === column 
-          ? { ...mapping, level: level === 'none' ? null : level } 
-          : mapping
-      )
-    );
-  };
-
-  const handleFilterChange = (column: string, value: string) => {
-    setFilters(prev => ({
-      ...prev,
-      [column]: value === SHOW_ALL_VALUE ? '' : value
-    }));
   };
 
   const filteredData = useMemo(() => {
@@ -130,40 +180,33 @@ export function HierarchyTableView({
   }, [filteredData, currentPage]);
 
   const handleSave = async () => {
-    const validMappings = mappings.filter((m): m is ColumnMapping & { level: string } => m.level !== null);
-    
-    const { error: deleteError } = await supabase
-      .from('hierarchy_column_mappings')
-      .delete()
-      .eq('table_name', tableName);
-
-    if (deleteError) throw deleteError;
-
-    const { error: insertError } = await supabase
-      .from('hierarchy_column_mappings')
-      .insert(
-        validMappings.map(m => ({
-          table_name: tableName,
-          column_name: m.column,
-          hierarchy_level: parseFloat(m.level)
-        }))
-      );
-
-    if (insertError) throw insertError;
-
-    await queryClient.invalidateQueries({
-      queryKey: ['hierarchyMappings', tableName]
-    });
+    const validMappings = mappings.filter((m): m is ColumnMapping & { level: string } => 
+      m.level !== null && selectedColumns.has(m.column)
+    );
+    saveMappingsMutation.mutate(validMappings);
   };
 
   const handleColumnToggle = (column: string) => {
     const newSelectedColumns = new Set(selectedColumns);
     if (newSelectedColumns.has(column)) {
       newSelectedColumns.delete(column);
+      // Clear mapping when column is deselected
+      setMappings(prev => 
+        prev.map(mapping => 
+          mapping.column === column 
+            ? { ...mapping, level: null } 
+            : mapping
+        )
+      );
     } else {
       newSelectedColumns.add(column);
     }
     setSelectedColumns(newSelectedColumns);
+  };
+
+  const getUniqueValues = (column: string): string[] => {
+    const values = uniqueValuesMap.get(column);
+    return values ? Array.from(values).sort() : [];
   };
 
   return (
@@ -175,6 +218,7 @@ export function HierarchyTableView({
             endIndex={endIndex}
             totalItems={filteredData.length}
             onSave={handleSave}
+            isSaving={saveMappingsMutation.isPending}
           />
 
           <Separator className="my-6" />
