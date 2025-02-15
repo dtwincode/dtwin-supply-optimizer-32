@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
 
 interface LocationFilterProps {
   selectedRegion: string;
@@ -30,7 +31,8 @@ export function LocationFilter({
 }: LocationFilterProps) {
   const [availableColumns, setAvailableColumns] = useState<string[]>([]);
 
-  const { data: columnSelections } = useQuery({
+  // Fetch column selections
+  const { data: columnSelections, isLoading: isLoadingColumns } = useQuery({
     queryKey: ['columnSelections', 'location_hierarchy'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -44,19 +46,66 @@ export function LocationFilter({
     }
   });
 
+  // Fetch locations data
+  const { data: locationsData, isLoading: isLoadingLocations } = useQuery({
+    queryKey: ['locations'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('location_hierarchy')
+        .select('region, city')
+        .order('region');
+
+      if (error) throw error;
+
+      // Process the data to get unique regions and cities
+      const uniqueRegions = new Set<string>();
+      const citiesByRegion: { [key: string]: Set<string> } = {};
+
+      data?.forEach(row => {
+        if (row.region) {
+          uniqueRegions.add(row.region);
+          if (!citiesByRegion[row.region]) {
+            citiesByRegion[row.region] = new Set<string>();
+          }
+          if (row.city) {
+            citiesByRegion[row.region].add(row.city);
+          }
+        }
+      });
+
+      return {
+        regions: Array.from(uniqueRegions).sort(),
+        cities: Object.fromEntries(
+          Object.entries(citiesByRegion).map(([region, cities]) => [
+            region,
+            Array.from(cities).sort()
+          ])
+        )
+      };
+    }
+  });
+
   useEffect(() => {
-    // Ensure columnSelections is an array before setting it
     if (columnSelections && Array.isArray(columnSelections)) {
       setAvailableColumns(columnSelections);
     } else {
-      // Default to showing all columns if no selections are found
       setAvailableColumns(['region', 'city']);
     }
   }, [columnSelections]);
 
-  // Default to true if availableColumns is not properly initialized
   const showRegionFilter = Array.isArray(availableColumns) ? availableColumns.includes('region') : true;
   const showCityFilter = Array.isArray(availableColumns) ? availableColumns.includes('city') : true;
+
+  if (isLoadingColumns || isLoadingLocations) {
+    return (
+      <Card className="p-6 w-full">
+        <div className="flex items-center justify-center space-x-2">
+          <Loader2 className="h-5 w-5 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Loading filters...</p>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="p-6 w-full">
@@ -75,7 +124,7 @@ export function LocationFilter({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Regions</SelectItem>
-                  {regions.map((region) => (
+                  {locationsData?.regions.map((region) => (
                     <SelectItem key={region} value={region}>
                       {region}
                     </SelectItem>
@@ -99,7 +148,7 @@ export function LocationFilter({
                 <SelectContent>
                   <SelectItem value="all">All Cities</SelectItem>
                   {selectedRegion !== "all" &&
-                    cities[selectedRegion]?.map((city) => (
+                    locationsData?.cities[selectedRegion]?.map((city) => (
                       <SelectItem key={city} value={city}>
                         {city}
                       </SelectItem>
