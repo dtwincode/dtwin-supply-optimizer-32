@@ -84,7 +84,8 @@ export function LocationFilter({
 
       console.log('Raw location data:', data);
 
-      const hierarchyData = data?.data || [];
+      // Ensure hierarchyData is an array of LocationData
+      const hierarchyData = Array.isArray(data?.data) ? data.data as LocationData[] : [];
       console.log('Processed hierarchy data:', hierarchyData);
       
       // Only process columns that are selected in hierarchy settings
