@@ -5,53 +5,36 @@ import { HierarchyColumnMapping } from './HierarchyColumnMapping';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
+interface ColumnHeader {
+  column: string;
+  sampleData: string;
+}
+
 interface HierarchyTableViewProps {
   tableName: string;
   data: any[];
   columns: string[];
+  combinedHeaders?: ColumnHeader[];
 }
 
-export function HierarchyTableView({ tableName, data, columns }: HierarchyTableViewProps) {
+export function HierarchyTableView({ 
+  tableName, 
+  data, 
+  columns,
+  combinedHeaders = []
+}: HierarchyTableViewProps) {
   const { toast } = useToast();
 
   useEffect(() => {
     console.log('HierarchyTableView received columns:', columns);
-  }, [columns]);
+    console.log('HierarchyTableView received combinedHeaders:', combinedHeaders);
+  }, [columns, combinedHeaders]);
 
   const handleMappingSaved = () => {
     toast({
       title: "Success",
       description: "Hierarchy mappings have been updated",
     });
-  };
-
-  const formatCellValue = (value: any): string => {
-    if (value === null || value === undefined) {
-      return '';
-    }
-    if (typeof value === 'object') {
-      try {
-        // Handle coordinate objects
-        if (value.lat !== undefined && value.lng !== undefined) {
-          return `${value.lat}, ${value.lng}`;
-        }
-        // Handle arrays
-        if (Array.isArray(value)) {
-          return value.map(item => formatCellValue(item)).join(', ');
-        }
-        // Handle Date objects
-        if (value instanceof Date) {
-          return value.toISOString();
-        }
-        // Handle other objects by converting to JSON string
-        const stringified = JSON.stringify(value);
-        return stringified === '{}' ? '' : stringified;
-      } catch (error) {
-        console.error('Error formatting cell value:', error);
-        return '[Error formatting value]';
-      }
-    }
-    return String(value);
   };
 
   return (
@@ -68,9 +51,12 @@ export function HierarchyTableView({ tableName, data, columns }: HierarchyTableV
           <table className="w-full">
             <thead>
               <tr>
-                {columns.map((column) => (
+                {combinedHeaders.map(({ column, sampleData }) => (
                   <th key={column} className="px-4 py-2 text-left bg-muted">
-                    {column}
+                    <div className="font-semibold">{column}</div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Example: {sampleData}
+                    </div>
                   </th>
                 ))}
               </tr>
@@ -78,9 +64,9 @@ export function HierarchyTableView({ tableName, data, columns }: HierarchyTableV
             <tbody>
               {data.slice(0, 5).map((row, index) => (
                 <tr key={index}>
-                  {columns.map((column) => (
+                  {combinedHeaders.map(({ column }) => (
                     <td key={column} className="px-4 py-2 border-t">
-                      {formatCellValue(row[column])}
+                      {row[column]}
                     </td>
                   ))}
                 </tr>

@@ -8,6 +8,25 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+const expectedHeaders = [
+  "Store",
+  "Sub Channel",
+  "Store Desc",
+  "Channel",
+  "Store Desc",
+  "City",
+  "City Desc",
+  "District",
+  "District Desc",
+  "Region",
+  "Region Desc",
+  "Country",
+  "Country Desc",
+  "Channel",
+  "Sub Channel",
+  "Warehouse"
+];
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -34,6 +53,7 @@ serve(async (req) => {
     // Get the file extension
     const fileExt = fileName.split('.').pop()?.toLowerCase()
     let headers: string[] = []
+    let firstRow: string[] = []
 
     if (fileExt === 'xlsx' || fileExt === 'xls') {
       // Handle Excel files
@@ -42,13 +62,15 @@ serve(async (req) => {
       const firstSheetName = workbook.SheetNames[0]
       const worksheet = workbook.Sheets[firstSheetName]
       
-      // Convert Excel data to array of arrays
+      // Get the first row data
       const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 })
       if (data.length > 0) {
-        headers = data[0].map((header: any) => String(header).trim())
+        // Extract column letters (A, B, C, etc.)
+        headers = Object.keys(worksheet)
+          .filter(key => key.match(/^[A-Z]+1$/)) // Only get cells from first row
+          .map(key => worksheet[key].v) // Get cell values
+          .filter(Boolean) // Remove any undefined/null values
         console.log('Excel headers found:', headers);
-      } else {
-        console.error('No data found in Excel file');
       }
     } else {
       // Handle CSV files
@@ -57,30 +79,39 @@ serve(async (req) => {
       const lines = cleanText.split('\n')
       
       if (lines.length > 0) {
-        // Parse headers (first line)
-        const headerLine = lines[0].trim()
-        headers = headerLine
-          .split(',')
-          .map(header => 
-            header
-              .trim()
-              .replace(/["'\r\n]/g, '')
-              .replace(/^\uFEFF/, '')
-          )
-          .filter(header => header.length > 0)
-        console.log('CSV headers found:', headers);
-      } else {
-        console.error('No lines found in CSV file');
+        // Get the Excel-style column headers (A, B, C, etc.)
+        const columnCount = lines[0].split(',').length
+        headers = Array.from({ length: columnCount }, (_, i) => {
+          // Convert number to Excel column letter (0 = A, 1 = B, etc.)
+          let columnName = ''
+          let num = i
+          while (num >= 0) {
+            columnName = String.fromCharCode(65 + (num % 26)) + columnName
+            num = Math.floor(num / 26) - 1
+          }
+          return columnName
+        })
+
+        // Get the first row of actual data for preview
+        firstRow = lines[1]?.split(',').map(cell => cell.trim().replace(/^"|"$/g, '')) || []
+        console.log('CSV first row found:', firstRow);
       }
     }
 
-    console.log('Final processed headers:', headers);
+    // If we have headers and first row data, combine them for preview
+    const combinedHeaders = headers.map((header, index) => ({
+      column: header,
+      sampleData: firstRow[index] || ''
+    }));
 
-    // Return the headers
+    console.log('Final processed headers:', combinedHeaders);
+
+    // Return both the column letters and sample data
     return new Response(
       JSON.stringify({ 
         success: true,
-        headers: headers
+        headers: headers,
+        combinedHeaders: combinedHeaders
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
