@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from 'react';
 import { Card } from "@/components/ui/card";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -16,6 +15,7 @@ import type { HierarchyTableViewProps, ColumnMapping, TableRowData } from "./typ
 const SHOW_ALL_VALUE = "__show_all__";
 const ROWS_PER_PAGE = 50;
 const BATCH_SIZE = 1000;
+const MAX_PAYLOAD_SIZE = 2 * 1024 * 1024; // 2MB limit for Supabase
 
 export function HierarchyTableView({ 
   tableName, 
@@ -49,6 +49,17 @@ export function HierarchyTableView({
     });
     return map;
   }, [data, columns]);
+
+  const calculateConfigSize = (selectedCols: Set<string>, mappings: ColumnMapping[]) => {
+    const selectedColsSize = JSON.stringify(Array.from(selectedCols)).length;
+    const mappingsSize = JSON.stringify(mappings).length;
+    return {
+      selectedColsSize,
+      mappingsSize,
+      totalSize: selectedColsSize + mappingsSize,
+      formattedSize: `${((selectedColsSize + mappingsSize) / 1024).toFixed(2)} KB`
+    };
+  };
 
   const { data: existingMappings, isLoading: isMappingsLoading } = useQuery({
     queryKey: ['hierarchyMappings', tableName],
@@ -112,7 +123,17 @@ export function HierarchyTableView({
   const handleSaveConfiguration = async () => {
     setIsSavingSelections(true);
     try {
-      // First save column selections directly
+      const configSize = calculateConfigSize(selectedColumns, mappings);
+      console.log('Configuration Size:', {
+        selectedColumns: `${(configSize.selectedColsSize / 1024).toFixed(2)} KB`,
+        mappings: `${(configSize.mappingsSize / 1024).toFixed(2)} KB`,
+        total: configSize.formattedSize
+      });
+
+      if (configSize.totalSize > MAX_PAYLOAD_SIZE) {
+        throw new Error(`Configuration size (${configSize.formattedSize}) exceeds maximum allowed size (2MB)`);
+      }
+
       const { error: selectionsError } = await supabase
         .from('hierarchy_column_selections')
         .upsert({
@@ -124,7 +145,6 @@ export function HierarchyTableView({
 
       if (selectionsError) throw selectionsError;
 
-      // Delete existing mappings
       const { error: deleteError } = await supabase
         .from('hierarchy_column_mappings')
         .delete()
@@ -132,7 +152,6 @@ export function HierarchyTableView({
 
       if (deleteError) throw deleteError;
 
-      // Process mappings in smaller chunks
       const validMappings = mappings
         .filter(m => m.level !== null && selectedColumns.has(m.column))
         .map(m => ({
@@ -141,7 +160,6 @@ export function HierarchyTableView({
           hierarchy_level: parseFloat(m.level!)
         }));
 
-      // Insert mappings in chunks of 50
       const chunkSize = 50;
       for (let i = 0; i < validMappings.length; i += chunkSize) {
         const chunk = validMappings.slice(i, i + chunkSize);
@@ -157,14 +175,14 @@ export function HierarchyTableView({
 
       toast({
         title: "Success",
-        description: "Hierarchy configuration saved successfully",
+        description: `Hierarchy configuration (${configSize.formattedSize}) saved successfully`,
       });
     } catch (error) {
       console.error('Error saving configuration:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to save hierarchy configuration",
+        description: error instanceof Error ? error.message : "Failed to save hierarchy configuration",
       });
     } finally {
       setIsSavingSelections(false);
