@@ -37,7 +37,7 @@ interface Filters {
 
 interface TableRowData extends Record<string, any> {
   id?: string | number;
-  [key: string]: string | number | boolean | null | undefined;
+  sku?: string | number;
 }
 
 const SHOW_ALL_VALUE = "__show_all__";
@@ -153,7 +153,17 @@ export function HierarchyTableView({
     };
   }, [filteredData, currentPage]);
 
-  const renderCell = (value: TableRowData[keyof TableRowData]): ReactNode => {
+  const getRowKey = (row: TableRowData, index: number): string => {
+    const id = row.id !== undefined ? String(row.id) : String(index);
+    const sku = row.sku !== undefined ? String(row.sku) : '';
+    return `row-${id}-${sku}`;
+  };
+
+  const getCellKey = (rowKey: string, colIndex: number): string => {
+    return `${rowKey}-col-${colIndex}`;
+  };
+
+  const renderCell = (value: any): ReactNode => {
     if (value === null || value === undefined) return '';
     return String(value);
   };
@@ -395,20 +405,18 @@ export function HierarchyTableView({
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {(currentData as TableRowData[]).map((row) => {
-                          const rowKeyString = `row-${String(row.id ?? '')}-${String(row.sku ?? '')}`;
+                        {(currentData as TableRowData[]).map((row, index) => {
+                          const rowKey = getRowKey(row, index);
                           
                           return (
-                            <TableRow key={rowKeyString}>
+                            <TableRow key={rowKey}>
                               {combinedHeaders
                                 .filter(header => selectedColumns.has(header.column))
                                 .map(({ column }, colIndex) => {
-                                  const cellKeyString = `${rowKeyString}-col-${colIndex}`;
                                   const cellValue = row[column];
-                                  
                                   return (
                                     <TableCell 
-                                      key={cellKeyString}
+                                      key={getCellKey(rowKey, colIndex)}
                                       className="min-w-[200px]"
                                     >
                                       {renderCell(cellValue)}
