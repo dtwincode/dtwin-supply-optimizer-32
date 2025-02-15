@@ -48,6 +48,16 @@ export function HierarchyTableView({
   const [filters, setFilters] = useState<Filters>({});
   const [filteredData, setFilteredData] = useState(data);
 
+  const getUniqueValues = (column: string) => {
+    const values = new Set<string>();
+    data.forEach(row => {
+      if (row[column] !== null && row[column] !== undefined) {
+        values.add(String(row[column]));
+      }
+    });
+    return Array.from(values).sort();
+  };
+
   const { data: existingMappings, isLoading } = useQuery({
     queryKey: ['hierarchyMappings', tableName],
     queryFn: async () => {
@@ -86,8 +96,8 @@ export function HierarchyTableView({
     const filtered = data.filter(row => {
       return Object.entries(filters).every(([column, filterValue]) => {
         if (!filterValue) return true;
-        const cellValue = String(row[column] || '').toLowerCase();
-        return cellValue.includes(filterValue.toLowerCase());
+        const cellValue = String(row[column] || '');
+        return cellValue === filterValue;
       });
     });
     setFilteredData(filtered);
@@ -255,15 +265,22 @@ export function HierarchyTableView({
                                 ))}
                               </SelectContent>
                             </Select>
-                            <div className="relative">
-                              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                              <Input
-                                placeholder={`Filter ${column}...`}
-                                value={filters[column] || ''}
-                                onChange={(e) => handleFilterChange(column, e.target.value)}
-                                className="pl-8 text-sm"
-                              />
-                            </div>
+                            <Select
+                              value={filters[column] || ''}
+                              onValueChange={(value) => handleFilterChange(column, value)}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder={`Filter ${column}...`} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="">Show all</SelectItem>
+                                {getUniqueValues(column).map((value) => (
+                                  <SelectItem key={value} value={value}>
+                                    {value}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                             <div className="text-xs text-muted-foreground">
                               Example: {sampleData}
                             </div>
