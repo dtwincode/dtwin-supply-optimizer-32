@@ -8,17 +8,11 @@ import { supabase } from "@/integrations/supabase/client";
 interface HierarchyTableViewProps {
   tableName: string;
   data: any[];
+  columns: string[];
 }
 
-export function HierarchyTableView({ tableName, data }: HierarchyTableViewProps) {
-  const [columns, setColumns] = useState<string[]>([]);
+export function HierarchyTableView({ tableName, data, columns }: HierarchyTableViewProps) {
   const { toast } = useToast();
-
-  useEffect(() => {
-    if (data && data.length > 0) {
-      setColumns(Object.keys(data[0]));
-    }
-  }, [data]);
 
   const handleMappingSaved = () => {
     toast({
