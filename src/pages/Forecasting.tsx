@@ -8,7 +8,7 @@ import { WhatIfAnalysisTab } from "@/components/forecasting/tabs/WhatIfAnalysisT
 import { ValidationTab } from "@/components/forecasting/tabs/ValidationTab";
 import { ExternalFactorsTab } from "@/components/forecasting/tabs/ExternalFactorsTab";
 import { Separator } from "@/components/ui/separator";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Outlet } from "react-router-dom";
 import { useState } from "react";
 import { ProductFilter } from "@/components/forecasting/filters/ProductFilter";
 import { LocationFilter } from "@/components/forecasting/filters/LocationFilter";
@@ -145,6 +145,7 @@ const Forecasting = () => {
         </div>
 
         <div className="px-6 space-y-6 mt-6">
+          
           <div 
             className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40"
             onMouseLeave={() => setIsTimeExpanded(false)}
