@@ -390,9 +390,8 @@ export function HierarchyTableView({
           <Separator className="my-6" />
 
           <ColumnSelector
+            tableName={tableName}
             combinedHeaders={combinedHeaders}
-            selectedColumns={selectedColumns}
-            onColumnToggle={handleColumnToggle}
           />
 
           <Pagination
