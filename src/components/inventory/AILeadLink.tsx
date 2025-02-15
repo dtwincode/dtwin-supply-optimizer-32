@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -125,27 +126,31 @@ export function AILeadLink() {
       <Card className="p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="predictions">Lead Time Predictions</TabsTrigger>
-            <TabsTrigger value="classification">SKU Classification</TabsTrigger>
-            <TabsTrigger value="replenishment">Replenishment Times</TabsTrigger>
-            <TabsTrigger value="anomalies">Anomaly Detection</TabsTrigger>
-            <TabsTrigger value="performance">Model Performance</TabsTrigger>
-            <TabsTrigger value="settings">Settings &amp; Configuration</TabsTrigger>
+            <TabsTrigger value="predictions">Lead Times</TabsTrigger>
+            <TabsTrigger value="classification">Classes</TabsTrigger>
+            <TabsTrigger value="replenishment">Replenish</TabsTrigger>
+            <TabsTrigger value="anomalies">Anomalies</TabsTrigger>
+            <TabsTrigger value="performance">Performance</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
           <TabsContent value="predictions" className="space-y-4">
+            <h3 className="text-lg font-medium mb-4">Lead Time Predictions</h3>
             <LeadTimePredictions data={leadTimeData} />
           </TabsContent>
 
           <TabsContent value="classification" className="space-y-4">
+            <h3 className="text-lg font-medium mb-4">SKU Classification</h3>
             <SKUClassifications classifications={skuClassifications} />
           </TabsContent>
 
           <TabsContent value="replenishment" className="space-y-4">
+            <h3 className="text-lg font-medium mb-4">Replenishment Times</h3>
             <ReplenishmentTimes data={replenishmentData} />
           </TabsContent>
 
           <TabsContent value="anomalies" className="space-y-4">
+            <h3 className="text-lg font-medium mb-4">Anomaly Detection</h3>
             <div className="grid gap-4">
               {anomalies.map((anomaly) => (
                 <Card key={anomaly.id} className="p-4">
@@ -167,53 +172,49 @@ export function AILeadLink() {
           </TabsContent>
 
           <TabsContent value="performance" className="space-y-4">
-            <Card className="p-6">
-              <h3 className="text-lg font-medium mb-4">Model Performance Metrics</h3>
-              <div className="grid grid-cols-3 gap-4">
-                <Card className="p-4">
-                  <h4 className="font-medium text-sm">MAPE</h4>
-                  <p className="text-2xl font-bold mt-2">2.45%</p>
-                  <p className="text-sm text-muted-foreground">Last 30 days</p>
-                </Card>
-                <Card className="p-4">
-                  <h4 className="font-medium text-sm">MAE</h4>
-                  <p className="text-2xl font-bold mt-2">1.2 days</p>
-                  <p className="text-sm text-muted-foreground">Last 30 days</p>
-                </Card>
-                <Card className="p-4">
-                  <h4 className="font-medium text-sm">Accuracy</h4>
-                  <p className="text-2xl font-bold mt-2">94.5%</p>
-                  <p className="text-sm text-muted-foreground">Last 30 days</p>
-                </Card>
-              </div>
-            </Card>
+            <h3 className="text-lg font-medium mb-4">Model Performance</h3>
+            <div className="grid grid-cols-3 gap-4">
+              <Card className="p-4">
+                <h4 className="font-medium text-sm">MAPE</h4>
+                <p className="text-2xl font-bold mt-2">2.45%</p>
+                <p className="text-sm text-muted-foreground">Last 30 days</p>
+              </Card>
+              <Card className="p-4">
+                <h4 className="font-medium text-sm">MAE</h4>
+                <p className="text-2xl font-bold mt-2">1.2 days</p>
+                <p className="text-sm text-muted-foreground">Last 30 days</p>
+              </Card>
+              <Card className="p-4">
+                <h4 className="font-medium text-sm">Accuracy</h4>
+                <p className="text-2xl font-bold mt-2">94.5%</p>
+                <p className="text-sm text-muted-foreground">Last 30 days</p>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-4">
-            <Card className="p-6">
-              <h3 className="text-lg font-medium mb-4">Model Configuration</h3>
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-medium text-sm mb-2">Prediction Horizon</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Currently set to predict lead times up to 90 days in advance
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-medium text-sm mb-2">Update Frequency</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Model retrains daily with new data
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-medium text-sm mb-2">Anomaly Detection Sensitivity</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Set to medium - triggers alerts for deviations &gt; 2σ
-                  </p>
-                </div>
-                <Button className="mt-4">Update Settings</Button>
+            <h3 className="text-lg font-medium mb-4">Settings & Configuration</h3>
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium text-sm mb-2">Prediction Horizon</h4>
+                <p className="text-sm text-muted-foreground">
+                  Currently set to predict lead times up to 90 days in advance
+                </p>
               </div>
-            </Card>
+              <div>
+                <h4 className="font-medium text-sm mb-2">Update Frequency</h4>
+                <p className="text-sm text-muted-foreground">
+                  Model retrains daily with new data
+                </p>
+              </div>
+              <div>
+                <h4 className="font-medium text-sm mb-2">Anomaly Detection Sensitivity</h4>
+                <p className="text-sm text-muted-foreground">
+                  Set to medium - triggers alerts for deviations &gt; 2σ
+                </p>
+              </div>
+              <Button className="mt-4">Update Settings</Button>
+            </div>
           </TabsContent>
         </Tabs>
       </Card>
