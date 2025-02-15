@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { HierarchyColumnMapping } from './HierarchyColumnMapping';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ColumnHeader {
   column: string;
@@ -18,6 +18,13 @@ interface HierarchyTableViewProps {
   combinedHeaders?: ColumnHeader[];
 }
 
+type HierarchyLevel = 'L1' | 'L2' | 'L3' | 'L4' | 'L5' | 'L6' | 'L7' | 'L8';
+
+interface ColumnMapping {
+  column: string;
+  level: HierarchyLevel | null;
+}
+
 export function HierarchyTableView({ 
   tableName, 
   data, 
@@ -25,93 +32,130 @@ export function HierarchyTableView({
   combinedHeaders = []
 }: HierarchyTableViewProps) {
   const { toast } = useToast();
-  const [selectedColumns, setSelectedColumns] = useState<string[]>(columns);
+  const [mappings, setMappings] = useState<ColumnMapping[]>([]);
 
   useEffect(() => {
-    console.log('HierarchyTableView received columns:', columns);
-    console.log('HierarchyTableView received combinedHeaders:', combinedHeaders);
-    setSelectedColumns(columns);
-  }, [columns, combinedHeaders]);
+    // Initialize mappings with null levels
+    const initialMappings = combinedHeaders.map(header => ({
+      column: header.column,
+      level: null
+    }));
+    setMappings(initialMappings);
+  }, [combinedHeaders]);
 
-  const handleColumnToggle = (column: string) => {
-    setSelectedColumns(prev => {
-      if (prev.includes(column)) {
-        return prev.filter(c => c !== column);
-      } else {
-        return [...prev, column];
-      }
-    });
+  const handleLevelChange = (column: string, level: HierarchyLevel | 'none') => {
+    setMappings(prev => 
+      prev.map(mapping => 
+        mapping.column === column 
+          ? { ...mapping, level: level === 'none' ? null : level } 
+          : mapping
+      )
+    );
   };
 
-  const handleMappingSaved = () => {
-    toast({
-      title: "Success",
-      description: "Hierarchy mappings have been updated",
-    });
+  const handleSave = async () => {
+    try {
+      // Filter out mappings without levels
+      const validMappings = mappings.filter((m): m is ColumnMapping & { level: HierarchyLevel } => m.level !== null);
+      
+      // Delete existing mappings for this table
+      await supabase
+        .from('hierarchy_column_mappings')
+        .delete()
+        .eq('table_name', tableName);
+
+      // Insert new mappings
+      const { error } = await supabase
+        .from('hierarchy_column_mappings')
+        .insert(
+          validMappings.map(m => ({
+            table_name: tableName,
+            column_name: m.column,
+            hierarchy_level: m.level
+          }))
+        );
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Column mappings saved successfully",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to save column mappings",
+      });
+    }
   };
 
   return (
     <div className="space-y-6">
-      {selectedColumns.length > 0 && (
-        <HierarchyColumnMapping 
-          tableName={tableName}
-          columns={selectedColumns}
-          onMappingSaved={handleMappingSaved}
-        />
-      )}
-      
       <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Select Columns to Map</h3>
-        <div className="space-y-4 mb-6">
-          {combinedHeaders.map(({ column }) => (
-            <div key={column} className="flex items-center space-x-2">
-              <Checkbox
-                id={column}
-                checked={selectedColumns.includes(column)}
-                onCheckedChange={() => handleColumnToggle(column)}
-              />
-              <label
-                htmlFor={column}
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                {column}
-              </label>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-4">
-          <h3 className="text-lg font-semibold mb-4">Data Preview</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr>
-                  {combinedHeaders.map(({ column, sampleData }) => (
-                    selectedColumns.includes(column) && (
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Data Preview</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr>
+                    {combinedHeaders.map(({ column, sampleData }) => (
                       <th key={column} className="px-4 py-2 text-left bg-muted">
                         <div className="font-semibold">{column}</div>
                         <div className="text-xs text-muted-foreground mt-1">
                           Example: {sampleData}
                         </div>
                       </th>
-                    )
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {data.slice(0, 5).map((row, index) => (
-                  <tr key={index}>
-                    {combinedHeaders.map(({ column }) => (
-                      selectedColumns.includes(column) && (
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.slice(0, 5).map((row, index) => (
+                    <tr key={index}>
+                      {combinedHeaders.map(({ column }) => (
                         <td key={column} className="px-4 py-2 border-t">
                           {row[column]}
                         </td>
-                      )
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Map Hierarchy Levels</h3>
+            <div className="grid gap-4">
+              {mappings.map(({ column, level }) => (
+                <div key={column} className="grid grid-cols-2 gap-4 items-center">
+                  <div className="font-medium">{column}</div>
+                  <Select
+                    value={level || 'none'}
+                    onValueChange={(value) => handleLevelChange(column, value as HierarchyLevel | 'none')}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
+                      {['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8'].map((level) => (
+                        <SelectItem key={level} value={level}>
+                          {level}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={handleSave}
+              className="mt-6 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 rounded-md"
+            >
+              Save Mappings
+            </button>
           </div>
         </div>
       </Card>
