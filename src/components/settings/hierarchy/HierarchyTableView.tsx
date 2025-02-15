@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from 'react';
 import { Card } from "@/components/ui/card";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
@@ -24,11 +23,12 @@ export function HierarchyTableView({
   combinedHeaders = []
 }: HierarchyTableViewProps) {
   const [mappings, setMappings] = useState<ColumnMapping[]>([]);
-  const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set(columns));
+  const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set());
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [tableData, setTableData] = useState<TableRowData[]>(data);
   const [isSavingSelections, setIsSavingSelections] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -60,10 +60,11 @@ export function HierarchyTableView({
       if (error) throw error;
       return data;
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: Infinity, // Keep the data cached indefinitely
+    cacheTime: 1000 * 60 * 60, // Cache for 1 hour
   });
 
-  const { data: columnSelections } = useQuery({
+  const { data: columnSelections, isLoading: isSelectionsLoading } = useQuery({
     queryKey: ['columnSelections', tableName],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -74,7 +75,9 @@ export function HierarchyTableView({
 
       if (error) throw error;
       return data;
-    }
+    },
+    staleTime: Infinity, // Keep the data cached indefinitely
+    cacheTime: 1000 * 60 * 60, // Cache for 1 hour
   });
 
   const saveMappingsMutation = useMutation({
@@ -150,23 +153,32 @@ export function HierarchyTableView({
   });
 
   useEffect(() => {
-    if (!isMappingsLoading && existingMappings) {
-      const initialMappings = combinedHeaders.map(header => ({
-        column: header.column,
-        level: existingMappings.find(m => m.column_name === header.column)?.hierarchy_level?.toString() || null
-      }));
-      setMappings(initialMappings);
-    }
-  }, [combinedHeaders, existingMappings, isMappingsLoading]);
+    if (!isMappingsLoading && !isSelectionsLoading && !isInitialized) {
+      if (existingMappings) {
+        const initialMappings = combinedHeaders.map(header => ({
+          column: header.column,
+          level: existingMappings.find(m => m.column_name === header.column)?.hierarchy_level?.toString() || null
+        }));
+        setMappings(initialMappings);
+      }
 
-  useEffect(() => {
-    if (columnSelections?.selected_columns) {
-      setSelectedColumns(new Set(columnSelections.selected_columns));
-    } else {
-      // If no selections exist yet, initialize with all columns
-      setSelectedColumns(new Set(columns));
+      if (columnSelections?.selected_columns) {
+        setSelectedColumns(new Set(columnSelections.selected_columns));
+      } else {
+        setSelectedColumns(new Set(columns));
+      }
+
+      setIsInitialized(true);
     }
-  }, [columnSelections, columns]);
+  }, [
+    combinedHeaders,
+    existingMappings,
+    isMappingsLoading,
+    columnSelections,
+    columns,
+    isSelectionsLoading,
+    isInitialized
+  ]);
 
   const handleLevelChange = (column: string, level: string) => {
     setMappings(prev => 
@@ -229,7 +241,7 @@ export function HierarchyTableView({
     const validMappings = mappings.filter((m): m is ColumnMapping & { level: string } => 
       m.level !== null && selectedColumns.has(m.column)
     );
-    saveMappingsMutation.mutate(validMappings);
+    await saveMappingsMutation.mutateAsync(validMappings);
   };
 
   const handleSaveSelections = async () => {
@@ -246,8 +258,11 @@ export function HierarchyTableView({
       });
       
       await saveColumnSelectionsMutation.mutateAsync(selectedColumns);
-      
       setTableData(filteredTableData);
+      
+      await queryClient.invalidateQueries({
+        queryKey: ['columnSelections', tableName]
+      });
       
       toast({
         title: "Success",
