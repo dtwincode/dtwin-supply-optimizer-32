@@ -22,9 +22,11 @@ interface LocationFilterProps {
 }
 
 interface LocationData {
-  region: string;
-  city: string;
-  [key: string]: any;
+  [key: string]: string;
+}
+
+interface FilterValues {
+  [key: string]: string;
 }
 
 export function LocationFilter({
@@ -35,34 +37,14 @@ export function LocationFilter({
   regions,
   cities,
 }: LocationFilterProps) {
-  const defaultColumns = ['region', 'city'];
-  const [availableColumns, setAvailableColumns] = useState<string[]>(defaultColumns);
+  const [filterValues, setFilterValues] = useState<FilterValues>({});
+  const [availableColumns, setAvailableColumns] = useState<string[]>([]);
+  const [filterOptions, setFilterOptions] = useState<{ [key: string]: Set<string> }>({});
 
-  // Fetch column selections for location hierarchy
-  const { data: columnSelections, isLoading: isLoadingColumns } = useQuery({
-    queryKey: ['columnSelections', 'location_hierarchy'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('hierarchy_column_selections')
-        .select('selected_columns')
-        .eq('table_name', 'location_hierarchy')
-        .maybeSingle();
-
-      if (error) {
-        console.error('Error fetching column selections:', error);
-        return defaultColumns;
-      }
-
-      return data?.selected_columns || defaultColumns;
-    }
-  });
-
-  // Fetch locations data with selected columns
+  // Fetch location data
   const { data: locationsData, isLoading: isLoadingLocations } = useQuery({
-    queryKey: ['locations', columnSelections],
+    queryKey: ['locations'],
     queryFn: async () => {
-      console.log('Fetching location data with columns:', columnSelections);
-      
       const { data, error } = await supabase
         .from('permanent_hierarchy_data')
         .select('data')
@@ -72,59 +54,49 @@ export function LocationFilter({
 
       if (error) {
         console.error('Error fetching location data:', error);
-        return {
-          regions: [],
-          cities: {}
-        };
+        return null;
       }
 
       console.log('Raw location data:', data);
-
-      // Ensure hierarchyData is an array of LocationData
-      const hierarchyData = Array.isArray(data?.data) ? data.data as LocationData[] : [];
-      console.log('Processed hierarchy data:', hierarchyData);
-      
-      const uniqueRegions = new Set<string>();
-      const citiesByRegion: { [key: string]: Set<string> } = {};
-
-      // Process the hierarchy data
-      hierarchyData.forEach((location: LocationData) => {
-        if (location.region) {
-          uniqueRegions.add(location.region);
-          if (location.city) {
-            if (!citiesByRegion[location.region]) {
-              citiesByRegion[location.region] = new Set<string>();
-            }
-            citiesByRegion[location.region].add(location.city);
-          }
-        }
-      });
-
-      const result = {
-        regions: Array.from(uniqueRegions).sort(),
-        cities: Object.fromEntries(
-          Object.entries(citiesByRegion).map(([region, cities]) => [
-            region,
-            Array.from(cities).sort()
-          ])
-        )
-      };
-
-      console.log('Processed location data:', result);
-      return result;
-    },
-    enabled: !!columnSelections
+      return data;
+    }
   });
 
   useEffect(() => {
-    if (Array.isArray(columnSelections)) {
-      setAvailableColumns(columnSelections);
-    } else {
-      setAvailableColumns(defaultColumns);
-    }
-  }, [columnSelections]);
+    if (locationsData?.data && Array.isArray(locationsData.data)) {
+      // Get all unique columns from the data
+      const columns = new Set<string>();
+      const options: { [key: string]: Set<string> } = {};
 
-  if (isLoadingColumns || isLoadingLocations) {
+      // Initialize filter options
+      locationsData.data.forEach((location: LocationData) => {
+        Object.entries(location).forEach(([key, value]) => {
+          // Add column to available columns
+          columns.add(key);
+
+          // Initialize or update options for this column
+          if (!options[key]) {
+            options[key] = new Set<string>();
+          }
+          if (value) {
+            options[key].add(value);
+          }
+        });
+      });
+
+      setAvailableColumns(Array.from(columns).sort());
+      setFilterOptions(options);
+
+      // Initialize filter values
+      const initialValues: FilterValues = {};
+      columns.forEach(column => {
+        initialValues[column] = 'all';
+      });
+      setFilterValues(initialValues);
+    }
+  }, [locationsData]);
+
+  if (isLoadingLocations) {
     return (
       <Card className="p-6 w-full">
         <div className="flex items-center justify-center space-x-2">
@@ -135,52 +107,41 @@ export function LocationFilter({
     );
   }
 
+  const handleFilterChange = (column: string, value: string) => {
+    setFilterValues(prev => ({
+      ...prev,
+      [column]: value
+    }));
+  };
+
   return (
     <Card className="p-6 w-full">
       <div className="space-y-4">
         <h3 className="text-lg font-medium mb-4">Location Filters</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Region</label>
-            <Select
-              value={selectedRegion}
-              onValueChange={setSelectedRegion}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select region" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Regions</SelectItem>
-                {locationsData?.regions.map((region) => (
-                  <SelectItem key={region} value={region}>
-                    {region}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">City</label>
-            <Select
-              value={selectedCity}
-              onValueChange={setSelectedCity}
-              disabled={selectedRegion === "all"}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select city" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Cities</SelectItem>
-                {selectedRegion !== "all" &&
-                  locationsData?.cities[selectedRegion]?.map((city) => (
-                    <SelectItem key={city} value={city}>
-                      {city}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {availableColumns.map((column) => (
+            <div key={column} className="space-y-2">
+              <label className="text-sm font-medium capitalize">
+                {column.replace(/_/g, ' ')}
+              </label>
+              <Select
+                value={filterValues[column] || 'all'}
+                onValueChange={(value) => handleFilterChange(column, value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={`Select ${column.replace(/_/g, ' ')}`} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All {column.replace(/_/g, ' ')}s</SelectItem>
+                  {Array.from(filterOptions[column] || []).sort().map((value) => (
+                    <SelectItem key={value} value={value}>
+                      {value}
                     </SelectItem>
                   ))}
-              </SelectContent>
-            </Select>
-          </div>
+                </SelectContent>
+              </Select>
+            </div>
+          ))}
         </div>
       </div>
     </Card>
