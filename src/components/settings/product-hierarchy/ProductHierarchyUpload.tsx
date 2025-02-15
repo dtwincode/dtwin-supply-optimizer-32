@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,8 @@ export function ProductHierarchyUpload() {
   const [columns, setColumns] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
   const [savedFileName, setSavedFileName] = useState<string | null>(null);
+  const [previewData, setPreviewData] = useState<any[]>([]);
+  const [combinedHeaders, setCombinedHeaders] = useState<Array<{column: string, sampleData: string}>>([]);
   const { toast } = useToast();
 
   const { data: productData, refetch } = useQuery({
@@ -41,6 +44,9 @@ export function ProductHierarchyUpload() {
     setFile(null);
     setProgress(0);
     setSavedFileName(null);
+    setColumns([]);
+    setPreviewData([]);
+    setCombinedHeaders([]);
     // Reset the file input
     const fileInput = document.getElementById('product-file') as HTMLInputElement;
     if (fileInput) {
@@ -124,6 +130,8 @@ export function ProductHierarchyUpload() {
       setProgress(90);
       if (data.headers) {
         setColumns(data.headers);
+        setCombinedHeaders(data.combinedHeaders || []);
+        setPreviewData(data.data || []);
       }
 
       // Only set savedFileName after successful upload
@@ -212,11 +220,12 @@ export function ProductHierarchyUpload() {
         </div>
       </Card>
 
-      {productData && productData.length > 0 && columns.length > 0 && (
+      {columns.length > 0 && previewData.length > 0 && (
         <HierarchyTableView 
           tableName="product_hierarchy"
-          data={productData}
+          data={previewData}
           columns={columns}
+          combinedHeaders={combinedHeaders}
         />
       )}
     </div>
