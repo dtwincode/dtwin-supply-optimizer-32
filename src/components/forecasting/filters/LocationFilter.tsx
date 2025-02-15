@@ -35,7 +35,8 @@ export function LocationFilter({
   regions,
   cities,
 }: LocationFilterProps) {
-  const [availableColumns, setAvailableColumns] = useState<string[]>(['region', 'city']);
+  const defaultColumns = ['region', 'city'];
+  const [availableColumns, setAvailableColumns] = useState<string[]>(defaultColumns);
 
   // Fetch column selections for location hierarchy
   const { data: columnSelections, isLoading: isLoadingColumns } = useQuery({
@@ -49,9 +50,14 @@ export function LocationFilter({
 
       if (error) {
         console.error('Error fetching column selections:', error);
-        return ['region', 'city']; // Default columns if error
+        return defaultColumns;
       }
-      return data?.selected_columns || ['region', 'city'];
+
+      // Ensure we return an array of strings
+      if (data?.selected_columns && Array.isArray(data.selected_columns)) {
+        return data.selected_columns.filter(col => typeof col === 'string');
+      }
+      return defaultColumns;
     }
   });
 
@@ -80,7 +86,9 @@ export function LocationFilter({
       const uniqueRegions = new Set<string>();
       const citiesByRegion: { [key: string]: Set<string> } = {};
 
-      if (columnSelections?.includes('region') && columnSelections?.includes('city')) {
+      const selectedCols = Array.isArray(columnSelections) ? columnSelections : defaultColumns;
+
+      if (selectedCols.includes('region') && selectedCols.includes('city')) {
         hierarchyData.forEach((row: LocationData) => {
           if (row.region) {
             uniqueRegions.add(row.region);
@@ -104,17 +112,21 @@ export function LocationFilter({
         )
       };
     },
-    enabled: !!columnSelections // Only run query when we have column selections
+    enabled: !!columnSelections
   });
 
   useEffect(() => {
-    if (columnSelections) {
+    // Ensure columnSelections is an array before setting it
+    if (Array.isArray(columnSelections)) {
       setAvailableColumns(columnSelections);
+    } else {
+      setAvailableColumns(defaultColumns);
     }
   }, [columnSelections]);
 
-  const showRegionFilter = availableColumns.includes('region');
-  const showCityFilter = availableColumns.includes('city');
+  // Ensure availableColumns is an array before using includes
+  const showRegionFilter = Array.isArray(availableColumns) && availableColumns.includes('region');
+  const showCityFilter = Array.isArray(availableColumns) && availableColumns.includes('city');
 
   if (isLoadingColumns || isLoadingLocations) {
     return (
