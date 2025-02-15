@@ -6,8 +6,8 @@ import { LocationHierarchyUpload } from "@/components/settings/location-hierarch
 import { ProductHierarchyUpload } from "@/components/settings/product-hierarchy/ProductHierarchyUpload";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { Loader2, Trash2 } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { useState } from "react";
@@ -27,20 +27,51 @@ const Settings = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const queryClient = useQueryClient();
 
+  // Query to check if there are any temporary uploads
+  const { data: tempUploadsCount, isLoading: isCheckingUploads } = useQuery({
+    queryKey: ['tempUploadsCount'],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('temp_hierarchy_uploads')
+        .count();
+      
+      if (error) throw error;
+      return count || 0;
+    }
+  });
+
   const handleDeleteTempUploads = async () => {
     setIsDeleting(true);
     try {
-      const { error } = await supabase
+      // Get all temporary uploads first
+      const { data: uploads, error: fetchError } = await supabase
+        .from('temp_hierarchy_uploads')
+        .select('id');
+
+      if (fetchError) throw fetchError;
+
+      if (!uploads || uploads.length === 0) {
+        toast({
+          title: "Info",
+          description: "No temporary uploads to delete",
+        });
+        return;
+      }
+
+      // Delete the temporary uploads
+      const { error: deleteError } = await supabase
         .from('temp_hierarchy_uploads')
         .delete()
-        .neq('id', ''); // Delete all temporary uploads
+        .in('id', uploads.map(u => u.id));
 
-      if (error) throw error;
+      if (deleteError) throw deleteError;
 
       queryClient.invalidateQueries({ queryKey: ['hierarchyData'] });
+      queryClient.invalidateQueries({ queryKey: ['tempUploadsCount'] });
+      
       toast({
         title: "Success",
-        description: "All temporary uploads deleted successfully",
+        description: `Successfully deleted ${uploads.length} temporary upload${uploads.length === 1 ? '' : 's'}`,
       });
     } catch (error) {
       console.error('Error deleting temporary uploads:', error);
@@ -64,36 +95,50 @@ const Settings = () => {
               Manage your hierarchies and system configurations
             </p>
           </div>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="destructive"
-                size="sm"
-                className="h-9 px-4"
-                disabled={isDeleting}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete All Temporary Uploads
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete All Temporary Uploads</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to delete all temporary uploads? This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDeleteTempUploads}
-                  className="bg-destructive hover:bg-destructive/90"
+          {!isCheckingUploads && tempUploadsCount > 0 && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="h-9 px-4"
+                  disabled={isDeleting}
                 >
-                  Delete All
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+                  {isDeleting ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4 mr-2" />
+                  )}
+                  Delete All Temporary Uploads
+                  {tempUploadsCount > 0 && ` (${tempUploadsCount})`}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete All Temporary Uploads</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to delete {tempUploadsCount} temporary upload{tempUploadsCount === 1 ? '' : 's'}? This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDeleteTempUploads}
+                    className="bg-destructive hover:bg-destructive/90"
+                  >
+                    {isDeleting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      'Delete All'
+                    )}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
         </div>
 
         <Separator className="my-6" />
