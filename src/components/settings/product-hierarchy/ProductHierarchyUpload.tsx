@@ -6,20 +6,19 @@ import { useToast } from "@/hooks/use-toast";
 import { Upload, Trash2, Save } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { HierarchyTableView } from '../hierarchy/HierarchyTableView';
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Progress } from "@/components/ui/progress";
 
 export function ProductHierarchyUpload() {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [columns, setColumns] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
   const [savedFileName, setSavedFileName] = useState<string | null>(null);
-  const [previewData, setPreviewData] = useState<any[]>([]);
-  const [combinedHeaders, setCombinedHeaders] = useState<Array<{column: string, sampleData: string}>>([]);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const { data: productData, refetch } = useQuery({
+  // Query for product hierarchy data
+  const { data: productData } = useQuery({
     queryKey: ['productHierarchy'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -30,6 +29,20 @@ export function ProductHierarchyUpload() {
       if (error) throw error;
       return data;
     }
+  });
+
+  // Query for preview data
+  const { data: previewState } = useQuery({
+    queryKey: ['productHierarchyPreview'],
+    queryFn: () => {
+      return {
+        columns: [] as string[],
+        previewData: [] as any[],
+        combinedHeaders: [] as Array<{column: string, sampleData: string}>
+      };
+    },
+    staleTime: Infinity, // Never mark the data as stale
+    gcTime: Infinity, // Never garbage collect the data
   });
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,9 +57,14 @@ export function ProductHierarchyUpload() {
     setFile(null);
     setProgress(0);
     setSavedFileName(null);
-    setColumns([]);
-    setPreviewData([]);
-    setCombinedHeaders([]);
+    
+    // Clear the preview data from React Query cache
+    queryClient.setQueryData(['productHierarchyPreview'], {
+      columns: [],
+      previewData: [],
+      combinedHeaders: []
+    });
+    
     // Reset the file input
     const fileInput = document.getElementById('product-file') as HTMLInputElement;
     if (fileInput) {
@@ -129,9 +147,12 @@ export function ProductHierarchyUpload() {
 
       setProgress(90);
       if (data.headers) {
-        setColumns(data.headers);
-        setCombinedHeaders(data.combinedHeaders || []);
-        setPreviewData(data.data || []);
+        // Update the preview data in React Query cache
+        queryClient.setQueryData(['productHierarchyPreview'], {
+          columns: data.headers,
+          previewData: data.data || [],
+          combinedHeaders: data.combinedHeaders || []
+        });
       }
 
       // Only set savedFileName after successful upload
@@ -142,8 +163,6 @@ export function ProductHierarchyUpload() {
         title: "Success",
         description: "File uploaded successfully. Click the save icon to save the reference.",
       });
-
-      refetch();
     } catch (error) {
       console.error('Upload error:', error);
       toast({
@@ -220,12 +239,12 @@ export function ProductHierarchyUpload() {
         </div>
       </Card>
 
-      {columns.length > 0 && previewData.length > 0 && (
+      {previewState && previewState.columns.length > 0 && previewState.previewData.length > 0 && (
         <HierarchyTableView 
           tableName="product_hierarchy"
-          data={previewData}
-          columns={columns}
-          combinedHeaders={combinedHeaders}
+          data={previewState.previewData}
+          columns={previewState.columns}
+          combinedHeaders={previewState.combinedHeaders}
         />
       )}
     </div>
