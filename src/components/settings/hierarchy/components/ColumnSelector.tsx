@@ -25,6 +25,7 @@ interface ColumnSelectorProps {
   combinedHeaders: ColumnHeader[];
   selectedColumns: Set<string>;
   onSelectedColumnsChange: (columns: Set<string>) => void;
+  tempUploadId?: string;
 }
 
 export function ColumnSelector({ 
@@ -32,9 +33,40 @@ export function ColumnSelector({
   combinedHeaders,
   selectedColumns,
   onSelectedColumnsChange,
+  tempUploadId
 }: ColumnSelectorProps) {
   const [columnToDelete, setColumnToDelete] = useState<string | null>(null);
   const queryClient = useQueryClient();
+
+  const deleteTempUploadMutation = useMutation({
+    mutationFn: async () => {
+      if (!tempUploadId) return;
+      
+      const { error } = await supabase
+        .from('temp_hierarchy_uploads')
+        .delete()
+        .eq('id', tempUploadId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['hierarchyData', tableName]
+      });
+      toast({
+        title: "Success",
+        description: "Temporary upload deleted successfully",
+      });
+    },
+    onError: (error) => {
+      console.error('Error deleting temporary upload:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete temporary upload",
+      });
+    }
+  });
 
   const deleteColumnMutation = useMutation({
     mutationFn: async (columnName: string) => {
@@ -113,6 +145,12 @@ export function ColumnSelector({
     }
   };
 
+  const handleDeleteTempUpload = async () => {
+    if (tempUploadId) {
+      await deleteTempUploadMutation.mutateAsync();
+    }
+  };
+
   return (
     <div className="mb-6">
       <div className="flex items-center justify-between mb-3">
@@ -136,6 +174,37 @@ export function ColumnSelector({
             <XSquare className="h-4 w-4 mr-1" />
             Unselect All
           </Button>
+          {tempUploadId && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="h-8 px-2"
+                >
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  Delete Upload
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Temporary Upload</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to delete this temporary upload? This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDeleteTempUpload}
+                    className="bg-destructive hover:bg-destructive/90"
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
         </div>
       </div>
       <ScrollArea className="h-[120px] w-full rounded-md border p-4">

@@ -826,6 +826,44 @@ export type Database = {
         }
         Relationships: []
       }
+      hierarchy_mappings: {
+        Row: {
+          created_at: string | null
+          hierarchy_type: string
+          id: string
+          is_active: boolean | null
+          mappings: Json
+          selected_columns: string[]
+          temp_upload_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          hierarchy_type: string
+          id?: string
+          is_active?: boolean | null
+          mappings: Json
+          selected_columns: string[]
+          temp_upload_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          hierarchy_type?: string
+          id?: string
+          is_active?: boolean | null
+          mappings?: Json
+          selected_columns?: string[]
+          temp_upload_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hierarchy_mappings_temp_upload_id_fkey"
+            columns: ["temp_upload_id"]
+            isOneToOne: false
+            referencedRelation: "temp_hierarchy_uploads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inventory_data: {
         Row: {
           adu: number | null
@@ -1889,6 +1927,39 @@ export type Database = {
         }
         Relationships: []
       }
+      temp_hierarchy_uploads: {
+        Row: {
+          created_at: string | null
+          data: Json
+          file_name: string
+          headers: string[]
+          hierarchy_type: string
+          id: string
+          is_processed: boolean | null
+          original_name: string
+        }
+        Insert: {
+          created_at?: string | null
+          data: Json
+          file_name: string
+          headers: string[]
+          hierarchy_type: string
+          id?: string
+          is_processed?: boolean | null
+          original_name: string
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json
+          file_name?: string
+          headers?: string[]
+          hierarchy_type?: string
+          id?: string
+          is_processed?: boolean | null
+          original_name?: string
+        }
+        Relationships: []
+      }
       weather_data: {
         Row: {
           alert: string | null
@@ -1980,6 +2051,12 @@ export type Database = {
       }
     }
     Functions: {
+      activate_hierarchy_mapping: {
+        Args: {
+          p_mapping_id: string
+        }
+        Returns: undefined
+      }
       drop_hierarchy_column: {
         Args: {
           p_table_name: string
