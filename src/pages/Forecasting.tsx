@@ -28,6 +28,8 @@ const Forecasting = () => {
   // Use localStorage to persist filter selections
   const [selectedRegion, setSelectedRegion] = useLocalStorage('selectedRegion', 'all');
   const [selectedCity, setSelectedCity] = useLocalStorage('selectedCity', 'all');
+  const [selectedWarehouse, setSelectedWarehouse] = useLocalStorage('selectedWarehouse', 'all');
+  const [selectedChannel, setSelectedChannel] = useLocalStorage('selectedChannel', 'all');
   
   // Product hierarchy states
   const [selectedL1MainProd, setSelectedL1MainProd] = useLocalStorage('selectedL1MainProd', 'all');
@@ -284,6 +286,10 @@ const Forecasting = () => {
                   setSelectedRegion={setSelectedRegion}
                   selectedCity={selectedCity}
                   setSelectedCity={setSelectedCity}
+                  selectedWarehouse={selectedWarehouse}
+                  setSelectedWarehouse={setSelectedWarehouse}
+                  selectedChannel={selectedChannel}
+                  setSelectedChannel={setSelectedChannel}
                   regions={[]}
                   cities={{}}
                 />

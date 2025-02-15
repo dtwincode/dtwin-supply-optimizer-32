@@ -17,6 +17,10 @@ interface LocationFilterProps {
   setSelectedRegion: (region: string) => void;
   selectedCity: string;
   setSelectedCity: (city: string) => void;
+  selectedWarehouse?: string;
+  setSelectedWarehouse?: (warehouse: string) => void;
+  selectedChannel?: string;
+  setSelectedChannel?: (channel: string) => void;
   regions: string[];
   cities: { [key: string]: string[] };
 }
@@ -39,6 +43,10 @@ export function LocationFilter({
   setSelectedRegion,
   selectedCity,
   setSelectedCity,
+  selectedWarehouse = 'all',
+  setSelectedWarehouse = () => {},
+  selectedChannel = 'all',
+  setSelectedChannel = () => {},
 }: LocationFilterProps) {
   const [filterOptions, setFilterOptions] = useState<{ [key: string]: Set<string> }>({
     region: new Set(),
@@ -118,6 +126,22 @@ export function LocationFilter({
     );
   });
 
+  // Filter warehouses based on selected city
+  const filteredWarehouses = Array.from(filterOptions.warehouse).filter((warehouse) => {
+    if (selectedCity === 'all') return true;
+    return locationData?.data?.data.some(
+      (location) => location.warehouse === warehouse && location.city === selectedCity
+    );
+  });
+
+  // Filter channels based on selected warehouse
+  const filteredChannels = Array.from(filterOptions.channel).filter((channel) => {
+    if (selectedWarehouse === 'all') return true;
+    return locationData?.data?.data.some(
+      (location) => location.channel === channel && location.warehouse === selectedWarehouse
+    );
+  });
+
   if (isLoading) {
     return (
       <Card className="p-6 w-full">
@@ -133,7 +157,7 @@ export function LocationFilter({
     <Card className="p-6 w-full">
       <div className="space-y-4">
         <h3 className="text-lg font-medium mb-4">Location Filters</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="space-y-2">
             <label className="text-sm font-medium">Region</label>
             <Select
@@ -168,6 +192,46 @@ export function LocationFilter({
                 {filteredCities.sort().map((city) => (
                   <SelectItem key={city} value={city}>
                     {city}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Warehouse</label>
+            <Select
+              value={selectedWarehouse}
+              onValueChange={setSelectedWarehouse}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select warehouse" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All warehouses</SelectItem>
+                {filteredWarehouses.sort().map((warehouse) => (
+                  <SelectItem key={warehouse} value={warehouse}>
+                    {warehouse}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Channel</label>
+            <Select
+              value={selectedChannel}
+              onValueChange={setSelectedChannel}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select channel" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All channels</SelectItem>
+                {filteredChannels.sort().map((channel) => (
+                  <SelectItem key={channel} value={channel}>
+                    {channel}
                   </SelectItem>
                 ))}
               </SelectContent>
