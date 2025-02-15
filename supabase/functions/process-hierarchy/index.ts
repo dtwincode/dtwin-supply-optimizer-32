@@ -59,7 +59,7 @@ serve(async (req) => {
     } else {
       // Handle CSV files
       const text = new TextDecoder().decode(arrayBuffer)
-      console.log('Raw CSV content:', text.substring(0, 500)) // Log first 500 chars
+      console.log('Raw CSV content (first 500 chars):', text.substring(0, 500)) // Log first 500 chars
       
       // Find the actual CSV content by looking for a line with commas
       const lines = text.split('\n')
@@ -80,7 +80,7 @@ serve(async (req) => {
 
         console.log('Extracted headers:', headers)
 
-        // Process remaining lines as data
+        // Process all lines as data
         data = csvLines.slice(1)
           .map(line => {
             const values = line
@@ -94,7 +94,9 @@ serve(async (req) => {
           })
           .filter(row => Object.values(row).some(val => val !== '')) // Remove empty rows
 
+        console.log('Total rows processed:', data.length)
         console.log('First data row:', data[0])
+        console.log('Last data row:', data[data.length - 1])
       }
     }
 
@@ -113,6 +115,7 @@ serve(async (req) => {
 
     console.log('Final processed data:', {
       headerCount: headers.length,
+      totalRows: data.length,
       headers,
       sampleRow: sampleData
     })
@@ -122,7 +125,7 @@ serve(async (req) => {
         success: true,
         headers: headers,
         combinedHeaders: combinedHeaders,
-        data: data.slice(0, 5) // Send first 5 rows for preview
+        data: data, // Now sending all rows, not just first 5
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
