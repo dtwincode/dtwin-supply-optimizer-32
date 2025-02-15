@@ -80,12 +80,12 @@ export function LocationHierarchyUpload() {
         <h3 className="text-lg font-semibold mb-4">Upload Location Hierarchy</h3>
         <div className="flex items-center gap-4">
           <Button
+            size="icon"
             variant="outline"
             onClick={() => document.getElementById('location-file')?.click()}
             disabled={isUploading}
           >
-            <Upload className="w-4 h-4 mr-2" />
-            {isUploading ? 'Uploading...' : 'Select File'}
+            <Upload className="h-4 w-4" />
           </Button>
           <input
             id="location-file"
