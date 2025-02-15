@@ -7,7 +7,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -307,85 +307,84 @@ export function HierarchyTableView({
                 </div>
               </div>
               
-              <ScrollArea className="h-[600px]">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      {combinedHeaders
-                        .filter(header => selectedColumns.has(header.column))
-                        .map(({ column, sampleData }) => (
-                          <TableHead key={column} className="min-w-[200px] sticky top-0 bg-background">
-                            <div className="space-y-2 py-2">
-                              <div className="font-medium">{column}</div>
-                              <Select
-                                value={mappings.find(m => m.column === column)?.level || 'none'}
-                                onValueChange={(value) => handleLevelChange(column, value as HierarchyLevel | 'none')}
-                              >
-                                <SelectTrigger className="w-full">
-                                  <SelectValue placeholder="Select level" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="none">None</SelectItem>
-                                  {['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8'].map((level) => (
-                                    <SelectItem key={level} value={level}>
-                                      {level}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <Select
-                                value={filters[column] || SHOW_ALL_VALUE}
-                                onValueChange={(value) => handleFilterChange(column, value)}
-                              >
-                                <SelectTrigger className="w-full">
-                                  <SelectValue placeholder={`Filter ${column}...`} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value={SHOW_ALL_VALUE}>Show all</SelectItem>
-                                  {getUniqueValues(column).map((value) => (
-                                    <SelectItem key={value} value={value}>
-                                      {value}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <div className="text-xs text-muted-foreground">
-                                Unique values: {getUniqueValues(column).length}
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                Example: {sampleData}
-                              </div>
-                            </div>
-                          </TableHead>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {currentData.map((row: TableRowData, rowIndex: number) => {
-                      const rowKey = `row-${rowIndex}-${String(row.id || rowIndex)}`;
-                      return (
-                        <TableRow key={rowKey}>
+              <div className="relative rounded-md border">
+                <ScrollArea className="h-[600px] rounded-md">
+                  <div className="relative min-w-max">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
                           {combinedHeaders
                             .filter(header => selectedColumns.has(header.column))
-                            .map(({ column }) => {
-                              const cellKey = `${rowKey}-${column}`;
-                              return (
-                                <TableCell key={cellKey}>
-                                  {renderCell(row[column])}
-                                </TableCell>
-                              );
-                            })}
+                            .map(({ column, sampleData }) => (
+                              <TableHead key={column} className="min-w-[200px] sticky top-0 bg-background">
+                                <div className="space-y-2 py-2">
+                                  <div className="font-medium">{column}</div>
+                                  <Select
+                                    value={mappings.find(m => m.column === column)?.level || 'none'}
+                                    onValueChange={(value) => handleLevelChange(column, value as HierarchyLevel | 'none')}
+                                  >
+                                    <SelectTrigger className="w-full">
+                                      <SelectValue placeholder="Select level" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="none">None</SelectItem>
+                                      {['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8'].map((level) => (
+                                        <SelectItem key={level} value={level}>
+                                          {level}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <Select
+                                    value={filters[column] || SHOW_ALL_VALUE}
+                                    onValueChange={(value) => handleFilterChange(column, value)}
+                                  >
+                                    <SelectTrigger className="w-full">
+                                      <SelectValue placeholder={`Filter ${column}...`} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value={SHOW_ALL_VALUE}>Show all</SelectItem>
+                                      {getUniqueValues(column).map((value) => (
+                                        <SelectItem key={value} value={value}>
+                                          {value}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <div className="text-xs text-muted-foreground">
+                                    Unique values: {getUniqueValues(column).length}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    Example: {sampleData}
+                                  </div>
+                                </div>
+                              </TableHead>
+                            ))}
                         </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {currentData.map((row, index) => (
+                          <TableRow key={`row-${index}`}>
+                            {combinedHeaders
+                              .filter(header => selectedColumns.has(header.column))
+                              .map(({ column }) => (
+                                <TableCell key={`cell-${index}-${column}`} className="min-w-[200px]">
+                                  {String(row[column] || '')}
+                                </TableCell>
+                              ))}
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                  <ScrollBar orientation="horizontal" />
+                </ScrollArea>
                 {filteredData.length === 0 && (
                   <div className="text-center py-4 text-sm text-muted-foreground">
                     No results found for the current filters
                   </div>
                 )}
-              </ScrollArea>
+              </div>
             </div>
           </div>
         </div>
