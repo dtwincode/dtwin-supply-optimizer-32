@@ -1,3 +1,4 @@
+
 import { TranslationValue } from '../types';
 
 export type InventoryTranslations = {
@@ -27,7 +28,7 @@ export type InventoryTranslations = {
 
 export const inventoryTranslations: InventoryTranslations = {
   inventory: {
-    en: "Stock",
+    en: "Inventory",
     ar: "المخزون"
   },
   bufferZones: {
