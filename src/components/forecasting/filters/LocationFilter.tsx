@@ -1,4 +1,3 @@
-
 import {
   Select,
   SelectContent,
@@ -147,28 +146,33 @@ export const LocationFilter = ({
                     value={selectedLocations[columnName] || "all"}
                     onValueChange={(value) => handleLocationSelect(value, columnName)}
                   >
-                    <SelectTrigger className="w-[200px] bg-background">
+                    <SelectTrigger className="w-[200px] bg-background border-input">
                       <SelectValue placeholder={`Select ${displayName}`} />
                     </SelectTrigger>
                     <SelectContent 
-                      className="w-[200px] bg-background"
+                      className="w-[200px] bg-popover border shadow-lg"
                       align="start"
                       sideOffset={4}
                       position="popper"
                     >
-                      <ScrollArea className="h-[200px] p-1">
-                        <SelectItem value="all" className="cursor-pointer hover:bg-muted">
-                          All {displayName}s
-                        </SelectItem>
-                        {values.map(value => (
+                      <ScrollArea className="h-[200px]">
+                        <div className="p-1">
                           <SelectItem 
-                            key={value} 
-                            value={value}
-                            className="cursor-pointer hover:bg-muted"
+                            value="all" 
+                            className="rounded-sm py-2.5 px-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer"
                           >
-                            {value}
+                            All {displayName}s
                           </SelectItem>
-                        ))}
+                          {values.map(value => (
+                            <SelectItem 
+                              key={value} 
+                              value={value}
+                              className="rounded-sm py-2.5 px-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer"
+                            >
+                              {value}
+                            </SelectItem>
+                          ))}
+                        </div>
                       </ScrollArea>
                     </SelectContent>
                   </Select>
