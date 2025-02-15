@@ -204,11 +204,12 @@ export const LocationFilter = ({
           {hierarchyLevels.map((level, index) => {
             const availableLocations = getAvailableLocations(index);
             const isDisabled = index > 0 && !selectedLocations[index - 1];
+            const currentSelection = selectedLocations[index] || "all";
 
             return (
               <Select
                 key={`level-${level.level}`}
-                value={selectedLocations[index] || "all"}
+                value={currentSelection}
                 onValueChange={(value) => handleLocationSelect(value, index)}
                 disabled={isDisabled}
               >
@@ -217,9 +218,13 @@ export const LocationFilter = ({
                 </SelectTrigger>
                 <SelectContent>
                   <ScrollArea className="h-[200px]">
-                    <SelectItem value="all">All {level.type}s</SelectItem>
+                    <SelectItem value="all" className="cursor-pointer">All {level.type}s</SelectItem>
                     {availableLocations.map(location => (
-                      <SelectItem key={location.location_id} value={location.location_id}>
+                      <SelectItem 
+                        key={location.location_id} 
+                        value={location.location_id}
+                        className="cursor-pointer"
+                      >
                         <div className="flex items-center justify-between w-full">
                           <span>{location.display_name}</span>
                           {location.children?.length > 0 && (
