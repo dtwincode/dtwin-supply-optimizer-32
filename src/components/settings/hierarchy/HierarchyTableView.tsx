@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 interface ColumnHeader {
   column: string;
@@ -36,6 +36,7 @@ interface Filters {
 }
 
 const SHOW_ALL_VALUE = "__show_all__";
+const ROWS_PER_PAGE = 10;
 
 export function HierarchyTableView({ 
   tableName, 
@@ -49,6 +50,7 @@ export function HierarchyTableView({
   const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set(columns));
   const [filters, setFilters] = useState<Filters>({});
   const [filteredData, setFilteredData] = useState(data);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const getUniqueValues = (column: string) => {
     const values = new Set<string>();
@@ -103,7 +105,25 @@ export function HierarchyTableView({
       });
     });
     setFilteredData(filtered);
+    setCurrentPage(1);
   }, [data, filters]);
+
+  const totalPages = Math.ceil(filteredData.length / ROWS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ROWS_PER_PAGE;
+  const endIndex = startIndex + ROWS_PER_PAGE;
+  const currentData = filteredData.slice(startIndex, endIndex);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(prev => prev + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(prev => prev - 1);
+    }
+  };
 
   const handleLevelChange = (column: string, level: HierarchyLevel | 'none') => {
     setMappings(prev => 
@@ -244,13 +264,29 @@ export function HierarchyTableView({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
-                  Showing {Math.min(5, filteredData.length)} of {filteredData.length} rows (Total: {data.length} rows)
+                  Showing {startIndex + 1} to {Math.min(endIndex, filteredData.length)} of {filteredData.length} rows (Total: {data.length} rows)
                 </div>
-                {filteredData.length !== data.length && (
-                  <div className="text-sm text-muted-foreground">
-                    Filtered: {filteredData.length} matches
-                  </div>
-                )}
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handlePreviousPage}
+                    disabled={currentPage === 1}
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages}
+                  >
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
               
               <div className="rounded-md border">
@@ -307,18 +343,16 @@ export function HierarchyTableView({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredData
-                      .slice(0, 5)
-                      .map((row, index) => (
-                        <TableRow key={index}>
-                          {combinedHeaders
-                            .filter(header => selectedColumns.has(header.column))
-                            .map(({ column }) => (
-                              <TableCell key={column}>
-                                {row[column]}
-                              </TableCell>
-                          ))}
-                        </TableRow>
+                    {currentData.map((row, index) => (
+                      <TableRow key={index}>
+                        {combinedHeaders
+                          .filter(header => selectedColumns.has(header.column))
+                          .map(({ column }) => (
+                            <TableCell key={column}>
+                              {row[column]}
+                            </TableCell>
+                        ))}
+                      </TableRow>
                     ))}
                   </TableBody>
                 </Table>
