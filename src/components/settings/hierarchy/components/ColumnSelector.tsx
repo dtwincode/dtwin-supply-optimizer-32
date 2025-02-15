@@ -36,6 +36,7 @@ export function ColumnSelector({
   tempUploadId
 }: ColumnSelectorProps) {
   const [columnToDelete, setColumnToDelete] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const queryClient = useQueryClient();
 
   const deleteTempUploadMutation = useMutation({
@@ -70,39 +71,41 @@ export function ColumnSelector({
 
   const deleteColumnMutation = useMutation({
     mutationFn: async (columnName: string) => {
-      // First, remove column from selections to prevent trigger recursion
-      const newSelections = new Set(selectedColumns);
-      newSelections.delete(columnName);
-      
-      const { error: selectionsError } = await supabase
-        .from('hierarchy_column_selections')
-        .upsert({
-          table_name: tableName,
-          selected_columns: Array.from(newSelections)
-        }, {
-          onConflict: 'table_name'
-        });
+      setIsSaving(true);
+      try {
+        // First update selections
+        const newSelections = new Set(selectedColumns);
+        newSelections.delete(columnName);
+        
+        const { error: selectionsError } = await supabase
+          .from('hierarchy_column_selections')
+          .upsert({
+            table_name: tableName,
+            selected_columns: Array.from(newSelections)
+          }, {
+            onConflict: 'table_name'
+          });
 
-      if (selectionsError) throw selectionsError;
+        if (selectionsError) throw selectionsError;
 
-      // Then drop the column
-      const { error } = await supabase
-        .rpc('drop_hierarchy_column', {
-          p_table_name: tableName,
-          p_column_name: columnName
-        });
+        // Then drop the column
+        const { error } = await supabase
+          .rpc('drop_hierarchy_column', {
+            p_table_name: tableName,
+            p_column_name: columnName
+          });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      return newSelections;
+        return newSelections;
+      } finally {
+        setIsSaving(false);
+      }
     },
     onSuccess: (newSelections) => {
       onSelectedColumnsChange(newSelections);
       queryClient.invalidateQueries({
         queryKey: ['columnSelections', tableName]
-      });
-      queryClient.invalidateQueries({
-        queryKey: ['hierarchyMappings', tableName]
       });
       toast({
         title: "Success",
@@ -120,15 +123,17 @@ export function ColumnSelector({
   });
 
   const handleColumnToggle = async (column: string) => {
-    const newSelection = new Set(selectedColumns);
-    if (newSelection.has(column)) {
-      newSelection.delete(column);
-    } else {
-      newSelection.add(column);
-    }
-    onSelectedColumnsChange(newSelection);
-
+    if (isSaving) return;
+    
+    setIsSaving(true);
     try {
+      const newSelection = new Set(selectedColumns);
+      if (newSelection.has(column)) {
+        newSelection.delete(column);
+      } else {
+        newSelection.add(column);
+      }
+      
       const { error } = await supabase
         .from('hierarchy_column_selections')
         .upsert({
@@ -140,6 +145,7 @@ export function ColumnSelector({
 
       if (error) throw error;
 
+      onSelectedColumnsChange(newSelection);
       queryClient.invalidateQueries({
         queryKey: ['columnSelections', tableName]
       });
@@ -150,16 +156,75 @@ export function ColumnSelector({
         title: "Error",
         description: "Failed to update column selections",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const handleSelectAll = () => {
-    const allColumns = new Set(combinedHeaders.map(header => header.column));
-    onSelectedColumnsChange(allColumns);
+  const handleSelectAll = async () => {
+    if (isSaving) return;
+    
+    setIsSaving(true);
+    try {
+      const allColumns = new Set(combinedHeaders.map(header => header.column));
+      
+      const { error } = await supabase
+        .from('hierarchy_column_selections')
+        .upsert({
+          table_name: tableName,
+          selected_columns: Array.from(allColumns)
+        }, {
+          onConflict: 'table_name'
+        });
+
+      if (error) throw error;
+
+      onSelectedColumnsChange(allColumns);
+      queryClient.invalidateQueries({
+        queryKey: ['columnSelections', tableName]
+      });
+    } catch (error) {
+      console.error('Error selecting all columns:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to select all columns",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleUnselectAll = () => {
-    onSelectedColumnsChange(new Set());
+  const handleUnselectAll = async () => {
+    if (isSaving) return;
+    
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('hierarchy_column_selections')
+        .upsert({
+          table_name: tableName,
+          selected_columns: []
+        }, {
+          onConflict: 'table_name'
+        });
+
+      if (error) throw error;
+
+      onSelectedColumnsChange(new Set());
+      queryClient.invalidateQueries({
+        queryKey: ['columnSelections', tableName]
+      });
+    } catch (error) {
+      console.error('Error unselecting all columns:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to unselect all columns",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleDeleteColumn = async () => {
@@ -185,6 +250,7 @@ export function ColumnSelector({
             size="sm"
             onClick={handleSelectAll}
             className="h-8 px-2"
+            disabled={isSaving}
           >
             <CheckSquare className="h-4 w-4 mr-1" />
             Select All
@@ -194,6 +260,7 @@ export function ColumnSelector({
             size="sm"
             onClick={handleUnselectAll}
             className="h-8 px-2"
+            disabled={isSaving}
           >
             <XSquare className="h-4 w-4 mr-1" />
             Unselect All
@@ -205,6 +272,7 @@ export function ColumnSelector({
                   variant="destructive"
                   size="sm"
                   className="h-8 px-2"
+                  disabled={isSaving}
                 >
                   <Trash2 className="h-4 w-4 mr-1" />
                   Delete Upload
@@ -240,6 +308,7 @@ export function ColumnSelector({
                   id={`column-${column}`}
                   checked={selectedColumns.has(column)}
                   onCheckedChange={() => handleColumnToggle(column)}
+                  disabled={isSaving}
                 />
                 <label 
                   htmlFor={`column-${column}`}
@@ -255,6 +324,7 @@ export function ColumnSelector({
                     size="sm"
                     className="h-6 w-6 p-0"
                     onClick={() => setColumnToDelete(column)}
+                    disabled={isSaving}
                   >
                     <Trash2 className="h-4 w-4 text-destructive hover:text-destructive/90" />
                   </Button>
