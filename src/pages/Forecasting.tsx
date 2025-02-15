@@ -12,6 +12,7 @@ import { Routes, Route } from "react-router-dom";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { FiltersContainer } from "@/components/forecasting/filters/FiltersContainer";
 import { ForecastDataPoint } from "@/types/forecasting";
+import { WeatherData } from "@/types/weatherAndEvents";
 import { useState } from "react";
 
 const Forecasting = () => {
@@ -41,16 +42,22 @@ const Forecasting = () => {
 
   // External factors states
   const [weatherLocation, setWeatherLocation] = useState("");
-  const [weatherData, setWeatherData] = useState(null);
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [marketEvents, setMarketEvents] = useState([]);
   const [newEvent, setNewEvent] = useState({});
   const [priceAnalysis, setPriceAnalysis] = useState(null);
   const [historicalPriceData, setHistoricalPriceData] = useState([]);
 
-  // Weather forecast function
-  const fetchWeatherForecast = async (location: string) => {
-    // Placeholder for weather API call
-    return {};
+  // Weather forecast function with proper return type
+  const fetchWeatherForecast = async (location: string): Promise<WeatherData> => {
+    // Placeholder implementation that returns a valid WeatherData object
+    return {
+      temperature: 25,
+      precipitation: 0,
+      humidity: 50,
+      windSpeed: 10,
+      weatherCondition: "sunny"
+    };
   };
 
   // Price analysis functions

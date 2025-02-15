@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -145,12 +144,17 @@ export const ForecastFilters = ({
                     setSearchQuery={setSearchQuery}
                   />
                   <LocationFilter
-                    selectedRegion={selectedRegion}
-                    setSelectedRegion={setSelectedRegion}
-                    selectedCity={selectedCity}
-                    setSelectedCity={setSelectedCity}
-                    regions={regions}
-                    cities={cities}
+                    selectedFilters={{
+                      region: selectedRegion,
+                      city: selectedCity,
+                    }}
+                    onFilterChange={(field, value) => {
+                      if (field === 'region') {
+                        setSelectedRegion(value);
+                      } else if (field === 'city') {
+                        setSelectedCity(value);
+                      }
+                    }}
                   />
                 </div>
 
