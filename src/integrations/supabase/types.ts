@@ -384,6 +384,13 @@ export type Database = {
             referencedRelation: "location_hierarchy"
             referencedColumns: ["location_id"]
           },
+          {
+            foreignKeyName: "decoupling_points_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "location_hierarchy_flat"
+            referencedColumns: ["location_id"]
+          },
         ]
       }
       external_factors: {
@@ -1383,6 +1390,13 @@ export type Database = {
             referencedColumns: ["location_id"]
           },
           {
+            foreignKeyName: "model_version_applications_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "location_hierarchy_flat"
+            referencedColumns: ["location_id"]
+          },
+          {
             foreignKeyName: "model_version_applications_model_version_id_fkey"
             columns: ["model_version_id"]
             isOneToOne: false
@@ -1903,6 +1917,36 @@ export type Database = {
       }
     }
     Views: {
+      location_hierarchy_flat: {
+        Row: {
+          active: boolean | null
+          channel: string | null
+          channel_id: string | null
+          city: string | null
+          code: string | null
+          coordinates: Json | null
+          country: string | null
+          created_at: string | null
+          display_name: string | null
+          hierarchy_level: number | null
+          id: string | null
+          last_updated_at: string | null
+          last_updated_by: string | null
+          location_desc: string | null
+          location_description: string | null
+          location_id: string | null
+          location_type: string | null
+          metadata: Json | null
+          org_id: string | null
+          parent_id: string | null
+          region: string | null
+          row_num: number | null
+          sub_channel: string | null
+          updated_at: string | null
+          warehouse: string | null
+        }
+        Relationships: []
+      }
       location_hierarchy_view: {
         Row: {
           active: boolean | null

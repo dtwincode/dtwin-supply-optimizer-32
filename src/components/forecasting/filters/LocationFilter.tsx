@@ -1,4 +1,3 @@
-
 import {
   Select,
   SelectContent,
@@ -44,28 +43,28 @@ export const LocationFilter = ({
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [hierarchyLevels, setHierarchyLevels] = useState<Array<{ level: number; type: string }>>([]);
 
-  // Fetch location hierarchy and mappings
   useEffect(() => {
     const fetchLocationHierarchy = async () => {
       try {
         setIsLoading(true);
         console.log('Fetching location hierarchy...');
         
-        // First get the hierarchy mappings
+        // Fetch hierarchy mappings with pagination
         const { data: mappings, error: mappingsError } = await supabase
           .from('hierarchy_column_mappings')
           .select('*')
           .eq('table_name', 'location_hierarchy')
-          .order('hierarchy_level', { ascending: true });
+          .order('hierarchy_level', { ascending: true })
+          .limit(50);
 
         if (mappingsError) throw mappingsError;
 
-        // Then get the location hierarchy data
+        // Fetch location hierarchy data using the optimized view
         const { data: locations, error: locationsError } = await supabase
-          .from('location_hierarchy_view')
+          .from('location_hierarchy_flat')
           .select('*')
-          .eq('active', true)
-          .order('hierarchy_level', { ascending: true });
+          .order('hierarchy_level', { ascending: true })
+          .limit(1000);
 
         if (locationsError) throw locationsError;
 
@@ -84,7 +83,7 @@ export const LocationFilter = ({
 
           setHierarchyLevels(levels);
 
-          // Build hierarchical structure
+          // Build hierarchical structure more efficiently
           const buildHierarchy = (parentId: string | null = null): LocationNode[] => {
             return locations
               .filter(item => item.parent_id === parentId)
@@ -185,7 +184,6 @@ export const LocationFilter = ({
     );
   }
 
-  // If no hierarchy levels are found, show a message
   if (hierarchyLevels.length === 0) {
     return (
       <div className="p-4 bg-muted/30 rounded-lg">
