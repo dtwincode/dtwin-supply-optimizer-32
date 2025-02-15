@@ -25,12 +25,15 @@ const Forecasting = () => {
   const [isProductExpanded, setIsProductExpanded] = useState(false);
   const [isLocationExpanded, setIsLocationExpanded] = useState(false);
 
-  // Use localStorage to persist filter selections
-  const [selectedRegion, setSelectedRegion] = useLocalStorage('selectedRegion', 'all');
-  const [selectedCity, setSelectedCity] = useLocalStorage('selectedCity', 'all');
-  const [selectedWarehouse, setSelectedWarehouse] = useLocalStorage('selectedWarehouse', 'all');
-  const [selectedChannel, setSelectedChannel] = useLocalStorage('selectedChannel', 'all');
-  
+  // Single state object for all location filters
+  const [locationFilters, setLocationFilters] = useLocalStorage('locationFilters', {
+    region: 'all',
+    city: 'all',
+    warehouse: 'all',
+    channel: 'all',
+    // Any other columns will be dynamically added here
+  });
+
   // Product hierarchy states
   const [selectedL1MainProd, setSelectedL1MainProd] = useLocalStorage('selectedL1MainProd', 'all');
   const [selectedL2ProdLine, setSelectedL2ProdLine] = useLocalStorage('selectedL2ProdLine', 'all');
@@ -144,6 +147,13 @@ const Forecasting = () => {
         setIsLocationExpanded(!isLocationExpanded);
         break;
     }
+  };
+
+  const handleLocationFilterChange = (field: string, value: string) => {
+    setLocationFilters(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   return (
@@ -282,16 +292,8 @@ const Forecasting = () => {
             {isLocationExpanded && (
               <div className="p-6 space-y-6 border-t bg-primary/5">
                 <LocationFilter
-                  selectedRegion={selectedRegion}
-                  setSelectedRegion={setSelectedRegion}
-                  selectedCity={selectedCity}
-                  setSelectedCity={setSelectedCity}
-                  selectedWarehouse={selectedWarehouse}
-                  setSelectedWarehouse={setSelectedWarehouse}
-                  selectedChannel={selectedChannel}
-                  setSelectedChannel={setSelectedChannel}
-                  regions={[]}
-                  cities={{}}
+                  selectedFilters={locationFilters}
+                  onFilterChange={handleLocationFilterChange}
                 />
               </div>
             )}
