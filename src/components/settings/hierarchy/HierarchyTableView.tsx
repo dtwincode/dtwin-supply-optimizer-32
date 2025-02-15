@@ -153,7 +153,7 @@ export function HierarchyTableView({
     };
   }, [filteredData, currentPage]);
 
-  const renderCell = (value: any): string => {
+  const renderCell = (value: TableRowData[keyof TableRowData]): string => {
     if (value === null || value === undefined) return '';
     return String(value);
   };
@@ -395,20 +395,24 @@ export function HierarchyTableView({
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {currentData.map((row, rowIndex) => {
-                          const rowId = String(row.id ?? rowIndex);
+                        {currentData.map((row: TableRowData, rowIndex: number) => {
+                          const safeRowId: string = String(row.id ?? rowIndex);
+                          const rowKey: Key = `row-${rowIndex}-${safeRowId}`;
+                          
                           return (
-                            <TableRow key={`row-${rowIndex}-${rowId}`}>
+                            <TableRow key={rowKey}>
                               {combinedHeaders
                                 .filter(header => selectedColumns.has(header.column))
                                 .map(({ column }) => {
-                                  const cellKey = `cell-${rowIndex}-${column}-${rowId}`;
+                                  const cellKey: Key = `cell-${rowIndex}-${column}-${safeRowId}`;
+                                  const cellValue = row[column];
+                                  
                                   return (
                                     <TableCell 
                                       key={cellKey}
                                       className="min-w-[200px]"
                                     >
-                                      {renderCell(row[column])}
+                                      {renderCell(cellValue)}
                                     </TableCell>
                                   );
                                 })}
