@@ -21,6 +21,7 @@ serve(async (req) => {
     )
 
     const { fileName, type } = await req.json()
+    console.log('Processing file:', fileName, 'type:', type);
 
     // Download the file from storage
     const { data: fileData, error: downloadError } = await supabaseClient
@@ -43,27 +44,37 @@ serve(async (req) => {
       
       // Convert Excel data to array of arrays
       const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 })
-      headers = data[0].map((header: any) => String(header).trim())
+      if (data.length > 0) {
+        headers = data[0].map((header: any) => String(header).trim())
+        console.log('Excel headers found:', headers);
+      } else {
+        console.error('No data found in Excel file');
+      }
     } else {
       // Handle CSV files
       const text = await fileData.text()
       const cleanText = text.replace(/^\uFEFF/, '') // Remove BOM if present
       const lines = cleanText.split('\n')
       
-      // Parse headers (first line)
-      const headerLine = lines[0]
-      headers = headerLine
-        .split(',')
-        .map(header => 
-          header
-            .trim()
-            .replace(/["'\r\n]/g, '')
-            .replace(/^\uFEFF/, '')
-        )
-        .filter(header => header.length > 0)
+      if (lines.length > 0) {
+        // Parse headers (first line)
+        const headerLine = lines[0].trim()
+        headers = headerLine
+          .split(',')
+          .map(header => 
+            header
+              .trim()
+              .replace(/["'\r\n]/g, '')
+              .replace(/^\uFEFF/, '')
+          )
+          .filter(header => header.length > 0)
+        console.log('CSV headers found:', headers);
+      } else {
+        console.error('No lines found in CSV file');
+      }
     }
 
-    console.log('Parsed headers:', headers)
+    console.log('Final processed headers:', headers);
 
     // Return the headers
     return new Response(
