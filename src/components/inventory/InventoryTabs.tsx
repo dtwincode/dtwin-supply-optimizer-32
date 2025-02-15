@@ -20,7 +20,7 @@ export const InventoryTabs = ({ children }: InventoryTabsProps) => {
     <Tabs defaultValue="inventory" className="w-full">
       <TabsList className="grid w-full grid-cols-7 lg:w-[1000px] p-4">
         <TabsTrigger value="inventory">
-          {getTranslation("inventory", language)}
+          Inventory
         </TabsTrigger>
         <TabsTrigger value="netflow">
           Net Flow
