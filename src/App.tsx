@@ -1,17 +1,17 @@
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Index } from "./pages/index";
-import { Auth } from "./pages/Auth";
-import { Marketing } from "./pages/Marketing";
-import { Forecasting } from "./pages/Forecasting";
-import { Inventory } from "./pages/Inventory";
-import { SalesPlanning } from "./pages/SalesPlanning";
-import { Reports } from "./pages/Reports";
-import { Logistics } from "./pages/Logistics";
-import { Settings } from "./pages/Settings";
-import { AskAI } from "./pages/AskAI";
-import { NotFound } from "./pages/NotFound";
-import { Tickets } from "./pages/Tickets";
+import Index from "./pages/index";
+import Auth from "./pages/Auth";
+import Marketing from "./pages/Marketing";
+import Forecasting from "./pages/Forecasting";
+import Inventory from "./pages/Inventory";
+import SalesPlanning from "./pages/SalesPlanning";
+import Reports from "./pages/Reports";
+import Logistics from "./pages/Logistics";
+import Settings from "./pages/Settings";
+import AskAI from "./pages/AskAI";
+import NotFound from "./pages/NotFound";
+import Tickets from "./pages/Tickets";
 import SQLConfig from "./pages/SQLConfig";
 
 function App() {
