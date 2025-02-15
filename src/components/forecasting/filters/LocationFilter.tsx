@@ -149,23 +149,16 @@ export const LocationFilter = ({
                   <SelectTrigger className="w-[200px] bg-white">
                     <SelectValue placeholder={`Select ${displayName}`} />
                   </SelectTrigger>
-                  <SelectContent 
-                    className="w-[200px] bg-white border shadow-md z-[100]"
-                    align="start"
-                    side="bottom"
-                  >
+                  <SelectContent className="min-w-[200px] bg-white">
                     <ScrollArea className="max-h-[200px]">
-                      <SelectItem 
-                        value="all"
-                        className="py-2 px-4 text-sm hover:bg-gray-100 cursor-pointer"
-                      >
+                      <SelectItem value="all" className="text-black">
                         All {displayName}s
                       </SelectItem>
                       {values.map(value => (
                         <SelectItem 
-                          key={value}
+                          key={value} 
                           value={value}
-                          className="py-2 px-4 text-sm hover:bg-gray-100 cursor-pointer"
+                          className="text-black"
                         >
                           {value}
                         </SelectItem>
