@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from 'react';
 import { Card } from "@/components/ui/card";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -84,7 +85,7 @@ export function HierarchyTableView({
     if (!isLoading && existingMappings) {
       const initialMappings = combinedHeaders.map(header => ({
         column: header.column,
-        level: existingMappings.find(m => m.column_name === header.column)?.hierarchy_level || null
+        level: existingMappings.find(m => m.column_name === header.column)?.hierarchy_level?.toString() || null
       }));
       setMappings(initialMappings);
     }
@@ -94,7 +95,7 @@ export function HierarchyTableView({
     setMappings(prev => 
       prev.map(mapping => 
         mapping.column === column 
-          ? { ...mapping, level: level === 'none' ? null : level as any } 
+          ? { ...mapping, level: level === 'none' ? null : level } 
           : mapping
       )
     );
@@ -144,7 +145,7 @@ export function HierarchyTableView({
         validMappings.map(m => ({
           table_name: tableName,
           column_name: m.column,
-          hierarchy_level: m.level
+          hierarchy_level: parseFloat(m.level)
         }))
       );
 

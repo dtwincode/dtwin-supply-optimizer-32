@@ -746,30 +746,27 @@ export type Database = {
         Row: {
           column_name: string
           created_at: string | null
-          hierarchy_level:
-            | Database["public"]["Enums"]["hierarchy_level_type"]
-            | null
+          hierarchy_level: number | null
           id: string
+          main_level: number | null
           table_name: string
           updated_at: string | null
         }
         Insert: {
           column_name: string
           created_at?: string | null
-          hierarchy_level?:
-            | Database["public"]["Enums"]["hierarchy_level_type"]
-            | null
+          hierarchy_level?: number | null
           id?: string
+          main_level?: number | null
           table_name: string
           updated_at?: string | null
         }
         Update: {
           column_name?: string
           created_at?: string | null
-          hierarchy_level?:
-            | Database["public"]["Enums"]["hierarchy_level_type"]
-            | null
+          hierarchy_level?: number | null
           id?: string
+          main_level?: number | null
           table_name?: string
           updated_at?: string | null
         }
