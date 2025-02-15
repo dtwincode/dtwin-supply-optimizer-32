@@ -16,6 +16,7 @@ const SHOW_ALL_VALUE = "__show_all__";
 const ROWS_PER_PAGE = 50;
 const BATCH_SIZE = 1000;
 const MAX_PAYLOAD_SIZE = 2 * 1024 * 1024; // 2MB limit for Supabase
+const DELETE_BATCH_SIZE = 100;
 
 export function HierarchyTableView({ 
   tableName, 
@@ -120,6 +121,29 @@ export function HierarchyTableView({
     isInitialized
   ]);
 
+  const deleteExistingMappings = async () => {
+    const { data: existingMappingIds, error: fetchError } = await supabase
+      .from('hierarchy_column_mappings')
+      .select('id')
+      .eq('table_name', tableName);
+
+    if (fetchError) throw fetchError;
+    if (!existingMappingIds?.length) return;
+
+    for (let i = 0; i < existingMappingIds.length; i += DELETE_BATCH_SIZE) {
+      const batchIds = existingMappingIds
+        .slice(i, i + DELETE_BATCH_SIZE)
+        .map(m => m.id);
+
+      const { error: deleteError } = await supabase
+        .from('hierarchy_column_mappings')
+        .delete()
+        .in('id', batchIds);
+
+      if (deleteError) throw deleteError;
+    }
+  };
+
   const handleSaveConfiguration = async () => {
     setIsSavingSelections(true);
     try {
@@ -145,12 +169,7 @@ export function HierarchyTableView({
 
       if (selectionsError) throw selectionsError;
 
-      const { error: deleteError } = await supabase
-        .from('hierarchy_column_mappings')
-        .delete()
-        .eq('table_name', tableName);
-
-      if (deleteError) throw deleteError;
+      await deleteExistingMappings();
 
       const validMappings = mappings
         .filter(m => m.level !== null && selectedColumns.has(m.column))
@@ -168,6 +187,8 @@ export function HierarchyTableView({
           .insert(chunk);
 
         if (insertError) throw insertError;
+
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
 
       queryClient.invalidateQueries({ queryKey: ['hierarchyMappings', tableName] });
