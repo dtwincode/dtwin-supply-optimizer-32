@@ -27,6 +27,19 @@ export function HierarchyTableView({ tableName, data }: HierarchyTableViewProps)
     });
   };
 
+  const formatCellValue = (value: any): string => {
+    if (value === null || value === undefined) {
+      return '';
+    }
+    if (typeof value === 'object') {
+      if (value.lat !== undefined && value.lng !== undefined) {
+        return `${value.lat}, ${value.lng}`;
+      }
+      return JSON.stringify(value);
+    }
+    return String(value);
+  };
+
   return (
     <div className="space-y-6">
       <HierarchyColumnMapping 
@@ -53,7 +66,7 @@ export function HierarchyTableView({ tableName, data }: HierarchyTableViewProps)
                 <tr key={index}>
                   {columns.map((column) => (
                     <td key={column} className="px-4 py-2 border-t">
-                      {row[column]}
+                      {formatCellValue(row[column])}
                     </td>
                   ))}
                 </tr>
