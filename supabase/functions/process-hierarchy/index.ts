@@ -38,7 +38,6 @@ serve(async (req) => {
 
     // Convert the file data to array buffer
     const arrayBuffer = await fileData.arrayBuffer()
-    const decoder = new TextDecoder('utf-8')
     
     if (fileExt === 'xlsx' || fileExt === 'xls') {
       // Handle Excel files
@@ -59,44 +58,46 @@ serve(async (req) => {
       }
     } else {
       // Handle CSV files
-      const content = decoder.decode(arrayBuffer)
+      const text = new TextDecoder().decode(arrayBuffer)
+      console.log('Raw CSV content:', text.substring(0, 500)) // Log first 500 chars
       
-      // Split into lines and clean up
-      const lines = content
-        .split('\n')
-        .map(line => line.trim())
-        .filter(line => line.length > 0 && !line.startsWith('--'))
-        .filter(line => !line.includes('Content-Disposition')) // Filter out form data headers
-        .filter(line => !line.includes('Content-Type'))
+      // Find the actual CSV content by looking for a line with commas
+      const lines = text.split('\n')
+      const csvLines = lines.filter(line => 
+        line.includes(',') && 
+        !line.includes('Content-Type:') && 
+        !line.includes('Content-Disposition:') &&
+        !line.startsWith('--')
+      )
 
-      if (lines.length > 0) {
-        // Process headers - first line
-        headers = lines[0]
+      if (csvLines.length > 0) {
+        // First line with commas should be our headers
+        const headerLine = csvLines[0]
+        headers = headerLine
           .split(',')
-          .map(header => header.trim().replace(/["'\r\n]/g, ''))
-          .filter(Boolean)
-        
-        console.log('Found CSV headers:', headers)
+          .map(header => header.trim().replace(/[\r\n"']/g, ''))
+          .filter(header => header.length > 0)
 
-        // Process data rows
-        data = lines.slice(1)
-          .filter(line => line.trim().length > 0)
+        console.log('Extracted headers:', headers)
+
+        // Process remaining lines as data
+        data = csvLines.slice(1)
           .map(line => {
             const values = line
               .split(',')
-              .map(val => val.trim().replace(/["'\r\n]/g, ''))
-            
+              .map(val => val.trim().replace(/[\r\n"']/g, ''))
+
             return headers.reduce((obj, header, index) => {
               obj[header] = values[index] || ''
               return obj
             }, {} as Record<string, any>)
           })
+          .filter(row => Object.values(row).some(val => val !== '')) // Remove empty rows
 
-        console.log('First row of CSV data:', data[0])
+        console.log('First data row:', data[0])
       }
     }
 
-    // Validate we got some headers
     if (headers.length === 0) {
       throw new Error('No valid headers found in the file')
     }
@@ -110,9 +111,8 @@ serve(async (req) => {
       sampleData: sampleData[header] || ''
     }))
 
-    console.log('Processed data:', {
+    console.log('Final processed data:', {
       headerCount: headers.length,
-      rowCount: data.length,
       headers,
       sampleRow: sampleData
     })
