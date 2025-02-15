@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +19,12 @@ interface LocationFilterProps {
   setSelectedCity: (city: string) => void;
   regions: string[];
   cities: { [key: string]: string[] };
+}
+
+interface LocationData {
+  region: string;
+  city: string;
+  [key: string]: any;
 }
 
 export function LocationFilter({
@@ -58,13 +65,14 @@ export function LocationFilter({
 
       if (error && error.code !== 'PGRST116') throw error;
 
-      const hierarchyData = data?.data || [];
+      // Ensure data is an array and has the correct shape
+      const hierarchyData = Array.isArray(data?.data) ? data.data as LocationData[] : [];
       
       // Process the data to get unique regions and cities
       const uniqueRegions = new Set<string>();
       const citiesByRegion: { [key: string]: Set<string> } = {};
 
-      hierarchyData.forEach((row: any) => {
+      hierarchyData.forEach((row: LocationData) => {
         if (row.region) {
           uniqueRegions.add(row.region);
           if (!citiesByRegion[row.region]) {
