@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -6,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 
 interface Column {
   name: string;
@@ -46,6 +46,7 @@ const HIERARCHY_LEVELS = generateHierarchyLevels();
 export function HierarchyColumnMapping({ tableName, columns, onMappingSaved }: HierarchyColumnMappingProps) {
   const [mappings, setMappings] = useState<Column[]>([]);
   const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set());
+  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -102,6 +103,7 @@ export function HierarchyColumnMapping({ tableName, columns, onMappingSaved }: H
 
   const handleSave = async () => {
     try {
+      setIsSaving(true);
       // Filter out mappings that are both valid and selected
       const validMappings = mappings.filter((m): m is Column & { level: number } => 
         m.level !== null && selectedColumns.has(m.name)
@@ -128,7 +130,6 @@ export function HierarchyColumnMapping({ tableName, columns, onMappingSaved }: H
         if (error) throw error;
       }
 
-      // Fix: Update the invalidateQueries syntax to use proper options object
       await queryClient.invalidateQueries({
         queryKey: ['hierarchyMappings', tableName]
       });
@@ -145,6 +146,8 @@ export function HierarchyColumnMapping({ tableName, columns, onMappingSaved }: H
         title: "Error",
         description: "Failed to save column mappings",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -170,6 +173,7 @@ export function HierarchyColumnMapping({ tableName, columns, onMappingSaved }: H
             <Select
               value={mapping.level === null ? 'none' : mapping.level.toFixed(2)}
               onValueChange={(value) => handleLevelChange(mapping.name, value)}
+              disabled={isSaving}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select level" />
@@ -189,9 +193,11 @@ export function HierarchyColumnMapping({ tableName, columns, onMappingSaved }: H
       <div className="mt-6">
         <Button 
           onClick={handleSave}
-          disabled={selectedColumns.size === 0}
+          disabled={selectedColumns.size === 0 || isSaving}
+          className="flex items-center gap-2"
         >
-          Save Mappings
+          {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
+          {isSaving ? 'Saving...' : 'Save Mappings'}
         </Button>
       </div>
     </Card>
