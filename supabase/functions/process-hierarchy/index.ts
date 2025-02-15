@@ -33,10 +33,20 @@ serve(async (req) => {
     const text = await fileData.text()
     
     // First, parse just the headers to get column names
-    const headerRows = text.split('\n')[0]
-    const headers = headerRows.split(',').map(header => 
-      header.trim().replace(/["'\r]/g, '')
-    )
+    // Remove BOM if present and clean the headers
+    const cleanText = text.replace(/^\uFEFF/, '');
+    const rows = cleanText.split('\n');
+    const headers = rows[0]
+      .split(',')
+      .map(header => 
+        header
+          .trim()
+          .replace(/["'\r\n]/g, '') // Remove quotes, line endings
+          .replace(/^\uFEFF/, '') // Remove BOM if present
+      )
+      .filter(header => header.length > 0); // Remove empty headers
+
+    console.log('Parsed headers:', headers);
 
     // Return the headers first, before processing the data
     return new Response(
