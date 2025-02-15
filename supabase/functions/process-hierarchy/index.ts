@@ -36,9 +36,12 @@ serve(async (req) => {
     let headers: string[] = []
     let data: any[] = []
 
+    // Convert the file data to array buffer
+    const arrayBuffer = await fileData.arrayBuffer()
+    const decoder = new TextDecoder('utf-8')
+    
     if (fileExt === 'xlsx' || fileExt === 'xls') {
       // Handle Excel files
-      const arrayBuffer = await fileData.arrayBuffer()
       const workbook = XLSX.read(arrayBuffer, { type: 'array' })
       const firstSheetName = workbook.SheetNames[0]
       const worksheet = workbook.Sheets[firstSheetName]
@@ -56,43 +59,40 @@ serve(async (req) => {
       }
     } else {
       // Handle CSV files
-      const csvText = await fileData.text()
+      const content = decoder.decode(arrayBuffer)
       
-      // Split into lines and remove empty lines
-      const lines = csvText
+      // Split into lines and clean up
+      const lines = content
         .split('\n')
         .map(line => line.trim())
         .filter(line => line.length > 0 && !line.startsWith('--'))
+        .filter(line => !line.includes('Content-Disposition')) // Filter out form data headers
+        .filter(line => !line.includes('Content-Type'))
 
       if (lines.length > 0) {
         // Process headers - first line
-        const headerLine = lines[0]
-        headers = headerLine
+        headers = lines[0]
           .split(',')
-          .map(header => {
-            // Clean the header
-            return header
-              .trim()
-              .replace(/^["']|["']$/g, '') // Remove quotes
-              .replace(/\r$/, '')           // Remove carriage return
-          })
-          .filter(Boolean) // Remove empty headers
+          .map(header => header.trim().replace(/["'\r\n]/g, ''))
+          .filter(Boolean)
         
-        console.log('Found headers:', headers)
+        console.log('Found CSV headers:', headers)
 
         // Process data rows
-        data = lines.slice(1).map(line => {
-          const values = line
-            .split(',')
-            .map(val => val.trim().replace(/^["']|["']$/g, ''))
-          
-          return headers.reduce((obj, header, index) => {
-            obj[header] = values[index] || ''
-            return obj
-          }, {} as Record<string, any>)
-        })
+        data = lines.slice(1)
+          .filter(line => line.trim().length > 0)
+          .map(line => {
+            const values = line
+              .split(',')
+              .map(val => val.trim().replace(/["'\r\n]/g, ''))
+            
+            return headers.reduce((obj, header, index) => {
+              obj[header] = values[index] || ''
+              return obj
+            }, {} as Record<string, any>)
+          })
 
-        console.log('First row of data:', data[0])
+        console.log('First row of CSV data:', data[0])
       }
     }
 
