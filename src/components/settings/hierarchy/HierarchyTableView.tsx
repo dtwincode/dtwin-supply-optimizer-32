@@ -15,6 +15,7 @@ import type { HierarchyTableViewProps, ColumnMapping, TableRowData } from "./typ
 const SHOW_ALL_VALUE = "__show_all__";
 const ROWS_PER_PAGE = 50;
 const BATCH_SIZE = 1000;
+const MAPPING_BATCH_SIZE = 100;
 
 export function HierarchyTableView({ 
   tableName, 
@@ -180,11 +181,12 @@ export function HierarchyTableView({
 
       if (cleanupError) throw cleanupError;
 
-      // Save mappings
+      // Save mappings in batches
       const validMappings = mappings.filter((m): m is ColumnMapping & { level: string } => 
         m.level !== null && selectedColumns.has(m.column)
       );
 
+      // Delete existing mappings
       const { error: deleteError } = await supabase
         .from('hierarchy_column_mappings')
         .delete()
@@ -192,11 +194,13 @@ export function HierarchyTableView({
 
       if (deleteError) throw deleteError;
 
-      if (validMappings.length > 0) {
+      // Insert mappings in batches
+      for (let i = 0; i < validMappings.length; i += MAPPING_BATCH_SIZE) {
+        const batchMappings = validMappings.slice(i, i + MAPPING_BATCH_SIZE);
         const { error: insertError } = await supabase
           .from('hierarchy_column_mappings')
           .insert(
-            validMappings.map(m => ({
+            batchMappings.map(m => ({
               table_name: tableName,
               column_name: m.column,
               hierarchy_level: m.level ? parseFloat(m.level) : null
@@ -223,7 +227,7 @@ export function HierarchyTableView({
       queryClient.invalidateQueries({ queryKey: ['columnSelections', tableName] });
       toast({
         title: "Success",
-        description: "Hierarchy configuration saved and unused columns cleared",
+        description: "Hierarchy configuration saved successfully",
       });
     },
     onError: (error) => {
@@ -231,7 +235,7 @@ export function HierarchyTableView({
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to save hierarchy configuration",
+        description: "Failed to save hierarchy configuration. Please try again.",
       });
     }
   });
