@@ -5,8 +5,55 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LocationHierarchyUpload } from "@/components/settings/location-hierarchy/LocationHierarchyUpload";
 import { ProductHierarchyUpload } from "@/components/settings/product-hierarchy/ProductHierarchyUpload";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
+import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const Settings = () => {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const queryClient = useQueryClient();
+
+  const handleDeleteTempUploads = async () => {
+    setIsDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('temp_hierarchy_uploads')
+        .delete()
+        .neq('id', ''); // Delete all temporary uploads
+
+      if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ['hierarchyData'] });
+      toast({
+        title: "Success",
+        description: "All temporary uploads deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting temporary uploads:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete temporary uploads",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6 max-w-[1200px] mx-auto">
@@ -17,6 +64,36 @@ const Settings = () => {
               Manage your hierarchies and system configurations
             </p>
           </div>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="destructive"
+                size="sm"
+                className="h-9 px-4"
+                disabled={isDeleting}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete All Temporary Uploads
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete All Temporary Uploads</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete all temporary uploads? This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDeleteTempUploads}
+                  className="bg-destructive hover:bg-destructive/90"
+                >
+                  Delete All
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
 
         <Separator className="my-6" />
