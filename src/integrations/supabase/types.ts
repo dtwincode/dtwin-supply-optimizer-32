@@ -1980,7 +1980,13 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      remove_unselected_columns: {
+        Args: {
+          p_table_name: string
+          p_selected_columns: string[]
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       decoupling_type:

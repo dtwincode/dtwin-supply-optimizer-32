@@ -124,6 +124,14 @@ export function HierarchyTableView({
     mutationFn: async (selectedColumns: Set<string>) => {
       const columnsArray = Array.from(selectedColumns);
       
+      const { error: functionError } = await supabase
+        .rpc('remove_unselected_columns', {
+          p_table_name: tableName,
+          p_selected_columns: columnsArray
+        });
+
+      if (functionError) throw functionError;
+
       const { error } = await supabase
         .from('hierarchy_column_selections')
         .upsert({
@@ -248,14 +256,14 @@ export function HierarchyTableView({
       
       toast({
         title: "Success",
-        description: `Successfully saved ${selectedColumns.size} columns. Unselected columns have been removed.`,
+        description: `Successfully saved ${selectedColumns.size} columns. Unselected columns have been removed from the database.`,
       });
     } catch (error) {
       console.error('Error saving selections:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to save column selections",
+        description: "Failed to save column selections and remove data",
       });
     } finally {
       setIsSavingSelections(false);
