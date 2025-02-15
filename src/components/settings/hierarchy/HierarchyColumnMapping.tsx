@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface Column {
   name: string;
@@ -45,7 +45,9 @@ const HIERARCHY_LEVELS = generateHierarchyLevels();
 
 export function HierarchyColumnMapping({ tableName, columns, onMappingSaved }: HierarchyColumnMappingProps) {
   const [mappings, setMappings] = useState<Column[]>([]);
+  const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set());
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Fetch existing mappings
   const { data: existingMappings } = useQuery({
@@ -68,6 +70,12 @@ export function HierarchyColumnMapping({ tableName, columns, onMappingSaved }: H
         level: existingMappings?.find(m => m.column_name === col)?.hierarchy_level || null
       }));
       setMappings(initialMappings);
+
+      // Initialize selected columns from existing mappings
+      if (existingMappings) {
+        const selectedSet = new Set(existingMappings.map(m => m.column_name));
+        setSelectedColumns(selectedSet);
+      }
     }
   }, [columns, existingMappings]);
 
@@ -79,31 +87,48 @@ export function HierarchyColumnMapping({ tableName, columns, onMappingSaved }: H
           : mapping
       )
     );
+    
+    // Add column to selected columns when level is set
+    if (level !== 'none') {
+      setSelectedColumns(prev => new Set([...prev, columnName]));
+    } else {
+      setSelectedColumns(prev => {
+        const next = new Set(prev);
+        next.delete(columnName);
+        return next;
+      });
+    }
   };
 
   const handleSave = async () => {
     try {
-      // Filter out mappings without levels
-      const validMappings = mappings.filter((m): m is Column & { level: number } => m.level !== null);
+      // Filter out mappings that are both valid and selected
+      const validMappings = mappings.filter((m): m is Column & { level: number } => 
+        m.level !== null && selectedColumns.has(m.name)
+      );
       
-      // Delete existing mappings for this table
+      // Delete ALL existing mappings for this table
       await supabase
         .from('hierarchy_column_mappings')
         .delete()
         .eq('table_name', tableName);
 
-      // Insert new mappings
-      const { error } = await supabase
-        .from('hierarchy_column_mappings')
-        .insert(
-          validMappings.map(m => ({
-            table_name: tableName,
-            column_name: m.name,
-            hierarchy_level: m.level
-          }))
-        );
+      if (validMappings.length > 0) {
+        // Insert new mappings only for selected columns
+        const { error } = await supabase
+          .from('hierarchy_column_mappings')
+          .insert(
+            validMappings.map(m => ({
+              table_name: tableName,
+              column_name: m.name,
+              hierarchy_level: m.level
+            }))
+          );
 
-      if (error) throw error;
+        if (error) throw error;
+      }
+
+      await queryClient.invalidateQueries(['hierarchyMappings', tableName]);
 
       toast({
         title: "Success",
@@ -159,7 +184,12 @@ export function HierarchyColumnMapping({ tableName, columns, onMappingSaved }: H
         ))}
       </div>
       <div className="mt-6">
-        <Button onClick={handleSave}>Save Mappings</Button>
+        <Button 
+          onClick={handleSave}
+          disabled={selectedColumns.size === 0}
+        >
+          Save Mappings
+        </Button>
       </div>
     </Card>
   );
