@@ -4,13 +4,6 @@ export interface ColumnHeader {
   sampleData: string;
 }
 
-export type HierarchyLevel = string; // Changed to string to support decimal notation
-
-export interface ColumnMapping {
-  column: string;
-  level: HierarchyLevel | null;
-}
-
 export interface TableRowData {
   id?: string | number;
   sku?: string | number;
@@ -23,4 +16,3 @@ export interface HierarchyTableViewProps {
   columns: string[];
   combinedHeaders: ColumnHeader[];
 }
-
