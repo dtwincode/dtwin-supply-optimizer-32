@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from 'react';
 import { Card } from "@/components/ui/card";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
@@ -174,10 +175,16 @@ export function HierarchyTableView({
         m.level !== null && selectedColumns.has(m.column)
       );
 
+      // Transform validMappings into the correct JSON format
+      const formattedMappings = validMappings.map(mapping => ({
+        column: mapping.column,
+        level: mapping.level
+      }));
+
       const { error } = await supabase.rpc('process_hierarchy_configuration', {
         p_table_name: tableName,
         p_selected_columns: columnsArray,
-        p_mappings: validMappings
+        p_mappings: formattedMappings
       });
 
       if (error) throw error;
