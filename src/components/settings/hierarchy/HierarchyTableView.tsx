@@ -32,10 +32,26 @@ export function HierarchyTableView({ tableName, data }: HierarchyTableViewProps)
       return '';
     }
     if (typeof value === 'object') {
-      if (value.lat !== undefined && value.lng !== undefined) {
-        return `${value.lat}, ${value.lng}`;
+      try {
+        // Handle coordinate objects
+        if (value.lat !== undefined && value.lng !== undefined) {
+          return `${value.lat}, ${value.lng}`;
+        }
+        // Handle arrays
+        if (Array.isArray(value)) {
+          return value.map(item => formatCellValue(item)).join(', ');
+        }
+        // Handle Date objects
+        if (value instanceof Date) {
+          return value.toISOString();
+        }
+        // Handle other objects by converting to JSON string
+        const stringified = JSON.stringify(value);
+        return stringified === '{}' ? '' : stringified;
+      } catch (error) {
+        console.error('Error formatting cell value:', error);
+        return '[Error formatting value]';
       }
-      return JSON.stringify(value);
     }
     return String(value);
   };
