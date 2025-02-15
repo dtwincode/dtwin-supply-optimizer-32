@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -85,13 +84,8 @@ export function ProductHierarchyUpload() {
         duration: 3000,
       });
 
-      // Reset the file input after successful save
-      setFile(null);
+      // Keep the file visible but disable save button by clearing savedFileName
       setSavedFileName(null);
-      const fileInput = document.getElementById('product-file') as HTMLInputElement;
-      if (fileInput) {
-        fileInput.value = '';
-      }
 
     } catch (error) {
       console.error('Save error:', error);
