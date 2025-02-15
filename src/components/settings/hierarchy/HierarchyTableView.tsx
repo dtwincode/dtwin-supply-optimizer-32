@@ -153,7 +153,7 @@ export function HierarchyTableView({
     };
   }, [filteredData, currentPage]);
 
-  const renderCell = (value: TableRowData[keyof TableRowData]): string => {
+  const renderCell = (value: any): ReactNode => {
     if (value === null || value === undefined) return '';
     return String(value);
   };
@@ -395,27 +395,21 @@ export function HierarchyTableView({
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {currentData.map((row: TableRowData, rowIndex: number) => {
-                          const safeRowId: string = String(row.id ?? rowIndex);
-                          const rowKey: Key = `row-${rowIndex}-${safeRowId}`;
+                        {(currentData as TableRowData[]).map((row: TableRowData, rowIndex: number) => {
+                          const idString = row.id !== undefined ? String(row.id) : String(rowIndex);
                           
                           return (
-                            <TableRow key={rowKey}>
+                            <TableRow key={idString}>
                               {combinedHeaders
                                 .filter(header => selectedColumns.has(header.column))
-                                .map(({ column }) => {
-                                  const cellKey: Key = `cell-${rowIndex}-${column}-${safeRowId}`;
-                                  const cellValue = row[column];
-                                  
-                                  return (
-                                    <TableCell 
-                                      key={cellKey}
-                                      className="min-w-[200px]"
-                                    >
-                                      {renderCell(cellValue)}
-                                    </TableCell>
-                                  );
-                                })}
+                                .map(({ column }, colIndex) => (
+                                  <TableCell 
+                                    key={`${idString}-${column}-${colIndex}`}
+                                    className="min-w-[200px]"
+                                  >
+                                    {renderCell(row[column])}
+                                  </TableCell>
+                                ))}
                             </TableRow>
                           );
                         })}
