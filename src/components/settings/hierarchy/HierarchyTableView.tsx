@@ -395,18 +395,20 @@ export function HierarchyTableView({
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {(currentData as TableRowData[]).map((row, index) => {
-                          const rowKey = `row-${index}-${row.id || index}`;
+                        {(currentData as TableRowData[]).map((row) => {
+                          const rowKeyString = `row-${String(row.id ?? '')}-${String(row.sku ?? '')}`;
                           
                           return (
-                            <TableRow key={rowKey}>
+                            <TableRow key={rowKeyString}>
                               {combinedHeaders
                                 .filter(header => selectedColumns.has(header.column))
                                 .map(({ column }, colIndex) => {
-                                  const cellValue = row[column] as TableRowData[keyof TableRowData];
+                                  const cellKeyString = `${rowKeyString}-col-${colIndex}`;
+                                  const cellValue = row[column];
+                                  
                                   return (
                                     <TableCell 
-                                      key={`${rowKey}-${column}-${colIndex}`}
+                                      key={cellKeyString}
                                       className="min-w-[200px]"
                                     >
                                       {renderCell(cellValue)}
