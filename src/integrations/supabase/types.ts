@@ -775,6 +775,36 @@ export type Database = {
         }
         Relationships: []
       }
+      hierarchy_file_references: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_type: string
+          hierarchy_type: string
+          id: string
+          original_name: string
+          storage_path: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_type: string
+          hierarchy_type: string
+          id?: string
+          original_name: string
+          storage_path: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_type?: string
+          hierarchy_type?: string
+          id?: string
+          original_name?: string
+          storage_path?: string
+        }
+        Relationships: []
+      }
       inventory_data: {
         Row: {
           adu: number | null

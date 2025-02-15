@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, Trash2 } from 'lucide-react';
+import { Upload, Trash2, Save } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { HierarchyTableView } from '../hierarchy/HierarchyTableView';
 import { useQuery } from "@tanstack/react-query";
@@ -14,6 +14,7 @@ export function LocationHierarchyUpload() {
   const [isUploading, setIsUploading] = useState(false);
   const [columns, setColumns] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
+  const [savedFileName, setSavedFileName] = useState<string | null>(null);
   const { toast } = useToast();
 
   const { data: locationData, refetch } = useQuery({
@@ -34,15 +35,47 @@ export function LocationHierarchyUpload() {
     if (!uploadedFile) return;
     setFile(uploadedFile);
     setProgress(0);
+    setSavedFileName(null);
   };
 
   const handleDeleteFile = () => {
     setFile(null);
     setProgress(0);
+    setSavedFileName(null);
     // Reset the file input
     const fileInput = document.getElementById('location-file') as HTMLInputElement;
     if (fileInput) {
       fileInput.value = '';
+    }
+  };
+
+  const handleSaveFile = async () => {
+    if (!file || !savedFileName) return;
+    
+    try {
+      const { error } = await supabase
+        .from('hierarchy_file_references')
+        .insert({
+          file_name: savedFileName,
+          original_name: file.name,
+          file_type: file.type || 'application/octet-stream',
+          hierarchy_type: 'location',
+          storage_path: `hierarchy-uploads/${savedFileName}`
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "File reference saved successfully",
+      });
+    } catch (error) {
+      console.error('Save error:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to save file reference",
+      });
     }
   };
 
@@ -55,6 +88,7 @@ export function LocationHierarchyUpload() {
       // Upload file to storage
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(7)}.${fileExt}`;
+      setSavedFileName(fileName);
       
       setProgress(30);
       const { error: uploadError } = await supabase.storage
@@ -119,6 +153,16 @@ export function LocationHierarchyUpload() {
             {file && (
               <>
                 <span className="text-sm text-muted-foreground flex-1">{file.name}</span>
+                {savedFileName && (
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={handleSaveFile}
+                    disabled={isUploading}
+                  >
+                    <Save className="h-4 w-4 text-green-600" />
+                  </Button>
+                )}
                 <Button
                   size="icon"
                   variant="outline"
