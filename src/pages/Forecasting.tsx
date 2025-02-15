@@ -9,7 +9,7 @@ import { ValidationTab } from "@/components/forecasting/tabs/ValidationTab";
 import { ExternalFactorsTab } from "@/components/forecasting/tabs/ExternalFactorsTab";
 import { Separator } from "@/components/ui/separator";
 import { Routes, Route, Outlet } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ProductFilter } from "@/components/forecasting/filters/ProductFilter";
 import { LocationFilter } from "@/components/forecasting/filters/LocationFilter";
 import { ForecastDataPoint } from "@/types/forecasting";
@@ -18,31 +18,32 @@ import { ForecastingDateRange } from "@/components/forecasting/ForecastingDateRa
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useLocalStorage } from "@/hooks/use-local-storage";
 
 const Forecasting = () => {
   const [isTimeExpanded, setIsTimeExpanded] = useState(false);
   const [isProductExpanded, setIsProductExpanded] = useState(false);
   const [isLocationExpanded, setIsLocationExpanded] = useState(false);
+
+  // Use localStorage to persist filter selections
+  const [selectedRegion, setSelectedRegion] = useLocalStorage('selectedRegion', 'all');
+  const [selectedCity, setSelectedCity] = useLocalStorage('selectedCity', 'all');
   
   // Product hierarchy states
-  const [selectedL1MainProd, setSelectedL1MainProd] = useState<string>("all");
-  const [selectedL2ProdLine, setSelectedL2ProdLine] = useState<string>("all");
-  const [selectedL3ProdCategory, setSelectedL3ProdCategory] = useState<string>("all");
-  const [selectedL4DeviceMake, setSelectedL4DeviceMake] = useState<string>("all");
-  const [selectedL5ProdSubCategory, setSelectedL5ProdSubCategory] = useState<string>("all");
-  const [selectedL6DeviceModel, setSelectedL6DeviceModel] = useState<string>("all");
-  const [selectedL7DeviceColor, setSelectedL7DeviceColor] = useState<string>("all");
-  const [selectedL8DeviceStorage, setSelectedL8DeviceStorage] = useState<string>("all");
-
-  // Location hierarchy states
-  const [selectedRegion, setSelectedRegion] = useState<string>("all");
-  const [selectedCity, setSelectedCity] = useState<string>("all");
+  const [selectedL1MainProd, setSelectedL1MainProd] = useLocalStorage('selectedL1MainProd', 'all');
+  const [selectedL2ProdLine, setSelectedL2ProdLine] = useLocalStorage('selectedL2ProdLine', 'all');
+  const [selectedL3ProdCategory, setSelectedL3ProdCategory] = useLocalStorage('selectedL3ProdCategory', 'all');
+  const [selectedL4DeviceMake, setSelectedL4DeviceMake] = useLocalStorage('selectedL4DeviceMake', 'all');
+  const [selectedL5ProdSubCategory, setSelectedL5ProdSubCategory] = useLocalStorage('selectedL5ProdSubCategory', 'all');
+  const [selectedL6DeviceModel, setSelectedL6DeviceModel] = useLocalStorage('selectedL6DeviceModel', 'all');
+  const [selectedL7DeviceColor, setSelectedL7DeviceColor] = useLocalStorage('selectedL7DeviceColor', 'all');
+  const [selectedL8DeviceStorage, setSelectedL8DeviceStorage] = useLocalStorage('selectedL8DeviceStorage', 'all');
 
   // Time period states
-  const [trainingFromDate, setTrainingFromDate] = useState<Date>(new Date('2024-01-01'));
-  const [trainingToDate, setTrainingToDate] = useState<Date>(new Date('2024-09-30'));
-  const [testingFromDate, setTestingFromDate] = useState<Date>(new Date('2024-10-01'));
-  const [testingToDate, setTestingToDate] = useState<Date>(new Date('2024-12-31'));
+  const [trainingFromDate, setTrainingFromDate] = useLocalStorage('trainingFromDate', new Date('2024-01-01').toISOString());
+  const [trainingToDate, setTrainingToDate] = useLocalStorage('trainingToDate', new Date('2024-09-30').toISOString());
+  const [testingFromDate, setTestingFromDate] = useLocalStorage('testingFromDate', new Date('2024-10-01').toISOString());
+  const [testingToDate, setTestingToDate] = useLocalStorage('testingToDate', new Date('2024-12-31').toISOString());
 
   const dummyData = {
     filteredData: [{
@@ -187,19 +188,19 @@ const Forecasting = () => {
                   <Card className="p-6">
                     <h4 className="text-base font-medium mb-4">Training Period</h4>
                     <ForecastingDateRange
-                      fromDate={trainingFromDate}
-                      toDate={trainingToDate}
-                      setFromDate={setTrainingFromDate}
-                      setToDate={setTrainingToDate}
+                      fromDate={new Date(trainingFromDate)}
+                      toDate={new Date(trainingToDate)}
+                      setFromDate={(date) => setTrainingFromDate(date.toISOString())}
+                      setToDate={(date) => setTrainingToDate(date.toISOString())}
                     />
                   </Card>
                   <Card className="p-6">
                     <h4 className="text-base font-medium mb-4">Testing Period</h4>
                     <ForecastingDateRange
-                      fromDate={testingFromDate}
-                      toDate={testingToDate}
-                      setFromDate={setTestingFromDate}
-                      setToDate={setTestingToDate}
+                      fromDate={new Date(testingFromDate)}
+                      toDate={new Date(testingToDate)}
+                      setFromDate={(date) => setTestingFromDate(date.toISOString())}
+                      setToDate={(date) => setTestingToDate(date.toISOString())}
                     />
                   </Card>
                 </div>
