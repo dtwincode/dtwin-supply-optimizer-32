@@ -70,15 +70,7 @@ export function ColumnSelector({
 
   const deleteColumnMutation = useMutation({
     mutationFn: async (columnName: string) => {
-      const { error } = await supabase
-        .rpc('drop_hierarchy_column', {
-          p_table_name: tableName,
-          p_column_name: columnName
-        });
-
-      if (error) throw error;
-
-      // Update column selections after deletion
+      // First, remove column from selections to prevent trigger recursion
       const newSelections = new Set(selectedColumns);
       newSelections.delete(columnName);
       
@@ -93,11 +85,19 @@ export function ColumnSelector({
 
       if (selectionsError) throw selectionsError;
 
+      // Then drop the column
+      const { error } = await supabase
+        .rpc('drop_hierarchy_column', {
+          p_table_name: tableName,
+          p_column_name: columnName
+        });
+
+      if (error) throw error;
+
       return newSelections;
     },
     onSuccess: (newSelections) => {
       onSelectedColumnsChange(newSelections);
-      // Invalidate both queries using the correct syntax
       queryClient.invalidateQueries({
         queryKey: ['columnSelections', tableName]
       });
@@ -119,7 +119,7 @@ export function ColumnSelector({
     }
   });
 
-  const handleColumnToggle = (column: string) => {
+  const handleColumnToggle = async (column: string) => {
     const newSelection = new Set(selectedColumns);
     if (newSelection.has(column)) {
       newSelection.delete(column);
@@ -127,6 +127,30 @@ export function ColumnSelector({
       newSelection.add(column);
     }
     onSelectedColumnsChange(newSelection);
+
+    try {
+      const { error } = await supabase
+        .from('hierarchy_column_selections')
+        .upsert({
+          table_name: tableName,
+          selected_columns: Array.from(newSelection)
+        }, {
+          onConflict: 'table_name'
+        });
+
+      if (error) throw error;
+
+      queryClient.invalidateQueries({
+        queryKey: ['columnSelections', tableName]
+      });
+    } catch (error) {
+      console.error('Error updating column selections:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update column selections",
+      });
+    }
   };
 
   const handleSelectAll = () => {
