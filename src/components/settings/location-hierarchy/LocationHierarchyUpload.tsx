@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Upload } from 'lucide-react';
+import { Upload, Trash2 } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { HierarchyTableView } from '../hierarchy/HierarchyTableView';
 import { useQuery } from "@tanstack/react-query";
@@ -34,6 +34,16 @@ export function LocationHierarchyUpload() {
     if (!uploadedFile) return;
     setFile(uploadedFile);
     setProgress(0);
+  };
+
+  const handleDeleteFile = () => {
+    setFile(null);
+    setProgress(0);
+    // Reset the file input
+    const fileInput = document.getElementById('location-file') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
   };
 
   const handleUpload = async () => {
@@ -106,7 +116,19 @@ export function LocationHierarchyUpload() {
               className="hidden"
               onChange={handleFileSelect}
             />
-            {file && <span className="text-sm text-muted-foreground">{file.name}</span>}
+            {file && (
+              <>
+                <span className="text-sm text-muted-foreground flex-1">{file.name}</span>
+                <Button
+                  size="icon"
+                  variant="outline"
+                  onClick={handleDeleteFile}
+                  disabled={isUploading}
+                >
+                  <Trash2 className="h-4 w-4 text-destructive" />
+                </Button>
+              </>
+            )}
           </div>
 
           {file && !isUploading && (
