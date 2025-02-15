@@ -366,6 +366,32 @@ export function HierarchyTableView({
     return values ? Array.from(values).sort() : [];
   };
 
+  const handleSelectedColumnsChange = async (newSelectedColumns: Set<string>) => {
+    setSelectedColumns(newSelectedColumns);
+    
+    try {
+      const { error } = await supabase
+        .from('hierarchy_column_selections')
+        .upsert({
+          table_name: tableName,
+          selected_columns: Array.from(newSelectedColumns)
+        }, {
+          onConflict: 'table_name'
+        });
+
+      if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ['columnSelections', tableName] });
+    } catch (error) {
+      console.error('Error saving column selections:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to save column selections",
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card className="p-6">
@@ -392,6 +418,8 @@ export function HierarchyTableView({
           <ColumnSelector
             tableName={tableName}
             combinedHeaders={combinedHeaders}
+            selectedColumns={selectedColumns}
+            onSelectedColumnsChange={handleSelectedColumnsChange}
           />
 
           <Pagination

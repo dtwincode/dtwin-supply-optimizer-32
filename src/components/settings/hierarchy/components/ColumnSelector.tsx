@@ -1,8 +1,8 @@
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { CheckSquare, XSquare, Trash2 } from "lucide-react";
@@ -23,41 +23,18 @@ import {
 interface ColumnSelectorProps {
   tableName: string;
   combinedHeaders: ColumnHeader[];
+  selectedColumns: Set<string>;
+  onSelectedColumnsChange: (columns: Set<string>) => void;
 }
 
 export function ColumnSelector({ 
   tableName,
   combinedHeaders,
+  selectedColumns,
+  onSelectedColumnsChange,
 }: ColumnSelectorProps) {
-  const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set());
   const [columnToDelete, setColumnToDelete] = useState<string | null>(null);
   const queryClient = useQueryClient();
-
-  // Fetch existing column selections from the database
-  const { data: columnSelectionsData, isLoading } = useQuery({
-    queryKey: ['columnSelections', tableName],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('hierarchy_column_selections')
-        .select('selected_columns')
-        .eq('table_name', tableName)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data?.selected_columns || [];
-    },
-    staleTime: 0,
-    refetchOnWindowFocus: true
-  });
-
-  // Initialize selected columns from database
-  useEffect(() => {
-    if (Array.isArray(columnSelectionsData)) {
-      setSelectedColumns(new Set(columnSelectionsData));
-    } else {
-      setSelectedColumns(new Set());
-    }
-  }, [columnSelectionsData]);
 
   const deleteColumnMutation = useMutation({
     mutationFn: async (columnName: string) => {
@@ -87,8 +64,11 @@ export function ColumnSelector({
       return newSelections;
     },
     onSuccess: (newSelections) => {
-      setSelectedColumns(newSelections);
-      queryClient.invalidateQueries({ queryKey: ['columnSelections', tableName] });
+      onSelectedColumnsChange(newSelections);
+      queryClient.invalidateQueries({ 
+        queryKey: ['columnSelections', tableName],
+        queryKey: ['hierarchyMappings', tableName] 
+      });
       toast({
         title: "Success",
         description: "Column deleted successfully",
@@ -111,16 +91,16 @@ export function ColumnSelector({
     } else {
       newSelection.add(column);
     }
-    setSelectedColumns(newSelection);
+    onSelectedColumnsChange(newSelection);
   };
 
   const handleSelectAll = () => {
     const allColumns = new Set(combinedHeaders.map(header => header.column));
-    setSelectedColumns(allColumns);
+    onSelectedColumnsChange(allColumns);
   };
 
   const handleUnselectAll = () => {
-    setSelectedColumns(new Set());
+    onSelectedColumnsChange(new Set());
   };
 
   const handleDeleteColumn = async () => {
@@ -129,14 +109,6 @@ export function ColumnSelector({
       setColumnToDelete(null);
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="mb-6">
-        <h4 className="text-sm font-medium mb-3">Loading column selections...</h4>
-      </div>
-    );
-  }
 
   return (
     <div className="mb-6">
