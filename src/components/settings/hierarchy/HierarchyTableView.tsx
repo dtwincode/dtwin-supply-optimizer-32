@@ -19,7 +19,7 @@ interface ColumnHeader {
 
 interface HierarchyTableViewProps {
   tableName: string;
-  data: any[];
+  data: Record<string, any>[];  // Explicitly type data as an array of records
   columns: string[];
   combinedHeaders: ColumnHeader[];
 }
@@ -355,14 +355,17 @@ export function HierarchyTableView({
                   </TableHeader>
                   <TableBody>
                     {currentData.map((row, rowIndex) => (
-                      <TableRow key={`row-${rowIndex}`}>
+                      <TableRow key={rowIndex}>
                         {combinedHeaders
                           .filter(header => selectedColumns.has(header.column))
-                          .map(({ column }, colIndex) => (
-                            <TableCell key={`${rowIndex}-${colIndex}`}>
-                              {String(row[column] || '')}
-                            </TableCell>
-                        ))}
+                          .map(({ column }, colIndex) => {
+                            const cellValue = row[column];
+                            return (
+                              <TableCell key={`${rowIndex}-${colIndex}`}>
+                                {cellValue !== null && cellValue !== undefined ? String(cellValue) : ''}
+                              </TableCell>
+                            );
+                          })}
                       </TableRow>
                     ))}
                   </TableBody>
