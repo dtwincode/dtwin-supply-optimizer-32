@@ -65,12 +65,14 @@ export function LocationFilter({
   const { data: locationsData, isLoading: isLoadingLocations } = useQuery({
     queryKey: ['locations', columnSelections],
     queryFn: async () => {
+      console.log('Fetching location data with columns:', columnSelections);
+      
       const { data, error } = await supabase
         .from('permanent_hierarchy_data')
-        .select('*')
+        .select('data')
         .eq('hierarchy_type', 'location')
         .eq('is_active', true)
-        .maybeSingle();
+        .single();
 
       if (error) {
         console.error('Error fetching location data:', error);
@@ -80,29 +82,31 @@ export function LocationFilter({
         };
       }
 
-      const hierarchyData = Array.isArray(data?.data) ? data?.data as LocationData[] : [];
+      console.log('Raw location data:', data);
+
+      const hierarchyData = data?.data || [];
+      console.log('Processed hierarchy data:', hierarchyData);
       
       // Only process columns that are selected in hierarchy settings
       const uniqueRegions = new Set<string>();
       const citiesByRegion: { [key: string]: Set<string> } = {};
 
       const selectedCols = Array.isArray(columnSelections) ? columnSelections : defaultColumns;
+      console.log('Selected columns:', selectedCols);
 
-      if (selectedCols.includes('region') && selectedCols.includes('city')) {
-        hierarchyData.forEach((row: LocationData) => {
-          if (row.region) {
-            uniqueRegions.add(row.region);
+      hierarchyData.forEach((row: LocationData) => {
+        if (selectedCols.includes('region') && row.region) {
+          uniqueRegions.add(row.region);
+          if (selectedCols.includes('city') && row.city) {
             if (!citiesByRegion[row.region]) {
               citiesByRegion[row.region] = new Set<string>();
             }
-            if (row.city) {
-              citiesByRegion[row.region].add(row.city);
-            }
+            citiesByRegion[row.region].add(row.city);
           }
-        });
-      }
+        }
+      });
 
-      return {
+      const result = {
         regions: Array.from(uniqueRegions).sort(),
         cities: Object.fromEntries(
           Object.entries(citiesByRegion).map(([region, cities]) => [
@@ -111,6 +115,9 @@ export function LocationFilter({
           ])
         )
       };
+
+      console.log('Processed location data:', result);
+      return result;
     },
     enabled: !!columnSelections
   });
