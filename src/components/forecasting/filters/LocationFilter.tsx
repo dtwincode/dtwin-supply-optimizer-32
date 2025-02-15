@@ -16,7 +16,7 @@ interface FilterValue {
   [key: string]: string;
 }
 
-interface LocationFilterProps {
+export interface LocationFilterProps {
   selectedFilters: FilterValue;
   onFilterChange: (field: string, value: string) => void;
 }

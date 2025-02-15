@@ -1,4 +1,3 @@
-
 import DashboardLayout from "@/components/DashboardLayout";
 import { ForecastingTabs } from "@/components/forecasting/ForecastingTabs";
 import { ForecastAnalysisTab } from "@/components/forecasting/tabs/ForecastAnalysisTab";
@@ -13,6 +12,7 @@ import { Routes, Route } from "react-router-dom";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { FiltersContainer } from "@/components/forecasting/filters/FiltersContainer";
 import { ForecastDataPoint } from "@/types/forecasting";
+import { useState } from "react";
 
 const Forecasting = () => {
   // Single state object for all location filters
@@ -38,6 +38,29 @@ const Forecasting = () => {
   const [trainingToDate, setTrainingToDate] = useLocalStorage('trainingToDate', new Date('2024-09-30').toISOString());
   const [testingFromDate, setTestingFromDate] = useLocalStorage('testingFromDate', new Date('2024-10-01').toISOString());
   const [testingToDate, setTestingToDate] = useLocalStorage('testingToDate', new Date('2024-12-31').toISOString());
+
+  // External factors states
+  const [weatherLocation, setWeatherLocation] = useState("");
+  const [weatherData, setWeatherData] = useState(null);
+  const [marketEvents, setMarketEvents] = useState([]);
+  const [newEvent, setNewEvent] = useState({});
+  const [priceAnalysis, setPriceAnalysis] = useState(null);
+  const [historicalPriceData, setHistoricalPriceData] = useState([]);
+
+  // Weather forecast function
+  const fetchWeatherForecast = async (location: string) => {
+    // Placeholder for weather API call
+    return {};
+  };
+
+  // Price analysis functions
+  const addHistoricalPricePoint = (price: number, demand: number) => {
+    setHistoricalPriceData(prev => [...prev, { price, demand }]);
+  };
+
+  const calculatePriceAnalysis = () => {
+    // Placeholder for price analysis calculation
+  };
 
   const dummyData = {
     filteredData: [{
@@ -103,9 +126,7 @@ const Forecasting = () => {
           <ForecastingTabs />
         </div>
 
-        <div className="px-6 space
-
--y-6 mt-6">
+        <div className="px-6 space-y-6 mt-6">
           <FiltersContainer
             locationFilters={locationFilters}
             onLocationFilterChange={handleLocationFilterChange}
@@ -143,7 +164,25 @@ const Forecasting = () => {
             <Route path="pattern" element={<DecompositionTab filteredData={dummyData.filteredData} decomposition={dummyData.decomposition} />} />
             <Route path="what-if" element={<WhatIfAnalysisTab filteredData={dummyData.filteredData} whatIfScenario={[]} />} />
             <Route path="validation" element={<ValidationTab validationResults={dummyData.validationResults} crossValidationResults={dummyData.crossValidationResults} />} />
-            <Route path="external" element={<ExternalFactorsTab />} />
+            <Route 
+              path="external" 
+              element={
+                <ExternalFactorsTab
+                  weatherLocation={weatherLocation}
+                  setWeatherLocation={setWeatherLocation}
+                  weatherData={weatherData}
+                  fetchWeatherForecast={fetchWeatherForecast}
+                  marketEvents={marketEvents}
+                  setMarketEvents={setMarketEvents}
+                  newEvent={newEvent}
+                  setNewEvent={setNewEvent}
+                  priceAnalysis={priceAnalysis}
+                  addHistoricalPricePoint={addHistoricalPricePoint}
+                  calculatePriceAnalysis={calculatePriceAnalysis}
+                  historicalPriceData={historicalPriceData}
+                />
+              } 
+            />
           </Routes>
         </div>
       </div>
