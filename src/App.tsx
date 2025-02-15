@@ -16,32 +16,38 @@ import SQLConfig from "./pages/SQLConfig";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+// Create a client
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <TooltipProvider>
-      <LanguageProvider>
-        <Router>
-          <AuthProvider>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/marketing" element={<Marketing />} />
-              <Route path="/forecasting" element={<Forecasting />} />
-              <Route path="/inventory" element={<Inventory />} />
-              <Route path="/sales" element={<SalesPlanning />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/logistics" element={<Logistics />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/sql-config" element={<SQLConfig />} />
-              <Route path="/ask-ai" element={<AskAI />} />
-              <Route path="/tickets" element={<Tickets />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AuthProvider>
-        </Router>
-      </LanguageProvider>
-    </TooltipProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <LanguageProvider>
+          <Router>
+            <AuthProvider>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/marketing" element={<Marketing />} />
+                <Route path="/forecasting" element={<Forecasting />} />
+                <Route path="/inventory" element={<Inventory />} />
+                <Route path="/sales" element={<SalesPlanning />} />
+                <Route path="/reports" element={<Reports />} />
+                <Route path="/logistics" element={<Logistics />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/sql-config" element={<SQLConfig />} />
+                <Route path="/ask-ai" element={<AskAI />} />
+                <Route path="/tickets" element={<Tickets />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AuthProvider>
+          </Router>
+        </LanguageProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 }
 
