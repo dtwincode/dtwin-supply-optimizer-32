@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useQuery } from "@tanstack/react-query";
 
 interface ColumnHeader {
   column: string;
@@ -33,14 +34,28 @@ export function HierarchyTableView({
   const { toast } = useToast();
   const [mappings, setMappings] = useState<ColumnMapping[]>([]);
 
+  // Fetch existing mappings
+  const { data: existingMappings } = useQuery({
+    queryKey: ['hierarchyMappings', tableName],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('hierarchy_column_mappings')
+        .select('*')
+        .eq('table_name', tableName);
+
+      if (error) throw error;
+      return data;
+    }
+  });
+
   useEffect(() => {
-    // Initialize mappings with null levels
+    // Initialize mappings with existing values or null levels
     const initialMappings = combinedHeaders.map(header => ({
       column: header.column,
-      level: null
+      level: existingMappings?.find(m => m.column_name === header.column)?.hierarchy_level || null
     }));
     setMappings(initialMappings);
-  }, [combinedHeaders]);
+  }, [combinedHeaders, existingMappings]);
 
   const handleLevelChange = (column: string, level: HierarchyLevel | 'none') => {
     setMappings(prev => 
