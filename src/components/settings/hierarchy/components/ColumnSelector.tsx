@@ -1,5 +1,5 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -65,10 +65,10 @@ export function ColumnSelector({
     },
     onSuccess: (newSelections) => {
       onSelectedColumnsChange(newSelections);
-      queryClient.invalidateQueries({ 
-        queryKey: ['columnSelections', tableName],
-        queryKey: ['hierarchyMappings', tableName] 
-      });
+      queryClient.invalidateQueries([
+        ['columnSelections', tableName],
+        ['hierarchyMappings', tableName]
+      ]);
       toast({
         title: "Success",
         description: "Column deleted successfully",
