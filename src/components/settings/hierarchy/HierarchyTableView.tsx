@@ -171,23 +171,31 @@ export function HierarchyTableView({
       selectedColumns: Set<string> 
     }) => {
       const columnsArray = Array.from(selectedColumns);
-      const validMappings = mappings.filter((m): m is ColumnMapping & { level: string } => 
-        m.level !== null && selectedColumns.has(m.column)
-      );
+      const validMappings = mappings
+        .filter((m): m is ColumnMapping & { level: string } => 
+          m.level !== null && selectedColumns.has(m.column)
+        )
+        .map(mapping => ({
+          column: mapping.column,
+          level: mapping.level
+        }));
 
-      // Transform validMappings into the correct JSON format
-      const formattedMappings = validMappings.map(mapping => ({
-        column: mapping.column,
-        level: mapping.level
-      }));
+      console.log('Sending configuration:', {
+        tableName,
+        columnsArray,
+        validMappings
+      });
 
       const { error } = await supabase.rpc('process_hierarchy_configuration', {
         p_table_name: tableName,
         p_selected_columns: columnsArray,
-        p_mappings: formattedMappings
+        p_mappings: validMappings
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('RPC error:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['hierarchyMappings', tableName] });
