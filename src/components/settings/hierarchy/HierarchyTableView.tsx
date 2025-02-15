@@ -169,6 +169,18 @@ export function HierarchyTableView({
       mappings: ColumnMapping[], 
       selectedColumns: Set<string> 
     }) => {
+      const columnsArray = Array.from(selectedColumns);
+      
+      // First, clean up unselected columns
+      const { error: cleanupError } = await supabase
+        .rpc('remove_unselected_columns', {
+          p_table_name: tableName,
+          p_selected_columns: columnsArray
+        });
+
+      if (cleanupError) throw cleanupError;
+
+      // Save mappings
       const validMappings = mappings.filter((m): m is ColumnMapping & { level: string } => 
         m.level !== null && selectedColumns.has(m.column)
       );
@@ -194,7 +206,7 @@ export function HierarchyTableView({
         if (insertError) throw insertError;
       }
 
-      const columnsArray = Array.from(selectedColumns);
+      // Save column selections
       const { error: selectionsError } = await supabase
         .from('hierarchy_column_selections')
         .upsert({
@@ -211,7 +223,7 @@ export function HierarchyTableView({
       queryClient.invalidateQueries({ queryKey: ['columnSelections', tableName] });
       toast({
         title: "Success",
-        description: "Hierarchy configuration saved successfully",
+        description: "Hierarchy configuration saved and unused columns cleared",
       });
     },
     onError: (error) => {
