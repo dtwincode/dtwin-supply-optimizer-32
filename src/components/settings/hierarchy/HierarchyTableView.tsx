@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 
 interface ColumnHeader {
   column: string;
@@ -29,6 +31,10 @@ interface ColumnMapping {
   level: HierarchyLevel | null;
 }
 
+interface Filters {
+  [key: string]: string;
+}
+
 export function HierarchyTableView({ 
   tableName, 
   data, 
@@ -39,6 +45,8 @@ export function HierarchyTableView({
   const [mappings, setMappings] = useState<ColumnMapping[]>([]);
   const queryClient = useQueryClient();
   const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set(columns));
+  const [filters, setFilters] = useState<Filters>({});
+  const [filteredData, setFilteredData] = useState(data);
 
   const { data: existingMappings, isLoading } = useQuery({
     queryKey: ['hierarchyMappings', tableName],
@@ -73,6 +81,17 @@ export function HierarchyTableView({
       setMappings(initialMappings);
     }
   }, [combinedHeaders, existingMappings, isLoading]);
+
+  useEffect(() => {
+    const filtered = data.filter(row => {
+      return Object.entries(filters).every(([column, filterValue]) => {
+        if (!filterValue) return true;
+        const cellValue = String(row[column] || '').toLowerCase();
+        return cellValue.includes(filterValue.toLowerCase());
+      });
+    });
+    setFilteredData(filtered);
+  }, [data, filters]);
 
   const handleLevelChange = (column: string, level: HierarchyLevel | 'none') => {
     setMappings(prev => 
@@ -115,6 +134,13 @@ export function HierarchyTableView({
         combinedHeaders: filteredHeaders
       });
     }
+  };
+
+  const handleFilterChange = (column: string, value: string) => {
+    setFilters(prev => ({
+      ...prev,
+      [column]: value
+    }));
   };
 
   const handleSave = async () => {
@@ -229,6 +255,15 @@ export function HierarchyTableView({
                                 ))}
                               </SelectContent>
                             </Select>
+                            <div className="relative">
+                              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                placeholder={`Filter ${column}...`}
+                                value={filters[column] || ''}
+                                onChange={(e) => handleFilterChange(column, e.target.value)}
+                                className="pl-8 text-sm"
+                              />
+                            </div>
                             <div className="text-xs text-muted-foreground">
                               Example: {sampleData}
                             </div>
@@ -238,19 +273,26 @@ export function HierarchyTableView({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data.slice(0, 5).map((row, index) => (
-                    <TableRow key={index}>
-                      {combinedHeaders
-                        .filter(header => selectedColumns.has(header.column))
-                        .map(({ column }) => (
-                          <TableCell key={column}>
-                            {row[column]}
-                          </TableCell>
-                      ))}
-                    </TableRow>
+                  {filteredData
+                    .slice(0, 5)
+                    .map((row, index) => (
+                      <TableRow key={index}>
+                        {combinedHeaders
+                          .filter(header => selectedColumns.has(header.column))
+                          .map(({ column }) => (
+                            <TableCell key={column}>
+                              {row[column]}
+                            </TableCell>
+                        ))}
+                      </TableRow>
                   ))}
                 </TableBody>
               </Table>
+              {filteredData.length === 0 && (
+                <div className="text-center py-4 text-sm text-muted-foreground">
+                  No results found for the current filters
+                </div>
+              )}
             </div>
           </div>
         </div>
