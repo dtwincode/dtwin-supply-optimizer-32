@@ -4,7 +4,7 @@ export interface ColumnHeader {
   sampleData: string;
 }
 
-export type HierarchyLevel = 'L1' | 'L2' | 'L3' | 'L4' | 'L5' | 'L6' | 'L7' | 'L8';
+export type HierarchyLevel = string; // Changed to string to support decimal notation
 
 export interface ColumnMapping {
   column: string;
@@ -23,3 +23,4 @@ export interface HierarchyTableViewProps {
   columns: string[];
   combinedHeaders: ColumnHeader[];
 }
+

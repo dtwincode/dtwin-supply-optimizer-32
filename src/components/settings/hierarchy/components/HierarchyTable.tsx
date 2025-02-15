@@ -16,6 +16,21 @@ interface HierarchyTableProps {
   getUniqueValues: (column: string) => string[];
 }
 
+const generateHierarchyLevels = () => {
+  const levels: string[] = [];
+  
+  // Main levels (1-8)
+  for (let i = 1; i <= 8; i++) {
+    levels.push(`${i}.00`); // Main level
+    // Sub-levels (1-99 for each main level)
+    for (let j = 1; j <= 99; j++) {
+      levels.push(`${i}.${j.toString().padStart(2, '0')}`);
+    }
+  }
+  
+  return levels;
+};
+
 export function HierarchyTable({
   combinedHeaders,
   selectedColumns,
@@ -27,6 +42,7 @@ export function HierarchyTable({
   getUniqueValues
 }: HierarchyTableProps) {
   const SHOW_ALL_VALUE = "__show_all__";
+  const hierarchyLevels = generateHierarchyLevels();
 
   const getRowKey = (row: any, index: number): string => {
     const id = row.id !== undefined ? String(row.id) : String(index);
@@ -41,6 +57,13 @@ export function HierarchyTable({
   const renderCell = (value: any): ReactNode => {
     if (value === null || value === undefined) return '';
     return String(value);
+  };
+
+  const formatLevelDisplay = (level: string) => {
+    if (level === 'none') return 'None';
+    const [main, sub] = level.split('.');
+    if (sub === '00') return `Level ${main}`;
+    return `Level ${main}.${sub}`;
   };
 
   return (
@@ -65,9 +88,9 @@ export function HierarchyTable({
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="none">None</SelectItem>
-                            {['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8'].map((level) => (
+                            {hierarchyLevels.map((level) => (
                               <SelectItem key={level} value={level}>
-                                {level}
+                                {formatLevelDisplay(level)}
                               </SelectItem>
                             ))}
                           </SelectContent>
