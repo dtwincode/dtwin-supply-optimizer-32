@@ -55,18 +55,6 @@ export function HierarchyTableView({
   const [filters, setFilters] = useState<Filters>({});
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Memoize the filtered data to prevent unnecessary recalculations
-  const filteredData = useMemo(() => {
-    return data.filter(row => {
-      return Object.entries(filters).every(([column, filterValue]) => {
-        if (!filterValue || filterValue === SHOW_ALL_VALUE) return true;
-        const cellValue = String(row[column] || '');
-        return cellValue === filterValue;
-      });
-    });
-  }, [data, filters]);
-
-  // Memoize the unique values for each column
   const uniqueValuesMap = useMemo(() => {
     const map = new Map<string, Set<string>>();
     columns.forEach(column => {
@@ -110,7 +98,26 @@ export function HierarchyTableView({
     }
   }, [combinedHeaders, existingMappings, isLoading]);
 
-  // Memoize pagination calculations
+  const handleLevelChange = (column: string, level: HierarchyLevel | 'none') => {
+    setMappings(prev => 
+      prev.map(mapping => 
+        mapping.column === column 
+          ? { ...mapping, level: level === 'none' ? null : level } 
+          : mapping
+      )
+    );
+  };
+
+  const filteredData = useMemo(() => {
+    return data.filter(row => {
+      return Object.entries(filters).every(([column, filterValue]) => {
+        if (!filterValue || filterValue === SHOW_ALL_VALUE) return true;
+        const cellValue = String(row[column] || '');
+        return cellValue === filterValue;
+      });
+    });
+  }, [data, filters]);
+
   const {
     totalPages,
     startIndex,
@@ -128,26 +135,9 @@ export function HierarchyTableView({
     };
   }, [filteredData, currentPage]);
 
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(prev => prev + 1);
-    }
-  };
-
-  const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(prev => prev - 1);
-    }
-  };
-
-  const handleLevelChange = (column: string, level: HierarchyLevel | 'none') => {
-    setMappings(prev => 
-      prev.map(mapping => 
-        mapping.column === column 
-          ? { ...mapping, level: level === 'none' ? null : level } 
-          : mapping
-      )
-    );
+  const renderCell = (value: any): ReactNode => {
+    if (value === null || value === undefined) return '';
+    return String(value);
   };
 
   const handleColumnToggle = (column: string) => {
@@ -231,10 +221,16 @@ export function HierarchyTableView({
     }
   };
 
-  const renderCell = (row: TableRowData, column: string): ReactNode => {
-    const value = row[column];
-    if (value === null || value === undefined) return '';
-    return String(value);
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(prev => prev + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(prev => prev - 1);
+    }
   };
 
   return (
@@ -364,13 +360,13 @@ export function HierarchyTableView({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {currentData.map((row, rowIndex) => (
-                      <TableRow key={rowIndex}>
+                    {(currentData as Record<string, any>[]).map((row, index) => (
+                      <TableRow key={`row-${index}`}>
                         {combinedHeaders
                           .filter(header => selectedColumns.has(header.column))
                           .map(({ column }) => (
-                            <TableCell key={`${rowIndex}-${column}`}>
-                              {renderCell(row, column)}
+                            <TableCell key={`cell-${index}-${column}`}>
+                              {renderCell(row[column])}
                             </TableCell>
                           ))}
                       </TableRow>
