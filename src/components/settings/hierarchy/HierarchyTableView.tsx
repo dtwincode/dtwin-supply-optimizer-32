@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from 'react';
 import { Card } from "@/components/ui/card";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
@@ -174,13 +175,40 @@ export function HierarchyTableView({
         m.level !== null && selectedColumns.has(m.column)
       );
 
-      const { error } = await supabase.rpc('process_hierarchy_configuration', {
-        p_table_name: tableName,
-        p_selected_columns: columnsArray,
-        p_mappings: JSON.stringify(validMappings)
-      });
+      // Step 1: First update column selections
+      const { error: selectionsError } = await supabase
+        .from('hierarchy_column_selections')
+        .upsert({
+          table_name: tableName,
+          selected_columns: columnsArray
+        }, {
+          onConflict: 'table_name'
+        });
 
-      if (error) throw error;
+      if (selectionsError) throw selectionsError;
+
+      // Step 2: Delete existing mappings
+      const { error: deleteError } = await supabase
+        .from('hierarchy_column_mappings')
+        .delete()
+        .eq('table_name', tableName);
+
+      if (deleteError) throw deleteError;
+
+      // Step 3: Insert new mappings if there are any
+      if (validMappings.length > 0) {
+        const { error: insertError } = await supabase
+          .from('hierarchy_column_mappings')
+          .insert(
+            validMappings.map(m => ({
+              table_name: tableName,
+              column_name: m.column,
+              hierarchy_level: m.level ? parseFloat(m.level) : null
+            }))
+          );
+
+        if (insertError) throw insertError;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['hierarchyMappings', tableName] });
