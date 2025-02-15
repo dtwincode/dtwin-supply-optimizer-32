@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -35,12 +36,14 @@ export function LocationHierarchyUpload() {
     setFile(uploadedFile);
     setProgress(0);
     setSavedFileName(null);
+    setColumns([]); // Reset columns when a new file is selected
   };
 
   const handleDeleteFile = () => {
     setFile(null);
     setProgress(0);
     setSavedFileName(null);
+    setColumns([]); // Reset columns when file is deleted
     // Reset the file input
     const fileInput = document.getElementById('location-file') as HTMLInputElement;
     if (fileInput) {
@@ -123,8 +126,11 @@ export function LocationHierarchyUpload() {
       if (error) throw error;
 
       setProgress(90);
-      if (data.headers) {
+      if (data?.headers) {
+        console.log('Received headers from process-hierarchy:', data.headers);
         setColumns(data.headers);
+      } else {
+        console.warn('No headers found in response:', data);
       }
 
       // Only set savedFileName after successful upload
@@ -214,11 +220,16 @@ export function LocationHierarchyUpload() {
       </Card>
 
       {columns.length > 0 && (
-        <HierarchyTableView 
-          tableName="location_hierarchy"
-          data={locationData || []}
-          columns={columns}
-        />
+        <>
+          <div className="text-sm text-muted-foreground mb-2">
+            Found {columns.length} columns in the uploaded file
+          </div>
+          <HierarchyTableView 
+            tableName="location_hierarchy"
+            data={locationData || []}
+            columns={columns}
+          />
+        </>
       )}
     </div>
   );

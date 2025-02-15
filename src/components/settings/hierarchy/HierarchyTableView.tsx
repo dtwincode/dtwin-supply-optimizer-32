@@ -14,6 +14,10 @@ interface HierarchyTableViewProps {
 export function HierarchyTableView({ tableName, data, columns }: HierarchyTableViewProps) {
   const { toast } = useToast();
 
+  useEffect(() => {
+    console.log('HierarchyTableView received columns:', columns);
+  }, [columns]);
+
   const handleMappingSaved = () => {
     toast({
       title: "Success",
