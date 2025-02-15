@@ -772,6 +772,30 @@ export type Database = {
         }
         Relationships: []
       }
+      hierarchy_column_selections: {
+        Row: {
+          created_at: string | null
+          id: string
+          selected_columns: string[]
+          table_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          selected_columns: string[]
+          table_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          selected_columns?: string[]
+          table_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       hierarchy_file_references: {
         Row: {
           created_at: string

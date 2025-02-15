@@ -104,6 +104,44 @@ export function HierarchyTableView({
     }
   });
 
+  const { data: columnSelections } = useQuery({
+    queryKey: ['columnSelections', tableName],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('hierarchy_column_selections')
+        .select('*')
+        .eq('table_name', tableName)
+        .single();
+
+      if (error && error.code !== 'PGRST116') { // PGRST116 is "not found" error
+        throw error;
+      }
+      return data;
+    }
+  });
+
+  const saveColumnSelectionsMutation = useMutation({
+    mutationFn: async (selectedColumns: Set<string>) => {
+      const columnsArray = Array.from(selectedColumns);
+      
+      const { error } = await supabase
+        .from('hierarchy_column_selections')
+        .upsert({
+          table_name: tableName,
+          selected_columns: columnsArray
+        }, {
+          onConflict: 'table_name'
+        });
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['columnSelections', tableName]
+      });
+    }
+  });
+
   useEffect(() => {
     if (!isLoading && existingMappings) {
       const initialMappings = combinedHeaders.map(header => ({
@@ -120,6 +158,12 @@ export function HierarchyTableView({
       setSelectedColumns(mappedColumns);
     }
   }, [combinedHeaders, existingMappings, isLoading]);
+
+  useEffect(() => {
+    if (columnSelections?.selected_columns) {
+      setSelectedColumns(new Set(columnSelections.selected_columns));
+    }
+  }, [columnSelections]);
 
   const handleLevelChange = (column: string, level: string) => {
     setMappings(prev => 
@@ -198,7 +242,7 @@ export function HierarchyTableView({
         return newRow;
       });
       
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await saveColumnSelectionsMutation.mutateAsync(selectedColumns);
       
       setTableData(filteredTableData);
       
@@ -207,6 +251,7 @@ export function HierarchyTableView({
         description: `Successfully saved ${selectedColumns.size} columns. Unselected columns have been removed.`,
       });
     } catch (error) {
+      console.error('Error saving selections:', error);
       toast({
         variant: "destructive",
         title: "Error",
