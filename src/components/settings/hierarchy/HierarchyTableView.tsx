@@ -126,17 +126,23 @@ export function HierarchyTableView({
     mutationFn: async (selectedColumns: Set<string>) => {
       const columnsArray = Array.from(selectedColumns);
       
-      // Simply save the column selections without modifying the data
-      const { error } = await supabase
+      // First, delete any existing selections for this table
+      const { error: deleteError } = await supabase
         .from('hierarchy_column_selections')
-        .upsert({
+        .delete()
+        .eq('table_name', tableName);
+
+      if (deleteError) throw deleteError;
+
+      // Then insert the new selections
+      const { error: insertError } = await supabase
+        .from('hierarchy_column_selections')
+        .insert({
           table_name: tableName,
           selected_columns: columnsArray
-        }, {
-          onConflict: 'table_name'
         });
 
-      if (error) throw error;
+      if (insertError) throw insertError;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
