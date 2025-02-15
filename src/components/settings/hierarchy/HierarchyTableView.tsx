@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface ColumnHeader {
   column: string;
@@ -33,9 +33,10 @@ export function HierarchyTableView({
 }: HierarchyTableViewProps) {
   const { toast } = useToast();
   const [mappings, setMappings] = useState<ColumnMapping[]>([]);
+  const queryClient = useQueryClient();
 
   // Fetch existing mappings
-  const { data: existingMappings } = useQuery({
+  const { data: existingMappings, isLoading } = useQuery({
     queryKey: ['hierarchyMappings', tableName],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -45,17 +46,20 @@ export function HierarchyTableView({
 
       if (error) throw error;
       return data;
-    }
+    },
+    staleTime: Infinity, // Keep the data fresh indefinitely unless explicitly invalidated
   });
 
   useEffect(() => {
-    // Initialize mappings with existing values or null levels
-    const initialMappings = combinedHeaders.map(header => ({
-      column: header.column,
-      level: existingMappings?.find(m => m.column_name === header.column)?.hierarchy_level || null
-    }));
-    setMappings(initialMappings);
-  }, [combinedHeaders, existingMappings]);
+    if (!isLoading && existingMappings) {
+      // Initialize mappings with existing values or null levels
+      const initialMappings = combinedHeaders.map(header => ({
+        column: header.column,
+        level: existingMappings.find(m => m.column_name === header.column)?.hierarchy_level || null
+      }));
+      setMappings(initialMappings);
+    }
+  }, [combinedHeaders, existingMappings, isLoading]);
 
   const handleLevelChange = (column: string, level: HierarchyLevel | 'none') => {
     setMappings(prev => 
@@ -90,6 +94,9 @@ export function HierarchyTableView({
         );
 
       if (error) throw error;
+
+      // Invalidate and refetch the query to update the cached data
+      await queryClient.invalidateQueries(['hierarchyMappings', tableName]);
 
       toast({
         title: "Success",
