@@ -42,6 +42,7 @@ interface TableRowData extends Record<string, any> {
 
 const SHOW_ALL_VALUE = "__show_all__";
 const ROWS_PER_PAGE = 50;
+const BATCH_SIZE = 1000;
 
 export function HierarchyTableView({ 
   tableName, 
@@ -58,13 +59,16 @@ export function HierarchyTableView({
 
   const uniqueValuesMap = useMemo(() => {
     const map = new Map<string, Set<string>>();
+    const sampleSize = Math.min(1000, data.length);
+    
     columns.forEach(column => {
       const values = new Set<string>();
-      data.forEach(row => {
-        if (row[column] !== null && row[column] !== undefined) {
+      for (let i = 0; i < sampleSize; i++) {
+        const row = data[i];
+        if (row && row[column] !== null && row[column] !== undefined) {
           values.add(String(row[column]));
         }
-      });
+      }
       map.set(column, values);
     });
     return map;
@@ -72,6 +76,25 @@ export function HierarchyTableView({
 
   const getUniqueValues = (column: string) => {
     return Array.from(uniqueValuesMap.get(column) || new Set()).sort();
+  };
+
+  const processDataInBatches = (data: TableRowData[], filters: Filters) => {
+    const results: TableRowData[] = [];
+    const totalItems = data.length;
+    
+    for (let i = 0; i < totalItems; i += BATCH_SIZE) {
+      const batch = data.slice(i, i + BATCH_SIZE);
+      const filteredBatch = batch.filter(row => {
+        return Object.entries(filters).every(([column, filterValue]) => {
+          if (!filterValue || filterValue === SHOW_ALL_VALUE) return true;
+          const cellValue = String(row[column] || '');
+          return cellValue === filterValue;
+        });
+      });
+      results.push(...filteredBatch);
+    }
+    
+    return results;
   };
 
   const { data: existingMappings, isLoading } = useQuery({
@@ -110,13 +133,7 @@ export function HierarchyTableView({
   };
 
   const filteredData = useMemo(() => {
-    return data.filter(row => {
-      return Object.entries(filters).every(([column, filterValue]) => {
-        if (!filterValue || filterValue === SHOW_ALL_VALUE) return true;
-        const cellValue = String(row[column] || '');
-        return cellValue === filterValue;
-      });
-    }) as TableRowData[];
+    return processDataInBatches(data, filters);
   }, [data, filters]);
 
   const {
@@ -243,7 +260,7 @@ export function HierarchyTableView({
               <div>
                 <h3 className="text-lg font-semibold">Data Preview</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Select columns to display and assign hierarchy levels
+                  Showing {startIndex + 1} to {Math.min(endIndex, filteredData.length)} of {filteredData.length} rows
                 </p>
               </div>
               <Button
@@ -281,9 +298,6 @@ export function HierarchyTableView({
 
             <div className="space-y-2">
               <div className="flex items-center justify-between mb-4">
-                <div className="text-sm text-muted-foreground">
-                  Showing {startIndex + 1} to {Math.min(endIndex, filteredData.length)} of {filteredData.length} rows
-                </div>
                 <div className="flex items-center space-x-2">
                   <Button
                     variant="outline"
@@ -305,6 +319,24 @@ export function HierarchyTableView({
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </div>
+                <Select
+                  value={ROWS_PER_PAGE.toString()}
+                  onValueChange={(value) => {
+                    const newRowsPerPage = parseInt(value);
+                    if (!isNaN(newRowsPerPage)) {
+                      setCurrentPage(1);
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Rows per page" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="25">25 rows per page</SelectItem>
+                    <SelectItem value="50">50 rows per page</SelectItem>
+                    <SelectItem value="100">100 rows per page</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               
               <div className="relative rounded-md border">
@@ -363,21 +395,20 @@ export function HierarchyTableView({
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {(currentData as TableRowData[]).map((row, rowIndex) => {
-                          const rowKey = `row-${rowIndex}-${String(row.id || rowIndex)}` as Key;
+                        {currentData.map((row, rowIndex) => {
+                          const rowId = String(row.id ?? rowIndex);
                           return (
-                            <TableRow key={rowKey}>
+                            <TableRow key={`row-${rowIndex}-${rowId}`}>
                               {combinedHeaders
                                 .filter(header => selectedColumns.has(header.column))
                                 .map(({ column }) => {
-                                  const cellKey = `${rowKey}-${column}` as Key;
-                                  const cellValue = row[column];
+                                  const cellKey = `cell-${rowIndex}-${column}-${rowId}`;
                                   return (
                                     <TableCell 
                                       key={cellKey}
                                       className="min-w-[200px]"
                                     >
-                                      {cellValue != null ? String(cellValue) : ''}
+                                      {renderCell(row[column])}
                                     </TableCell>
                                   );
                                 })}
