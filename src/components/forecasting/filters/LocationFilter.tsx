@@ -142,7 +142,7 @@ export const LocationFilter = ({
                 .join(' ');
 
               return (
-                <div key={columnName} className="relative">
+                <div key={columnName} className="relative z-50" onClick={(e) => e.stopPropagation()}>
                   <Select
                     value={selectedLocations[columnName] || "all"}
                     onValueChange={(value) => handleLocationSelect(value, columnName)}
@@ -154,16 +154,17 @@ export const LocationFilter = ({
                       className="w-[200px] bg-background"
                       align="start"
                       sideOffset={4}
+                      position="popper"
                     >
-                      <ScrollArea className="h-[200px]">
-                        <SelectItem value="all" className="cursor-pointer">
+                      <ScrollArea className="h-[200px] p-1">
+                        <SelectItem value="all" className="cursor-pointer hover:bg-muted">
                           All {displayName}s
                         </SelectItem>
                         {values.map(value => (
                           <SelectItem 
                             key={value} 
                             value={value}
-                            className="cursor-pointer"
+                            className="cursor-pointer hover:bg-muted"
                           >
                             {value}
                           </SelectItem>
