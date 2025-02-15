@@ -52,26 +52,41 @@ serve(async (req) => {
     } else {
       // Handle CSV files
       const text = await fileData.text()
-      const cleanText = text.replace(/^\uFEFF/, '') // Remove BOM if present
-      const lines = cleanText.split('\n').filter(line => line.trim())
+      console.log('Raw CSV content:', text.substring(0, 200)) // Log the first 200 chars for debugging
+      
+      // Clean the text and split into lines, removing empty lines
+      const lines = text
+        .replace(/^\uFEFF/, '') // Remove BOM if present
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(line => line.length > 0)
       
       if (lines.length > 0) {
-        // Parse headers (first line)
+        // Parse headers (first line) - handle both quoted and unquoted headers
         headers = lines[0]
           .split(',')
-          .map(header => header.trim().replace(/^"|"$/g, ''))
+          .map(header => {
+            // Remove quotes and clean whitespace
+            return header
+              .trim()
+              .replace(/^["']|["']$/g, '') // Remove starting/ending quotes
+              .replace(/\r$/, '') // Remove any trailing carriage return
+          })
           .filter(header => header.length > 0)
+        
+        console.log('Parsed CSV headers:', headers)
         
         // Parse data rows
         data = lines.slice(1).map(line => {
-          const values = line.split(',').map(value => value.trim().replace(/^"|"$/g, ''))
+          const values = line.split(',').map(value => value.trim().replace(/^["']|["']$/g, ''))
           return headers.reduce((obj, header, index) => {
             obj[header] = values[index] || ''
             return obj
           }, {} as Record<string, string>)
         })
+        
+        console.log('First data row:', data[0])
       }
-      console.log('CSV headers found:', headers)
     }
 
     // Get sample data from the first row
@@ -83,7 +98,11 @@ serve(async (req) => {
       sampleData: sampleData[header] || ''
     }))
 
-    console.log('Final processed headers:', combinedHeaders)
+    console.log('Final headers and sample data:', {
+      headers,
+      combinedHeaders,
+      firstDataRow: data[0]
+    })
 
     return new Response(
       JSON.stringify({ 
@@ -98,9 +117,12 @@ serve(async (req) => {
       },
     )
   } catch (error) {
-    console.error('Error:', error)
+    console.error('Error processing file:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        stack: error.stack
+      }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,
