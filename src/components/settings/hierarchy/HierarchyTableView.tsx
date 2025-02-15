@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from 'react';
 import { Card } from "@/components/ui/card";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
@@ -9,7 +8,7 @@ import { ColumnSelector } from "./components/ColumnSelector";
 import { Pagination } from "./components/Pagination";
 import { HierarchyTable } from "./components/HierarchyTable";
 import { Button } from "@/components/ui/button";
-import { Save } from "lucide-react";
+import { Save, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { HierarchyTableViewProps, ColumnMapping, TableRowData } from "./types";
 
@@ -28,6 +27,7 @@ export function HierarchyTableView({
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [tableData, setTableData] = useState<TableRowData[]>(data);
+  const [isSavingSelections, setIsSavingSelections] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -62,10 +62,8 @@ export function HierarchyTableView({
     staleTime: 5 * 60 * 1000,
   });
 
-  // Save mappings mutation
   const saveMappingsMutation = useMutation({
     mutationFn: async (validMappings: ColumnMapping[]) => {
-      // First delete existing mappings for this table
       const { error: deleteError } = await supabase
         .from('hierarchy_column_mappings')
         .delete()
@@ -73,7 +71,6 @@ export function HierarchyTableView({
 
       if (deleteError) throw deleteError;
 
-      // Only insert mappings that have a level
       if (validMappings.length > 0) {
         const { error: insertError } = await supabase
           .from('hierarchy_column_mappings')
@@ -115,7 +112,6 @@ export function HierarchyTableView({
       }));
       setMappings(initialMappings);
 
-      // Set initially selected columns based on existing mappings
       const mappedColumns = new Set(
         existingMappings
           .filter(m => m.hierarchy_level !== null)
@@ -189,31 +185,42 @@ export function HierarchyTableView({
     saveMappingsMutation.mutate(validMappings);
   };
 
-  const handleSaveSelections = () => {
-    // Filter the data to only include selected columns
-    const filteredTableData = tableData.map(row => {
-      const newRow: TableRowData = {};
-      Object.keys(row).forEach(key => {
-        if (selectedColumns.has(key)) {
-          newRow[key] = row[key];
-        }
+  const handleSaveSelections = async () => {
+    setIsSavingSelections(true);
+    try {
+      const filteredTableData = tableData.map(row => {
+        const newRow: TableRowData = {};
+        Object.keys(row).forEach(key => {
+          if (selectedColumns.has(key)) {
+            newRow[key] = row[key];
+          }
+        });
+        return newRow;
       });
-      return newRow;
-    });
-    
-    setTableData(filteredTableData);
-    
-    toast({
-      title: "Success",
-      description: "Selected columns saved successfully. Unselected columns have been removed from the view.",
-    });
+      
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      setTableData(filteredTableData);
+      
+      toast({
+        title: "Success",
+        description: `Successfully saved ${selectedColumns.size} columns. Unselected columns have been removed.`,
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to save column selections",
+      });
+    } finally {
+      setIsSavingSelections(false);
+    }
   };
 
   const handleColumnToggle = (column: string) => {
     const newSelectedColumns = new Set(selectedColumns);
     if (newSelectedColumns.has(column)) {
       newSelectedColumns.delete(column);
-      // Clear mapping when column is deselected
       setMappings(prev => 
         prev.map(mapping => 
           mapping.column === column 
@@ -251,17 +258,26 @@ export function HierarchyTableView({
                 className="h-12 px-6 gap-2 text-base font-medium"
                 disabled={saveMappingsMutation.isPending}
               >
-                <Save className="w-5 h-5" />
-                Save Mappings
+                {saveMappingsMutation.isPending ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Save className="w-5 h-5" />
+                )}
+                {saveMappingsMutation.isPending ? "Saving..." : "Save Mappings"}
               </Button>
               <Button
                 onClick={handleSaveSelections}
                 size="lg"
                 variant="outline"
                 className="h-12 px-6 gap-2 text-base font-medium bg-white"
+                disabled={isSavingSelections}
               >
-                <Save className="w-5 h-5" />
-                Save Selections
+                {isSavingSelections ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Save className="w-5 h-5" />
+                )}
+                {isSavingSelections ? "Saving..." : "Save Selections"}
               </Button>
             </div>
           </div>
