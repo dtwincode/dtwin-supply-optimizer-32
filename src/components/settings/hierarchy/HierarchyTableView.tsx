@@ -150,11 +150,11 @@ export function HierarchyTableView({
       totalPages: total,
       startIndex: start,
       endIndex: end,
-      currentData: filteredData.slice(start, end) as HierarchyTableData[]
+      currentData: filteredData.slice(start, end) as TableRowData[]
     };
   }, [filteredData, currentPage]);
 
-  const getRowKey = (row: HierarchyTableData, index: number): string => {
+  const getRowKey = (row: TableRowData, index: number): string => {
     const id = row.id !== undefined ? String(row.id) : String(index);
     const sku = row.sku !== undefined ? String(row.sku) : '';
     return `row-${id}-${sku}`;
@@ -164,7 +164,7 @@ export function HierarchyTableView({
     return `${rowKey}-col-${colIndex}`;
   };
 
-  const renderCell = (value: string | number | boolean | null | undefined): ReactNode => {
+  const renderCell = (value: TableRowData[keyof TableRowData]): ReactNode => {
     if (value === null || value === undefined) return '';
     return String(value);
   };
