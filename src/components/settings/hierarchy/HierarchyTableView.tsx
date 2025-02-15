@@ -35,9 +35,10 @@ interface Filters {
   [key: string]: string;
 }
 
-interface TableRowData extends Record<string, any> {
+interface TableRowData {
   id?: string | number;
   sku?: string | number;
+  [key: string]: string | number | boolean | null | undefined;
 }
 
 const SHOW_ALL_VALUE = "__show_all__";
@@ -149,11 +150,11 @@ export function HierarchyTableView({
       totalPages: total,
       startIndex: start,
       endIndex: end,
-      currentData: filteredData.slice(start, end)
+      currentData: filteredData.slice(start, end) as HierarchyTableData[]
     };
   }, [filteredData, currentPage]);
 
-  const getRowKey = (row: TableRowData, index: number): string => {
+  const getRowKey = (row: HierarchyTableData, index: number): string => {
     const id = row.id !== undefined ? String(row.id) : String(index);
     const sku = row.sku !== undefined ? String(row.sku) : '';
     return `row-${id}-${sku}`;
@@ -163,7 +164,7 @@ export function HierarchyTableView({
     return `${rowKey}-col-${colIndex}`;
   };
 
-  const renderCell = (value: any): ReactNode => {
+  const renderCell = (value: string | number | boolean | null | undefined): ReactNode => {
     if (value === null || value === undefined) return '';
     return String(value);
   };
@@ -405,7 +406,7 @@ export function HierarchyTableView({
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {(currentData as TableRowData[]).map((row, index) => {
+                        {currentData.map((row, index) => {
                           const rowKey = getRowKey(row, index);
                           
                           return (
