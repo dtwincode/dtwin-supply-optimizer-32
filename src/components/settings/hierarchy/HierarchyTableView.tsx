@@ -15,7 +15,6 @@ import type { HierarchyTableViewProps, ColumnMapping, TableRowData } from "./typ
 const SHOW_ALL_VALUE = "__show_all__";
 const ROWS_PER_PAGE = 50;
 const BATCH_SIZE = 1000;
-const MAPPING_BATCH_SIZE = 100;
 
 export function HierarchyTableView({ 
   tableName, 
@@ -171,56 +170,17 @@ export function HierarchyTableView({
       selectedColumns: Set<string> 
     }) => {
       const columnsArray = Array.from(selectedColumns);
-      
-      // First, clean up unselected columns
-      const { error: cleanupError } = await supabase
-        .rpc('remove_unselected_columns', {
-          p_table_name: tableName,
-          p_selected_columns: columnsArray
-        });
-
-      if (cleanupError) throw cleanupError;
-
-      // Save mappings in batches
       const validMappings = mappings.filter((m): m is ColumnMapping & { level: string } => 
         m.level !== null && selectedColumns.has(m.column)
       );
 
-      // Delete existing mappings
-      const { error: deleteError } = await supabase
-        .from('hierarchy_column_mappings')
-        .delete()
-        .eq('table_name', tableName);
+      const { error } = await supabase.rpc('process_hierarchy_configuration', {
+        p_table_name: tableName,
+        p_selected_columns: columnsArray,
+        p_mappings: JSON.stringify(validMappings)
+      });
 
-      if (deleteError) throw deleteError;
-
-      // Insert mappings in batches
-      for (let i = 0; i < validMappings.length; i += MAPPING_BATCH_SIZE) {
-        const batchMappings = validMappings.slice(i, i + MAPPING_BATCH_SIZE);
-        const { error: insertError } = await supabase
-          .from('hierarchy_column_mappings')
-          .insert(
-            batchMappings.map(m => ({
-              table_name: tableName,
-              column_name: m.column,
-              hierarchy_level: m.level ? parseFloat(m.level) : null
-            }))
-          );
-
-        if (insertError) throw insertError;
-      }
-
-      // Save column selections
-      const { error: selectionsError } = await supabase
-        .from('hierarchy_column_selections')
-        .upsert({
-          table_name: tableName,
-          selected_columns: columnsArray
-        }, {
-          onConflict: 'table_name'
-        });
-
-      if (selectionsError) throw selectionsError;
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['hierarchyMappings', tableName] });

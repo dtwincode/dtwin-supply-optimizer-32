@@ -2137,6 +2137,14 @@ export type Database = {
         }
         Returns: undefined
       }
+      process_hierarchy_configuration: {
+        Args: {
+          p_table_name: string
+          p_selected_columns: string[]
+          p_mappings: Json
+        }
+        Returns: undefined
+      }
       remove_unselected_columns: {
         Args: {
           p_table_name: string
