@@ -7,9 +7,11 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 
+type HierarchyLevel = 'L1' | 'L2' | 'L3' | 'L4' | 'L5' | 'L6' | 'L7' | 'L8';
+
 interface Column {
   name: string;
-  level: string | null;
+  level: HierarchyLevel | null;
 }
 
 interface HierarchyColumnMappingProps {
@@ -18,7 +20,16 @@ interface HierarchyColumnMappingProps {
   onMappingSaved: () => void;
 }
 
-const HIERARCHY_LEVELS = ['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8'];
+interface HierarchyMapping {
+  id: string;
+  table_name: string;
+  column_name: string;
+  hierarchy_level: HierarchyLevel | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+const HIERARCHY_LEVELS: HierarchyLevel[] = ['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8'];
 
 export function HierarchyColumnMapping({ tableName, columns, onMappingSaved }: HierarchyColumnMappingProps) {
   const [mappings, setMappings] = useState<Column[]>([]);
@@ -34,7 +45,7 @@ export function HierarchyColumnMapping({ tableName, columns, onMappingSaved }: H
         .eq('table_name', tableName);
 
       if (error) throw error;
-      return data;
+      return data as HierarchyMapping[];
     }
   });
 
@@ -48,11 +59,11 @@ export function HierarchyColumnMapping({ tableName, columns, onMappingSaved }: H
     }
   }, [columns, existingMappings]);
 
-  const handleLevelChange = (columnName: string, level: string) => {
+  const handleLevelChange = (columnName: string, level: HierarchyLevel | '') => {
     setMappings(prev => 
       prev.map(mapping => 
         mapping.name === columnName 
-          ? { ...mapping, level } 
+          ? { ...mapping, level: level || null } 
           : mapping
       )
     );
@@ -61,7 +72,7 @@ export function HierarchyColumnMapping({ tableName, columns, onMappingSaved }: H
   const handleSave = async () => {
     try {
       // Filter out mappings without levels
-      const validMappings = mappings.filter(m => m.level);
+      const validMappings = mappings.filter((m): m is Column & { level: HierarchyLevel } => m.level !== null);
       
       // Delete existing mappings for this table
       await supabase
@@ -110,7 +121,7 @@ export function HierarchyColumnMapping({ tableName, columns, onMappingSaved }: H
             <div>{mapping.name}</div>
             <Select
               value={mapping.level || ''}
-              onValueChange={(value) => handleLevelChange(mapping.name, value)}
+              onValueChange={(value) => handleLevelChange(mapping.name, value as HierarchyLevel | '')}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select level" />
