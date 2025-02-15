@@ -50,9 +50,19 @@ export function LocationHierarchyUpload() {
   };
 
   const handleSaveFile = async () => {
-    if (!file || !savedFileName) return;
+    if (!file || !savedFileName) {
+      console.log('Save cancelled - missing file or savedFileName:', { file, savedFileName });
+      return;
+    }
     
     try {
+      console.log('Attempting to save file reference:', { 
+        file_name: savedFileName,
+        original_name: file.name,
+        hierarchy_type: 'location',
+        storage_path: `hierarchy-uploads/${savedFileName}`
+      });
+
       const { error } = await supabase
         .from('hierarchy_file_references')
         .insert({
@@ -63,13 +73,26 @@ export function LocationHierarchyUpload() {
           storage_path: `hierarchy-uploads/${savedFileName}`
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
 
+      console.log('File reference saved successfully');
       toast({
         title: "✅ Successfully Saved!",
         description: `The file "${file.name}" has been successfully saved to the database.`,
         duration: 3000,
       });
+
+      // Reset the file input after successful save
+      setFile(null);
+      setSavedFileName(null);
+      const fileInput = document.getElementById('location-file') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = '';
+      }
+      
     } catch (error) {
       console.error('Save error:', error);
       toast({
