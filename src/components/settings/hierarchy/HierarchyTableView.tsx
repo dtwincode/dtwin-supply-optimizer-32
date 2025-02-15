@@ -1,15 +1,12 @@
-
 import { useState, useEffect, useMemo } from 'react';
 import { Card } from "@/components/ui/card";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Separator } from "@/components/ui/separator";
 import { HierarchyTableHeader } from "./components/HierarchyTableHeader";
 import { ColumnSelector } from "./components/ColumnSelector";
 import { Pagination } from "./components/Pagination";
 import { HierarchyTable } from "./components/HierarchyTable";
-import { Button } from "@/components/ui/button";
-import { Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { HierarchyTableViewProps, ColumnMapping, TableRowData } from "./types";
 
@@ -224,14 +221,6 @@ export function HierarchyTableView({
               endIndex={endIndex}
               totalItems={filteredData.length}
             />
-            <Button
-              onClick={() => {}}
-              size="lg"
-              className="h-12 px-6 gap-2 text-base font-medium"
-            >
-              <Save className="w-5 h-5" />
-              Save Configuration
-            </Button>
           </div>
 
           <Separator className="my-6" />
@@ -272,4 +261,3 @@ export function HierarchyTableView({
     </div>
   );
 }
-
