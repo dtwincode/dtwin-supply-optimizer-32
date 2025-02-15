@@ -236,7 +236,7 @@ export function HierarchyTableView({
     <div className="space-y-6">
       <Card className="p-6">
         <div className="space-y-6">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-start">
             <HierarchyTableHeader
               startIndex={startIndex}
               endIndex={endIndex}
@@ -244,14 +244,26 @@ export function HierarchyTableView({
               onSave={handleSave}
               isSaving={saveMappingsMutation.isPending}
             />
-            <Button
-              onClick={handleSaveSelections}
-              variant="outline"
-              className="ml-2"
-            >
-              <Save className="w-4 h-4 mr-2" />
-              Save Selections
-            </Button>
+            <div className="flex gap-4">
+              <Button
+                onClick={handleSave}
+                size="lg"
+                className="h-12 px-6 gap-2 text-base font-medium"
+                disabled={saveMappingsMutation.isPending}
+              >
+                <Save className="w-5 h-5" />
+                Save Mappings
+              </Button>
+              <Button
+                onClick={handleSaveSelections}
+                size="lg"
+                variant="outline"
+                className="h-12 px-6 gap-2 text-base font-medium bg-white"
+              >
+                <Save className="w-5 h-5" />
+                Save Selections
+              </Button>
+            </div>
           </div>
 
           <Separator className="my-6" />

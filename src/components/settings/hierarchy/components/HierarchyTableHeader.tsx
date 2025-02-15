@@ -38,21 +38,11 @@ export function HierarchyTableHeader({
   };
 
   return (
-    <div className="flex items-center justify-between mb-6">
-      <div>
-        <h3 className="text-lg font-semibold">Data Preview</h3>
-        <p className="text-sm text-muted-foreground mt-1">
-          Showing {startIndex + 1} to {Math.min(endIndex, totalItems)} of {totalItems} rows
-        </p>
-      </div>
-      <Button
-        onClick={handleSave}
-        className="ml-auto"
-        disabled={isSaving}
-      >
-        <Save className="h-4 w-4" />
-        {isSaving ? "Saving..." : "Save Mappings"}
-      </Button>
+    <div className="flex flex-col">
+      <h3 className="text-2xl font-bold tracking-tight mb-2">Data Preview</h3>
+      <p className="text-lg text-muted-foreground">
+        Showing {startIndex + 1} to {Math.min(endIndex, totalItems)} of {totalItems} rows
+      </p>
     </div>
   );
 }
