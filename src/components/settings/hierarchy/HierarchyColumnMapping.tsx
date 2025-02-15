@@ -128,7 +128,10 @@ export function HierarchyColumnMapping({ tableName, columns, onMappingSaved }: H
         if (error) throw error;
       }
 
-      await queryClient.invalidateQueries(['hierarchyMappings', tableName]);
+      // Fix: Update the invalidateQueries syntax to use proper options object
+      await queryClient.invalidateQueries({
+        queryKey: ['hierarchyMappings', tableName]
+      });
 
       toast({
         title: "Success",
