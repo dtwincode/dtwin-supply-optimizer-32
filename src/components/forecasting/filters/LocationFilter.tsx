@@ -1,4 +1,3 @@
-
 import {
   Select,
   SelectContent,
@@ -9,7 +8,10 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useEffect, useState, useMemo } from "react";
+import { Button } from "@/components/ui/button";
+import { Save } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface LocationNode {
@@ -32,7 +34,6 @@ interface LocationFilterProps {
   cities: { [key: string]: string[] };
 }
 
-// Local storage key for persisting selections
 const LOCATION_SELECTIONS_KEY = 'location_filter_selections';
 
 export const LocationFilter = ({
@@ -44,17 +45,15 @@ export const LocationFilter = ({
   const [isLoading, setIsLoading] = useState(true);
   const [locationHierarchy, setLocationHierarchy] = useState<LocationNode[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>(() => {
-    // Initialize from localStorage if available
     const savedSelections = localStorage.getItem(LOCATION_SELECTIONS_KEY);
     if (savedSelections) {
       return JSON.parse(savedSelections);
     }
-    // Initialize with current props if no saved state
     return [selectedRegion !== 'all' ? selectedRegion : '', selectedCity !== 'all' ? selectedCity : ''];
   });
   const [hierarchyLevels, setHierarchyLevels] = useState<Array<{ level: number; type: string }>>([]);
+  const { toast } = useToast();
 
-  // Sync component state with props on mount and when props change
   useEffect(() => {
     const newSelections = [...selectedLocations];
     if (selectedRegion !== 'all' && selectedRegion !== selectedLocations[0]) {
@@ -66,18 +65,12 @@ export const LocationFilter = ({
     setSelectedLocations(newSelections);
   }, [selectedRegion, selectedCity]);
 
-  // Persist selections to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem(LOCATION_SELECTIONS_KEY, JSON.stringify(selectedLocations));
-  }, [selectedLocations]);
-
   useEffect(() => {
     const fetchLocationHierarchy = async () => {
       try {
         setIsLoading(true);
         console.log('Fetching location hierarchy...');
         
-        // Fetch hierarchy mappings with pagination
         const { data: mappings, error: mappingsError } = await supabase
           .from('hierarchy_column_mappings')
           .select('*')
@@ -87,7 +80,6 @@ export const LocationFilter = ({
 
         if (mappingsError) throw mappingsError;
 
-        // Fetch location hierarchy data using the optimized view
         const { data: locations, error: locationsError } = await supabase
           .from('location_hierarchy_flat')
           .select('*')
@@ -100,7 +92,6 @@ export const LocationFilter = ({
           console.log('Location hierarchy data:', locations);
           console.log('Hierarchy mappings:', mappings);
 
-          // Process hierarchy levels from mappings
           const levels = mappings
             .filter(m => m.hierarchy_level !== null)
             .map(m => ({
@@ -111,7 +102,6 @@ export const LocationFilter = ({
 
           setHierarchyLevels(levels);
 
-          // Build hierarchical structure more efficiently
           const buildHierarchy = (parentId: string | null = null): LocationNode[] => {
             return locations
               .filter(item => item.parent_id === parentId)
@@ -141,18 +131,21 @@ export const LocationFilter = ({
     fetchLocationHierarchy();
   }, []);
 
+  const handleSaveSelections = () => {
+    localStorage.setItem(LOCATION_SELECTIONS_KEY, JSON.stringify(selectedLocations));
+    toast({
+      title: "Selections saved",
+      description: "Your location filters have been saved successfully.",
+    });
+  };
+
   const handleLocationSelect = (locationId: string, hierarchyLevel: number) => {
-    // Clear selections at and below the current hierarchy level
     const newSelections = selectedLocations.filter((_, index) => index < hierarchyLevel);
-    
-    // Add the new selection if it's not "all"
     if (locationId !== "all") {
       newSelections[hierarchyLevel] = locationId;
     }
-    
     setSelectedLocations(newSelections);
 
-    // Update region and city based on the selections
     const locationNode = findLocationNode(locationHierarchy, locationId);
     if (locationNode) {
       switch (locationNode.location_type.toLowerCase()) {
@@ -167,7 +160,6 @@ export const LocationFilter = ({
           break;
       }
     } else if (locationId === "all") {
-      // Handle "all" selection
       if (hierarchyLevel === 0) {
         setSelectedRegion('all');
         setSelectedCity('all');
@@ -232,7 +224,18 @@ export const LocationFilter = ({
   return (
     <div className="flex flex-wrap gap-4 p-4 bg-muted/30 rounded-lg">
       <div className="w-full">
-        <h3 className="text-sm font-medium mb-2">Location Filters</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-medium">Location Filters</h3>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSaveSelections}
+            className="flex items-center gap-2"
+          >
+            <Save className="w-4 h-4" />
+            Save Selections
+          </Button>
+        </div>
         <div className="flex flex-wrap gap-4">
           {hierarchyLevels.map((level, index) => {
             const availableLocations = getAvailableLocations(index);
