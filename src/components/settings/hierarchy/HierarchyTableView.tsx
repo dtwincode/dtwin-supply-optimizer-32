@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from 'react';
 import { Card } from "@/components/ui/card";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -43,8 +42,9 @@ export function HierarchyTableView({
     return map;
   }, [data, columns]);
 
-  const getUniqueValues = (column: string) => {
-    return Array.from(uniqueValuesMap.get(column) || new Set()).sort();
+  const getUniqueValues = (column: string): string[] => {
+    const values = uniqueValuesMap.get(column);
+    return values ? Array.from(values).sort() : [];
   };
 
   const processDataInBatches = (data: TableRowData[], filters: Record<string, string>) => {
