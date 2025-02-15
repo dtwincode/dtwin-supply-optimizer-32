@@ -39,29 +39,43 @@ export function HierarchyTableView({
   const { data: existingMappings, isLoading } = useQuery({
     queryKey: ['hierarchyMappings', tableName],
     queryFn: async () => {
+      console.log('Fetching mappings for table:', tableName);
       const { data, error } = await supabase
         .from('hierarchy_column_mappings')
         .select('*')
         .eq('table_name', tableName);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching mappings:', error);
+        throw error;
+      }
+      console.log('Fetched mappings:', data);
       return data;
     },
-    staleTime: Infinity, // Keep the data fresh indefinitely unless explicitly invalidated
+    staleTime: 0, // Always refetch when component mounts
+    refetchOnMount: true, // Ensure we refetch when component mounts
+    refetchOnWindowFocus: true, // Refetch when window gains focus
   });
 
   useEffect(() => {
+    console.log('Effect triggered with:', { existingMappings, isLoading });
     if (!isLoading && existingMappings) {
       // Initialize mappings with existing values or null levels
-      const initialMappings = combinedHeaders.map(header => ({
-        column: header.column,
-        level: existingMappings.find(m => m.column_name === header.column)?.hierarchy_level || null
-      }));
+      const initialMappings = combinedHeaders.map(header => {
+        const existingMapping = existingMappings.find(m => m.column_name === header.column);
+        console.log('Mapping for column:', header.column, 'Found:', existingMapping);
+        return {
+          column: header.column,
+          level: existingMapping?.hierarchy_level || null
+        };
+      });
+      console.log('Setting initial mappings:', initialMappings);
       setMappings(initialMappings);
     }
   }, [combinedHeaders, existingMappings, isLoading]);
 
   const handleLevelChange = (column: string, level: HierarchyLevel | 'none') => {
+    console.log('Handling level change:', { column, level });
     setMappings(prev => 
       prev.map(mapping => 
         mapping.column === column 
@@ -73,17 +87,23 @@ export function HierarchyTableView({
 
   const handleSave = async () => {
     try {
+      console.log('Saving mappings:', mappings);
       // Filter out mappings without levels
       const validMappings = mappings.filter((m): m is ColumnMapping & { level: HierarchyLevel } => m.level !== null);
       
       // Delete existing mappings for this table
-      await supabase
+      const { error: deleteError } = await supabase
         .from('hierarchy_column_mappings')
         .delete()
         .eq('table_name', tableName);
 
+      if (deleteError) {
+        console.error('Error deleting mappings:', deleteError);
+        throw deleteError;
+      }
+
       // Insert new mappings
-      const { error } = await supabase
+      const { error: insertError } = await supabase
         .from('hierarchy_column_mappings')
         .insert(
           validMappings.map(m => ({
@@ -93,18 +113,24 @@ export function HierarchyTableView({
           }))
         );
 
-      if (error) throw error;
+      if (insertError) {
+        console.error('Error inserting mappings:', insertError);
+        throw insertError;
+      }
 
       // Invalidate and refetch the query to update the cached data
       await queryClient.invalidateQueries({
         queryKey: ['hierarchyMappings', tableName]
       });
 
+      console.log('Successfully saved and invalidated cache');
+
       toast({
         title: "Success",
         description: "Column mappings saved successfully",
       });
     } catch (error) {
+      console.error('Save error:', error);
       toast({
         variant: "destructive",
         title: "Error",
