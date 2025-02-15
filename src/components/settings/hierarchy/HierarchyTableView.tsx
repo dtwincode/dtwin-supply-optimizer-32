@@ -153,7 +153,7 @@ export function HierarchyTableView({
     };
   }, [filteredData, currentPage]);
 
-  const renderCell = (value: any): ReactNode => {
+  const renderCell = (value: TableRowData[keyof TableRowData]): ReactNode => {
     if (value === null || value === undefined) return '';
     return String(value);
   };
@@ -395,21 +395,24 @@ export function HierarchyTableView({
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {(currentData as TableRowData[]).map((row: TableRowData, rowIndex: number) => {
-                          const idString = row.id !== undefined ? String(row.id) : String(rowIndex);
+                        {(currentData as TableRowData[]).map((row, index) => {
+                          const rowKey = `row-${index}-${row.id || index}`;
                           
                           return (
-                            <TableRow key={idString}>
+                            <TableRow key={rowKey}>
                               {combinedHeaders
                                 .filter(header => selectedColumns.has(header.column))
-                                .map(({ column }, colIndex) => (
-                                  <TableCell 
-                                    key={`${idString}-${column}-${colIndex}`}
-                                    className="min-w-[200px]"
-                                  >
-                                    {renderCell(row[column])}
-                                  </TableCell>
-                                ))}
+                                .map(({ column }, colIndex) => {
+                                  const cellValue = row[column] as TableRowData[keyof TableRowData];
+                                  return (
+                                    <TableCell 
+                                      key={`${rowKey}-${column}-${colIndex}`}
+                                      className="min-w-[200px]"
+                                    >
+                                      {renderCell(cellValue)}
+                                    </TableCell>
+                                  );
+                                })}
                             </TableRow>
                           );
                         })}
