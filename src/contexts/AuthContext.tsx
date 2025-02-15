@@ -2,8 +2,9 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { useLocalStorage } from '@/hooks/use-local-storage';
 
 type AuthContextType = {
   user: User | null;
@@ -19,7 +20,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  const [lastPath, setLastPath] = useLocalStorage<string>('lastPath', '/');
+
+  // Update last path when location changes
+  useEffect(() => {
+    if (location.pathname !== '/auth') {
+      setLastPath(location.pathname);
+    }
+  }, [location.pathname, setLastPath]);
 
   useEffect(() => {
     // Check active sessions and sets the user
@@ -31,6 +41,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!session?.user) {
           // If no active session, redirect to auth page
           navigate('/auth');
+        } else if (location.pathname === '/auth') {
+          // If on auth page with active session, redirect to last path or dashboard
+          navigate(lastPath);
         }
       } catch (error) {
         console.error('Error checking auth session:', error);
@@ -51,7 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       switch (event) {
         case 'SIGNED_IN':
-          navigate('/');
+          navigate(lastPath);
           break;
         case 'SIGNED_OUT':
           navigate('/auth');
@@ -70,7 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, lastPath]);
 
   const signUp = async (email: string, password: string) => {
     try {
