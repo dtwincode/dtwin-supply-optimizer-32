@@ -11,6 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 export function LocationHierarchyUpload() {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [columns, setColumns] = useState<string[]>([]);
   const { toast } = useToast();
 
   const { data: locationData, refetch } = useQuery({
@@ -34,9 +35,6 @@ export function LocationHierarchyUpload() {
     setIsUploading(true);
 
     try {
-      const formData = new FormData();
-      formData.append('file', uploadedFile);
-
       // First, upload the file to Supabase storage
       const fileExt = uploadedFile.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(7)}.${fileExt}`;
@@ -47,16 +45,20 @@ export function LocationHierarchyUpload() {
 
       if (uploadError) throw uploadError;
 
-      // Then call the process-hierarchy function
+      // Then call the process-hierarchy function to get headers
       const { data, error } = await supabase.functions.invoke('process-hierarchy', {
-        body: { fileName },
+        body: { fileName, type: 'location' },
       });
 
       if (error) throw error;
 
+      if (data.headers) {
+        setColumns(data.headers);
+      }
+
       toast({
         title: "Success",
-        description: "Location hierarchy file uploaded and processed successfully",
+        description: "File uploaded successfully. Please map the columns to hierarchy levels.",
       });
 
       refetch();
@@ -65,7 +67,7 @@ export function LocationHierarchyUpload() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to upload and process location hierarchy file",
+        description: "Failed to upload file",
       });
     } finally {
       setIsUploading(false);
@@ -96,10 +98,11 @@ export function LocationHierarchyUpload() {
         </div>
       </Card>
 
-      {locationData && locationData.length > 0 && (
+      {columns.length > 0 && (
         <HierarchyTableView 
           tableName="location_hierarchy"
-          data={locationData}
+          data={locationData || []}
+          columns={columns}
         />
       )}
     </div>

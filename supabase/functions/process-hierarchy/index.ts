@@ -20,7 +20,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    const { fileName } = await req.json()
+    const { fileName, type } = await req.json()
 
     // Download the file from storage
     const { data: fileData, error: downloadError } = await supabaseClient
@@ -32,25 +32,19 @@ serve(async (req) => {
 
     // Parse the CSV data
     const text = await fileData.text()
-    const rows = parse(text, {
-      skipFirstRow: true,
-      columns: true,
-    })
+    
+    // First, parse just the headers to get column names
+    const headerRows = text.split('\n')[0]
+    const headers = headerRows.split(',').map(header => 
+      header.trim().replace(/["'\r]/g, '')
+    )
 
-    // Insert the data into the location_hierarchy table
-    const { error: insertError } = await supabaseClient
-      .from('location_hierarchy')
-      .insert(rows)
-
-    if (insertError) throw insertError
-
-    // Clean up the uploaded file
-    await supabaseClient.storage
-      .from('hierarchy-uploads')
-      .remove([fileName])
-
+    // Return the headers first, before processing the data
     return new Response(
-      JSON.stringify({ success: true }),
+      JSON.stringify({ 
+        success: true,
+        headers: headers
+      }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
