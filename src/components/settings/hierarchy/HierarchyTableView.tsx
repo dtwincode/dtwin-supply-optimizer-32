@@ -35,6 +35,8 @@ interface Filters {
   [key: string]: string;
 }
 
+const SHOW_ALL_VALUE = "__show_all__";
+
 export function HierarchyTableView({ 
   tableName, 
   data, 
@@ -95,7 +97,7 @@ export function HierarchyTableView({
   useEffect(() => {
     const filtered = data.filter(row => {
       return Object.entries(filters).every(([column, filterValue]) => {
-        if (!filterValue) return true;
+        if (!filterValue || filterValue === SHOW_ALL_VALUE) return true;
         const cellValue = String(row[column] || '');
         return cellValue === filterValue;
       });
@@ -149,7 +151,7 @@ export function HierarchyTableView({
   const handleFilterChange = (column: string, value: string) => {
     setFilters(prev => ({
       ...prev,
-      [column]: value
+      [column]: value === SHOW_ALL_VALUE ? '' : value
     }));
   };
 
@@ -266,14 +268,14 @@ export function HierarchyTableView({
                               </SelectContent>
                             </Select>
                             <Select
-                              value={filters[column] || ''}
+                              value={filters[column] || SHOW_ALL_VALUE}
                               onValueChange={(value) => handleFilterChange(column, value)}
                             >
                               <SelectTrigger className="w-full">
                                 <SelectValue placeholder={`Filter ${column}...`} />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="">Show all</SelectItem>
+                                <SelectItem value={SHOW_ALL_VALUE}>Show all</SelectItem>
                                 {getUniqueValues(column).map((value) => (
                                   <SelectItem key={value} value={value}>
                                     {value}
