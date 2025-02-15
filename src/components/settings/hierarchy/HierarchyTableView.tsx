@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, type ReactNode } from 'react';
+import { useState, useEffect, useMemo, type ReactNode, Key } from 'react';
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,8 +35,9 @@ interface Filters {
   [key: string]: string;
 }
 
-interface TableRowData {
-  [key: string]: any;
+interface TableRowData extends Record<string, any> {
+  id?: string | number;
+  [key: string]: string | number | boolean | null | undefined;
 }
 
 const SHOW_ALL_VALUE = "__show_all__";
@@ -362,23 +363,27 @@ export function HierarchyTableView({
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {currentData.map((row: TableRowData, rowIndex: number) => (
-                          <TableRow key={`row-${rowIndex}`}>
-                            {combinedHeaders
-                              .filter(header => selectedColumns.has(header.column))
-                              .map(({ column }) => {
-                                const cellValue = row[column];
-                                return (
-                                  <TableCell 
-                                    key={`cell-${rowIndex}-${column}`} 
-                                    className="min-w-[200px]"
-                                  >
-                                    {cellValue !== null && cellValue !== undefined ? String(cellValue) : ''}
-                                  </TableCell>
-                                );
-                              })}
-                          </TableRow>
-                        ))}
+                        {(currentData as TableRowData[]).map((row, rowIndex) => {
+                          const rowKey = `row-${rowIndex}-${String(row.id || rowIndex)}` as Key;
+                          return (
+                            <TableRow key={rowKey}>
+                              {combinedHeaders
+                                .filter(header => selectedColumns.has(header.column))
+                                .map(({ column }) => {
+                                  const cellKey = `${rowKey}-${column}` as Key;
+                                  const cellValue = row[column];
+                                  return (
+                                    <TableCell 
+                                      key={cellKey}
+                                      className="min-w-[200px]"
+                                    >
+                                      {cellValue != null ? String(cellValue) : ''}
+                                    </TableCell>
+                                  );
+                                })}
+                            </TableRow>
+                          );
+                        })}
                       </TableBody>
                     </Table>
                   </div>
