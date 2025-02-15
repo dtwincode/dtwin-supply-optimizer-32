@@ -864,6 +864,33 @@ export type Database = {
           },
         ]
       }
+      hierarchy_versions: {
+        Row: {
+          changes_summary: string | null
+          created_at: string | null
+          created_by: string | null
+          hierarchy_type: string
+          id: string
+          version: number
+        }
+        Insert: {
+          changes_summary?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          hierarchy_type: string
+          id?: string
+          version: number
+        }
+        Update: {
+          changes_summary?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          hierarchy_type?: string
+          id?: string
+          version?: number
+        }
+        Relationships: []
+      }
       inventory_data: {
         Row: {
           adu: number | null
@@ -1532,6 +1559,45 @@ export type Database = {
         }
         Relationships: []
       }
+      permanent_hierarchy_data: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          data: Json
+          hierarchy_type: string
+          id: string
+          is_active: boolean | null
+          metadata: Json | null
+          status: Database["public"]["Enums"]["hierarchy_status"] | null
+          updated_at: string | null
+          version: number
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          data: Json
+          hierarchy_type: string
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          status?: Database["public"]["Enums"]["hierarchy_status"] | null
+          updated_at?: string | null
+          version?: number
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          data?: Json
+          hierarchy_type?: string
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          status?: Database["public"]["Enums"]["hierarchy_status"] | null
+          updated_at?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
       prediction_accuracy_tracking: {
         Row: {
           actual_lead_time: number | null
@@ -2057,6 +2123,13 @@ export type Database = {
         }
         Returns: undefined
       }
+      activate_hierarchy_version: {
+        Args: {
+          p_hierarchy_type: string
+          p_version: number
+        }
+        Returns: undefined
+      }
       drop_hierarchy_column: {
         Args: {
           p_table_name: string
@@ -2087,6 +2160,7 @@ export type Database = {
         | "L6"
         | "L7"
         | "L8"
+      hierarchy_status: "draft" | "active" | "archived"
       industry_type:
         | "manufacturing"
         | "retail"

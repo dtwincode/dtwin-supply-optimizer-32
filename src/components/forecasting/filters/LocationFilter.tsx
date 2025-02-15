@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -51,17 +50,21 @@ export function LocationFilter({
     queryKey: ['locations'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('location_hierarchy')
-        .select('region, city')
-        .order('region');
+        .from('permanent_hierarchy_data')
+        .select('*')
+        .eq('hierarchy_type', 'location')
+        .eq('is_active', true)
+        .single();
 
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') throw error;
 
+      const hierarchyData = data?.data || [];
+      
       // Process the data to get unique regions and cities
       const uniqueRegions = new Set<string>();
       const citiesByRegion: { [key: string]: Set<string> } = {};
 
-      data?.forEach(row => {
+      hierarchyData.forEach((row: any) => {
         if (row.region) {
           uniqueRegions.add(row.region);
           if (!citiesByRegion[row.region]) {

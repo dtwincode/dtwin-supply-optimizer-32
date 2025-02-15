@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Upload, Trash2, Save } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { HierarchyTableView } from '../hierarchy/HierarchyTableView';
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { Progress } from "@/components/ui/progress";
 
 export function LocationHierarchyUpload() {
@@ -22,12 +22,14 @@ export function LocationHierarchyUpload() {
     queryKey: ['locationHierarchy'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('location_hierarchy')
+        .from('permanent_hierarchy_data')
         .select('*')
-        .limit(100);
+        .eq('hierarchy_type', 'location')
+        .eq('is_active', true)
+        .single();
       
-      if (error) throw error;
-      return data;
+      if (error && error.code !== 'PGRST116') throw error;
+      return data?.data || [];
     }
   });
 
@@ -41,8 +43,59 @@ export function LocationHierarchyUpload() {
         combinedHeaders: [] as Array<{column: string, sampleData: string}>
       };
     },
-    staleTime: Infinity, // Never mark the data as stale
-    gcTime: Infinity, // Never garbage collect the data
+    staleTime: Infinity,
+    gcTime: Infinity,
+  });
+
+  const savePermanentDataMutation = useMutation({
+    mutationFn: async (data: {
+      hierarchyData: any[];
+      selectedColumns: string[];
+      mappings: any[];
+    }) => {
+      const { error: versionError } = await supabase
+        .from('hierarchy_versions')
+        .insert({
+          hierarchy_type: 'location',
+          version: 1, // You might want to increment this based on existing versions
+          changes_summary: 'Initial hierarchy upload',
+          created_by: (await supabase.auth.getUser()).data.user?.id
+        });
+
+      if (versionError) throw versionError;
+
+      const { error } = await supabase
+        .from('permanent_hierarchy_data')
+        .insert({
+          hierarchy_type: 'location',
+          data: data.hierarchyData,
+          status: 'active',
+          version: 1,
+          is_active: true,
+          created_by: (await supabase.auth.getUser()).data.user?.id,
+          metadata: {
+            selected_columns: data.selectedColumns,
+            mappings: data.mappings
+          }
+        });
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['locationHierarchy'] });
+      toast({
+        title: "Success",
+        description: "Hierarchy data has been permanently saved",
+      });
+    },
+    onError: (error) => {
+      console.error('Error saving permanent data:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to save hierarchy data permanently",
+      });
+    }
   });
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,14 +111,12 @@ export function LocationHierarchyUpload() {
     setProgress(0);
     setSavedFileName(null);
     
-    // Clear the preview data from React Query cache
     queryClient.setQueryData(['locationHierarchyPreview'], {
       columns: [],
       previewData: [],
       combinedHeaders: []
     });
     
-    // Reset the file input
     const fileInput = document.getElementById('location-file') as HTMLInputElement;
     if (fileInput) {
       fileInput.value = '';
@@ -73,50 +124,25 @@ export function LocationHierarchyUpload() {
   };
 
   const handleSaveFile = async () => {
-    if (!file || !savedFileName) {
-      console.log('Save cancelled - missing file or savedFileName:', { file, savedFileName });
+    if (!file || !savedFileName || !previewState) {
+      console.log('Save cancelled - missing required data:', { file, savedFileName, previewState });
       return;
     }
     
     try {
-      console.log('Attempting to save file reference:', { 
-        file_name: savedFileName,
-        original_name: file.name,
-        hierarchy_type: 'location',
-        storage_path: `hierarchy-uploads/${savedFileName}`
+      await savePermanentDataMutation.mutateAsync({
+        hierarchyData: previewState.previewData,
+        selectedColumns: previewState.columns,
+        mappings: previewState.combinedHeaders
       });
 
-      const { error } = await supabase
-        .from('hierarchy_file_references')
-        .insert({
-          file_name: savedFileName,
-          original_name: file.name,
-          file_type: file.type || 'application/octet-stream',
-          hierarchy_type: 'location',
-          storage_path: `hierarchy-uploads/${savedFileName}`
-        });
-
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
-      }
-
-      console.log('File reference saved successfully');
-      toast({
-        title: "✅ Successfully Saved!",
-        description: `The file "${file.name}" has been successfully saved to the database.`,
-        duration: 3000,
-      });
-
-      // Keep the file visible but disable save button by clearing savedFileName
       setSavedFileName(null);
-      
     } catch (error) {
       console.error('Save error:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to save file reference",
+        description: "Failed to save hierarchy data",
       });
     }
   };
@@ -138,7 +164,6 @@ export function LocationHierarchyUpload() {
       if (uploadError) throw uploadError;
 
       setProgress(60);
-      // Process the hierarchy
       const { data, error } = await supabase.functions.invoke('process-hierarchy', {
         body: { fileName, type: 'location' },
       });
@@ -147,7 +172,6 @@ export function LocationHierarchyUpload() {
 
       setProgress(90);
       if (data.headers) {
-        // Update the preview data in React Query cache
         queryClient.setQueryData(['locationHierarchyPreview'], {
           columns: data.headers,
           previewData: data.data || [],
@@ -159,7 +183,7 @@ export function LocationHierarchyUpload() {
       setProgress(100);
       toast({
         title: "Success",
-        description: "File uploaded successfully. Click the save icon to save the reference.",
+        description: "File uploaded successfully. Click the save icon to save permanently.",
       });
     } catch (error) {
       console.error('Upload error:', error);
@@ -203,7 +227,7 @@ export function LocationHierarchyUpload() {
                     size="icon"
                     variant="outline"
                     onClick={handleSaveFile}
-                    disabled={isUploading}
+                    disabled={isUploading || savePermanentDataMutation.isPending}
                   >
                     <Save className="h-4 w-4 text-green-600" />
                   </Button>

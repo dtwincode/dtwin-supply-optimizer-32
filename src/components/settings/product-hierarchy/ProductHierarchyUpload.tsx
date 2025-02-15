@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { HierarchyTableView } from '../hierarchy/HierarchyTableView';
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Progress } from "@/components/ui/progress";
+import { useMutation } from "@tanstack/react-query";
 
 export function ProductHierarchyUpload() {
   const [file, setFile] = useState<File | null>(null);
@@ -22,12 +22,14 @@ export function ProductHierarchyUpload() {
     queryKey: ['productHierarchy'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('product_hierarchy')
+        .from('permanent_hierarchy_data')
         .select('*')
-        .limit(100);
+        .eq('hierarchy_type', 'product')
+        .eq('is_active', true)
+        .single();
       
-      if (error) throw error;
-      return data;
+      if (error && error.code !== 'PGRST116') throw error;
+      return data?.data || [];
     }
   });
 
@@ -43,6 +45,57 @@ export function ProductHierarchyUpload() {
     },
     staleTime: Infinity, // Never mark the data as stale
     gcTime: Infinity, // Never garbage collect the data
+  });
+
+  const savePermanentDataMutation = useMutation({
+    mutationFn: async (data: {
+      hierarchyData: any[];
+      selectedColumns: string[];
+      mappings: any[];
+    }) => {
+      const { error: versionError } = await supabase
+        .from('hierarchy_versions')
+        .insert({
+          hierarchy_type: 'product',
+          version: 1,
+          changes_summary: 'Initial hierarchy upload',
+          created_by: (await supabase.auth.getUser()).data.user?.id
+        });
+
+      if (versionError) throw versionError;
+
+      const { error } = await supabase
+        .from('permanent_hierarchy_data')
+        .insert({
+          hierarchy_type: 'product',
+          data: data.hierarchyData,
+          status: 'active',
+          version: 1,
+          is_active: true,
+          created_by: (await supabase.auth.getUser()).data.user?.id,
+          metadata: {
+            selected_columns: data.selectedColumns,
+            mappings: data.mappings
+          }
+        });
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['productHierarchy'] });
+      toast({
+        title: "Success",
+        description: "Hierarchy data has been permanently saved",
+      });
+    },
+    onError: (error) => {
+      console.error('Error saving permanent data:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to save hierarchy data permanently",
+      });
+    }
   });
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,50 +126,25 @@ export function ProductHierarchyUpload() {
   };
 
   const handleSaveFile = async () => {
-    if (!file || !savedFileName) {
-      console.log('Save cancelled - missing file or savedFileName:', { file, savedFileName });
+    if (!file || !savedFileName || !previewState) {
+      console.log('Save cancelled - missing required data:', { file, savedFileName, previewState });
       return;
     }
     
     try {
-      console.log('Attempting to save file reference:', { 
-        file_name: savedFileName,
-        original_name: file.name,
-        hierarchy_type: 'product',
-        storage_path: `hierarchy-uploads/${savedFileName}`
+      await savePermanentDataMutation.mutateAsync({
+        hierarchyData: previewState.previewData,
+        selectedColumns: previewState.columns,
+        mappings: previewState.combinedHeaders
       });
 
-      const { error } = await supabase
-        .from('hierarchy_file_references')
-        .insert({
-          file_name: savedFileName,
-          original_name: file.name,
-          file_type: file.type || 'application/octet-stream',
-          hierarchy_type: 'product',
-          storage_path: `hierarchy-uploads/${savedFileName}`
-        });
-
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
-      }
-
-      console.log('File reference saved successfully');
-      toast({
-        title: "✅ Successfully Saved!",
-        description: `The file "${file.name}" has been successfully saved to the database.`,
-        duration: 3000,
-      });
-
-      // Keep the file visible but disable save button by clearing savedFileName
       setSavedFileName(null);
-
     } catch (error) {
       console.error('Save error:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to save file reference",
+        description: "Failed to save hierarchy data",
       });
     }
   };
