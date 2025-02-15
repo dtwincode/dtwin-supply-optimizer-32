@@ -23,23 +23,23 @@ export const InventoryTabs = ({ children }: InventoryTabsProps) => {
           {getTranslation("common.inventory", language)}
         </TabsTrigger>
         <TabsTrigger value="netflow">
-          {getTranslation("common.netFlow", language)}
+          Net Flow
         </TabsTrigger>
         <TabsTrigger value="decoupling">
-          {getTranslation("common.decouplingPoint", language)}
+          Decoupling
         </TabsTrigger>
         <TabsTrigger value="buffers">
-          {getTranslation("common.buffers", language)}
+          Buffers
         </TabsTrigger>
         <TabsTrigger value="adu">
-          {getTranslation("common.adu", language)}
+          ADU
         </TabsTrigger>
         <TabsTrigger value="alerts">
-          {getTranslation("common.alerts", language)}
+          Alerts
         </TabsTrigger>
         <TabsTrigger value="ai-leadlink" className="flex items-center gap-2">
           <Brain className="w-4 h-4" />
-          AI LeadLink
+          AI Lead
         </TabsTrigger>
       </TabsList>
 
