@@ -11,9 +11,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, Database as DatabaseIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { LocationHierarchyUpload } from "@/components/settings/location-hierarchy/LocationHierarchyUpload";
+import { useNavigate } from "react-router-dom";
 
 type ModuleType = Database["public"]["Enums"]["module_type"];
 
@@ -82,6 +83,7 @@ const Settings = () => {
   const { language } = useLanguage();
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const { data: moduleSettings } = useQuery<ModuleSetting[]>({
     queryKey: ['moduleSettings'],
@@ -167,7 +169,18 @@ const Settings = () => {
         </h2>
         <div className="grid gap-4">
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Recent Upload Logs</h3>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-lg font-semibold">Recent Upload Logs</h3>
+              <Button
+                variant="outline"
+                onClick={() => navigate("/sql-config")}
+                className="gap-2"
+              >
+                <DatabaseIcon className="w-4 h-4" />
+                SQL Configuration
+              </Button>
+            </div>
+            
             <div className="space-y-4 mb-8">
               {validationLogs?.length === 0 && (
                 <p className="text-sm text-muted-foreground">No recent uploads</p>

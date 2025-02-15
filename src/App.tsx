@@ -1,53 +1,39 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { LanguageProvider } from "./contexts/LanguageContext";
-import { AuthProvider } from "./contexts/AuthContext";
-import Index from "./pages/index";
-import Auth from "./pages/Auth";
-import Inventory from "./pages/Inventory";
-import Forecasting from "./pages/Forecasting";
-import Logistics from "./pages/Logistics";
-import SalesPlanning from "./pages/SalesPlanning";
-import Reports from "./pages/Reports";
-import Marketing from "./pages/Marketing";
-import AskAI from "./pages/AskAI";
-import Tickets from "./pages/Tickets";
-import Settings from "./pages/Settings";
-import NotFound from "./pages/NotFound";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Index } from "./pages/index";
+import { Auth } from "./pages/Auth";
+import { Marketing } from "./pages/Marketing";
+import { Forecasting } from "./pages/Forecasting";
+import { Inventory } from "./pages/Inventory";
+import { SalesPlanning } from "./pages/SalesPlanning";
+import { Reports } from "./pages/Reports";
+import { Logistics } from "./pages/Logistics";
+import { Settings } from "./pages/Settings";
+import { AskAI } from "./pages/AskAI";
+import { NotFound } from "./pages/NotFound";
+import { Tickets } from "./pages/Tickets";
+import SQLConfig from "./pages/SQLConfig";
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
-      <LanguageProvider>
-        <AuthProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <Routes>
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/" element={<Index />} />
-              <Route path="/inventory" element={<Inventory />} />
-              <Route path="/forecasting/*" element={<Forecasting />} />
-              <Route path="/logistics" element={<Logistics />} />
-              <Route path="/sales-planning" element={<SalesPlanning />} />
-              <Route path="/marketing" element={<Marketing />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/ask-ai" element={<AskAI />} />
-              <Route path="/tickets" element={<Tickets />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </TooltipProvider>
-        </AuthProvider>
-      </LanguageProvider>
-    </BrowserRouter>
-  </QueryClientProvider>
-);
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/marketing" element={<Marketing />} />
+        <Route path="/forecasting" element={<Forecasting />} />
+        <Route path="/inventory" element={<Inventory />} />
+        <Route path="/sales" element={<SalesPlanning />} />
+        <Route path="/reports" element={<Reports />} />
+        <Route path="/logistics" element={<Logistics />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/sql-config" element={<SQLConfig />} />
+        <Route path="/ask-ai" element={<AskAI />} />
+        <Route path="/tickets" element={<Tickets />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
+  );
+}
 
 export default App;
