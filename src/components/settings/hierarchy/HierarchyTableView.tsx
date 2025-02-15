@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from 'react';
 import { Card } from "@/components/ui/card";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -111,25 +112,45 @@ export function HierarchyTableView({
   const handleSaveConfiguration = async () => {
     setIsSavingSelections(true);
     try {
-      const mappingsJson = JSON.stringify(
-        mappings
-          .filter(m => m.level !== null)
-          .map(m => ({
-            column: m.column,
-            level: m.level
-          }))
-      );
+      // First save column selections directly
+      const { error: selectionsError } = await supabase
+        .from('hierarchy_column_selections')
+        .upsert({
+          table_name: tableName,
+          selected_columns: Array.from(selectedColumns)
+        }, {
+          onConflict: 'table_name'
+        });
 
-      const { error } = await supabase.rpc(
-        'process_hierarchy_configuration',
-        {
-          p_table_name: tableName,
-          p_selected_columns: Array.from(selectedColumns),
-          p_mappings: mappingsJson
-        }
-      );
+      if (selectionsError) throw selectionsError;
 
-      if (error) throw error;
+      // Delete existing mappings
+      const { error: deleteError } = await supabase
+        .from('hierarchy_column_mappings')
+        .delete()
+        .eq('table_name', tableName);
+
+      if (deleteError) throw deleteError;
+
+      // Process mappings in smaller chunks
+      const validMappings = mappings
+        .filter(m => m.level !== null && selectedColumns.has(m.column))
+        .map(m => ({
+          table_name: tableName,
+          column_name: m.column,
+          hierarchy_level: parseFloat(m.level!)
+        }));
+
+      // Insert mappings in chunks of 50
+      const chunkSize = 50;
+      for (let i = 0; i < validMappings.length; i += chunkSize) {
+        const chunk = validMappings.slice(i, i + chunkSize);
+        const { error: insertError } = await supabase
+          .from('hierarchy_column_mappings')
+          .insert(chunk);
+
+        if (insertError) throw insertError;
+      }
 
       queryClient.invalidateQueries({ queryKey: ['hierarchyMappings', tableName] });
       queryClient.invalidateQueries({ queryKey: ['columnSelections', tableName] });
