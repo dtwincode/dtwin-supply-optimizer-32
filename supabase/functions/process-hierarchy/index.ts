@@ -44,49 +44,61 @@ serve(async (req) => {
       const worksheet = workbook.Sheets[firstSheetName]
       
       // Convert to JSON with headers
-      data = XLSX.utils.sheet_to_json(worksheet)
-      if (data.length > 0) {
-        headers = Object.keys(data[0])
+      const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 })
+      if (rawData.length > 0) {
+        headers = rawData[0]
+        data = rawData.slice(1).map(row => {
+          return headers.reduce((obj, header, index) => {
+            obj[header] = row[index]
+            return obj
+          }, {} as Record<string, any>)
+        })
       }
-      console.log('Excel headers found:', headers)
     } else {
       // Handle CSV files
-      const text = await fileData.text()
-      console.log('Raw CSV content:', text.substring(0, 200)) // Log the first 200 chars for debugging
+      const csvText = await fileData.text()
       
-      // Clean the text and split into lines, removing empty lines
-      const lines = text
-        .replace(/^\uFEFF/, '') // Remove BOM if present
-        .split(/\r?\n/)
+      // Split into lines and remove empty lines
+      const lines = csvText
+        .split('\n')
         .map(line => line.trim())
-        .filter(line => line.length > 0)
-      
+        .filter(line => line.length > 0 && !line.startsWith('--'))
+
       if (lines.length > 0) {
-        // Parse headers (first line) - handle both quoted and unquoted headers
-        headers = lines[0]
+        // Process headers - first line
+        const headerLine = lines[0]
+        headers = headerLine
           .split(',')
           .map(header => {
-            // Remove quotes and clean whitespace
+            // Clean the header
             return header
               .trim()
-              .replace(/^["']|["']$/g, '') // Remove starting/ending quotes
-              .replace(/\r$/, '') // Remove any trailing carriage return
+              .replace(/^["']|["']$/g, '') // Remove quotes
+              .replace(/\r$/, '')           // Remove carriage return
           })
-          .filter(header => header.length > 0)
+          .filter(Boolean) // Remove empty headers
         
-        console.log('Parsed CSV headers:', headers)
-        
-        // Parse data rows
+        console.log('Found headers:', headers)
+
+        // Process data rows
         data = lines.slice(1).map(line => {
-          const values = line.split(',').map(value => value.trim().replace(/^["']|["']$/g, ''))
+          const values = line
+            .split(',')
+            .map(val => val.trim().replace(/^["']|["']$/g, ''))
+          
           return headers.reduce((obj, header, index) => {
             obj[header] = values[index] || ''
             return obj
-          }, {} as Record<string, string>)
+          }, {} as Record<string, any>)
         })
-        
-        console.log('First data row:', data[0])
+
+        console.log('First row of data:', data[0])
       }
+    }
+
+    // Validate we got some headers
+    if (headers.length === 0) {
+      throw new Error('No valid headers found in the file')
     }
 
     // Get sample data from the first row
@@ -98,10 +110,11 @@ serve(async (req) => {
       sampleData: sampleData[header] || ''
     }))
 
-    console.log('Final headers and sample data:', {
+    console.log('Processed data:', {
+      headerCount: headers.length,
+      rowCount: data.length,
       headers,
-      combinedHeaders,
-      firstDataRow: data[0]
+      sampleRow: sampleData
     })
 
     return new Response(
