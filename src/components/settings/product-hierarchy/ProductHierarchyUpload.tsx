@@ -7,11 +7,13 @@ import { Upload } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { HierarchyTableView } from '../hierarchy/HierarchyTableView';
 import { useQuery } from "@tanstack/react-query";
+import { Progress } from "@/components/ui/progress";
 
 export function ProductHierarchyUpload() {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [columns, setColumns] = useState<string[]>([]);
+  const [progress, setProgress] = useState(0);
   const { toast } = useToast();
 
   const { data: productData, refetch } = useQuery({
@@ -27,38 +29,47 @@ export function ProductHierarchyUpload() {
     }
   });
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const uploadedFile = event.target.files?.[0];
     if (!uploadedFile) return;
-
     setFile(uploadedFile);
+    setProgress(0);
+  };
+
+  const handleUpload = async () => {
+    if (!file) return;
     setIsUploading(true);
+    setProgress(10);
 
     try {
       const formData = new FormData();
-      formData.append('file', uploadedFile);
+      formData.append('file', file);
 
-      // First, upload the file to Supabase storage
-      const fileExt = uploadedFile.name.split('.').pop();
+      // Upload file to storage
+      const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(7)}.${fileExt}`;
       
+      setProgress(30);
       const { error: uploadError } = await supabase.storage
         .from('hierarchy-uploads')
-        .upload(fileName, uploadedFile);
+        .upload(fileName, file);
 
       if (uploadError) throw uploadError;
 
-      // Then call the process-hierarchy function to get headers
+      setProgress(60);
+      // Process the hierarchy
       const { data, error } = await supabase.functions.invoke('process-hierarchy', {
         body: { fileName, type: 'product' },
       });
 
       if (error) throw error;
 
+      setProgress(90);
       if (data.headers) {
         setColumns(data.headers);
       }
 
+      setProgress(100);
       toast({
         title: "Success",
         description: "Product hierarchy file uploaded and processed successfully",
@@ -81,23 +92,40 @@ export function ProductHierarchyUpload() {
     <div className="space-y-6">
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">Upload Product Hierarchy</h3>
-        <div className="flex items-center gap-4">
-          <Button
-            size="icon"
-            variant="outline"
-            onClick={() => document.getElementById('product-file')?.click()}
-            disabled={isUploading}
-          >
-            <Upload className="h-4 w-4" />
-          </Button>
-          <input
-            id="product-file"
-            type="file"
-            accept=".csv,.xlsx"
-            className="hidden"
-            onChange={handleFileUpload}
-          />
-          {file && <span className="text-sm text-muted-foreground">{file.name}</span>}
+        <div className="space-y-4">
+          <div className="flex items-center gap-4">
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={() => document.getElementById('product-file')?.click()}
+              disabled={isUploading}
+            >
+              <Upload className="h-4 w-4" />
+            </Button>
+            <input
+              id="product-file"
+              type="file"
+              accept=".csv,.xlsx"
+              className="hidden"
+              onChange={handleFileSelect}
+            />
+            {file && <span className="text-sm text-muted-foreground">{file.name}</span>}
+          </div>
+
+          {file && !isUploading && (
+            <Button onClick={handleUpload} className="w-full">
+              Upload and Process
+            </Button>
+          )}
+
+          {isUploading && (
+            <div className="space-y-2">
+              <Progress value={progress} className="w-full" />
+              <p className="text-sm text-muted-foreground text-center">
+                {progress}% - {progress < 100 ? 'Uploading...' : 'Complete'}
+              </p>
+            </div>
+          )}
         </div>
       </Card>
 
