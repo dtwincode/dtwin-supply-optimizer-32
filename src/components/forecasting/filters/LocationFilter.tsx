@@ -28,6 +28,14 @@ interface LocationData {
   channel?: string;
 }
 
+interface HierarchyData {
+  data: LocationData[];
+}
+
+interface DatabaseResponse {
+  data: HierarchyData;
+}
+
 export function LocationFilter({
   selectedRegion,
   setSelectedRegion,
@@ -57,8 +65,7 @@ export function LocationFilter({
         return null;
       }
 
-      console.log('Location data received:', data);
-      return data;
+      return data as DatabaseResponse | null;
     }
   });
 
