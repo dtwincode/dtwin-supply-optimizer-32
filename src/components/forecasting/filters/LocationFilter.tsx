@@ -35,9 +35,9 @@ export function LocationFilter({
   regions,
   cities,
 }: LocationFilterProps) {
-  const [availableColumns, setAvailableColumns] = useState<string[]>([]);
+  const [availableColumns, setAvailableColumns] = useState<string[]>(['region', 'city']);
 
-  // Fetch column selections
+  // Fetch column selections for location hierarchy
   const { data: columnSelections, isLoading: isLoadingColumns } = useQuery({
     queryKey: ['columnSelections', 'location_hierarchy'],
     queryFn: async () => {
@@ -47,14 +47,17 @@ export function LocationFilter({
         .eq('table_name', 'location_hierarchy')
         .maybeSingle();
 
-      if (error) throw error;
-      return data?.selected_columns || [];
+      if (error) {
+        console.error('Error fetching column selections:', error);
+        return ['region', 'city']; // Default columns if error
+      }
+      return data?.selected_columns || ['region', 'city'];
     }
   });
 
-  // Fetch locations data
+  // Fetch locations data with selected columns
   const { data: locationsData, isLoading: isLoadingLocations } = useQuery({
-    queryKey: ['locations'],
+    queryKey: ['locations', columnSelections],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('permanent_hierarchy_data')
@@ -71,24 +74,25 @@ export function LocationFilter({
         };
       }
 
-      // Ensure data is an array and has the correct shape
       const hierarchyData = Array.isArray(data?.data) ? data?.data as LocationData[] : [];
       
-      // Process the data to get unique regions and cities
+      // Only process columns that are selected in hierarchy settings
       const uniqueRegions = new Set<string>();
       const citiesByRegion: { [key: string]: Set<string> } = {};
 
-      hierarchyData.forEach((row: LocationData) => {
-        if (row.region) {
-          uniqueRegions.add(row.region);
-          if (!citiesByRegion[row.region]) {
-            citiesByRegion[row.region] = new Set<string>();
+      if (columnSelections?.includes('region') && columnSelections?.includes('city')) {
+        hierarchyData.forEach((row: LocationData) => {
+          if (row.region) {
+            uniqueRegions.add(row.region);
+            if (!citiesByRegion[row.region]) {
+              citiesByRegion[row.region] = new Set<string>();
+            }
+            if (row.city) {
+              citiesByRegion[row.region].add(row.city);
+            }
           }
-          if (row.city) {
-            citiesByRegion[row.region].add(row.city);
-          }
-        }
-      });
+        });
+      }
 
       return {
         regions: Array.from(uniqueRegions).sort(),
@@ -99,19 +103,18 @@ export function LocationFilter({
           ])
         )
       };
-    }
+    },
+    enabled: !!columnSelections // Only run query when we have column selections
   });
 
   useEffect(() => {
-    if (columnSelections && Array.isArray(columnSelections)) {
+    if (columnSelections) {
       setAvailableColumns(columnSelections);
-    } else {
-      setAvailableColumns(['region', 'city']);
     }
   }, [columnSelections]);
 
-  const showRegionFilter = Array.isArray(availableColumns) ? availableColumns.includes('region') : true;
-  const showCityFilter = Array.isArray(availableColumns) ? availableColumns.includes('city') : true;
+  const showRegionFilter = availableColumns.includes('region');
+  const showCityFilter = availableColumns.includes('city');
 
   if (isLoadingColumns || isLoadingLocations) {
     return (
