@@ -28,14 +28,6 @@ interface LocationData {
   channel?: string;
 }
 
-interface HierarchyData {
-  data: LocationData[];
-}
-
-interface DatabaseResponse {
-  data: HierarchyData;
-}
-
 export function LocationFilter({
   selectedRegion,
   setSelectedRegion,
@@ -65,12 +57,17 @@ export function LocationFilter({
         return null;
       }
 
-      return data as DatabaseResponse | null;
+      // Parse the JSON data properly
+      if (data?.data && typeof data.data === 'object' && 'data' in data.data) {
+        return data.data;
+      }
+
+      return null;
     }
   });
 
   useEffect(() => {
-    if (locationData?.data?.data && Array.isArray(locationData.data.data)) {
+    if (locationData?.data && Array.isArray(locationData.data)) {
       const options = {
         region: new Set<string>(),
         city: new Set<string>(),
@@ -78,7 +75,7 @@ export function LocationFilter({
         channel: new Set<string>(),
       };
 
-      locationData.data.data.forEach((location: LocationData) => {
+      locationData.data.forEach((location: LocationData) => {
         if (location.region) options.region.add(location.region);
         if (location.city) options.city.add(location.city);
         if (location.warehouse) options.warehouse.add(location.warehouse);
