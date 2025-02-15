@@ -1980,6 +1980,13 @@ export type Database = {
       }
     }
     Functions: {
+      drop_hierarchy_column: {
+        Args: {
+          p_table_name: string
+          p_column_name: string
+        }
+        Returns: undefined
+      }
       remove_unselected_columns: {
         Args: {
           p_table_name: string
