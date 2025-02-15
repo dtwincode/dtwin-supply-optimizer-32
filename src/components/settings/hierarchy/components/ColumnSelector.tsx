@@ -35,7 +35,6 @@ export function ColumnSelector({
   onSelectedColumnsChange,
   tempUploadId
 }: ColumnSelectorProps) {
-  const [columnToDelete, setColumnToDelete] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const queryClient = useQueryClient();
 
@@ -65,59 +64,6 @@ export function ColumnSelector({
         variant: "destructive",
         title: "Error",
         description: "Failed to delete temporary upload",
-      });
-    }
-  });
-
-  const deleteColumnMutation = useMutation({
-    mutationFn: async (columnName: string) => {
-      setIsSaving(true);
-      try {
-        // First update selections
-        const newSelections = new Set(selectedColumns);
-        newSelections.delete(columnName);
-        
-        const { error: selectionsError } = await supabase
-          .from('hierarchy_column_selections')
-          .upsert({
-            table_name: tableName,
-            selected_columns: Array.from(newSelections)
-          }, {
-            onConflict: 'table_name'
-          });
-
-        if (selectionsError) throw selectionsError;
-
-        // Then drop the column
-        const { error } = await supabase
-          .rpc('drop_hierarchy_column', {
-            p_table_name: tableName,
-            p_column_name: columnName
-          });
-
-        if (error) throw error;
-
-        return newSelections;
-      } finally {
-        setIsSaving(false);
-      }
-    },
-    onSuccess: (newSelections) => {
-      onSelectedColumnsChange(newSelections);
-      queryClient.invalidateQueries({
-        queryKey: ['columnSelections', tableName]
-      });
-      toast({
-        title: "Success",
-        description: "Column deleted successfully",
-      });
-    },
-    onError: (error) => {
-      console.error('Error deleting column:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to delete column",
       });
     }
   });
@@ -227,13 +173,6 @@ export function ColumnSelector({
     }
   };
 
-  const handleDeleteColumn = async () => {
-    if (columnToDelete) {
-      await deleteColumnMutation.mutateAsync(columnToDelete);
-      setColumnToDelete(null);
-    }
-  };
-
   const handleDeleteTempUpload = async () => {
     if (tempUploadId) {
       await deleteTempUploadMutation.mutateAsync();
@@ -302,54 +241,19 @@ export function ColumnSelector({
       <ScrollArea className="h-[120px] w-full rounded-md border p-4">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {combinedHeaders.map(({ column }) => (
-            <div key={column} className="flex items-center justify-between space-x-2">
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id={`column-${column}`}
-                  checked={selectedColumns.has(column)}
-                  onCheckedChange={() => handleColumnToggle(column)}
-                  disabled={isSaving}
-                />
-                <label 
-                  htmlFor={`column-${column}`}
-                  className="text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
-                >
-                  {column}
-                </label>
-              </div>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0"
-                    onClick={() => setColumnToDelete(column)}
-                    disabled={isSaving}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive hover:text-destructive/90" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Column</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Are you sure you want to delete the column "{column}"? This action cannot be undone
-                      and all data in this column will be permanently lost.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel onClick={() => setColumnToDelete(null)}>
-                      Cancel
-                    </AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleDeleteColumn}
-                      className="bg-destructive hover:bg-destructive/90"
-                    >
-                      Delete
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+            <div key={column} className="flex items-center space-x-2">
+              <Checkbox 
+                id={`column-${column}`}
+                checked={selectedColumns.has(column)}
+                onCheckedChange={() => handleColumnToggle(column)}
+                disabled={isSaving}
+              />
+              <label 
+                htmlFor={`column-${column}`}
+                className="text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
+              >
+                {column}
+              </label>
             </div>
           ))}
         </div>
