@@ -40,8 +40,7 @@ export const LocationFilter = ({
   selectedCity,
   setSelectedCity,
 }: LocationFilterProps) => {
-  const [locationHierarchy, setLocationHierarchy] = useState<LocationNode[]>([]);
-  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+  const [selectedLocations, setSelectedLocations] = useState<{ [key: string]: string }>({});
 
   // Fetch hierarchy mappings
   const { data: hierarchyMappings, isLoading: isMappingsLoading } = useQuery({
@@ -58,118 +57,52 @@ export const LocationFilter = ({
     }
   });
 
-  // Fetch location hierarchy data
+  // Fetch all location data
   const { data: locations, isLoading: isLocationsLoading } = useQuery({
-    queryKey: ['locationHierarchy'],
+    queryKey: ['allLocations'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('location_hierarchy_view')
         .select('*')
-        .eq('active', true)
-        .order('hierarchy_level', { ascending: true });
+        .eq('active', true);
 
       if (error) throw error;
       return data;
     }
   });
 
-  // Process hierarchy levels from mappings
-  const hierarchyLevels = useMemo(() => {
-    if (!hierarchyMappings) return [];
-    
-    return hierarchyMappings
-      .filter(m => m.hierarchy_level !== null)
-      .map(m => ({
-        level: m.hierarchy_level,
-        type: m.column_name
-      }))
-      .sort((a, b) => a.level - b.level);
-  }, [hierarchyMappings]);
+  // Process unique values for each hierarchy level
+  const uniqueValues = useMemo(() => {
+    if (!locations || !hierarchyMappings) return {};
 
-  // Build hierarchical structure
-  useEffect(() => {
-    if (!locations || !hierarchyMappings) return;
+    return hierarchyMappings.reduce((acc, mapping) => {
+      if (!mapping.column_name || mapping.column_name === '') return acc;
 
-    const buildHierarchy = (parentId: string | null = null): LocationNode[] => {
-      return locations
-        .filter(item => item.parent_id === parentId)
-        .map(item => ({
-          id: item.id,
-          location_id: item.location_id,
-          display_name: item.display_name || item.location_id,
-          location_type: item.location_type,
-          parent_id: item.parent_id,
-          hierarchy_level: item.hierarchy_level,
-          path: item.path || [],
-          active: item.active,
-          children: buildHierarchy(item.location_id)
-        }));
-    };
+      const columnName = mapping.column_name.toLowerCase();
+      const uniqueSet = new Set(
+        locations
+          .map(loc => loc[columnName])
+          .filter(Boolean) // Remove null/undefined values
+      );
 
-    const hierarchy = buildHierarchy();
-    console.log('Built hierarchy:', hierarchy);
-    setLocationHierarchy(hierarchy);
+      acc[columnName] = Array.from(uniqueSet).sort();
+      return acc;
+    }, {} as { [key: string]: string[] });
   }, [locations, hierarchyMappings]);
 
-  const handleLocationSelect = (locationId: string, hierarchyLevel: number) => {
-    // Clear selections at and below the current hierarchy level
-    const newSelections = selectedLocations.filter((_, index) => index < hierarchyLevel);
-    
-    // Add the new selection if it's not "all"
-    if (locationId !== "all") {
-      newSelections[hierarchyLevel] = locationId;
+  // Handle location selection
+  const handleLocationSelect = (value: string, columnName: string) => {
+    setSelectedLocations(prev => ({
+      ...prev,
+      [columnName]: value
+    }));
+
+    // Update parent component state if needed
+    if (columnName === 'region') {
+      setSelectedRegion(value);
+    } else if (columnName === 'city') {
+      setSelectedCity(value);
     }
-    
-    setSelectedLocations(newSelections);
-
-    // Update region and city based on the selections
-    const locationNode = findLocationNode(locationHierarchy, locationId);
-    if (locationNode) {
-      switch (locationNode.location_type.toLowerCase()) {
-        case 'region':
-          setSelectedRegion(locationId);
-          setSelectedCity('all');
-          break;
-        case 'city':
-          setSelectedCity(locationId);
-          break;
-        default:
-          break;
-      }
-    }
-  };
-
-  const getAvailableLocations = (level: number) => {
-    if (level === 0) return locationHierarchy;
-
-    const parentSelection = selectedLocations[level - 1];
-    if (!parentSelection) return [];
-
-    const findChildren = (nodes: LocationNode[]): LocationNode[] => {
-      for (const node of nodes) {
-        if (node.location_id === parentSelection) {
-          return node.children || [];
-        }
-        if (node.children) {
-          const found = findChildren(node.children);
-          if (found.length > 0) return found;
-        }
-      }
-      return [];
-    };
-
-    return findChildren(locationHierarchy);
-  };
-
-  const findLocationNode = (nodes: LocationNode[], locationId: string): LocationNode | null => {
-    for (const node of nodes) {
-      if (node.location_id === locationId) return node;
-      if (node.children) {
-        const found = findLocationNode(node.children, locationId);
-        if (found) return found;
-      }
-    }
-    return null;
   };
 
   if (isMappingsLoading || isLocationsLoading) {
@@ -181,8 +114,8 @@ export const LocationFilter = ({
     );
   }
 
-  // If no hierarchy levels are found, show a message
-  if (!hierarchyLevels.length) {
+  // If no hierarchy mappings are found, show a message
+  if (!hierarchyMappings?.length) {
     return (
       <div className="p-4 bg-muted/30 rounded-lg">
         <p className="text-sm text-muted-foreground">
@@ -197,40 +130,39 @@ export const LocationFilter = ({
       <div className="w-full">
         <h3 className="text-sm font-medium mb-2">Location Filters</h3>
         <div className="flex flex-wrap gap-4">
-          {hierarchyLevels.map((level, index) => {
-            const availableLocations = getAvailableLocations(index);
-            const isDisabled = index > 0 && !selectedLocations[index - 1];
+          {hierarchyMappings
+            .filter(mapping => mapping.column_name && mapping.column_name !== '')
+            .sort((a, b) => (a.hierarchy_level || 0) - (b.hierarchy_level || 0))
+            .map((mapping) => {
+              const columnName = mapping.column_name.toLowerCase();
+              const values = uniqueValues[columnName] || [];
+              const displayName = mapping.column_name
+                .split('_')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
 
-            return (
-              <Select
-                key={`level-${level.level}`}
-                value={selectedLocations[index] || "all"}
-                onValueChange={(value) => handleLocationSelect(value, index)}
-                disabled={isDisabled}
-              >
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder={`Select ${level.type}`} />
-                </SelectTrigger>
-                <SelectContent>
-                  <ScrollArea className="h-[200px]">
-                    <SelectItem value="all">All {level.type}s</SelectItem>
-                    {availableLocations.map(location => (
-                      <SelectItem key={location.location_id} value={location.location_id}>
-                        <div className="flex items-center justify-between w-full">
-                          <span>{location.display_name}</span>
-                          {location.children?.length > 0 && (
-                            <Badge variant="secondary" className="ml-2">
-                              {location.children.length}
-                            </Badge>
-                          )}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </ScrollArea>
-                </SelectContent>
-              </Select>
-            );
-          })}
+              return (
+                <Select
+                  key={columnName}
+                  value={selectedLocations[columnName] || "all"}
+                  onValueChange={(value) => handleLocationSelect(value, columnName)}
+                >
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder={`Select ${displayName}`} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <ScrollArea className="h-[200px]">
+                      <SelectItem value="all">All {displayName}s</SelectItem>
+                      {values.map(value => (
+                        <SelectItem key={value} value={value}>
+                          {value}
+                        </SelectItem>
+                      ))}
+                    </ScrollArea>
+                  </SelectContent>
+                </Select>
+              );
+            })}
         </div>
       </div>
     </div>
