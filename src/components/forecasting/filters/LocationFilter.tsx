@@ -1,3 +1,4 @@
+
 import {
   Select,
   SelectContent,
@@ -19,7 +20,6 @@ interface LocationNode {
   parent_id: string | null;
   hierarchy_level: number;
   children?: LocationNode[];
-  path: string[];
   active: boolean;
 }
 
@@ -88,14 +88,13 @@ export const LocationFilter = ({
             return locations
               .filter(item => item.parent_id === parentId)
               .map(item => ({
-                id: item.id,
-                location_id: item.location_id,
-                display_name: item.display_name || item.location_id,
-                location_type: item.location_type,
+                id: item.id || '',
+                location_id: item.location_id || '',
+                display_name: item.display_name || item.location_id || '',
+                location_type: item.location_type || '',
                 parent_id: item.parent_id,
-                hierarchy_level: item.hierarchy_level,
-                path: item.path || [],
-                active: item.active,
+                hierarchy_level: item.hierarchy_level || 0,
+                active: item.active || false,
                 children: buildHierarchy(item.location_id)
               }));
           };
