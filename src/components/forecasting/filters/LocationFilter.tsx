@@ -146,28 +146,23 @@ export const LocationFilter = ({
                   key={columnName}
                   value={selectedLocations[columnName] || "all"}
                   onValueChange={(value) => handleLocationSelect(value, columnName)}
-                  open={true}
                 >
                   <SelectTrigger className="w-[200px]">
                     <SelectValue placeholder={`Select ${displayName}`} />
                   </SelectTrigger>
                   <SelectContent 
-                    position="popper" 
-                    className="w-[200px] z-50"
-                    onClick={(e) => e.stopPropagation()}
+                    className="w-[200px]"
+                    align="start"
+                    side="bottom"
                   >
                     <ScrollArea className="h-[200px]">
-                      <SelectItem 
-                        value="all"
-                        onSelect={(e) => e.preventDefault()}
-                      >
+                      <SelectItem value="all">
                         All {displayName}s
                       </SelectItem>
                       {values.map(value => (
                         <SelectItem 
                           key={value} 
                           value={value}
-                          onSelect={(e) => e.preventDefault()}
                         >
                           {value}
                         </SelectItem>
