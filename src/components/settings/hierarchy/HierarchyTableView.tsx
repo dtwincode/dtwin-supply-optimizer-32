@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -7,6 +6,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 
 interface ColumnHeader {
   column: string;
@@ -38,7 +40,6 @@ export function HierarchyTableView({
   const queryClient = useQueryClient();
   const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set(columns));
 
-  // Fetch existing mappings
   const { data: existingMappings, isLoading } = useQuery({
     queryKey: ['hierarchyMappings', tableName],
     queryFn: async () => {
@@ -92,7 +93,6 @@ export function HierarchyTableView({
     }
     setSelectedColumns(newSelectedColumns);
 
-    // Update the preview data in React Query cache
     const previewKey = `${tableName}Preview`.replace('_', '') as 'locationHierarchyPreview' | 'productHierarchyPreview';
     const currentPreview = queryClient.getQueryData([previewKey]) as any;
     if (currentPreview) {
@@ -119,10 +119,8 @@ export function HierarchyTableView({
 
   const handleSave = async () => {
     try {
-      // Filter out mappings without levels
       const validMappings = mappings.filter((m): m is ColumnMapping & { level: HierarchyLevel } => m.level !== null);
       
-      // Delete existing mappings for this table
       const { error: deleteError } = await supabase
         .from('hierarchy_column_mappings')
         .delete()
@@ -130,7 +128,6 @@ export function HierarchyTableView({
 
       if (deleteError) throw deleteError;
 
-      // Insert new mappings
       const { error: insertError } = await supabase
         .from('hierarchy_column_mappings')
         .insert(
@@ -166,37 +163,56 @@ export function HierarchyTableView({
       <Card className="p-6">
         <div className="space-y-6">
           <div>
-            <h3 className="text-lg font-semibold mb-4">Data Preview</h3>
-            <div className="mb-4">
-              <h4 className="text-sm font-medium mb-2">Select Columns to Display</h4>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {combinedHeaders.map(({ column }) => (
-                  <div key={column} className="flex items-center space-x-2">
-                    <Checkbox 
-                      id={`column-${column}`}
-                      checked={selectedColumns.has(column)}
-                      onCheckedChange={() => handleColumnToggle(column)}
-                    />
-                    <label 
-                      htmlFor={`column-${column}`}
-                      className="text-sm text-muted-foreground cursor-pointer"
-                    >
-                      {column}
-                    </label>
-                  </div>
-                ))}
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-lg font-semibold">Data Preview</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Select columns to display and assign hierarchy levels
+                </p>
               </div>
+              <Button
+                onClick={handleSave}
+                className="ml-auto"
+              >
+                Save Mappings
+              </Button>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr>
+
+            <Separator className="my-6" />
+
+            <div className="mb-6">
+              <h4 className="text-sm font-medium mb-3">Column Selection</h4>
+              <ScrollArea className="h-[120px] w-full rounded-md border p-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {combinedHeaders.map(({ column }) => (
+                    <div key={column} className="flex items-center space-x-2">
+                      <Checkbox 
+                        id={`column-${column}`}
+                        checked={selectedColumns.has(column)}
+                        onCheckedChange={() => handleColumnToggle(column)}
+                      />
+                      <label 
+                        htmlFor={`column-${column}`}
+                        className="text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
+                      >
+                        {column}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
                     {combinedHeaders
                       .filter(header => selectedColumns.has(header.column))
                       .map(({ column, sampleData }) => (
-                        <th key={column} className="px-4 py-2 text-left bg-muted space-y-2">
-                          <div className="flex flex-col space-y-2">
-                            <div className="font-semibold">{column}</div>
+                        <TableHead key={column} className="min-w-[200px]">
+                          <div className="space-y-2 py-2">
+                            <div className="font-medium">{column}</div>
                             <Select
                               value={mappings.find(m => m.column === column)?.level || 'none'}
                               onValueChange={(value) => handleLevelChange(column, value as HierarchyLevel | 'none')}
@@ -217,33 +233,26 @@ export function HierarchyTableView({
                               Example: {sampleData}
                             </div>
                           </div>
-                        </th>
+                        </TableHead>
                     ))}
-                  </tr>
-                </thead>
-                <tbody>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {data.slice(0, 5).map((row, index) => (
-                    <tr key={index}>
+                    <TableRow key={index}>
                       {combinedHeaders
                         .filter(header => selectedColumns.has(header.column))
                         .map(({ column }) => (
-                          <td key={column} className="px-4 py-2 border-t">
+                          <TableCell key={column}>
                             {row[column]}
-                          </td>
+                          </TableCell>
                       ))}
-                    </tr>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           </div>
-
-          <Button
-            onClick={handleSave}
-            className="mt-6"
-          >
-            Save Mappings
-          </Button>
         </div>
       </Card>
     </div>
