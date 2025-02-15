@@ -1,3 +1,4 @@
+
 import {
   Select,
   SelectContent,
@@ -81,7 +82,7 @@ export const LocationFilter = ({
       const uniqueSet = new Set(
         locations
           .map(loc => loc[columnName])
-          .filter(Boolean) // Remove null/undefined values
+          .filter(Boolean)
       );
 
       acc[columnName] = Array.from(uniqueSet).sort();
@@ -89,14 +90,12 @@ export const LocationFilter = ({
     }, {} as { [key: string]: string[] });
   }, [locations, hierarchyMappings]);
 
-  // Handle location selection
   const handleLocationSelect = (value: string, columnName: string) => {
     setSelectedLocations(prev => ({
       ...prev,
       [columnName]: value
     }));
 
-    // Update parent component state if needed
     if (columnName === 'region') {
       setSelectedRegion(value);
     } else if (columnName === 'city') {
@@ -113,7 +112,6 @@ export const LocationFilter = ({
     );
   }
 
-  // If no hierarchy mappings are found, show a message
   if (!hierarchyMappings?.length) {
     return (
       <div className="p-4 bg-muted/30 rounded-lg">
@@ -125,13 +123,10 @@ export const LocationFilter = ({
   }
 
   return (
-    <div 
-      className="flex flex-wrap gap-4 p-4 bg-muted/30 rounded-lg"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div className="w-full">
-        <h3 className="text-sm font-medium mb-2">Location Filters</h3>
-        <div className="flex flex-wrap gap-4">
+    <div className="w-full">
+      <div className="p-4 space-y-4 bg-muted/30 rounded-lg">
+        <h3 className="text-sm font-medium">Location Filters</h3>
+        <div className="flex flex-wrap gap-4" onClick={(e) => e.stopPropagation()}>
           {hierarchyMappings
             .filter(mapping => mapping.column_name && mapping.column_name !== '')
             .sort((a, b) => (a.hierarchy_level || 0) - (b.hierarchy_level || 0))
@@ -144,28 +139,42 @@ export const LocationFilter = ({
                 .join(' ');
 
               return (
-                <div key={columnName} onClick={(e) => e.stopPropagation()}>
+                <div 
+                  key={columnName} 
+                  className="relative"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                >
                   <Select
                     value={selectedLocations[columnName] || "all"}
                     onValueChange={(value) => handleLocationSelect(value, columnName)}
                   >
-                    <SelectTrigger className="w-[200px] bg-white">
+                    <SelectTrigger 
+                      className="w-[200px] bg-white"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <SelectValue placeholder={`Select ${displayName}`} />
                     </SelectTrigger>
-                    <SelectContent 
-                      className="w-[200px] bg-white"
+                    <SelectContent
                       position="popper"
+                      className="w-[200px] bg-white z-50"
                       sideOffset={4}
+                      onClick={(e) => e.stopPropagation()}
                     >
                       <ScrollArea className="max-h-[200px]">
-                        <SelectItem value="all" className="text-black">
+                        <SelectItem 
+                          value="all"
+                          className="text-black cursor-pointer"
+                        >
                           All {displayName}s
                         </SelectItem>
                         {values.map(value => (
                           <SelectItem 
                             key={value} 
                             value={value}
-                            className="text-black"
+                            className="text-black cursor-pointer"
                           >
                             {value}
                           </SelectItem>
