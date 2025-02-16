@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -197,19 +198,14 @@ export function ProductHierarchyUpload() {
       if (error) throw error;
       setSaveProgress(75); // Data inserted
 
+      // Refresh the saved hierarchies list
+      await refetchSavedHierarchies();
+      setSaveProgress(90); // Data refreshed
+
       toast({
         title: "Success",
         description: `File "${file.name}" saved permanently`,
       });
-
-      // Refresh the saved hierarchies list
-      await refetchSavedHierarchies();
-      setSaveProgress(90); // Data refreshed
-      
-      // Show download option for the newly saved file
-      if (data) {
-        handleDownloadHierarchy(data);
-      }
       
       // Clear the current file
       handleDeleteCurrentFile();
@@ -359,12 +355,12 @@ export function ProductHierarchyUpload() {
         </div>
       </Card>
 
-      {/* Saved Hierarchies Box */}
-      {savedHierarchies && savedHierarchies.length > 0 && (
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Saved Product Hierarchies</h3>
-          <div className="space-y-2">
-            {savedHierarchies.map((hierarchy) => (
+      {/* Always show the Saved Hierarchies section, even when empty */}
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold mb-4">Saved Product Hierarchies</h3>
+        <div className="space-y-2">
+          {savedHierarchies && savedHierarchies.length > 0 ? (
+            savedHierarchies.map((hierarchy) => (
               <div
                 key={hierarchy.id}
                 className="flex items-center justify-between p-2 rounded-md border hover:bg-accent"
@@ -397,10 +393,14 @@ export function ProductHierarchyUpload() {
                   </Button>
                 </div>
               </div>
-            ))}
-          </div>
-        </Card>
-      )}
+            ))
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              No saved hierarchies yet. Upload and save a file to see it here.
+            </p>
+          )}
+        </div>
+      </Card>
 
       {previewState && previewState.columns.length > 0 && previewState.previewData.length > 0 && (
         <HierarchyTableView 
