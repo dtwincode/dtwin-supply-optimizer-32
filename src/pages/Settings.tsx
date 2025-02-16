@@ -86,9 +86,9 @@ const Settings = () => {
       <div className="space-y-6 max-w-[1200px] mx-auto">
         <div className="flex justify-between items-center">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight">Settings</h2>
+            <h2 className="text-3xl font-bold tracking-tight">Data Management & Configuration</h2>
             <p className="text-muted-foreground mt-2">
-              Manage your hierarchies and system configurations
+              Configure system settings and manage data hierarchies across your organization
             </p>
           </div>
           <AlertDialog>
