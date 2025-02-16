@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -27,7 +27,7 @@ interface ColumnSelectorProps {
   selectedColumns: Set<string>;
   onSelectedColumnsChange: (columns: Set<string>) => void;
   tempUploadId?: string;
-  data?: any[]; // Add data prop for saving
+  data?: any[];
 }
 
 export function ColumnSelector({ 
@@ -60,9 +60,9 @@ export function ColumnSelector({
   };
 
   // Load saved files on mount
-  useState(() => {
+  useEffect(() => {
     fetchSavedFiles();
-  }, []);
+  }, [tableName]);
 
   const savePermanentlyMutation = useMutation({
     mutationFn: async () => {
