@@ -29,7 +29,12 @@ serve(async (req) => {
       .from('hierarchy-uploads')
       .download(fileName)
 
-    if (downloadError) throw downloadError
+    if (downloadError) {
+      console.error('Download error:', downloadError);
+      throw downloadError;
+    }
+
+    console.log('File downloaded successfully');
 
     // Get the file extension
     const fileExt = fileName.split('.').pop()?.toLowerCase()
@@ -47,11 +52,13 @@ serve(async (req) => {
       
       // Convert to JSON with headers, no row limit
       const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 })
+      console.log('Excel rawData:', rawData);
+      
       if (rawData.length > 0) {
-        headers = rawData[0]
+        headers = rawData[0].map(String)
         // Process all rows after header
         data = rawData.slice(1)
-          .filter(row => row.length > 0) // Filter out empty rows
+          .filter(row => Array.isArray(row) && row.length > 0) // Ensure row is an array and not empty
           .map(row => {
             return headers.reduce((obj, header, index) => {
               obj[header] = row[index] ?? '' // Use nullish coalescing to handle undefined values
@@ -62,49 +69,38 @@ serve(async (req) => {
     } else {
       // Handle CSV files
       const text = new TextDecoder().decode(arrayBuffer)
+      console.log('CSV raw text:', text.substring(0, 200)); // Log first 200 chars for debugging
       
-      // Split by newline and filter out empty lines and MIME boundaries
-      const lines = text.split(/\r?\n/)
-      const csvLines = lines.filter(line => 
-        line.includes(',') && 
-        !line.includes('Content-Type:') && 
-        !line.includes('Content-Disposition:') &&
-        !line.startsWith('--') &&
-        line.trim().length > 0 // Ensure line is not empty
-      )
+      // Split by newline and filter out empty lines
+      const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
+      console.log('Number of lines found:', lines.length);
 
-      if (csvLines.length > 0) {
+      if (lines.length > 0) {
         // First line contains headers
-        const headerLine = csvLines[0]
+        const headerLine = lines[0]
         headers = headerLine
           .split(',')
           .map(header => header.trim().replace(/[\r\n"']/g, ''))
           .filter(header => header.length > 0)
 
-        console.log(`Found ${headers.length} headers:`, headers)
+        console.log('Headers found:', headers);
 
         // Process all remaining lines as data
-        data = csvLines.slice(1)
-          .filter(line => line.trim().length > 0) // Extra check for empty lines
+        data = lines.slice(1)
+          .filter(line => line.trim().length > 0)
           .map(line => {
             // Split by comma but handle quoted values correctly
-            const values = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || []
+            const values = line.split(',').map(val => val.trim().replace(/^"|"$/g, ''))
             return headers.reduce((obj, header, index) => {
-              // Clean up the value and remove quotes
-              const value = values[index] 
-                ? values[index].replace(/^"|"$/g, '').trim() 
-                : ''
-              obj[header] = value
+              obj[header] = values[index] || '' // Use empty string for missing values
               return obj
             }, {} as Record<string, any>)
           })
-          .filter(row => Object.values(row).some(val => val !== '')) // Remove any empty rows
-
-        console.log(`Total rows processed: ${data.length}`)
-        console.log('First row:', data[0])
-        console.log('Last row:', data[data.length - 1])
       }
     }
+
+    console.log('Parsed headers:', headers);
+    console.log('Number of data rows:', data.length);
 
     if (headers.length === 0) {
       throw new Error('No valid headers found in the file')
@@ -122,7 +118,10 @@ serve(async (req) => {
       .eq('module', `${type}_hierarchy`)
       .single()
 
-    if (settingsError) throw settingsError
+    if (settingsError) {
+      console.error('Settings error:', settingsError);
+      throw settingsError;
+    }
 
     // Validate the data structure
     const validationRules = settings.validation_rules
@@ -143,7 +142,10 @@ serve(async (req) => {
       })
       .eq('storage_path', fileName)
 
-    if (updateError) throw updateError
+    if (updateError) {
+      console.error('Update error:', updateError);
+      throw updateError;
+    }
 
     return new Response(
       JSON.stringify({ 
