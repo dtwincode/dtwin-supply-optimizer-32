@@ -1,8 +1,8 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FileUpload } from "../upload/FileUpload";
 import { HierarchyTableView } from "../hierarchy/HierarchyTableView";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Filter } from "lucide-react";
@@ -21,11 +21,11 @@ export function LocationHierarchyUpload() {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect to auth page if not authenticated
-  if (!isLoading && !user) {
-    navigate('/auth');
-    return null;
-  }
+  useEffect(() => {
+    if (!isLoading && !user) {
+      navigate('/auth');
+    }
+  }, [user, isLoading, navigate]);
 
   const handleUploadComplete = (data: TableRowData[]) => {
     setUploadedData(data);
