@@ -80,7 +80,7 @@ export function HierarchyTable({
                           value={filters[column] || SHOW_ALL_VALUE}
                           onValueChange={(value) => onFilterChange(column, value)}
                         >
-                          <SelectTrigger className="w-full">
+                          <SelectTrigger>
                             <SelectValue placeholder={`Filter ${column}...`} />
                           </SelectTrigger>
                           <SelectContent>
