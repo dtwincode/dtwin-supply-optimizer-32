@@ -30,6 +30,7 @@ export function HierarchyTable({
   const ROWS_PER_PAGE = 15;
   const [currentPage, setCurrentPage] = React.useState(1);
   const [columnFilters, setColumnFilters] = React.useState<Record<string, Set<string>>>({});
+  const [open, setOpen] = React.useState<Record<string, boolean>>({});
 
   const getRowKey = (row: TableRowData, index: number): string => {
     const id = row?.id !== undefined ? String(row.id) : String(index);
@@ -46,7 +47,7 @@ export function HierarchyTable({
     return String(value);
   };
 
-  const getUniqueValues = (column: string): string[] => {
+  const getUniqueValues = React.useCallback((column: string): string[] => {
     if (!Array.isArray(data) || !column) return [];
     
     try {
@@ -60,13 +61,12 @@ export function HierarchyTable({
         }
       });
       
-      const uniqueValues = Array.from(values);
-      return uniqueValues.sort();
+      return Array.from(values).sort();
     } catch (error) {
       console.error('Error getting unique values:', error);
       return [];
     }
-  };
+  }, [data]);
 
   const filteredData = React.useMemo(() => {
     if (!Array.isArray(data)) return [];
@@ -83,7 +83,7 @@ export function HierarchyTable({
     });
   }, [data, columnFilters]);
 
-  const toggleFilter = (column: string, value: string) => {
+  const toggleFilter = React.useCallback((column: string, value: string) => {
     if (!column || value === undefined) return;
     
     setColumnFilters(prev => {
@@ -105,7 +105,7 @@ export function HierarchyTable({
       }
       return newFilters;
     });
-  };
+  }, []);
 
   const totalPages = Math.max(1, Math.ceil(filteredData.length / ROWS_PER_PAGE));
   const startIndex = (currentPage - 1) * ROWS_PER_PAGE;
@@ -124,65 +124,74 @@ export function HierarchyTable({
             <Table>
               <TableHeader>
                 <TableRow>
-                  {columns.map((column) => (
-                    <TableHead key={column} className="min-w-[200px] sticky top-0 bg-background">
-                      <div className="space-y-2 py-2">
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium">{column}</span>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                className={cn(
-                                  "ml-2 h-8 px-2 lg:px-3",
-                                  columnFilters[column]?.size ? "bg-primary/20 hover:bg-primary/20" : ""
-                                )}
-                              >
-                                <Filter className="h-4 w-4 mr-2" />
-                                <span className="hidden lg:inline">Filter</span>
-                                {columnFilters[column]?.size > 0 && (
-                                  <span className="ml-1 rounded-full bg-primary w-4 h-4 text-[10px] flex items-center justify-center text-primary-foreground">
-                                    {columnFilters[column].size}
-                                  </span>
-                                )}
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-[200px] p-0" align="start">
-                              <Command>
-                                <CommandEmpty>No values found.</CommandEmpty>
-                                <CommandGroup>
-                                  {getUniqueValues(column).map((value) => (
-                                    <CommandItem
-                                      key={value}
-                                      onSelect={() => toggleFilter(column, value)}
-                                    >
-                                      <div className="flex items-center gap-2">
-                                        <div className={cn(
-                                          "h-4 w-4 border rounded-sm flex items-center justify-center",
-                                          columnFilters[column]?.has(value) ? "bg-primary border-primary" : "border-input"
-                                        )}>
-                                          {columnFilters[column]?.has(value) && (
-                                            <Check className="h-3 w-3 text-primary-foreground" />
-                                          )}
+                  {columns.map((column) => {
+                    const uniqueValues = getUniqueValues(column);
+                    return (
+                      <TableHead key={column} className="min-w-[200px] sticky top-0 bg-background">
+                        <div className="space-y-2 py-2">
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium">{column}</span>
+                            <Popover 
+                              open={open[column]} 
+                              onOpenChange={(isOpen) => {
+                                setOpen(prev => ({ ...prev, [column]: isOpen }));
+                              }}
+                            >
+                              <PopoverTrigger asChild>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  className={cn(
+                                    "ml-2 h-8 px-2 lg:px-3",
+                                    columnFilters[column]?.size ? "bg-primary/20 hover:bg-primary/20" : ""
+                                  )}
+                                >
+                                  <Filter className="h-4 w-4 mr-2" />
+                                  <span className="hidden lg:inline">Filter</span>
+                                  {columnFilters[column]?.size > 0 && (
+                                    <span className="ml-1 rounded-full bg-primary w-4 h-4 text-[10px] flex items-center justify-center text-primary-foreground">
+                                      {columnFilters[column].size}
+                                    </span>
+                                  )}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-[200px] p-0" align="start">
+                                <Command>
+                                  <CommandEmpty>No values found.</CommandEmpty>
+                                  <CommandGroup>
+                                    {uniqueValues.map((value) => (
+                                      <CommandItem
+                                        key={value}
+                                        value={value}
+                                        onSelect={() => toggleFilter(column, value)}
+                                      >
+                                        <div className="flex items-center gap-2">
+                                          <div className={cn(
+                                            "h-4 w-4 border rounded-sm flex items-center justify-center",
+                                            columnFilters[column]?.has(value) ? "bg-primary border-primary" : "border-input"
+                                          )}>
+                                            {columnFilters[column]?.has(value) && (
+                                              <Check className="h-3 w-3 text-primary-foreground" />
+                                            )}
+                                          </div>
+                                          <span>{value}</span>
                                         </div>
-                                        <span>{value}</span>
-                                      </div>
-                                    </CommandItem>
-                                  ))}
-                                </CommandGroup>
-                              </Command>
-                            </PopoverContent>
-                          </Popover>
-                        </div>
-                        {combinedHeaders?.find(h => h.column === column)?.sampleData && (
-                          <div className="text-xs text-muted-foreground">
-                            Example: {combinedHeaders.find(h => h.column === column)?.sampleData}
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
                           </div>
-                        )}
-                      </div>
-                    </TableHead>
-                  ))}
+                          {combinedHeaders?.find(h => h.column === column)?.sampleData && (
+                            <div className="text-xs text-muted-foreground">
+                              Example: {combinedHeaders.find(h => h.column === column)?.sampleData}
+                            </div>
+                          )}
+                        </div>
+                      </TableHead>
+                    );
+                  })}
                 </TableRow>
               </TableHeader>
               <TableBody>
