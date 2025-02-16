@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -46,7 +45,6 @@ export function HierarchyTable({
     return String(value);
   };
 
-  // Get unique values for a column with safety checks
   const getUniqueValues = (column: string): string[] => {
     if (!data || !column) return [];
     
@@ -62,7 +60,6 @@ export function HierarchyTable({
     return Array.from(values).sort();
   };
 
-  // Filter data based on selected values with safety checks
   const filteredData = data.filter(row => {
     if (!row) return false;
     
@@ -74,7 +71,6 @@ export function HierarchyTable({
     });
   });
 
-  // Toggle filter value
   const toggleFilter = (column: string, value: string) => {
     if (!column || value === undefined) return;
     
@@ -95,13 +91,11 @@ export function HierarchyTable({
     });
   };
 
-  // Calculate pagination
   const totalPages = Math.max(1, Math.ceil(filteredData.length / ROWS_PER_PAGE));
   const startIndex = (currentPage - 1) * ROWS_PER_PAGE;
   const endIndex = Math.min(startIndex + ROWS_PER_PAGE, filteredData.length);
   const currentData = filteredData.slice(startIndex, endIndex);
 
-  // Reset to first page when filters change
   React.useEffect(() => {
     setCurrentPage(1);
   }, [columnFilters]);
@@ -122,16 +116,17 @@ export function HierarchyTable({
                           <Popover>
                             <PopoverTrigger asChild>
                               <Button 
-                                variant="ghost" 
+                                variant="outline" 
                                 size="sm"
                                 className={cn(
-                                  "h-8 w-8 p-0",
-                                  columnFilters[column]?.size ? "text-primary" : "text-muted-foreground"
+                                  "ml-2 h-8 px-2 lg:px-3",
+                                  columnFilters[column]?.size ? "bg-primary/20 hover:bg-primary/20" : ""
                                 )}
                               >
-                                <Filter className="h-4 w-4" />
+                                <Filter className="h-4 w-4 mr-2" />
+                                <span className="hidden lg:inline">Filter</span>
                                 {columnFilters[column]?.size > 0 && (
-                                  <span className="absolute -right-1 -top-1 h-4 w-4 rounded-full bg-primary text-[10px] text-primary-foreground">
+                                  <span className="ml-1 rounded-full bg-primary w-4 h-4 text-[10px] flex items-center justify-center text-primary-foreground">
                                     {columnFilters[column].size}
                                   </span>
                                 )}
@@ -164,13 +159,11 @@ export function HierarchyTable({
                             </PopoverContent>
                           </Popover>
                         </div>
-                        <div className="text-xs text-muted-foreground">
-                          {combinedHeaders?.find(h => h.column === column)?.sampleData && (
-                            <div className="text-xs text-muted-foreground">
-                              Example: {combinedHeaders.find(h => h.column === column)?.sampleData}
-                            </div>
-                          )}
-                        </div>
+                        {combinedHeaders?.find(h => h.column === column)?.sampleData && (
+                          <div className="text-xs text-muted-foreground">
+                            Example: {combinedHeaders.find(h => h.column === column)?.sampleData}
+                          </div>
+                        )}
                       </div>
                     </TableHead>
                   ))}
@@ -203,7 +196,6 @@ export function HierarchyTable({
         </ScrollArea>
       </div>
 
-      {/* Pagination Controls */}
       <div className="flex items-center justify-between px-2">
         <div className="text-sm text-muted-foreground">
           Showing {startIndex + 1} to {endIndex} of {filteredData.length} entries
