@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from "react";
-import { Download, Trash2, AlertCircle } from "lucide-react";
+import { Download, Trash, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -208,7 +209,7 @@ export function SavedLocationFiles() {
                 disabled={isLoading}
                 className="h-8 w-8 hover:bg-primary/10"
               >
-                <Download className="h-4 w-4 text-primary" />
+                <Download className="h-4 w-4 text-primary stroke-[1.5]" />
               </Button>
               <Button
                 variant="ghost"
@@ -217,7 +218,7 @@ export function SavedLocationFiles() {
                 disabled={isLoading}
                 className="h-8 w-8 hover:bg-destructive/10"
               >
-                <Trash2 className="h-4 w-4 text-destructive" />
+                <Trash className="h-4 w-4 text-destructive stroke-[1.5]" />
               </Button>
             </div>
           </div>
