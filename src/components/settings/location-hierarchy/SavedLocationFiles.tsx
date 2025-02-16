@@ -14,6 +14,11 @@ interface SavedFile {
   original_name: string;
   created_at: string;
   file_size?: number;
+  temp_upload_id?: string | null;
+  is_active: boolean;
+  metadata: any;
+  file_type: string;
+  created_by: string;
 }
 
 interface LocationData {
@@ -72,15 +77,20 @@ export function SavedLocationFiles() {
 
       if (deleteError) throw deleteError;
 
-      // Also delete any associated temporary uploads
-      if (fileData?.temp_upload_id) {
-        const { error: tempDeleteError } = await supabase
-          .from('temp_hierarchy_uploads')
-          .delete()
-          .eq('id', fileData.temp_upload_id);
+      // Only attempt to delete temporary upload if temp_upload_id exists and is not null
+      if (fileData && fileData.temp_upload_id) {
+        try {
+          const { error: tempDeleteError } = await supabase
+            .from('temp_hierarchy_uploads')
+            .delete()
+            .eq('id', fileData.temp_upload_id);
 
-        if (tempDeleteError) {
-          console.error('Error deleting temporary upload:', tempDeleteError);
+          if (tempDeleteError) {
+            console.error('Error deleting temporary upload:', tempDeleteError);
+          }
+        } catch (tempError) {
+          console.error('Failed to delete temporary upload:', tempError);
+          // Continue execution even if temp delete fails
         }
       }
 
