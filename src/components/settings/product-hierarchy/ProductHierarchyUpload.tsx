@@ -1,13 +1,13 @@
-
 import { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, Trash2, Save } from 'lucide-react';
+import { Upload, Trash2, Save, Download } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { HierarchyTableView } from '../hierarchy/HierarchyTableView';
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Progress } from "@/components/ui/progress";
+import * as XLSX from 'xlsx';
 
 export function ProductHierarchyUpload() {
   const [file, setFile] = useState<File | null>(null);
@@ -19,7 +19,6 @@ export function ProductHierarchyUpload() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Query for permanent hierarchy data
   const { data: savedHierarchies, refetch: refetchSavedHierarchies } = useQuery({
     queryKey: ['permanentHierarchyData', 'product'],
     queryFn: async () => {
@@ -34,7 +33,6 @@ export function ProductHierarchyUpload() {
     }
   });
 
-  // Query for preview data
   const { data: previewState } = useQuery({
     queryKey: ['productHierarchyPreview'],
     queryFn: () => {
@@ -91,7 +89,6 @@ export function ProductHierarchyUpload() {
       return;
     }
 
-    // Update the preview data in React Query cache
     queryClient.setQueryData(['productHierarchyPreview'], {
       columns: Object.keys(hierarchy.data[0] || {}),
       previewData: hierarchy.data,
@@ -112,14 +109,12 @@ export function ProductHierarchyUpload() {
     setUploadProgress(0);
     setSavedFileName(null);
     
-    // Clear the preview data from React Query cache
     queryClient.setQueryData(['productHierarchyPreview'], {
       columns: [],
       previewData: [],
       combinedHeaders: []
     });
     
-    // Reset the file input
     const fileInput = document.getElementById('product-file') as HTMLInputElement;
     if (fileInput) {
       fileInput.value = '';
@@ -133,10 +128,9 @@ export function ProductHierarchyUpload() {
     }
     
     setIsSaving(true);
-    setSaveProgress(25); // Started saving
-    
+    setSaveProgress(25);
     try {
-      setSaveProgress(50); // Inserting data
+      setSaveProgress(50);
       const { error } = await supabase
         .from('permanent_hierarchy_data')
         .insert({
@@ -147,21 +141,16 @@ export function ProductHierarchyUpload() {
         });
 
       if (error) throw error;
-      setSaveProgress(75); // Data inserted
-
+      setSaveProgress(75);
       toast({
         title: "Success",
         description: `File "${file.name}" saved permanently`,
       });
 
-      // Refresh the saved hierarchies list
       await refetchSavedHierarchies();
-      setSaveProgress(90); // Data refreshed
-      
-      // Clear the current file
+      setSaveProgress(90);
       handleDeleteCurrentFile();
-      setSaveProgress(100); // Process complete
-
+      setSaveProgress(100);
     } catch (error) {
       console.error('Save error:', error);
       toast({
@@ -173,7 +162,7 @@ export function ProductHierarchyUpload() {
       setTimeout(() => {
         setIsSaving(false);
         setSaveProgress(0);
-      }, 1000); // Reset after showing 100% briefly
+      }, 1000);
     }
   };
 
@@ -194,7 +183,6 @@ export function ProductHierarchyUpload() {
       if (uploadError) throw uploadError;
 
       setUploadProgress(60);
-      // Process the hierarchy
       const { data, error } = await supabase.functions.invoke('process-hierarchy', {
         body: { fileName, type: 'product' },
       });
@@ -203,7 +191,6 @@ export function ProductHierarchyUpload() {
 
       setUploadProgress(90);
       if (data.headers) {
-        // Update the preview data in React Query cache
         queryClient.setQueryData(['productHierarchyPreview'], {
           columns: data.headers,
           previewData: data.data || [],
@@ -231,6 +218,42 @@ export function ProductHierarchyUpload() {
         setIsUploading(false);
         setUploadProgress(0);
       }, 1000);
+    }
+  };
+
+  const handleDownloadHierarchy = (hierarchy: any) => {
+    if (!hierarchy.data || !Array.isArray(hierarchy.data)) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Invalid hierarchy data for download",
+      });
+      return;
+    }
+
+    try {
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(hierarchy.data);
+      XLSX.utils.book_append_sheet(wb, ws, "Product Hierarchy");
+      const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(data);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `product_hierarchy_${new Date().toISOString().split('T')[0]}.xlsx`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+      toast({
+        title: "Success",
+        description: "Hierarchy file downloaded successfully",
+      });
+    } catch (error) {
+      console.error('Download error:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to download hierarchy file",
+      });
     }
   };
 
@@ -304,7 +327,6 @@ export function ProductHierarchyUpload() {
         </div>
       </Card>
 
-      {/* Saved Hierarchies Box */}
       {savedHierarchies && savedHierarchies.length > 0 && (
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4">Saved Product Hierarchies</h3>
@@ -322,14 +344,24 @@ export function ProductHierarchyUpload() {
                   Product Hierarchy {new Date(hierarchy.created_at).toLocaleDateString()} 
                   {hierarchy.is_active && <span className="ml-2 text-green-600">(Active)</span>}
                 </Button>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => handleDeleteHierarchy(hierarchy.id)}
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => handleDownloadHierarchy(hierarchy)}
+                    className="text-blue-600 hover:text-blue-600 hover:bg-blue-100"
+                  >
+                    <Download className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => handleDeleteHierarchy(hierarchy.id)}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
