@@ -5,7 +5,7 @@ import { HierarchyTableView } from "../hierarchy/HierarchyTableView";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Save } from "lucide-react";
+import { Filter } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { TableRowData, ColumnHeader } from "../hierarchy/types";
@@ -151,17 +151,18 @@ export function LocationHierarchyUpload() {
             </Badge>
             <div className="flex gap-2">
               <Button
+                variant="ghost"
+                size="icon"
                 onClick={handlePushToFilters}
                 disabled={isUploading}
-                className="h-8 px-3 hover:bg-primary/10"
-                title="Save location hierarchy"
+                className="h-8 w-8 hover:bg-primary/10"
+                title="Push to location filters"
               >
                 {isUploading ? (
-                  <Save className="h-4 w-4 animate-spin" />
+                  <Filter className="h-4 w-4 animate-spin" />
                 ) : (
-                  <Save className="h-4 w-4 text-primary" />
+                  <Filter className="h-4 w-4 text-primary" />
                 )}
-                <span className="ml-2">Save Hierarchy</span>
               </Button>
             </div>
           </div>
