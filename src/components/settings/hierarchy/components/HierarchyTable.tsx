@@ -21,7 +21,7 @@ interface HierarchyTableProps {
 }
 
 export function HierarchyTable({
-  data,
+  data = [], // Provide default empty array
   columns,
   combinedHeaders = [],
   selectedColumns = new Set(columns),
@@ -45,10 +45,14 @@ export function HierarchyTable({
     return String(value);
   };
 
-  // Get unique values for a column
+  // Get unique values for a column with safety checks
   const getUniqueValues = (column: string): string[] => {
+    if (!data || !column) return [];
+    
     const values = new Set<string>();
     data.forEach(row => {
+      if (!row) return;
+      
       const value = row[column];
       if (value !== null && value !== undefined) {
         values.add(String(value));
@@ -57,16 +61,22 @@ export function HierarchyTable({
     return Array.from(values).sort();
   };
 
-  // Filter data based on selected values
+  // Filter data based on selected values with safety checks
   const filteredData = data.filter(row => {
+    if (!row) return false;
+    
     return Object.entries(columnFilters).every(([column, selectedValues]) => {
-      if (selectedValues.size === 0) return true;
-      return selectedValues.has(String(row[column]));
+      if (!selectedValues || selectedValues.size === 0) return true;
+      const value = row[column];
+      if (value === null || value === undefined) return false;
+      return selectedValues.has(String(value));
     });
   });
 
   // Toggle filter value
   const toggleFilter = (column: string, value: string) => {
+    if (!column || value === undefined) return;
+    
     setColumnFilters(prev => {
       const newFilters = { ...prev };
       if (!newFilters[column]) {
@@ -85,10 +95,15 @@ export function HierarchyTable({
   };
 
   // Calculate pagination
-  const totalPages = Math.ceil(filteredData.length / ROWS_PER_PAGE);
+  const totalPages = Math.max(1, Math.ceil(filteredData.length / ROWS_PER_PAGE));
   const startIndex = (currentPage - 1) * ROWS_PER_PAGE;
   const endIndex = Math.min(startIndex + ROWS_PER_PAGE, filteredData.length);
   const currentData = filteredData.slice(startIndex, endIndex);
+
+  // Reset to first page when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [columnFilters]);
 
   return (
     <div className="space-y-4">
