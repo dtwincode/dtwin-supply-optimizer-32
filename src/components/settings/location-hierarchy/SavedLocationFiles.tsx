@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Download, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -79,17 +80,20 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
     try {
       setIsLoading(true);
       
-      setFiles(prevFiles => prevFiles.filter(f => f.id !== fileId));
+      // Immediately update the UI
+      const updatedFiles = files.filter(f => f.id !== fileId);
+      setFiles(updatedFiles);
+      
+      // Close the delete dialog
       setFileToDelete(null);
 
+      // Then update in the database
       const { error } = await supabase
         .from('location_hierarchy_files')
         .update({ is_active: false })
         .eq('id', fileId);
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
       toast({
         title: "Success",
@@ -97,6 +101,7 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
       });
     } catch (error) {
       console.error('Error deleting file:', error);
+      // Revert the local state on error
       fetchSavedFiles();
       toast({
         variant: "destructive",
@@ -218,7 +223,13 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
                 <Download className="h-4 w-4 text-primary stroke-[1.5]" />
               </Button>
               
-              <AlertDialog open={fileToDelete === file.id} onOpenChange={(open) => setFileToDelete(open ? file.id : null)}>
+              <AlertDialog 
+                open={fileToDelete === file.id}
+                onOpenChange={(open) => {
+                  if (!open) setFileToDelete(null);
+                  if (open) setFileToDelete(file.id);
+                }}
+              >
                 <AlertDialogTrigger asChild>
                   <Button
                     variant="ghost"
