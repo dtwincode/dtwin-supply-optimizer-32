@@ -22,15 +22,6 @@ export function HierarchyTableView({
 
   return (
     <Card className="p-6">
-      <div className="flex items-center mb-6">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Data Preview</h2>
-          <p className="text-muted-foreground">
-            Showing all {data.length} rows
-          </p>
-        </div>
-      </div>
-
       <ColumnSelector
         tableName={tableName}
         combinedHeaders={combinedHeaders}
