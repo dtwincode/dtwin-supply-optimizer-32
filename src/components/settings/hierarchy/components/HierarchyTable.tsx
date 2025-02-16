@@ -126,6 +126,8 @@ export function HierarchyTable({
                 <TableRow>
                   {columns.map((column) => {
                     const uniqueValues = getUniqueValues(column);
+                    const hasFilters = columnFilters[column]?.size > 0;
+
                     return (
                       <TableHead key={column} className="min-w-[200px] sticky top-0 bg-background">
                         <div className="space-y-2 py-2">
@@ -143,12 +145,12 @@ export function HierarchyTable({
                                   size="sm"
                                   className={cn(
                                     "ml-2 h-8 px-2 lg:px-3",
-                                    columnFilters[column]?.size ? "bg-primary/20 hover:bg-primary/20" : ""
+                                    hasFilters ? "bg-primary/20 hover:bg-primary/20" : ""
                                   )}
                                 >
                                   <Filter className="h-4 w-4 mr-2" />
                                   <span className="hidden lg:inline">Filter</span>
-                                  {columnFilters[column]?.size > 0 && (
+                                  {hasFilters && (
                                     <span className="ml-1 rounded-full bg-primary w-4 h-4 text-[10px] flex items-center justify-center text-primary-foreground">
                                       {columnFilters[column].size}
                                     </span>
@@ -156,28 +158,32 @@ export function HierarchyTable({
                                 </Button>
                               </PopoverTrigger>
                               <PopoverContent className="w-[200px] p-0" align="start">
-                                <Command>
+                                <Command shouldFilter={false}>
                                   <CommandEmpty>No values found.</CommandEmpty>
-                                  <CommandGroup>
-                                    {uniqueValues.map((value) => (
-                                      <CommandItem
-                                        key={value}
-                                        value={value}
-                                        onSelect={() => toggleFilter(column, value)}
-                                      >
-                                        <div className="flex items-center gap-2">
-                                          <div className={cn(
-                                            "h-4 w-4 border rounded-sm flex items-center justify-center",
-                                            columnFilters[column]?.has(value) ? "bg-primary border-primary" : "border-input"
-                                          )}>
-                                            {columnFilters[column]?.has(value) && (
-                                              <Check className="h-3 w-3 text-primary-foreground" />
-                                            )}
+                                  <CommandGroup heading="Select values">
+                                    {uniqueValues.map((value) => {
+                                      const isSelected = columnFilters[column]?.has(value) || false;
+                                      return (
+                                        <CommandItem
+                                          key={value}
+                                          onSelect={() => {
+                                            toggleFilter(column, value);
+                                          }}
+                                        >
+                                          <div className="flex items-center gap-2">
+                                            <div className={cn(
+                                              "h-4 w-4 border rounded-sm flex items-center justify-center",
+                                              isSelected ? "bg-primary border-primary" : "border-input"
+                                            )}>
+                                              {isSelected && (
+                                                <Check className="h-3 w-3 text-primary-foreground" />
+                                              )}
+                                            </div>
+                                            <span>{value}</span>
                                           </div>
-                                          <span>{value}</span>
-                                        </div>
-                                      </CommandItem>
-                                    ))}
+                                        </CommandItem>
+                                      );
+                                    })}
                                   </CommandGroup>
                                 </Command>
                               </PopoverContent>
