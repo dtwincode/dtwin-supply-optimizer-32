@@ -38,7 +38,7 @@ export function LocationHierarchyUpload() {
       return data;
     },
     staleTime: 0,
-    cacheTime: 0
+    gcTime: 0
   });
 
   // Query for all saved hierarchies
@@ -55,7 +55,7 @@ export function LocationHierarchyUpload() {
       return data;
     },
     staleTime: 0,
-    cacheTime: 0
+    gcTime: 0
   });
 
   useEffect(() => {
