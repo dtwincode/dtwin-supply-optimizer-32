@@ -1,7 +1,8 @@
 
+import * as React from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { type ReactNode, useState } from 'react';
+import { type ReactNode } from 'react';
 import { ColumnHeader, TableRowData } from "../types";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,8 +28,8 @@ export function HierarchyTable({
   selectedColumns = new Set(columns),
 }: HierarchyTableProps) {
   const ROWS_PER_PAGE = 15;
-  const [currentPage, setCurrentPage] = useState(1);
-  const [columnFilters, setColumnFilters] = useState<Record<string, Set<string>>>({});
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [columnFilters, setColumnFilters] = React.useState<Record<string, Set<string>>>({});
 
   const getRowKey = (row: TableRowData, index: number): string => {
     const id = row.id !== undefined ? String(row.id) : String(index);
