@@ -160,6 +160,8 @@ export function DataUploadDialog({ module, onDataUploaded }: DataUploadDialogPro
               progress={progress}
               file={file}
               hasValidationErrors={validationErrors.length > 0}
+              allowedFileTypes={[".csv"]}
+              maxFileSize={5}
             />
 
             <ValidationErrorDisplay errors={validationErrors} />
