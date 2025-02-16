@@ -45,7 +45,7 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
   const [files, setFiles] = useState<SavedFile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isOpen, setIsOpen] = useState(false);
+  const [fileToDelete, setFileToDelete] = useState<string | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -79,9 +79,8 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
     try {
       setIsLoading(true);
       
-      const updatedFiles = files.filter(f => f.id !== fileId);
-      setFiles(updatedFiles);
-      setIsOpen(false);
+      setFiles(prevFiles => prevFiles.filter(f => f.id !== fileId));
+      setFileToDelete(null);
 
       const { error } = await supabase
         .from('location_hierarchy_files')
@@ -219,7 +218,7 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
                 <Download className="h-4 w-4 text-primary stroke-[1.5]" />
               </Button>
               
-              <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+              <AlertDialog open={fileToDelete === file.id} onOpenChange={(open) => setFileToDelete(open ? file.id : null)}>
                 <AlertDialogTrigger asChild>
                   <Button
                     variant="ghost"
