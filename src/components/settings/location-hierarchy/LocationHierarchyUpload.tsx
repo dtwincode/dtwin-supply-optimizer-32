@@ -136,11 +136,9 @@ export function LocationHierarchyUpload() {
 
       {uploadedData.length > 0 && (
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Badge variant="secondary" className="h-7">
-              {uploadedData.length} records
-            </Badge>
-          </div>
+          <Badge variant="secondary" className="h-7">
+            {uploadedData.length} records
+          </Badge>
           <HierarchyTableView 
             data={uploadedData}
             tableName="location_hierarchy"
