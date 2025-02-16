@@ -5,7 +5,7 @@ import { HierarchyTableView } from "../hierarchy/HierarchyTableView";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Save, Upload, FileCheck2 } from "lucide-react";
+import { Save, Upload, FileCheck2, Filter } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -68,26 +68,6 @@ export function LocationHierarchyUpload() {
             Upload and manage your location hierarchy data
           </p>
         </div>
-        {uploadedData.length > 0 && (
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="h-7">
-              {uploadedData.length} records
-            </Badge>
-            <Button
-              onClick={handlePushToFilters}
-              disabled={isUploading}
-              size="sm"
-              className="h-7"
-            >
-              {isUploading ? (
-                <Upload className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <FileCheck2 className="h-4 w-4 mr-2" />
-              )}
-              Push to Filters
-            </Button>
-          </div>
-        )}
       </div>
 
       <FileUpload
@@ -97,7 +77,28 @@ export function LocationHierarchyUpload() {
       />
 
       {uploadedData.length > 0 && (
-        <HierarchyTableView data={uploadedData} />
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Badge variant="secondary" className="h-7">
+              {uploadedData.length} records
+            </Badge>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handlePushToFilters}
+              disabled={isUploading}
+              className="h-8 w-8 hover:bg-primary/10"
+              title="Push to location filters"
+            >
+              {isUploading ? (
+                <Upload className="h-4 w-4 animate-spin" />
+              ) : (
+                <Filter className="h-4 w-4 text-primary" />
+              )}
+            </Button>
+          </div>
+          <HierarchyTableView data={uploadedData} />
+        </div>
       )}
     </div>
   );
