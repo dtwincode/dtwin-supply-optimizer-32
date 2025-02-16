@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -143,19 +144,7 @@ export const ForecastFilters = ({
                     searchQuery={searchQuery}
                     setSearchQuery={setSearchQuery}
                   />
-                  <LocationFilter
-                    selectedFilters={{
-                      region: selectedRegion,
-                      city: selectedCity,
-                    }}
-                    onFilterChange={(field, value) => {
-                      if (field === 'region') {
-                        setSelectedRegion(value);
-                      } else if (field === 'city') {
-                        setSelectedCity(value);
-                      }
-                    }}
-                  />
+                  <LocationFilter />
                 </div>
 
                 <div className="flex gap-4">
