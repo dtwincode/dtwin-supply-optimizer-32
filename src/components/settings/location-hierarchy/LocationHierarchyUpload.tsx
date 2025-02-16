@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { FileUpload } from "../upload/FileUpload";
 import { HierarchyTableView } from "../hierarchy/HierarchyTableView";
@@ -51,7 +52,9 @@ export function LocationHierarchyUpload() {
       
       if (error) throw error;
       return data;
-    }
+    },
+    // Add this to ensure the data is always fresh
+    staleTime: 0,
   });
 
   useEffect(() => {
@@ -120,8 +123,11 @@ export function LocationHierarchyUpload() {
 
       if (error) throw error;
 
-      queryClient.invalidateQueries({ queryKey: ['locationHierarchies'] });
-      queryClient.invalidateQueries({ queryKey: ['latestHierarchyData', 'location'] });
+      // Immediately invalidate and refetch the queries
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['locationHierarchies'] }),
+        queryClient.invalidateQueries({ queryKey: ['latestHierarchyData', 'location'] })
+      ]);
 
       toast({
         title: "Success",
