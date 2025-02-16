@@ -15,6 +15,10 @@ interface SavedFile {
   file_size?: number;
 }
 
+interface LocationData {
+  [key: string]: string | number | boolean | null;
+}
+
 export function SavedLocationFiles() {
   const [files, setFiles] = useState<SavedFile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -89,13 +93,17 @@ export function SavedLocationFiles() {
         throw new Error('No data found');
       }
 
-      const locationData = hierarchyData[0].data;
+      const locationData = hierarchyData[0].data as LocationData[];
+
+      if (!Array.isArray(locationData) || locationData.length === 0) {
+        throw new Error('Invalid data format');
+      }
 
       // Convert data to CSV
       const headers = Object.keys(locationData[0]);
       const csvContent = [
         headers.join(','), // Header row
-        ...locationData.map((row: any) => 
+        ...locationData.map((row) => 
           headers.map(header => {
             const value = row[header];
             // Handle special characters and commas in the value
