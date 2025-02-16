@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,7 +10,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { Loader2, UploadCloud } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface FilterValue {
   [key: string]: string;
@@ -30,14 +33,11 @@ interface LocationData {
   location_type?: string;
 }
 
-interface DatabaseLocationData {
-  data: LocationData[];
-}
-
 export function LocationFilter({
   selectedFilters,
   onFilterChange,
 }: LocationFilterProps) {
+  const navigate = useNavigate();
   const [filterOptions, setFilterOptions] = useState<{ [key: string]: Set<string> }>({
     region: new Set(),
     city: new Set(),
@@ -95,6 +95,29 @@ export function LocationFilter({
       setFilterOptions(options);
     }
   }, [locationData]);
+
+  // If there's no data yet, show a message directing user to upload data
+  if (locationData && locationData.length === 0) {
+    return (
+      <Card className="p-6 w-full">
+        <div className="flex flex-col items-center justify-center space-y-4 py-8">
+          <UploadCloud className="h-12 w-12 text-muted-foreground" />
+          <div className="text-center">
+            <h3 className="font-semibold mb-1">No Location Data Available</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Please upload your location hierarchy data first
+            </p>
+            <Button 
+              variant="outline"
+              onClick={() => navigate('/settings')}
+            >
+              Go to Settings
+            </Button>
+          </div>
+        </div>
+      </Card>
+    );
+  }
 
   if (error) {
     console.error('Query error:', error);
