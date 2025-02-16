@@ -44,7 +44,7 @@ const Settings = () => {
         .from('temp_hierarchy_uploads')
         .delete()
         .is('id', null)
-        .neq('id', null); // This ensures we only delete records with valid IDs
+        .neq('id', null);
 
       if (error) {
         console.error('Error deleting temporary uploads:', error);
@@ -127,9 +127,10 @@ const Settings = () => {
         
         <Card className="p-6">
           <Tabs defaultValue="location" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
+            <TabsList className="grid w-full grid-cols-3 lg:w-[600px]">
               <TabsTrigger value="location">Location Hierarchy</TabsTrigger>
               <TabsTrigger value="product">Product Hierarchy</TabsTrigger>
+              <TabsTrigger value="historical-sales">Historical Sales</TabsTrigger>
             </TabsList>
 
             <TabsContent value="location" className="space-y-4">
@@ -138,6 +139,16 @@ const Settings = () => {
 
             <TabsContent value="product" className="space-y-4">
               <ProductHierarchyUpload />
+            </TabsContent>
+
+            <TabsContent value="historical-sales" className="space-y-4">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Historical Sales Data</h3>
+                <p className="text-muted-foreground">
+                  Upload and manage your historical sales data for analysis and forecasting.
+                </p>
+                {/* Historical Sales upload component will go here */}
+              </div>
             </TabsContent>
           </Tabs>
         </Card>
