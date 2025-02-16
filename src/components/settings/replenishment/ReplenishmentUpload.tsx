@@ -4,22 +4,26 @@ import { FileUpload } from "../upload/FileUpload";
 import { HierarchyTableView } from "../hierarchy/HierarchyTableView";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { Filter, Save } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 import { TableRowData } from "../hierarchy/types";
 
 export function ReplenishmentUpload() {
   const [uploadedData, setUploadedData] = useState<TableRowData[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [savedFileName, setSavedFileName] = useState<string | null>(null);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const sanitizeValue = (value: any): any => {
     if (value === null || value === undefined) return '';
     
     if (typeof value === 'string') {
-      // Remove null bytes and invalid characters
       return value
-        .replace(/\u0000/g, '') // Remove null bytes
-        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '') // Remove control characters
+        .replace(/\u0000/g, '')
+        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '')
         .trim();
     }
     
@@ -37,41 +41,51 @@ export function ReplenishmentUpload() {
     return value;
   };
 
-  const handleUploadComplete = async (data: TableRowData[]) => {
+  const handleUploadComplete = (data: TableRowData[]) => {
+    const sanitizedData = data.map(row => {
+      const cleanRow: TableRowData = {};
+      Object.entries(row).forEach(([key, value]) => {
+        cleanRow[key] = sanitizeValue(value);
+      });
+      return cleanRow;
+    });
+    setUploadedData(sanitizedData);
+    setSavedFileName(`replenishment_${new Date().getTime()}`);
+  };
+
+  const handlePushToSystem = async () => {
     setIsUploading(true);
     try {
-      // Sanitize the data before sending to Supabase
-      const sanitizedData = data.map(row => {
-        const cleanRow: TableRowData = {};
-        Object.entries(row).forEach(([key, value]) => {
-          cleanRow[key] = sanitizeValue(value);
-        });
-        return cleanRow;
-      });
+      // First, mark all existing replenishment data as inactive
+      await supabase
+        .from('permanent_hierarchy_data')
+        .update({ is_active: false })
+        .eq('hierarchy_type', 'replenishment');
 
-      console.log('Uploading sanitized data:', sanitizedData);
-
+      // Then insert the new data
       const { error } = await supabase
-        .from('replenishment_data')
+        .from('permanent_hierarchy_data')
         .insert({
-          data: sanitizedData,
+          hierarchy_type: 'replenishment',
+          data: uploadedData,
           is_active: true,
           version: 1
         });
 
       if (error) throw error;
 
-      setUploadedData(sanitizedData);
+      queryClient.invalidateQueries({ queryKey: ['replenishmentData'] });
+
       toast({
         title: "Success",
-        description: "Replenishment data uploaded successfully",
+        description: "Replenishment data has been updated successfully",
       });
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error('Error pushing replenishment data:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to upload replenishment data",
+        description: "Failed to update replenishment data"
       });
     } finally {
       setIsUploading(false);
@@ -110,6 +124,22 @@ export function ReplenishmentUpload() {
             <Badge variant="secondary" className="h-7">
               {uploadedData.length} records
             </Badge>
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handlePushToSystem}
+                disabled={isUploading}
+                className="h-8 w-8 hover:bg-primary/10"
+                title="Save to system"
+              >
+                {isUploading ? (
+                  <Save className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4 text-primary" />
+                )}
+              </Button>
+            </div>
           </div>
           <HierarchyTableView 
             data={uploadedData}
