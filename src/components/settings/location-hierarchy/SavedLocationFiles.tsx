@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import type { Json } from "@/integrations/supabase/types";
 
 interface SavedFile {
   id: string;
@@ -16,7 +17,7 @@ interface SavedFile {
   file_size: number;
   temp_upload_id: string | null;
   is_active: boolean;
-  metadata: Record<string, unknown>;
+  metadata: Json;
   file_type: string;
   created_by: string;
 }
