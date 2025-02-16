@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from "react";
-import { MenuIcon, X, Home, TrendingUp, Package, LineChart, Gift, Truck, FileText, Search, Settings, TicketPlus, LogOut } from "lucide-react";
+import { MenuIcon, X, Home, TrendingUp, Package, LineChart, Gift, Truck, FileText, Search, Database, TicketPlus, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FloatingAskAI } from "./ai/FloatingAskAI";
 import { ThemeToggle } from "./ThemeToggle";
@@ -21,7 +20,7 @@ const navigationItems = [
   { name: "navigationItems.logistics", icon: Truck, href: "/logistics" },
   { name: "navigationItems.reports", icon: FileText, href: "/reports" },
   { name: "navigationItems.askAI", icon: Search, href: "/ask-ai" },
-  { name: "navigationItems.settings", icon: Settings, href: "/settings" },
+  { name: "navigationItems.settings", icon: Database, href: "/settings" },
 ];
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
@@ -38,7 +37,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     }
   }, [user, navigate]);
 
-  // Get current module name based on location
   const getCurrentModuleName = () => {
     const currentPath = location.pathname;
     const currentModule = navigationItems.find(item => 
