@@ -6,7 +6,7 @@ import { LocationHierarchyUpload } from "@/components/settings/location-hierarch
 import { ProductHierarchyUpload } from "@/components/settings/product-hierarchy/ProductHierarchyUpload";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, Clock, Timer } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
@@ -127,10 +127,18 @@ const Settings = () => {
         
         <Card className="p-6">
           <Tabs defaultValue="location" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3 lg:w-[600px]">
+            <TabsList className="grid w-full grid-cols-5 lg:w-[800px]">
               <TabsTrigger value="location">Location Hierarchy</TabsTrigger>
               <TabsTrigger value="product">Product Hierarchy</TabsTrigger>
               <TabsTrigger value="historical-sales">Historical Sales</TabsTrigger>
+              <TabsTrigger value="lead-time" className="flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                Lead Time
+              </TabsTrigger>
+              <TabsTrigger value="replenishment-time" className="flex items-center gap-2">
+                <Timer className="h-4 w-4" />
+                Replenishment
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="location" className="space-y-4">
@@ -148,6 +156,34 @@ const Settings = () => {
                   Upload and manage your historical sales data for analysis and forecasting.
                 </p>
                 {/* Historical Sales upload component will go here */}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="lead-time" className="space-y-4">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Lead Time Settings</h3>
+                <p className="text-muted-foreground">
+                  Configure and manage lead time calculations and predictions for your supply chain.
+                </p>
+                <Card className="p-4">
+                  <div className="space-y-4">
+                    <p>Lead time configuration options will be implemented here.</p>
+                  </div>
+                </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="replenishment-time" className="space-y-4">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Replenishment Time Settings</h3>
+                <p className="text-muted-foreground">
+                  Manage replenishment time calculations and configure automated reordering parameters.
+                </p>
+                <Card className="p-4">
+                  <div className="space-y-4">
+                    <p>Replenishment time configuration options will be implemented here.</p>
+                  </div>
+                </Card>
               </div>
             </TabsContent>
           </Tabs>
