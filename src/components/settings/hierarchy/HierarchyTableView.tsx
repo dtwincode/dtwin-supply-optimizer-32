@@ -70,7 +70,7 @@ export function HierarchyTableView({
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Data Preview</h2>
           <p className="text-muted-foreground">
-            Showing 1 to {Math.min(50, data.length)} of {data.length} rows
+            Showing all {data.length} rows
           </p>
         </div>
       </div>
