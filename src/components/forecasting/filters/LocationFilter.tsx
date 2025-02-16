@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -49,13 +48,16 @@ export function LocationFilter({
     location_type: new Set(),
   });
 
-  const { data: locationData, isLoading } = useQuery({
+  const { data: locationData, isLoading, error } = useQuery({
     queryKey: ['locations'],
     queryFn: async () => {
+      console.log('Fetching location data...');
       const { data, error } = await supabase
         .from('location_hierarchy')
-        .select('warehouse, city, region, channel, sub_channel, country, location_type')
-        .eq('active', true);
+        .select('warehouse, city, region, channel, sub_channel, country, location_type');
+      
+      console.log('Fetched data:', data);
+      console.log('Error if any:', error);
 
       if (error) {
         console.error('Error fetching location data:', error);
@@ -67,6 +69,7 @@ export function LocationFilter({
   });
 
   useEffect(() => {
+    console.log('Location data in effect:', locationData);
     if (locationData) {
       const options: { [key: string]: Set<string> } = {
         region: new Set(),
@@ -88,9 +91,19 @@ export function LocationFilter({
         if (location.location_type) options.location_type.add(location.location_type);
       });
 
+      console.log('Filter options after processing:', options);
       setFilterOptions(options);
     }
   }, [locationData]);
+
+  if (error) {
+    console.error('Query error:', error);
+    return (
+      <Card className="p-6 w-full">
+        <div className="text-red-500">Error loading location data</div>
+      </Card>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -102,6 +115,8 @@ export function LocationFilter({
       </Card>
     );
   }
+
+  console.log('Current filter options:', filterOptions);
 
   return (
     <Card className="p-6 w-full">
