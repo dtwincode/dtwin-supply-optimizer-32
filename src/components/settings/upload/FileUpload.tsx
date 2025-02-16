@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Upload } from "lucide-react";
 import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface FileUploadProps {
   onUploadComplete?: (data: any[]) => void;
@@ -108,6 +108,10 @@ export function FileUpload({
 
         onUploadComplete?.(data);
         setProgress(100);
+        toast({
+          title: "Upload Complete",
+          description: "Your file has been successfully processed.",
+        });
         setIsValidating(false);
       };
 
@@ -146,7 +150,7 @@ export function FileUpload({
         <div className="space-y-2">
           <Progress value={currentProgress} className="w-full" />
           <p className="text-sm text-muted-foreground text-center">
-            {currentIsValidating ? "Validating and processing data..." : "Processing complete"}
+            {currentIsValidating ? "Validating and processing data..." : `Processing ${Math.round(currentProgress)}% complete`}
           </p>
         </div>
       )}
