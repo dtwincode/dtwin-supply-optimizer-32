@@ -7,26 +7,43 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 
 interface FileUploadProps {
-  onUploadComplete: (data: any[]) => void;
+  onUploadComplete?: (data: any[]) => void;
+  onFileSelect?: (selectedFile: File) => void;
+  onProcessUpload?: () => Promise<void>;
   allowedFileTypes: string[];
   maxFileSize: number;
+  isValidating?: boolean;
+  progress?: number;
+  file?: File | null;
+  hasValidationErrors?: boolean;
 }
 
 export function FileUpload({
   onUploadComplete,
+  onFileSelect,
+  onProcessUpload,
   allowedFileTypes,
   maxFileSize,
+  isValidating: externalIsValidating,
+  progress: externalProgress,
+  file: externalFile,
+  hasValidationErrors
 }: FileUploadProps) {
   const [isValidating, setIsValidating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [file, setFile] = useState<File | null>(null);
   const { toast } = useToast();
 
+  // Use external state if provided, otherwise use internal state
+  const currentIsValidating = externalIsValidating ?? isValidating;
+  const currentProgress = externalProgress ?? progress;
+  const currentFile = externalFile ?? file;
+
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
+    const selectedFile = event.target.files?.[0];
+    if (selectedFile) {
       // Check file type
-      const fileExtension = file.name.split('.').pop()?.toLowerCase();
+      const fileExtension = selectedFile.name.split('.').pop()?.toLowerCase();
       if (!allowedFileTypes.includes(`.${fileExtension}`)) {
         toast({
           variant: "destructive",
@@ -37,7 +54,7 @@ export function FileUpload({
       }
 
       // Check file size (in MB)
-      if (file.size > maxFileSize * 1024 * 1024) {
+      if (selectedFile.size > maxFileSize * 1024 * 1024) {
         toast({
           variant: "destructive",
           title: "File Too Large",
@@ -46,12 +63,21 @@ export function FileUpload({
         return;
       }
 
-      setFile(file);
-      processFile(file);
+      if (onFileSelect) {
+        onFileSelect(selectedFile);
+      } else {
+        setFile(selectedFile);
+        processFile(selectedFile);
+      }
     }
   };
 
-  const processFile = async (file: File) => {
+  const processFile = async (selectedFile: File) => {
+    if (onProcessUpload) {
+      await onProcessUpload();
+      return;
+    }
+
     setIsValidating(true);
     setProgress(0);
     
@@ -80,7 +106,7 @@ export function FileUpload({
             }, {} as Record<string, string>);
           });
 
-        onUploadComplete(data);
+        onUploadComplete?.(data);
         setProgress(100);
         setIsValidating(false);
       };
@@ -94,7 +120,7 @@ export function FileUpload({
         setIsValidating(false);
       };
 
-      reader.readAsText(file);
+      reader.readAsText(selectedFile);
     } catch (error) {
       console.error('Error processing file:', error);
       toast({
@@ -113,16 +139,26 @@ export function FileUpload({
         accept={allowedFileTypes.join(',')}
         onChange={handleFileSelect}
         className="cursor-pointer"
-        disabled={isValidating}
+        disabled={currentIsValidating}
       />
 
-      {isValidating && (
+      {(currentIsValidating || currentProgress > 0) && (
         <div className="space-y-2">
-          <Progress value={progress} className="w-full" />
+          <Progress value={currentProgress} className="w-full" />
           <p className="text-sm text-muted-foreground text-center">
-            Validating and processing data...
+            {currentIsValidating ? "Validating and processing data..." : "Processing complete"}
           </p>
         </div>
+      )}
+
+      {hasValidationErrors && currentFile && onProcessUpload && (
+        <Button
+          onClick={onProcessUpload}
+          disabled={currentIsValidating}
+          className="w-full"
+        >
+          Process File
+        </Button>
       )}
     </div>
   );
