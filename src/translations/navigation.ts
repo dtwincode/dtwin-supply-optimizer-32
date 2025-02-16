@@ -35,7 +35,7 @@ export const navigationTranslations: NavigationItems = {
     ar: "اسأل الذكاء الاصطناعي"
   },
   settings: {
-    en: "Settings",
-    ar: "الإعدادات"
+    en: "Data Management & Configuration",
+    ar: "إدارة البيانات والإعدادات"
   }
 };
