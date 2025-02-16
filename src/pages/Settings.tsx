@@ -43,9 +43,18 @@ const Settings = () => {
       const { error } = await supabase
         .from('temp_hierarchy_uploads')
         .delete()
-        .neq('id', ''); // Delete all temporary uploads
+        .is('id', null)
+        .neq('id', null); // This ensures we only delete records with valid IDs
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error deleting temporary uploads:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to delete temporary uploads",
+        });
+        return;
+      }
 
       queryClient.invalidateQueries({ queryKey: ['hierarchyData'] });
       toast({
