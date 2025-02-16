@@ -21,6 +21,11 @@ interface LocationFilterProps {
   cities: { [key: string]: string[] };
 }
 
+interface LocationData {
+  region: string;
+  city: string;
+}
+
 export function LocationFilter({
   selectedRegion,
   setSelectedRegion,
@@ -42,20 +47,20 @@ export function LocationFilter({
         throw versionError;
       }
 
-      if (!activeVersionData) {
+      if (!activeVersionData || !Array.isArray(activeVersionData.data)) {
         return {
           regions: [],
           cities: {}
         };
       }
 
-      // Process the hierarchical data
-      const hierarchyData = activeVersionData.data;
+      // Process the hierarchical data with proper typing
+      const hierarchyData = activeVersionData.data as LocationData[];
       const uniqueRegions = new Set<string>();
       const citiesByRegion: { [key: string]: Set<string> } = {};
 
       // Extract unique regions and cities from the hierarchy data
-      hierarchyData.forEach((row: any) => {
+      hierarchyData.forEach((row: LocationData) => {
         if (row.region) {
           uniqueRegions.add(row.region);
           if (!citiesByRegion[row.region]) {
