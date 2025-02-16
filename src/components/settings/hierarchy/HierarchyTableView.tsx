@@ -1,12 +1,7 @@
 
 import { Card } from "@/components/ui/card";
-import { Save } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { TableRowData, ColumnHeader } from "./types";
 import { HierarchyTable } from "./components/HierarchyTable";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { ColumnSelector } from "./components/ColumnSelector";
 
@@ -23,46 +18,7 @@ export function HierarchyTableView({
   columns, 
   combinedHeaders 
 }: HierarchyTableViewProps) {
-  const { toast } = useToast();
-  const { user } = useAuth();
   const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set(columns));
-
-  const handleSave = async () => {
-    if (!user) {
-      toast({
-        variant: "destructive",
-        title: "Authentication Required",
-        description: "Please log in to save hierarchy data",
-      });
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('permanent_hierarchy_data')
-        .insert({
-          hierarchy_type: tableName,
-          data: data,
-          is_active: true,
-          version: 1,
-          created_at: new Date().toISOString()
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Hierarchy data has been saved permanently",
-      });
-    } catch (error) {
-      console.error('Error saving hierarchy data:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to save hierarchy data"
-      });
-    }
-  };
 
   return (
     <Card className="p-6">
@@ -81,18 +37,6 @@ export function HierarchyTableView({
         selectedColumns={selectedColumns}
         onSelectedColumnsChange={setSelectedColumns}
       />
-
-      <div className="flex items-center gap-4 mb-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleSave}
-          className="gap-2 hover:bg-green-100"
-        >
-          <Save className="h-4 w-4 text-green-600" />
-          Save Permanently
-        </Button>
-      </div>
 
       <div className="space-y-4">
         <HierarchyTable
