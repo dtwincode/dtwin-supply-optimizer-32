@@ -23,9 +23,7 @@ export interface LocationFilterProps {
   onFilterChange: (field: string, value: string) => void;
 }
 
-interface LocationData {
-  [key: string]: string | null;
-}
+type LocationData = Record<string, string | null>;
 
 export function LocationFilter({
   selectedFilters,
@@ -33,7 +31,7 @@ export function LocationFilter({
 }: LocationFilterProps) {
   const navigate = useNavigate();
   const [filterColumns, setFilterColumns] = useState<string[]>([]);
-  const [filterOptions, setFilterOptions] = useState<{ [key: string]: Set<string> }>({});
+  const [filterOptions, setFilterOptions] = useState<Record<string, Set<string>>>({});
 
   const { data: locationData, isLoading, error } = useQuery({
     queryKey: ['locations'],
@@ -54,15 +52,33 @@ export function LocationFilter({
         return null;
       }
 
-      if (!columnSelections) {
+      if (!columnSelections?.selected_columns?.length) {
         return { data: [], columns: [] };
       }
 
-      // Make sure all column names are lowercase
-      const selectedColumns = columnSelections.selected_columns.map(col => col.toLowerCase());
-      console.log('Selected columns:', selectedColumns);
+      // Ensure column names match the database schema
+      const validColumns = [
+        'warehouse',
+        'city',
+        'region',
+        'country',
+        'channel',
+        'sub_channel',
+        'location_type',
+        'location_id'
+      ];
 
-      // Then fetch the location data
+      const selectedColumns = columnSelections.selected_columns
+        .map(col => col.toLowerCase())
+        .filter(col => validColumns.includes(col));
+
+      console.log('Selected valid columns:', selectedColumns);
+
+      if (selectedColumns.length === 0) {
+        return { data: [], columns: [] };
+      }
+
+      // Then fetch the location data with validated columns
       const { data: locationData, error: locationError } = await supabase
         .from('location_hierarchy')
         .select(selectedColumns.join(','));
@@ -80,19 +96,19 @@ export function LocationFilter({
   });
 
   useEffect(() => {
-    if (locationData) {
+    if (locationData?.columns) {
       const { data, columns } = locationData;
-      setFilterColumns(columns || []);
+      setFilterColumns(columns);
       
-      // Initialize filter options only for selected columns
-      const options: { [key: string]: Set<string> } = {};
-      columns?.forEach(column => {
+      // Initialize filter options
+      const options: Record<string, Set<string>> = {};
+      columns.forEach(column => {
         options[column] = new Set<string>();
       });
 
-      // Populate filter options
+      // Populate filter options from the data
       data?.forEach((location: LocationData) => {
-        columns?.forEach(column => {
+        columns.forEach(column => {
           const value = location[column];
           if (value) {
             options[column].add(value);
@@ -104,7 +120,6 @@ export function LocationFilter({
     }
   }, [locationData]);
 
-  // Show message if no data or columns are configured
   if (locationData && (!locationData.data?.length || !locationData.columns?.length)) {
     return (
       <Card className="p-6 w-full">
