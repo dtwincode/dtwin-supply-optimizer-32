@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { Upload } from "lucide-react";
+import { Upload, FileIcon } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -138,17 +138,32 @@ export function FileUpload({
 
   return (
     <div className="flex flex-col gap-4">
-      <Input
-        type="file"
-        accept={allowedFileTypes.join(',')}
-        onChange={handleFileSelect}
-        className="cursor-pointer"
-        disabled={currentIsValidating}
-      />
+      <div className="relative">
+        <Input
+          type="file"
+          accept={allowedFileTypes.join(',')}
+          onChange={handleFileSelect}
+          className="cursor-pointer"
+          disabled={currentIsValidating}
+        />
+        {currentFile && (
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
+            <FileIcon className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground max-w-[150px] truncate">
+              {currentFile.name}
+            </span>
+          </div>
+        )}
+      </div>
 
       {(currentIsValidating || currentProgress > 0) && (
         <div className="space-y-2">
-          <Progress value={currentProgress} className="w-full" />
+          <div className="flex items-center gap-2">
+            <Progress value={currentProgress} className="w-full" />
+            {currentIsValidating && (
+              <Upload className="h-4 w-4 animate-spin text-primary" />
+            )}
+          </div>
           <p className="text-sm text-muted-foreground text-center">
             {currentIsValidating ? "Validating and processing data..." : `Processing ${Math.round(currentProgress)}% complete`}
           </p>
@@ -161,6 +176,7 @@ export function FileUpload({
           disabled={currentIsValidating}
           className="w-full"
         >
+          <Upload className="h-4 w-4 mr-2" />
           Process File
         </Button>
       )}
