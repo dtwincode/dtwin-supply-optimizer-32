@@ -27,6 +27,8 @@ interface LocationData {
   region?: string;
   channel?: string;
   sub_channel?: string;
+  country?: string;
+  location_type?: string;
 }
 
 interface DatabaseLocationData {
@@ -43,6 +45,8 @@ export function LocationFilter({
     warehouse: new Set(),
     channel: new Set(),
     sub_channel: new Set(),
+    country: new Set(),
+    location_type: new Set(),
   });
 
   const { data: locationData, isLoading } = useQuery({
@@ -50,7 +54,7 @@ export function LocationFilter({
     queryFn: async () => {
       const { data, error } = await supabase
         .from('location_hierarchy')
-        .select('warehouse, city, region, channel, sub_channel')
+        .select('warehouse, city, region, channel, sub_channel, country, location_type')
         .eq('active', true);
 
       if (error) {
@@ -70,6 +74,8 @@ export function LocationFilter({
         warehouse: new Set(),
         channel: new Set(),
         sub_channel: new Set(),
+        country: new Set(),
+        location_type: new Set(),
       };
 
       locationData.forEach((location: LocationData) => {
@@ -78,6 +84,8 @@ export function LocationFilter({
         if (location.warehouse) options.warehouse.add(location.warehouse);
         if (location.channel) options.channel.add(location.channel);
         if (location.sub_channel) options.sub_channel.add(location.sub_channel);
+        if (location.country) options.country.add(location.country);
+        if (location.location_type) options.location_type.add(location.location_type);
       });
 
       setFilterOptions(options);
@@ -99,7 +107,27 @@ export function LocationFilter({
     <Card className="p-6 w-full">
       <div className="space-y-4">
         <h3 className="text-lg font-medium mb-4">Location Filters</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Country</label>
+            <Select
+              value={selectedFilters.country || 'all'}
+              onValueChange={(value) => onFilterChange('country', value)}
+            >
+              <SelectTrigger className="bg-background">
+                <SelectValue placeholder="Select country" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All countries</SelectItem>
+                {Array.from(filterOptions.country).sort().map((country) => (
+                  <SelectItem key={country} value={country}>
+                    {country}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="space-y-2">
             <label className="text-sm font-medium">Region</label>
             <Select
@@ -134,6 +162,26 @@ export function LocationFilter({
                 {Array.from(filterOptions.city).sort().map((city) => (
                   <SelectItem key={city} value={city}>
                     {city}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Location Type</label>
+            <Select
+              value={selectedFilters.location_type || 'all'}
+              onValueChange={(value) => onFilterChange('location_type', value)}
+            >
+              <SelectTrigger className="bg-background">
+                <SelectValue placeholder="Select location type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All location types</SelectItem>
+                {Array.from(filterOptions.location_type).sort().map((locationType) => (
+                  <SelectItem key={locationType} value={locationType}>
+                    {locationType}
                   </SelectItem>
                 ))}
               </SelectContent>
