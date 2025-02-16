@@ -24,6 +24,73 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { FileUpload } from "@/components/settings/upload/FileUpload";
+
+// Historical Sales Upload Component
+const HistoricalSalesUpload = () => {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
+          <h3 className="text-xl font-semibold tracking-tight">Historical Sales Data</h3>
+          <p className="text-sm text-muted-foreground">
+            Upload and manage your historical sales data for analysis and forecasting
+          </p>
+        </div>
+      </div>
+
+      <FileUpload
+        onUploadComplete={(data) => console.log('Historical sales data:', data)}
+        allowedFileTypes={[".csv", ".xlsx"]}
+        maxFileSize={5}
+      />
+    </div>
+  );
+};
+
+// Lead Time Upload Component
+const LeadTimeUpload = () => {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
+          <h3 className="text-xl font-semibold tracking-tight">Lead Time Data</h3>
+          <p className="text-sm text-muted-foreground">
+            Configure and manage lead time calculations and predictions for your supply chain
+          </p>
+        </div>
+      </div>
+
+      <FileUpload
+        onUploadComplete={(data) => console.log('Lead time data:', data)}
+        allowedFileTypes={[".csv", ".xlsx"]}
+        maxFileSize={5}
+      />
+    </div>
+  );
+};
+
+// Replenishment Upload Component
+const ReplenishmentUpload = () => {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
+          <h3 className="text-xl font-semibold tracking-tight">Replenishment Data</h3>
+          <p className="text-sm text-muted-foreground">
+            Manage replenishment time calculations and configure automated reordering parameters
+          </p>
+        </div>
+      </div>
+
+      <FileUpload
+        onUploadComplete={(data) => console.log('Replenishment data:', data)}
+        allowedFileTypes={[".csv", ".xlsx"]}
+        maxFileSize={5}
+      />
+    </div>
+  );
+};
 
 const Settings = () => {
   const [isDeleting, setIsDeleting] = useState(false);
@@ -150,41 +217,15 @@ const Settings = () => {
             </TabsContent>
 
             <TabsContent value="historical-sales" className="space-y-4">
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Historical Sales Data</h3>
-                <p className="text-muted-foreground">
-                  Upload and manage your historical sales data for analysis and forecasting.
-                </p>
-                {/* Historical Sales upload component will go here */}
-              </div>
+              <HistoricalSalesUpload />
             </TabsContent>
 
             <TabsContent value="lead-time" className="space-y-4">
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Lead Time Settings</h3>
-                <p className="text-muted-foreground">
-                  Configure and manage lead time calculations and predictions for your supply chain.
-                </p>
-                <Card className="p-4">
-                  <div className="space-y-4">
-                    <p>Lead time configuration options will be implemented here.</p>
-                  </div>
-                </Card>
-              </div>
+              <LeadTimeUpload />
             </TabsContent>
 
             <TabsContent value="replenishment-time" className="space-y-4">
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Replenishment Time Settings</h3>
-                <p className="text-muted-foreground">
-                  Manage replenishment time calculations and configure automated reordering parameters.
-                </p>
-                <Card className="p-4">
-                  <div className="space-y-4">
-                    <p>Replenishment time configuration options will be implemented here.</p>
-                  </div>
-                </Card>
-              </div>
+              <ReplenishmentUpload />
             </TabsContent>
           </Tabs>
         </Card>
@@ -194,3 +235,4 @@ const Settings = () => {
 };
 
 export default Settings;
+
