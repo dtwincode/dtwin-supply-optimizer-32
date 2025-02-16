@@ -1,7 +1,4 @@
 
-import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { UploadCloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,53 +13,9 @@ export interface LocationFilterProps {
   onFilterChange: (field: string, value: string) => void;
 }
 
-interface LocationData {
-  [key: string]: string | null;
-  warehouse?: string | null;
-  city?: string | null;
-  region?: string | null;
-  country?: string | null;
-  channel?: string | null;
-  sub_channel?: string | null;
-  location_type?: string | null;
-  location_id?: string | null;
-}
-
-export function LocationFilter({
-  selectedFilters,
-  onFilterChange,
-}: LocationFilterProps) {
+export function LocationFilter() {
   const navigate = useNavigate();
 
-  const { data: locationData } = useQuery({
-    queryKey: ['locations'],
-    queryFn: async () => {
-      const { data: permanentData, error: permanentError } = await supabase
-        .from('permanent_hierarchy_data')
-        .select('*')
-        .eq('hierarchy_type', 'location')
-        .eq('is_active', true)
-        .single();
-
-      if (permanentError || !permanentData) {
-        return { data: [], columns: [] };
-      }
-
-      const { data: columnSelections } = await supabase
-        .from('hierarchy_column_selections')
-        .select('selected_columns')
-        .eq('table_name', 'location_hierarchy')
-        .single();
-
-      if (!columnSelections?.selected_columns?.length) {
-        return { data: [], columns: [] };
-      }
-
-      return { data: [], columns: [] };
-    }
-  });
-
-  // Always show the upload prompt when there's no data
   return (
     <Card className="p-6 w-full">
       <div className="flex flex-col items-center justify-center space-y-4 py-8">

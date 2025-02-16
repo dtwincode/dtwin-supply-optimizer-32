@@ -854,15 +854,7 @@ export type Database = {
           selected_columns?: string[]
           temp_upload_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "hierarchy_mappings_temp_upload_id_fkey"
-            columns: ["temp_upload_id"]
-            isOneToOne: false
-            referencedRelation: "temp_hierarchy_uploads"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       hierarchy_versions: {
         Row: {
@@ -1559,45 +1551,6 @@ export type Database = {
         }
         Relationships: []
       }
-      permanent_hierarchy_data: {
-        Row: {
-          created_at: string | null
-          created_by: string | null
-          data: Json
-          hierarchy_type: string
-          id: string
-          is_active: boolean | null
-          metadata: Json | null
-          status: Database["public"]["Enums"]["hierarchy_status"] | null
-          updated_at: string | null
-          version: number
-        }
-        Insert: {
-          created_at?: string | null
-          created_by?: string | null
-          data: Json
-          hierarchy_type: string
-          id?: string
-          is_active?: boolean | null
-          metadata?: Json | null
-          status?: Database["public"]["Enums"]["hierarchy_status"] | null
-          updated_at?: string | null
-          version?: number
-        }
-        Update: {
-          created_at?: string | null
-          created_by?: string | null
-          data?: Json
-          hierarchy_type?: string
-          id?: string
-          is_active?: boolean | null
-          metadata?: Json | null
-          status?: Database["public"]["Enums"]["hierarchy_status"] | null
-          updated_at?: string | null
-          version?: number
-        }
-        Relationships: []
-      }
       prediction_accuracy_tracking: {
         Row: {
           actual_lead_time: number | null
@@ -1990,39 +1943,6 @@ export type Database = {
           previous_classification?: Json | null
           sku?: string
           updated_at?: string | null
-        }
-        Relationships: []
-      }
-      temp_hierarchy_uploads: {
-        Row: {
-          created_at: string | null
-          data: Json
-          file_name: string
-          headers: string[]
-          hierarchy_type: string
-          id: string
-          is_processed: boolean | null
-          original_name: string
-        }
-        Insert: {
-          created_at?: string | null
-          data: Json
-          file_name: string
-          headers: string[]
-          hierarchy_type: string
-          id?: string
-          is_processed?: boolean | null
-          original_name: string
-        }
-        Update: {
-          created_at?: string | null
-          data?: Json
-          file_name?: string
-          headers?: string[]
-          hierarchy_type?: string
-          id?: string
-          is_processed?: boolean | null
-          original_name?: string
         }
         Relationships: []
       }
