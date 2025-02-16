@@ -75,21 +75,44 @@ export function SavedLocationFiles() {
   const handleDownload = async (fileName: string) => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from('location_hierarchy_files')
-        .select('file_name')
-        .eq('file_name', fileName)
-        .single();
+      // First get the data from the permanent hierarchy data table
+      const { data: hierarchyData, error: hierarchyError } = await supabase
+        .from('permanent_hierarchy_data')
+        .select('data')
+        .eq('hierarchy_type', 'location_hierarchy')
+        .order('created_at', { ascending: false })
+        .limit(1);
 
-      if (error) throw error;
+      if (hierarchyError) throw hierarchyError;
+      
+      if (!hierarchyData || hierarchyData.length === 0 || !hierarchyData[0].data) {
+        throw new Error('No data found');
+      }
 
-      // Create a dummy download by creating a blob
-      const content = JSON.stringify(data, null, 2);
-      const blob = new Blob([content], { type: 'application/json' });
+      const locationData = hierarchyData[0].data;
+
+      // Convert data to CSV
+      const headers = Object.keys(locationData[0]);
+      const csvContent = [
+        headers.join(','), // Header row
+        ...locationData.map((row: any) => 
+          headers.map(header => {
+            const value = row[header];
+            // Handle special characters and commas in the value
+            if (typeof value === 'string' && (value.includes(',') || value.includes('"') || value.includes('\n'))) {
+              return `"${value.replace(/"/g, '""')}"`;
+            }
+            return value;
+          }).join(',')
+        )
+      ].join('\n');
+
+      // Create and download the CSV file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = fileName;
+      a.download = `${fileName}.csv`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
