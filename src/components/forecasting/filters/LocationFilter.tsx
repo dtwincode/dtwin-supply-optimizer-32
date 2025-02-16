@@ -23,7 +23,17 @@ export interface LocationFilterProps {
   onFilterChange: (field: string, value: string) => void;
 }
 
-type LocationData = Record<string, string | null>;
+interface LocationData {
+  [key: string]: string | null;
+  warehouse?: string | null;
+  city?: string | null;
+  region?: string | null;
+  country?: string | null;
+  channel?: string | null;
+  sub_channel?: string | null;
+  location_type?: string | null;
+  location_id?: string | null;
+}
 
 export function LocationFilter({
   selectedFilters,
@@ -83,11 +93,11 @@ export function LocationFilter({
         'sub_channel',
         'location_type',
         'location_id'
-      ];
+      ] as const;
 
       const selectedColumns = columnSelections.selected_columns
         .map(col => col.toLowerCase())
-        .filter(col => validColumns.includes(col));
+        .filter(col => validColumns.includes(col as any));
 
       if (selectedColumns.length === 0) {
         return { data: [], columns: [] };
@@ -103,8 +113,19 @@ export function LocationFilter({
         return null;
       }
 
+      // Safely cast the data
+      const safeData = (locationData || []).map(item => {
+        const safeItem: LocationData = {};
+        selectedColumns.forEach(col => {
+          if (item && typeof item === 'object' && col in item) {
+            safeItem[col] = item[col] as string | null;
+          }
+        });
+        return safeItem;
+      });
+
       return { 
-        data: locationData as LocationData[] || [], 
+        data: safeData,
         columns: selectedColumns 
       };
     }
@@ -123,7 +144,7 @@ export function LocationFilter({
 
       // Populate filter options from the data
       if (Array.isArray(data) && data.length > 0) {
-        (data as LocationData[]).forEach((location) => {
+        data.forEach((location: LocationData) => {
           columns.forEach(column => {
             const value = location[column];
             if (value) {
