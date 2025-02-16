@@ -37,8 +37,7 @@ export function LocationHierarchyUpload() {
       if (error) throw error;
       return data;
     },
-    staleTime: 0,
-    gcTime: 0
+    staleTime: 0
   });
 
   // Query for all saved hierarchies
@@ -54,8 +53,7 @@ export function LocationHierarchyUpload() {
       if (error) throw error;
       return data;
     },
-    staleTime: 0,
-    gcTime: 0
+    staleTime: 0
   });
 
   useEffect(() => {
@@ -65,8 +63,28 @@ export function LocationHierarchyUpload() {
   }, [user, isLoading, navigate]);
 
   const handleUploadComplete = (data: TableRowData[]) => {
-    setUploadedData(data);
-    setSavedFileName(`location_hierarchy_${new Date().getTime()}`);
+    // Filter out any system files or metadata
+    const cleanedData = data.filter(row => {
+      // Check if the row has actual location data properties
+      return !Object.keys(row).some(key => 
+        key.includes('xml') || 
+        key.includes('rels') || 
+        key.includes('workbook') ||
+        key.startsWith('_')
+      );
+    });
+
+    // Only set data if we have valid rows
+    if (cleanedData.length > 0) {
+      setUploadedData(cleanedData);
+      setSavedFileName(`location_hierarchy_${new Date().getTime()}`);
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Invalid data format",
+        description: "The uploaded file doesn't contain valid location hierarchy data",
+      });
+    }
   };
 
   const handleDownloadHierarchy = (hierarchy: any) => {
