@@ -1551,6 +1551,47 @@ export type Database = {
         }
         Relationships: []
       }
+      permanent_hierarchy_data: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data: Json
+          hierarchy_type: string
+          id: string
+          is_active: boolean | null
+          source_upload_id: string | null
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data: Json
+          hierarchy_type: string
+          id?: string
+          is_active?: boolean | null
+          source_upload_id?: string | null
+          version: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          hierarchy_type?: string
+          id?: string
+          is_active?: boolean | null
+          source_upload_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permanent_hierarchy_data_source_upload_id_fkey"
+            columns: ["source_upload_id"]
+            isOneToOne: false
+            referencedRelation: "temp_hierarchy_uploads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prediction_accuracy_tracking: {
         Row: {
           actual_lead_time: number | null
@@ -1943,6 +1984,57 @@ export type Database = {
           previous_classification?: Json | null
           sku?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      temp_hierarchy_uploads: {
+        Row: {
+          created_at: string
+          file_type: string
+          filename: string
+          headers: Json | null
+          hierarchy_type: string
+          id: string
+          original_name: string
+          processed_at: string | null
+          processed_by: string | null
+          processing_error: string | null
+          row_count: number | null
+          sample_data: Json | null
+          status: string
+          storage_path: string
+        }
+        Insert: {
+          created_at?: string
+          file_type: string
+          filename: string
+          headers?: Json | null
+          hierarchy_type: string
+          id?: string
+          original_name: string
+          processed_at?: string | null
+          processed_by?: string | null
+          processing_error?: string | null
+          row_count?: number | null
+          sample_data?: Json | null
+          status?: string
+          storage_path: string
+        }
+        Update: {
+          created_at?: string
+          file_type?: string
+          filename?: string
+          headers?: Json | null
+          hierarchy_type?: string
+          id?: string
+          original_name?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          processing_error?: string | null
+          row_count?: number | null
+          sample_data?: Json | null
+          status?: string
+          storage_path?: string
         }
         Relationships: []
       }
