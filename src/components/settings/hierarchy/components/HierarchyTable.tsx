@@ -23,14 +23,15 @@ interface HierarchyTableProps {
 
 export function HierarchyTable({
   data = [], // Provide default empty array
-  columns,
+  columns = [], // Default to empty array
   combinedHeaders = [],
-  selectedColumns = new Set(columns),
+  selectedColumns = new Set(),
 }: HierarchyTableProps) {
   const ROWS_PER_PAGE = 15;
   const [currentPage, setCurrentPage] = React.useState(1);
   const [columnFilters, setColumnFilters] = React.useState<Record<string, Set<string>>>({});
-  const [open, setOpen] = React.useState<Record<string, boolean>>({});
+  const [openPopover, setOpenPopover] = React.useState<Record<string, boolean>>({});
+  const [commandValues, setCommandValues] = React.useState<Record<string, string[]>>({});
 
   const getRowKey = (row: TableRowData, index: number): string => {
     const id = row?.id !== undefined ? String(row.id) : String(index);
@@ -61,7 +62,12 @@ export function HierarchyTable({
         }
       });
       
-      return Array.from(values).sort();
+      const uniqueValues = Array.from(values).sort();
+      setCommandValues(prev => ({
+        ...prev,
+        [column]: uniqueValues
+      }));
+      return uniqueValues;
     } catch (error) {
       console.error('Error getting unique values:', error);
       return [];
@@ -107,6 +113,13 @@ export function HierarchyTable({
     });
   }, []);
 
+  // Pre-initialize command values for each column
+  React.useEffect(() => {
+    columns.forEach(column => {
+      getUniqueValues(column);
+    });
+  }, [columns, getUniqueValues]);
+
   const totalPages = Math.max(1, Math.ceil(filteredData.length / ROWS_PER_PAGE));
   const startIndex = (currentPage - 1) * ROWS_PER_PAGE;
   const endIndex = Math.min(startIndex + ROWS_PER_PAGE, filteredData.length);
@@ -125,8 +138,8 @@ export function HierarchyTable({
               <TableHeader>
                 <TableRow>
                   {columns.map((column) => {
-                    const uniqueValues = getUniqueValues(column);
                     const hasFilters = columnFilters[column]?.size > 0;
+                    const values = commandValues[column] || [];
 
                     return (
                       <TableHead key={column} className="min-w-[200px] sticky top-0 bg-background">
@@ -134,9 +147,9 @@ export function HierarchyTable({
                           <div className="flex items-center justify-between">
                             <span className="font-medium">{column}</span>
                             <Popover 
-                              open={open[column]} 
+                              open={openPopover[column]} 
                               onOpenChange={(isOpen) => {
-                                setOpen(prev => ({ ...prev, [column]: isOpen }));
+                                setOpenPopover(prev => ({ ...prev, [column]: isOpen }));
                               }}
                             >
                               <PopoverTrigger asChild>
@@ -158,29 +171,26 @@ export function HierarchyTable({
                                 </Button>
                               </PopoverTrigger>
                               <PopoverContent className="w-[200px] p-0" align="start">
-                                <Command shouldFilter={false}>
+                                <Command shouldFilter={false} className="overflow-hidden rounded-md border shadow-md">
                                   <CommandEmpty>No values found.</CommandEmpty>
                                   <CommandGroup heading="Select values">
-                                    {uniqueValues.map((value) => {
+                                    {values.map((value) => {
                                       const isSelected = columnFilters[column]?.has(value) || false;
                                       return (
                                         <CommandItem
                                           key={value}
-                                          onSelect={() => {
-                                            toggleFilter(column, value);
-                                          }}
+                                          onSelect={() => toggleFilter(column, value)}
+                                          className="flex items-center gap-2 px-2 py-1 cursor-pointer"
                                         >
-                                          <div className="flex items-center gap-2">
-                                            <div className={cn(
-                                              "h-4 w-4 border rounded-sm flex items-center justify-center",
-                                              isSelected ? "bg-primary border-primary" : "border-input"
-                                            )}>
-                                              {isSelected && (
-                                                <Check className="h-3 w-3 text-primary-foreground" />
-                                              )}
-                                            </div>
-                                            <span>{value}</span>
+                                          <div className={cn(
+                                            "h-4 w-4 border rounded-sm flex items-center justify-center",
+                                            isSelected ? "bg-primary border-primary" : "border-input"
+                                          )}>
+                                            {isSelected && (
+                                              <Check className="h-3 w-3 text-primary-foreground" />
+                                            )}
                                           </div>
+                                          <span>{value}</span>
                                         </CommandItem>
                                       );
                                     })}
