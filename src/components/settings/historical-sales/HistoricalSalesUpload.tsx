@@ -4,42 +4,60 @@ import { FileUpload } from "../upload/FileUpload";
 import { HierarchyTableView } from "../hierarchy/HierarchyTableView";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { Filter } from "lucide-react";
+import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { useQueryClient } from "@tanstack/react-query";
 import { TableRowData } from "../hierarchy/types";
 
 export function HistoricalSalesUpload() {
   const [uploadedData, setUploadedData] = useState<TableRowData[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [savedFileName, setSavedFileName] = useState<string | null>(null);
   const { toast } = useToast();
-  const queryClient = useQueryClient();
 
-  const handleUploadComplete = async (data: TableRowData[]) => {
+  const handleUploadComplete = (data: TableRowData[]) => {
+    const sanitizedData = data.map(row => {
+      const cleanRow: TableRowData = {};
+      Object.entries(row).forEach(([key, value]) => {
+        cleanRow[key] = value === null || value === undefined ? '' : String(value).trim();
+      });
+      return cleanRow;
+    });
+    setUploadedData(sanitizedData);
+    setSavedFileName(`historical_sales_${new Date().getTime()}`);
+  };
+
+  const handlePushToSystem = async () => {
     setIsUploading(true);
     try {
+      // First, mark all existing historical sales data as inactive
+      await supabase
+        .from('permanent_hierarchy_data')
+        .update({ is_active: false })
+        .eq('hierarchy_type', 'historical_sales');
+
+      // Then insert the new data
       const { error } = await supabase
-        .from('historical_sales_data')
+        .from('permanent_hierarchy_data')
         .insert({
-          data: data,
+          hierarchy_type: 'historical_sales',
+          data: uploadedData,
           is_active: true,
           version: 1
         });
 
       if (error) throw error;
 
-      setUploadedData(data);
       toast({
         title: "Success",
-        description: "Historical sales data uploaded successfully",
+        description: "Historical sales data has been updated successfully",
       });
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error('Error pushing historical sales data:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to upload historical sales data",
+        description: "Failed to update historical sales data"
       });
     } finally {
       setIsUploading(false);
@@ -78,10 +96,26 @@ export function HistoricalSalesUpload() {
             <Badge variant="secondary" className="h-7">
               {uploadedData.length} records
             </Badge>
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handlePushToSystem}
+                disabled={isUploading}
+                className="h-8 w-8 hover:bg-primary/10"
+                title="Save to system"
+              >
+                {isUploading ? (
+                  <Save className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4 text-primary" />
+                )}
+              </Button>
+            </div>
           </div>
           <HierarchyTableView 
             data={uploadedData}
-            tableName="historical_sales_data"
+            tableName="historical_sales"
             columns={columns}
             combinedHeaders={combinedHeaders}
           />

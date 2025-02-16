@@ -4,10 +4,9 @@ import { FileUpload } from "../upload/FileUpload";
 import { HierarchyTableView } from "../hierarchy/HierarchyTableView";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { Filter, Save } from "lucide-react";
+import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { useQueryClient } from "@tanstack/react-query";
 import { TableRowData } from "../hierarchy/types";
 
 export function LeadTimeUpload() {
@@ -15,37 +14,12 @@ export function LeadTimeUpload() {
   const [isUploading, setIsUploading] = useState(false);
   const [savedFileName, setSavedFileName] = useState<string | null>(null);
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  const sanitizeValue = (value: any): any => {
-    if (value === null || value === undefined) return '';
-    
-    if (typeof value === 'string') {
-      return value
-        .replace(/\u0000/g, '')
-        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '')
-        .trim();
-    }
-    
-    if (typeof value === 'object') {
-      if (Array.isArray(value)) {
-        return value.map(sanitizeValue);
-      }
-      const sanitizedObj: Record<string, any> = {};
-      Object.entries(value).forEach(([key, val]) => {
-        sanitizedObj[key] = sanitizeValue(val);
-      });
-      return sanitizedObj;
-    }
-    
-    return value;
-  };
 
   const handleUploadComplete = (data: TableRowData[]) => {
     const sanitizedData = data.map(row => {
       const cleanRow: TableRowData = {};
       Object.entries(row).forEach(([key, value]) => {
-        cleanRow[key] = sanitizeValue(value);
+        cleanRow[key] = value === null || value === undefined ? '' : String(value).trim();
       });
       return cleanRow;
     });
@@ -73,8 +47,6 @@ export function LeadTimeUpload() {
         });
 
       if (error) throw error;
-
-      queryClient.invalidateQueries({ queryKey: ['leadTimeData'] });
 
       toast({
         title: "Success",
@@ -143,7 +115,7 @@ export function LeadTimeUpload() {
           </div>
           <HierarchyTableView 
             data={uploadedData}
-            tableName="lead_time_data"
+            tableName="lead_time"
             columns={columns}
             combinedHeaders={combinedHeaders}
           />
