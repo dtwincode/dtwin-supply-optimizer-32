@@ -5,7 +5,7 @@ import { HierarchyTableView } from "../hierarchy/HierarchyTableView";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Save, Upload, Filter } from "lucide-react";
+import { Filter } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { TableRowData, ColumnHeader } from "../hierarchy/types";
@@ -31,45 +31,6 @@ export function LocationHierarchyUpload() {
     setUploadedData(data);
     // Generate a unique filename when upload is complete
     setSavedFileName(`location_hierarchy_${new Date().getTime()}`);
-  };
-
-  const handleSaveFile = async () => {
-    if (!user || !savedFileName) {
-      toast({
-        variant: "destructive",
-        title: "Authentication Required",
-        description: "Please log in to save location hierarchy",
-      });
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('hierarchy_file_references')
-        .insert({
-          file_name: savedFileName,
-          original_name: "location_hierarchy.csv",
-          hierarchy_type: 'location',
-          created_by: user.id,
-          file_type: 'csv',
-          storage_path: `hierarchy-uploads/${savedFileName}`
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Location hierarchy file has been saved",
-      });
-      setSavedFileName(null); // Disable save button after successful save
-    } catch (error) {
-      console.error('Error saving file reference:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to save file reference"
-      });
-    }
   };
 
   const handlePushToFilters = async () => {
@@ -161,18 +122,6 @@ export function LocationHierarchyUpload() {
               {uploadedData.length} records
             </Badge>
             <div className="flex gap-2">
-              {savedFileName && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleSaveFile}
-                  disabled={isUploading}
-                  className="h-8 w-8 hover:bg-green-100"
-                  title="Save file reference"
-                >
-                  <Save className="h-4 w-4 text-green-600" />
-                </Button>
-              )}
               <Button
                 variant="ghost"
                 size="icon"
@@ -182,7 +131,7 @@ export function LocationHierarchyUpload() {
                 title="Push to location filters"
               >
                 {isUploading ? (
-                  <Upload className="h-4 w-4 animate-spin" />
+                  <Filter className="h-4 w-4 animate-spin" />
                 ) : (
                   <Filter className="h-4 w-4 text-primary" />
                 )}
