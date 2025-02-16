@@ -7,6 +7,7 @@ import { toast } from "@/components/ui/use-toast";
 import { CheckSquare, XSquare, Trash2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ColumnHeader } from "../types";
+import { useAuth } from "@/contexts/AuthContext";
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -18,7 +19,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useAuth } from "@/hooks/useAuth";
 
 interface ColumnSelectorProps {
   tableName: string;
