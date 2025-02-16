@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+
+import { useState, useMemo, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { Separator } from "@/components/ui/separator";
@@ -39,13 +40,15 @@ export function HierarchyTableView({
       }
 
       return data;
-    },
-    onSuccess: (data) => {
-      if (data?.selected_columns) {
-        setSelectedColumns(new Set(data.selected_columns));
-      }
     }
   });
+
+  // Use effect to update selected columns when saved selections are loaded
+  useEffect(() => {
+    if (savedSelections?.selected_columns) {
+      setSelectedColumns(new Set(savedSelections.selected_columns));
+    }
+  }, [savedSelections]);
 
   const uniqueValuesMap = useMemo(() => {
     const map = new Map<string, Set<string>>();
