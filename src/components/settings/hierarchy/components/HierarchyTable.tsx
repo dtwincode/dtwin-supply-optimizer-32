@@ -1,7 +1,8 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 import { ColumnHeader, TableRowData } from "../types";
 import { Button } from "@/components/ui/button";
 
@@ -10,6 +11,8 @@ interface HierarchyTableProps {
   columns: string[];
   combinedHeaders?: ColumnHeader[];
   selectedColumns?: Set<string>;
+  filters?: Record<string, string>;
+  onFilterChange?: (column: string, value: string) => void;
 }
 
 export function HierarchyTable({
@@ -17,7 +20,10 @@ export function HierarchyTable({
   columns,
   combinedHeaders = [],
   selectedColumns = new Set(columns),
+  filters = {},
+  onFilterChange = () => {}
 }: HierarchyTableProps) {
+  const SHOW_ALL_VALUE = "__show_all__";
   const ROWS_PER_PAGE = 15;
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -42,6 +48,21 @@ export function HierarchyTable({
   const endIndex = Math.min(startIndex + ROWS_PER_PAGE, data.length);
   const currentData = data.slice(startIndex, endIndex);
 
+  // Memoize the unique values calculation
+  const uniqueValuesByColumn = useMemo(() => {
+    const result: Record<string, string[]> = {};
+    columns.forEach(column => {
+      const values = new Set<string>();
+      data.forEach(row => {
+        if (row[column] !== null && row[column] !== undefined) {
+          values.add(String(row[column]));
+        }
+      });
+      result[column] = Array.from(values).sort();
+    });
+    return result;
+  }, [data, columns]);
+
   return (
     <div className="space-y-4">
       <div className="relative rounded-md border">
@@ -54,6 +75,25 @@ export function HierarchyTable({
                     <TableHead key={column} className="min-w-[200px] sticky top-0 bg-background">
                       <div className="space-y-2 py-2">
                         <div className="font-medium">{column}</div>
+                        <Select
+                          value={filters[column] || SHOW_ALL_VALUE}
+                          onValueChange={(value) => onFilterChange(column, value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder={`Filter ${column}...`} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value={SHOW_ALL_VALUE}>Show all</SelectItem>
+                            {uniqueValuesByColumn[column]?.map((value) => (
+                              <SelectItem key={value} value={value}>
+                                {value}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <div className="text-xs text-muted-foreground">
+                          Unique values: {uniqueValuesByColumn[column]?.length || 0}
+                        </div>
                         {combinedHeaders?.find(h => h.column === column)?.sampleData && (
                           <div className="text-xs text-muted-foreground">
                             Example: {combinedHeaders.find(h => h.column === column)?.sampleData}
