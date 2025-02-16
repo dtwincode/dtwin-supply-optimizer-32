@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Download, Trash, AlertCircle } from "lucide-react";
+import { Download, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -54,58 +54,6 @@ export function SavedLocationFiles() {
         title: "Error",
         description: "Failed to load saved files"
       });
-    }
-  };
-
-  const handleDelete = async (fileId: string) => {
-    try {
-      setIsLoading(true);
-      
-      const { data: fileData, error: fileError } = await supabase
-        .from('location_hierarchy_files')
-        .select('*')
-        .eq('id', fileId)
-        .single();
-
-      if (fileError) throw fileError;
-
-      const { error: deleteError } = await supabase
-        .from('location_hierarchy_files')
-        .delete()
-        .eq('id', fileId);
-
-      if (deleteError) throw deleteError;
-
-      if (fileData?.temp_upload_id) {
-        try {
-          const { error: tempDeleteError } = await supabase
-            .from('temp_hierarchy_uploads')
-            .delete()
-            .eq('id', fileData.temp_upload_id);
-
-          if (tempDeleteError) {
-            console.error('Error deleting temporary upload:', tempDeleteError);
-          }
-        } catch (tempError) {
-          console.error('Failed to delete temporary upload:', tempError);
-        }
-      }
-
-      toast({
-        title: "Success",
-        description: "File deleted successfully",
-      });
-
-      fetchSavedFiles();
-    } catch (error) {
-      console.error('Error deleting file:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to delete file"
-      });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -210,15 +158,6 @@ export function SavedLocationFiles() {
                 className="h-8 w-8 hover:bg-primary/10"
               >
                 <Download className="h-4 w-4 text-primary stroke-[1.5]" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleDelete(file.id)}
-                disabled={isLoading}
-                className="h-8 w-8 hover:bg-destructive/10"
-              >
-                <Trash className="h-4 w-4 text-destructive stroke-[1.5]" />
               </Button>
             </div>
           </div>
