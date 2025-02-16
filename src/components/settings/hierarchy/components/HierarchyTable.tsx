@@ -2,8 +2,10 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { type ReactNode, useMemo } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 import { ColumnHeader, TableRowData } from "../types";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface HierarchyTableProps {
   data: TableRowData[];
@@ -23,6 +25,8 @@ export function HierarchyTable({
   onFilterChange = () => {}
 }: HierarchyTableProps) {
   const SHOW_ALL_VALUE = "__show_all__";
+  const ROWS_PER_PAGE = 15;
+  const [currentPage, setCurrentPage] = useState(1);
 
   const getRowKey = (row: TableRowData, index: number): string => {
     const id = row.id !== undefined ? String(row.id) : String(index);
@@ -39,7 +43,13 @@ export function HierarchyTable({
     return String(value);
   };
 
-  // Memoize the unique values calculation to prevent infinite recursion
+  // Calculate pagination
+  const totalPages = Math.ceil(data.length / ROWS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ROWS_PER_PAGE;
+  const endIndex = Math.min(startIndex + ROWS_PER_PAGE, data.length);
+  const currentData = data.slice(startIndex, endIndex);
+
+  // Memoize the unique values calculation
   const uniqueValuesByColumn = useMemo(() => {
     const result: Record<string, string[]> = {};
     columns.forEach(column => {
@@ -55,70 +65,100 @@ export function HierarchyTable({
   }, [data, columns]);
 
   return (
-    <div className="relative rounded-md border">
-      <ScrollArea className="h-[600px] rounded-md">
-        <div className="relative min-w-max">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {columns.map((column) => (
-                  <TableHead key={column} className="min-w-[200px] sticky top-0 bg-background">
-                    <div className="space-y-2 py-2">
-                      <div className="font-medium">{column}</div>
-                      <Select
-                        value={filters[column] || SHOW_ALL_VALUE}
-                        onValueChange={(value) => onFilterChange(column, value)}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder={`Filter ${column}...`} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={SHOW_ALL_VALUE}>Show all</SelectItem>
-                          {uniqueValuesByColumn[column]?.map((value) => (
-                            <SelectItem key={value} value={value}>
-                              {value}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <div className="text-xs text-muted-foreground">
-                        Unique values: {uniqueValuesByColumn[column]?.length || 0}
-                      </div>
-                      {combinedHeaders?.find(h => h.column === column)?.sampleData && (
-                        <div className="text-xs text-muted-foreground">
-                          Example: {combinedHeaders.find(h => h.column === column)?.sampleData}
-                        </div>
-                      )}
-                    </div>
-                  </TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.map((row, index) => {
-                const rowKey = getRowKey(row, index);
-                
-                return (
-                  <TableRow key={rowKey}>
-                    {columns.map((column, colIndex) => {
-                      const cellValue = row[column];
-                      return (
-                        <TableCell 
-                          key={getCellKey(rowKey, colIndex)}
-                          className="min-w-[200px]"
+    <div className="space-y-4">
+      <div className="relative rounded-md border">
+        <ScrollArea className="h-[600px] rounded-md">
+          <div className="relative min-w-max">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  {columns.map((column) => (
+                    <TableHead key={column} className="min-w-[200px] sticky top-0 bg-background">
+                      <div className="space-y-2 py-2">
+                        <div className="font-medium">{column}</div>
+                        <Select
+                          value={filters[column] || SHOW_ALL_VALUE}
+                          onValueChange={(value) => onFilterChange(column, value)}
                         >
-                          {renderCell(cellValue)}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder={`Filter ${column}...`} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value={SHOW_ALL_VALUE}>Show all</SelectItem>
+                            {uniqueValuesByColumn[column]?.map((value) => (
+                              <SelectItem key={value} value={value}>
+                                {value}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <div className="text-xs text-muted-foreground">
+                          Unique values: {uniqueValuesByColumn[column]?.length || 0}
+                        </div>
+                        {combinedHeaders?.find(h => h.column === column)?.sampleData && (
+                          <div className="text-xs text-muted-foreground">
+                            Example: {combinedHeaders.find(h => h.column === column)?.sampleData}
+                          </div>
+                        )}
+                      </div>
+                    </TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {currentData.map((row, index) => {
+                  const rowKey = getRowKey(row, startIndex + index);
+                  
+                  return (
+                    <TableRow key={rowKey}>
+                      {columns.map((column, colIndex) => {
+                        const cellValue = row[column];
+                        return (
+                          <TableCell 
+                            key={getCellKey(rowKey, colIndex)}
+                            className="min-w-[200px]"
+                          >
+                            {renderCell(cellValue)}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
+      </div>
+
+      {/* Pagination Controls */}
+      <div className="flex items-center justify-between px-2">
+        <div className="text-sm text-muted-foreground">
+          Showing {startIndex + 1} to {endIndex} of {data.length} entries
         </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <div className="text-sm text-muted-foreground">
+            Page {currentPage} of {totalPages}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
