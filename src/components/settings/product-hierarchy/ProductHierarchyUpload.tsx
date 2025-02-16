@@ -125,7 +125,10 @@ export function ProductHierarchyUpload() {
         .from('hierarchy_file_references')
         .insert({
           file_name: file.name,
+          file_type: file.name.split('.').pop() || 'unknown',
           hierarchy_type: 'product',
+          original_name: file.name,
+          storage_path: savedFileName,
           data: {
             previewData: previewState.previewData,
             columns: previewState.columns,
