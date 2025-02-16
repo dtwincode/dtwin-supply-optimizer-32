@@ -282,7 +282,7 @@ export function ProductHierarchyUpload() {
     }
   };
 
-  // Separate query for the latest saved hierarchy
+  // Modified query for the latest saved hierarchy
   const { data: latestSavedHierarchy } = useQuery({
     queryKey: ['latestHierarchyData', 'product'],
     queryFn: async () => {
@@ -292,7 +292,7 @@ export function ProductHierarchyUpload() {
         .eq('hierarchy_type', 'product')
         .order('created_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
       return data;
