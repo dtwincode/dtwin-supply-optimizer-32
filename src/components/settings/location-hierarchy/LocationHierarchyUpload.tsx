@@ -59,7 +59,8 @@ export function LocationHierarchyUpload() {
           data: uploadedData,
           is_active: true,
           version: 1,
-          created_at: new Date().toISOString()
+          created_at: new Date().toISOString(),
+          created_by: user.id
         });
 
       if (hierarchyError) throw hierarchyError;
