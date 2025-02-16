@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { FileUpload } from "../upload/FileUpload";
 import { HierarchyTableView } from "../hierarchy/HierarchyTableView";
@@ -24,7 +23,7 @@ export function LocationHierarchyUpload() {
   const navigate = useNavigate();
 
   // Query for the latest saved hierarchy
-  const { data: latestSavedHierarchy } = useQuery({
+  const { data: latestSavedHierarchy, refetch: refetchLatest } = useQuery({
     queryKey: ['latestHierarchyData', 'location'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -37,11 +36,13 @@ export function LocationHierarchyUpload() {
       
       if (error) throw error;
       return data;
-    }
+    },
+    staleTime: 0,
+    cacheTime: 0
   });
 
   // Query for all saved hierarchies
-  const { data: savedHierarchies } = useQuery({
+  const { data: savedHierarchies, refetch: refetchAll } = useQuery({
     queryKey: ['locationHierarchies'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -53,8 +54,8 @@ export function LocationHierarchyUpload() {
       if (error) throw error;
       return data;
     },
-    // Add this to ensure the data is always fresh
     staleTime: 0,
+    cacheTime: 0
   });
 
   useEffect(() => {
@@ -123,10 +124,14 @@ export function LocationHierarchyUpload() {
 
       if (error) throw error;
 
-      // Immediately invalidate and refetch the queries
+      // First invalidate the queries
+      await queryClient.invalidateQueries({ queryKey: ['locationHierarchies'] });
+      await queryClient.invalidateQueries({ queryKey: ['latestHierarchyData', 'location'] });
+
+      // Then force refetch both queries
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['locationHierarchies'] }),
-        queryClient.invalidateQueries({ queryKey: ['latestHierarchyData', 'location'] })
+        refetchAll(),
+        refetchLatest()
       ]);
 
       toast({
