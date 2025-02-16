@@ -1702,6 +1702,45 @@ export type Database = {
           },
         ]
       }
+      permanent_hierarchy_files: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data: Json
+          file_name: string
+          file_size: number | null
+          hierarchy_type: string
+          id: string
+          metadata: Json | null
+          original_name: string
+          selected_columns: string[]
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data: Json
+          file_name: string
+          file_size?: number | null
+          hierarchy_type: string
+          id?: string
+          metadata?: Json | null
+          original_name: string
+          selected_columns: string[]
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          file_name?: string
+          file_size?: number | null
+          hierarchy_type?: string
+          id?: string
+          metadata?: Json | null
+          original_name?: string
+          selected_columns?: string[]
+        }
+        Relationships: []
+      }
       prediction_accuracy_tracking: {
         Row: {
           actual_lead_time: number | null
