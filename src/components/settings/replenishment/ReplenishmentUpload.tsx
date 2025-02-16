@@ -12,20 +12,56 @@ export function ReplenishmentUpload() {
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
 
+  const sanitizeValue = (value: any): any => {
+    if (value === null || value === undefined) return '';
+    
+    if (typeof value === 'string') {
+      // Remove null bytes and invalid characters
+      return value
+        .replace(/\u0000/g, '') // Remove null bytes
+        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '') // Remove control characters
+        .trim();
+    }
+    
+    if (typeof value === 'object') {
+      if (Array.isArray(value)) {
+        return value.map(sanitizeValue);
+      }
+      const sanitizedObj: Record<string, any> = {};
+      Object.entries(value).forEach(([key, val]) => {
+        sanitizedObj[key] = sanitizeValue(val);
+      });
+      return sanitizedObj;
+    }
+    
+    return value;
+  };
+
   const handleUploadComplete = async (data: TableRowData[]) => {
     setIsUploading(true);
     try {
+      // Sanitize the data before sending to Supabase
+      const sanitizedData = data.map(row => {
+        const cleanRow: TableRowData = {};
+        Object.entries(row).forEach(([key, value]) => {
+          cleanRow[key] = sanitizeValue(value);
+        });
+        return cleanRow;
+      });
+
+      console.log('Uploading sanitized data:', sanitizedData);
+
       const { error } = await supabase
         .from('replenishment_data')
         .insert({
-          data: data,
+          data: sanitizedData,
           is_active: true,
           version: 1
         });
 
       if (error) throw error;
 
-      setUploadedData(data);
+      setUploadedData(sanitizedData);
       toast({
         title: "Success",
         description: "Replenishment data uploaded successfully",
