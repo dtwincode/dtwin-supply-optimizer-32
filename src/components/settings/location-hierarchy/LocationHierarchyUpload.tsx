@@ -13,7 +13,6 @@ import { SavedLocationFiles } from "./SavedLocationFiles";
 
 export function LocationHierarchyUpload() {
   const [uploadedData, setUploadedData] = useState<TableRowData[]>([]);
-  const [savedFileName, setSavedFileName] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user, isLoading } = useAuth();
@@ -25,15 +24,7 @@ export function LocationHierarchyUpload() {
     }
   }, [user, isLoading, navigate]);
 
-  const handleUploadComplete = (data: TableRowData[]) => {
-    setUploadedData(data);
-    setSavedFileName(`location_hierarchy_${new Date().getTime()}`);
-
-    // Automatically save the hierarchy when upload is complete
-    handlePushToFilters(data);
-  };
-
-  const handlePushToFilters = async (data: TableRowData[]) => {
+  const handleUploadComplete = async (data: TableRowData[]) => {
     if (!user) {
       toast({
         variant: "destructive",
@@ -42,6 +33,9 @@ export function LocationHierarchyUpload() {
       });
       return;
     }
+
+    setUploadedData(data);
+    const fileName = `location_hierarchy_${new Date().getTime()}`;
 
     try {
       // Get the latest version number
@@ -81,7 +75,7 @@ export function LocationHierarchyUpload() {
       const { error: fileError } = await supabase
         .from('location_hierarchy_files')
         .insert({
-          file_name: savedFileName,
+          file_name: fileName,
           original_name: `Location Hierarchy ${new Date().toLocaleDateString()}`,
           created_by: user.id,
           file_type: 'json',
