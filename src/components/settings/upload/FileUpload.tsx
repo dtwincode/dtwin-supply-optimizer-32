@@ -138,34 +138,49 @@ export function FileUpload({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="relative">
+      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-primary transition-colors relative">
         <Input
           type="file"
           accept={allowedFileTypes.join(',')}
           onChange={handleFileSelect}
-          className="cursor-pointer"
+          className="cursor-pointer absolute inset-0 w-full h-full opacity-0 z-10"
           disabled={currentIsValidating}
         />
-        {currentFile && (
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
-            <FileIcon className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground max-w-[150px] truncate">
-              {currentFile.name}
-            </span>
+        <div className="flex flex-col items-center justify-center gap-2">
+          <div className="p-3 bg-primary/10 rounded-full">
+            <Upload className="h-6 w-6 text-primary" />
           </div>
-        )}
+          {currentFile ? (
+            <div className="flex items-center gap-2 text-sm">
+              <FileIcon className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium text-muted-foreground max-w-[200px] truncate">
+                {currentFile.name}
+              </span>
+            </div>
+          ) : (
+            <>
+              <p className="text-sm font-medium">Click to upload or drag and drop</p>
+              <p className="text-xs text-muted-foreground">
+                {allowedFileTypes.join(', ')} (up to {maxFileSize}MB)
+              </p>
+            </>
+          )}
+        </div>
       </div>
 
       {(currentIsValidating || currentProgress > 0) && (
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <Progress value={currentProgress} className="w-full" />
+        <div className="space-y-2 bg-secondary/50 rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <Progress value={currentProgress} className="w-full h-2" />
             {currentIsValidating && (
-              <Upload className="h-4 w-4 animate-spin text-primary" />
+              <Upload className="h-4 w-4 animate-spin text-primary shrink-0" />
             )}
           </div>
           <p className="text-sm text-muted-foreground text-center">
-            {currentIsValidating ? "Validating and processing data..." : `Processing ${Math.round(currentProgress)}% complete`}
+            {currentIsValidating 
+              ? "Validating and processing data..." 
+              : `Processing ${Math.round(currentProgress)}% complete`
+            }
           </p>
         </div>
       )}
@@ -174,9 +189,9 @@ export function FileUpload({
         <Button
           onClick={onProcessUpload}
           disabled={currentIsValidating}
-          className="w-full"
+          className="w-full gap-2"
         >
-          <Upload className="h-4 w-4 mr-2" />
+          <Upload className="h-4 w-4" />
           Process File
         </Button>
       )}
