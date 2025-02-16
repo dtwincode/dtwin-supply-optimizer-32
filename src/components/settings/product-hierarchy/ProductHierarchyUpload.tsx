@@ -1,13 +1,13 @@
-
 import { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, Trash2, Save } from 'lucide-react';
+import { Upload, Trash2, Save, Download } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { HierarchyTableView } from '../hierarchy/HierarchyTableView';
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Progress } from "@/components/ui/progress";
+import * as XLSX from 'xlsx';
 
 export function ProductHierarchyUpload() {
   const [file, setFile] = useState<File | null>(null);
@@ -52,8 +52,54 @@ export function ProductHierarchyUpload() {
     const uploadedFile = event.target.files?.[0];
     if (!uploadedFile) return;
     setFile(uploadedFile);
-    setProgress(0);
+    setUploadProgress(0);
     setSavedFileName(null);
+  };
+
+  const handleDownloadHierarchy = (hierarchy: any) => {
+    if (!hierarchy.data || !Array.isArray(hierarchy.data)) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Invalid hierarchy data for download",
+      });
+      return;
+    }
+
+    try {
+      // Create workbook and worksheet
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(hierarchy.data);
+
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(wb, ws, "Product Hierarchy");
+
+      // Generate Excel file
+      const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+      // Create download link
+      const url = window.URL.createObjectURL(data);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `product_hierarchy_${new Date().toISOString().split('T')[0]}.xlsx`;
+      link.click();
+
+      // Cleanup
+      window.URL.revokeObjectURL(url);
+
+      toast({
+        title: "Success",
+        description: "Hierarchy file downloaded successfully",
+      });
+    } catch (error) {
+      console.error('Download error:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to download hierarchy file",
+      });
+    }
   };
 
   const handleDeleteHierarchy = async (hierarchyId: string) => {
@@ -109,7 +155,7 @@ export function ProductHierarchyUpload() {
 
   const handleDeleteCurrentFile = () => {
     setFile(null);
-    setProgress(0);
+    setUploadProgress(0);
     setSavedFileName(null);
     
     // Clear the preview data from React Query cache
@@ -137,14 +183,16 @@ export function ProductHierarchyUpload() {
     
     try {
       setSaveProgress(50); // Inserting data
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('permanent_hierarchy_data')
         .insert({
           hierarchy_type: 'product',
           data: previewState.previewData,
           is_active: true,
           version: 1
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
       setSaveProgress(75); // Data inserted
@@ -157,6 +205,11 @@ export function ProductHierarchyUpload() {
       // Refresh the saved hierarchies list
       await refetchSavedHierarchies();
       setSaveProgress(90); // Data refreshed
+      
+      // Show download option for the newly saved file
+      if (data) {
+        handleDownloadHierarchy(data);
+      }
       
       // Clear the current file
       handleDeleteCurrentFile();
@@ -324,14 +377,25 @@ export function ProductHierarchyUpload() {
                   Product Hierarchy {new Date(hierarchy.created_at).toLocaleDateString()} 
                   {hierarchy.is_active && <span className="ml-2 text-green-600">(Active)</span>}
                 </Button>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => handleDeleteHierarchy(hierarchy.id)}
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => handleDownloadHierarchy(hierarchy)}
+                    className="text-blue-600 hover:text-blue-600 hover:bg-blue-100"
+                    title="Download hierarchy"
+                  >
+                    <Download className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => handleDeleteHierarchy(hierarchy.id)}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
