@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Download, Trash2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -54,12 +55,34 @@ export function SavedLocationFiles() {
   const handleDelete = async (fileId: string) => {
     try {
       setIsLoading(true);
-      const { error } = await supabase
+      // Get the file information first
+      const { data: fileData, error: fileError } = await supabase
+        .from('location_hierarchy_files')
+        .select('*')
+        .eq('id', fileId)
+        .single();
+
+      if (fileError) throw fileError;
+
+      // Delete the file
+      const { error: deleteError } = await supabase
         .from('location_hierarchy_files')
         .delete()
         .eq('id', fileId);
 
-      if (error) throw error;
+      if (deleteError) throw deleteError;
+
+      // Also delete any associated temporary uploads
+      if (fileData?.temp_upload_id) {
+        const { error: tempDeleteError } = await supabase
+          .from('temp_hierarchy_uploads')
+          .delete()
+          .eq('id', fileData.temp_upload_id);
+
+        if (tempDeleteError) {
+          console.error('Error deleting temporary upload:', tempDeleteError);
+        }
+      }
 
       toast({
         title: "Success",
@@ -103,7 +126,7 @@ export function SavedLocationFiles() {
 
       const headers = Object.keys(locationData[0]);
       const csvContent = [
-        headers.join(','), // Header row
+        headers.join(','),
         ...locationData.map((row) => 
           headers.map(header => {
             const value = row[header];
