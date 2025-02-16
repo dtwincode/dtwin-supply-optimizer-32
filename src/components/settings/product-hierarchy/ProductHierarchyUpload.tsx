@@ -13,7 +13,8 @@ export function ProductHierarchyUpload() {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [saveProgress, setSaveProgress] = useState(0);
   const [savedFileName, setSavedFileName] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -132,7 +133,10 @@ export function ProductHierarchyUpload() {
     }
     
     setIsSaving(true);
+    setSaveProgress(25); // Started saving
+    
     try {
+      setSaveProgress(50); // Inserting data
       const { error } = await supabase
         .from('permanent_hierarchy_data')
         .insert({
@@ -143,6 +147,7 @@ export function ProductHierarchyUpload() {
         });
 
       if (error) throw error;
+      setSaveProgress(75); // Data inserted
 
       toast({
         title: "Success",
@@ -150,10 +155,12 @@ export function ProductHierarchyUpload() {
       });
 
       // Refresh the saved hierarchies list
-      refetchSavedHierarchies();
+      await refetchSavedHierarchies();
+      setSaveProgress(90); // Data refreshed
       
       // Clear the current file
       handleDeleteCurrentFile();
+      setSaveProgress(100); // Process complete
 
     } catch (error) {
       console.error('Save error:', error);
@@ -163,27 +170,30 @@ export function ProductHierarchyUpload() {
         description: "Failed to save file permanently",
       });
     } finally {
-      setIsSaving(false);
+      setTimeout(() => {
+        setIsSaving(false);
+        setSaveProgress(0);
+      }, 1000); // Reset after showing 100% briefly
     }
   };
 
   const handleUpload = async () => {
     if (!file) return;
     setIsUploading(true);
-    setProgress(10);
+    setUploadProgress(10);
 
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(7)}.${fileExt}`;
       
-      setProgress(30);
+      setUploadProgress(30);
       const { error: uploadError } = await supabase.storage
         .from('hierarchy-uploads')
         .upload(fileName, file);
 
       if (uploadError) throw uploadError;
 
-      setProgress(60);
+      setUploadProgress(60);
       // Process the hierarchy
       const { data, error } = await supabase.functions.invoke('process-hierarchy', {
         body: { fileName, type: 'product' },
@@ -191,7 +201,7 @@ export function ProductHierarchyUpload() {
 
       if (error) throw error;
 
-      setProgress(90);
+      setUploadProgress(90);
       if (data.headers) {
         // Update the preview data in React Query cache
         queryClient.setQueryData(['productHierarchyPreview'], {
@@ -203,7 +213,7 @@ export function ProductHierarchyUpload() {
 
       setSavedFileName(fileName);
 
-      setProgress(100);
+      setUploadProgress(100);
       toast({
         title: "Success",
         description: "File uploaded successfully. Click the save icon to save permanently.",
@@ -217,7 +227,10 @@ export function ProductHierarchyUpload() {
       });
       setSavedFileName(null);
     } finally {
-      setIsUploading(false);
+      setTimeout(() => {
+        setIsUploading(false);
+        setUploadProgress(0);
+      }, 1000);
     }
   };
 
@@ -231,7 +244,7 @@ export function ProductHierarchyUpload() {
               size="icon"
               variant="outline"
               onClick={() => document.getElementById('product-file')?.click()}
-              disabled={isUploading}
+              disabled={isUploading || isSaving}
             >
               <Upload className="h-4 w-4" />
             </Button>
@@ -259,7 +272,7 @@ export function ProductHierarchyUpload() {
                   size="icon"
                   variant="outline"
                   onClick={handleDeleteCurrentFile}
-                  disabled={isUploading}
+                  disabled={isUploading || isSaving}
                 >
                   <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>
@@ -267,7 +280,7 @@ export function ProductHierarchyUpload() {
             )}
           </div>
 
-          {file && !isUploading && (
+          {file && !isUploading && !isSaving && (
             <Button onClick={handleUpload} className="w-full">
               Upload and Process
             </Button>
@@ -275,9 +288,18 @@ export function ProductHierarchyUpload() {
 
           {isUploading && (
             <div className="space-y-2">
-              <Progress value={progress} className="w-full" />
+              <Progress value={uploadProgress} className="w-full" />
               <p className="text-sm text-muted-foreground text-center">
-                {progress}% - {progress < 100 ? 'Uploading...' : 'Complete'}
+                {uploadProgress}% - {uploadProgress < 100 ? 'Uploading...' : 'Complete'}
+              </p>
+            </div>
+          )}
+
+          {isSaving && (
+            <div className="space-y-2">
+              <Progress value={saveProgress} className="w-full" />
+              <p className="text-sm text-muted-foreground text-center">
+                {saveProgress}% - {saveProgress < 100 ? 'Saving...' : 'Complete'}
               </p>
             </div>
           )}
