@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -82,97 +82,22 @@ export function ColumnSelector({
         newSelection.add(column);
       }
       
-      const { error } = await supabase
-        .from('hierarchy_column_selections')
-        .upsert({
-          table_name: tableName,
-          selected_columns: Array.from(newSelection)
-        }, {
-          onConflict: 'table_name'
-        });
-
-      if (error) throw error;
-
       onSelectedColumnsChange(newSelection);
-      queryClient.invalidateQueries({
-        queryKey: ['columnSelections', tableName]
-      });
-    } catch (error) {
-      console.error('Error updating column selections:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to update column selections",
-      });
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleSelectAll = async () => {
+  const handleSelectAll = () => {
     if (isSaving) return;
     
-    setIsSaving(true);
-    try {
-      const allColumns = new Set(combinedHeaders.map(header => header.column));
-      
-      const { error } = await supabase
-        .from('hierarchy_column_selections')
-        .upsert({
-          table_name: tableName,
-          selected_columns: Array.from(allColumns)
-        }, {
-          onConflict: 'table_name'
-        });
-
-      if (error) throw error;
-
-      onSelectedColumnsChange(allColumns);
-      queryClient.invalidateQueries({
-        queryKey: ['columnSelections', tableName]
-      });
-    } catch (error) {
-      console.error('Error selecting all columns:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to select all columns",
-      });
-    } finally {
-      setIsSaving(false);
-    }
+    const allColumns = new Set(combinedHeaders.map(header => header.column));
+    onSelectedColumnsChange(allColumns);
   };
 
-  const handleUnselectAll = async () => {
+  const handleUnselectAll = () => {
     if (isSaving) return;
-    
-    setIsSaving(true);
-    try {
-      const { error } = await supabase
-        .from('hierarchy_column_selections')
-        .upsert({
-          table_name: tableName,
-          selected_columns: []
-        }, {
-          onConflict: 'table_name'
-        });
-
-      if (error) throw error;
-
-      onSelectedColumnsChange(new Set());
-      queryClient.invalidateQueries({
-        queryKey: ['columnSelections', tableName]
-      });
-    } catch (error) {
-      console.error('Error unselecting all columns:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to unselect all columns",
-      });
-    } finally {
-      setIsSaving(false);
-    }
+    onSelectedColumnsChange(new Set());
   };
 
   const handleDeleteTempUpload = async () => {
