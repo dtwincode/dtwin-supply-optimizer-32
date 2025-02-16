@@ -4,7 +4,6 @@ import { FileUpload } from "../upload/FileUpload";
 import { HierarchyTableView } from "../hierarchy/HierarchyTableView";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { TableRowData } from "../hierarchy/types";
@@ -99,17 +98,11 @@ export function HistoricalSalesUpload() {
             <div className="flex gap-2">
               <Button
                 variant="ghost"
-                size="icon"
                 onClick={handlePushToSystem}
                 disabled={isUploading}
-                className="h-8 w-8 hover:bg-primary/10"
-                title="Save to system"
+                className="px-4"
               >
-                {isUploading ? (
-                  <Save className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Save className="h-4 w-4 text-primary" />
-                )}
+                {isUploading ? "Saving..." : "Save"}
               </Button>
             </div>
           </div>

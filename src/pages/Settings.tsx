@@ -9,7 +9,6 @@ import { HistoricalSalesUpload } from "@/components/settings/historical-sales/Hi
 import { LeadTimeUpload } from "@/components/settings/lead-time/LeadTimeUpload";
 import { ReplenishmentUpload } from "@/components/settings/replenishment/ReplenishmentUpload";
 import { Separator } from "@/components/ui/separator";
-import { Clock, Timer } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -53,14 +52,8 @@ const Settings = () => {
               <TabsTrigger value="location">Location Hierarchy</TabsTrigger>
               <TabsTrigger value="product">Product Hierarchy</TabsTrigger>
               <TabsTrigger value="historical-sales">Historical Sales</TabsTrigger>
-              <TabsTrigger value="lead-time" className="flex items-center gap-2">
-                <Clock className="h-4 w-4" />
-                Lead Time
-              </TabsTrigger>
-              <TabsTrigger value="replenishment-time" className="flex items-center gap-2">
-                <Timer className="h-4 w-4" />
-                Replenishment
-              </TabsTrigger>
+              <TabsTrigger value="lead-time">Lead Time</TabsTrigger>
+              <TabsTrigger value="replenishment-time">Replenishment</TabsTrigger>
             </TabsList>
 
             <TabsContent value="location" className="space-y-4">
