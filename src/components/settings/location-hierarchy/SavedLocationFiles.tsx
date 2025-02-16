@@ -41,7 +41,6 @@ export function SavedLocationFiles() {
   const [files, setFiles] = useState<SavedFile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [fileToDelete, setFileToDelete] = useState<SavedFile | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -54,6 +53,7 @@ export function SavedLocationFiles() {
       const { data, error } = await supabase
         .from('location_hierarchy_files')
         .select('*')
+        .eq('is_active', true)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -73,20 +73,25 @@ export function SavedLocationFiles() {
   const handleDeleteFile = async (file: SavedFile) => {
     try {
       setIsLoading(true);
+      
+      // Optimistically remove the file from the UI
+      setFiles(prevFiles => prevFiles.filter(f => f.id !== file.id));
+
       const { error } = await supabase
         .from('location_hierarchy_files')
         .update({ is_active: false })
         .eq('id', file.id);
 
-      if (error) throw error;
+      if (error) {
+        // If there's an error, revert the optimistic update
+        fetchSavedFiles();
+        throw error;
+      }
 
       toast({
         title: "Success",
         description: "File deleted successfully",
       });
-
-      // Refresh the file list
-      fetchSavedFiles();
     } catch (error) {
       console.error('Error deleting file:', error);
       toast({
@@ -96,7 +101,6 @@ export function SavedLocationFiles() {
       });
     } finally {
       setIsLoading(false);
-      setFileToDelete(null);
     }
   };
 
