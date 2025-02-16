@@ -36,52 +36,78 @@ export function LocationFilter({
   const { data: locationsData, isLoading } = useQuery({
     queryKey: ['locations', 'hierarchy'],
     queryFn: async () => {
+      // Use maybeSingle() instead of single() to handle no data case
       const { data: activeVersionData, error: versionError } = await supabase
         .from('permanent_hierarchy_data')
         .select('data')
         .eq('hierarchy_type', 'location_hierarchy')
         .eq('is_active', true)
-        .single();
+        .maybeSingle();
 
       if (versionError) {
-        throw versionError;
-      }
-
-      if (!activeVersionData || !Array.isArray(activeVersionData.data)) {
+        console.error('Error fetching location hierarchy:', versionError);
         return {
           regions: [],
           cities: {}
         };
       }
 
-      // Process the hierarchical data with proper typing
-      const hierarchyData = activeVersionData.data as LocationData[];
-      const uniqueRegions = new Set<string>();
-      const citiesByRegion: { [key: string]: Set<string> } = {};
+      if (!activeVersionData?.data || !Array.isArray(activeVersionData.data)) {
+        console.log('No location hierarchy data found or invalid data format');
+        return {
+          regions: [],
+          cities: {}
+        };
+      }
 
-      // Extract unique regions and cities from the hierarchy data
-      hierarchyData.forEach((row: LocationData) => {
-        if (row.region) {
-          uniqueRegions.add(row.region);
-          if (!citiesByRegion[row.region]) {
-            citiesByRegion[row.region] = new Set<string>();
-          }
-          if (row.city) {
-            citiesByRegion[row.region].add(row.city);
-          }
+      try {
+        // Type assertion with runtime validation
+        const hierarchyData = activeVersionData.data as unknown as LocationData[];
+        if (!hierarchyData.every(item => 
+          typeof item === 'object' && 
+          'region' in item && 
+          'city' in item
+        )) {
+          console.error('Invalid data format in hierarchy data');
+          return {
+            regions: [],
+            cities: {}
+          };
         }
-      });
 
-      // Convert Sets to sorted arrays
-      return {
-        regions: Array.from(uniqueRegions).sort(),
-        cities: Object.fromEntries(
-          Object.entries(citiesByRegion).map(([region, cities]) => [
-            region,
-            Array.from(cities).sort()
-          ])
-        )
-      };
+        const uniqueRegions = new Set<string>();
+        const citiesByRegion: { [key: string]: Set<string> } = {};
+
+        // Extract unique regions and cities from the hierarchy data
+        hierarchyData.forEach((row: LocationData) => {
+          if (row.region) {
+            uniqueRegions.add(row.region);
+            if (!citiesByRegion[row.region]) {
+              citiesByRegion[row.region] = new Set<string>();
+            }
+            if (row.city) {
+              citiesByRegion[row.region].add(row.city);
+            }
+          }
+        });
+
+        // Convert Sets to sorted arrays
+        return {
+          regions: Array.from(uniqueRegions).sort(),
+          cities: Object.fromEntries(
+            Object.entries(citiesByRegion).map(([region, cities]) => [
+              region,
+              Array.from(cities).sort()
+            ])
+          )
+        };
+      } catch (error) {
+        console.error('Error processing location hierarchy data:', error);
+        return {
+          regions: [],
+          cities: {}
+        };
+      }
     }
   });
 
