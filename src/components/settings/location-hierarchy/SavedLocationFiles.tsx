@@ -16,7 +16,7 @@ interface SavedFile {
   file_size: number;
   temp_upload_id: string | null;
   is_active: boolean;
-  metadata: unknown;
+  metadata: Record<string, unknown>;
   file_type: string;
   created_by: string;
 }
@@ -57,6 +57,15 @@ export function SavedLocationFiles() {
     }
   };
 
+  const sanitizeCSVValue = (value: unknown): string => {
+    if (value === null || value === undefined) return '';
+    const stringValue = String(value);
+    if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+      return `"${stringValue.replace(/"/g, '""')}"`;
+    }
+    return stringValue;
+  };
+
   const handleDownload = async (fileName: string) => {
     try {
       setIsLoading(true);
@@ -65,15 +74,16 @@ export function SavedLocationFiles() {
         .select('data')
         .eq('hierarchy_type', 'location_hierarchy')
         .order('created_at', { ascending: false })
-        .limit(1);
+        .limit(1)
+        .single();
 
       if (hierarchyError) throw hierarchyError;
       
-      if (!hierarchyData || hierarchyData.length === 0 || !hierarchyData[0].data) {
+      if (!hierarchyData?.data) {
         throw new Error('No data found');
       }
 
-      const locationData = hierarchyData[0].data as LocationData[];
+      const locationData = hierarchyData.data as LocationData[];
 
       if (!Array.isArray(locationData) || locationData.length === 0) {
         throw new Error('Invalid data format');
@@ -83,17 +93,13 @@ export function SavedLocationFiles() {
       const csvContent = [
         headers.join(','),
         ...locationData.map((row) => 
-          headers.map(header => {
-            const value = row[header];
-            if (typeof value === 'string' && (value.includes(',') || value.includes('"') || value.includes('\n'))) {
-              return `"${value.replace(/"/g, '""')}"`;
-            }
-            return value;
-          }).join(',')
+          headers.map(header => sanitizeCSVValue(row[header])).join(',')
         )
       ].join('\n');
 
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const blob = new Blob([csvContent], { 
+        type: 'text/csv;charset=utf-8;' 
+      });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -109,10 +115,11 @@ export function SavedLocationFiles() {
       });
     } catch (error) {
       console.error('Error downloading file:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to download file';
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to download file"
+        description: errorMessage
       });
     } finally {
       setIsLoading(false);

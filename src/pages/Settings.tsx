@@ -10,12 +10,10 @@ import { LeadTimeUpload } from "@/components/settings/lead-time/LeadTimeUpload";
 import { ReplenishmentUpload } from "@/components/settings/replenishment/ReplenishmentUpload";
 import { Separator } from "@/components/ui/separator";
 import { Clock, Timer } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Settings = () => {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
 
@@ -26,7 +24,11 @@ const Settings = () => {
   }, [user, isLoading, navigate]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p>Loading...</p>
+      </div>
+    );
   }
 
   if (!user) {
