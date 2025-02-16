@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { FileUpload } from "../upload/FileUpload";
 import { HierarchyTableView } from "../hierarchy/HierarchyTableView";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +12,7 @@ import { SavedLocationFiles } from "./SavedLocationFiles";
 
 export function LocationHierarchyUpload() {
   const [uploadedData, setUploadedData] = useState<TableRowData[]>([]);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user, isLoading } = useAuth();
@@ -88,6 +88,9 @@ export function LocationHierarchyUpload() {
       // Invalidate the locations query to refresh the filters
       queryClient.invalidateQueries({ queryKey: ['locations'] });
 
+      // Trigger refresh of the saved files list
+      setRefreshTrigger(prev => prev + 1);
+
       toast({
         title: "Success",
         description: "Location hierarchy has been updated successfully",
@@ -115,6 +118,10 @@ export function LocationHierarchyUpload() {
 
   if (isLoading) {
     return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (
@@ -148,7 +155,7 @@ export function LocationHierarchyUpload() {
         </div>
       )}
 
-      <SavedLocationFiles />
+      <SavedLocationFiles triggerRefresh={refreshTrigger} />
     </div>
   );
 }

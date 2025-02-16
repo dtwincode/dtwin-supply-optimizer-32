@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Download, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -38,7 +37,11 @@ interface LocationData {
   [key: string]: string | number | boolean | null;
 }
 
-export function SavedLocationFiles() {
+interface SavedLocationFilesProps {
+  triggerRefresh?: number;
+}
+
+export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesProps) {
   const [files, setFiles] = useState<SavedFile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +51,7 @@ export function SavedLocationFiles() {
 
   useEffect(() => {
     fetchSavedFiles();
-  }, []);
+  }, [triggerRefresh]);
 
   const fetchSavedFiles = async () => {
     try {
@@ -76,12 +79,10 @@ export function SavedLocationFiles() {
     try {
       setIsLoading(true);
       
-      // Update local state first
       const updatedFiles = files.filter(f => f.id !== fileId);
       setFiles(updatedFiles);
       setIsOpen(false);
 
-      // Then update database
       const { error } = await supabase
         .from('location_hierarchy_files')
         .update({ is_active: false })
@@ -97,7 +98,6 @@ export function SavedLocationFiles() {
       });
     } catch (error) {
       console.error('Error deleting file:', error);
-      // Revert the UI change on error
       fetchSavedFiles();
       toast({
         variant: "destructive",
