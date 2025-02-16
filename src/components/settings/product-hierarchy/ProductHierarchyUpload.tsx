@@ -1,9 +1,8 @@
-
 import { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, Trash2, Save, Download } from 'lucide-react';
+import { Upload, Trash2, Save, Download, FileBox } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { HierarchyTableView } from '../hierarchy/HierarchyTableView';
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -283,8 +282,26 @@ export function ProductHierarchyUpload() {
     }
   };
 
+  // Separate query for the latest saved hierarchy
+  const { data: latestSavedHierarchy } = useQuery({
+    queryKey: ['latestHierarchyData', 'product'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('permanent_hierarchy_data')
+        .select('*')
+        .eq('hierarchy_type', 'product')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
   return (
     <div className="space-y-6">
+      {/* Upload Section */}
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">Upload Product Hierarchy</h3>
         <div className="space-y-4">
@@ -355,37 +372,73 @@ export function ProductHierarchyUpload() {
         </div>
       </Card>
 
-      {/* Always show the Saved Hierarchies section, even when empty */}
+      {/* Latest Saved File Section */}
+      <Card className="p-6 border-green-200">
+        <div className="flex items-center gap-2 mb-4">
+          <FileBox className="h-5 w-5 text-green-600" />
+          <h3 className="text-lg font-semibold">Latest Saved File</h3>
+        </div>
+        {latestSavedHierarchy ? (
+          <div className="border rounded-lg p-4 bg-green-50/50">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="font-medium">Product Hierarchy</p>
+                <p className="text-sm text-muted-foreground">
+                  Saved on {new Date(latestSavedHierarchy.created_at).toLocaleDateString()}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                className="flex items-center gap-2 text-blue-600 hover:text-blue-600 hover:bg-blue-50"
+                onClick={() => handleDownloadHierarchy(latestSavedHierarchy)}
+              >
+                <Download className="h-4 w-4" />
+                Download
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">No files have been saved yet.</p>
+        )}
+      </Card>
+
+      {/* All Saved Files Section */}
       <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Saved Product Hierarchies</h3>
+        <h3 className="text-lg font-semibold mb-4">All Saved Hierarchies</h3>
         <div className="space-y-2">
           {savedHierarchies && savedHierarchies.length > 0 ? (
             savedHierarchies.map((hierarchy) => (
               <div
                 key={hierarchy.id}
-                className="flex items-center justify-between p-2 rounded-md border hover:bg-accent"
+                className="flex items-center justify-between p-3 rounded-md border hover:bg-accent"
               >
-                <Button
-                  variant="ghost"
-                  className="text-sm text-left flex-1"
-                  onClick={() => handleLoadHierarchy(hierarchy)}
-                >
-                  Product Hierarchy {new Date(hierarchy.created_at).toLocaleDateString()} 
-                  {hierarchy.is_active && <span className="ml-2 text-green-600">(Active)</span>}
-                </Button>
+                <div className="flex-1">
+                  <p className="font-medium">Product Hierarchy</p>
+                  <p className="text-sm text-muted-foreground">
+                    {new Date(hierarchy.created_at).toLocaleDateString()}
+                    {hierarchy.is_active && <span className="ml-2 text-green-600">(Active)</span>}
+                  </p>
+                </div>
                 <div className="flex gap-2">
                   <Button
+                    variant="outline"
+                    onClick={() => handleLoadHierarchy(hierarchy)}
+                    className="text-sm"
+                  >
+                    Load
+                  </Button>
+                  <Button
                     size="icon"
-                    variant="ghost"
+                    variant="outline"
                     onClick={() => handleDownloadHierarchy(hierarchy)}
-                    className="text-blue-600 hover:text-blue-600 hover:bg-blue-100"
+                    className="text-blue-600 hover:text-blue-600 hover:bg-blue-50"
                     title="Download hierarchy"
                   >
                     <Download className="h-4 w-4" />
                   </Button>
                   <Button
                     size="icon"
-                    variant="ghost"
+                    variant="outline"
                     onClick={() => handleDeleteHierarchy(hierarchy.id)}
                     className="text-destructive hover:text-destructive hover:bg-destructive/10"
                   >
@@ -402,6 +455,7 @@ export function ProductHierarchyUpload() {
         </div>
       </Card>
 
+      {/* Preview Section */}
       {previewState && previewState.columns.length > 0 && previewState.previewData.length > 0 && (
         <HierarchyTableView 
           tableName="product_hierarchy"
