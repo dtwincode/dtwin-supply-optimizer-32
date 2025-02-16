@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -31,8 +32,8 @@ export function HierarchyTable({
   const [columnFilters, setColumnFilters] = React.useState<Record<string, Set<string>>>({});
 
   const getRowKey = (row: TableRowData, index: number): string => {
-    const id = row.id !== undefined ? String(row.id) : String(index);
-    const sku = row.sku !== undefined ? String(row.sku) : '';
+    const id = row?.id !== undefined ? String(row.id) : String(index);
+    const sku = row?.sku !== undefined ? String(row.sku) : '';
     return `row-${id}-${sku}`;
   };
 
@@ -46,30 +47,41 @@ export function HierarchyTable({
   };
 
   const getUniqueValues = (column: string): string[] => {
-    if (!data || !column) return [];
+    if (!Array.isArray(data) || !column) return [];
     
-    const values = new Set<string>();
-    data.forEach(row => {
-      if (!row) return;
+    try {
+      const values = new Set<string>();
+      data.forEach(row => {
+        if (!row || typeof row !== 'object') return;
+        
+        const value = row[column];
+        if (value !== null && value !== undefined) {
+          values.add(String(value));
+        }
+      });
       
-      const value = row[column];
-      if (value !== null && value !== undefined) {
-        values.add(String(value));
-      }
-    });
-    return Array.from(values).sort();
+      const uniqueValues = Array.from(values);
+      return uniqueValues.sort();
+    } catch (error) {
+      console.error('Error getting unique values:', error);
+      return [];
+    }
   };
 
-  const filteredData = data.filter(row => {
-    if (!row) return false;
+  const filteredData = React.useMemo(() => {
+    if (!Array.isArray(data)) return [];
     
-    return Object.entries(columnFilters).every(([column, selectedValues]) => {
-      if (!selectedValues || selectedValues.size === 0) return true;
-      const value = row[column];
-      if (value === null || value === undefined) return false;
-      return selectedValues.has(String(value));
+    return data.filter(row => {
+      if (!row || typeof row !== 'object') return false;
+      
+      return Object.entries(columnFilters).every(([column, selectedValues]) => {
+        if (!selectedValues || !selectedValues.size) return true;
+        const value = row[column];
+        if (value === null || value === undefined) return false;
+        return selectedValues.has(String(value));
+      });
     });
-  });
+  }, [data, columnFilters]);
 
   const toggleFilter = (column: string, value: string) => {
     if (!column || value === undefined) return;
@@ -85,7 +97,11 @@ export function HierarchyTable({
         } else {
           newSet.add(value);
         }
-        newFilters[column] = newSet;
+        if (newSet.size === 0) {
+          delete newFilters[column];
+        } else {
+          newFilters[column] = newSet;
+        }
       }
       return newFilters;
     });
