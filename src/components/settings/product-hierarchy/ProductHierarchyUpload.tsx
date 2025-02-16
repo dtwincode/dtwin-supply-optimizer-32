@@ -18,20 +18,6 @@ export function ProductHierarchyUpload() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Query for product hierarchy data
-  const { data: productData } = useQuery({
-    queryKey: ['productHierarchy'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('product_hierarchy')
-        .select('*')
-        .limit(100);
-      
-      if (error) throw error;
-      return data;
-    }
-  });
-
   // Query for saved files
   const { data: savedFiles, refetch: refetchSavedFiles } = useQuery({
     queryKey: ['savedHierarchyFiles', 'product'],
@@ -162,10 +148,24 @@ export function ProductHierarchyUpload() {
   };
 
   const handleLoadSavedFile = async (fileData: any) => {
+    if (!fileData.data) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No data found in the saved file",
+      });
+      return;
+    }
+
     queryClient.setQueryData(['productHierarchyPreview'], {
-      columns: fileData.data.columns,
-      previewData: fileData.data.previewData,
-      combinedHeaders: fileData.data.combinedHeaders
+      columns: fileData.data.columns || [],
+      previewData: fileData.data.previewData || [],
+      combinedHeaders: fileData.data.combinedHeaders || []
+    });
+
+    toast({
+      title: "Success",
+      description: "File loaded successfully",
     });
   };
 
@@ -286,6 +286,7 @@ export function ProductHierarchyUpload() {
         </div>
       </Card>
 
+      {/* Saved Files Box */}
       {savedFiles && savedFiles.length > 0 && (
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4">Saved Files</h3>

@@ -800,32 +800,38 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
+          data: Json
           file_name: string
           file_type: string
           hierarchy_type: string
           id: string
           original_name: string
           storage_path: string
+          updated_at: string
         }
         Insert: {
           created_at?: string
           created_by?: string | null
+          data: Json
           file_name: string
           file_type: string
           hierarchy_type: string
           id?: string
           original_name: string
           storage_path: string
+          updated_at?: string
         }
         Update: {
           created_at?: string
           created_by?: string | null
+          data?: Json
           file_name?: string
           file_type?: string
           hierarchy_type?: string
           id?: string
           original_name?: string
           storage_path?: string
+          updated_at?: string
         }
         Relationships: []
       }
