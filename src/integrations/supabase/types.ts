@@ -1260,6 +1260,42 @@ export type Database = {
         }
         Relationships: []
       }
+      location_hierarchy_files: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          file_name: string
+          file_size: number | null
+          file_type: string | null
+          id: string
+          is_active: boolean | null
+          metadata: Json | null
+          original_name: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          file_name: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          original_name: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          file_name?: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          original_name?: string
+        }
+        Relationships: []
+      }
       logistics_data: {
         Row: {
           actual_delivery: string | null

@@ -11,6 +11,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { TableRowData, ColumnHeader } from "../hierarchy/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { SavedLocationFiles } from "./SavedLocationFiles";
 
 export function LocationHierarchyUpload() {
   const [uploadedData, setUploadedData] = useState<TableRowData[]>([]);
@@ -29,7 +30,6 @@ export function LocationHierarchyUpload() {
 
   const handleUploadComplete = (data: TableRowData[]) => {
     setUploadedData(data);
-    // Generate a unique filename when upload is complete
     setSavedFileName(`location_hierarchy_${new Date().getTime()}`);
   };
 
@@ -52,7 +52,7 @@ export function LocationHierarchyUpload() {
         .eq('hierarchy_type', 'location_hierarchy');
 
       // Then insert the new data
-      const { error } = await supabase
+      const { error: hierarchyError } = await supabase
         .from('permanent_hierarchy_data')
         .insert({
           hierarchy_type: 'location_hierarchy',
@@ -62,7 +62,21 @@ export function LocationHierarchyUpload() {
           created_at: new Date().toISOString()
         });
 
-      if (error) throw error;
+      if (hierarchyError) throw hierarchyError;
+
+      // Save file reference
+      const { error: fileError } = await supabase
+        .from('location_hierarchy_files')
+        .insert({
+          file_name: savedFileName,
+          original_name: `Location Hierarchy ${new Date().toLocaleDateString()}`,
+          created_by: user.id,
+          file_type: 'json',
+          file_size: JSON.stringify(uploadedData).length,
+          metadata: { records: uploadedData.length }
+        });
+
+      if (fileError) throw fileError;
 
       // Invalidate the locations query to refresh the filters
       queryClient.invalidateQueries({ queryKey: ['locations'] });
@@ -146,6 +160,8 @@ export function LocationHierarchyUpload() {
           />
         </div>
       )}
+
+      <SavedLocationFiles />
     </div>
   );
 }
