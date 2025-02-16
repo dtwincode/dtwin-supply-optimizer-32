@@ -286,20 +286,18 @@ export function ProductHierarchyUpload() {
             </Button>
           )}
 
-          {isUploading && (
+          {(isUploading || isSaving) && (
             <div className="space-y-2">
-              <Progress value={uploadProgress} className="w-full" />
+              <Progress 
+                value={isUploading ? uploadProgress : saveProgress} 
+                className="w-full" 
+              />
               <p className="text-sm text-muted-foreground text-center">
-                {uploadProgress}% - {uploadProgress < 100 ? 'Uploading...' : 'Complete'}
-              </p>
-            </div>
-          )}
-
-          {isSaving && (
-            <div className="space-y-2">
-              <Progress value={saveProgress} className="w-full" />
-              <p className="text-sm text-muted-foreground text-center">
-                {saveProgress}% - {saveProgress < 100 ? 'Saving...' : 'Complete'}
+                {isUploading ? (
+                  `${uploadProgress}% - ${uploadProgress < 100 ? 'Uploading...' : 'Complete'}`
+                ) : (
+                  `${saveProgress}% - ${saveProgress < 100 ? 'Saving...' : 'Complete'}`
+                )}
               </p>
             </div>
           )}
