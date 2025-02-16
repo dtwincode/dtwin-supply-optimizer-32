@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -52,7 +51,7 @@ export function ProductHierarchyUpload() {
     const uploadedFile = event.target.files?.[0];
     if (!uploadedFile) return;
     setFile(uploadedFile);
-    setProgress(0);
+    setUploadProgress(0);
     setSavedFileName(null);
   };
 
@@ -109,7 +108,7 @@ export function ProductHierarchyUpload() {
 
   const handleDeleteCurrentFile = () => {
     setFile(null);
-    setProgress(0);
+    setUploadProgress(0);
     setSavedFileName(null);
     
     // Clear the preview data from React Query cache
