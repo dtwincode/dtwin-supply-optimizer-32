@@ -8,14 +8,15 @@ import { Badge } from "@/components/ui/badge";
 import { Save, Upload, FileCheck2, Filter } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
+import { TableRowData, ColumnHeader } from "../hierarchy/types";
 
 export function LocationHierarchyUpload() {
-  const [uploadedData, setUploadedData] = useState<any[]>([]);
+  const [uploadedData, setUploadedData] = useState<TableRowData[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const handleUploadComplete = (data: any[]) => {
+  const handleUploadComplete = (data: TableRowData[]) => {
     setUploadedData(data);
   };
 
@@ -35,6 +36,7 @@ export function LocationHierarchyUpload() {
           hierarchy_type: 'location_hierarchy',
           data: uploadedData,
           is_active: true,
+          version: 1, // Adding required version field
           created_at: new Date().toISOString()
         });
 
@@ -58,6 +60,17 @@ export function LocationHierarchyUpload() {
       setIsUploading(false);
     }
   };
+
+  // Get column headers from the first row of data
+  const columns = uploadedData.length > 0 
+    ? Object.keys(uploadedData[0])
+    : [];
+
+  // Create combined headers with sample data
+  const combinedHeaders: ColumnHeader[] = columns.map(column => ({
+    column,
+    sampleData: uploadedData[0]?.[column]?.toString() || ''
+  }));
 
   return (
     <div className="space-y-6">
@@ -97,7 +110,12 @@ export function LocationHierarchyUpload() {
               )}
             </Button>
           </div>
-          <HierarchyTableView data={uploadedData} />
+          <HierarchyTableView 
+            data={uploadedData}
+            tableName="location_hierarchy"
+            columns={columns}
+            combinedHeaders={combinedHeaders}
+          />
         </div>
       )}
     </div>
