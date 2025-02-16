@@ -83,11 +83,6 @@ export function HierarchyTableView({
       </div>
 
       <div className="space-y-4">
-        <HierarchyTableHeader
-          totalItems={data.length}
-          startIndex={0}
-          endIndex={Math.min(50, data.length)}
-        />
         <HierarchyTable
           data={data}
           columns={columns}
