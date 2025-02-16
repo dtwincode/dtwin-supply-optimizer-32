@@ -1,17 +1,16 @@
+
 import { useState, useEffect } from "react";
 import { FileUpload } from "../upload/FileUpload";
 import { HierarchyTableView } from "../hierarchy/HierarchyTableView";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Filter, Download, FileBox, Trash2 } from 'lucide-react';
+import { Filter } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { TableRowData, ColumnHeader } from "../hierarchy/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { Card } from "@/components/ui/card";
-import * as XLSX from 'xlsx';
 
 export function LocationHierarchyUpload() {
   const [uploadedData, setUploadedData] = useState<TableRowData[]>([]);
@@ -22,40 +21,6 @@ export function LocationHierarchyUpload() {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
 
-  // Query for the latest saved hierarchy
-  const { data: latestSavedHierarchy, refetch: refetchLatest } = useQuery({
-    queryKey: ['latestHierarchyData', 'location'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('permanent_hierarchy_data')
-        .select('*')
-        .eq('hierarchy_type', 'location_hierarchy')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      
-      if (error) throw error;
-      return data;
-    },
-    staleTime: 0
-  });
-
-  // Query for all saved hierarchies
-  const { data: savedHierarchies, refetch: refetchAll } = useQuery({
-    queryKey: ['locationHierarchies'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('permanent_hierarchy_data')
-        .select('*')
-        .eq('hierarchy_type', 'location_hierarchy')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data;
-    },
-    staleTime: 0
-  });
-
   useEffect(() => {
     if (!isLoading && !user) {
       navigate('/auth');
@@ -63,108 +28,71 @@ export function LocationHierarchyUpload() {
   }, [user, isLoading, navigate]);
 
   const handleUploadComplete = (data: TableRowData[]) => {
-    // Filter out any system files or metadata
-    const cleanedData = data.filter(row => {
-      // Check if the row has actual location data properties
-      return !Object.keys(row).some(key => 
-        key.includes('xml') || 
-        key.includes('rels') || 
-        key.includes('workbook') ||
-        key.startsWith('_')
-      );
-    });
-
-    // Only set data if we have valid rows
-    if (cleanedData.length > 0) {
-      setUploadedData(cleanedData);
-      setSavedFileName(`location_hierarchy_${new Date().getTime()}`);
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Invalid data format",
-        description: "The uploaded file doesn't contain valid location hierarchy data",
-      });
-    }
+    setUploadedData(data);
+    // Generate a unique filename when upload is complete
+    setSavedFileName(`location_hierarchy_${new Date().getTime()}`);
   };
 
-  const handleDownloadHierarchy = (hierarchy: any) => {
-    if (!hierarchy.data || !Array.isArray(hierarchy.data)) {
+  const handlePushToFilters = async () => {
+    if (!user) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Invalid hierarchy data for download",
+        title: "Authentication Required",
+        description: "Please log in to update location hierarchy",
       });
       return;
     }
 
+    setIsUploading(true);
     try {
-      // Create workbook and worksheet
-      const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.json_to_sheet(hierarchy.data);
+      // First, mark all existing location hierarchies as inactive
+      await supabase
+        .from('permanent_hierarchy_data')
+        .update({ is_active: false })
+        .eq('hierarchy_type', 'location_hierarchy');
 
-      // Add worksheet to workbook
-      XLSX.utils.book_append_sheet(wb, ws, "Location Hierarchy");
-
-      // Generate Excel file
-      const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-      const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-
-      // Create download link
-      const url = window.URL.createObjectURL(data);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `location_hierarchy_${new Date().toISOString().split('T')[0]}.xlsx`;
-      link.click();
-
-      // Cleanup
-      window.URL.revokeObjectURL(url);
-
-      toast({
-        title: "Success",
-        description: "Hierarchy file downloaded successfully",
-      });
-    } catch (error) {
-      console.error('Download error:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to download hierarchy file",
-      });
-    }
-  };
-
-  const handleDeleteHierarchy = async (hierarchyId: string) => {
-    try {
+      // Then insert the new data
       const { error } = await supabase
         .from('permanent_hierarchy_data')
-        .delete()
-        .eq('id', hierarchyId);
+        .insert({
+          hierarchy_type: 'location_hierarchy',
+          data: uploadedData,
+          is_active: true,
+          version: 1,
+          created_at: new Date().toISOString()
+        });
 
       if (error) throw error;
 
-      // First invalidate the queries
-      await queryClient.invalidateQueries({ queryKey: ['locationHierarchies'] });
-      await queryClient.invalidateQueries({ queryKey: ['latestHierarchyData', 'location'] });
-
-      // Then force refetch both queries
-      await Promise.all([
-        refetchAll(),
-        refetchLatest()
-      ]);
+      // Invalidate the locations query to refresh the filters
+      queryClient.invalidateQueries({ queryKey: ['locations'] });
 
       toast({
         title: "Success",
-        description: "Hierarchy deleted successfully",
+        description: "Location hierarchy has been updated successfully",
       });
     } catch (error) {
-      console.error('Delete error:', error);
+      console.error('Error pushing location hierarchy:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to delete hierarchy",
+        description: "Failed to update location hierarchy"
       });
+    } finally {
+      setIsUploading(false);
     }
   };
+
+  // Get column headers from the first row of data
+  const columns = uploadedData.length > 0 
+    ? Object.keys(uploadedData[0])
+    : [];
+
+  // Create combined headers with sample data
+  const combinedHeaders: ColumnHeader[] = columns.map(column => ({
+    column,
+    sampleData: uploadedData[0]?.[column]?.toString() || ''
+  }));
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -187,93 +115,34 @@ export function LocationHierarchyUpload() {
         maxFileSize={5}
       />
 
-      {/* Latest Saved File Section */}
-      <Card className="p-8 border-[#82ca9d] border-2 rounded-2xl">
-        <div className="flex items-center gap-3 mb-6">
-          <FileBox className="h-7 w-7 text-[#16a34a]" />
-          <h3 className="text-2xl font-semibold">Latest Saved File</h3>
-        </div>
-        {latestSavedHierarchy ? (
-          <div className="space-y-2">
-            <p className="font-medium text-lg">Location Hierarchy</p>
-            <p className="text-base text-muted-foreground">
-              Saved on {new Date(latestSavedHierarchy.created_at).toLocaleDateString()}
-            </p>
-            <Button
-              variant="outline"
-              className="mt-4 flex items-center gap-2 text-blue-600 hover:text-blue-600 hover:bg-blue-50"
-              onClick={() => handleDownloadHierarchy(latestSavedHierarchy)}
-            >
-              <Download className="h-4 w-4" />
-              Download
-            </Button>
-          </div>
-        ) : (
-          <p className="text-xl text-[#64748b]">No files have been saved yet.</p>
-        )}
-      </Card>
-
-      {/* All Saved Files Section */}
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">All Saved Hierarchies</h3>
-        <div className="space-y-2">
-          {savedHierarchies && savedHierarchies.length > 0 ? (
-            savedHierarchies.map((hierarchy) => (
-              <div
-                key={hierarchy.id}
-                className="flex items-center justify-between p-3 rounded-md border hover:bg-accent"
-              >
-                <div className="flex-1">
-                  <p className="font-medium">Location Hierarchy</p>
-                  <p className="text-sm text-muted-foreground">
-                    {new Date(hierarchy.created_at).toLocaleDateString()}
-                    {hierarchy.is_active && <span className="ml-2 text-green-600">(Active)</span>}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    onClick={() => handleDownloadHierarchy(hierarchy)}
-                    className="text-blue-600 hover:text-blue-600 hover:bg-blue-50"
-                    title="Download hierarchy"
-                  >
-                    <Download className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    onClick={() => handleDeleteHierarchy(hierarchy.id)}
-                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              No saved hierarchies yet. Upload and save a file to see it here.
-            </p>
-          )}
-        </div>
-      </Card>
-
       {uploadedData.length > 0 && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Badge variant="secondary" className="h-7">
               {uploadedData.length} records
             </Badge>
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handlePushToFilters}
+                disabled={isUploading}
+                className="h-8 w-8 hover:bg-primary/10"
+                title="Push to location filters"
+              >
+                {isUploading ? (
+                  <Filter className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Filter className="h-4 w-4 text-primary" />
+                )}
+              </Button>
+            </div>
           </div>
           <HierarchyTableView 
             data={uploadedData}
             tableName="location_hierarchy"
-            columns={Object.keys(uploadedData[0] || {})}
-            combinedHeaders={Object.keys(uploadedData[0] || {}).map(key => ({
-              column: key,
-              sampleData: uploadedData[0]?.[key]?.toString() || ''
-            }))}
+            columns={columns}
+            combinedHeaders={combinedHeaders}
           />
         </div>
       )}

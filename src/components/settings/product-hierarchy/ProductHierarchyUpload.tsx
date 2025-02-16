@@ -1,13 +1,13 @@
+
 import { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, Trash2, Save, Download, FileBox } from 'lucide-react';
+import { Upload, Trash2, Save } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { HierarchyTableView } from '../hierarchy/HierarchyTableView';
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Progress } from "@/components/ui/progress";
-import * as XLSX from 'xlsx';
 
 export function ProductHierarchyUpload() {
   const [file, setFile] = useState<File | null>(null);
@@ -52,54 +52,8 @@ export function ProductHierarchyUpload() {
     const uploadedFile = event.target.files?.[0];
     if (!uploadedFile) return;
     setFile(uploadedFile);
-    setUploadProgress(0);
+    setProgress(0);
     setSavedFileName(null);
-  };
-
-  const handleDownloadHierarchy = (hierarchy: any) => {
-    if (!hierarchy.data || !Array.isArray(hierarchy.data)) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Invalid hierarchy data for download",
-      });
-      return;
-    }
-
-    try {
-      // Create workbook and worksheet
-      const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.json_to_sheet(hierarchy.data);
-
-      // Add worksheet to workbook
-      XLSX.utils.book_append_sheet(wb, ws, "Product Hierarchy");
-
-      // Generate Excel file
-      const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-      const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-
-      // Create download link
-      const url = window.URL.createObjectURL(data);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `product_hierarchy_${new Date().toISOString().split('T')[0]}.xlsx`;
-      link.click();
-
-      // Cleanup
-      window.URL.revokeObjectURL(url);
-
-      toast({
-        title: "Success",
-        description: "Hierarchy file downloaded successfully",
-      });
-    } catch (error) {
-      console.error('Download error:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to download hierarchy file",
-      });
-    }
   };
 
   const handleDeleteHierarchy = async (hierarchyId: string) => {
@@ -155,7 +109,7 @@ export function ProductHierarchyUpload() {
 
   const handleDeleteCurrentFile = () => {
     setFile(null);
-    setUploadProgress(0);
+    setProgress(0);
     setSavedFileName(null);
     
     // Clear the preview data from React Query cache
@@ -183,28 +137,26 @@ export function ProductHierarchyUpload() {
     
     try {
       setSaveProgress(50); // Inserting data
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('permanent_hierarchy_data')
         .insert({
           hierarchy_type: 'product',
           data: previewState.previewData,
           is_active: true,
           version: 1
-        })
-        .select()
-        .single();
+        });
 
       if (error) throw error;
       setSaveProgress(75); // Data inserted
-
-      // Refresh the saved hierarchies list
-      await refetchSavedHierarchies();
-      setSaveProgress(90); // Data refreshed
 
       toast({
         title: "Success",
         description: `File "${file.name}" saved permanently`,
       });
+
+      // Refresh the saved hierarchies list
+      await refetchSavedHierarchies();
+      setSaveProgress(90); // Data refreshed
       
       // Clear the current file
       handleDeleteCurrentFile();
@@ -282,26 +234,8 @@ export function ProductHierarchyUpload() {
     }
   };
 
-  // Modified query for the latest saved hierarchy
-  const { data: latestSavedHierarchy } = useQuery({
-    queryKey: ['latestHierarchyData', 'product'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('permanent_hierarchy_data')
-        .select('*')
-        .eq('hierarchy_type', 'product')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      
-      if (error) throw error;
-      return data;
-    }
-  });
-
   return (
     <div className="space-y-6">
-      {/* Upload Section */}
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">Upload Product Hierarchy</h3>
         <div className="space-y-4">
@@ -372,86 +306,38 @@ export function ProductHierarchyUpload() {
         </div>
       </Card>
 
-      {/* Latest Saved File Section - Updated to match the design */}
-      <Card className="p-8 border-[#82ca9d] border-2 rounded-2xl">
-        <div className="flex items-center gap-3 mb-6">
-          <FileBox className="h-7 w-7 text-[#16a34a]" />
-          <h3 className="text-2xl font-semibold">Latest Saved File</h3>
-        </div>
-        {latestSavedHierarchy ? (
+      {/* Saved Hierarchies Box */}
+      {savedHierarchies && savedHierarchies.length > 0 && (
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Saved Product Hierarchies</h3>
           <div className="space-y-2">
-            <p className="font-medium text-lg">Product Hierarchy</p>
-            <p className="text-base text-muted-foreground">
-              Saved on {new Date(latestSavedHierarchy.created_at).toLocaleDateString()}
-            </p>
-            <Button
-              variant="outline"
-              className="mt-4 flex items-center gap-2 text-blue-600 hover:text-blue-600 hover:bg-blue-50"
-              onClick={() => handleDownloadHierarchy(latestSavedHierarchy)}
-            >
-              <Download className="h-4 w-4" />
-              Download
-            </Button>
-          </div>
-        ) : (
-          <p className="text-xl text-[#64748b]">No files have been saved yet.</p>
-        )}
-      </Card>
-
-      {/* All Saved Files Section */}
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">All Saved Hierarchies</h3>
-        <div className="space-y-2">
-          {savedHierarchies && savedHierarchies.length > 0 ? (
-            savedHierarchies.map((hierarchy) => (
+            {savedHierarchies.map((hierarchy) => (
               <div
                 key={hierarchy.id}
-                className="flex items-center justify-between p-3 rounded-md border hover:bg-accent"
+                className="flex items-center justify-between p-2 rounded-md border hover:bg-accent"
               >
-                <div className="flex-1">
-                  <p className="font-medium">Product Hierarchy</p>
-                  <p className="text-sm text-muted-foreground">
-                    {new Date(hierarchy.created_at).toLocaleDateString()}
-                    {hierarchy.is_active && <span className="ml-2 text-green-600">(Active)</span>}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => handleLoadHierarchy(hierarchy)}
-                    className="text-sm"
-                  >
-                    Load
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    onClick={() => handleDownloadHierarchy(hierarchy)}
-                    className="text-blue-600 hover:text-blue-600 hover:bg-blue-50"
-                    title="Download hierarchy"
-                  >
-                    <Download className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    onClick={() => handleDeleteHierarchy(hierarchy.id)}
-                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
+                <Button
+                  variant="ghost"
+                  className="text-sm text-left flex-1"
+                  onClick={() => handleLoadHierarchy(hierarchy)}
+                >
+                  Product Hierarchy {new Date(hierarchy.created_at).toLocaleDateString()} 
+                  {hierarchy.is_active && <span className="ml-2 text-green-600">(Active)</span>}
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => handleDeleteHierarchy(hierarchy.id)}
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
-            ))
-          ) : (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              No saved hierarchies yet. Upload and save a file to see it here.
-            </p>
-          )}
-        </div>
-      </Card>
+            ))}
+          </div>
+        </Card>
+      )}
 
-      {/* Preview Section */}
       {previewState && previewState.columns.length > 0 && previewState.previewData.length > 0 && (
         <HierarchyTableView 
           tableName="product_hierarchy"
