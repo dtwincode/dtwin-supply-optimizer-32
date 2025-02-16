@@ -7,6 +7,8 @@ import { HierarchyTable } from "./components/HierarchyTable";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
+import { ColumnSelector } from "./components/ColumnSelector";
 
 interface HierarchyTableViewProps {
   data: TableRowData[];
@@ -23,6 +25,7 @@ export function HierarchyTableView({
 }: HierarchyTableViewProps) {
   const { toast } = useToast();
   const { user } = useAuth();
+  const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set(columns));
 
   const handleSave = async () => {
     if (!user) {
@@ -72,6 +75,13 @@ export function HierarchyTableView({
         </div>
       </div>
 
+      <ColumnSelector
+        tableName={tableName}
+        combinedHeaders={combinedHeaders}
+        selectedColumns={selectedColumns}
+        onSelectedColumnsChange={setSelectedColumns}
+      />
+
       <div className="flex items-center gap-4 mb-4">
         <Button
           variant="ghost"
@@ -87,7 +97,7 @@ export function HierarchyTableView({
       <div className="space-y-4">
         <HierarchyTable
           data={data}
-          columns={columns}
+          columns={Array.from(selectedColumns)}
           combinedHeaders={combinedHeaders}
         />
       </div>
