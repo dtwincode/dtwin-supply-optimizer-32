@@ -4,7 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
-import { CheckSquare, XSquare, Trash2, Save, Download } from "lucide-react";
+import { CheckSquare, XSquare, Trash2, Save, Download, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ColumnHeader } from "../types";
 import { useAuth } from "@/contexts/AuthContext";
@@ -20,6 +20,13 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ColumnSelectorProps {
   tableName: string;
@@ -40,8 +47,18 @@ export function ColumnSelector({
 }: ColumnSelectorProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [savedFiles, setSavedFiles] = useState<any[]>([]);
+  const [selectedColumn, setSelectedColumn] = useState<string>("");
+  const [uniqueValues, setUniqueValues] = useState<string[]>([]);
   const queryClient = useQueryClient();
   const { user } = useAuth();
+
+  // Get unique values for selected column
+  useEffect(() => {
+    if (selectedColumn && data) {
+      const values = new Set(data.map(item => item[selectedColumn]).filter(Boolean));
+      setUniqueValues(Array.from(values) as string[]);
+    }
+  }, [selectedColumn, data]);
 
   // Fetch saved files
   const fetchSavedFiles = async () => {
@@ -233,6 +250,37 @@ export function ColumnSelector({
         <div className="flex items-center justify-between mb-3">
           <h4 className="text-sm font-medium">Column Selection</h4>
           <div className="flex gap-2">
+            <div className="flex items-center gap-2 mr-4">
+              <Select
+                value={selectedColumn}
+                onValueChange={setSelectedColumn}
+              >
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Select column to filter" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from(selectedColumns).map((column) => (
+                    <SelectItem key={column} value={column}>
+                      {column}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {selectedColumn && (
+                <ScrollArea className="h-[200px] w-[200px] rounded-md border">
+                  <div className="p-4">
+                    <h5 className="text-sm font-medium mb-2">Unique Values</h5>
+                    <div className="space-y-2">
+                      {uniqueValues.map((value) => (
+                        <div key={value} className="text-sm">
+                          {value}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </ScrollArea>
+              )}
+            </div>
             <Button
               variant="ghost"
               size="sm"
@@ -297,6 +345,7 @@ export function ColumnSelector({
             )}
           </div>
         </div>
+        
         <ScrollArea className="h-[120px] w-full rounded-md border p-4">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {combinedHeaders.map(({ column }) => (
@@ -319,7 +368,6 @@ export function ColumnSelector({
         </ScrollArea>
       </div>
 
-      {/* Saved Files Section */}
       {savedFiles.length > 0 && (
         <Card className="p-4">
           <h4 className="text-sm font-medium mb-3">Saved Files</h4>
