@@ -1,8 +1,8 @@
-
 import { useState, useEffect } from "react";
-import { Download, Trash2 } from "lucide-react";
+import { Download, Trash2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -22,6 +22,7 @@ interface LocationData {
 export function SavedLocationFiles() {
   const [files, setFiles] = useState<SavedFile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -38,8 +39,10 @@ export function SavedLocationFiles() {
 
       if (error) throw error;
       setFiles(data || []);
+      setError(null);
     } catch (error) {
       console.error('Error fetching files:', error);
+      setError('Failed to load saved files');
       toast({
         variant: "destructive",
         title: "Error",
@@ -79,7 +82,6 @@ export function SavedLocationFiles() {
   const handleDownload = async (fileName: string) => {
     try {
       setIsLoading(true);
-      // First get the data from the permanent hierarchy data table
       const { data: hierarchyData, error: hierarchyError } = await supabase
         .from('permanent_hierarchy_data')
         .select('data')
@@ -99,14 +101,12 @@ export function SavedLocationFiles() {
         throw new Error('Invalid data format');
       }
 
-      // Convert data to CSV
       const headers = Object.keys(locationData[0]);
       const csvContent = [
         headers.join(','), // Header row
         ...locationData.map((row) => 
           headers.map(header => {
             const value = row[header];
-            // Handle special characters and commas in the value
             if (typeof value === 'string' && (value.includes(',') || value.includes('"') || value.includes('\n'))) {
               return `"${value.replace(/"/g, '""')}"`;
             }
@@ -115,7 +115,6 @@ export function SavedLocationFiles() {
         )
       ].join('\n');
 
-      // Create and download the CSV file
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -141,6 +140,17 @@ export function SavedLocationFiles() {
       setIsLoading(false);
     }
   };
+
+  if (error) {
+    return (
+      <Alert variant="destructive" className="bg-destructive/10 border-destructive/20 text-destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          {error}
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   if (files.length === 0) {
     return null;
