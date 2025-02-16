@@ -12,6 +12,7 @@ import { Progress } from "@/components/ui/progress";
 export function ProductHierarchyUpload() {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [progress, setProgress] = useState(0);
   const [savedFileName, setSavedFileName] = useState<string | null>(null);
   const { toast } = useToast();
@@ -31,6 +32,21 @@ export function ProductHierarchyUpload() {
     }
   });
 
+  // Query for saved files
+  const { data: savedFiles, refetch: refetchSavedFiles } = useQuery({
+    queryKey: ['savedHierarchyFiles', 'product'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('hierarchy_file_references')
+        .select('*')
+        .eq('hierarchy_type', 'product')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
   // Query for preview data
   const { data: previewState } = useQuery({
     queryKey: ['productHierarchyPreview'],
@@ -41,8 +57,8 @@ export function ProductHierarchyUpload() {
         combinedHeaders: [] as Array<{column: string, sampleData: string}>
       };
     },
-    staleTime: Infinity, // Never mark the data as stale
-    gcTime: Infinity, // Never garbage collect the data
+    staleTime: Infinity,
+    gcTime: Infinity,
   });
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,7 +69,32 @@ export function ProductHierarchyUpload() {
     setSavedFileName(null);
   };
 
-  const handleDeleteFile = () => {
+  const handleDeleteFile = async (fileId: string) => {
+    try {
+      const { error } = await supabase
+        .from('hierarchy_file_references')
+        .delete()
+        .eq('id', fileId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "File deleted successfully",
+      });
+      
+      refetchSavedFiles();
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete file",
+      });
+    }
+  };
+
+  const handleDeleteCurrentFile = () => {
     setFile(null);
     setProgress(0);
     setSavedFileName(null);
@@ -73,52 +114,56 @@ export function ProductHierarchyUpload() {
   };
 
   const handleSaveFile = async () => {
-    if (!file || !savedFileName) {
-      console.log('Save cancelled - missing file or savedFileName:', { file, savedFileName });
+    if (!file || !savedFileName || !previewState) {
+      console.log('Save cancelled - missing required data:', { file, savedFileName, previewState });
       return;
     }
     
+    setIsSaving(true);
     try {
-      console.log('Attempting to save file reference:', { 
-        file_name: savedFileName,
-        original_name: file.name,
-        hierarchy_type: 'product',
-        storage_path: `hierarchy-uploads/${savedFileName}`
-      });
-
       const { error } = await supabase
         .from('hierarchy_file_references')
         .insert({
-          file_name: savedFileName,
-          original_name: file.name,
-          file_type: file.type || 'application/octet-stream',
+          file_name: file.name,
           hierarchy_type: 'product',
-          storage_path: `hierarchy-uploads/${savedFileName}`
+          data: {
+            previewData: previewState.previewData,
+            columns: previewState.columns,
+            combinedHeaders: previewState.combinedHeaders
+          }
         });
 
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
-      }
+      if (error) throw error;
 
-      console.log('File reference saved successfully');
       toast({
-        title: "✅ Successfully Saved!",
-        description: `The file "${file.name}" has been successfully saved to the database.`,
-        duration: 3000,
+        title: "Success",
+        description: `File "${file.name}" saved successfully`,
       });
 
-      // Keep the file visible but disable save button by clearing savedFileName
-      setSavedFileName(null);
+      // Refresh the saved files list
+      refetchSavedFiles();
+      
+      // Clear the current file
+      handleDeleteCurrentFile();
 
     } catch (error) {
       console.error('Save error:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to save file reference",
+        description: "Failed to save file",
       });
+    } finally {
+      setIsSaving(false);
     }
+  };
+
+  const handleLoadSavedFile = async (fileData: any) => {
+    queryClient.setQueryData(['productHierarchyPreview'], {
+      columns: fileData.data.columns,
+      previewData: fileData.data.previewData,
+      combinedHeaders: fileData.data.combinedHeaders
+    });
   };
 
   const handleUpload = async () => {
@@ -155,7 +200,6 @@ export function ProductHierarchyUpload() {
         });
       }
 
-      // Only set savedFileName after successful upload
       setSavedFileName(fileName);
 
       setProgress(100);
@@ -205,15 +249,15 @@ export function ProductHierarchyUpload() {
                     size="icon"
                     variant="outline"
                     onClick={handleSaveFile}
-                    disabled={isUploading}
+                    disabled={isUploading || isSaving}
                   >
-                    <Save className="h-4 w-4 text-green-600" />
+                    <Save className={`h-4 w-4 ${isSaving ? 'animate-spin' : 'text-green-600'}`} />
                   </Button>
                 )}
                 <Button
                   size="icon"
                   variant="outline"
-                  onClick={handleDeleteFile}
+                  onClick={handleDeleteCurrentFile}
                   disabled={isUploading}
                 >
                   <Trash2 className="h-4 w-4 text-destructive" />
@@ -238,6 +282,36 @@ export function ProductHierarchyUpload() {
           )}
         </div>
       </Card>
+
+      {savedFiles && savedFiles.length > 0 && (
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Saved Files</h3>
+          <div className="space-y-2">
+            {savedFiles.map((savedFile) => (
+              <div
+                key={savedFile.id}
+                className="flex items-center justify-between p-2 rounded-md border hover:bg-accent"
+              >
+                <Button
+                  variant="ghost"
+                  className="text-sm text-left flex-1"
+                  onClick={() => handleLoadSavedFile(savedFile)}
+                >
+                  {savedFile.file_name}
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => handleDeleteFile(savedFile.id)}
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {previewState && previewState.columns.length > 0 && previewState.previewData.length > 0 && (
         <HierarchyTableView 
