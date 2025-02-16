@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Download, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -70,23 +71,20 @@ export function SavedLocationFiles() {
     }
   };
 
-  const handleDeleteFile = async (file: SavedFile) => {
+  const handleDelete = async (fileId: string) => {
     try {
       setIsLoading(true);
       
-      // Optimistically remove the file from the UI
-      setFiles(prevFiles => prevFiles.filter(f => f.id !== file.id));
+      // First update the UI immediately
+      setFiles(currentFiles => currentFiles.filter(f => f.id !== fileId));
 
+      // Then update the database
       const { error } = await supabase
         .from('location_hierarchy_files')
         .update({ is_active: false })
-        .eq('id', file.id);
+        .eq('id', fileId);
 
-      if (error) {
-        // If there's an error, revert the optimistic update
-        fetchSavedFiles();
-        throw error;
-      }
+      if (error) throw error;
 
       toast({
         title: "Success",
@@ -94,6 +92,8 @@ export function SavedLocationFiles() {
       });
     } catch (error) {
       console.error('Error deleting file:', error);
+      // Revert the UI change and show error
+      fetchSavedFiles();
       toast({
         variant: "destructive",
         title: "Error",
@@ -235,7 +235,7 @@ export function SavedLocationFiles() {
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction
-                      onClick={() => handleDeleteFile(file)}
+                      onClick={() => handleDelete(file.id)}
                       className="bg-destructive hover:bg-destructive/90"
                     >
                       Delete
