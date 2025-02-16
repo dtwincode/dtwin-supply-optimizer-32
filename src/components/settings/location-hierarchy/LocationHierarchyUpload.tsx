@@ -34,7 +34,7 @@ export function LocationHierarchyUpload() {
   };
 
   const handleSaveFile = async () => {
-    if (!user) {
+    if (!user || !savedFileName) {
       toast({
         variant: "destructive",
         title: "Authentication Required",
@@ -50,7 +50,9 @@ export function LocationHierarchyUpload() {
           file_name: savedFileName,
           original_name: "location_hierarchy.csv",
           hierarchy_type: 'location',
-          created_by: user.id
+          created_by: user.id,
+          file_type: 'csv',
+          storage_path: `hierarchy-uploads/${savedFileName}`
         });
 
       if (error) throw error;

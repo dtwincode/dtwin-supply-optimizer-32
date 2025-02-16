@@ -799,6 +799,7 @@ export type Database = {
       hierarchy_file_references: {
         Row: {
           created_at: string
+          created_by: string | null
           file_name: string
           file_type: string
           hierarchy_type: string
@@ -808,6 +809,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          created_by?: string | null
           file_name: string
           file_type: string
           hierarchy_type: string
@@ -817,6 +819,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          created_by?: string | null
           file_name?: string
           file_type?: string
           hierarchy_type?: string
