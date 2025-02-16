@@ -9,20 +9,40 @@ interface HierarchyTableProps {
   combinedHeaders: ColumnHeader[];
   selectedColumns: Set<string>;
   currentData: any[];
+  mappings: { column: string; level: string | null }[];
+  onLevelChange: (column: string, level: string) => void;
   filters: Record<string, string>;
   onFilterChange: (column: string, value: string) => void;
   getUniqueValues: (column: string) => string[];
 }
 
+const generateHierarchyLevels = () => {
+  const levels: string[] = [];
+  
+  // Main levels (1-8)
+  for (let i = 1; i <= 8; i++) {
+    levels.push(`${i}.00`); // Main level
+    // Sub-levels (1-99 for each main level)
+    for (let j = 1; j <= 99; j++) {
+      levels.push(`${i}.${j.toString().padStart(2, '0')}`);
+    }
+  }
+  
+  return levels;
+};
+
 export function HierarchyTable({
   combinedHeaders,
   selectedColumns,
   currentData,
+  mappings,
+  onLevelChange,
   filters,
   onFilterChange,
   getUniqueValues
 }: HierarchyTableProps) {
   const SHOW_ALL_VALUE = "__show_all__";
+  const hierarchyLevels = generateHierarchyLevels();
 
   const getRowKey = (row: any, index: number): string => {
     const id = row.id !== undefined ? String(row.id) : String(index);
@@ -39,6 +59,13 @@ export function HierarchyTable({
     return String(value);
   };
 
+  const formatLevelDisplay = (level: string) => {
+    if (level === 'none') return 'None';
+    const [main, sub] = level.split('.');
+    if (sub === '00') return `Level ${main}`;
+    return `Level ${main}.${sub}`;
+  };
+
   return (
     <div className="relative rounded-md border">
       <ScrollArea className="h-[600px] rounded-md">
@@ -52,6 +79,22 @@ export function HierarchyTable({
                     <TableHead key={column} className="min-w-[200px] sticky top-0 bg-background">
                       <div className="space-y-2 py-2">
                         <div className="font-medium">{column}</div>
+                        <Select
+                          value={mappings.find(m => m.column === column)?.level || 'none'}
+                          onValueChange={(value) => onLevelChange(column, value)}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select level" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">None</SelectItem>
+                            {hierarchyLevels.map((level) => (
+                              <SelectItem key={level} value={level}>
+                                {formatLevelDisplay(level)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <Select
                           value={filters[column] || SHOW_ALL_VALUE}
                           onValueChange={(value) => onFilterChange(column, value)}

@@ -144,7 +144,14 @@ export const ForecastFilters = ({
                     searchQuery={searchQuery}
                     setSearchQuery={setSearchQuery}
                   />
-                  <LocationFilter />
+                  <LocationFilter
+                    selectedRegion={selectedRegion}
+                    setSelectedRegion={setSelectedRegion}
+                    selectedCity={selectedCity}
+                    setSelectedCity={setSelectedCity}
+                    regions={regions}
+                    cities={cities}
+                  />
                 </div>
 
                 <div className="flex gap-4">

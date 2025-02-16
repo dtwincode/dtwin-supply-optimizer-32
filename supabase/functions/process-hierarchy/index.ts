@@ -6,7 +6,6 @@ import * as XLSX from 'https://esm.sh/xlsx@0.18.5'
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS'
 }
 
 serve(async (req) => {
@@ -30,12 +29,7 @@ serve(async (req) => {
       .from('hierarchy-uploads')
       .download(fileName)
 
-    if (downloadError) {
-      console.error('Download error:', downloadError);
-      throw downloadError;
-    }
-
-    console.log('File downloaded successfully');
+    if (downloadError) throw downloadError
 
     // Get the file extension
     const fileExt = fileName.split('.').pop()?.toLowerCase()
@@ -53,13 +47,11 @@ serve(async (req) => {
       
       // Convert to JSON with headers, no row limit
       const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 })
-      console.log('Excel rawData:', rawData);
-      
       if (rawData.length > 0) {
-        headers = rawData[0].map(String)
+        headers = rawData[0]
         // Process all rows after header
         data = rawData.slice(1)
-          .filter(row => Array.isArray(row) && row.length > 0) // Ensure row is an array and not empty
+          .filter(row => row.length > 0) // Filter out empty rows
           .map(row => {
             return headers.reduce((obj, header, index) => {
               obj[header] = row[index] ?? '' // Use nullish coalescing to handle undefined values
@@ -70,38 +62,49 @@ serve(async (req) => {
     } else {
       // Handle CSV files
       const text = new TextDecoder().decode(arrayBuffer)
-      console.log('CSV raw text:', text.substring(0, 200)); // Log first 200 chars for debugging
       
-      // Split by newline and filter out empty lines
-      const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
-      console.log('Number of lines found:', lines.length);
+      // Split by newline and filter out empty lines and MIME boundaries
+      const lines = text.split(/\r?\n/)
+      const csvLines = lines.filter(line => 
+        line.includes(',') && 
+        !line.includes('Content-Type:') && 
+        !line.includes('Content-Disposition:') &&
+        !line.startsWith('--') &&
+        line.trim().length > 0 // Ensure line is not empty
+      )
 
-      if (lines.length > 0) {
+      if (csvLines.length > 0) {
         // First line contains headers
-        const headerLine = lines[0]
+        const headerLine = csvLines[0]
         headers = headerLine
           .split(',')
           .map(header => header.trim().replace(/[\r\n"']/g, ''))
           .filter(header => header.length > 0)
 
-        console.log('Headers found:', headers);
+        console.log(`Found ${headers.length} headers:`, headers)
 
         // Process all remaining lines as data
-        data = lines.slice(1)
-          .filter(line => line.trim().length > 0)
+        data = csvLines.slice(1)
+          .filter(line => line.trim().length > 0) // Extra check for empty lines
           .map(line => {
             // Split by comma but handle quoted values correctly
-            const values = line.split(',').map(val => val.trim().replace(/^"|"$/g, ''))
+            const values = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || []
             return headers.reduce((obj, header, index) => {
-              obj[header] = values[index] || '' // Use empty string for missing values
+              // Clean up the value and remove quotes
+              const value = values[index] 
+                ? values[index].replace(/^"|"$/g, '').trim() 
+                : ''
+              obj[header] = value
               return obj
             }, {} as Record<string, any>)
           })
+          .filter(row => Object.values(row).some(val => val !== '')) // Remove any empty rows
+
+        console.log(`Total rows processed: ${data.length}`)
+        console.log('First row:', data[0])
+        console.log('Last row:', data[data.length - 1])
       }
     }
-
-    console.log('Parsed headers:', headers);
-    console.log('Number of data rows:', data.length);
 
     if (headers.length === 0) {
       throw new Error('No valid headers found in the file')
@@ -112,55 +115,32 @@ serve(async (req) => {
       throw new Error('No valid data rows found in the file')
     }
 
-    // Get module settings
-    const { data: settings, error: settingsError } = await supabaseClient
-      .from('module_settings')
-      .select('*')
-      .eq('module', `${type}_hierarchy`)
-      .single()
+    // Get sample data from the first row
+    const sampleData = data[0] || {}
 
-    if (settingsError) {
-      console.error('Settings error:', settingsError);
-      throw settingsError;
-    }
+    // Combine headers with sample data
+    const combinedHeaders = headers.map(header => ({
+      column: header,
+      sampleData: sampleData[header] || ''
+    }))
 
-    // Validate the data structure
-    const validationRules = settings.validation_rules
-    const requiredColumns = validationRules.required_columns
-
-    // Check required columns
-    const missingColumns = requiredColumns.filter(col => !headers.includes(col))
-    if (missingColumns.length > 0) {
-      throw new Error(`Missing required columns: ${missingColumns.join(', ')}`)
-    }
-
-    // Update the upload record with success status
-    const { error: updateError } = await supabaseClient
-      .from('temp_hierarchy_uploads')
-      .update({
-        status: 'processed',
-        updated_at: new Date().toISOString()
-      })
-      .eq('storage_path', fileName)
-
-    if (updateError) {
-      console.error('Update error:', updateError);
-      throw updateError;
-    }
+    console.log('Processing complete:', {
+      headerCount: headers.length,
+      totalRows: data.length,
+      headers,
+      sampleRow: sampleData
+    })
 
     return new Response(
       JSON.stringify({ 
         success: true,
         headers: headers,
-        totalRows: data.length,
-        message: 'File processed successfully'
+        combinedHeaders: combinedHeaders,
+        data: data, // Send all rows
+        totalRows: data.length
       }),
       { 
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json',
-          'Access-Control-Max-Age': '86400' // 24 hours
-        },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
       },
     )
