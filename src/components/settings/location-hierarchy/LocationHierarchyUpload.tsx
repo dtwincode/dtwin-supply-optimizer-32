@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { FileUpload } from "../upload/FileUpload";
 import { HierarchyTableView } from "../hierarchy/HierarchyTableView";
@@ -12,6 +11,7 @@ import { TableRowData, ColumnHeader } from "../hierarchy/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
+import * as XLSX from 'xlsx';
 
 export function LocationHierarchyUpload() {
   const [uploadedData, setUploadedData] = useState<TableRowData[]>([]);
@@ -236,22 +236,6 @@ export function LocationHierarchyUpload() {
             <Badge variant="secondary" className="h-7">
               {uploadedData.length} records
             </Badge>
-            <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handlePushToFilters}
-                disabled={isUploading}
-                className="h-8 w-8 hover:bg-primary/10"
-                title="Push to location filters"
-              >
-                {isUploading ? (
-                  <Filter className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Filter className="h-4 w-4 text-primary" />
-                )}
-              </Button>
-            </div>
           </div>
           <HierarchyTableView 
             data={uploadedData}
