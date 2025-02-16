@@ -372,33 +372,29 @@ export function ProductHierarchyUpload() {
         </div>
       </Card>
 
-      {/* Latest Saved File Section */}
-      <Card className="p-6 border-green-200">
-        <div className="flex items-center gap-2 mb-4">
-          <FileBox className="h-5 w-5 text-green-600" />
-          <h3 className="text-lg font-semibold">Latest Saved File</h3>
+      {/* Latest Saved File Section - Updated to match the design */}
+      <Card className="p-8 border-[#82ca9d] border-2 rounded-2xl">
+        <div className="flex items-center gap-3 mb-6">
+          <FileBox className="h-7 w-7 text-[#16a34a]" />
+          <h3 className="text-2xl font-semibold">Latest Saved File</h3>
         </div>
         {latestSavedHierarchy ? (
-          <div className="border rounded-lg p-4 bg-green-50/50">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="font-medium">Product Hierarchy</p>
-                <p className="text-sm text-muted-foreground">
-                  Saved on {new Date(latestSavedHierarchy.created_at).toLocaleDateString()}
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                className="flex items-center gap-2 text-blue-600 hover:text-blue-600 hover:bg-blue-50"
-                onClick={() => handleDownloadHierarchy(latestSavedHierarchy)}
-              >
-                <Download className="h-4 w-4" />
-                Download
-              </Button>
-            </div>
+          <div className="space-y-2">
+            <p className="font-medium text-lg">Product Hierarchy</p>
+            <p className="text-base text-muted-foreground">
+              Saved on {new Date(latestSavedHierarchy.created_at).toLocaleDateString()}
+            </p>
+            <Button
+              variant="outline"
+              className="mt-4 flex items-center gap-2 text-blue-600 hover:text-blue-600 hover:bg-blue-50"
+              onClick={() => handleDownloadHierarchy(latestSavedHierarchy)}
+            >
+              <Download className="h-4 w-4" />
+              Download
+            </Button>
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">No files have been saved yet.</p>
+          <p className="text-xl text-[#64748b]">No files have been saved yet.</p>
         )}
       </Card>
 
