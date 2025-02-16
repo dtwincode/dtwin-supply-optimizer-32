@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,12 +18,12 @@ export function ProductHierarchyUpload() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Query for saved hierarchy mappings
-  const { data: savedMappings, refetch: refetchSavedMappings } = useQuery({
-    queryKey: ['hierarchyMappings', 'product'],
+  // Query for permanent hierarchy data
+  const { data: savedHierarchies, refetch: refetchSavedHierarchies } = useQuery({
+    queryKey: ['permanentHierarchyData', 'product'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('hierarchy_mappings')
+        .from('permanent_hierarchy_data')
         .select('*')
         .eq('hierarchy_type', 'product')
         .order('created_at', { ascending: false });
@@ -54,51 +55,54 @@ export function ProductHierarchyUpload() {
     setSavedFileName(null);
   };
 
-  const handleDeleteMapping = async (mappingId: string) => {
+  const handleDeleteHierarchy = async (hierarchyId: string) => {
     try {
       const { error } = await supabase
-        .from('hierarchy_mappings')
+        .from('permanent_hierarchy_data')
         .delete()
-        .eq('id', mappingId);
+        .eq('id', hierarchyId);
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Mapping deleted successfully",
+        description: "Hierarchy data deleted successfully",
       });
       
-      refetchSavedMappings();
+      refetchSavedHierarchies();
     } catch (error) {
       console.error('Delete error:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to delete mapping",
+        description: "Failed to delete hierarchy data",
       });
     }
   };
 
-  const handleLoadMapping = async (mapping: any) => {
-    if (!mapping.selected_columns || !mapping.mappings) {
+  const handleLoadHierarchy = async (hierarchy: any) => {
+    if (!hierarchy.data) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Invalid mapping data",
+        description: "Invalid hierarchy data",
       });
       return;
     }
 
     // Update the preview data in React Query cache
     queryClient.setQueryData(['productHierarchyPreview'], {
-      columns: mapping.selected_columns,
-      previewData: [],
-      combinedHeaders: mapping.mappings
+      columns: Object.keys(hierarchy.data[0] || {}),
+      previewData: hierarchy.data,
+      combinedHeaders: Object.keys(hierarchy.data[0] || {}).map(key => ({
+        column: key,
+        sampleData: hierarchy.data[0]?.[key]
+      }))
     });
 
     toast({
       title: "Success",
-      description: "Mapping loaded successfully",
+      description: "Hierarchy data loaded successfully",
     });
   };
 
@@ -130,29 +134,23 @@ export function ProductHierarchyUpload() {
     setIsSaving(true);
     try {
       const { error } = await supabase
-        .from('hierarchy_file_references')
+        .from('permanent_hierarchy_data')
         .insert({
-          file_name: file.name,
-          file_type: file.name.split('.').pop() || 'unknown',
           hierarchy_type: 'product',
-          original_name: file.name,
-          storage_path: savedFileName,
-          data: {
-            previewData: previewState.previewData,
-            columns: previewState.columns,
-            combinedHeaders: previewState.combinedHeaders
-          }
+          data: previewState.previewData,
+          is_active: true,
+          version: 1
         });
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: `File "${file.name}" saved successfully`,
+        description: `File "${file.name}" saved permanently`,
       });
 
-      // Refresh the saved files list
-      refetchSavedMappings();
+      // Refresh the saved hierarchies list
+      refetchSavedHierarchies();
       
       // Clear the current file
       handleDeleteCurrentFile();
@@ -162,7 +160,7 @@ export function ProductHierarchyUpload() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to save file",
+        description: "Failed to save file permanently",
       });
     } finally {
       setIsSaving(false);
@@ -208,7 +206,7 @@ export function ProductHierarchyUpload() {
       setProgress(100);
       toast({
         title: "Success",
-        description: "File uploaded successfully. Click the save icon to save the reference.",
+        description: "File uploaded successfully. Click the save icon to save permanently.",
       });
     } catch (error) {
       console.error('Upload error:', error);
@@ -286,27 +284,28 @@ export function ProductHierarchyUpload() {
         </div>
       </Card>
 
-      {/* Saved Mappings Box */}
-      {savedMappings && savedMappings.length > 0 && (
+      {/* Saved Hierarchies Box */}
+      {savedHierarchies && savedHierarchies.length > 0 && (
         <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Saved Hierarchy Mappings</h3>
+          <h3 className="text-lg font-semibold mb-4">Saved Product Hierarchies</h3>
           <div className="space-y-2">
-            {savedMappings.map((mapping) => (
+            {savedHierarchies.map((hierarchy) => (
               <div
-                key={mapping.id}
+                key={hierarchy.id}
                 className="flex items-center justify-between p-2 rounded-md border hover:bg-accent"
               >
                 <Button
                   variant="ghost"
                   className="text-sm text-left flex-1"
-                  onClick={() => handleLoadMapping(mapping)}
+                  onClick={() => handleLoadHierarchy(hierarchy)}
                 >
-                  Product Hierarchy Mapping {new Date(mapping.created_at).toLocaleDateString()}
+                  Product Hierarchy {new Date(hierarchy.created_at).toLocaleDateString()} 
+                  {hierarchy.is_active && <span className="ml-2 text-green-600">(Active)</span>}
                 </Button>
                 <Button
                   size="icon"
                   variant="ghost"
-                  onClick={() => handleDeleteMapping(mapping.id)}
+                  onClick={() => handleDeleteHierarchy(hierarchy.id)}
                   className="text-destructive hover:text-destructive hover:bg-destructive/10"
                 >
                   <Trash2 className="h-4 w-4" />
