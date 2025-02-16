@@ -24,13 +24,7 @@ export interface LocationFilterProps {
 }
 
 interface LocationData {
-  warehouse?: string;
-  city?: string;
-  region?: string;
-  channel?: string;
-  sub_channel?: string;
-  country?: string;
-  location_type?: string;
+  [key: string]: string | null;
 }
 
 export function LocationFilter({
@@ -64,10 +58,14 @@ export function LocationFilter({
         return { data: [], columns: [] };
       }
 
+      // Make sure all column names are lowercase
+      const selectedColumns = columnSelections.selected_columns.map(col => col.toLowerCase());
+      console.log('Selected columns:', selectedColumns);
+
       // Then fetch the location data
       const { data: locationData, error: locationError } = await supabase
         .from('location_hierarchy')
-        .select(columnSelections.selected_columns.join(', '));
+        .select(selectedColumns.join(','));
 
       if (locationError) {
         console.error('Error fetching location data:', locationError);
@@ -76,7 +74,7 @@ export function LocationFilter({
 
       return { 
         data: locationData || [], 
-        columns: columnSelections.selected_columns 
+        columns: selectedColumns 
       };
     }
   });
@@ -89,13 +87,13 @@ export function LocationFilter({
       // Initialize filter options only for selected columns
       const options: { [key: string]: Set<string> } = {};
       columns?.forEach(column => {
-        options[column] = new Set();
+        options[column] = new Set<string>();
       });
 
       // Populate filter options
       data?.forEach((location: LocationData) => {
         columns?.forEach(column => {
-          const value = location[column as keyof LocationData];
+          const value = location[column];
           if (value) {
             options[column].add(value);
           }
