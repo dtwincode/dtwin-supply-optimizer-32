@@ -2,7 +2,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { type ReactNode } from 'react';
+import { type ReactNode, useMemo } from 'react';
 import { ColumnHeader, TableRowData } from "../types";
 
 interface HierarchyTableProps {
@@ -39,15 +39,20 @@ export function HierarchyTable({
     return String(value);
   };
 
-  const getUniqueValues = (column: string): string[] => {
-    const values = new Set<string>();
-    data.forEach(row => {
-      if (row[column] !== null && row[column] !== undefined) {
-        values.add(String(row[column]));
-      }
+  // Memoize the unique values calculation to prevent infinite recursion
+  const uniqueValuesByColumn = useMemo(() => {
+    const result: Record<string, string[]> = {};
+    columns.forEach(column => {
+      const values = new Set<string>();
+      data.forEach(row => {
+        if (row[column] !== null && row[column] !== undefined) {
+          values.add(String(row[column]));
+        }
+      });
+      result[column] = Array.from(values).sort();
     });
-    return Array.from(values).sort();
-  };
+    return result;
+  }, [data, columns]);
 
   return (
     <div className="relative rounded-md border">
@@ -69,7 +74,7 @@ export function HierarchyTable({
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value={SHOW_ALL_VALUE}>Show all</SelectItem>
-                          {getUniqueValues(column).map((value) => (
+                          {uniqueValuesByColumn[column]?.map((value) => (
                             <SelectItem key={value} value={value}>
                               {value}
                             </SelectItem>
@@ -77,7 +82,7 @@ export function HierarchyTable({
                         </SelectContent>
                       </Select>
                       <div className="text-xs text-muted-foreground">
-                        Unique values: {getUniqueValues(column).length}
+                        Unique values: {uniqueValuesByColumn[column]?.length || 0}
                       </div>
                       {combinedHeaders?.find(h => h.column === column)?.sampleData && (
                         <div className="text-xs text-muted-foreground">
