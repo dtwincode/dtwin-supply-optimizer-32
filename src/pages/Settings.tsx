@@ -4,6 +4,9 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LocationHierarchyUpload } from "@/components/settings/location-hierarchy/LocationHierarchyUpload";
 import { ProductHierarchyUpload } from "@/components/settings/product-hierarchy/ProductHierarchyUpload";
+import { HistoricalSalesUpload } from "@/components/settings/historical-sales/HistoricalSalesUpload";
+import { LeadTimeUpload } from "@/components/settings/lead-time/LeadTimeUpload";
+import { ReplenishmentUpload } from "@/components/settings/replenishment/ReplenishmentUpload";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Trash2, Clock, Timer } from "lucide-react";
@@ -24,73 +27,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { FileUpload } from "@/components/settings/upload/FileUpload";
-
-// Historical Sales Upload Component
-const HistoricalSalesUpload = () => {
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <h3 className="text-xl font-semibold tracking-tight">Historical Sales Data</h3>
-          <p className="text-sm text-muted-foreground">
-            Upload and manage your historical sales data for analysis and forecasting
-          </p>
-        </div>
-      </div>
-
-      <FileUpload
-        onUploadComplete={(data) => console.log('Historical sales data:', data)}
-        allowedFileTypes={[".csv", ".xlsx"]}
-        maxFileSize={5}
-      />
-    </div>
-  );
-};
-
-// Lead Time Upload Component
-const LeadTimeUpload = () => {
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <h3 className="text-xl font-semibold tracking-tight">Lead Time Data</h3>
-          <p className="text-sm text-muted-foreground">
-            Configure and manage lead time calculations and predictions for your supply chain
-          </p>
-        </div>
-      </div>
-
-      <FileUpload
-        onUploadComplete={(data) => console.log('Lead time data:', data)}
-        allowedFileTypes={[".csv", ".xlsx"]}
-        maxFileSize={5}
-      />
-    </div>
-  );
-};
-
-// Replenishment Upload Component
-const ReplenishmentUpload = () => {
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <h3 className="text-xl font-semibold tracking-tight">Replenishment Data</h3>
-          <p className="text-sm text-muted-foreground">
-            Manage replenishment time calculations and configure automated reordering parameters
-          </p>
-        </div>
-      </div>
-
-      <FileUpload
-        onUploadComplete={(data) => console.log('Replenishment data:', data)}
-        allowedFileTypes={[".csv", ".xlsx"]}
-        maxFileSize={5}
-      />
-    </div>
-  );
-};
 
 const Settings = () => {
   const [isDeleting, setIsDeleting] = useState(false);
@@ -113,15 +49,7 @@ const Settings = () => {
         .is('id', null)
         .neq('id', null);
 
-      if (error) {
-        console.error('Error deleting temporary uploads:', error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to delete temporary uploads",
-        });
-        return;
-      }
+      if (error) throw error;
 
       queryClient.invalidateQueries({ queryKey: ['hierarchyData'] });
       toast({
@@ -235,4 +163,3 @@ const Settings = () => {
 };
 
 export default Settings;
-

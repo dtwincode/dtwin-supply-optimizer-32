@@ -892,6 +892,33 @@ export type Database = {
         }
         Relationships: []
       }
+      historical_sales_data: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data: Json
+          id: string
+          is_active: boolean | null
+          version: number | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data: Json
+          id?: string
+          is_active?: boolean | null
+          version?: number | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          id?: string
+          is_active?: boolean | null
+          version?: number | null
+        }
+        Relationships: []
+      }
       inventory_data: {
         Row: {
           adu: number | null
@@ -1083,6 +1110,33 @@ export type Database = {
           sku?: string
           supplier_id?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      lead_time_data: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data: Json
+          id: string
+          is_active: boolean | null
+          version: number | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data: Json
+          id?: string
+          is_active?: boolean | null
+          version?: number | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          id?: string
+          is_active?: boolean | null
+          version?: number | null
         }
         Relationships: []
       }
@@ -1798,6 +1852,33 @@ export type Database = {
           sku?: string
           status?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      replenishment_data: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data: Json
+          id: string
+          is_active: boolean | null
+          version: number | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data: Json
+          id?: string
+          is_active?: boolean | null
+          version?: number | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          id?: string
+          is_active?: boolean | null
+          version?: number | null
         }
         Relationships: []
       }
