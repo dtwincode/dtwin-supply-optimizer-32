@@ -5,7 +5,6 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { type ReactNode, useMemo, useState } from 'react';
 import { ColumnHeader, TableRowData } from "../types";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface HierarchyTableProps {
   data: TableRowData[];
@@ -144,7 +143,7 @@ export function HierarchyTable({
             onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
             disabled={currentPage === 1}
           >
-            <ChevronLeft className="h-4 w-4" />
+            Previous
           </Button>
           <div className="text-sm text-muted-foreground">
             Page {currentPage} of {totalPages}
@@ -155,7 +154,7 @@ export function HierarchyTable({
             onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
             disabled={currentPage === totalPages}
           >
-            <ChevronRight className="h-4 w-4" />
+            Next
           </Button>
         </div>
       </div>
