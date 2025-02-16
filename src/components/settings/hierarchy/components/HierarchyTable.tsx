@@ -3,28 +3,28 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { type ReactNode } from 'react';
-import { ColumnHeader } from "../types";
+import { ColumnHeader, TableRowData } from "../types";
 
 interface HierarchyTableProps {
-  combinedHeaders: ColumnHeader[];
-  selectedColumns: Set<string>;
-  currentData: any[];
-  filters: Record<string, string>;
-  onFilterChange: (column: string, value: string) => void;
-  getUniqueValues: (column: string) => string[];
+  data: TableRowData[];
+  columns: string[];
+  combinedHeaders?: ColumnHeader[];
+  selectedColumns?: Set<string>;
+  filters?: Record<string, string>;
+  onFilterChange?: (column: string, value: string) => void;
 }
 
 export function HierarchyTable({
-  combinedHeaders,
-  selectedColumns,
-  currentData,
-  filters,
-  onFilterChange,
-  getUniqueValues
+  data,
+  columns,
+  combinedHeaders = [],
+  selectedColumns = new Set(columns),
+  filters = {},
+  onFilterChange = () => {}
 }: HierarchyTableProps) {
   const SHOW_ALL_VALUE = "__show_all__";
 
-  const getRowKey = (row: any, index: number): string => {
+  const getRowKey = (row: TableRowData, index: number): string => {
     const id = row.id !== undefined ? String(row.id) : String(index);
     const sku = row.sku !== undefined ? String(row.sku) : '';
     return `row-${id}-${sku}`;
@@ -39,6 +39,16 @@ export function HierarchyTable({
     return String(value);
   };
 
+  const getUniqueValues = (column: string): string[] => {
+    const values = new Set<string>();
+    data.forEach(row => {
+      if (row[column] !== null && row[column] !== undefined) {
+        values.add(String(row[column]));
+      }
+    });
+    return Array.from(values).sort();
+  };
+
   return (
     <div className="relative rounded-md border">
       <ScrollArea className="h-[600px] rounded-md">
@@ -46,58 +56,56 @@ export function HierarchyTable({
           <Table>
             <TableHeader>
               <TableRow>
-                {combinedHeaders
-                  .filter(header => selectedColumns.has(header.column))
-                  .map(({ column, sampleData }) => (
-                    <TableHead key={column} className="min-w-[200px] sticky top-0 bg-background">
-                      <div className="space-y-2 py-2">
-                        <div className="font-medium">{column}</div>
-                        <Select
-                          value={filters[column] || SHOW_ALL_VALUE}
-                          onValueChange={(value) => onFilterChange(column, value)}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder={`Filter ${column}...`} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value={SHOW_ALL_VALUE}>Show all</SelectItem>
-                            {getUniqueValues(column).map((value) => (
-                              <SelectItem key={value} value={value}>
-                                {value}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <div className="text-xs text-muted-foreground">
-                          Unique values: {getUniqueValues(column).length}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          Example: {sampleData}
-                        </div>
+                {columns.map((column) => (
+                  <TableHead key={column} className="min-w-[200px] sticky top-0 bg-background">
+                    <div className="space-y-2 py-2">
+                      <div className="font-medium">{column}</div>
+                      <Select
+                        value={filters[column] || SHOW_ALL_VALUE}
+                        onValueChange={(value) => onFilterChange(column, value)}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder={`Filter ${column}...`} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={SHOW_ALL_VALUE}>Show all</SelectItem>
+                          {getUniqueValues(column).map((value) => (
+                            <SelectItem key={value} value={value}>
+                              {value}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <div className="text-xs text-muted-foreground">
+                        Unique values: {getUniqueValues(column).length}
                       </div>
-                    </TableHead>
-                  ))}
+                      {combinedHeaders?.find(h => h.column === column)?.sampleData && (
+                        <div className="text-xs text-muted-foreground">
+                          Example: {combinedHeaders.find(h => h.column === column)?.sampleData}
+                        </div>
+                      )}
+                    </div>
+                  </TableHead>
+                ))}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentData.map((row, index) => {
+              {data.map((row, index) => {
                 const rowKey = getRowKey(row, index);
                 
                 return (
                   <TableRow key={rowKey}>
-                    {combinedHeaders
-                      .filter(header => selectedColumns.has(header.column))
-                      .map(({ column }, colIndex) => {
-                        const cellValue = row[column];
-                        return (
-                          <TableCell 
-                            key={getCellKey(rowKey, colIndex)}
-                            className="min-w-[200px]"
-                          >
-                            {renderCell(cellValue)}
-                          </TableCell>
-                        );
-                      })}
+                    {columns.map((column, colIndex) => {
+                      const cellValue = row[column];
+                      return (
+                        <TableCell 
+                          key={getCellKey(rowKey, colIndex)}
+                          className="min-w-[200px]"
+                        >
+                          {renderCell(cellValue)}
+                        </TableCell>
+                      );
+                    })}
                   </TableRow>
                 );
               })}

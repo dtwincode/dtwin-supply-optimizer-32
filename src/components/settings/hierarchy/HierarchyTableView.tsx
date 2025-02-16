@@ -84,13 +84,14 @@ export function HierarchyTableView({
 
       <div className="space-y-4">
         <HierarchyTableHeader
-          tableName={tableName}
-          columns={columns}
-          combinedHeaders={combinedHeaders}
+          totalItems={data.length}
+          startIndex={0}
+          endIndex={Math.min(50, data.length)}
         />
         <HierarchyTable
           data={data}
           columns={columns}
+          combinedHeaders={combinedHeaders}
         />
       </div>
     </Card>
