@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from 'react';
 import { Card } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
@@ -8,6 +7,7 @@ import { ColumnSelector } from "./components/ColumnSelector";
 import { Pagination } from "./components/Pagination";
 import { HierarchyTable } from "./components/HierarchyTable";
 import type { HierarchyTableViewProps, TableRowData } from "./types";
+import { supabase } from "@/integrations/supabase/client";
 
 const SHOW_ALL_VALUE = "__show_all__";
 const ROWS_PER_PAGE = 50;
@@ -22,6 +22,30 @@ export function HierarchyTableView({
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [tableData, setTableData] = useState<TableRowData[]>(data);
+
+  // Query for saved column selections
+  const { data: savedSelections } = useQuery({
+    queryKey: ['columnSelections', tableName],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('hierarchy_column_selections')
+        .select('selected_columns')
+        .eq('table_name', tableName)
+        .single();
+
+      if (error) {
+        console.error('Error fetching saved columns:', error);
+        return null;
+      }
+
+      return data;
+    },
+    onSuccess: (data) => {
+      if (data?.selected_columns) {
+        setSelectedColumns(new Set(data.selected_columns));
+      }
+    }
+  });
 
   const uniqueValuesMap = useMemo(() => {
     const map = new Map<string, Set<string>>();
