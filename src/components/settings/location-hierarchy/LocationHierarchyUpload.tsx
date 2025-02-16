@@ -9,18 +9,37 @@ import { Save, Upload, FileCheck2, Filter } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { TableRowData, ColumnHeader } from "../hierarchy/types";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export function LocationHierarchyUpload() {
   const [uploadedData, setUploadedData] = useState<TableRowData[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user, isLoading } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect to auth page if not authenticated
+  if (!isLoading && !user) {
+    navigate('/auth');
+    return null;
+  }
 
   const handleUploadComplete = (data: TableRowData[]) => {
     setUploadedData(data);
   };
 
   const handlePushToFilters = async () => {
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Required",
+        description: "Please log in to update location hierarchy",
+      });
+      return;
+    }
+
     setIsUploading(true);
     try {
       // First, mark all existing location hierarchies as inactive
@@ -36,11 +55,14 @@ export function LocationHierarchyUpload() {
           hierarchy_type: 'location_hierarchy',
           data: uploadedData,
           is_active: true,
-          version: 1, // Adding required version field
+          version: 1,
           created_at: new Date().toISOString()
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
 
       // Invalidate the locations query to refresh the filters
       queryClient.invalidateQueries({ queryKey: ['locations'] });
@@ -71,6 +93,10 @@ export function LocationHierarchyUpload() {
     column,
     sampleData: uploadedData[0]?.[column]?.toString() || ''
   }));
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="space-y-6">
