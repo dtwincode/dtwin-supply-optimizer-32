@@ -42,6 +42,7 @@ export function SavedLocationFiles() {
   const [files, setFiles] = useState<SavedFile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -75,16 +76,20 @@ export function SavedLocationFiles() {
     try {
       setIsLoading(true);
       
-      // First update the UI immediately
-      setFiles(currentFiles => currentFiles.filter(f => f.id !== fileId));
+      // Update local state first
+      const updatedFiles = files.filter(f => f.id !== fileId);
+      setFiles(updatedFiles);
+      setIsOpen(false);
 
-      // Then update the database
+      // Then update database
       const { error } = await supabase
         .from('location_hierarchy_files')
         .update({ is_active: false })
         .eq('id', fileId);
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
       toast({
         title: "Success",
@@ -92,7 +97,7 @@ export function SavedLocationFiles() {
       });
     } catch (error) {
       console.error('Error deleting file:', error);
-      // Revert the UI change and show error
+      // Revert the UI change on error
       fetchSavedFiles();
       toast({
         variant: "destructive",
@@ -214,7 +219,7 @@ export function SavedLocationFiles() {
                 <Download className="h-4 w-4 text-primary stroke-[1.5]" />
               </Button>
               
-              <AlertDialog>
+              <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
                 <AlertDialogTrigger asChild>
                   <Button
                     variant="ghost"
