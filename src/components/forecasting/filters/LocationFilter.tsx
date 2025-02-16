@@ -104,7 +104,7 @@ export function LocationFilter({
       }
 
       return { 
-        data: locationData || [], 
+        data: locationData as LocationData[] || [], 
         columns: selectedColumns 
       };
     }
@@ -122,8 +122,8 @@ export function LocationFilter({
       });
 
       // Populate filter options from the data
-      if (Array.isArray(data)) {
-        data.forEach((location: LocationData) => {
+      if (Array.isArray(data) && data.length > 0) {
+        (data as LocationData[]).forEach((location) => {
           columns.forEach(column => {
             const value = location[column];
             if (value) {
