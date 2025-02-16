@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -154,10 +153,7 @@ export function FiltersContainer({
 
         {isLocationExpanded && (
           <div className="p-6 space-y-6 border-t bg-primary/5">
-            <LocationFilter
-              selectedFilters={locationFilters}
-              onFilterChange={onLocationFilterChange}
-            />
+            <LocationFilter />
           </div>
         )}
       </div>

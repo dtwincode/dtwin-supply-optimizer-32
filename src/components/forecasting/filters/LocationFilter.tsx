@@ -4,15 +4,6 @@ import { UploadCloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
-interface FilterValue {
-  [key: string]: string;
-}
-
-export interface LocationFilterProps {
-  selectedFilters: FilterValue;
-  onFilterChange: (field: string, value: string) => void;
-}
-
 export function LocationFilter() {
   const navigate = useNavigate();
 
