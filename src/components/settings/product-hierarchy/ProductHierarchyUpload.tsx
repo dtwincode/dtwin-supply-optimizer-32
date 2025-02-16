@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,12 +17,12 @@ export function ProductHierarchyUpload() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Query for saved files
-  const { data: savedFiles, refetch: refetchSavedFiles } = useQuery({
-    queryKey: ['savedHierarchyFiles', 'product'],
+  // Query for saved hierarchy mappings
+  const { data: savedMappings, refetch: refetchSavedMappings } = useQuery({
+    queryKey: ['hierarchyMappings', 'product'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('hierarchy_file_references')
+        .from('hierarchy_mappings')
         .select('*')
         .eq('hierarchy_type', 'product')
         .order('created_at', { ascending: false });
@@ -55,29 +54,52 @@ export function ProductHierarchyUpload() {
     setSavedFileName(null);
   };
 
-  const handleDeleteFile = async (fileId: string) => {
+  const handleDeleteMapping = async (mappingId: string) => {
     try {
       const { error } = await supabase
-        .from('hierarchy_file_references')
+        .from('hierarchy_mappings')
         .delete()
-        .eq('id', fileId);
+        .eq('id', mappingId);
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: "File deleted successfully",
+        description: "Mapping deleted successfully",
       });
       
-      refetchSavedFiles();
+      refetchSavedMappings();
     } catch (error) {
       console.error('Delete error:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to delete file",
+        description: "Failed to delete mapping",
       });
     }
+  };
+
+  const handleLoadMapping = async (mapping: any) => {
+    if (!mapping.selected_columns || !mapping.mappings) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Invalid mapping data",
+      });
+      return;
+    }
+
+    // Update the preview data in React Query cache
+    queryClient.setQueryData(['productHierarchyPreview'], {
+      columns: mapping.selected_columns,
+      previewData: [],
+      combinedHeaders: mapping.mappings
+    });
+
+    toast({
+      title: "Success",
+      description: "Mapping loaded successfully",
+    });
   };
 
   const handleDeleteCurrentFile = () => {
@@ -130,7 +152,7 @@ export function ProductHierarchyUpload() {
       });
 
       // Refresh the saved files list
-      refetchSavedFiles();
+      refetchSavedMappings();
       
       // Clear the current file
       handleDeleteCurrentFile();
@@ -145,28 +167,6 @@ export function ProductHierarchyUpload() {
     } finally {
       setIsSaving(false);
     }
-  };
-
-  const handleLoadSavedFile = async (fileData: any) => {
-    if (!fileData.data) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No data found in the saved file",
-      });
-      return;
-    }
-
-    queryClient.setQueryData(['productHierarchyPreview'], {
-      columns: fileData.data.columns || [],
-      previewData: fileData.data.previewData || [],
-      combinedHeaders: fileData.data.combinedHeaders || []
-    });
-
-    toast({
-      title: "Success",
-      description: "File loaded successfully",
-    });
   };
 
   const handleUpload = async () => {
@@ -286,27 +286,27 @@ export function ProductHierarchyUpload() {
         </div>
       </Card>
 
-      {/* Saved Files Box */}
-      {savedFiles && savedFiles.length > 0 && (
+      {/* Saved Mappings Box */}
+      {savedMappings && savedMappings.length > 0 && (
         <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Saved Files</h3>
+          <h3 className="text-lg font-semibold mb-4">Saved Hierarchy Mappings</h3>
           <div className="space-y-2">
-            {savedFiles.map((savedFile) => (
+            {savedMappings.map((mapping) => (
               <div
-                key={savedFile.id}
+                key={mapping.id}
                 className="flex items-center justify-between p-2 rounded-md border hover:bg-accent"
               >
                 <Button
                   variant="ghost"
                   className="text-sm text-left flex-1"
-                  onClick={() => handleLoadSavedFile(savedFile)}
+                  onClick={() => handleLoadMapping(mapping)}
                 >
-                  {savedFile.file_name}
+                  Product Hierarchy Mapping {new Date(mapping.created_at).toLocaleDateString()}
                 </Button>
                 <Button
                   size="icon"
                   variant="ghost"
-                  onClick={() => handleDeleteFile(savedFile.id)}
+                  onClick={() => handleDeleteMapping(mapping.id)}
                   className="text-destructive hover:text-destructive hover:bg-destructive/10"
                 >
                   <Trash2 className="h-4 w-4" />
