@@ -5,6 +5,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { type ReactNode, useMemo, useState } from 'react';
 import { ColumnHeader, TableRowData } from "../types";
 import { Button } from "@/components/ui/button";
+import { Save } from "lucide-react";
 
 interface HierarchyTableProps {
   data: TableRowData[];
@@ -75,22 +76,15 @@ export function HierarchyTable({
                     <TableHead key={column} className="min-w-[200px] sticky top-0 bg-background">
                       <div className="space-y-2 py-2">
                         <div className="font-medium">{column}</div>
-                        <Select
-                          value={filters[column] || SHOW_ALL_VALUE}
-                          onValueChange={(value) => onFilterChange(column, value)}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onFilterChange(column, SHOW_ALL_VALUE)}
+                          className="w-full flex items-center justify-between gap-2"
                         >
-                          <SelectTrigger>
-                            <SelectValue placeholder={`Filter ${column}...`} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value={SHOW_ALL_VALUE}>Show all</SelectItem>
-                            {uniqueValuesByColumn[column]?.map((value) => (
-                              <SelectItem key={value} value={value}>
-                                {value}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          <span>Filter {column}...</span>
+                          <Save className="h-4 w-4" />
+                        </Button>
                         <div className="text-xs text-muted-foreground">
                           Unique values: {uniqueValuesByColumn[column]?.length || 0}
                         </div>
