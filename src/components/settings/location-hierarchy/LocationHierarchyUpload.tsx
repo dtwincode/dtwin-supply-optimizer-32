@@ -3,9 +3,7 @@ import { useState, useEffect } from "react";
 import { FileUpload } from "../upload/FileUpload";
 import { HierarchyTableView } from "../hierarchy/HierarchyTableView";
 import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Filter } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { TableRowData, ColumnHeader } from "../hierarchy/types";
@@ -15,7 +13,6 @@ import { SavedLocationFiles } from "./SavedLocationFiles";
 
 export function LocationHierarchyUpload() {
   const [uploadedData, setUploadedData] = useState<TableRowData[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
   const [savedFileName, setSavedFileName] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -31,9 +28,12 @@ export function LocationHierarchyUpload() {
   const handleUploadComplete = (data: TableRowData[]) => {
     setUploadedData(data);
     setSavedFileName(`location_hierarchy_${new Date().getTime()}`);
+
+    // Automatically save the hierarchy when upload is complete
+    handlePushToFilters(data);
   };
 
-  const handlePushToFilters = async () => {
+  const handlePushToFilters = async (data: TableRowData[]) => {
     if (!user) {
       toast({
         variant: "destructive",
@@ -43,7 +43,6 @@ export function LocationHierarchyUpload() {
       return;
     }
 
-    setIsUploading(true);
     try {
       // Get the latest version number
       const { data: versionData, error: versionError } = await supabase
@@ -70,7 +69,7 @@ export function LocationHierarchyUpload() {
         .from('permanent_hierarchy_data')
         .insert({
           hierarchy_type: 'location_hierarchy',
-          data: uploadedData,
+          data: data,
           is_active: true,
           version: nextVersion,
           created_by: user.id
@@ -86,8 +85,8 @@ export function LocationHierarchyUpload() {
           original_name: `Location Hierarchy ${new Date().toLocaleDateString()}`,
           created_by: user.id,
           file_type: 'json',
-          file_size: JSON.stringify(uploadedData).length,
-          metadata: { records: uploadedData.length }
+          file_size: JSON.stringify(data).length,
+          metadata: { records: data.length }
         });
 
       if (fileError) throw fileError;
@@ -106,8 +105,6 @@ export function LocationHierarchyUpload() {
         title: "Error",
         description: "Failed to update location hierarchy"
       });
-    } finally {
-      setIsUploading(false);
     }
   };
 
@@ -149,22 +146,6 @@ export function LocationHierarchyUpload() {
             <Badge variant="secondary" className="h-7">
               {uploadedData.length} records
             </Badge>
-            <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handlePushToFilters}
-                disabled={isUploading}
-                className="h-8 w-8 hover:bg-primary/10"
-                title="Push to location filters"
-              >
-                {isUploading ? (
-                  <Filter className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Filter className="h-4 w-4 text-primary" />
-                )}
-              </Button>
-            </div>
           </div>
           <HierarchyTableView 
             data={uploadedData}
