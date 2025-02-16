@@ -36,7 +36,25 @@ export function LocationFilter({
   const { data: locationData, isLoading, error } = useQuery({
     queryKey: ['locations'],
     queryFn: async () => {
-      // First check if we have any configured columns
+      // First check for permanent hierarchy data
+      const { data: permanentData, error: permanentError } = await supabase
+        .from('permanent_hierarchy_data')
+        .select('*')
+        .eq('hierarchy_type', 'location')
+        .eq('is_active', true)
+        .single();
+
+      if (permanentError && permanentError.code !== 'PGRST116') {
+        console.error('Error fetching permanent data:', permanentError);
+        return null;
+      }
+
+      // If no permanent data exists, return empty result
+      if (!permanentData) {
+        return { data: [], columns: [] };
+      }
+
+      // Then check for column selections
       const { data: columnSelections, error: columnError } = await supabase
         .from('hierarchy_column_selections')
         .select('selected_columns')
@@ -45,7 +63,6 @@ export function LocationFilter({
 
       if (columnError) {
         if (columnError.code === 'PGRST116') {
-          // No columns configured yet
           return { data: [], columns: [] };
         }
         console.error('Error fetching column selections:', columnError);
@@ -71,8 +88,6 @@ export function LocationFilter({
       const selectedColumns = columnSelections.selected_columns
         .map(col => col.toLowerCase())
         .filter(col => validColumns.includes(col));
-
-      console.log('Selected valid columns:', selectedColumns);
 
       if (selectedColumns.length === 0) {
         return { data: [], columns: [] };
@@ -107,20 +122,22 @@ export function LocationFilter({
       });
 
       // Populate filter options from the data
-      data?.forEach((location: LocationData) => {
-        columns.forEach(column => {
-          const value = location[column];
-          if (value) {
-            options[column].add(value);
-          }
+      if (Array.isArray(data)) {
+        data.forEach((location: LocationData) => {
+          columns.forEach(column => {
+            const value = location[column];
+            if (value) {
+              options[column].add(value);
+            }
+          });
         });
-      });
+      }
 
       setFilterOptions(options);
     }
   }, [locationData]);
 
-  if (locationData && (!locationData.data?.length || !locationData.columns?.length)) {
+  if (!locationData || !locationData.data?.length || !locationData.columns?.length) {
     return (
       <Card className="p-6 w-full">
         <div className="flex flex-col items-center justify-center space-y-4 py-8">
