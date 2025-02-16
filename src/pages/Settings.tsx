@@ -8,28 +8,12 @@ import { HistoricalSalesUpload } from "@/components/settings/historical-sales/Hi
 import { LeadTimeUpload } from "@/components/settings/lead-time/LeadTimeUpload";
 import { ReplenishmentUpload } from "@/components/settings/replenishment/ReplenishmentUpload";
 import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
-import { Trash2, Clock, Timer } from "lucide-react";
+import { Clock, Timer } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 
 const Settings = () => {
-  const [isDeleting, setIsDeleting] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
@@ -39,34 +23,6 @@ const Settings = () => {
       navigate('/auth');
     }
   }, [user, isLoading, navigate]);
-
-  const handleDeleteTempUploads = async () => {
-    setIsDeleting(true);
-    try {
-      const { error } = await supabase
-        .from('temp_hierarchy_uploads')
-        .delete()
-        .is('id', null)
-        .neq('id', null);
-
-      if (error) throw error;
-
-      queryClient.invalidateQueries({ queryKey: ['hierarchyData'] });
-      toast({
-        title: "Success",
-        description: "All temporary uploads deleted successfully",
-      });
-    } catch (error) {
-      console.error('Error deleting temporary uploads:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to delete temporary uploads",
-      });
-    } finally {
-      setIsDeleting(false);
-    }
-  };
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -79,43 +35,11 @@ const Settings = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6 max-w-[1200px] mx-auto">
-        <div className="flex justify-between items-center">
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight">Data Management & Configuration</h2>
-            <p className="text-muted-foreground mt-2">
-              Configure system settings and manage data hierarchies across your organization
-            </p>
-          </div>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="destructive"
-                size="sm"
-                className="h-9 px-4"
-                disabled={isDeleting}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete All Temporary Uploads
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete All Temporary Uploads</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to delete all temporary uploads? This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDeleteTempUploads}
-                  className="bg-destructive hover:bg-destructive/90"
-                >
-                  Delete All
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Data Management & Configuration</h2>
+          <p className="text-muted-foreground mt-2">
+            Configure system settings and manage data hierarchies across your organization
+          </p>
         </div>
 
         <Separator className="my-6" />
