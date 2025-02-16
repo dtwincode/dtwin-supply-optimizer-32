@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -26,42 +26,36 @@ export function LocationFilter({
   setSelectedRegion,
   selectedCity,
   setSelectedCity,
-  regions,
-  cities,
 }: LocationFilterProps) {
-  const [availableColumns, setAvailableColumns] = useState<string[]>([]);
-
-  // Fetch column selections
-  const { data: columnSelections, isLoading: isLoadingColumns } = useQuery({
-    queryKey: ['columnSelections', 'location_hierarchy'],
+  // Fetch locations data from permanent database
+  const { data: locationsData, isLoading } = useQuery({
+    queryKey: ['locations', 'hierarchy'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('hierarchy_column_selections')
-        .select('selected_columns')
-        .eq('table_name', 'location_hierarchy')
-        .maybeSingle();
+      const { data: activeVersionData, error: versionError } = await supabase
+        .from('permanent_hierarchy_data')
+        .select('data')
+        .eq('hierarchy_type', 'location_hierarchy')
+        .eq('is_active', true)
+        .single();
 
-      if (error) throw error;
-      return data?.selected_columns || [];
-    }
-  });
+      if (versionError) {
+        throw versionError;
+      }
 
-  // Fetch locations data
-  const { data: locationsData, isLoading: isLoadingLocations } = useQuery({
-    queryKey: ['locations'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('location_hierarchy')
-        .select('region, city')
-        .order('region');
+      if (!activeVersionData) {
+        return {
+          regions: [],
+          cities: {}
+        };
+      }
 
-      if (error) throw error;
-
-      // Process the data to get unique regions and cities
+      // Process the hierarchical data
+      const hierarchyData = activeVersionData.data;
       const uniqueRegions = new Set<string>();
       const citiesByRegion: { [key: string]: Set<string> } = {};
 
-      data?.forEach(row => {
+      // Extract unique regions and cities from the hierarchy data
+      hierarchyData.forEach((row: any) => {
         if (row.region) {
           uniqueRegions.add(row.region);
           if (!citiesByRegion[row.region]) {
@@ -73,6 +67,7 @@ export function LocationFilter({
         }
       });
 
+      // Convert Sets to sorted arrays
       return {
         regions: Array.from(uniqueRegions).sort(),
         cities: Object.fromEntries(
@@ -85,18 +80,14 @@ export function LocationFilter({
     }
   });
 
+  // Reset city when region changes
   useEffect(() => {
-    if (columnSelections && Array.isArray(columnSelections)) {
-      setAvailableColumns(columnSelections);
-    } else {
-      setAvailableColumns(['region', 'city']);
+    if (selectedRegion === "all") {
+      setSelectedCity("all");
     }
-  }, [columnSelections]);
+  }, [selectedRegion, setSelectedCity]);
 
-  const showRegionFilter = Array.isArray(availableColumns) ? availableColumns.includes('region') : true;
-  const showCityFilter = Array.isArray(availableColumns) ? availableColumns.includes('city') : true;
-
-  if (isLoadingColumns || isLoadingLocations) {
+  if (isLoading) {
     return (
       <Card className="p-6 w-full">
         <div className="flex items-center justify-center space-x-2">
@@ -112,51 +103,47 @@ export function LocationFilter({
       <div className="space-y-4">
         <h3 className="text-lg font-medium mb-4">Location Filters</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {showRegionFilter && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Region</label>
-              <Select
-                value={selectedRegion}
-                onValueChange={setSelectedRegion}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select region" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Regions</SelectItem>
-                  {locationsData?.regions.map((region) => (
-                    <SelectItem key={region} value={region}>
-                      {region}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Region</label>
+            <Select
+              value={selectedRegion}
+              onValueChange={setSelectedRegion}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select region" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Regions</SelectItem>
+                {locationsData?.regions.map((region) => (
+                  <SelectItem key={region} value={region}>
+                    {region}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">City</label>
+            <Select
+              value={selectedCity}
+              onValueChange={setSelectedCity}
+              disabled={selectedRegion === "all"}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select city" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Cities</SelectItem>
+                {selectedRegion !== "all" &&
+                  locationsData?.cities[selectedRegion]?.map((city) => (
+                    <SelectItem key={city} value={city}>
+                      {city}
                     </SelectItem>
                   ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
-          {showCityFilter && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium">City</label>
-              <Select
-                value={selectedCity}
-                onValueChange={setSelectedCity}
-                disabled={selectedRegion === "all"}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select city" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Cities</SelectItem>
-                  {selectedRegion !== "all" &&
-                    locationsData?.cities[selectedRegion]?.map((city) => (
-                      <SelectItem key={city} value={city}>
-                        {city}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
     </Card>
