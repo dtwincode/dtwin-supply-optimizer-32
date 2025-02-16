@@ -115,29 +115,42 @@ serve(async (req) => {
       throw new Error('No valid data rows found in the file')
     }
 
-    // Get sample data from the first row
-    const sampleData = data[0] || {}
+    // Get module settings
+    const { data: settings, error: settingsError } = await supabaseClient
+      .from('module_settings')
+      .select('*')
+      .eq('module', `${type}_hierarchy`)
+      .single()
 
-    // Combine headers with sample data
-    const combinedHeaders = headers.map(header => ({
-      column: header,
-      sampleData: sampleData[header] || ''
-    }))
+    if (settingsError) throw settingsError
 
-    console.log('Processing complete:', {
-      headerCount: headers.length,
-      totalRows: data.length,
-      headers,
-      sampleRow: sampleData
-    })
+    // Validate the data structure
+    const validationRules = settings.validation_rules
+    const requiredColumns = validationRules.required_columns
+
+    // Check required columns
+    const missingColumns = requiredColumns.filter(col => !headers.includes(col))
+    if (missingColumns.length > 0) {
+      throw new Error(`Missing required columns: ${missingColumns.join(', ')}`)
+    }
+
+    // Update the upload record with success status
+    const { error: updateError } = await supabaseClient
+      .from('temp_hierarchy_uploads')
+      .update({
+        status: 'processed',
+        updated_at: new Date().toISOString()
+      })
+      .eq('storage_path', fileName)
+
+    if (updateError) throw updateError
 
     return new Response(
       JSON.stringify({ 
         success: true,
         headers: headers,
-        combinedHeaders: combinedHeaders,
-        data: data, // Send all rows
-        totalRows: data.length
+        totalRows: data.length,
+        message: 'File processed successfully'
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
