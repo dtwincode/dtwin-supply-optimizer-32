@@ -854,15 +854,34 @@ export type Database = {
           selected_columns?: string[]
           temp_upload_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "hierarchy_mappings_temp_upload_id_fkey"
-            columns: ["temp_upload_id"]
-            isOneToOne: false
-            referencedRelation: "temp_hierarchy_uploads"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
+      }
+      hierarchy_versions: {
+        Row: {
+          changes_summary: string | null
+          created_at: string | null
+          created_by: string | null
+          hierarchy_type: string
+          id: string
+          version: number
+        }
+        Insert: {
+          changes_summary?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          hierarchy_type: string
+          id?: string
+          version: number
+        }
+        Update: {
+          changes_summary?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          hierarchy_type?: string
+          id?: string
+          version?: number
+        }
+        Relationships: []
       }
       inventory_data: {
         Row: {
@@ -1532,6 +1551,47 @@ export type Database = {
         }
         Relationships: []
       }
+      permanent_hierarchy_data: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data: Json
+          hierarchy_type: string
+          id: string
+          is_active: boolean | null
+          source_upload_id: string | null
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data: Json
+          hierarchy_type: string
+          id?: string
+          is_active?: boolean | null
+          source_upload_id?: string | null
+          version: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          hierarchy_type?: string
+          id?: string
+          is_active?: boolean | null
+          source_upload_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permanent_hierarchy_data_source_upload_id_fkey"
+            columns: ["source_upload_id"]
+            isOneToOne: false
+            referencedRelation: "temp_hierarchy_uploads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prediction_accuracy_tracking: {
         Row: {
           actual_lead_time: number | null
@@ -1929,34 +1989,52 @@ export type Database = {
       }
       temp_hierarchy_uploads: {
         Row: {
-          created_at: string | null
-          data: Json
-          file_name: string
-          headers: string[]
+          created_at: string
+          file_type: string
+          filename: string
+          headers: Json | null
           hierarchy_type: string
           id: string
-          is_processed: boolean | null
           original_name: string
+          processed_at: string | null
+          processed_by: string | null
+          processing_error: string | null
+          row_count: number | null
+          sample_data: Json | null
+          status: string
+          storage_path: string
         }
         Insert: {
-          created_at?: string | null
-          data: Json
-          file_name: string
-          headers: string[]
+          created_at?: string
+          file_type: string
+          filename: string
+          headers?: Json | null
           hierarchy_type: string
           id?: string
-          is_processed?: boolean | null
           original_name: string
+          processed_at?: string | null
+          processed_by?: string | null
+          processing_error?: string | null
+          row_count?: number | null
+          sample_data?: Json | null
+          status?: string
+          storage_path: string
         }
         Update: {
-          created_at?: string | null
-          data?: Json
-          file_name?: string
-          headers?: string[]
+          created_at?: string
+          file_type?: string
+          filename?: string
+          headers?: Json | null
           hierarchy_type?: string
           id?: string
-          is_processed?: boolean | null
           original_name?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          processing_error?: string | null
+          row_count?: number | null
+          sample_data?: Json | null
+          status?: string
+          storage_path?: string
         }
         Relationships: []
       }
@@ -2057,10 +2135,25 @@ export type Database = {
         }
         Returns: undefined
       }
+      activate_hierarchy_version: {
+        Args: {
+          p_hierarchy_type: string
+          p_version: number
+        }
+        Returns: undefined
+      }
       drop_hierarchy_column: {
         Args: {
           p_table_name: string
           p_column_name: string
+        }
+        Returns: undefined
+      }
+      process_hierarchy_configuration: {
+        Args: {
+          p_table_name: string
+          p_selected_columns: string[]
+          p_mappings: Json
         }
         Returns: undefined
       }
@@ -2087,6 +2180,7 @@ export type Database = {
         | "L6"
         | "L7"
         | "L8"
+      hierarchy_status: "draft" | "active" | "archived"
       industry_type:
         | "manufacturing"
         | "retail"
