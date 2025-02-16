@@ -1271,6 +1271,7 @@ export type Database = {
           is_active: boolean | null
           metadata: Json | null
           original_name: string
+          temp_upload_id: string | null
         }
         Insert: {
           created_at?: string
@@ -1282,6 +1283,7 @@ export type Database = {
           is_active?: boolean | null
           metadata?: Json | null
           original_name: string
+          temp_upload_id?: string | null
         }
         Update: {
           created_at?: string
@@ -1293,8 +1295,17 @@ export type Database = {
           is_active?: boolean | null
           metadata?: Json | null
           original_name?: string
+          temp_upload_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "location_hierarchy_files_temp_upload_id_fkey"
+            columns: ["temp_upload_id"]
+            isOneToOne: false
+            referencedRelation: "temp_hierarchy_uploads"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       logistics_data: {
         Row: {

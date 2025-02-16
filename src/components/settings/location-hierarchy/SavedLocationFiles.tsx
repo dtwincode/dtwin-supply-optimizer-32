@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Download, Trash2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,10 +12,10 @@ interface SavedFile {
   file_name: string;
   original_name: string;
   created_at: string;
-  file_size?: number;
-  temp_upload_id?: string | null;
+  file_size: number;
+  temp_upload_id: string | null;
   is_active: boolean;
-  metadata: any;
+  metadata: unknown;
   file_type: string;
   created_by: string;
 }
@@ -60,7 +59,7 @@ export function SavedLocationFiles() {
   const handleDelete = async (fileId: string) => {
     try {
       setIsLoading(true);
-      // Get the file information first
+      
       const { data: fileData, error: fileError } = await supabase
         .from('location_hierarchy_files')
         .select('*')
@@ -69,7 +68,6 @@ export function SavedLocationFiles() {
 
       if (fileError) throw fileError;
 
-      // Delete the file
       const { error: deleteError } = await supabase
         .from('location_hierarchy_files')
         .delete()
@@ -77,8 +75,7 @@ export function SavedLocationFiles() {
 
       if (deleteError) throw deleteError;
 
-      // Only attempt to delete temporary upload if temp_upload_id exists and is not null
-      if (fileData && fileData.temp_upload_id) {
+      if (fileData?.temp_upload_id) {
         try {
           const { error: tempDeleteError } = await supabase
             .from('temp_hierarchy_uploads')
@@ -90,7 +87,6 @@ export function SavedLocationFiles() {
           }
         } catch (tempError) {
           console.error('Failed to delete temporary upload:', tempError);
-          // Continue execution even if temp delete fails
         }
       }
 
