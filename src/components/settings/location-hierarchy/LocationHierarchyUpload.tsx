@@ -45,11 +45,25 @@ export function LocationHierarchyUpload() {
 
     setIsUploading(true);
     try {
+      // Get the latest version number
+      const { data: versionData, error: versionError } = await supabase
+        .from('permanent_hierarchy_data')
+        .select('version')
+        .eq('hierarchy_type', 'location_hierarchy')
+        .order('version', { ascending: false })
+        .limit(1);
+
+      if (versionError) throw versionError;
+
+      const nextVersion = versionData && versionData.length > 0 ? versionData[0].version + 1 : 1;
+
       // First, mark all existing location hierarchies as inactive
-      await supabase
+      const { error: updateError } = await supabase
         .from('permanent_hierarchy_data')
         .update({ is_active: false })
         .eq('hierarchy_type', 'location_hierarchy');
+
+      if (updateError) throw updateError;
 
       // Then insert the new data
       const { error: hierarchyError } = await supabase
@@ -58,8 +72,7 @@ export function LocationHierarchyUpload() {
           hierarchy_type: 'location_hierarchy',
           data: uploadedData,
           is_active: true,
-          version: 1,
-          created_at: new Date().toISOString(),
+          version: nextVersion,
           created_by: user.id
         });
 
