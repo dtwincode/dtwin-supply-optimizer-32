@@ -1705,7 +1705,7 @@ export type Database = {
       permanent_hierarchy_files: {
         Row: {
           created_at: string
-          created_by: string | null
+          created_by: string
           data: Json
           file_name: string
           file_size: number | null
@@ -1717,7 +1717,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          created_by?: string | null
+          created_by: string
           data: Json
           file_name: string
           file_size?: number | null
@@ -1729,7 +1729,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          created_by?: string | null
+          created_by?: string
           data?: Json
           file_name?: string
           file_size?: number | null
