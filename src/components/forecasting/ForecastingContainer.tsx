@@ -1,9 +1,9 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ForecastMetricsCards } from "./ForecastMetricsCards";
 import { ForecastingHeader } from "./ForecastingHeader";
 import { ForecastingTabs } from "./ForecastingTabs";
-import { ForecastFilters } from "./ForecastFilters";
+import { ForecastFilters } from "./ForecastingFilters";
 import { ScenarioManagement } from "./ScenarioManagement";
 import { ModelVersioning } from "./ModelVersioning";
 import { DataUploadDialog } from "../settings/DataUploadDialog";
@@ -27,7 +27,7 @@ import { SavedScenario } from "@/types/forecasting";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
-export const ForecastingContainer = () => {
+export function ForecastingContainer() {
   // Set initial dates to show our 2024 data
   const [fromDate, setFromDate] = useState<Date>(new Date('2024-01-01'));
   const [toDate, setToDate] = useState<Date>(new Date('2024-12-26'));
@@ -171,6 +171,11 @@ export const ForecastingContainer = () => {
   const [testingFromDate, setTestingFromDate] = useState<Date>(new Date('2024-10-01'));
   const [testingToDate, setTestingToDate] = useState<Date>(new Date('2024-12-31'));
 
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+
+  const handleOpenUploadDialog = () => setIsUploadDialogOpen(true);
+  const handleCloseUploadDialog = () => setIsUploadDialogOpen(false);
+
   const handleExport = () => {
     const csvContent = [
       ["Week", "Actual", "Forecast", "Variance", "Region", "City", "Channel", "Category", "Subcategory", "SKU"],
@@ -268,8 +273,15 @@ export const ForecastingContainer = () => {
               </p>
             </div>
             <DataUploadDialog 
+              isOpen={isUploadDialogOpen}
+              onClose={handleCloseUploadDialog}
+              title="Upload Forecasting Data"
+              tableName="forecasting_data"
               module="forecasting"
-              onDataUploaded={handleDataUploaded}
+              onDataUploaded={() => {
+                // Handle data uploaded
+                handleCloseUploadDialog();
+              }}
             />
           </div>
           <Separator />
@@ -452,4 +464,4 @@ export const ForecastingContainer = () => {
       </div>
     </div>
   );
-};
+}
