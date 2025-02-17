@@ -9,13 +9,13 @@ import { cn } from '@/lib/utils';
 interface FileUploadProps {
   onUploadComplete: (data: any[], originalFileName: string) => void;
   allowedFileTypes?: string[];
-  maxFileSize?: number; // in MB
+  maxSize?: number; // in MB
 }
 
 export function FileUpload({ 
   onUploadComplete, 
   allowedFileTypes = ['.csv', '.xlsx'], 
-  maxFileSize = 5 
+  maxSize = 5 
 }: FileUploadProps) {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -25,7 +25,11 @@ export function FileUpload({
 
     try {
       const data = await readFile(file);
-      onUploadComplete(data, file.name);
+      if (typeof onUploadComplete === 'function') {
+        onUploadComplete(data, file.name);
+      } else {
+        console.error('onUploadComplete is not a function');
+      }
     } catch (error) {
       console.error('Error processing file:', error);
     } finally {
@@ -33,13 +37,16 @@ export function FileUpload({
     }
   }, [onUploadComplete]);
 
+  const fileTypes: { [key: string]: string[] } = {
+    'text/csv': ['.csv'],
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+    'application/vnd.ms-excel': ['.xls']
+  };
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: allowedFileTypes.reduce((acc, type) => ({
-      ...acc,
-      [type]: []
-    }), {}),
-    maxSize: maxFileSize * 1024 * 1024,
+    accept: fileTypes,
+    maxSize: maxSize * 1024 * 1024,
     multiple: false
   });
 
@@ -104,7 +111,7 @@ export function FileUpload({
         </div>
       </div>
       <p className="mt-2 text-xs text-muted-foreground">
-        Allowed types: {allowedFileTypes.join(', ')} (Max size: {maxFileSize}MB)
+        Allowed types: {allowedFileTypes.join(', ')} (Max size: {maxSize}MB)
       </p>
     </div>
   );
