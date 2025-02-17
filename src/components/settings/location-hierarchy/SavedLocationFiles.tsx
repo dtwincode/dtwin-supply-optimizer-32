@@ -46,7 +46,6 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
   const [files, setFiles] = useState<SavedFile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [fileToDelete, setFileToDelete] = useState<string | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -79,15 +78,6 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
   const handleDelete = async (fileId: string) => {
     try {
       setIsLoading(true);
-      
-      // Immediately update the UI
-      const updatedFiles = files.filter(f => f.id !== fileId);
-      setFiles(updatedFiles);
-      
-      // Close the delete dialog
-      setFileToDelete(null);
-
-      // Then update in the database
       const { error } = await supabase
         .from('location_hierarchy_files')
         .update({ is_active: false })
@@ -95,14 +85,14 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
 
       if (error) throw error;
 
+      setFiles(prevFiles => prevFiles.filter(f => f.id !== fileId));
+      
       toast({
         title: "Success",
         description: "File deleted successfully",
       });
     } catch (error) {
       console.error('Error deleting file:', error);
-      // Revert the local state on error
-      fetchSavedFiles();
       toast({
         variant: "destructive",
         title: "Error",
@@ -223,13 +213,7 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
                 <Download className="h-4 w-4 text-primary stroke-[1.5]" />
               </Button>
               
-              <AlertDialog 
-                open={fileToDelete === file.id}
-                onOpenChange={(open) => {
-                  if (!open) setFileToDelete(null);
-                  if (open) setFileToDelete(file.id);
-                }}
-              >
+              <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
                     variant="ghost"
