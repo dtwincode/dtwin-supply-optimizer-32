@@ -47,7 +47,7 @@ export function ColumnSelector({
     mutationFn: async () => {
       if (!tempUploadId) return;
       const { error } = await supabase
-        .from('temporary_uploads')
+        .from('temp_hierarchy_uploads') // Changed from temporary_uploads to temp_hierarchy_uploads
         .delete()
         .eq('id', tempUploadId);
       
@@ -71,27 +71,47 @@ export function ColumnSelector({
   // Save permanently mutation
   const savePermanently = useMutation({
     mutationFn: async () => {
-      if (!data || !user) {
-        throw new Error('Missing required data or user');
+      console.log('Save permanently called with:', {
+        user: user?.id,
+        dataPresent: !!data,
+        selectedColumns: Array.from(selectedColumns)
+      });
+
+      // More detailed validation
+      if (!data) {
+        throw new Error('No data provided for saving');
+      }
+      if (!user?.id) {
+        throw new Error('User not authenticated');
       }
 
       const fileName = `hierarchy_${tableName}_${new Date().getTime()}`;
       
-      const { error: fileError } = await supabase
-        .from('permanent_hierarchy_files')
-        .insert([{
-          file_name: fileName,
-          original_name: `${tableName.charAt(0).toUpperCase() + tableName.slice(1)} Hierarchy ${new Date().toLocaleDateString()}`,
-          hierarchy_type: tableName,
-          created_by: user.id,
-          file_size: JSON.stringify(data).length,
-          metadata: { records: data.length },
-          selected_columns: Array.from(selectedColumns),
-          data: data
-        }]);
+      const insertData = {
+        file_name: fileName,
+        original_name: `${tableName.charAt(0).toUpperCase() + tableName.slice(1)} Hierarchy ${new Date().toLocaleDateString()}`,
+        hierarchy_type: tableName,
+        created_by: user.id,
+        file_size: JSON.stringify(data).length,
+        metadata: { records: data.length },
+        selected_columns: Array.from(selectedColumns),
+        data: data
+      };
 
-      if (fileError) throw fileError;
-      return fileName;
+      console.log('Attempting to insert:', insertData);
+
+      const { data: savedData, error: fileError } = await supabase
+        .from('permanent_hierarchy_files')
+        .insert([insertData])
+        .select()
+        .single();
+
+      if (fileError) {
+        console.error('Supabase error:', fileError);
+        throw fileError;
+      }
+
+      return savedData;
     },
     onSuccess: () => {
       toast({
@@ -99,12 +119,12 @@ export function ColumnSelector({
         description: "File saved permanently",
       });
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       console.error('Error saving file:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to save file permanently",
+        description: error.message || "Failed to save file permanently",
       });
     }
   });
@@ -145,6 +165,24 @@ export function ColumnSelector({
         variant: "destructive",
         title: "Error",
         description: "Please select at least one column to save",
+      });
+      return;
+    }
+
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "You must be logged in to save files",
+      });
+      return;
+    }
+
+    if (!data) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No data available to save",
       });
       return;
     }
