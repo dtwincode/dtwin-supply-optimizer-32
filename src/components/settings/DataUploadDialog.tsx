@@ -130,10 +130,15 @@ export function DataUploadDialog({ module, onDataUploaded }: DataUploadDialogPro
     }
   };
 
-  const handleFileUpload = (data: File[], fileName: string) => {
-    setFile(new File([JSON.stringify(data)], fileName));
+  const handleFileUpload = (data: any[], fileName: string) => {
+    // Process the data directly instead of creating a new File
     setValidationErrors([]);
     setProgress(0);
+    
+    // Store the processed data
+    const jsonString = JSON.stringify(data);
+    const fileBlob = new Blob([jsonString], { type: 'application/json' });
+    setFile(new File([fileBlob], fileName));
   };
 
   return (
