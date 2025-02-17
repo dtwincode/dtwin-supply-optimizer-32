@@ -17,8 +17,6 @@ interface LocationFilterProps {
   setSelectedRegion: (region: string) => void;
   selectedCity: string;
   setSelectedCity: (city: string) => void;
-  regions: string[];
-  cities: { [key: string]: string[] };
 }
 
 interface LocationData {
@@ -36,7 +34,7 @@ export function LocationFilter({
   const { data: locationsData, isLoading } = useQuery({
     queryKey: ['locations', 'hierarchy'],
     queryFn: async () => {
-      // Use maybeSingle() instead of single() to handle no data case
+      // Get the active version of the location hierarchy
       const { data: activeVersionData, error: versionError } = await supabase
         .from('permanent_hierarchy_data')
         .select('data')
