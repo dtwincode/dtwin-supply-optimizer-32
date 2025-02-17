@@ -27,7 +27,20 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setFiles(data || []);
+
+      // Remove any duplicates based on file name and created_at
+      const uniqueFiles = data?.reduce((acc: SavedFile[], current) => {
+        const exists = acc.find(file => 
+          file.original_name === current.original_name && 
+          file.created_at === current.created_at
+        );
+        if (!exists) {
+          acc.push(current);
+        }
+        return acc;
+      }, []) || [];
+
+      setFiles(uniqueFiles);
       setError(null);
     } catch (error) {
       console.error('Error fetching files:', error);
