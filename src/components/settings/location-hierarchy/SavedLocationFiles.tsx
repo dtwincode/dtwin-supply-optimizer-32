@@ -22,7 +22,6 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
       setIsLoading(true);
       console.log('Fetching saved files...');
       
-      // Add distinct constraint and created_by filter
       const { data, error } = await supabase
         .from('permanent_hierarchy_files')
         .select('*')
@@ -72,24 +71,31 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
       setIsLoading(true);
       console.log('Deleting file:', fileId);
       
-      const { error } = await supabase
+      // First, delete all references to this file
+      const { error: deleteError } = await supabase
         .from('permanent_hierarchy_files')
         .delete()
-        .eq('id', fileId)
-        .eq('created_by', user?.id); // Add user check for safety
+        .match({ 
+          id: fileId,
+          created_by: user?.id // Ensure user can only delete their own files
+        });
 
-      if (error) {
-        console.error('Supabase delete error:', error);
-        throw error;
+      if (deleteError) {
+        console.error('Supabase delete error:', deleteError);
+        throw deleteError;
       }
 
-      console.log('File deleted successfully:', fileId);
+      // Update local state after successful deletion
       setFiles(prevFiles => prevFiles.filter(f => f.id !== fileId));
       
       toast({
         title: "Success",
         description: "File deleted successfully",
       });
+      
+      // Refresh the file list to ensure we have the latest data
+      await fetchSavedFiles();
+      
     } catch (error) {
       console.error('Error deleting file:', error);
       toast({
