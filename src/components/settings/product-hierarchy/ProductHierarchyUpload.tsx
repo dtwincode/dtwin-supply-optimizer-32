@@ -84,7 +84,7 @@ export function ProductHierarchyUpload() {
       <FileUpload
         onUploadComplete={handleUploadComplete}
         allowedFileTypes={[".csv", ".xlsx"]}
-        maxSize={5}  /* Changed from maxFileSize to maxSize */
+        maxFileSize={5}
       />
 
       {uploadedData.length > 0 && (

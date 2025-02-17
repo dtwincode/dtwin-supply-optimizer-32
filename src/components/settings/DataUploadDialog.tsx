@@ -136,11 +136,6 @@ export function DataUploadDialog({ module, onDataUploaded }: DataUploadDialogPro
     setProgress(0);
   };
 
-  const handleUploadComplete = (data, fileName) => {
-    handleFileSelect(data[0]);
-    setFile(new File([JSON.stringify(data)], fileName));
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -158,9 +153,12 @@ export function DataUploadDialog({ module, onDataUploaded }: DataUploadDialogPro
             <TemplateDownloader module={module} />
             
             <FileUpload
-              onUploadComplete={handleUploadComplete}
-              allowedFileTypes={[".csv", ".xlsx"]}
-              maxSize={5}
+              onUploadComplete={(data, fileName) => {
+                handleFileSelect(data[0]);
+                setFile(new File([JSON.stringify(data)], fileName));
+              }}
+              allowedFileTypes={[".csv"]}
+              maxFileSize={5}
             />
 
             <ValidationErrorDisplay errors={validationErrors} />
