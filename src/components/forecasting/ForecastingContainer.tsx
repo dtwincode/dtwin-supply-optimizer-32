@@ -16,6 +16,21 @@ export function ForecastingContainer() {
   const [isVersioningOpen, setIsVersioningOpen] = useState(false);
   const { toast } = useToast();
 
+  // Sample metrics data
+  const metrics = {
+    mape: 5.2,
+    mae: 2.3,
+    rmse: 3.1
+  };
+
+  // Sample filter states
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedRegion, setSelectedRegion] = useState("");
+  const [selectedChannel, setSelectedChannel] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState("");
+  const [dateRange, setDateRange] = useState({ from: null, to: null });
+  const [selectedLocation, setSelectedLocation] = useState("");
+  
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
   };
@@ -38,46 +53,65 @@ export function ForecastingContainer() {
 
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
-  const handleOpenUploadDialog = () => setIsUploadDialogOpen(true);
-  const handleCloseUploadDialog = () => setIsUploadDialogOpen(false);
-
   const handleDataUploaded = () => {
-    // Refresh data or perform other actions
-    handleCloseUploadDialog();
+    setIsUploadDialogOpen(false);
   };
+
+  // Sample scenario data
+  const scenarioName = "";
+  const currentModel = "arima";
+  const currentHorizon = "monthly";
+  const currentParameters = {};
+  const forecastData: any[] = [];
 
   return (
     <div>
-      <ForecastingHeader onOpenUpload={handleOpenUploadDialog} />
+      <ForecastingHeader />
 
       <Card className="mt-6">
         <CardContent className="p-6">
-          <ForecastingTabs activeTab={activeTab} onTabChange={handleTabChange} />
+          <ForecastingTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-          {activeTab === "metrics" && <ForecastMetricsCards />}
-          {activeTab === "filters" && <ForecastFilters />}
+          {activeTab === "metrics" && <ForecastMetricsCards metrics={metrics} />}
+          {activeTab === "filters" && (
+            <ForecastFilters
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              selectedRegion={selectedRegion}
+              setSelectedRegion={setSelectedRegion}
+              selectedChannel={selectedChannel}
+              setSelectedChannel={setSelectedChannel}
+              selectedProduct={selectedProduct}
+              setSelectedProduct={setSelectedProduct}
+              dateRange={dateRange}
+              setDateRange={setDateRange}
+              selectedLocation={selectedLocation}
+              setSelectedLocation={setSelectedLocation}
+            />
+          )}
         </CardContent>
       </Card>
 
       <ScenarioManagement
-        isOpen={isScenarioOpen}
-        onClose={handleCloseScenario}
+        scenarioName={scenarioName}
+        setScenarioName={() => {}}
+        currentModel={currentModel}
+        currentHorizon={currentHorizon}
+        currentParameters={currentParameters}
+        forecastData={forecastData}
+        onScenarioLoad={() => {}}
       />
 
-      <ModelVersioning
-        isOpen={isVersioningOpen}
-        onClose={handleCloseVersioning}
-      />
+      <ModelVersioning modelId={currentModel} />
       
       <DataUploadDialog
         isOpen={isUploadDialogOpen}
-        onClose={handleCloseUploadDialog}
+        onClose={() => setIsUploadDialogOpen(false)}
         title="Upload Forecasting Data"
         tableName="forecasting_data"
         module="forecasting"
-        onUploadComplete={handleDataUploaded}
+        onDataUploaded={handleDataUploaded}
       />
     </div>
   );
 }
-
