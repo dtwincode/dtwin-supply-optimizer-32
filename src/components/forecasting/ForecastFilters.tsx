@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -36,8 +35,6 @@ interface ForecastFiltersProps {
   setSelectedL7DeviceColor: (value: string) => void;
   selectedL8DeviceStorage: string;
   setSelectedL8DeviceStorage: (value: string) => void;
-  regions: string[];
-  cities: { [key: string]: string[] };
   channelTypes: string[];
   warehouses: string[];
   forecastData: any[];
@@ -70,8 +67,6 @@ export const ForecastFilters = ({
   setSelectedL7DeviceColor,
   selectedL8DeviceStorage,
   setSelectedL8DeviceStorage,
-  regions,
-  cities,
   channelTypes,
   warehouses,
   forecastData,
@@ -149,8 +144,6 @@ export const ForecastFilters = ({
                     setSelectedRegion={setSelectedRegion}
                     selectedCity={selectedCity}
                     setSelectedCity={setSelectedCity}
-                    regions={regions}
-                    cities={cities}
                   />
                 </div>
 

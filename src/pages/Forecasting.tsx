@@ -284,8 +284,6 @@ const Forecasting = () => {
                   setSelectedRegion={setSelectedRegion}
                   selectedCity={selectedCity}
                   setSelectedCity={setSelectedCity}
-                  regions={[]}
-                  cities={{}}
                 />
               </div>
             )}
