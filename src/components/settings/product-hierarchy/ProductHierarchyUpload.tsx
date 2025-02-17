@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FileUpload } from "../upload/FileUpload";
 import { HierarchyTableView } from "../hierarchy/HierarchyTableView";
 import { useToast } from "@/hooks/use-toast";
@@ -7,12 +7,42 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { TableRowData } from "../hierarchy/types";
+import { ColumnSelector } from "../location-hierarchy/components/ColumnSelector";
+import { FileList } from "../location-hierarchy/components/FileList";
+import { Card } from "@/components/ui/card";
 
 export function ProductHierarchyUpload() {
   const [uploadedData, setUploadedData] = useState<TableRowData[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-  const [savedFileName, setSavedFileName] = useState<string | null>(null);
+  const [savedFiles, setSavedFiles] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [tempUploadId] = useState<string>(`product_${new Date().getTime()}`);
+  const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set());
   const { toast } = useToast();
+
+  const fetchSavedFiles = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('permanent_hierarchy_files')
+        .select('*')
+        .eq('hierarchy_type', 'product')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setSavedFiles(data || []);
+    } catch (error) {
+      console.error('Error fetching files:', error);
+      setError('Failed to fetch saved files');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSavedFiles();
+  }, []);
 
   const handleUploadComplete = (data: TableRowData[]) => {
     const sanitizedData = data.map(row => {
@@ -23,42 +53,72 @@ export function ProductHierarchyUpload() {
       return cleanRow;
     });
     setUploadedData(sanitizedData);
-    setSavedFileName(`product_hierarchy_${new Date().getTime()}`);
+    // Initialize selected columns with all columns
+    if (sanitizedData.length > 0) {
+      setSelectedColumns(new Set(Object.keys(sanitizedData[0])));
+    }
   };
 
-  const handlePushToSystem = async () => {
-    setIsUploading(true);
-    try {
-      await supabase
-        .from('permanent_hierarchy_data')
-        .update({ is_active: false })
-        .eq('hierarchy_type', 'product');
+  const handleSelectedColumnsChange = (columns: Set<string>) => {
+    setSelectedColumns(columns);
+  };
 
+  const handleDeleteFile = async (fileId: string) => {
+    try {
       const { error } = await supabase
-        .from('permanent_hierarchy_data')
-        .insert({
-          hierarchy_type: 'product',
-          data: uploadedData,
-          is_active: true,
-          version: 1
-        });
+        .from('permanent_hierarchy_files')
+        .delete()
+        .eq('id', fileId);
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Product hierarchy has been updated successfully",
+        description: "File deleted successfully",
       });
+
+      fetchSavedFiles();
     } catch (error) {
-      console.error('Error pushing product hierarchy:', error);
+      console.error('Error deleting file:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to update product hierarchy"
+        description: "Failed to delete file"
       });
-    } finally {
-      setIsUploading(false);
     }
+  };
+
+  const handleDownloadFile = async (file: any) => {
+    try {
+      const fileData = file.data;
+      const csvContent = convertToCSV(fileData);
+      downloadCSV(csvContent, file.original_name);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to download file"
+      });
+    }
+  };
+
+  const convertToCSV = (data: any[]) => {
+    if (!data.length) return '';
+    const headers = Object.keys(data[0]).join(',');
+    const rows = data.map(row => Object.values(row).join(','));
+    return [headers, ...rows].join('\n');
+  };
+
+  const downloadCSV = (content: string, fileName: string) => {
+    const blob = new Blob([content], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const columns = uploadedData.length > 0 
@@ -66,8 +126,8 @@ export function ProductHierarchyUpload() {
     : [];
 
   const combinedHeaders = columns.map(column => ({
-    column,
-    sampleData: uploadedData[0]?.[column]?.toString() || ''
+    header: column,
+    level: null
   }));
 
   return (
@@ -76,7 +136,7 @@ export function ProductHierarchyUpload() {
         <div className="space-y-1">
           <h3 className="text-xl font-semibold tracking-tight">Product Hierarchy</h3>
           <p className="text-sm text-muted-foreground">
-            Upload and manage your product hierarchy data for inventory management
+            Upload and manage your product hierarchy data
           </p>
         </div>
       </div>
@@ -88,30 +148,30 @@ export function ProductHierarchyUpload() {
       />
 
       {uploadedData.length > 0 && (
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Badge variant="secondary" className="h-7">
-              {uploadedData.length} records
-            </Badge>
-            <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                onClick={handlePushToSystem}
-                disabled={isUploading}
-                className="px-4"
-              >
-                {isUploading ? "Saving..." : "Save"}
-              </Button>
-            </div>
-          </div>
-          <HierarchyTableView 
-            data={uploadedData}
-            tableName="product_hierarchy"
-            columns={columns}
+        <Card className="p-6">
+          <ColumnSelector
+            tableName="product"
             combinedHeaders={combinedHeaders}
+            tempUploadId={tempUploadId}
+            data={uploadedData}
+            selectedColumns={selectedColumns}
+            onSelectedColumnsChange={handleSelectedColumnsChange}
+            onSaveSuccess={() => {
+              setUploadedData([]);
+              setSelectedColumns(new Set());
+              fetchSavedFiles();
+            }}
           />
-        </div>
+        </Card>
       )}
+
+      <FileList
+        files={savedFiles}
+        error={error}
+        isLoading={isLoading}
+        onDelete={handleDeleteFile}
+        onDownload={handleDownloadFile}
+      />
     </div>
   );
 }
