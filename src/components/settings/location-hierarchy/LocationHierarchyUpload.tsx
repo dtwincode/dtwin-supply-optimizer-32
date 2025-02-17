@@ -7,6 +7,7 @@ import { SavedLocationFiles } from "./SavedLocationFiles";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
+import { HierarchyTable } from "../hierarchy/components/HierarchyTable";
 
 export function LocationHierarchyUpload() {
   const [uploadedData, setUploadedData] = useState<any[] | null>(null);
@@ -105,18 +106,33 @@ export function LocationHierarchyUpload() {
             )}
 
             {uploadedData && tempUploadId && (
-              <ColumnSelector
-                tableName="location_hierarchy"
-                combinedHeaders={uploadedData[0] ? Object.keys(uploadedData[0]).map(header => ({
-                  header,
-                  level: null
-                })) : []}
-                selectedColumns={selectedColumns}
-                onSelectedColumnsChange={setSelectedColumns}
-                tempUploadId={tempUploadId}
-                data={uploadedData}
-                onSaveSuccess={handleSaveSuccess}
-              />
+              <>
+                <ColumnSelector
+                  tableName="location_hierarchy"
+                  combinedHeaders={uploadedData[0] ? Object.keys(uploadedData[0]).map(header => ({
+                    header,
+                    level: null
+                  })) : []}
+                  selectedColumns={selectedColumns}
+                  onSelectedColumnsChange={setSelectedColumns}
+                  tempUploadId={tempUploadId}
+                  data={uploadedData}
+                  onSaveSuccess={handleSaveSuccess}
+                />
+
+                <div className="mt-6">
+                  <h3 className="text-lg font-medium mb-4">Data Preview</h3>
+                  <HierarchyTable
+                    data={uploadedData}
+                    columns={uploadedData[0] ? Object.keys(uploadedData[0]) : []}
+                    combinedHeaders={uploadedData[0] ? Object.keys(uploadedData[0]).map(header => ({
+                      column: header,
+                      sampleData: uploadedData[0][header]?.toString() || ''
+                    })) : []}
+                    selectedColumns={selectedColumns}
+                  />
+                </div>
+              </>
             )}
           </div>
         </CardContent>
