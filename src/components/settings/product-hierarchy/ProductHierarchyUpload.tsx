@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { FileUpload } from "../upload/FileUpload";
 import { HierarchyTableView } from "../hierarchy/HierarchyTableView";
@@ -83,7 +84,7 @@ export function ProductHierarchyUpload() {
       <FileUpload
         onUploadComplete={handleUploadComplete}
         allowedFileTypes={[".csv", ".xlsx"]}
-        maxSize={5}
+        maxFileSize={5}
       />
 
       {uploadedData.length > 0 && (

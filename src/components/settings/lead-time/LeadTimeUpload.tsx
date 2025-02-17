@@ -83,7 +83,7 @@ export function LeadTimeUpload() {
       <FileUpload
         onUploadComplete={handleUploadComplete}
         allowedFileTypes={[".csv", ".xlsx"]}
-        maxSize={5}
+        maxFileSize={5}
       />
 
       {uploadedData.length > 0 && (
