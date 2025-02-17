@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileUpload } from "../upload/FileUpload";
 import { ColumnSelector } from "./components/ColumnSelector";
-import { SavedFiles } from "../files/SavedFiles";
+import { SavedFiles } from "../../settings/files/SavedFiles";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
