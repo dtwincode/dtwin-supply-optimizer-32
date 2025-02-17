@@ -15,6 +15,7 @@ export function LocationHierarchyUpload() {
   const [uploadedData, setUploadedData] = useState<TableRowData[]>([]);
   const [tempUploadId, setTempUploadId] = useState<string | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [showSavedFiles, setShowSavedFiles] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user, isLoading } = useAuth();
@@ -79,6 +80,8 @@ export function LocationHierarchyUpload() {
   };
 
   const handleSaveSuccess = () => {
+    // Only show saved files list after a successful save
+    setShowSavedFiles(true);
     // Trigger a refresh of the saved files list
     setRefreshTrigger(prev => prev + 1);
   };
@@ -135,7 +138,9 @@ export function LocationHierarchyUpload() {
         </div>
       )}
 
-      <SavedLocationFiles triggerRefresh={refreshTrigger} />
+      {showSavedFiles && (
+        <SavedLocationFiles triggerRefresh={refreshTrigger} />
+      )}
     </div>
   );
 }
