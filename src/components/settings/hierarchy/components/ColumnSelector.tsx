@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -44,7 +43,6 @@ export function ColumnSelector({
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
-  // Fetch saved files
   const fetchSavedFiles = async () => {
     const { data: files, error } = await supabase
       .from('permanent_hierarchy_files')
@@ -60,7 +58,6 @@ export function ColumnSelector({
     setSavedFiles(files || []);
   };
 
-  // Load saved files on mount
   useEffect(() => {
     fetchSavedFiles();
   }, [tableName]);
@@ -71,30 +68,17 @@ export function ColumnSelector({
 
       const fileName = `hierarchy_${tableName}_${new Date().getTime()}`;
       
-      // First, save to permanent_hierarchy_data
-      const { error: hierarchyError } = await supabase
-        .from('permanent_hierarchy_data')
-        .insert({
-          hierarchy_type: tableName,
-          data: data,
-          is_active: true,
-          version: 1,
-          created_by: user.id
-        });
-
-      if (hierarchyError) throw hierarchyError;
-
-      // Then create a file record
       const { error: fileError } = await supabase
-        .from('location_hierarchy_files')
+        .from('permanent_hierarchy_files')
         .insert({
           file_name: fileName,
           original_name: `${tableName.charAt(0).toUpperCase() + tableName.slice(1)} Hierarchy ${new Date().toLocaleDateString()}`,
+          hierarchy_type: tableName,
           created_by: user.id,
-          file_type: 'json',
           file_size: JSON.stringify(data).length,
           metadata: { records: data.length },
-          is_active: true
+          selected_columns: Array.from(selectedColumns),
+          data: data
         });
 
       if (fileError) throw fileError;
@@ -201,7 +185,6 @@ export function ColumnSelector({
       const data = fileData.data;
       const selectedCols = fileData.selected_columns;
       
-      // Filter data to only include selected columns
       const filteredData = data.map((row: any) => {
         const filtered: any = {};
         selectedCols.forEach((col: string) => {
@@ -210,14 +193,12 @@ export function ColumnSelector({
         return filtered;
       });
 
-      // Convert to CSV
       const headers = selectedCols.join(',');
       const rows = filteredData.map((row: any) => 
         selectedCols.map(col => `"${row[col] || ''}"`).join(',')
       );
       const csv = [headers, ...rows].join('\n');
 
-      // Create and download file
       const blob = new Blob([csv], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -334,7 +315,6 @@ export function ColumnSelector({
         </ScrollArea>
       </div>
 
-      {/* Saved Files Section */}
       {savedFiles.length > 0 && (
         <Card className="p-4">
           <h4 className="text-sm font-medium mb-3">Saved Files</h4>
