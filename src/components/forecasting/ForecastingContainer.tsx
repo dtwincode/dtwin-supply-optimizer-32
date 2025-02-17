@@ -16,6 +16,14 @@ export function ForecastingContainer() {
   const [isVersioningOpen, setIsVersioningOpen] = useState(false);
   const { toast } = useToast();
 
+  // Model selection state
+  const [selectedModel, setSelectedModel] = useState("arima");
+  const modelConfigs = [
+    { id: "arima", name: "ARIMA" },
+    { id: "prophet", name: "Prophet" },
+    { id: "lstm", name: "LSTM" }
+  ];
+
   // Sample metrics data
   const metrics = {
     mape: 5.2,
@@ -23,35 +31,33 @@ export function ForecastingContainer() {
     rmse: 3.1
   };
 
-  // Sample filter states
+  // Filter states
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRegion, setSelectedRegion] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
   const [selectedChannel, setSelectedChannel] = useState("");
-  const [selectedProduct, setSelectedProduct] = useState("");
+  const [selectedWarehouse, setSelectedWarehouse] = useState("");
   const [dateRange, setDateRange] = useState({ from: null, to: null });
   const [selectedLocation, setSelectedLocation] = useState("");
   
+  // Sample data for filter props
+  const regions = ["Region 1", "Region 2"];
+  const cities = { "Region 1": ["City 1", "City 2"] };
+  const channelTypes = ["Channel 1", "Channel 2"];
+  const warehouses = ["Warehouse 1", "Warehouse 2"];
+  const forecastData = [];
+
+  const handleExport = () => {
+    console.log("Exporting data...");
+  };
+
+  const findBestModel = () => {
+    console.log("Finding best model...");
+  };
+
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
   };
-
-  const handleOpenScenario = () => {
-    setIsScenarioOpen(true);
-  };
-
-  const handleCloseScenario = () => {
-    setIsScenarioOpen(false);
-  };
-
-  const handleOpenVersioning = () => {
-    setIsVersioningOpen(true);
-  };
-
-  const handleCloseVersioning = () => {
-    setIsVersioningOpen(false);
-  };
-
-  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
   const handleDataUploaded = () => {
     setIsUploadDialogOpen(false);
@@ -62,11 +68,18 @@ export function ForecastingContainer() {
   const currentModel = "arima";
   const currentHorizon = "monthly";
   const currentParameters = {};
-  const forecastData: any[] = [];
+
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
   return (
     <div>
-      <ForecastingHeader />
+      <ForecastingHeader
+        selectedModel={selectedModel}
+        setSelectedModel={setSelectedModel}
+        handleExport={handleExport}
+        findBestModel={findBestModel}
+        modelConfigs={modelConfigs}
+      />
 
       <Card className="mt-6">
         <CardContent className="p-6">
@@ -75,18 +88,19 @@ export function ForecastingContainer() {
           {activeTab === "metrics" && <ForecastMetricsCards metrics={metrics} />}
           {activeTab === "filters" && (
             <ForecastFilters
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
               selectedRegion={selectedRegion}
               setSelectedRegion={setSelectedRegion}
+              selectedCity={selectedCity}
+              setSelectedCity={setSelectedCity}
               selectedChannel={selectedChannel}
               setSelectedChannel={setSelectedChannel}
-              selectedProduct={selectedProduct}
-              setSelectedProduct={setSelectedProduct}
-              dateRange={dateRange}
-              setDateRange={setDateRange}
-              selectedLocation={selectedLocation}
-              setSelectedLocation={setSelectedLocation}
+              selectedWarehouse={selectedWarehouse}
+              setSelectedWarehouse={setSelectedWarehouse}
+              regions={regions}
+              cities={cities}
+              channelTypes={channelTypes}
+              warehouses={warehouses}
+              forecastData={forecastData}
             />
           )}
         </CardContent>
