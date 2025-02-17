@@ -7,11 +7,9 @@ import { Card } from "@/components/ui/card";
 import { Loader2, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-
 interface HierarchyData {
   [key: string]: string;
 }
-
 interface HierarchyState {
   [level: string]: {
     selected: string;
@@ -19,7 +17,6 @@ interface HierarchyState {
     label: string;
   };
 }
-
 export function LocationFilter() {
   const {
     toast
@@ -27,7 +24,6 @@ export function LocationFilter() {
   const [hierarchyState, setHierarchyState] = useState<HierarchyState>({});
   const [hierarchyLevels, setHierarchyLevels] = useState<string[]>([]);
   const [hasActiveHierarchy, setHasActiveHierarchy] = useState(false);
-
   const {
     data: locationsData,
     isLoading,
@@ -84,7 +80,6 @@ export function LocationFilter() {
       return null;
     }
   });
-
   const {
     data: savedFiles
   } = useQuery({
@@ -103,7 +98,6 @@ export function LocationFilter() {
       return files || [];
     }
   });
-
   const handleLevelChange = (level: string, value: string) => {
     setHierarchyState(prev => {
       const newState = {
@@ -119,7 +113,6 @@ export function LocationFilter() {
       return newState;
     });
   };
-
   const handleImportHierarchy = async (fileId: string) => {
     try {
       const {
@@ -169,20 +162,15 @@ export function LocationFilter() {
       });
     }
   };
-
   if (isLoading) {
-    return (
-      <Card className="p-6 w-full">
+    return <Card className="p-6 w-full">
         <div className="flex items-center justify-center space-x-2">
           <Loader2 className="h-5 w-5 animate-spin text-primary" />
           <p className="text-sm text-muted-foreground">Loading filters...</p>
         </div>
-      </Card>
-    );
+      </Card>;
   }
-
-  return (
-    <Card className="p-6 w-full">
+  return <Card className="p-6 w-full">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-medium">Location Filters</h3>
@@ -193,60 +181,23 @@ export function LocationFilter() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[200px]">
-              {savedFiles?.map((file) => (
-                <DropdownMenuItem
-                  key={file.id}
-                  onClick={() => handleImportHierarchy(file.id)}
-                >
+              {savedFiles?.map(file => <DropdownMenuItem key={file.id} onClick={() => handleImportHierarchy(file.id)}>
                   {file.original_name}
-                </DropdownMenuItem>
-              ))}
-              {(!savedFiles || savedFiles.length === 0) && (
-                <DropdownMenuItem disabled>
+                </DropdownMenuItem>)}
+              {(!savedFiles || savedFiles.length === 0) && <DropdownMenuItem disabled>
                   No saved hierarchies
-                </DropdownMenuItem>
-              )}
+                </DropdownMenuItem>}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
         
-        {!hasActiveHierarchy ? (
-          <div className="flex items-center justify-center p-4">
+        {!hasActiveHierarchy ? <div className="flex items-center justify-center p-4">
             <p className="text-sm text-muted-foreground">
               Please import a location hierarchy file to see filters
             </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {hierarchyLevels.map((level) => (
-              <div key={level} className="space-y-2">
-                <label className="text-sm font-medium">
-                  {hierarchyState[level]?.label || level}
-                </label>
-                <Select
-                  value={hierarchyState[level]?.selected || 'all'}
-                  onValueChange={(value) => handleLevelChange(level, value)}
-                  disabled={!hierarchyState[level]?.values.length}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={`Select ${hierarchyState[level]?.label || level}`} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">
-                      {`All ${hierarchyState[level]?.label || level}`}
-                    </SelectItem>
-                    {hierarchyState[level]?.values.map((value) => (
-                      <SelectItem key={value} value={value}>
-                        {value}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            ))}
-          </div>
-        )}
+          </div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {hierarchyLevels.map(level => {})}
+          </div>}
       </div>
-    </Card>
-  );
+    </Card>;
 }
