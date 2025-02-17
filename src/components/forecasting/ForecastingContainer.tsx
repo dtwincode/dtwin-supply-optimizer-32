@@ -14,29 +14,18 @@ export function ForecastingContainer() {
   const [activeTab, setActiveTab] = useState("metrics");
   const [isScenarioOpen, setIsScenarioOpen] = useState(false);
   const [isVersioningOpen, setIsVersioningOpen] = useState(false);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const { toast } = useToast();
 
   // Model selection state
   const [selectedModel, setSelectedModel] = useState("arima");
-  const modelConfigs = [
-    { id: "arima", name: "ARIMA" },
-    { id: "prophet", name: "Prophet" },
-    { id: "lstm", name: "LSTM" }
-  ];
-
-  // Sample metrics data
-  const metrics = {
-    mape: 5.2,
-    mae: 2.3,
-    rmse: 3.1
-  };
 
   // Filter states
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedRegion, setSelectedRegion] = useState("");
-  const [selectedCity, setSelectedCity] = useState("");
-  const [selectedChannel, setSelectedChannel] = useState("");
-  const [selectedWarehouse, setSelectedWarehouse] = useState("");
+  const [selectedRegion, setSelectedRegion] = useState("all");
+  const [selectedCity, setSelectedCity] = useState("all");
+  const [selectedChannel, setSelectedChannel] = useState("all");
+  const [selectedWarehouse, setSelectedWarehouse] = useState("all");
   
   // Product hierarchy states
   const [selectedL1MainProd, setSelectedL1MainProd] = useState("all");
@@ -49,11 +38,22 @@ export function ForecastingContainer() {
   const [selectedL8DeviceStorage, setSelectedL8DeviceStorage] = useState("all");
   
   // Sample data for filter props
-  const regions = ["Region 1", "Region 2"];
-  const cities = { "Region 1": ["City 1", "City 2"] };
   const channelTypes = ["Channel 1", "Channel 2"];
   const warehouses = ["Warehouse 1", "Warehouse 2"];
   const forecastData = [];
+
+  const modelConfigs = [
+    { id: "arima", name: "ARIMA" },
+    { id: "prophet", name: "Prophet" },
+    { id: "lstm", name: "LSTM" }
+  ];
+
+  // Sample metrics data
+  const metrics = {
+    mape: 5.2,
+    mae: 2.3,
+    rmse: 3.1
+  };
 
   const handleExport = () => {
     console.log("Exporting data...");
@@ -70,14 +70,6 @@ export function ForecastingContainer() {
   const handleDataUploaded = () => {
     setIsUploadDialogOpen(false);
   };
-
-  // Sample scenario data
-  const scenarioName = "";
-  const currentModel = "arima";
-  const currentHorizon = "monthly";
-  const currentParameters = {};
-
-  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
   return (
     <div>
@@ -106,11 +98,6 @@ export function ForecastingContainer() {
               setSelectedChannel={setSelectedChannel}
               selectedWarehouse={selectedWarehouse}
               setSelectedWarehouse={setSelectedWarehouse}
-              regions={regions}
-              cities={cities}
-              channelTypes={channelTypes}
-              warehouses={warehouses}
-              forecastData={forecastData}
               selectedL1MainProd={selectedL1MainProd}
               setSelectedL1MainProd={setSelectedL1MainProd}
               selectedL2ProdLine={selectedL2ProdLine}
@@ -127,22 +114,23 @@ export function ForecastingContainer() {
               setSelectedL7DeviceColor={setSelectedL7DeviceColor}
               selectedL8DeviceStorage={selectedL8DeviceStorage}
               setSelectedL8DeviceStorage={setSelectedL8DeviceStorage}
+              channelTypes={channelTypes}
+              warehouses={warehouses}
+              forecastData={forecastData}
             />
           )}
         </CardContent>
       </Card>
 
       <ScenarioManagement
-        scenarioName={scenarioName}
-        setScenarioName={() => {}}
-        currentModel={currentModel}
-        currentHorizon={currentHorizon}
-        currentParameters={currentParameters}
-        forecastData={forecastData}
-        onScenarioLoad={() => {}}
+        isOpen={isScenarioOpen}
+        onClose={() => setIsScenarioOpen(false)}
       />
 
-      <ModelVersioning modelId={currentModel} />
+      <ModelVersioning
+        isOpen={isVersioningOpen}
+        onClose={() => setIsVersioningOpen(false)}
+      />
       
       <DataUploadDialog
         isOpen={isUploadDialogOpen}
