@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { FileUpload } from "../upload/FileUpload";
 import { HierarchyTableView } from "../hierarchy/HierarchyTableView";
@@ -31,13 +30,11 @@ export function HistoricalSalesUpload() {
   const handlePushToSystem = async () => {
     setIsUploading(true);
     try {
-      // First, mark all existing historical sales data as inactive
       await supabase
         .from('permanent_hierarchy_data')
         .update({ is_active: false })
         .eq('hierarchy_type', 'historical_sales');
 
-      // Then insert the new data
       const { error } = await supabase
         .from('permanent_hierarchy_data')
         .insert({
@@ -96,7 +93,7 @@ export function HistoricalSalesUpload() {
             <FileUpload
               onUploadComplete={handleUploadComplete}
               allowedFileTypes={[".csv", ".xlsx"]}
-              maxFileSize={5}
+              maxSize={5}
             />
 
             {uploadedData.length > 0 && (
@@ -130,7 +127,6 @@ export function HistoricalSalesUpload() {
             <div className="text-sm text-muted-foreground">
               Configure how your historical sales data maps to your location and product hierarchies
             </div>
-            {/* We'll implement the mapping interface in the next iteration */}
             <div className="p-4 border rounded-md bg-muted">
               <p>Mapping configuration interface will be implemented here</p>
             </div>
