@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 interface ColumnSelectorProps {
   tableName: string;
@@ -66,7 +67,6 @@ export function ColumnSelector({
       setIsSaving(true);
       setError(null);
 
-      // Generate a unique filename using timestamp and random string
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const randomString = Math.random().toString(36).substring(7);
       const fileName = `location_hierarchy_${timestamp}_${randomString}`;
@@ -85,8 +85,7 @@ export function ColumnSelector({
         .single();
 
       if (uploadError) {
-        // Check for unique constraint violation
-        if (uploadError.code === '23505') { // PostgreSQL unique constraint violation code
+        if (uploadError.code === '23505') {
           throw new Error('A file with this name already exists');
         }
         throw uploadError;
@@ -97,10 +96,7 @@ export function ColumnSelector({
         description: "File saved successfully",
       });
 
-      // Clear any existing error
       setError(null);
-
-      // Notify parent of successful save
       onSaveSuccess?.();
     } catch (error) {
       console.error('Error saving file:', error);
@@ -116,32 +112,18 @@ export function ColumnSelector({
   };
 
   return (
-    <div className="space-y-4">
-      {error && (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {combinedHeaders.map(({ header, level }) => (
-          <div key={header} className="flex items-center space-x-2">
-            <Checkbox
-              id={header}
-              checked={selectedColumns.has(header)}
-              onCheckedChange={() => handleToggleColumn(header)}
-            />
-            <Label htmlFor={header} className="text-sm">
-              {header} {level !== null && `(Level ${level})`}
-            </Label>
-          </div>
-        ))}
-      </div>
-
-      <div className="flex justify-end">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h3 className="text-lg font-semibold text-foreground">Select Columns</h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            Choose the columns you want to include in your hierarchy
+          </p>
+        </div>
         <Button
           onClick={handleSavePermanently}
           disabled={isSaving || selectedColumns.size === 0}
+          className="min-w-[140px]"
         >
           {isSaving ? (
             <>
@@ -149,10 +131,44 @@ export function ColumnSelector({
               Saving...
             </>
           ) : (
-            'Save Permanently'
+            'Save Columns'
           )}
         </Button>
       </div>
+
+      {error && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      <Card className="p-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {combinedHeaders.map(({ header, level }) => (
+            <div key={header} className="flex items-start space-x-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+              <Checkbox
+                id={header}
+                checked={selectedColumns.has(header)}
+                onCheckedChange={() => handleToggleColumn(header)}
+                className="mt-1"
+              />
+              <div className="space-y-1">
+                <Label 
+                  htmlFor={header} 
+                  className="text-sm font-medium cursor-pointer"
+                >
+                  {header}
+                </Label>
+                {level !== null && (
+                  <p className="text-xs text-muted-foreground">
+                    Level {level}
+                  </p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
     </div>
   );
 }
