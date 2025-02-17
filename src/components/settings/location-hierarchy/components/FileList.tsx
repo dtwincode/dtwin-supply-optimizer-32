@@ -49,10 +49,18 @@ export function FileList({ files, error, isLoading, onDelete, onDownload }: File
   };
 
   const handleBulkDelete = async () => {
-    for (const fileId of selectedFiles) {
-      await onDelete(fileId);
+    try {
+      // Create an array of promises for each deletion
+      const deletePromises = Array.from(selectedFiles).map(fileId => onDelete(fileId));
+      
+      // Wait for all deletions to complete
+      await Promise.all(deletePromises);
+      
+      // Clear selection after successful deletion
+      setSelectedFiles(new Set());
+    } catch (error) {
+      console.error('Error in bulk delete:', error);
     }
-    setSelectedFiles(new Set());
   };
 
   const handleBulkDownload = async () => {

@@ -49,23 +49,25 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
   const handleDelete = async (fileId: string) => {
     try {
       setIsLoading(true);
+      console.log('Deleting file:', fileId);
       
       const { error } = await supabase
         .from('permanent_hierarchy_files')
         .delete()
         .eq('id', fileId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase delete error:', error);
+        throw error;
+      }
 
+      console.log('File deleted successfully:', fileId);
       setFiles(prevFiles => prevFiles.filter(f => f.id !== fileId));
       
       toast({
         title: "Success",
         description: "File deleted successfully",
       });
-
-      // Refresh the file list after deletion
-      await fetchSavedFiles();
     } catch (error) {
       console.error('Error deleting file:', error);
       toast({
