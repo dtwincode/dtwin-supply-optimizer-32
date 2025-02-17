@@ -26,10 +26,6 @@ const Forecasting = () => {
   const [isLocationExpanded, setIsLocationExpanded] = useState(false);
 
   // Use localStorage to persist filter selections
-  const [selectedRegion, setSelectedRegion] = useLocalStorage('selectedRegion', 'all');
-  const [selectedCity, setSelectedCity] = useLocalStorage('selectedCity', 'all');
-  
-  // Product hierarchy states
   const [selectedL1MainProd, setSelectedL1MainProd] = useLocalStorage('selectedL1MainProd', 'all');
   const [selectedL2ProdLine, setSelectedL2ProdLine] = useLocalStorage('selectedL2ProdLine', 'all');
   const [selectedL3ProdCategory, setSelectedL3ProdCategory] = useLocalStorage('selectedL3ProdCategory', 'all');
@@ -279,16 +275,12 @@ const Forecasting = () => {
 
             {isLocationExpanded && (
               <div className="p-6 space-y-6 border-t bg-primary/5">
-                <LocationFilter
-                  selectedRegion={selectedRegion}
-                  setSelectedRegion={setSelectedRegion}
-                  selectedCity={selectedCity}
-                  setSelectedCity={setSelectedCity}
-                />
+                <LocationFilter />
               </div>
             )}
           </div>
 
+          {/* Routes */}
           <Routes>
             <Route index element={<ForecastAnalysisTab filteredData={dummyData.filteredData} confidenceIntervals={dummyData.confidenceIntervals} />} />
             <Route path="distribution" element={<ForecastDistributionTab forecastTableData={dummyData.forecastTableData} />} />
