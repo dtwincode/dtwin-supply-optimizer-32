@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { TableRowData, ColumnHeader } from "../types";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Json } from "@/integrations/supabase/types";
@@ -42,7 +42,8 @@ export function ColumnSelector({
     onSelectedColumnsChange(newColumns);
   };
 
-  const handleSavePermanently = async () => {
+  const handleSavePermanently = useCallback(async () => {
+    if (isSaving) return; // Prevent multiple saves
     if (!data || !tempUploadId || !user) {
       toast({
         variant: "destructive",
@@ -89,9 +90,12 @@ export function ColumnSelector({
         description: "Failed to save data permanently"
       });
     } finally {
-      setIsSaving(false);
+      // Add a small delay before allowing another save
+      setTimeout(() => {
+        setIsSaving(false);
+      }, 1000);
     }
-  };
+  }, [data, tempUploadId, user, selectedColumns, tableName, toast, onSaveSuccess, isSaving]);
 
   return (
     <div className="space-y-6">
