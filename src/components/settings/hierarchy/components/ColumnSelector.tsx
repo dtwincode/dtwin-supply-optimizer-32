@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { TableRowData, ColumnHeader } from "../types";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Json } from "@/integrations/supabase/types";
@@ -83,6 +83,7 @@ export function ColumnSelector({
         description: "File saved permanently",
       });
 
+      // Call onSaveSuccess without clearing any data
       if (onSaveSuccess) {
         onSaveSuccess();
       }
@@ -118,17 +119,17 @@ export function ColumnSelector({
         </p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {combinedHeaders.map(({ column, sampleData }) => (
-          <div key={column} className="flex items-center justify-between space-x-2">
+        {combinedHeaders.map(({ header, level }) => (
+          <div key={header} className="flex items-center justify-between space-x-2">
             <Label className="flex flex-col">
-              <span>{column}</span>
+              <span>{header}</span>
               <span className="text-xs text-muted-foreground truncate">
-                Sample: {sampleData}
+                Sample: {data?.[0]?.[header]}
               </span>
             </Label>
             <Switch
-              checked={selectedColumns.has(column)}
-              onCheckedChange={() => handleToggle(column)}
+              checked={selectedColumns.has(header)}
+              onCheckedChange={() => handleToggle(header)}
             />
           </div>
         ))}
