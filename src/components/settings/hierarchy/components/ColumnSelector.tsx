@@ -43,10 +43,14 @@ export function ColumnSelector({
     onSelectedColumnsChange(newColumns);
   };
 
-  const handleSavePermanently = useCallback(async () => {
-    // Use ref to prevent multiple simultaneous saves
-    if (saveInProgress.current || isSaving) {
-      console.log('Save already in progress');
+  const handleSavePermanently = useCallback(async (e: React.MouseEvent) => {
+    // Prevent default button behavior
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Double-check save lock
+    if (saveInProgress.current) {
+      console.log('Save operation already in progress');
       return;
     }
 
@@ -59,15 +63,17 @@ export function ColumnSelector({
       return;
     }
 
-    try {
-      saveInProgress.current = true;
-      setIsSaving(true);
+    // Set both locks immediately
+    saveInProgress.current = true;
+    setIsSaving(true);
 
+    try {
+      // Get data ready before the insert
       const timestamp = new Date().getTime().toString();
       const fileName = `location_hierarchy_${timestamp}`;
       const originalName = data[0]?.original_name?.toString() || 'location_hierarchy.csv';
-
-      // Save to permanent storage
+      
+      // Single insert operation
       const { error: permError } = await supabase
         .from('permanent_hierarchy_files')
         .insert({
@@ -77,7 +83,9 @@ export function ColumnSelector({
           selected_columns: Array.from(selectedColumns),
           data: data as Json,
           created_by: user.id
-        });
+        })
+        .select()
+        .single();
 
       if (permError) throw permError;
 
@@ -86,7 +94,6 @@ export function ColumnSelector({
         description: "File saved permanently",
       });
 
-      // Call the onSaveSuccess callback if provided
       if (onSaveSuccess) {
         onSaveSuccess();
       }
@@ -98,13 +105,11 @@ export function ColumnSelector({
         description: "Failed to save data permanently"
       });
     } finally {
-      // Reset both state and ref after a delay
-      setTimeout(() => {
-        saveInProgress.current = false;
-        setIsSaving(false);
-      }, 1000);
+      // Release locks immediately after operation completes
+      saveInProgress.current = false;
+      setIsSaving(false);
     }
-  }, [data, tempUploadId, user, selectedColumns, tableName, toast, onSaveSuccess, isSaving]);
+  }, [data, tempUploadId, user, selectedColumns, tableName, toast, onSaveSuccess]);
 
   return (
     <div className="space-y-6">
