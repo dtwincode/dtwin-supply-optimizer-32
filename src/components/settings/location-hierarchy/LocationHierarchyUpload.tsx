@@ -23,6 +23,10 @@ export function LocationHierarchyUpload() {
   const handleUploadSuccess = (data: any[], uploadId: string) => {
     setUploadedData(data);
     setTempUploadId(uploadId);
+    // Initialize selected columns with all columns when file is uploaded
+    if (data[0]) {
+      setSelectedColumns(new Set(Object.keys(data[0])));
+    }
     setError(null);
     setUploadProgress(100);
     setIsUploading(false);
@@ -76,6 +80,10 @@ export function LocationHierarchyUpload() {
     setIsUploading(true);
   };
 
+  const handleColumnSelect = (columns: Set<string>) => {
+    setSelectedColumns(columns);
+  };
+
   return (
     <div className="space-y-6">
       {error && (
@@ -114,7 +122,7 @@ export function LocationHierarchyUpload() {
                     level: null
                   })) : []}
                   selectedColumns={selectedColumns}
-                  onSelectedColumnsChange={setSelectedColumns}
+                  onSelectedColumnsChange={handleColumnSelect}
                   tempUploadId={tempUploadId}
                   data={uploadedData}
                   onSaveSuccess={handleSaveSuccess}
@@ -124,12 +132,11 @@ export function LocationHierarchyUpload() {
                   <h3 className="text-lg font-medium mb-4">Data Preview</h3>
                   <HierarchyTable
                     data={uploadedData}
-                    columns={uploadedData[0] ? Object.keys(uploadedData[0]) : []}
-                    combinedHeaders={uploadedData[0] ? Object.keys(uploadedData[0]).map(header => ({
+                    columns={Array.from(selectedColumns)}
+                    combinedHeaders={Array.from(selectedColumns).map(header => ({
                       column: header,
-                      sampleData: uploadedData[0][header]?.toString() || ''
-                    })) : []}
-                    selectedColumns={selectedColumns}
+                      sampleData: uploadedData[0]?.[header]?.toString() || ''
+                    }))}
                   />
                 </div>
               </>
