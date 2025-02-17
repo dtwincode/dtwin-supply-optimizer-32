@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -44,6 +45,7 @@ export function ColumnSelector({
   const { user } = useAuth();
 
   const fetchSavedFiles = async () => {
+    console.log('Fetching saved files for table:', tableName);
     const { data: files, error } = await supabase
       .from('permanent_hierarchy_files')
       .select('*')
@@ -55,6 +57,7 @@ export function ColumnSelector({
       return;
     }
 
+    console.log('Fetched files:', files);
     setSavedFiles(files || []);
   };
 
@@ -65,6 +68,12 @@ export function ColumnSelector({
   const savePermanentlyMutation = useMutation({
     mutationFn: async () => {
       if (!data || !user) return;
+
+      console.log('Saving permanently with data:', {
+        tableName,
+        selectedColumns: Array.from(selectedColumns),
+        dataLength: data.length
+      });
 
       const fileName = `hierarchy_${tableName}_${new Date().getTime()}`;
       
@@ -81,7 +90,10 @@ export function ColumnSelector({
           data: data
         });
 
-      if (fileError) throw fileError;
+      if (fileError) {
+        console.error('Error saving file:', fileError);
+        throw fileError;
+      }
       return fileName;
     },
     onSuccess: () => {
