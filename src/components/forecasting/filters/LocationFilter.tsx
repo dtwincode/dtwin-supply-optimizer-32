@@ -48,6 +48,7 @@ export function LocationFilter({
   const { toast } = useToast();
   const [hierarchyState, setHierarchyState] = useState<HierarchyState>({});
   const [hierarchyLevels, setHierarchyLevels] = useState<string[]>([]);
+  const [hasActiveHierarchy, setHasActiveHierarchy] = useState(false);
 
   // Fetch active hierarchy data
   const { data: locationsData, isLoading, refetch } = useQuery({
@@ -62,29 +63,28 @@ export function LocationFilter({
 
       if (versionError || !activeVersionData?.data || !Array.isArray(activeVersionData.data)) {
         console.error('Error fetching location hierarchy:', versionError);
+        setHasActiveHierarchy(false);
         return null;
       }
 
       try {
         const hierarchyData = activeVersionData.data as HierarchyData[];
         
-        // Get all possible columns from the first row
         if (hierarchyData.length > 0) {
+          setHasActiveHierarchy(true);
           const columns = Object.keys(hierarchyData[0]);
           setHierarchyLevels(columns);
 
-          // Initialize hierarchy state
           const newHierarchyState: HierarchyState = {};
           columns.forEach(column => {
             const uniqueValues = new Set(hierarchyData.map(row => row[column]).filter(Boolean));
             newHierarchyState[column] = {
               selected: 'all',
               values: Array.from(uniqueValues).sort(),
-              label: column // Default label is column name
+              label: column
             };
           });
 
-          // Get the labels from the source file
           if (activeVersionData.source_upload_id) {
             const { data: sourceFile } = await supabase
               .from('permanent_hierarchy_files')
@@ -94,7 +94,6 @@ export function LocationFilter({
 
             if (sourceFile?.metadata && typeof sourceFile.metadata === 'object' && 'labels' in sourceFile.metadata) {
               const labels = sourceFile.metadata.labels as Record<string, string>;
-              // Update labels in hierarchy state
               Object.entries(labels).forEach(([column, label]) => {
                 if (newHierarchyState[column]) {
                   newHierarchyState[column].label = label;
@@ -105,9 +104,12 @@ export function LocationFilter({
 
           setHierarchyState(newHierarchyState);
           return hierarchyData;
+        } else {
+          setHasActiveHierarchy(false);
         }
       } catch (error) {
         console.error('Error processing location hierarchy data:', error);
+        setHasActiveHierarchy(false);
       }
       return null;
     }
@@ -137,7 +139,6 @@ export function LocationFilter({
       const newState = { ...prev };
       newState[level].selected = value;
       
-      // Reset all dependent levels
       const levelIndex = hierarchyLevels.indexOf(level);
       hierarchyLevels.slice(levelIndex + 1).forEach(dependentLevel => {
         if (newState[dependentLevel]) {
@@ -173,7 +174,6 @@ export function LocationFilter({
 
       const nextVersion = (versionData?.version || 0) + 1;
 
-      // Insert as new active hierarchy with version
       const { error: insertError } = await supabase
         .from('permanent_hierarchy_data')
         .insert({
@@ -186,7 +186,6 @@ export function LocationFilter({
 
       if (insertError) throw insertError;
 
-      // Deactivate other hierarchies
       const { error: updateError } = await supabase
         .from('permanent_hierarchy_data')
         .update({ is_active: false })
@@ -195,16 +194,8 @@ export function LocationFilter({
 
       if (updateError) throw updateError;
 
-      // Reset all selections
-      setHierarchyState(prev => {
-        const newState = { ...prev };
-        Object.keys(newState).forEach(level => {
-          newState[level].selected = 'all';
-        });
-        return newState;
-      });
-
-      // Refetch the data
+      setHierarchyState({});
+      setHierarchyLevels([]);
       await refetch();
 
       toast({
@@ -260,34 +251,43 @@ export function LocationFilter({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {hierarchyLevels.map((level) => (
-            <div key={level} className="space-y-2">
-              <label className="text-sm font-medium">
-                {hierarchyState[level]?.label || level}
-              </label>
-              <Select
-                value={hierarchyState[level]?.selected || 'all'}
-                onValueChange={(value) => handleLevelChange(level, value)}
-                disabled={!hierarchyState[level]?.values.length}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={`Select ${hierarchyState[level]?.label || level}`} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">
-                    {`All ${hierarchyState[level]?.label || level}`}
-                  </SelectItem>
-                  {hierarchyState[level]?.values.map((value) => (
-                    <SelectItem key={value} value={value}>
-                      {value}
+        
+        {!hasActiveHierarchy ? (
+          <div className="flex items-center justify-center p-4">
+            <p className="text-sm text-muted-foreground">
+              Please import a location hierarchy file to see filters
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {hierarchyLevels.map((level) => (
+              <div key={level} className="space-y-2">
+                <label className="text-sm font-medium">
+                  {hierarchyState[level]?.label || level}
+                </label>
+                <Select
+                  value={hierarchyState[level]?.selected || 'all'}
+                  onValueChange={(value) => handleLevelChange(level, value)}
+                  disabled={!hierarchyState[level]?.values.length}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={`Select ${hierarchyState[level]?.label || level}`} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">
+                      {`All ${hierarchyState[level]?.label || level}`}
                     </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          ))}
-        </div>
+                    {hierarchyState[level]?.values.map((value) => (
+                      <SelectItem key={value} value={value}>
+                        {value}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </Card>
   );
