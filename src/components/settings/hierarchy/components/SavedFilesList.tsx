@@ -14,7 +14,6 @@ export function SavedFilesList({ tableName }: SavedFilesListProps) {
   const [savedFiles, setSavedFiles] = useState<any[]>([]);
 
   const fetchSavedFiles = async () => {
-    console.log('Fetching saved files for table:', tableName);
     try {
       const { data: files, error } = await supabase
         .from('permanent_hierarchy_files')
@@ -22,15 +21,10 @@ export function SavedFilesList({ tableName }: SavedFilesListProps) {
         .eq('hierarchy_type', tableName)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching saved files:', error);
-        return;
-      }
-
-      console.log('Fetched files:', files);
+      if (error) throw error;
       setSavedFiles(files || []);
     } catch (error) {
-      console.error('Exception fetching saved files:', error);
+      console.error('Error fetching saved files:', error);
     }
   };
 

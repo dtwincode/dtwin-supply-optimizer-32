@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+
+import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
-import { CheckSquare, XSquare, Trash2, Save, Download } from "lucide-react";
+import { CheckSquare, XSquare, Trash2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ColumnHeader } from "../types";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,7 +20,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Card } from "@/components/ui/card";
 import { SavedFilesList } from "./SavedFilesList";
 
 interface ColumnSelectorProps {
@@ -40,20 +40,46 @@ export function ColumnSelector({
   data
 }: ColumnSelectorProps) {
   const [isSaving, setIsSaving] = useState(false);
-  const queryClient = useQueryClient();
   const { user } = useAuth();
 
-  const savePermanentlyMutation = useMutation({
+  // Delete temporary upload mutation
+  const deleteTempUpload = useMutation({
+    mutationFn: async () => {
+      if (!tempUploadId) return;
+      const { error } = await supabase
+        .from('temporary_uploads')
+        .delete()
+        .eq('id', tempUploadId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Temporary upload deleted",
+      });
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete temporary upload",
+      });
+    }
+  });
+
+  // Save permanently mutation
+  const savePermanently = useMutation({
     mutationFn: async () => {
       if (!data || !user) {
-        console.error('Missing required data or user:', { data: !!data, user: !!user });
-        return;
+        throw new Error('Missing required data or user');
       }
 
-      try {
-        const fileName = `hierarchy_${tableName}_${new Date().getTime()}`;
-        
-        const insertData = {
+      const fileName = `hierarchy_${tableName}_${new Date().getTime()}`;
+      
+      const { error: fileError } = await supabase
+        .from('permanent_hierarchy_files')
+        .insert([{
           file_name: fileName,
           original_name: `${tableName.charAt(0).toUpperCase() + tableName.slice(1)} Hierarchy ${new Date().toLocaleDateString()}`,
           hierarchy_type: tableName,
@@ -62,19 +88,10 @@ export function ColumnSelector({
           metadata: { records: data.length },
           selected_columns: Array.from(selectedColumns),
           data: data
-        };
+        }]);
 
-        const { error: fileError } = await supabase
-          .from('permanent_hierarchy_files')
-          .insert([insertData]);
-
-        if (fileError) throw fileError;
-
-        return fileName;
-      } catch (error) {
-        console.error('Exception in savePermanentlyMutation:', error);
-        throw error;
-      }
+      if (fileError) throw fileError;
+      return fileName;
     },
     onSuccess: () => {
       toast({
@@ -83,7 +100,7 @@ export function ColumnSelector({
       });
     },
     onError: (error) => {
-      console.error('Error in savePermanentlyMutation:', error);
+      console.error('Error saving file:', error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -92,27 +109,21 @@ export function ColumnSelector({
     }
   });
 
-  const handleColumnToggle = async (column: string) => {
+  const handleColumnToggle = (column: string) => {
     if (isSaving) return;
     
-    setIsSaving(true);
-    try {
-      const newSelection = new Set(selectedColumns);
-      if (newSelection.has(column)) {
-        newSelection.delete(column);
-      } else {
-        newSelection.add(column);
-      }
-      
-      onSelectedColumnsChange(newSelection);
-    } finally {
-      setIsSaving(false);
+    const newSelection = new Set(selectedColumns);
+    if (newSelection.has(column)) {
+      newSelection.delete(column);
+    } else {
+      newSelection.add(column);
     }
+    
+    onSelectedColumnsChange(newSelection);
   };
 
   const handleSelectAll = () => {
     if (isSaving) return;
-    
     const allColumns = new Set(combinedHeaders.map(header => header.column));
     onSelectedColumnsChange(allColumns);
   };
@@ -124,7 +135,7 @@ export function ColumnSelector({
 
   const handleDeleteTempUpload = async () => {
     if (tempUploadId) {
-      await deleteTempUploadMutation.mutateAsync();
+      await deleteTempUpload.mutateAsync();
     }
   };
 
@@ -138,7 +149,12 @@ export function ColumnSelector({
       return;
     }
 
-    await savePermanentlyMutation.mutateAsync();
+    setIsSaving(true);
+    try {
+      await savePermanently.mutateAsync();
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
