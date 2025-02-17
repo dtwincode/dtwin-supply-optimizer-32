@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileUpload } from "../upload/FileUpload";
@@ -125,6 +124,7 @@ export function HistoricalSalesUpload() {
                   tempUploadId={tempUploadId}
                   data={uploadedData}
                   onSaveSuccess={handleSaveSuccess}
+                  hierarchyType="historical_sales"
                 />
 
                 <div className="mt-6">
