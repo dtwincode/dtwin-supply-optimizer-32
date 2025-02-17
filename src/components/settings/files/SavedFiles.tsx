@@ -36,17 +36,22 @@ export function SavedFiles({ triggerRefresh, hierarchyType }: SavedFilesProps) {
     const fetchFiles = async () => {
       try {
         setLoading(true);
-        // Query specifically for files matching the hierarchyType
+        console.log('Fetching files for hierarchy type:', hierarchyType); // Added for debugging
+        
         const { data, error } = await supabase
           .from('permanent_hierarchy_files')
           .select('*')
-          .eq('hierarchy_type', hierarchyType) // This ensures we only get files for the current tab
+          .eq('hierarchy_type', hierarchyType)
           .order('created_at', { ascending: false });
 
-        if (error) throw error;
+        if (error) {
+          console.error('Supabase query error:', error); // Added for debugging
+          throw error;
+        }
+
+        console.log('Retrieved files:', data); // Added for debugging
         setFiles(data || []);
-        // Clear selected files when changing tabs or refreshing
-        setSelectedFiles(new Set());
+        setSelectedFiles(new Set()); // Clear selections on fetch
       } catch (error) {
         console.error('Error fetching files:', error);
         toast({
@@ -59,7 +64,7 @@ export function SavedFiles({ triggerRefresh, hierarchyType }: SavedFilesProps) {
       }
     };
 
-    if (user) {
+    if (user && hierarchyType) { // Added hierarchyType check
       fetchFiles();
     }
   }, [user, triggerRefresh, hierarchyType, toast]);
@@ -84,13 +89,18 @@ export function SavedFiles({ triggerRefresh, hierarchyType }: SavedFilesProps) {
 
   const handleDelete = async (fileId: string) => {
     try {
+      console.log('Deleting file with ID:', fileId, 'from hierarchy:', hierarchyType); // Added for debugging
+      
       const { error } = await supabase
         .from('permanent_hierarchy_files')
         .delete()
         .eq('id', fileId)
-        .eq('hierarchy_type', hierarchyType); // Add this to ensure we only delete from current hierarchy
+        .eq('hierarchy_type', hierarchyType); // Ensure we're deleting from correct hierarchy
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase delete error:', error); // Added for debugging
+        throw error;
+      }
 
       setFiles(files.filter(f => f.id !== fileId));
       setSelectedFiles(prev => {
