@@ -1,76 +1,76 @@
+
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ForecastMetricsCards } from "./ForecastMetricsCards";
-import { ForecastingHeader } from "./ForecastingHeader";
 import { ForecastingTabs } from "./ForecastingTabs";
-import { ForecastFilters } from "./ForecastFilters";
 import { ScenarioManagement } from "./ScenarioManagement";
 import { ModelVersioning } from "./ModelVersioning";
 import { DataUploadDialog } from "../settings/DataUploadDialog";
-import { Card, CardContent } from "@/components/ui/card";
+import { type ModelMetrics } from "@/utils/forecasting/metricsCalculation";
 
 export function ForecastingContainer() {
-  const [activeTab, setActiveTab] = useState("metrics");
-  const [isScenarioOpen, setIsScenarioOpen] = useState(false);
-  const [isVersioningOpen, setIsVersioningOpen] = useState(false);
-  const { toast } = useToast();
-
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-  };
-
-  const handleOpenScenario = () => {
-    setIsScenarioOpen(true);
-  };
-
-  const handleCloseScenario = () => {
-    setIsScenarioOpen(false);
-  };
-
-  const handleOpenVersioning = () => {
-    setIsVersioningOpen(true);
-  };
-
-  const handleCloseVersioning = () => {
-    setIsVersioningOpen(false);
-  };
-
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
-  const handleOpenUploadDialog = () => setIsUploadDialogOpen(true);
-  const handleCloseUploadDialog = () => setIsUploadDialogOpen(false);
+  // Sample metrics for ForecastMetricsCards
+  const metrics: ModelMetrics = {
+    mape: 5.2,
+    mae: 2.3,
+    rmse: 3.1
+  };
+
+  // Sample scenario data
+  const [scenarioName, setScenarioName] = useState("");
+  const currentModel = "arima";
+  const currentHorizon = "monthly";
+  const currentParameters = {};
+  const forecastData = [];
 
   const handleDataUploaded = () => {
-    // Refresh data or perform other actions
-    handleCloseUploadDialog();
+    setIsUploadDialogOpen(false);
   };
 
   return (
     <div>
-      <ForecastingHeader onOpenUpload={handleOpenUploadDialog} />
-
-      <Card className="mt-6">
-        <CardContent className="p-6">
-          <ForecastingTabs activeTab={activeTab} onTabChange={handleTabChange} />
-
-          {activeTab === "metrics" && <ForecastMetricsCards />}
-          {activeTab === "filters" && <ForecastFilters />}
-        </CardContent>
-      </Card>
+      <ForecastMetricsCards metrics={metrics} />
+      
+      <ForecastingTabs 
+        activeTab="forecast"
+        historicalData={[]}
+        filteredData={[]}
+        confidenceIntervals={[]}
+        decomposition={{
+          trend: [],
+          seasonal: []
+        }}
+        validationResults={{
+          biasTest: true,
+          residualNormality: true,
+          heteroskedasticityTest: true
+        }}
+        crossValidationResults={{
+          trainMetrics: { mape: 0, mae: 0, rmse: 0 },
+          testMetrics: { mape: 0, mae: 0, rmse: 0 },
+          validationMetrics: { mape: 0, mae: 0, rmse: 0 }
+        }}
+      />
 
       <ScenarioManagement
-        isOpen={isScenarioOpen}
-        onClose={handleCloseScenario}
+        scenarioName={scenarioName}
+        setScenarioName={setScenarioName}
+        currentModel={currentModel}
+        currentHorizon={currentHorizon}
+        currentParameters={currentParameters}
+        forecastData={forecastData}
+        onScenarioLoad={() => {}}
       />
 
       <ModelVersioning
-        isOpen={isVersioningOpen}
-        onClose={handleCloseVersioning}
+        modelId={currentModel}
       />
       
       <DataUploadDialog
         isOpen={isUploadDialogOpen}
-        onClose={handleCloseUploadDialog}
+        onClose={() => setIsUploadDialogOpen(false)}
         title="Upload Forecasting Data"
         tableName="forecasting_data"
         module="forecasting"
