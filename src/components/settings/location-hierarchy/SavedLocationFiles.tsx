@@ -26,16 +26,10 @@ interface SavedFile {
   file_name: string;
   original_name: string;
   created_at: string;
-  file_size: number;
-  temp_upload_id: string | null;
-  is_active: boolean;
-  metadata: Json;
-  file_type: string;
   created_by: string;
-}
-
-interface LocationData {
-  [key: string]: string | number | boolean | null;
+  data: Json;
+  hierarchy_type: string;
+  selected_columns: string[];
 }
 
 interface SavedLocationFilesProps {
@@ -56,9 +50,9 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
   const fetchSavedFiles = async () => {
     try {
       const { data, error } = await supabase
-        .from('location_hierarchy_files')
+        .from('permanent_hierarchy_files')
         .select('*')
-        .eq('is_active', true)
+        .eq('hierarchy_type', 'location_hierarchy')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -79,15 +73,13 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
     try {
       setIsLoading(true);
       
-      // Delete the record instead of updating is_active
       const { error } = await supabase
-        .from('location_hierarchy_files')
+        .from('permanent_hierarchy_files')
         .delete()
         .eq('id', fileId);
 
       if (error) throw error;
 
-      // Update local state after successful deletion
       setFiles(prevFiles => prevFiles.filter(f => f.id !== fileId));
       
       toast({
@@ -106,53 +98,36 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
     }
   };
 
-  const sanitizeCSVValue = (value: unknown): string => {
-    if (value === null || value === undefined) return '';
-    const stringValue = String(value);
-    if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
-      return `"${stringValue.replace(/"/g, '""')}"`;
-    }
-    return stringValue;
-  };
-
-  const handleDownload = async (fileName: string) => {
+  const handleDownload = async (file: SavedFile) => {
     try {
       setIsLoading(true);
-      const { data: hierarchyData, error: hierarchyError } = await supabase
-        .from('permanent_hierarchy_data')
-        .select('data')
-        .eq('hierarchy_type', 'location_hierarchy')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      if (hierarchyError) throw hierarchyError;
       
-      if (!hierarchyData?.data) {
-        throw new Error('No data found');
-      }
-
-      const locationData = hierarchyData.data as LocationData[];
-
-      if (!Array.isArray(locationData) || locationData.length === 0) {
+      const data = file.data;
+      const selectedColumns = file.selected_columns;
+      
+      if (!Array.isArray(data)) {
         throw new Error('Invalid data format');
       }
 
-      const headers = Object.keys(locationData[0]);
-      const csvContent = [
-        headers.join(','),
-        ...locationData.map((row) => 
-          headers.map(header => sanitizeCSVValue(row[header])).join(',')
-        )
-      ].join('\n');
+      // Create CSV content with only selected columns
+      const headers = selectedColumns.join(',');
+      const rows = data.map(row => 
+        selectedColumns.map(col => {
+          const value = row[col];
+          // Handle values that might contain commas
+          if (typeof value === 'string' && value.includes(',')) {
+            return `"${value}"`;
+          }
+          return value ?? '';
+        }).join(',')
+      );
 
-      const blob = new Blob([csvContent], { 
-        type: 'text/csv;charset=utf-8;' 
-      });
+      const csvContent = [headers, ...rows].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${fileName}.csv`;
+      a.download = file.original_name;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -164,11 +139,10 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
       });
     } catch (error) {
       console.error('Error downloading file:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to download file';
       toast({
         variant: "destructive",
         title: "Error",
-        description: errorMessage
+        description: "Failed to download file"
       });
     } finally {
       setIsLoading(false);
@@ -209,7 +183,7 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => handleDownload(file.file_name)}
+                onClick={() => handleDownload(file)}
                 disabled={isLoading}
                 className="h-8 w-8 hover:bg-primary/10"
               >
