@@ -86,7 +86,7 @@ export function HistoricalSalesUpload() {
       <FileUpload
         onUploadComplete={handleUploadComplete}
         allowedFileTypes={[".csv", ".xlsx"]}
-        maxFileSize={5}
+        maxSize={5}
       />
 
       {uploadedData.length > 0 && (

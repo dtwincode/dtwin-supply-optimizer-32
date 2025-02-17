@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileUpload } from "../upload/FileUpload";
@@ -74,14 +73,11 @@ export function LocationHierarchyUpload() {
         <CardContent className="p-6">
           <div className="space-y-6">
             <FileUpload
-              module="location_hierarchy"
-              onUploadSuccess={handleUploadSuccess}
-              onUploadError={handleUploadError}
-              accept={{
-                'text/csv': ['.csv'],
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+              onUploadComplete={(data, fileName) => {
+                handleUploadSuccess(data, `location_${new Date().getTime()}`);
               }}
-              maxSize={5 * 1024 * 1024} // 5MB
+              allowedFileTypes={[".csv", ".xlsx"]}
+              maxSize={5}
             />
 
             {uploadedData && tempUploadId && (
