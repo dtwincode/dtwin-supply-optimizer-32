@@ -6,6 +6,7 @@ import { ColumnSelector } from "./components/ColumnSelector";
 import { SavedLocationFiles } from "./SavedLocationFiles";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Progress } from "@/components/ui/progress";
 
 export function LocationHierarchyUpload() {
   const [uploadedData, setUploadedData] = useState<any[] | null>(null);
@@ -15,17 +16,27 @@ export function LocationHierarchyUpload() {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleUploadSuccess = (data: any[], uploadId: string) => {
     setUploadedData(data);
     setTempUploadId(uploadId);
     setError(null);
+    setUploadProgress(100);
+    setIsUploading(false);
+    toast({
+      title: "Upload Successful",
+      description: `${data.length} records have been uploaded successfully`,
+    });
   };
 
   const handleUploadError = (error: string) => {
     setError(error);
     setUploadedData(null);
     setTempUploadId(null);
+    setUploadProgress(0);
+    setIsUploading(false);
     toast({
       variant: "destructive",
       title: "Upload Error",
@@ -34,16 +45,13 @@ export function LocationHierarchyUpload() {
   };
 
   const handleSaveSuccess = async () => {
-    if (isSaving) return; // Prevent multiple saves
+    if (isSaving) return;
 
     try {
       setIsSaving(true);
-      // Reset upload state
       setUploadedData(null);
       setTempUploadId(null);
       setSelectedColumns(new Set());
-      
-      // Trigger refresh of saved files
       setRefreshTrigger(prev => prev + 1);
       
       toast({
@@ -62,6 +70,11 @@ export function LocationHierarchyUpload() {
     }
   };
 
+  const handleUploadProgress = (progress: number) => {
+    setUploadProgress(progress);
+    setIsUploading(true);
+  };
+
   return (
     <div className="space-y-6">
       {error && (
@@ -77,9 +90,19 @@ export function LocationHierarchyUpload() {
               onUploadComplete={(data, fileName) => {
                 handleUploadSuccess(data, `location_${new Date().getTime()}`);
               }}
+              onProgress={handleUploadProgress}
               allowedFileTypes={[".csv", ".xlsx"]}
               maxSize={5}
             />
+
+            {isUploading && (
+              <div className="space-y-2">
+                <Progress value={uploadProgress} className="w-full" />
+                <p className="text-sm text-muted-foreground">
+                  Uploading... {uploadProgress}%
+                </p>
+              </div>
+            )}
 
             {uploadedData && tempUploadId && (
               <ColumnSelector

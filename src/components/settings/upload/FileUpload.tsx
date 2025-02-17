@@ -8,12 +8,14 @@ import { cn } from '@/lib/utils';
 
 interface FileUploadProps {
   onUploadComplete: (data: any[], originalFileName: string) => void;
+  onProgress?: (progress: number) => void;
   allowedFileTypes?: string[];
-  maxSize?: number; // in MB
+  maxSize?: number;
 }
 
 export function FileUpload({ 
   onUploadComplete, 
+  onProgress,
   allowedFileTypes = ['.csv', '.xlsx'], 
   maxSize = 5 
 }: FileUploadProps) {
@@ -24,7 +26,16 @@ export function FileUpload({
     const file = acceptedFiles[0];
 
     try {
-      const data = await readFile(file);
+      if (onProgress) {
+        onProgress(0);
+      }
+
+      const data = await readFile(file, (progress) => {
+        if (onProgress) {
+          onProgress(progress);
+        }
+      });
+
       if (typeof onUploadComplete === 'function') {
         onUploadComplete(data, file.name);
       } else {
@@ -35,7 +46,7 @@ export function FileUpload({
     } finally {
       setIsLoading(false);
     }
-  }, [onUploadComplete]);
+  }, [onUploadComplete, onProgress]);
 
   const fileTypes: { [key: string]: string[] } = {
     'text/csv': ['.csv'],
@@ -50,17 +61,32 @@ export function FileUpload({
     multiple: false
   });
 
-  const readFile = (file: File): Promise<any[]> => {
+  const readFile = (file: File, onProgressUpdate?: (progress: number) => void): Promise<any[]> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
 
+      reader.onprogress = (event) => {
+        if (event.lengthComputable && onProgressUpdate) {
+          const progress = Math.round((event.loaded / event.total) * 100);
+          onProgressUpdate(progress);
+        }
+      };
+
       reader.onload = (e) => {
         try {
+          if (onProgressUpdate) {
+            onProgressUpdate(90); // File is loaded, now processing
+          }
           const data = e.target?.result;
           const workbook = XLSX.read(data, { type: 'binary' });
           const sheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[sheetName];
           const jsonData = XLSX.utils.sheet_to_json(worksheet);
+          
+          if (onProgressUpdate) {
+            onProgressUpdate(100); // Processing complete
+          }
+          
           resolve(jsonData);
         } catch (error) {
           reject(error);
