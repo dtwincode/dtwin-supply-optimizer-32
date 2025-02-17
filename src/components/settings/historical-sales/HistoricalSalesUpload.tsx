@@ -25,17 +25,6 @@ export function HistoricalSalesUpload() {
     });
   };
 
-  const handleUploadError = (error: string) => {
-    setError(error);
-    setUploadProgress(0);
-    setIsUploading(false);
-    toast({
-      variant: "destructive",
-      title: "Upload Error",
-      description: error
-    });
-  };
-
   const handleUploadProgress = (progress: number) => {
     setUploadProgress(progress);
     setIsUploading(true);
@@ -54,7 +43,6 @@ export function HistoricalSalesUpload() {
           <div className="space-y-6">
             <FileUpload
               onUploadComplete={handleUploadSuccess}
-              onError={handleUploadError}
               onProgress={handleUploadProgress}
               allowedFileTypes={[".csv", ".xlsx"]}
               maxSize={5}
