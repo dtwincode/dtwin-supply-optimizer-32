@@ -145,13 +145,29 @@ export function LocationFilter({
 
       if (fileError) throw fileError;
 
-      // Insert as new active hierarchy
+      // Get the current max version
+      const { data: versionData, error: versionError } = await supabase
+        .from('permanent_hierarchy_data')
+        .select('version')
+        .eq('hierarchy_type', 'location_hierarchy')
+        .order('version', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (versionError && !versionError.message.includes('No rows returned')) {
+        throw versionError;
+      }
+
+      const nextVersion = (versionData?.version || 0) + 1;
+
+      // Insert as new active hierarchy with version
       const { error: insertError } = await supabase
         .from('permanent_hierarchy_data')
         .insert({
           hierarchy_type: 'location_hierarchy',
           data: fileData.data,
-          is_active: true
+          is_active: true,
+          version: nextVersion
         });
 
       if (insertError) throw insertError;
@@ -160,7 +176,7 @@ export function LocationFilter({
       const { error: updateError } = await supabase
         .from('permanent_hierarchy_data')
         .update({ is_active: false })
-        .neq('id', fileId)
+        .neq('version', nextVersion)
         .eq('hierarchy_type', 'location_hierarchy');
 
       if (updateError) throw updateError;
