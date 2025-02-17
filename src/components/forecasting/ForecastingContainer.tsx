@@ -37,8 +37,16 @@ export function ForecastingContainer() {
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedChannel, setSelectedChannel] = useState("");
   const [selectedWarehouse, setSelectedWarehouse] = useState("");
-  const [dateRange, setDateRange] = useState({ from: null, to: null });
-  const [selectedLocation, setSelectedLocation] = useState("");
+  
+  // Product hierarchy states
+  const [selectedL1MainProd, setSelectedL1MainProd] = useState("all");
+  const [selectedL2ProdLine, setSelectedL2ProdLine] = useState("all");
+  const [selectedL3ProdCategory, setSelectedL3ProdCategory] = useState("all");
+  const [selectedL4DeviceMake, setSelectedL4DeviceMake] = useState("all");
+  const [selectedL5ProdSubCategory, setSelectedL5ProdSubCategory] = useState("all");
+  const [selectedL6DeviceModel, setSelectedL6DeviceModel] = useState("all");
+  const [selectedL7DeviceColor, setSelectedL7DeviceColor] = useState("all");
+  const [selectedL8DeviceStorage, setSelectedL8DeviceStorage] = useState("all");
   
   // Sample data for filter props
   const regions = ["Region 1", "Region 2"];
@@ -88,6 +96,8 @@ export function ForecastingContainer() {
           {activeTab === "metrics" && <ForecastMetricsCards metrics={metrics} />}
           {activeTab === "filters" && (
             <ForecastFilters
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
               selectedRegion={selectedRegion}
               setSelectedRegion={setSelectedRegion}
               selectedCity={selectedCity}
@@ -101,6 +111,22 @@ export function ForecastingContainer() {
               channelTypes={channelTypes}
               warehouses={warehouses}
               forecastData={forecastData}
+              selectedL1MainProd={selectedL1MainProd}
+              setSelectedL1MainProd={setSelectedL1MainProd}
+              selectedL2ProdLine={selectedL2ProdLine}
+              setSelectedL2ProdLine={setSelectedL2ProdLine}
+              selectedL3ProdCategory={selectedL3ProdCategory}
+              setSelectedL3ProdCategory={setSelectedL3ProdCategory}
+              selectedL4DeviceMake={selectedL4DeviceMake}
+              setSelectedL4DeviceMake={setSelectedL4DeviceMake}
+              selectedL5ProdSubCategory={selectedL5ProdSubCategory}
+              setSelectedL5ProdSubCategory={setSelectedL5ProdSubCategory}
+              selectedL6DeviceModel={selectedL6DeviceModel}
+              setSelectedL6DeviceModel={setSelectedL6DeviceModel}
+              selectedL7DeviceColor={selectedL7DeviceColor}
+              setSelectedL7DeviceColor={setSelectedL7DeviceColor}
+              selectedL8DeviceStorage={selectedL8DeviceStorage}
+              setSelectedL8DeviceStorage={setSelectedL8DeviceStorage}
             />
           )}
         </CardContent>
