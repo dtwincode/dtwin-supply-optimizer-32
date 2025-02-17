@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { TableRowData, ColumnHeader } from "../types";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Json } from "@/integrations/supabase/types";
@@ -29,7 +29,7 @@ export function ColumnSelector({
   onSaveSuccess
 }: ColumnSelectorProps) {
   const [isSaving, setIsSaving] = useState(false);
-  const saveInProgress = useRef(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -43,14 +43,15 @@ export function ColumnSelector({
     onSelectedColumnsChange(newColumns);
   };
 
-  const handleSavePermanently = useCallback(async (e: React.MouseEvent) => {
-    // Prevent default button behavior
-    e.preventDefault();
-    e.stopPropagation();
+  // Cleanup function to remove the button after save starts
+  useEffect(() => {
+    if (isSaving && buttonRef.current) {
+      buttonRef.current.remove();
+    }
+  }, [isSaving]);
 
-    // Double-check save lock
-    if (saveInProgress.current) {
-      console.log('Save operation already in progress');
+  const handleSavePermanently = useCallback(async () => {
+    if (isSaving || !buttonRef.current) {
       return;
     }
 
@@ -63,17 +64,13 @@ export function ColumnSelector({
       return;
     }
 
-    // Set both locks immediately
-    saveInProgress.current = true;
     setIsSaving(true);
 
     try {
-      // Get data ready before the insert
       const timestamp = new Date().getTime().toString();
       const fileName = `location_hierarchy_${timestamp}`;
       const originalName = data[0]?.original_name?.toString() || 'location_hierarchy.csv';
       
-      // Single insert operation
       const { error: permError } = await supabase
         .from('permanent_hierarchy_files')
         .insert({
@@ -104,24 +101,23 @@ export function ColumnSelector({
         title: "Error",
         description: "Failed to save data permanently"
       });
-    } finally {
-      // Release locks immediately after operation completes
-      saveInProgress.current = false;
-      setIsSaving(false);
     }
-  }, [data, tempUploadId, user, selectedColumns, tableName, toast, onSaveSuccess]);
+  }, [data, tempUploadId, user, selectedColumns, tableName, toast, onSaveSuccess, isSaving]);
 
   return (
     <div className="space-y-6">
       <div className="space-y-2">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-medium">Column Selection</h3>
-          <Button 
-            onClick={handleSavePermanently}
-            disabled={selectedColumns.size === 0 || isSaving || saveInProgress.current}
-          >
-            {isSaving ? 'Saving...' : 'Save Permanently'}
-          </Button>
+          {!isSaving && (
+            <Button 
+              ref={buttonRef}
+              onClick={handleSavePermanently}
+              disabled={selectedColumns.size === 0 || isSaving}
+            >
+              Save Permanently
+            </Button>
+          )}
         </div>
         <p className="text-sm text-muted-foreground">
           Select the columns you want to include in the hierarchy
