@@ -43,12 +43,9 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
   const { toast } = useToast();
   const { user } = useAuth();
 
-  useEffect(() => {
-    fetchSavedFiles();
-  }, [triggerRefresh]);
-
   const fetchSavedFiles = async () => {
     try {
+      setIsLoading(true);
       const { data, error } = await supabase
         .from('permanent_hierarchy_files')
         .select('*')
@@ -66,8 +63,14 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
         title: "Error",
         description: "Failed to load saved files"
       });
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchSavedFiles();
+  }, [triggerRefresh]);
 
   const handleDelete = async (fileId: string) => {
     try {
@@ -86,6 +89,9 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
         title: "Success",
         description: "File deleted successfully",
       });
+
+      // Refresh the file list after deletion
+      await fetchSavedFiles();
     } catch (error) {
       console.error('Error deleting file:', error);
       toast({
