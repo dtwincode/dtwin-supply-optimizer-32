@@ -1,177 +1,150 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { FileUpload } from "../upload/FileUpload";
-import { HierarchyTableView } from "../hierarchy/HierarchyTableView";
-import { useToast } from "@/hooks/use-toast";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import { TableRowData } from "../hierarchy/types";
 import { ColumnSelector } from "../location-hierarchy/components/ColumnSelector";
-import { FileList } from "../location-hierarchy/components/FileList";
-import { Card } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Progress } from "@/components/ui/progress";
+import { HierarchyTable } from "../hierarchy/components/HierarchyTable";
+import { SavedLocationFiles } from "../location-hierarchy/SavedLocationFiles";
 
 export function HistoricalSalesUpload() {
-  const [uploadedData, setUploadedData] = useState<TableRowData[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
-  const [savedFiles, setSavedFiles] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [tempUploadId] = useState<string>(`historical_sales_${new Date().getTime()}`);
+  const [uploadedData, setUploadedData] = useState<any[] | null>(null);
+  const [tempUploadId, setTempUploadId] = useState<string | null>(null);
   const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set());
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const fetchSavedFiles = async () => {
-    try {
-      setIsLoading(true);
-      const { data, error } = await supabase
-        .from('permanent_hierarchy_files')
-        .select('*')
-        .eq('hierarchy_type', 'historical_sales')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setSavedFiles(data || []);
-    } catch (error) {
-      console.error('Error fetching files:', error);
-      setError('Failed to fetch saved files');
-    } finally {
-      setIsLoading(false);
+  const handleUploadSuccess = (data: any[], uploadId: string) => {
+    setUploadedData(data);
+    setTempUploadId(uploadId);
+    if (data[0]) {
+      setSelectedColumns(new Set(Object.keys(data[0])));
     }
-  };
-
-  useEffect(() => {
-    fetchSavedFiles();
-  }, []);
-
-  const handleUploadComplete = (data: TableRowData[]) => {
-    const sanitizedData = data.map(row => {
-      const cleanRow: TableRowData = {};
-      Object.entries(row).forEach(([key, value]) => {
-        cleanRow[key] = value === null || value === undefined ? '' : String(value).trim();
-      });
-      return cleanRow;
+    setError(null);
+    setUploadProgress(100);
+    setIsUploading(false);
+    toast({
+      title: "Upload Successful",
+      description: `${data.length} records have been uploaded successfully`,
     });
-    setUploadedData(sanitizedData);
-    // Initialize selected columns with all columns
-    if (sanitizedData.length > 0) {
-      setSelectedColumns(new Set(Object.keys(sanitizedData[0])));
+  };
+
+  const handleUploadError = (error: string) => {
+    setError(error);
+    setUploadedData(null);
+    setTempUploadId(null);
+    setUploadProgress(0);
+    setIsUploading(false);
+    toast({
+      variant: "destructive",
+      title: "Upload Error",
+      description: error
+    });
+  };
+
+  const handleSaveSuccess = async () => {
+    if (isSaving) return;
+
+    try {
+      setIsSaving(true);
+      setUploadedData(null);
+      setTempUploadId(null);
+      setSelectedColumns(new Set());
+      setRefreshTrigger(prev => prev + 1);
+      
+      toast({
+        title: "Success",
+        description: "File saved and processed successfully"
+      });
+    } catch (error) {
+      console.error('Error in save process:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to complete save process"
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const handleSelectedColumnsChange = (columns: Set<string>) => {
+  const handleUploadProgress = (progress: number) => {
+    setUploadProgress(progress);
+    setIsUploading(true);
+  };
+
+  const handleColumnSelect = (columns: Set<string>) => {
     setSelectedColumns(columns);
   };
 
-  const handleDeleteFile = async (fileId: string) => {
-    try {
-      const { error } = await supabase
-        .from('permanent_hierarchy_files')
-        .delete()
-        .eq('id', fileId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "File deleted successfully",
-      });
-
-      fetchSavedFiles();
-    } catch (error) {
-      console.error('Error deleting file:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to delete file"
-      });
-    }
-  };
-
-  const handleDownloadFile = async (file: any) => {
-    try {
-      const fileData = file.data;
-      const csvContent = convertToCSV(fileData);
-      downloadCSV(csvContent, file.original_name);
-    } catch (error) {
-      console.error('Error downloading file:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to download file"
-      });
-    }
-  };
-
-  const convertToCSV = (data: any[]) => {
-    if (!data.length) return '';
-    const headers = Object.keys(data[0]).join(',');
-    const rows = data.map(row => Object.values(row).join(','));
-    return [headers, ...rows].join('\n');
-  };
-
-  const downloadCSV = (content: string, fileName: string) => {
-    const blob = new Blob([content], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const columns = uploadedData.length > 0 
-    ? Object.keys(uploadedData[0])
-    : [];
-
-  const combinedHeaders = columns.map(column => ({
-    header: column,
-    level: null
-  }));
-
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <h3 className="text-xl font-semibold tracking-tight">Historical Sales Data</h3>
-          <p className="text-sm text-muted-foreground">
-            Upload and manage your historical sales data
-          </p>
-        </div>
-      </div>
-
-      <FileUpload
-        onUploadComplete={handleUploadComplete}
-        allowedFileTypes={[".csv", ".xlsx"]}
-        maxSize={5}
-      />
-
-      {uploadedData.length > 0 && (
-        <Card className="p-6">
-          <ColumnSelector
-            tableName="historical_sales"
-            combinedHeaders={combinedHeaders}
-            tempUploadId={tempUploadId}
-            data={uploadedData}
-            selectedColumns={selectedColumns}
-            onSelectedColumnsChange={handleSelectedColumnsChange}
-            onSaveSuccess={() => {
-              setUploadedData([]);
-              setSelectedColumns(new Set());
-              fetchSavedFiles();
-            }}
-          />
-        </Card>
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
 
-      <FileList
-        files={savedFiles}
-        error={error}
-        isLoading={isLoading}
-        onDelete={handleDeleteFile}
-        onDownload={handleDownloadFile}
-      />
+      <Card>
+        <CardContent className="p-6">
+          <div className="space-y-6">
+            <FileUpload
+              onUploadComplete={(data, fileName) => {
+                handleUploadSuccess(data, `historical_sales_${new Date().getTime()}`);
+              }}
+              onProgress={handleUploadProgress}
+              allowedFileTypes={[".csv", ".xlsx"]}
+              maxSize={5}
+            />
+
+            {isUploading && (
+              <div className="space-y-2">
+                <Progress value={uploadProgress} className="w-full" />
+                <p className="text-sm text-muted-foreground">
+                  Uploading... {uploadProgress}%
+                </p>
+              </div>
+            )}
+
+            {uploadedData && tempUploadId && (
+              <>
+                <ColumnSelector
+                  tableName="historical_sales"
+                  combinedHeaders={uploadedData[0] ? Object.keys(uploadedData[0]).map(header => ({
+                    header,
+                    level: null
+                  })) : []}
+                  selectedColumns={selectedColumns}
+                  onSelectedColumnsChange={handleColumnSelect}
+                  tempUploadId={tempUploadId}
+                  data={uploadedData}
+                  onSaveSuccess={handleSaveSuccess}
+                />
+
+                <div className="mt-6">
+                  <h3 className="text-lg font-medium mb-4">Data Preview</h3>
+                  <HierarchyTable
+                    data={uploadedData}
+                    columns={Array.from(selectedColumns)}
+                    combinedHeaders={Array.from(selectedColumns).map(header => ({
+                      column: header,
+                      sampleData: uploadedData[0]?.[header]?.toString() || ''
+                    }))}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      <SavedLocationFiles triggerRefresh={refreshTrigger} />
     </div>
   );
 }
