@@ -130,6 +130,7 @@ export function DataUploadDialog({
                 tempUploadId={tempUploadId}
                 data={uploadedData}
                 onSaveSuccess={handleSaveSuccess}
+                hierarchyType={module}
               />
             </>
           )}

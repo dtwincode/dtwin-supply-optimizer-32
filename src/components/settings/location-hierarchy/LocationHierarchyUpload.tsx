@@ -1,8 +1,9 @@
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileUpload } from "../upload/FileUpload";
 import { ColumnSelector } from "./components/ColumnSelector";
-import { SavedLocationFiles } from "./SavedLocationFiles";
+import { SavedFiles } from "../files/SavedFiles";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
@@ -124,6 +125,7 @@ export function LocationHierarchyUpload() {
                   tempUploadId={tempUploadId}
                   data={uploadedData}
                   onSaveSuccess={handleSaveSuccess}
+                  hierarchyType="location_hierarchy"
                 />
 
                 <div className="mt-6">
@@ -143,7 +145,7 @@ export function LocationHierarchyUpload() {
         </CardContent>
       </Card>
 
-      <SavedLocationFiles triggerRefresh={refreshTrigger} />
+      <SavedFiles triggerRefresh={refreshTrigger} hierarchyType="location_hierarchy" />
     </div>
   );
 }
