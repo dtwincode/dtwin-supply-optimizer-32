@@ -16,6 +16,11 @@ export function LocationHierarchyUpload() {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
 
+  const handleUploadComplete = (data: any[], fileName: string) => {
+    setUploadedData(data);
+    setError(null);
+  };
+
   const handleUploadSuccess = (data: any[], uploadId: string) => {
     setUploadedData(data);
     setTempUploadId(uploadId);
@@ -34,16 +39,13 @@ export function LocationHierarchyUpload() {
   };
 
   const handleSaveSuccess = async () => {
-    if (isSaving) return; // Prevent multiple saves
+    if (isSaving) return;
 
     try {
       setIsSaving(true);
-      // Reset upload state
       setUploadedData(null);
       setTempUploadId(null);
       setSelectedColumns(new Set());
-      
-      // Trigger refresh of saved files
       setRefreshTrigger(prev => prev + 1);
       
       toast({
@@ -75,13 +77,14 @@ export function LocationHierarchyUpload() {
           <div className="space-y-6">
             <FileUpload
               module="location_hierarchy"
+              onUploadComplete={handleUploadComplete}
               onUploadSuccess={handleUploadSuccess}
               onUploadError={handleUploadError}
               accept={{
                 'text/csv': ['.csv'],
                 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
               }}
-              maxSize={5 * 1024 * 1024} // 5MB
+              maxSize={5}
             />
 
             {uploadedData && tempUploadId && (

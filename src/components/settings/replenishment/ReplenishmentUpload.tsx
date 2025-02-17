@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { FileUpload } from "../upload/FileUpload";
 import { HierarchyTableView } from "../hierarchy/HierarchyTableView";
@@ -72,21 +71,11 @@ export function ReplenishmentUpload() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <h3 className="text-xl font-semibold tracking-tight">Replenishment Data</h3>
-          <p className="text-sm text-muted-foreground">
-            Manage replenishment time calculations and configure automated reordering parameters
-          </p>
-        </div>
-      </div>
-
       <FileUpload
         onUploadComplete={handleUploadComplete}
         allowedFileTypes={[".csv", ".xlsx"]}
-        maxFileSize={5}
+        maxSize={5}
       />
-
       {uploadedData.length > 0 && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
