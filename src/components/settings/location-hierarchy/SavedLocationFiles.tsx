@@ -78,13 +78,16 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
   const handleDelete = async (fileId: string) => {
     try {
       setIsLoading(true);
+      
+      // Delete the record instead of updating is_active
       const { error } = await supabase
         .from('location_hierarchy_files')
-        .update({ is_active: false })
+        .delete()
         .eq('id', fileId);
 
       if (error) throw error;
 
+      // Update local state after successful deletion
       setFiles(prevFiles => prevFiles.filter(f => f.id !== fileId));
       
       toast({
