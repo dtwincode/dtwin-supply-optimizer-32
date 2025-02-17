@@ -32,6 +32,11 @@ interface LocationData {
   city: string;
 }
 
+interface HierarchyLabels {
+  first: string;
+  second: string;
+}
+
 export function LocationFilter({
   selectedRegion,
   setSelectedRegion,
@@ -39,28 +44,9 @@ export function LocationFilter({
   setSelectedCity,
 }: LocationFilterProps) {
   const { toast } = useToast();
-  const [filterLabels, setFilterLabels] = useState({
+  const [filterLabels, setFilterLabels] = useState<HierarchyLabels>({
     first: "",
     second: ""
-  });
-
-  // Fetch saved hierarchy files
-  const { data: savedFiles } = useQuery({
-    queryKey: ['saved-location-hierarchies'],
-    queryFn: async () => {
-      const { data: files, error } = await supabase
-        .from('permanent_hierarchy_files')
-        .select('*')
-        .eq('hierarchy_type', 'location_hierarchy')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching saved hierarchies:', error);
-        return [];
-      }
-
-      return files || [];
-    }
   });
 
   // Fetch active hierarchy data
@@ -69,7 +55,7 @@ export function LocationFilter({
     queryFn: async () => {
       const { data: activeVersionData, error: versionError } = await supabase
         .from('permanent_hierarchy_data')
-        .select('data')
+        .select('data, source_upload_id')
         .eq('hierarchy_type', 'location_hierarchy')
         .eq('is_active', true)
         .maybeSingle();
@@ -93,7 +79,7 @@ export function LocationFilter({
       }
 
       try {
-        const hierarchyData = activeVersionData.data as unknown as LocationData[];
+        const hierarchyData = activeVersionData.data as LocationData[];
         if (!hierarchyData.every(item => 
           typeof item === 'object' && 
           'region' in item && 
@@ -122,17 +108,18 @@ export function LocationFilter({
           }
         });
 
-        // Get the labels from the active hierarchy metadata
-        const { data: activeFile, error: labelError } = await supabase
-          .from('permanent_hierarchy_files')
-          .select('metadata')
-          .eq('id', activeVersionData.id)
-          .single();
+        // Get the labels from the source file
+        if (activeVersionData.source_upload_id) {
+          const { data: sourceFile } = await supabase
+            .from('permanent_hierarchy_files')
+            .select('metadata')
+            .eq('id', activeVersionData.source_upload_id)
+            .maybeSingle();
 
-        let labels = { first: "", second: "" };
-        if (!labelError && activeFile?.metadata?.labels) {
-          labels = activeFile.metadata.labels;
-          setFilterLabels(labels);
+          if (sourceFile?.metadata && typeof sourceFile.metadata === 'object' && 'labels' in sourceFile.metadata) {
+            const labels = sourceFile.metadata.labels as HierarchyLabels;
+            setFilterLabels(labels);
+          }
         }
 
         return {
@@ -142,17 +129,34 @@ export function LocationFilter({
               region,
               Array.from(cities).sort()
             ])
-          ),
-          labels
+          )
         };
       } catch (error) {
         console.error('Error processing location hierarchy data:', error);
         return {
           regions: [],
-          cities: {},
-          labels: { first: "", second: "" }
+          cities: {}
         };
       }
+    }
+  });
+
+  // Fetch saved hierarchy files
+  const { data: savedFiles } = useQuery({
+    queryKey: ['saved-location-hierarchies'],
+    queryFn: async () => {
+      const { data: files, error } = await supabase
+        .from('permanent_hierarchy_files')
+        .select('*')
+        .eq('hierarchy_type', 'location_hierarchy')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching saved hierarchies:', error);
+        return [];
+      }
+
+      return files || [];
     }
   });
 
@@ -205,8 +209,9 @@ export function LocationFilter({
       if (updateError) throw updateError;
 
       // Update filter labels from metadata
-      if (fileData.metadata?.labels) {
-        setFilterLabels(fileData.metadata.labels);
+      if (fileData.metadata && typeof fileData.metadata === 'object' && 'labels' in fileData.metadata) {
+        const labels = fileData.metadata.labels as HierarchyLabels;
+        setFilterLabels(labels);
       }
 
       // Reset selections
