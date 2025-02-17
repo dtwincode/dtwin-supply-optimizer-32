@@ -46,19 +46,23 @@ export function ColumnSelector({
 
   const fetchSavedFiles = async () => {
     console.log('Fetching saved files for table:', tableName);
-    const { data: files, error } = await supabase
-      .from('permanent_hierarchy_files')
-      .select('*')
-      .eq('hierarchy_type', tableName)
-      .order('created_at', { ascending: false });
+    try {
+      const { data: files, error } = await supabase
+        .from('permanent_hierarchy_files')
+        .select('*')
+        .eq('hierarchy_type', tableName)
+        .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Error fetching saved files:', error);
-      return;
+      if (error) {
+        console.error('Error fetching saved files:', error);
+        return;
+      }
+
+      console.log('Fetched files:', files);
+      setSavedFiles(files || []);
+    } catch (error) {
+      console.error('Exception fetching saved files:', error);
     }
-
-    console.log('Fetched files:', files);
-    setSavedFiles(files || []);
   };
 
   useEffect(() => {
@@ -67,19 +71,22 @@ export function ColumnSelector({
 
   const savePermanentlyMutation = useMutation({
     mutationFn: async () => {
-      if (!data || !user) return;
+      if (!data || !user) {
+        console.error('Missing required data or user:', { data: !!data, user: !!user });
+        return;
+      }
 
       console.log('Saving permanently with data:', {
         tableName,
         selectedColumns: Array.from(selectedColumns),
-        dataLength: data.length
+        dataLength: data.length,
+        userId: user.id
       });
 
-      const fileName = `hierarchy_${tableName}_${new Date().getTime()}`;
-      
-      const { error: fileError } = await supabase
-        .from('permanent_hierarchy_files')
-        .insert({
+      try {
+        const fileName = `hierarchy_${tableName}_${new Date().getTime()}`;
+        
+        const insertData = {
           file_name: fileName,
           original_name: `${tableName.charAt(0).toUpperCase() + tableName.slice(1)} Hierarchy ${new Date().toLocaleDateString()}`,
           hierarchy_type: tableName,
@@ -88,15 +95,27 @@ export function ColumnSelector({
           metadata: { records: data.length },
           selected_columns: Array.from(selectedColumns),
           data: data
-        });
+        };
 
-      if (fileError) {
-        console.error('Error saving file:', fileError);
-        throw fileError;
+        console.log('Attempting to insert with data:', insertData);
+        
+        const { error: fileError } = await supabase
+          .from('permanent_hierarchy_files')
+          .insert([insertData]);
+
+        if (fileError) {
+          console.error('Supabase error saving file:', fileError);
+          throw fileError;
+        }
+
+        return fileName;
+      } catch (error) {
+        console.error('Exception in savePermanentlyMutation:', error);
+        throw error;
       }
-      return fileName;
     },
     onSuccess: () => {
+      console.log('Save successful, fetching updated files');
       fetchSavedFiles();
       toast({
         title: "Success",
@@ -104,7 +123,7 @@ export function ColumnSelector({
       });
     },
     onError: (error) => {
-      console.error('Error saving file:', error);
+      console.error('Error in savePermanentlyMutation:', error);
       toast({
         variant: "destructive",
         title: "Error",
