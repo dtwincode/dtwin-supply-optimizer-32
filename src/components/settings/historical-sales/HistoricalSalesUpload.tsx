@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FileUpload } from "../upload/FileUpload";
 import { HierarchyTableView } from "../hierarchy/HierarchyTableView";
 import { useToast } from "@/hooks/use-toast";
@@ -10,7 +10,6 @@ import { TableRowData } from "../hierarchy/types";
 import { ColumnSelector } from "../location-hierarchy/components/ColumnSelector";
 import { FileList } from "../location-hierarchy/components/FileList";
 import { Card } from "@/components/ui/card";
-import { useEffect } from "react";
 
 export function HistoricalSalesUpload() {
   const [uploadedData, setUploadedData] = useState<TableRowData[]>([]);
@@ -19,6 +18,7 @@ export function HistoricalSalesUpload() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tempUploadId] = useState<string>(`historical_sales_${new Date().getTime()}`);
+  const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
   const fetchSavedFiles = async () => {
@@ -53,6 +53,14 @@ export function HistoricalSalesUpload() {
       return cleanRow;
     });
     setUploadedData(sanitizedData);
+    // Initialize selected columns with all columns
+    if (sanitizedData.length > 0) {
+      setSelectedColumns(new Set(Object.keys(sanitizedData[0])));
+    }
+  };
+
+  const handleSelectedColumnsChange = (columns: Set<string>) => {
+    setSelectedColumns(columns);
   };
 
   const handleDeleteFile = async (fileId: string) => {
@@ -146,8 +154,11 @@ export function HistoricalSalesUpload() {
             combinedHeaders={combinedHeaders}
             tempUploadId={tempUploadId}
             data={uploadedData}
+            selectedColumns={selectedColumns}
+            onSelectedColumnsChange={handleSelectedColumnsChange}
             onSaveSuccess={() => {
               setUploadedData([]);
+              setSelectedColumns(new Set());
               fetchSavedFiles();
             }}
           />

@@ -18,6 +18,7 @@ export function LeadTimeUpload() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tempUploadId] = useState<string>(`lead_time_${new Date().getTime()}`);
+  const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
   const fetchSavedFiles = async () => {
@@ -52,6 +53,14 @@ export function LeadTimeUpload() {
       return cleanRow;
     });
     setUploadedData(sanitizedData);
+    // Initialize selected columns with all columns
+    if (sanitizedData.length > 0) {
+      setSelectedColumns(new Set(Object.keys(sanitizedData[0])));
+    }
+  };
+
+  const handleSelectedColumnsChange = (columns: Set<string>) => {
+    setSelectedColumns(columns);
   };
 
   const handleDeleteFile = async (fileId: string) => {
@@ -145,8 +154,11 @@ export function LeadTimeUpload() {
             combinedHeaders={combinedHeaders}
             tempUploadId={tempUploadId}
             data={uploadedData}
+            selectedColumns={selectedColumns}
+            onSelectedColumnsChange={handleSelectedColumnsChange}
             onSaveSuccess={() => {
               setUploadedData([]);
+              setSelectedColumns(new Set());
               fetchSavedFiles();
             }}
           />
