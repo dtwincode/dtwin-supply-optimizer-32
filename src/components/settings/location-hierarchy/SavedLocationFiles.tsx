@@ -22,22 +22,30 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
       setIsLoading(true);
       console.log('Fetching saved files...');
       
+      // Add distinct constraint and created_by filter
       const { data, error } = await supabase
         .from('permanent_hierarchy_files')
         .select('*')
         .eq('hierarchy_type', 'location_hierarchy')
-        .order('created_at', { ascending: false })
-        .limit(100); // Limit to prevent loading too many files
+        .eq('created_by', user?.id)
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error('Supabase fetch error:', error);
         throw error;
       }
 
-      console.log('Fetched files:', data?.length);
+      // Additional deduplication by file_name
+      const uniqueFiles = data?.reduce((acc: SavedFile[], current) => {
+        const exists = acc.find(file => file.file_name === current.file_name);
+        if (!exists) {
+          acc.push(current);
+        }
+        return acc;
+      }, []) || [];
 
-      // Set files directly without additional filtering since we have DB constraints now
-      setFiles(data || []);
+      console.log('Fetched unique files:', uniqueFiles.length);
+      setFiles(uniqueFiles);
       setError(null);
     } catch (error) {
       console.error('Error fetching files:', error);
@@ -53,9 +61,11 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
   };
 
   useEffect(() => {
-    console.log('Refresh triggered:', triggerRefresh);
-    fetchSavedFiles();
-  }, [triggerRefresh]);
+    if (user) {
+      console.log('Refresh triggered:', triggerRefresh);
+      fetchSavedFiles();
+    }
+  }, [triggerRefresh, user]);
 
   const handleDelete = async (fileId: string) => {
     try {
@@ -65,7 +75,8 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
       const { error } = await supabase
         .from('permanent_hierarchy_files')
         .delete()
-        .eq('id', fileId);
+        .eq('id', fileId)
+        .eq('created_by', user?.id); // Add user check for safety
 
       if (error) {
         console.error('Supabase delete error:', error);
