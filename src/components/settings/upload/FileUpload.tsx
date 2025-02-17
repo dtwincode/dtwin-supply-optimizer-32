@@ -6,24 +6,16 @@ import { Button } from '@/components/ui/button';
 import { Cloud, File, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export interface FileUploadProps {
+interface FileUploadProps {
   onUploadComplete: (data: any[], originalFileName: string) => void;
-  onUploadSuccess?: (data: any[], uploadId: string) => void;
-  onUploadError?: (error: string) => void;
   allowedFileTypes?: string[];
-  maxSize?: number; // in MB
-  module?: string;
-  accept?: Record<string, string[]>;
+  maxFileSize?: number; // in MB
 }
 
 export function FileUpload({ 
   onUploadComplete, 
-  onUploadSuccess,
-  onUploadError,
   allowedFileTypes = ['.csv', '.xlsx'], 
-  maxSize = 5,
-  module,
-  accept 
+  maxFileSize = 5 
 }: FileUploadProps) {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -34,27 +26,20 @@ export function FileUpload({
     try {
       const data = await readFile(file);
       onUploadComplete(data, file.name);
-      
-      // If additional success callback is provided
-      if (onUploadSuccess) {
-        const uploadId = `${module}_${Date.now()}`;
-        onUploadSuccess(data, uploadId);
-      }
     } catch (error) {
       console.error('Error processing file:', error);
-      onUploadError?.(error instanceof Error ? error.message : 'Error processing file');
     } finally {
       setIsLoading(false);
     }
-  }, [onUploadComplete, onUploadSuccess, onUploadError, module]);
+  }, [onUploadComplete]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: accept || allowedFileTypes.reduce((acc, type) => ({
+    accept: allowedFileTypes.reduce((acc, type) => ({
       ...acc,
       [type]: []
     }), {}),
-    maxSize: maxSize * 1024 * 1024,
+    maxSize: maxFileSize * 1024 * 1024,
     multiple: false
   });
 
@@ -119,7 +104,7 @@ export function FileUpload({
         </div>
       </div>
       <p className="mt-2 text-xs text-muted-foreground">
-        Allowed types: {allowedFileTypes.join(', ')} (Max size: {maxSize}MB)
+        Allowed types: {allowedFileTypes.join(', ')} (Max size: {maxFileSize}MB)
       </p>
     </div>
   );
