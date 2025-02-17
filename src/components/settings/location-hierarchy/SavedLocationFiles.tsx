@@ -27,20 +27,20 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
         .from('permanent_hierarchy_files')
         .select('*')
         .eq('hierarchy_type', 'location_hierarchy')
-        .eq('created_by', user.id);
+        .eq('created_by', user.id)
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error('Supabase fetch error:', error);
         throw error;
       }
 
-      // Simple deduplication by file_name, keeping only the latest version
+      // Ensure we only keep the latest version of each file
       const uniqueFiles = Object.values(
         data.reduce((acc: Record<string, SavedFile>, current) => {
-          // Only keep the file if it's newer than what we have
-          if (!acc[current.file_name] || 
-              new Date(current.created_at) > new Date(acc[current.file_name].created_at)) {
-            acc[current.file_name] = current;
+          const key = `${current.file_name}`;
+          if (!acc[key] || new Date(current.created_at) > new Date(acc[key].created_at)) {
+            acc[key] = current;
           }
           return acc;
         }, {})
@@ -73,7 +73,7 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
       setIsLoading(true);
       console.log('Deleting file:', fileId);
 
-      // First, get the file details to ensure we delete all related records
+      // Get the file details first
       const { data: fileData, error: fetchError } = await supabase
         .from('permanent_hierarchy_files')
         .select('file_name')
@@ -88,28 +88,24 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
         throw new Error('File not found');
       }
 
-      // Delete all records with this file_name for this user
+      // Delete the file
       const { error: deleteError } = await supabase
         .from('permanent_hierarchy_files')
         .delete()
-        .eq('file_name', fileData.file_name)
+        .eq('id', fileId)
         .eq('created_by', user.id);
 
       if (deleteError) {
-        console.error('Supabase delete error:', deleteError);
         throw deleteError;
       }
 
-      // Immediately update local state
-      setFiles(prevFiles => prevFiles.filter(f => f.file_name !== fileData.file_name));
+      // Update local state immediately
+      setFiles(prevFiles => prevFiles.filter(f => f.id !== fileId));
 
       toast({
         title: "Success",
         description: "File deleted successfully",
       });
-
-      // Refresh the file list to ensure we have the latest data
-      await fetchSavedFiles();
 
     } catch (error) {
       console.error('Error deleting file:', error);
