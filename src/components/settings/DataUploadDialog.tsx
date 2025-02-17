@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
@@ -6,11 +7,13 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { HierarchyTableView } from "./hierarchy/HierarchyTableView";
 import { useToast } from "@/hooks/use-toast";
 
-interface DataUploadDialogProps {
+export interface DataUploadDialogProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
   tableName: string;
+  module: string;
+  onDataUploaded?: () => void;
 }
 
 export function DataUploadDialog({
@@ -18,6 +21,8 @@ export function DataUploadDialog({
   onClose,
   title,
   tableName,
+  module,
+  onDataUploaded
 }: DataUploadDialogProps) {
   const [file, setFile] = useState<File | null>(null);
   const [progress, setProgress] = useState(0);
@@ -34,6 +39,7 @@ export function DataUploadDialog({
   const handleUploadComplete = (data: any[]) => {
     setUploadedData(data);
     setProgress(100);
+    onDataUploaded?.();
     toast({
       title: "Success",
       description: "File uploaded successfully",
