@@ -5,7 +5,6 @@ import { LocationFilter } from "./filters/LocationFilter";
 import { ProductFilter } from "./filters/ProductFilter";
 import { ChannelFilter } from "./filters/ChannelFilter";
 import { ForecastingSearchFilter } from "./filters/ForecastingSearchFilter";
-import { useEffect, useState } from "react";
 import { ForecastDataPoint } from "@/utils/forecasting/productFilters";
 
 interface ForecastFiltersProps {
@@ -26,6 +25,12 @@ interface ForecastFiltersProps {
   selectedL8DeviceStorage: string;
   setSelectedL8DeviceStorage: (value: string) => void;
   forecastData: ForecastDataPoint[];
+  searchQuery: string;
+  setSearchQuery: (value: string) => void;
+  selectedChannel: string;
+  setSelectedChannel: (value: string) => void;
+  selectedWarehouse: string;
+  setSelectedWarehouse: (value: string) => void;
 }
 
 export function ForecastFilters({
@@ -46,6 +51,12 @@ export function ForecastFilters({
   selectedL8DeviceStorage,
   setSelectedL8DeviceStorage,
   forecastData,
+  searchQuery,
+  setSearchQuery,
+  selectedChannel,
+  setSelectedChannel,
+  selectedWarehouse,
+  setSelectedWarehouse,
 }: ForecastFiltersProps) {
   return (
     <div className="h-screen w-80 border-r bg-muted/40">
@@ -54,7 +65,10 @@ export function ForecastFilters({
           <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
             Filters
           </h2>
-          <ForecastingSearchFilter />
+          <ForecastingSearchFilter 
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+          />
         </div>
         <Separator className="opacity-50" />
         <ScrollArea className="h-[calc(100vh-10rem)] px-3">
@@ -89,7 +103,12 @@ export function ForecastFilters({
             <Separator className="opacity-50" />
             <div className="py-2">
               <h3 className="mb-4 px-4 text-sm font-medium">Channel</h3>
-              <ChannelFilter />
+              <ChannelFilter
+                selectedChannel={selectedChannel}
+                setSelectedChannel={setSelectedChannel}
+                selectedWarehouse={selectedWarehouse}
+                setSelectedWarehouse={setSelectedWarehouse}
+              />
             </div>
           </div>
         </ScrollArea>
