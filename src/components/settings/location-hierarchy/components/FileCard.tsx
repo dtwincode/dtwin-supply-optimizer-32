@@ -1,5 +1,5 @@
 
-import { Download, Trash2 } from "lucide-react";
+import { Download, Trash2, CheckSquare, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -17,21 +17,42 @@ import type { SavedFile } from "../types";
 interface FileCardProps {
   file: SavedFile;
   isLoading: boolean;
+  isSelected: boolean;
   onDelete: (fileId: string) => Promise<void>;
   onDownload: (file: SavedFile) => Promise<void>;
+  onToggleSelect: () => void;
 }
 
-export function FileCard({ file, isLoading, onDelete, onDownload }: FileCardProps) {
+export function FileCard({ 
+  file, 
+  isLoading, 
+  isSelected, 
+  onDelete, 
+  onDownload, 
+  onToggleSelect 
+}: FileCardProps) {
   return (
-    <div
-      key={file.id}
-      className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg"
-    >
-      <div>
-        <p className="font-medium">{file.original_name}</p>
-        <p className="text-sm text-muted-foreground">
-          {new Date(file.created_at).toLocaleDateString()}
-        </p>
+    <div className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg">
+      <div className="flex items-center gap-3">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onToggleSelect}
+          disabled={isLoading}
+          className="h-8 w-8"
+        >
+          {isSelected ? (
+            <CheckSquare className="h-4 w-4" />
+          ) : (
+            <Square className="h-4 w-4" />
+          )}
+        </Button>
+        <div>
+          <p className="font-medium">{file.original_name}</p>
+          <p className="text-sm text-muted-foreground">
+            {new Date(file.created_at).toLocaleDateString()}
+          </p>
+        </div>
       </div>
       <div className="flex gap-2">
         <Button
