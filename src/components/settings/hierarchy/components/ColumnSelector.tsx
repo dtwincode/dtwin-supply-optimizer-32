@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -68,21 +69,35 @@ export function ColumnSelector({
     mutationFn: async () => {
       if (!data || !user) return;
 
-      const fileName = `${tableName}_${new Date().getTime()}`;
-      const { error } = await supabase
-        .from('permanent_hierarchy_files')
+      const fileName = `hierarchy_${tableName}_${new Date().getTime()}`;
+      
+      // First, save to permanent_hierarchy_data
+      const { error: hierarchyError } = await supabase
+        .from('permanent_hierarchy_data')
         .insert({
-          file_name: fileName,
-          original_name: `${tableName} ${new Date().toLocaleDateString()}`,
           hierarchy_type: tableName,
           data: data,
-          selected_columns: Array.from(selectedColumns),
-          created_by: user.id,
-          file_size: JSON.stringify(data).length,
-          metadata: { records: data.length }
+          is_active: true,
+          version: 1,
+          created_by: user.id
         });
 
-      if (error) throw error;
+      if (hierarchyError) throw hierarchyError;
+
+      // Then create a file record
+      const { error: fileError } = await supabase
+        .from('location_hierarchy_files')
+        .insert({
+          file_name: fileName,
+          original_name: `${tableName.charAt(0).toUpperCase() + tableName.slice(1)} Hierarchy ${new Date().toLocaleDateString()}`,
+          created_by: user.id,
+          file_type: 'json',
+          file_size: JSON.stringify(data).length,
+          metadata: { records: data.length },
+          is_active: true
+        });
+
+      if (fileError) throw fileError;
       return fileName;
     },
     onSuccess: () => {
@@ -256,7 +271,7 @@ export function ColumnSelector({
             <Button
               variant="default"
               size="sm"
-              onClick={handleSavePermanently}
+              onClick={() => savePermanentlyMutation.mutate()}
               className="h-8 px-2"
               disabled={isSaving || selectedColumns.size === 0}
             >
