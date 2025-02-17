@@ -46,7 +46,7 @@ export function LocationHierarchyUpload() {
         .from('temp_hierarchy_uploads')
         .insert({
           filename: tempFileName,
-          original_name: originalFileName,
+          original_name: originalFileName, // Use the original filename
           hierarchy_type: 'location_hierarchy',
           file_type: originalFileName.split('.').pop()?.toLowerCase() || 'csv',
           storage_path: `/temp/${tempFileName}`,

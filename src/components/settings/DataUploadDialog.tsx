@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -154,12 +153,10 @@ export function DataUploadDialog({ module, onDataUploaded }: DataUploadDialogPro
             <TemplateDownloader module={module} />
             
             <FileUpload
-              isValidating={isValidating}
-              onFileSelect={handleFileSelect}
-              onProcessUpload={processUpload}
-              progress={progress}
-              file={file}
-              hasValidationErrors={validationErrors.length > 0}
+              onUploadComplete={(data, fileName) => {
+                handleFileSelect(data[0]);
+                setFile(new File([JSON.stringify(data)], fileName));
+              }}
               allowedFileTypes={[".csv"]}
               maxFileSize={5}
             />
