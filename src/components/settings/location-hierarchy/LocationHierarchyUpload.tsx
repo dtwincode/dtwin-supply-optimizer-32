@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileUpload } from "../upload/FileUpload";
@@ -23,7 +22,6 @@ export function LocationHierarchyUpload() {
   const handleUploadSuccess = (data: any[], uploadId: string) => {
     setUploadedData(data);
     setTempUploadId(uploadId);
-    // Initialize selected columns with all columns when file is uploaded
     if (data[0]) {
       setSelectedColumns(new Set(Object.keys(data[0])));
     }
