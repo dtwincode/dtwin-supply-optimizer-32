@@ -42,6 +42,15 @@ export function ColumnSelector({
   const [isSaving, setIsSaving] = useState(false);
   const { user } = useAuth();
 
+  // Add console log to check user state when component mounts
+  useEffect(() => {
+    console.log('Current auth state:', { 
+      user, 
+      isUserPresent: !!user,
+      userId: user?.id 
+    });
+  }, [user]);
+
   // Delete temporary upload mutation
   const deleteTempUpload = useMutation({
     mutationFn: async () => {
@@ -71,18 +80,23 @@ export function ColumnSelector({
   // Save permanently mutation
   const savePermanently = useMutation({
     mutationFn: async () => {
+      // Log all input data
       console.log('Save permanently called with:', {
         user: user?.id,
         dataPresent: !!data,
-        selectedColumns: Array.from(selectedColumns)
+        dataLength: data?.length,
+        selectedColumns: Array.from(selectedColumns),
+        tableName
       });
 
-      // More detailed validation
+      // More detailed validation with specific errors
       if (!data) {
-        throw new Error('No data provided for saving');
+        console.error('Data is missing');
+        throw new Error('Data is missing');
       }
       if (!user?.id) {
-        throw new Error('User not authenticated');
+        console.error('User is not authenticated');
+        throw new Error('Please log in to save files');
       }
 
       const fileName = `hierarchy_${tableName}_${new Date().getTime()}`;
@@ -98,7 +112,13 @@ export function ColumnSelector({
         data: data
       };
 
-      console.log('Attempting to insert:', insertData);
+      console.log('Attempting to insert data:', {
+        fileName,
+        tableName,
+        userId: user.id,
+        recordCount: data.length,
+        selectedColumnsCount: selectedColumns.size
+      });
 
       const { data: savedData, error: fileError } = await supabase
         .from('permanent_hierarchy_files')
@@ -108,19 +128,21 @@ export function ColumnSelector({
 
       if (fileError) {
         console.error('Supabase error:', fileError);
-        throw fileError;
+        throw new Error(fileError.message);
       }
 
+      console.log('Successfully saved data:', savedData);
       return savedData;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Save successful:', data);
       toast({
         title: "Success",
         description: "File saved permanently",
       });
     },
     onError: (error: Error) => {
-      console.error('Error saving file:', error);
+      console.error('Error in save mutation:', error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -160,6 +182,13 @@ export function ColumnSelector({
   };
 
   const handleSavePermanently = async () => {
+    console.log('Save button clicked. Current state:', {
+      selectedColumnsCount: selectedColumns.size,
+      isUserLoggedIn: !!user,
+      hasData: !!data,
+      isSaving
+    });
+
     if (selectedColumns.size === 0) {
       toast({
         variant: "destructive",
@@ -190,6 +219,8 @@ export function ColumnSelector({
     setIsSaving(true);
     try {
       await savePermanently.mutateAsync();
+    } catch (error) {
+      console.error('Error in handleSavePermanently:', error);
     } finally {
       setIsSaving(false);
     }
