@@ -36,7 +36,7 @@ export function SavedFiles({ triggerRefresh, hierarchyType }: SavedFilesProps) {
     const fetchFiles = async () => {
       try {
         setLoading(true);
-        console.log('Fetching files for hierarchy type:', hierarchyType); // Added for debugging
+        console.log('Fetching files for hierarchy type:', hierarchyType);
         
         const { data, error } = await supabase
           .from('permanent_hierarchy_files')
@@ -45,11 +45,11 @@ export function SavedFiles({ triggerRefresh, hierarchyType }: SavedFilesProps) {
           .order('created_at', { ascending: false });
 
         if (error) {
-          console.error('Supabase query error:', error); // Added for debugging
+          console.error('Supabase query error:', error);
           throw error;
         }
 
-        console.log('Retrieved files:', data); // Added for debugging
+        console.log('Retrieved files:', data);
         setFiles(data || []);
         setSelectedFiles(new Set()); // Clear selections on fetch
       } catch (error) {
@@ -64,7 +64,7 @@ export function SavedFiles({ triggerRefresh, hierarchyType }: SavedFilesProps) {
       }
     };
 
-    if (user && hierarchyType) { // Added hierarchyType check
+    if (user && hierarchyType) {
       fetchFiles();
     }
   }, [user, triggerRefresh, hierarchyType, toast]);
@@ -89,16 +89,16 @@ export function SavedFiles({ triggerRefresh, hierarchyType }: SavedFilesProps) {
 
   const handleDelete = async (fileId: string) => {
     try {
-      console.log('Deleting file with ID:', fileId, 'from hierarchy:', hierarchyType); // Added for debugging
+      console.log('Deleting file with ID:', fileId, 'from hierarchy:', hierarchyType);
       
       const { error } = await supabase
         .from('permanent_hierarchy_files')
         .delete()
         .eq('id', fileId)
-        .eq('hierarchy_type', hierarchyType); // Ensure we're deleting from correct hierarchy
+        .eq('hierarchy_type', hierarchyType);
 
       if (error) {
-        console.error('Supabase delete error:', error); // Added for debugging
+        console.error('Supabase delete error:', error);
         throw error;
       }
 
@@ -123,9 +123,34 @@ export function SavedFiles({ triggerRefresh, hierarchyType }: SavedFilesProps) {
     }
   };
 
+  const handleBulkDelete = async () => {
+    try {
+      // Create an array of promises for each deletion
+      const deletePromises = Array.from(selectedFiles).map(fileId => handleDelete(fileId));
+      
+      // Wait for all deletions to complete
+      await Promise.all(deletePromises);
+      
+      // Clear selection after successful deletion
+      setSelectedFiles(new Set());
+      
+      toast({
+        title: "Success",
+        description: "Selected files deleted successfully"
+      });
+    } catch (error) {
+      console.error('Error in bulk delete:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete some files"
+      });
+    }
+  };
+
   const handleDownload = async (file: any) => {
     try {
-      // Implement download logic here
+      // Add download logic here
       toast({
         title: "Success",
         description: "File downloaded successfully"
@@ -135,6 +160,34 @@ export function SavedFiles({ triggerRefresh, hierarchyType }: SavedFilesProps) {
         variant: "destructive",
         title: "Error",
         description: "Failed to download file"
+      });
+    }
+  };
+
+  const handleBulkDownload = async () => {
+    try {
+      // Create an array of promises for each download
+      const downloadPromises = Array.from(selectedFiles).map(fileId => {
+        const file = files.find(f => f.id === fileId);
+        if (file) {
+          return handleDownload(file);
+        }
+        return Promise.resolve();
+      });
+      
+      // Wait for all downloads to complete
+      await Promise.all(downloadPromises);
+      
+      toast({
+        title: "Success",
+        description: "Selected files downloaded successfully"
+      });
+    } catch (error) {
+      console.error('Error in bulk download:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to download some files"
       });
     }
   };
@@ -157,7 +210,7 @@ export function SavedFiles({ triggerRefresh, hierarchyType }: SavedFilesProps) {
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-semibold">Saved Files</h2>
-          {files.length > 0 && (
+          <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="sm"
@@ -171,7 +224,51 @@ export function SavedFiles({ triggerRefresh, hierarchyType }: SavedFilesProps) {
               )}
               Select All
             </Button>
-          )}
+            
+            {selectedFiles.size > 0 && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleBulkDownload}
+                  className="flex items-center gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  Download Selected
+                </Button>
+                
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="flex items-center gap-2 text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Delete Selected
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Selected Files</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete {selectedFiles.size} selected files? This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleBulkDelete}
+                        className="bg-destructive hover:bg-destructive/90"
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </>
+            )}
+          </div>
         </div>
         <div className="space-y-4">
           {files.length === 0 ? (
