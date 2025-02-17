@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { TableRowData, ColumnHeader } from "../types";
 import { useAuth } from "@/contexts/AuthContext";
+import type { Json } from "@/integrations/supabase/types";
 
 interface ColumnSelectorProps {
   tableName: string;
@@ -53,15 +54,19 @@ export function ColumnSelector({
 
     setIsSaving(true);
     try {
+      const timestamp = new Date().getTime().toString();
+      const fileName = `location_hierarchy_${timestamp}`;
+      const originalName = data[0]?.original_name?.toString() || 'location_hierarchy.csv';
+
       // Save to permanent storage
       const { error: permError } = await supabase
         .from('permanent_hierarchy_files')
         .insert({
-          file_name: `location_hierarchy_${new Date().getTime()}`,
-          original_name: data[0]?.original_name || 'location_hierarchy.csv',
+          file_name: fileName,
+          original_name: originalName,
           hierarchy_type: tableName,
           selected_columns: Array.from(selectedColumns),
-          data: data,
+          data: data as Json,
           created_by: user.id
         });
 
