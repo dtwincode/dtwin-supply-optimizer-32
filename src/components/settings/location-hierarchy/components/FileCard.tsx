@@ -31,6 +31,19 @@ export function FileCard({
   onDownload, 
   onToggleSelect 
 }: FileCardProps) {
+  const formatDateTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    }).format(date);
+  };
+
   return (
     <div className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg">
       <div className="flex items-center gap-3">
@@ -50,7 +63,7 @@ export function FileCard({
         <div>
           <p className="font-medium">{file.original_name}</p>
           <p className="text-sm text-muted-foreground">
-            {new Date(file.created_at).toLocaleDateString()}
+            {formatDateTime(file.created_at)}
           </p>
         </div>
       </div>
