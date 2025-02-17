@@ -1,3 +1,4 @@
+
 import DashboardLayout from "@/components/DashboardLayout";
 import { ForecastingTabs } from "@/components/forecasting/ForecastingTabs";
 import { ForecastAnalysisTab } from "@/components/forecasting/tabs/ForecastAnalysisTab";
@@ -8,8 +9,8 @@ import { WhatIfAnalysisTab } from "@/components/forecasting/tabs/WhatIfAnalysisT
 import { ValidationTab } from "@/components/forecasting/tabs/ValidationTab";
 import { ExternalFactorsTab } from "@/components/forecasting/tabs/ExternalFactorsTab";
 import { Separator } from "@/components/ui/separator";
-import { Routes, Route, Outlet } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { Routes, Route } from "react-router-dom";
+import { useState } from "react";
 import { ProductFilter } from "@/components/forecasting/filters/ProductFilter";
 import { LocationFilter } from "@/components/forecasting/filters/LocationFilter";
 import { ForecastDataPoint } from "@/types/forecasting";
@@ -17,7 +18,6 @@ import { Card } from "@/components/ui/card";
 import { ForecastingDateRange } from "@/components/forecasting/ForecastingDateRange";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 
 const Forecasting = () => {
@@ -39,10 +39,10 @@ const Forecasting = () => {
   
   const [searchQuery, setSearchQuery] = useLocalStorage('searchQuery', '');
 
-  const trainingFromDate = useLocalStorage('trainingFromDate', new Date('2024-01-01').toISOString());
-  const trainingToDate = useLocalStorage('trainingToDate', new Date('2024-09-30').toISOString());
-  const testingFromDate = useLocalStorage('testingFromDate', new Date('2024-10-01').toISOString());
-  const testingToDate = useLocalStorage('testingToDate', new Date('2024-12-31').toISOString());
+  const [trainingFromDate, setTrainingFromDate] = useLocalStorage('trainingFromDate', new Date('2024-01-01').toISOString());
+  const [trainingToDate, setTrainingToDate] = useLocalStorage('trainingToDate', new Date('2024-09-30').toISOString());
+  const [testingFromDate, setTestingFromDate] = useLocalStorage('testingFromDate', new Date('2024-10-01').toISOString());
+  const [testingToDate, setTestingToDate] = useLocalStorage('testingToDate', new Date('2024-12-31').toISOString());
 
   const dummyData = {
     filteredData: [{
