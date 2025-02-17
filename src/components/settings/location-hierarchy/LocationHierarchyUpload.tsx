@@ -26,7 +26,7 @@ export function LocationHierarchyUpload() {
     }
   }, [user, isLoading, navigate]);
 
-  const handleUploadComplete = async (data: TableRowData[]) => {
+  const handleUploadComplete = async (data: TableRowData[], originalFileName: string) => {
     if (!user) {
       toast({
         variant: "destructive",
@@ -39,12 +39,17 @@ export function LocationHierarchyUpload() {
     setUploadedData(data);
 
     try {
+      const tempFileName = `temp_location_hierarchy_${new Date().getTime()}`;
+      
       // Save to temporary storage first
       const { data: tempUpload, error: tempError } = await supabase
         .from('temp_hierarchy_uploads')
         .insert({
-          filename: `temp_location_hierarchy_${new Date().getTime()}`,
+          filename: tempFileName,
+          original_name: originalFileName,
           hierarchy_type: 'location_hierarchy',
+          file_type: originalFileName.split('.').pop()?.toLowerCase() || 'csv',
+          storage_path: `/temp/${tempFileName}`,
           processed_by: user.id,
           row_count: data.length,
           headers: Object.keys(data[0]),
@@ -119,7 +124,6 @@ export function LocationHierarchyUpload() {
             tableName="location_hierarchy"
             columns={columns}
             combinedHeaders={combinedHeaders}
-            tempUploadId={tempUploadId}
           />
         </div>
       )}

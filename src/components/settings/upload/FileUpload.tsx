@@ -1,200 +1,111 @@
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
-import { Upload, FileIcon } from "lucide-react";
-import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { useCallback, useState } from 'react';
+import { useDropzone } from 'react-dropzone';
+import * as XLSX from 'xlsx';
+import { Button } from '@/components/ui/button';
+import { Cloud, File, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface FileUploadProps {
-  onUploadComplete?: (data: any[]) => void;
-  onFileSelect?: (selectedFile: File) => void;
-  onProcessUpload?: () => Promise<void>;
-  allowedFileTypes: string[];
-  maxFileSize: number;
-  isValidating?: boolean;
-  progress?: number;
-  file?: File | null;
-  hasValidationErrors?: boolean;
+  onUploadComplete: (data: any[], originalFileName: string) => void;
+  allowedFileTypes?: string[];
+  maxFileSize?: number; // in MB
 }
 
-export function FileUpload({
-  onUploadComplete,
-  onFileSelect,
-  onProcessUpload,
-  allowedFileTypes,
-  maxFileSize,
-  isValidating: externalIsValidating,
-  progress: externalProgress,
-  file: externalFile,
-  hasValidationErrors
+export function FileUpload({ 
+  onUploadComplete, 
+  allowedFileTypes = ['.csv', '.xlsx'], 
+  maxFileSize = 5 
 }: FileUploadProps) {
-  const [isValidating, setIsValidating] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [file, setFile] = useState<File | null>(null);
-  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Use external state if provided, otherwise use internal state
-  const currentIsValidating = externalIsValidating ?? isValidating;
-  const currentProgress = externalProgress ?? progress;
-  const currentFile = externalFile ?? file;
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    setIsLoading(true);
+    const file = acceptedFiles[0];
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = event.target.files?.[0];
-    if (selectedFile) {
-      // Check file type
-      const fileExtension = selectedFile.name.split('.').pop()?.toLowerCase();
-      if (!allowedFileTypes.includes(`.${fileExtension}`)) {
-        toast({
-          variant: "destructive",
-          title: "Invalid File Type",
-          description: `Please upload one of: ${allowedFileTypes.join(', ')}`,
-        });
-        return;
-      }
-
-      // Check file size (in MB)
-      if (selectedFile.size > maxFileSize * 1024 * 1024) {
-        toast({
-          variant: "destructive",
-          title: "File Too Large",
-          description: `File size must be less than ${maxFileSize}MB`,
-        });
-        return;
-      }
-
-      if (onFileSelect) {
-        onFileSelect(selectedFile);
-      } else {
-        setFile(selectedFile);
-        processFile(selectedFile);
-      }
-    }
-  };
-
-  const processFile = async (selectedFile: File) => {
-    if (onProcessUpload) {
-      await onProcessUpload();
-      return;
-    }
-
-    setIsValidating(true);
-    setProgress(0);
-    
     try {
+      const data = await readFile(file);
+      onUploadComplete(data, file.name);
+    } catch (error) {
+      console.error('Error processing file:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [onUploadComplete]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: allowedFileTypes.reduce((acc, type) => ({
+      ...acc,
+      [type]: []
+    }), {}),
+    maxSize: maxFileSize * 1024 * 1024,
+    multiple: false
+  });
+
+  const readFile = (file: File): Promise<any[]> => {
+    return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      
-      reader.onprogress = (event) => {
-        if (event.lengthComputable) {
-          const percentComplete = (event.loaded / event.total) * 100;
-          setProgress(percentComplete);
+
+      reader.onload = (e) => {
+        try {
+          const data = e.target?.result;
+          const workbook = XLSX.read(data, { type: 'binary' });
+          const sheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[sheetName];
+          const jsonData = XLSX.utils.sheet_to_json(worksheet);
+          resolve(jsonData);
+        } catch (error) {
+          reject(error);
         }
       };
 
-      reader.onload = async (e) => {
-        const text = e.target?.result as string;
-        const lines = text.split('\n');
-        const headers = lines[0].split(',').map(h => h.trim());
-        
-        const data = lines.slice(1)
-          .filter(line => line.trim())
-          .map(line => {
-            const values = line.split(',').map(v => v.trim());
-            return headers.reduce((obj, header, index) => {
-              obj[header] = values[index];
-              return obj;
-            }, {} as Record<string, string>);
-          });
-
-        onUploadComplete?.(data);
-        setProgress(100);
-        toast({
-          title: "Upload Complete",
-          description: "Your file has been successfully processed.",
-        });
-        setIsValidating(false);
-      };
-
-      reader.onerror = () => {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to read file",
-        });
-        setIsValidating(false);
-      };
-
-      reader.readAsText(selectedFile);
-    } catch (error) {
-      console.error('Error processing file:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to process file",
-      });
-      setIsValidating(false);
-    }
+      reader.onerror = (error) => reject(error);
+      reader.readAsBinaryString(file);
+    });
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-primary transition-colors relative">
-        <Input
-          type="file"
-          accept={allowedFileTypes.join(',')}
-          onChange={handleFileSelect}
-          className="cursor-pointer absolute inset-0 w-full h-full opacity-0 z-10"
-          disabled={currentIsValidating}
-        />
-        <div className="flex flex-col items-center justify-center gap-2">
-          <div className="p-3 bg-primary/10 rounded-full">
-            <Upload className="h-6 w-6 text-primary" />
-          </div>
-          {currentFile ? (
-            <div className="flex items-center gap-2 text-sm">
-              <FileIcon className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium text-muted-foreground max-w-[200px] truncate">
-                {currentFile.name}
-              </span>
-            </div>
+    <div>
+      <div
+        {...getRootProps()}
+        className={cn(
+          'border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors',
+          isDragActive ? 'border-primary bg-muted' : 'border-muted-foreground/25'
+        )}
+      >
+        <input {...getInputProps()} />
+        <div className="flex flex-col items-center gap-2">
+          {isLoading ? (
+            <>
+              <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
+              <p className="text-muted-foreground">Processing file...</p>
+            </>
           ) : (
             <>
-              <p className="text-sm font-medium">Click to upload or drag and drop</p>
-              <p className="text-xs text-muted-foreground">
-                {allowedFileTypes.join(', ')} (up to {maxFileSize}MB)
-              </p>
+              {isDragActive ? (
+                <>
+                  <Cloud className="h-10 w-10 text-muted-foreground" />
+                  <p className="text-muted-foreground">Drop the file here</p>
+                </>
+              ) : (
+                <>
+                  <File className="h-10 w-10 text-muted-foreground" />
+                  <p className="text-muted-foreground">
+                    Drag & drop a file here, or click to select
+                  </p>
+                  <Button variant="secondary" size="sm">
+                    Choose File
+                  </Button>
+                </>
+              )}
             </>
           )}
         </div>
       </div>
-
-      {(currentIsValidating || currentProgress > 0) && (
-        <div className="space-y-2 bg-secondary/50 rounded-lg p-4">
-          <div className="flex items-center gap-3">
-            <Progress value={currentProgress} className="w-full h-2" />
-            {currentIsValidating && (
-              <Upload className="h-4 w-4 animate-spin text-primary shrink-0" />
-            )}
-          </div>
-          <p className="text-sm text-muted-foreground text-center">
-            {currentIsValidating 
-              ? "Validating and processing data..." 
-              : `Processing ${Math.round(currentProgress)}% complete`
-            }
-          </p>
-        </div>
-      )}
-
-      {hasValidationErrors && currentFile && onProcessUpload && (
-        <Button
-          onClick={onProcessUpload}
-          disabled={currentIsValidating}
-          className="w-full gap-2"
-        >
-          <Upload className="h-4 w-4" />
-          Process File
-        </Button>
-      )}
+      <p className="mt-2 text-xs text-muted-foreground">
+        Allowed types: {allowedFileTypes.join(', ')} (Max size: {maxFileSize}MB)
+      </p>
     </div>
   );
 }
