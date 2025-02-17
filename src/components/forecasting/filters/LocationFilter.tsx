@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,13 +19,6 @@ import { Loader2, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
-interface LocationFilterProps {
-  selectedRegion: string;
-  setSelectedRegion: (region: string) => void;
-  selectedCity: string;
-  setSelectedCity: (city: string) => void;
-}
-
 interface HierarchyData {
   [key: string]: string;
 }
@@ -39,12 +31,7 @@ interface HierarchyState {
   };
 }
 
-export function LocationFilter({
-  selectedRegion,
-  setSelectedRegion,
-  selectedCity,
-  setSelectedCity,
-}: LocationFilterProps) {
+export function LocationFilter() {
   const { toast } = useToast();
   const [hierarchyState, setHierarchyState] = useState<HierarchyState>({});
   const [hierarchyLevels, setHierarchyLevels] = useState<string[]>([]);
