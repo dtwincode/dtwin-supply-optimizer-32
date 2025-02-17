@@ -78,6 +78,11 @@ export function LocationHierarchyUpload() {
     }
   };
 
+  const handleSaveSuccess = () => {
+    // Trigger a refresh of the saved files list
+    setRefreshTrigger(prev => prev + 1);
+  };
+
   // Get column headers from the first row of data
   const columns = uploadedData.length > 0 
     ? Object.keys(uploadedData[0])
@@ -125,6 +130,7 @@ export function LocationHierarchyUpload() {
             columns={columns}
             combinedHeaders={combinedHeaders}
             tempUploadId={tempUploadId}
+            onSaveSuccess={handleSaveSuccess}
           />
         </div>
       )}
