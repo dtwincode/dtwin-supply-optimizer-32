@@ -46,7 +46,7 @@ export function LocationHierarchyUpload() {
         .from('temp_hierarchy_uploads')
         .insert({
           filename: tempFileName,
-          original_name: originalFileName, // Use the original filename
+          original_name: originalFileName,
           hierarchy_type: 'location_hierarchy',
           file_type: originalFileName.split('.').pop()?.toLowerCase() || 'csv',
           storage_path: `/temp/${tempFileName}`,
@@ -124,6 +124,7 @@ export function LocationHierarchyUpload() {
             tableName="location_hierarchy"
             columns={columns}
             combinedHeaders={combinedHeaders}
+            tempUploadId={tempUploadId}
           />
         </div>
       )}

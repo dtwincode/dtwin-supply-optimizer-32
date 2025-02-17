@@ -10,13 +10,15 @@ interface HierarchyTableViewProps {
   tableName: string;
   columns: string[];
   combinedHeaders: ColumnHeader[];
+  tempUploadId?: string;
 }
 
 export function HierarchyTableView({ 
   data, 
   tableName, 
   columns, 
-  combinedHeaders 
+  combinedHeaders,
+  tempUploadId
 }: HierarchyTableViewProps) {
   const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set(columns));
 
@@ -27,6 +29,8 @@ export function HierarchyTableView({
         combinedHeaders={combinedHeaders}
         selectedColumns={selectedColumns}
         onSelectedColumnsChange={setSelectedColumns}
+        tempUploadId={tempUploadId}
+        data={data} // Pass the data to ColumnSelector
       />
 
       <div className="space-y-4">
