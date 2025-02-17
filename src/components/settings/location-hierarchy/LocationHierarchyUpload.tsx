@@ -13,6 +13,7 @@ import { SavedLocationFiles } from "./SavedLocationFiles";
 
 export function LocationHierarchyUpload() {
   const [uploadedData, setUploadedData] = useState<TableRowData[]>([]);
+  const [tempUploadId, setTempUploadId] = useState<string | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -36,72 +37,38 @@ export function LocationHierarchyUpload() {
     }
 
     setUploadedData(data);
-    const fileName = `location_hierarchy_${new Date().getTime()}`;
 
     try {
-      // Get the latest version number
-      const { data: versionData, error: versionError } = await supabase
-        .from('permanent_hierarchy_data')
-        .select('version')
-        .eq('hierarchy_type', 'location_hierarchy')
-        .order('version', { ascending: false })
-        .limit(1);
-
-      if (versionError) throw versionError;
-
-      const nextVersion = versionData && versionData.length > 0 ? versionData[0].version + 1 : 1;
-
-      // First, mark all existing location hierarchies as inactive
-      const { error: updateError } = await supabase
-        .from('permanent_hierarchy_data')
-        .update({ is_active: false })
-        .eq('hierarchy_type', 'location_hierarchy');
-
-      if (updateError) throw updateError;
-
-      // Then insert the new data
-      const { error: hierarchyError } = await supabase
-        .from('permanent_hierarchy_data')
+      // Save to temporary storage first
+      const { data: tempUpload, error: tempError } = await supabase
+        .from('temp_hierarchy_uploads')
         .insert({
+          filename: `temp_location_hierarchy_${new Date().getTime()}`,
           hierarchy_type: 'location_hierarchy',
-          data: data,
-          is_active: true,
-          version: nextVersion,
-          created_by: user.id
-        });
+          processed_by: user.id,
+          row_count: data.length,
+          headers: Object.keys(data[0]),
+          sample_data: data.slice(0, 5),
+          status: 'pending'
+        })
+        .select()
+        .single();
 
-      if (hierarchyError) throw hierarchyError;
+      if (tempError) throw tempError;
 
-      // Save file reference
-      const { error: fileError } = await supabase
-        .from('location_hierarchy_files')
-        .insert({
-          file_name: fileName,
-          original_name: `Location Hierarchy ${new Date().toLocaleDateString()}`,
-          created_by: user.id,
-          file_type: 'json',
-          file_size: JSON.stringify(data).length,
-          metadata: { records: data.length }
-        });
-
-      if (fileError) throw fileError;
-
-      // Invalidate the locations query to refresh the filters
-      queryClient.invalidateQueries({ queryKey: ['locations'] });
-
-      // Trigger refresh of the saved files list
-      setRefreshTrigger(prev => prev + 1);
+      // Store the temporary upload ID
+      setTempUploadId(tempUpload.id);
 
       toast({
         title: "Success",
-        description: "Location hierarchy has been updated successfully",
+        description: "File uploaded successfully. Select columns to continue.",
       });
     } catch (error) {
-      console.error('Error pushing location hierarchy:', error);
+      console.error('Error saving temporary data:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to update location hierarchy"
+        description: "Failed to save temporary data"
       });
     }
   };
@@ -152,6 +119,7 @@ export function LocationHierarchyUpload() {
             tableName="location_hierarchy"
             columns={columns}
             combinedHeaders={combinedHeaders}
+            tempUploadId={tempUploadId}
           />
         </div>
       )}

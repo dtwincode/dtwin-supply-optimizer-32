@@ -56,7 +56,7 @@ export function ColumnSelector({
     mutationFn: async () => {
       if (!tempUploadId) return;
       const { error } = await supabase
-        .from('temp_hierarchy_uploads') // Changed from temporary_uploads to temp_hierarchy_uploads
+        .from('temp_hierarchy_uploads')
         .delete()
         .eq('id', tempUploadId);
       
@@ -99,6 +99,15 @@ export function ColumnSelector({
         throw new Error('Please log in to save files');
       }
 
+      // Filter data to only include selected columns
+      const filteredData = data.map(row => {
+        const filtered: any = {};
+        Array.from(selectedColumns).forEach(column => {
+          filtered[column] = row[column];
+        });
+        return filtered;
+      });
+
       const fileName = `hierarchy_${tableName}_${new Date().getTime()}`;
       
       const insertData = {
@@ -106,17 +115,17 @@ export function ColumnSelector({
         original_name: `${tableName.charAt(0).toUpperCase() + tableName.slice(1)} Hierarchy ${new Date().toLocaleDateString()}`,
         hierarchy_type: tableName,
         created_by: user.id,
-        file_size: JSON.stringify(data).length,
-        metadata: { records: data.length },
+        file_size: JSON.stringify(filteredData).length,
+        metadata: { records: filteredData.length },
         selected_columns: Array.from(selectedColumns),
-        data: data
+        data: filteredData
       };
 
       console.log('Attempting to insert data:', {
         fileName,
         tableName,
         userId: user.id,
-        recordCount: data.length,
+        recordCount: filteredData.length,
         selectedColumnsCount: selectedColumns.size
       });
 
@@ -129,6 +138,11 @@ export function ColumnSelector({
       if (fileError) {
         console.error('Supabase error:', fileError);
         throw new Error(fileError.message);
+      }
+
+      // Delete temporary upload after successful permanent save
+      if (tempUploadId) {
+        await deleteTempUpload.mutateAsync();
       }
 
       console.log('Successfully saved data:', savedData);
