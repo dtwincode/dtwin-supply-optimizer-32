@@ -1,5 +1,5 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -39,6 +39,10 @@ export function LocationFilter({
   setSelectedCity,
 }: LocationFilterProps) {
   const { toast } = useToast();
+  const [filterLabels, setFilterLabels] = useState({
+    first: "",
+    second: ""
+  });
 
   // Fetch saved hierarchy files
   const { data: savedFiles } = useQuery({
@@ -74,7 +78,8 @@ export function LocationFilter({
         console.error('Error fetching location hierarchy:', versionError);
         return {
           regions: [],
-          cities: {}
+          cities: {},
+          labels: { first: "", second: "" }
         };
       }
 
@@ -82,7 +87,8 @@ export function LocationFilter({
         console.log('No location hierarchy data found or invalid data format');
         return {
           regions: [],
-          cities: {}
+          cities: {},
+          labels: { first: "", second: "" }
         };
       }
 
@@ -96,7 +102,8 @@ export function LocationFilter({
           console.error('Invalid data format in hierarchy data');
           return {
             regions: [],
-            cities: {}
+            cities: {},
+            labels: { first: "", second: "" }
           };
         }
 
@@ -115,6 +122,19 @@ export function LocationFilter({
           }
         });
 
+        // Get the labels from the active hierarchy metadata
+        const { data: activeFile, error: labelError } = await supabase
+          .from('permanent_hierarchy_files')
+          .select('metadata')
+          .eq('id', activeVersionData.id)
+          .single();
+
+        let labels = { first: "", second: "" };
+        if (!labelError && activeFile?.metadata?.labels) {
+          labels = activeFile.metadata.labels;
+          setFilterLabels(labels);
+        }
+
         return {
           regions: Array.from(uniqueRegions).sort(),
           cities: Object.fromEntries(
@@ -122,13 +142,15 @@ export function LocationFilter({
               region,
               Array.from(cities).sort()
             ])
-          )
+          ),
+          labels
         };
       } catch (error) {
         console.error('Error processing location hierarchy data:', error);
         return {
           regions: [],
-          cities: {}
+          cities: {},
+          labels: { first: "", second: "" }
         };
       }
     }
@@ -136,10 +158,10 @@ export function LocationFilter({
 
   const handleImportHierarchy = async (fileId: string) => {
     try {
-      // Get the file data
+      // Get the file data and metadata
       const { data: fileData, error: fileError } = await supabase
         .from('permanent_hierarchy_files')
-        .select('data')
+        .select('data, metadata')
         .eq('id', fileId)
         .single();
 
@@ -167,7 +189,8 @@ export function LocationFilter({
           hierarchy_type: 'location_hierarchy',
           data: fileData.data,
           is_active: true,
-          version: nextVersion
+          version: nextVersion,
+          source_upload_id: fileId
         });
 
       if (insertError) throw insertError;
@@ -180,6 +203,11 @@ export function LocationFilter({
         .eq('hierarchy_type', 'location_hierarchy');
 
       if (updateError) throw updateError;
+
+      // Update filter labels from metadata
+      if (fileData.metadata?.labels) {
+        setFilterLabels(fileData.metadata.labels);
+      }
 
       // Reset selections
       setSelectedRegion('all');
@@ -250,16 +278,16 @@ export function LocationFilter({
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Region</label>
+            <label className="text-sm font-medium">{filterLabels.first || "Select First Level"}</label>
             <Select
               value={selectedRegion}
               onValueChange={setSelectedRegion}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select region" />
+                <SelectValue placeholder={`Select ${filterLabels.first || 'value'}`} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Regions</SelectItem>
+                <SelectItem value="all">{`All ${filterLabels.first || 'Values'}`}</SelectItem>
                 {locationsData?.regions.map((region) => (
                   <SelectItem key={region} value={region}>
                     {region}
@@ -270,17 +298,17 @@ export function LocationFilter({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">City</label>
+            <label className="text-sm font-medium">{filterLabels.second || "Select Second Level"}</label>
             <Select
               value={selectedCity}
               onValueChange={setSelectedCity}
               disabled={selectedRegion === "all"}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select city" />
+                <SelectValue placeholder={`Select ${filterLabels.second || 'value'}`} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Cities</SelectItem>
+                <SelectItem value="all">{`All ${filterLabels.second || 'Values'}`}</SelectItem>
                 {selectedRegion !== "all" &&
                   locationsData?.cities[selectedRegion]?.map((city) => (
                     <SelectItem key={city} value={city}>
