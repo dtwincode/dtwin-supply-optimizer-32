@@ -47,44 +47,40 @@ export function SavedFiles({ triggerRefresh, hierarchyType }: SavedFilesProps) {
 
   if (loading) {
     return (
-      <Card>
-        <CardContent className="p-6">
-          <p className="text-sm text-muted-foreground">Loading saved files...</p>
-        </CardContent>
-      </Card>
+      <div className="rounded-lg bg-white p-6 shadow-sm">
+        <h2 className="text-2xl font-semibold mb-6">Saved Files</h2>
+        <p className="text-sm text-muted-foreground">Loading saved files...</p>
+      </div>
     );
   }
 
   if (files.length === 0) {
     return (
-      <Card>
-        <CardContent className="p-6">
-          <p className="text-sm text-muted-foreground">No saved files found.</p>
-        </CardContent>
-      </Card>
+      <div className="rounded-lg bg-white p-6 shadow-sm">
+        <h2 className="text-2xl font-semibold mb-6">Saved Files</h2>
+        <p className="text-sm text-muted-foreground">No saved files found.</p>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardContent className="p-6">
-        <h3 className="text-lg font-medium mb-4">Saved Files</h3>
-        <div className="space-y-4">
-          {files.map((file) => (
-            <div
-              key={file.id}
-              className="flex items-center justify-between p-4 border rounded-lg"
-            >
-              <div>
-                <p className="font-medium">{file.original_name}</p>
-                <p className="text-sm text-muted-foreground">
-                  {new Date(file.created_at).toLocaleDateString()}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+    <div className="rounded-lg bg-white p-6 shadow-sm">
+      <h2 className="text-2xl font-semibold mb-6">Saved Files</h2>
+      <div className="space-y-4">
+        {files.map((file) => (
+          <div
+            key={file.id}
+            className="rounded-lg bg-gray-50 p-4"
+          >
+            <h3 className="text-base font-medium text-gray-900">
+              {file.original_name}
+            </h3>
+            <p className="text-sm text-gray-500 mt-1">
+              {new Date(file.created_at).toLocaleDateString()}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
