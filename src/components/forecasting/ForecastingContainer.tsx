@@ -15,6 +15,7 @@ export function ForecastingContainer() {
   const [isScenarioOpen, setIsScenarioOpen] = useState(false);
   const [isVersioningOpen, setIsVersioningOpen] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  const [scenarioName, setScenarioName] = useState("");
   const { toast } = useToast();
 
   // Model selection state
@@ -71,6 +72,10 @@ export function ForecastingContainer() {
     setIsUploadDialogOpen(false);
   };
 
+  const handleScenarioLoad = (scenario: any) => {
+    console.log("Loading scenario:", scenario);
+  };
+
   return (
     <div>
       <ForecastingHeader
@@ -123,13 +128,17 @@ export function ForecastingContainer() {
       </Card>
 
       <ScenarioManagement
-        isOpen={isScenarioOpen}
-        onClose={() => setIsScenarioOpen(false)}
+        scenarioName={scenarioName}
+        setScenarioName={setScenarioName}
+        currentModel={selectedModel}
+        currentHorizon="1-month"
+        currentParameters={{}}
+        forecastData={forecastData}
+        onScenarioLoad={handleScenarioLoad}
       />
 
       <ModelVersioning
-        isOpen={isVersioningOpen}
-        onClose={() => setIsVersioningOpen(false)}
+        modelId={selectedModel}
       />
       
       <DataUploadDialog
