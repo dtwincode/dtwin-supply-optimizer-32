@@ -1,10 +1,11 @@
-
 import { useState } from "react";
+import { ForecastFilters } from "./ForecastFilters";
+import { ForecastDataPoint } from "@/types/forecasting";
+import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useToast } from "@/hooks/use-toast";
 import { ForecastMetricsCards } from "./ForecastMetricsCards";
 import { ForecastingHeader } from "./ForecastingHeader";
 import { ForecastingTabs } from "./ForecastingTabs";
-import { ForecastFilters } from "./ForecastFilters";
 import { ScenarioManagement } from "./ScenarioManagement";
 import { ModelVersioning } from "./ModelVersioning";
 import { DataUploadDialog } from "../settings/DataUploadDialog";
@@ -22,21 +23,21 @@ export function ForecastingContainer() {
   const [selectedModel, setSelectedModel] = useState("arima");
 
   // Filter states
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useLocalStorage('searchQuery', '');
   const [selectedRegion, setSelectedRegion] = useState("all");
   const [selectedCity, setSelectedCity] = useState("all");
-  const [selectedChannel, setSelectedChannel] = useState("all");
-  const [selectedWarehouse, setSelectedWarehouse] = useState("all");
+  const [selectedChannel, setSelectedChannel] = useLocalStorage('selectedChannel', 'all');
+  const [selectedWarehouse, setSelectedWarehouse] = useLocalStorage('selectedWarehouse', 'all');
   
   // Product hierarchy states
-  const [selectedL1MainProd, setSelectedL1MainProd] = useState("all");
-  const [selectedL2ProdLine, setSelectedL2ProdLine] = useState("all");
-  const [selectedL3ProdCategory, setSelectedL3ProdCategory] = useState("all");
-  const [selectedL4DeviceMake, setSelectedL4DeviceMake] = useState("all");
-  const [selectedL5ProdSubCategory, setSelectedL5ProdSubCategory] = useState("all");
-  const [selectedL6DeviceModel, setSelectedL6DeviceModel] = useState("all");
-  const [selectedL7DeviceColor, setSelectedL7DeviceColor] = useState("all");
-  const [selectedL8DeviceStorage, setSelectedL8DeviceStorage] = useState("all");
+  const [selectedL1MainProd, setSelectedL1MainProd] = useLocalStorage('selectedL1MainProd', 'all');
+  const [selectedL2ProdLine, setSelectedL2ProdLine] = useLocalStorage('selectedL2ProdLine', 'all');
+  const [selectedL3ProdCategory, setSelectedL3ProdCategory] = useLocalStorage('selectedL3ProdCategory', 'all');
+  const [selectedL4DeviceMake, setSelectedL4DeviceMake] = useLocalStorage('selectedL4DeviceMake', 'all');
+  const [selectedL5ProdSubCategory, setSelectedL5ProdSubCategory] = useLocalStorage('selectedL5ProdSubCategory', 'all');
+  const [selectedL6DeviceModel, setSelectedL6DeviceModel] = useLocalStorage('selectedL6DeviceModel', 'all');
+  const [selectedL7DeviceColor, setSelectedL7DeviceColor] = useLocalStorage('selectedL7DeviceColor', 'all');
+  const [selectedL8DeviceStorage, setSelectedL8DeviceStorage] = useLocalStorage('selectedL8DeviceStorage', 'all');
   
   // Sample data for filter props
   const channelTypes = ["Channel 1", "Channel 2"];
@@ -75,6 +76,29 @@ export function ForecastingContainer() {
   const handleScenarioLoad = (scenario: any) => {
     console.log("Loading scenario:", scenario);
   };
+
+  const dummyData: ForecastDataPoint[] = [{
+    id: "1",
+    week: "2024-01-01",
+    actual: 100,
+    forecast: 105,
+    variance: 5,
+    region: "North",
+    city: "Example City",
+    channel: "Retail",
+    warehouse: "Main",
+    category: "Electronics",
+    subcategory: "Phones",
+    sku: "SKU123",
+    l1_main_prod: "Electronics",
+    l2_prod_line: "Mobile Devices",
+    l3_prod_category: "Smartphones",
+    l4_device_make: "Example Brand",
+    l5_prod_sub_category: "Flagship",
+    l6_device_model: "Model X",
+    l7_device_color: "Black",
+    l8_device_storage: "128GB"
+  }];
 
   return (
     <div>
