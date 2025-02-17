@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { TableRowData, ColumnHeader } from "../types";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Json } from "@/integrations/supabase/types";
@@ -29,6 +29,7 @@ export function ColumnSelector({
   onSaveSuccess
 }: ColumnSelectorProps) {
   const [isSaving, setIsSaving] = useState(false);
+  const saveInProgress = useRef(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -43,7 +44,12 @@ export function ColumnSelector({
   };
 
   const handleSavePermanently = useCallback(async () => {
-    if (isSaving) return; // Prevent multiple saves
+    // Use ref to prevent multiple simultaneous saves
+    if (saveInProgress.current || isSaving) {
+      console.log('Save already in progress');
+      return;
+    }
+
     if (!data || !tempUploadId || !user) {
       toast({
         variant: "destructive",
@@ -53,8 +59,10 @@ export function ColumnSelector({
       return;
     }
 
-    setIsSaving(true);
     try {
+      saveInProgress.current = true;
+      setIsSaving(true);
+
       const timestamp = new Date().getTime().toString();
       const fileName = `location_hierarchy_${timestamp}`;
       const originalName = data[0]?.original_name?.toString() || 'location_hierarchy.csv';
@@ -90,8 +98,9 @@ export function ColumnSelector({
         description: "Failed to save data permanently"
       });
     } finally {
-      // Add a small delay before allowing another save
+      // Reset both state and ref after a delay
       setTimeout(() => {
+        saveInProgress.current = false;
         setIsSaving(false);
       }, 1000);
     }
@@ -104,7 +113,7 @@ export function ColumnSelector({
           <h3 className="text-lg font-medium">Column Selection</h3>
           <Button 
             onClick={handleSavePermanently}
-            disabled={selectedColumns.size === 0 || isSaving}
+            disabled={selectedColumns.size === 0 || isSaving || saveInProgress.current}
           >
             {isSaving ? 'Saving...' : 'Save Permanently'}
           </Button>
