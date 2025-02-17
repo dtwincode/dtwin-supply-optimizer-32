@@ -27,14 +27,16 @@ interface LocationFilterProps {
   setSelectedCity: (city: string) => void;
 }
 
-interface LocationData {
-  region: string;
-  city: string;
+interface HierarchyData {
+  [key: string]: string;
 }
 
-interface HierarchyLabels {
-  first: string;
-  second: string;
+interface HierarchyState {
+  [level: string]: {
+    selected: string;
+    values: string[];
+    label: string;
+  };
 }
 
 export function LocationFilter({
@@ -44,10 +46,8 @@ export function LocationFilter({
   setSelectedCity,
 }: LocationFilterProps) {
   const { toast } = useToast();
-  const [filterLabels, setFilterLabels] = useState<HierarchyLabels>({
-    first: "",
-    second: ""
-  });
+  const [hierarchyState, setHierarchyState] = useState<HierarchyState>({});
+  const [hierarchyLevels, setHierarchyLevels] = useState<string[]>([]);
 
   // Fetch active hierarchy data
   const { data: locationsData, isLoading, refetch } = useQuery({
@@ -60,84 +60,56 @@ export function LocationFilter({
         .eq('is_active', true)
         .maybeSingle();
 
-      if (versionError) {
+      if (versionError || !activeVersionData?.data || !Array.isArray(activeVersionData.data)) {
         console.error('Error fetching location hierarchy:', versionError);
-        return {
-          regions: [],
-          cities: {},
-          labels: { first: "", second: "" }
-        };
-      }
-
-      if (!activeVersionData?.data || !Array.isArray(activeVersionData.data)) {
-        console.log('No location hierarchy data found or invalid data format');
-        return {
-          regions: [],
-          cities: {},
-          labels: { first: "", second: "" }
-        };
+        return null;
       }
 
       try {
-        const hierarchyData = activeVersionData.data as LocationData[];
-        if (!hierarchyData.every(item => 
-          typeof item === 'object' && 
-          'region' in item && 
-          'city' in item
-        )) {
-          console.error('Invalid data format in hierarchy data');
-          return {
-            regions: [],
-            cities: {},
-            labels: { first: "", second: "" }
-          };
-        }
+        const hierarchyData = activeVersionData.data as HierarchyData[];
+        
+        // Get all possible columns from the first row
+        if (hierarchyData.length > 0) {
+          const columns = Object.keys(hierarchyData[0]);
+          setHierarchyLevels(columns);
 
-        const uniqueRegions = new Set<string>();
-        const citiesByRegion: { [key: string]: Set<string> } = {};
+          // Initialize hierarchy state
+          const newHierarchyState: HierarchyState = {};
+          columns.forEach(column => {
+            const uniqueValues = new Set(hierarchyData.map(row => row[column]).filter(Boolean));
+            newHierarchyState[column] = {
+              selected: 'all',
+              values: Array.from(uniqueValues).sort(),
+              label: column // Default label is column name
+            };
+          });
 
-        hierarchyData.forEach((row: LocationData) => {
-          if (row.region) {
-            uniqueRegions.add(row.region);
-            if (!citiesByRegion[row.region]) {
-              citiesByRegion[row.region] = new Set<string>();
-            }
-            if (row.city) {
-              citiesByRegion[row.region].add(row.city);
+          // Get the labels from the source file
+          if (activeVersionData.source_upload_id) {
+            const { data: sourceFile } = await supabase
+              .from('permanent_hierarchy_files')
+              .select('metadata')
+              .eq('id', activeVersionData.source_upload_id)
+              .maybeSingle();
+
+            if (sourceFile?.metadata && typeof sourceFile.metadata === 'object' && 'labels' in sourceFile.metadata) {
+              const labels = sourceFile.metadata.labels as Record<string, string>;
+              // Update labels in hierarchy state
+              Object.entries(labels).forEach(([column, label]) => {
+                if (newHierarchyState[column]) {
+                  newHierarchyState[column].label = label;
+                }
+              });
             }
           }
-        });
 
-        // Get the labels from the source file
-        if (activeVersionData.source_upload_id) {
-          const { data: sourceFile } = await supabase
-            .from('permanent_hierarchy_files')
-            .select('metadata')
-            .eq('id', activeVersionData.source_upload_id)
-            .maybeSingle();
-
-          if (sourceFile?.metadata && typeof sourceFile.metadata === 'object' && 'labels' in sourceFile.metadata) {
-            const labels = sourceFile.metadata.labels as HierarchyLabels;
-            setFilterLabels(labels);
-          }
+          setHierarchyState(newHierarchyState);
+          return hierarchyData;
         }
-
-        return {
-          regions: Array.from(uniqueRegions).sort(),
-          cities: Object.fromEntries(
-            Object.entries(citiesByRegion).map(([region, cities]) => [
-              region,
-              Array.from(cities).sort()
-            ])
-          )
-        };
       } catch (error) {
         console.error('Error processing location hierarchy data:', error);
-        return {
-          regions: [],
-          cities: {}
-        };
       }
+      return null;
     }
   });
 
@@ -160,9 +132,25 @@ export function LocationFilter({
     }
   });
 
+  const handleLevelChange = (level: string, value: string) => {
+    setHierarchyState(prev => {
+      const newState = { ...prev };
+      newState[level].selected = value;
+      
+      // Reset all dependent levels
+      const levelIndex = hierarchyLevels.indexOf(level);
+      hierarchyLevels.slice(levelIndex + 1).forEach(dependentLevel => {
+        if (newState[dependentLevel]) {
+          newState[dependentLevel].selected = 'all';
+        }
+      });
+
+      return newState;
+    });
+  };
+
   const handleImportHierarchy = async (fileId: string) => {
     try {
-      // Get the file data and metadata
       const { data: fileData, error: fileError } = await supabase
         .from('permanent_hierarchy_files')
         .select('data, metadata')
@@ -171,7 +159,6 @@ export function LocationFilter({
 
       if (fileError) throw fileError;
 
-      // Get the current max version
       const { data: versionData, error: versionError } = await supabase
         .from('permanent_hierarchy_data')
         .select('version')
@@ -208,15 +195,14 @@ export function LocationFilter({
 
       if (updateError) throw updateError;
 
-      // Update filter labels from metadata
-      if (fileData.metadata && typeof fileData.metadata === 'object' && 'labels' in fileData.metadata) {
-        const labels = fileData.metadata.labels as HierarchyLabels;
-        setFilterLabels(labels);
-      }
-
-      // Reset selections
-      setSelectedRegion('all');
-      setSelectedCity('all');
+      // Reset all selections
+      setHierarchyState(prev => {
+        const newState = { ...prev };
+        Object.keys(newState).forEach(level => {
+          newState[level].selected = 'all';
+        });
+        return newState;
+      });
 
       // Refetch the data
       await refetch();
@@ -234,13 +220,6 @@ export function LocationFilter({
       });
     }
   };
-
-  // Reset city when region changes
-  useEffect(() => {
-    if (selectedRegion === "all") {
-      setSelectedCity("all");
-    }
-  }, [selectedRegion, setSelectedCity]);
 
   if (isLoading) {
     return (
@@ -281,48 +260,33 @@ export function LocationFilter({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">{filterLabels.first || "Select First Level"}</label>
-            <Select
-              value={selectedRegion}
-              onValueChange={setSelectedRegion}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={`Select ${filterLabels.first || 'value'}`} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{`All ${filterLabels.first || 'Values'}`}</SelectItem>
-                {locationsData?.regions.map((region) => (
-                  <SelectItem key={region} value={region}>
-                    {region}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {hierarchyLevels.map((level) => (
+            <div key={level} className="space-y-2">
+              <label className="text-sm font-medium">
+                {hierarchyState[level]?.label || level}
+              </label>
+              <Select
+                value={hierarchyState[level]?.selected || 'all'}
+                onValueChange={(value) => handleLevelChange(level, value)}
+                disabled={!hierarchyState[level]?.values.length}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={`Select ${hierarchyState[level]?.label || level}`} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">
+                    {`All ${hierarchyState[level]?.label || level}`}
                   </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">{filterLabels.second || "Select Second Level"}</label>
-            <Select
-              value={selectedCity}
-              onValueChange={setSelectedCity}
-              disabled={selectedRegion === "all"}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={`Select ${filterLabels.second || 'value'}`} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{`All ${filterLabels.second || 'Values'}`}</SelectItem>
-                {selectedRegion !== "all" &&
-                  locationsData?.cities[selectedRegion]?.map((city) => (
-                    <SelectItem key={city} value={city}>
-                      {city}
+                  {hierarchyState[level]?.values.map((value) => (
+                    <SelectItem key={value} value={value}>
+                      {value}
                     </SelectItem>
                   ))}
-              </SelectContent>
-            </Select>
-          </div>
+                </SelectContent>
+              </Select>
+            </div>
+          ))}
         </div>
       </div>
     </Card>
