@@ -84,7 +84,7 @@ export function ReplenishmentUpload() {
       <FileUpload
         onUploadComplete={handleUploadComplete}
         allowedFileTypes={[".csv", ".xlsx"]}
-        maxSize={5}  {/* Changed from maxFileSize to maxSize */}
+        maxSize={5}  /* Changed from maxFileSize to maxSize */
       />
 
       {uploadedData.length > 0 && (
