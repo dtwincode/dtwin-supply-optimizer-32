@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +17,8 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
   const { user } = useAuth();
 
   const fetchSavedFiles = async () => {
+    if (!user) return;
+    
     try {
       setIsLoading(true);
       console.log('Fetching saved files...');
@@ -26,22 +27,24 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
         .from('permanent_hierarchy_files')
         .select('*')
         .eq('hierarchy_type', 'location_hierarchy')
-        .eq('created_by', user?.id)
-        .order('created_at', { ascending: false });
+        .eq('created_by', user.id);
 
       if (error) {
         console.error('Supabase fetch error:', error);
         throw error;
       }
 
-      // Additional deduplication by file_name
-      const uniqueFiles = data?.reduce((acc: SavedFile[], current) => {
-        const exists = acc.find(file => file.file_name === current.file_name);
-        if (!exists) {
-          acc.push(current);
-        }
-        return acc;
-      }, []) || [];
+      // Simple deduplication by file_name, keeping only the latest version
+      const uniqueFiles = Object.values(
+        data.reduce((acc: Record<string, SavedFile>, current) => {
+          // Only keep the file if it's newer than what we have
+          if (!acc[current.file_name] || 
+              new Date(current.created_at) > new Date(acc[current.file_name].created_at)) {
+            acc[current.file_name] = current;
+          }
+          return acc;
+        }, {})
+      );
 
       console.log('Fetched unique files:', uniqueFiles.length);
       setFiles(uniqueFiles);
@@ -60,42 +63,54 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
   };
 
   useEffect(() => {
-    if (user) {
-      console.log('Refresh triggered:', triggerRefresh);
-      fetchSavedFiles();
-    }
+    fetchSavedFiles();
   }, [triggerRefresh, user]);
 
   const handleDelete = async (fileId: string) => {
+    if (!user || !fileId) return;
+
     try {
       setIsLoading(true);
       console.log('Deleting file:', fileId);
-      
-      // First, delete all references to this file
+
+      // First, get the file details to ensure we delete all related records
+      const { data: fileData, error: fetchError } = await supabase
+        .from('permanent_hierarchy_files')
+        .select('file_name')
+        .eq('id', fileId)
+        .single();
+
+      if (fetchError) {
+        throw fetchError;
+      }
+
+      if (!fileData) {
+        throw new Error('File not found');
+      }
+
+      // Delete all records with this file_name for this user
       const { error: deleteError } = await supabase
         .from('permanent_hierarchy_files')
         .delete()
-        .match({ 
-          id: fileId,
-          created_by: user?.id // Ensure user can only delete their own files
-        });
+        .eq('file_name', fileData.file_name)
+        .eq('created_by', user.id);
 
       if (deleteError) {
         console.error('Supabase delete error:', deleteError);
         throw deleteError;
       }
 
-      // Update local state after successful deletion
-      setFiles(prevFiles => prevFiles.filter(f => f.id !== fileId));
-      
+      // Immediately update local state
+      setFiles(prevFiles => prevFiles.filter(f => f.file_name !== fileData.file_name));
+
       toast({
         title: "Success",
         description: "File deleted successfully",
       });
-      
+
       // Refresh the file list to ensure we have the latest data
       await fetchSavedFiles();
-      
+
     } catch (error) {
       console.error('Error deleting file:', error);
       toast({
