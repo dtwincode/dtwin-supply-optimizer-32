@@ -1,146 +1,108 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { FileUpload } from "../upload/FileUpload";
-import { HierarchyTableView } from "../hierarchy/HierarchyTableView";
-import { useToast } from "@/hooks/use-toast";
-import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
-import { useQueryClient } from "@tanstack/react-query";
-import { TableRowData, ColumnHeader } from "../hierarchy/types";
-import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { ColumnSelector } from "./components/ColumnSelector";
 import { SavedLocationFiles } from "./SavedLocationFiles";
+import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export function LocationHierarchyUpload() {
-  const [uploadedData, setUploadedData] = useState<TableRowData[]>([]);
+  const [uploadedData, setUploadedData] = useState<any[] | null>(null);
   const [tempUploadId, setTempUploadId] = useState<string | null>(null);
+  const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set());
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [showSavedFiles, setShowSavedFiles] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const { user, isLoading } = useAuth();
-  const navigate = useNavigate();
+  const [isSaving, setIsSaving] = useState(false);
 
-  useEffect(() => {
-    if (!isLoading && !user) {
-      navigate('/auth');
-    }
-  }, [user, isLoading, navigate]);
-
-  const handleUploadComplete = async (data: TableRowData[], originalFileName: string) => {
-    if (!user) {
-      toast({
-        variant: "destructive",
-        title: "Authentication Required",
-        description: "Please log in to update location hierarchy",
-      });
-      return;
-    }
-
+  const handleUploadSuccess = (data: any[], uploadId: string) => {
     setUploadedData(data);
+    setTempUploadId(uploadId);
+    setError(null);
+  };
+
+  const handleUploadError = (error: string) => {
+    setError(error);
+    setUploadedData(null);
+    setTempUploadId(null);
+    toast({
+      variant: "destructive",
+      title: "Upload Error",
+      description: error
+    });
+  };
+
+  const handleSaveSuccess = async () => {
+    if (isSaving) return; // Prevent multiple saves
 
     try {
-      const tempFileName = `temp_location_hierarchy_${new Date().getTime()}`;
+      setIsSaving(true);
+      // Reset upload state
+      setUploadedData(null);
+      setTempUploadId(null);
+      setSelectedColumns(new Set());
       
-      // Save to temporary storage first
-      const { data: tempUpload, error: tempError } = await supabase
-        .from('temp_hierarchy_uploads')
-        .insert({
-          filename: tempFileName,
-          original_name: originalFileName,
-          hierarchy_type: 'location_hierarchy',
-          file_type: originalFileName.split('.').pop()?.toLowerCase() || 'csv',
-          storage_path: `/temp/${tempFileName}`,
-          processed_by: user.id,
-          row_count: data.length,
-          headers: Object.keys(data[0]),
-          sample_data: data.slice(0, 5),
-          status: 'pending'
-        })
-        .select()
-        .single();
-
-      if (tempError) throw tempError;
-
-      // Store the temporary upload ID
-      setTempUploadId(tempUpload.id);
-
+      // Trigger refresh of saved files
+      setRefreshTrigger(prev => prev + 1);
+      
       toast({
         title: "Success",
-        description: "File uploaded successfully. Select columns to continue.",
+        description: "File saved and processed successfully"
       });
     } catch (error) {
-      console.error('Error saving temporary data:', error);
+      console.error('Error in save process:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to save temporary data"
+        description: "Failed to complete save process"
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const handleSaveSuccess = () => {
-    // Only show saved files list after a successful save
-    setShowSavedFiles(true);
-    // Trigger a refresh of the saved files list
-    setRefreshTrigger(prev => prev + 1);
-  };
-
-  // Get column headers from the first row of data
-  const columns = uploadedData.length > 0 
-    ? Object.keys(uploadedData[0])
-    : [];
-
-  // Create combined headers with sample data
-  const combinedHeaders: ColumnHeader[] = columns.map(column => ({
-    column,
-    sampleData: uploadedData[0]?.[column]?.toString() || ''
-  }));
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!user) {
-    return null;
-  }
-
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <h3 className="text-xl font-semibold tracking-tight">Location Hierarchy</h3>
-          <p className="text-sm text-muted-foreground">
-            Upload and manage your location hierarchy data
-          </p>
-        </div>
-      </div>
-
-      <FileUpload
-        onUploadComplete={handleUploadComplete}
-        allowedFileTypes={[".csv", ".xlsx"]}
-        maxFileSize={5}
-      />
-
-      {uploadedData.length > 0 && (
-        <div className="space-y-2">
-          <Badge variant="secondary" className="h-7">
-            {uploadedData.length} records
-          </Badge>
-          <HierarchyTableView 
-            data={uploadedData}
-            tableName="location_hierarchy"
-            columns={columns}
-            combinedHeaders={combinedHeaders}
-            tempUploadId={tempUploadId}
-            onSaveSuccess={handleSaveSuccess}
-          />
-        </div>
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
 
-      {showSavedFiles && (
-        <SavedLocationFiles triggerRefresh={refreshTrigger} />
-      )}
+      <Card>
+        <CardContent className="p-6">
+          <div className="space-y-6">
+            <FileUpload
+              module="location_hierarchy"
+              onUploadSuccess={handleUploadSuccess}
+              onUploadError={handleUploadError}
+              accept={{
+                'text/csv': ['.csv'],
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+              }}
+              maxSize={5 * 1024 * 1024} // 5MB
+            />
+
+            {uploadedData && tempUploadId && (
+              <ColumnSelector
+                tableName="location_hierarchy"
+                combinedHeaders={uploadedData[0] ? Object.keys(uploadedData[0]).map(header => ({
+                  header,
+                  level: null
+                })) : []}
+                selectedColumns={selectedColumns}
+                onSelectedColumnsChange={setSelectedColumns}
+                tempUploadId={tempUploadId}
+                data={uploadedData}
+                onSaveSuccess={handleSaveSuccess}
+              />
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      <SavedLocationFiles triggerRefresh={refreshTrigger} />
     </div>
   );
 }
