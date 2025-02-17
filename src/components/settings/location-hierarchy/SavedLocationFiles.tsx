@@ -20,27 +20,24 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
   const fetchSavedFiles = async () => {
     try {
       setIsLoading(true);
+      console.log('Fetching saved files...');
+      
       const { data, error } = await supabase
         .from('permanent_hierarchy_files')
         .select('*')
         .eq('hierarchy_type', 'location_hierarchy')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(100); // Limit to prevent loading too many files
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase fetch error:', error);
+        throw error;
+      }
 
-      // Remove any duplicates based on file name and created_at
-      const uniqueFiles = data?.reduce((acc: SavedFile[], current) => {
-        const exists = acc.find(file => 
-          file.original_name === current.original_name && 
-          file.created_at === current.created_at
-        );
-        if (!exists) {
-          acc.push(current);
-        }
-        return acc;
-      }, []) || [];
+      console.log('Fetched files:', data?.length);
 
-      setFiles(uniqueFiles);
+      // Set files directly without additional filtering since we have DB constraints now
+      setFiles(data || []);
       setError(null);
     } catch (error) {
       console.error('Error fetching files:', error);
@@ -56,6 +53,7 @@ export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesPro
   };
 
   useEffect(() => {
+    console.log('Refresh triggered:', triggerRefresh);
     fetchSavedFiles();
   }, [triggerRefresh]);
 
