@@ -34,13 +34,16 @@ export function LocationHierarchyUpload() {
   };
 
   const handleSaveSuccess = async () => {
-    if (isSaving) return;
+    if (isSaving) return; // Prevent multiple saves
 
     try {
       setIsSaving(true);
+      // Reset upload state
       setUploadedData(null);
       setTempUploadId(null);
       setSelectedColumns(new Set());
+      
+      // Trigger refresh of saved files
       setRefreshTrigger(prev => prev + 1);
       
       toast({
@@ -72,7 +75,6 @@ export function LocationHierarchyUpload() {
           <div className="space-y-6">
             <FileUpload
               onUploadComplete={(data, fileName) => {
-                console.log("Upload complete:", data); // Add logging
                 handleUploadSuccess(data, `location_${new Date().getTime()}`);
               }}
               allowedFileTypes={[".csv", ".xlsx"]}
