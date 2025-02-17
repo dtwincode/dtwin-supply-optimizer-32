@@ -12,8 +12,6 @@ interface ChannelFilterProps {
   setSelectedChannel: (channel: string) => void;
   selectedWarehouse: string;
   setSelectedWarehouse: (warehouse: string) => void;
-  channelTypes: string[];
-  warehouses: string[];
 }
 
 export const ChannelFilter = ({
@@ -21,8 +19,6 @@ export const ChannelFilter = ({
   setSelectedChannel,
   selectedWarehouse,
   setSelectedWarehouse,
-  channelTypes,
-  warehouses,
 }: ChannelFilterProps) => {
   return (
     <div className="flex gap-4">
@@ -32,9 +28,9 @@ export const ChannelFilter = ({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Channels</SelectItem>
-          {channelTypes.map(channel => (
-            <SelectItem key={channel} value={channel}>{channel}</SelectItem>
-          ))}
+          <SelectItem value="retail">Retail</SelectItem>
+          <SelectItem value="online">Online</SelectItem>
+          <SelectItem value="wholesale">Wholesale</SelectItem>
         </SelectContent>
       </Select>
       
@@ -44,9 +40,9 @@ export const ChannelFilter = ({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Warehouses</SelectItem>
-          {warehouses.map(warehouse => (
-            <SelectItem key={warehouse} value={warehouse}>{warehouse}</SelectItem>
-          ))}
+          <SelectItem value="north">North Warehouse</SelectItem>
+          <SelectItem value="south">South Warehouse</SelectItem>
+          <SelectItem value="central">Central Warehouse</SelectItem>
         </SelectContent>
       </Select>
     </div>

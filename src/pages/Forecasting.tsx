@@ -25,7 +25,6 @@ const Forecasting = () => {
   const [isProductExpanded, setIsProductExpanded] = useState(false);
   const [isLocationExpanded, setIsLocationExpanded] = useState(false);
 
-  // Use localStorage to persist filter selections
   const [selectedL1MainProd, setSelectedL1MainProd] = useLocalStorage('selectedL1MainProd', 'all');
   const [selectedL2ProdLine, setSelectedL2ProdLine] = useLocalStorage('selectedL2ProdLine', 'all');
   const [selectedL3ProdCategory, setSelectedL3ProdCategory] = useLocalStorage('selectedL3ProdCategory', 'all');
@@ -35,11 +34,15 @@ const Forecasting = () => {
   const [selectedL7DeviceColor, setSelectedL7DeviceColor] = useLocalStorage('selectedL7DeviceColor', 'all');
   const [selectedL8DeviceStorage, setSelectedL8DeviceStorage] = useLocalStorage('selectedL8DeviceStorage', 'all');
 
-  // Time period states
-  const [trainingFromDate, setTrainingFromDate] = useLocalStorage('trainingFromDate', new Date('2024-01-01').toISOString());
-  const [trainingToDate, setTrainingToDate] = useLocalStorage('trainingToDate', new Date('2024-09-30').toISOString());
-  const [testingFromDate, setTestingFromDate] = useLocalStorage('testingFromDate', new Date('2024-10-01').toISOString());
-  const [testingToDate, setTestingToDate] = useLocalStorage('testingToDate', new Date('2024-12-31').toISOString());
+  const [selectedChannel, setSelectedChannel] = useLocalStorage('selectedChannel', 'all');
+  const [selectedWarehouse, setSelectedWarehouse] = useLocalStorage('selectedWarehouse', 'all');
+  
+  const [searchQuery, setSearchQuery] = useLocalStorage('searchQuery', '');
+
+  const trainingFromDate = useLocalStorage('trainingFromDate', new Date('2024-01-01').toISOString());
+  const trainingToDate = useLocalStorage('trainingToDate', new Date('2024-09-30').toISOString());
+  const testingFromDate = useLocalStorage('testingFromDate', new Date('2024-10-01').toISOString());
+  const testingToDate = useLocalStorage('testingToDate', new Date('2024-12-31').toISOString());
 
   const dummyData = {
     filteredData: [{
@@ -156,7 +159,6 @@ const Forecasting = () => {
         </div>
 
         <div className="px-6 space-y-6 mt-6">
-          {/* Time Period Selection */}
           <div className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40">
             <Button
               variant="ghost"
@@ -204,7 +206,6 @@ const Forecasting = () => {
             )}
           </div>
 
-          {/* Product Hierarchy */}
           <div className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40">
             <Button
               variant="ghost"
@@ -251,7 +252,6 @@ const Forecasting = () => {
             )}
           </div>
 
-          {/* Location Hierarchy */}
           <div className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40">
             <Button
               variant="ghost"
@@ -280,9 +280,11 @@ const Forecasting = () => {
             )}
           </div>
 
-          {/* Routes */}
           <Routes>
-            <Route index element={<ForecastAnalysisTab filteredData={dummyData.filteredData} confidenceIntervals={dummyData.confidenceIntervals} />} />
+            <Route index element={<ForecastAnalysisTab 
+              filteredData={dummyData.filteredData} 
+              confidenceIntervals={dummyData.confidenceIntervals} 
+            />} />
             <Route path="distribution" element={<ForecastDistributionTab forecastTableData={dummyData.forecastTableData} />} />
             <Route path="descriptive" element={<DescriptiveAnalysisTab filteredData={dummyData.filteredData} />} />
             <Route path="pattern" element={<DecompositionTab filteredData={dummyData.filteredData} decomposition={dummyData.decomposition} />} />
