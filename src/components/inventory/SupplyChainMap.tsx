@@ -86,13 +86,13 @@ export const SupplyChainMap = () => {
     async function initializeMapWithToken() {
       try {
         setIsLoading(true);
-        const { data: secretData, error: tokenError } = await supabase
+        const { data, error: tokenError } = await supabase
           .from('secrets')
-          .select('*')
+          .select('value')
           .eq('name', 'MAPBOX_PUBLIC_TOKEN')
-          .single();
+          .maybeSingle<Secret>();
 
-        if (tokenError || !secretData?.value) {
+        if (tokenError || !data?.value) {
           setError("Unable to load map configuration. Please try again later.");
           toast({
             title: "Error",
@@ -105,7 +105,7 @@ export const SupplyChainMap = () => {
         if (!mapContainer.current || !locations.length || isMapInitialized) return;
 
         // Initialize map
-        mapboxgl.accessToken = secretData.value;
+        mapboxgl.accessToken = data.value;
         
         map.current = new mapboxgl.Map({
           container: mapContainer.current,
