@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -33,60 +33,7 @@ export function LocationFilter() {
     setHierarchyState({});
   };
 
-  const {
-    data: locationsData,
-    isLoading,
-    refetch
-  } = useQuery({
-    queryKey: ['locations', 'hierarchy'],
-    enabled: false, // Disable automatic fetching
-    queryFn: async () => {
-      const { data: activeVersionData, error: versionError } = await supabase
-        .from('permanent_hierarchy_data')
-        .select('data')
-        .eq('hierarchy_type', 'location_hierarchy')
-        .eq('is_active', true)
-        .maybeSingle();
-
-      if (versionError) {
-        console.error('Error fetching location hierarchy:', versionError);
-        clearHierarchyState();
-        return null;
-      }
-
-      if (!activeVersionData?.data || !Array.isArray(activeVersionData.data)) {
-        clearHierarchyState();
-        return null;
-      }
-
-      try {
-        const hierarchyData = activeVersionData.data as HierarchyData[];
-        if (hierarchyData.length > 0) {
-          const columns = Object.keys(hierarchyData[0]);
-          const newHierarchyState: HierarchyState = {};
-          
-          columns.forEach(column => {
-            const uniqueValues = new Set(hierarchyData.map(row => row[column]).filter(Boolean));
-            newHierarchyState[column] = {
-              selected: 'all',
-              values: Array.from(uniqueValues).sort()
-            };
-          });
-
-          setHierarchyLevels(columns);
-          setHierarchyState(newHierarchyState);
-          setHasActiveHierarchy(true);
-          return hierarchyData;
-        }
-      } catch (error) {
-        console.error('Error processing location hierarchy data:', error);
-      }
-      
-      clearHierarchyState();
-      return null;
-    }
-  });
-
+  // Fetch saved files
   const {
     data: savedFiles,
     isLoading: isLoadingFiles,
@@ -109,12 +56,64 @@ export function LocationFilter() {
     }
   });
 
+  // Fetch active hierarchy data
+  const {
+    data: locationsData,
+    isLoading,
+    refetch
+  } = useQuery({
+    queryKey: ['locations', 'hierarchy'],
+    enabled: false,
+    queryFn: async () => {
+      const { data: activeVersionData, error: versionError } = await supabase
+        .from('permanent_hierarchy_data')
+        .select('data')
+        .eq('hierarchy_type', 'location_hierarchy')
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (versionError || !activeVersionData?.data || !Array.isArray(activeVersionData.data)) {
+        clearHierarchyState();
+        return null;
+      }
+
+      const hierarchyData = activeVersionData.data as HierarchyData[];
+      if (hierarchyData.length === 0) {
+        clearHierarchyState();
+        return null;
+      }
+
+      const columns = Object.keys(hierarchyData[0]);
+      const newHierarchyState: HierarchyState = {};
+      
+      columns.forEach(column => {
+        const uniqueValues = new Set(hierarchyData.map(row => row[column]).filter(Boolean));
+        newHierarchyState[column] = {
+          selected: 'all',
+          values: Array.from(uniqueValues).sort()
+        };
+      });
+
+      setHierarchyLevels(columns);
+      setHierarchyState(newHierarchyState);
+      setHasActiveHierarchy(true);
+      return hierarchyData;
+    }
+  });
+
+  // Check for active hierarchy on component mount
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
+
   const handleLevelChange = (level: string, value: string) => {
-    setHierarchyState(prev => {
-      const newState = { ...prev };
-      newState[level].selected = value;
-      return newState;
-    });
+    setHierarchyState(prev => ({
+      ...prev,
+      [level]: {
+        ...prev[level],
+        selected: value
+      }
+    }));
   };
 
   const handleImportHierarchy = async (fileId: string) => {
@@ -127,7 +126,7 @@ export function LocationFilter() {
 
       if (fileError) throw fileError;
 
-      const { data: versionData, error: versionError } = await supabase
+      const { data: versionData } = await supabase
         .from('permanent_hierarchy_data')
         .select('version')
         .eq('hierarchy_type', 'location_hierarchy')
@@ -137,11 +136,13 @@ export function LocationFilter() {
 
       const nextVersion = (versionData?.version || 0) + 1;
 
+      // Deactivate current active hierarchy
       await supabase
         .from('permanent_hierarchy_data')
         .update({ is_active: false })
         .eq('hierarchy_type', 'location_hierarchy');
 
+      // Insert new active hierarchy
       const { error: insertError } = await supabase
         .from('permanent_hierarchy_data')
         .insert({
@@ -155,7 +156,6 @@ export function LocationFilter() {
       if (insertError) throw insertError;
 
       await refetch();
-
       toast({
         title: "Success",
         description: "Location hierarchy imported successfully"
