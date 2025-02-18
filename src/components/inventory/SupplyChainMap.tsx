@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -15,11 +14,6 @@ interface Location {
   type: string;
   level: number;
   parent_id: string | null;
-}
-
-interface Secret {
-  name: string;
-  value: string;
 }
 
 const sampleLocations: Location[] = [
