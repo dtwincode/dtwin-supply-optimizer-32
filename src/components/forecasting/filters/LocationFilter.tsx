@@ -1,97 +1,339 @@
 
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Loader2, FileInput, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { useLocation } from "react-router-dom";
 import { useFilters } from "@/contexts/FilterContext";
-import { ArrowUpToLine, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 interface LocationFilterData {
   [key: string]: string[];
 }
 
 export function LocationFilter() {
+  const { toast } = useToast();
   const location = useLocation();
   const currentTab = location.pathname.split('/').pop() || 'analysis';
-  const { getLocationState, setLocationState } = useFilters();
+  
+  const [fileToDelete, setFileToDelete] = useState<string | null>(null);
+  const [isLoadingHierarchy, setIsLoadingHierarchy] = useState(false);
+  
+  const {
+    getLocationState,
+    setLocationState,
+    getHierarchyLevels,
+    setHierarchyLevels,
+    getHasActiveHierarchy,
+    setHasActiveHierarchy
+  } = useFilters();
 
-  const { data: locationData, isLoading } = useQuery({
-    queryKey: ['location-hierarchy', currentTab],
+  const hierarchyState = getLocationState(currentTab);
+  const hierarchyLevels = getHierarchyLevels(currentTab);
+  const hasActiveHierarchy = getHasActiveHierarchy(currentTab);
+
+  const clearHierarchyState = () => {
+    setHasActiveHierarchy(currentTab, false);
+    setHierarchyLevels(currentTab, []);
+    setLocationState(currentTab, {});
+  };
+
+  const {
+    data: savedFiles,
+    isLoading: isLoadingFiles,
+    refetch: refetchFiles
+  } = useQuery({
+    queryKey: ['saved-location-hierarchies', currentTab],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: files, error } = await supabase
+        .from('permanent_hierarchy_files')
+        .select('*')
+        .eq('hierarchy_type', 'location_hierarchy')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching saved hierarchies:', error);
+        return [];
+      }
+
+      return files || [];
+    }
+  });
+
+  const fetchActiveHierarchy = async () => {
+    setIsLoadingHierarchy(true);
+    try {
+      const { data: activeVersionData, error: versionError } = await supabase
         .from('permanent_hierarchy_data')
         .select('data')
         .eq('hierarchy_type', 'location_hierarchy')
         .eq('is_active', true)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (versionError || !activeVersionData?.data || !Array.isArray(activeVersionData.data)) {
+        clearHierarchyState();
+        return;
+      }
+
+      const hierarchyData = activeVersionData.data as LocationFilterData[];
+      if (hierarchyData.length === 0) {
+        clearHierarchyState();
+        return;
+      }
+
+      const columns = Object.keys(hierarchyData[0]);
+      const newHierarchyState: Record<string, { selected: string; values: string[] }> = {};
       
-      const hierarchyData = data?.data || {};
-      const formattedData: LocationFilterData = {};
-      Object.entries(hierarchyData).forEach(([key, value]) => {
-        if (Array.isArray(value)) {
-          formattedData[key] = value;
-        }
+      columns.forEach(column => {
+        const uniqueValues = new Set(hierarchyData.map(row => row[column]).filter(Boolean));
+        newHierarchyState[column] = {
+          selected: column,
+          values: Array.from(uniqueValues).sort()
+        };
       });
 
-      return formattedData;
+      setHierarchyLevels(currentTab, columns);
+      setLocationState(currentTab, newHierarchyState);
+      setHasActiveHierarchy(currentTab, true);
+    } catch (error) {
+      console.error('Error fetching hierarchy:', error);
+      clearHierarchyState();
+    } finally {
+      setIsLoadingHierarchy(false);
     }
-  });
+  };
 
-  if (isLoading) {
-    return <div>Loading locations...</div>;
-  }
+  const handleLevelChange = (level: string, value: string) => {
+    setLocationState(currentTab, {
+      ...hierarchyState,
+      [level]: {
+        ...hierarchyState[level],
+        selected: value
+      }
+    });
+  };
 
-  const hasData = locationData && Object.keys(locationData).length > 0;
+  const handleImportHierarchy = async (fileId: string) => {
+    setIsLoadingHierarchy(true);
+    try {
+      const { data: fileData, error: fileError } = await supabase
+        .from('permanent_hierarchy_files')
+        .select('data')
+        .eq('id', fileId)
+        .single();
 
-  return (
-    <div className="rounded-[32px] border border-[#F4F6F8] bg-white shadow-[0px_8px_16px_rgba(145,158,171,0.16)]">
-      <div className="flex items-center justify-between border-b border-[#F4F6F8] px-8 py-6">
-        <h2 className="text-[32px] font-bold text-[#2065D1]">Location Hierarchy</h2>
-        <div className="flex items-center gap-3 text-[#637381]">
-          <span className="text-[15px]">Click to collapse</span>
-          <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none">
-            <path d="M12 15.713L18.01 9.70299L16.597 8.28799L12 12.888L7.40399 8.28799L5.98999 9.70199L12 15.713Z" fill="currentColor"/>
-          </svg>
+      if (fileError) throw fileError;
+
+      const { data: versionData } = await supabase
+        .from('permanent_hierarchy_data')
+        .select('version')
+        .eq('hierarchy_type', 'location_hierarchy')
+        .order('version', { ascending: false })
+        .limit(1)
+        .single();
+
+      const nextVersion = (versionData?.version || 0) + 1;
+
+      await supabase
+        .from('permanent_hierarchy_data')
+        .update({ is_active: false })
+        .eq('hierarchy_type', 'location_hierarchy');
+
+      const { error: insertError } = await supabase
+        .from('permanent_hierarchy_data')
+        .insert({
+          hierarchy_type: 'location_hierarchy',
+          data: fileData.data,
+          is_active: true,
+          version: nextVersion,
+          source_upload_id: fileId
+        });
+
+      if (insertError) throw insertError;
+
+      await fetchActiveHierarchy();
+
+      toast({
+        title: "Success",
+        description: "Location hierarchy imported successfully"
+      });
+    } catch (error) {
+      console.error('Error importing hierarchy:', error);
+      clearHierarchyState();
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to import location hierarchy"
+      });
+    } finally {
+      setIsLoadingHierarchy(false);
+    }
+  };
+
+  const handleDeleteFile = async (fileId: string) => {
+    try {
+      const { data: activeData } = await supabase
+        .from('permanent_hierarchy_data')
+        .select('id')
+        .eq('source_upload_id', fileId)
+        .eq('is_active', true)
+        .single();
+
+      const { error: deleteError } = await supabase
+        .from('permanent_hierarchy_files')
+        .delete()
+        .eq('id', fileId);
+
+      if (deleteError) throw deleteError;
+
+      if (activeData) {
+        clearHierarchyState();
+      }
+
+      await refetchFiles();
+
+      toast({
+        title: "Success",
+        description: "File deleted successfully"
+      });
+    } catch (error) {
+      console.error('Error deleting file:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete file"
+      });
+    } finally {
+      setFileToDelete(null);
+    }
+  };
+
+  if (isLoadingFiles || isLoadingHierarchy) {
+    return (
+      <div className="w-full">
+        <div className="flex items-center justify-center space-x-2">
+          <Loader2 className="h-5 w-5 animate-spin text-primary" />
         </div>
       </div>
-      
-      {!hasData ? (
-        <div className="px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-2xl font-bold text-[#212B36]">Location Filters</h3>
-              <p className="mt-2 text-[15px] text-[#637381]">Filter by location hierarchy</p>
-            </div>
-            <div className="flex gap-3">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-10 w-10 rounded-lg hover:bg-[#919EAB14]"
-              >
-                <ArrowUpToLine className="h-5 w-5 text-[#212B36]" />
+    );
+  }
+
+  return (
+    <div className="w-full space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-medium">Location Filters</h3>
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <FileInput className="h-4 w-4" />
               </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-10 w-10 rounded-lg hover:bg-[#919EAB14]"
-              >
-                <Trash2 className="h-5 w-5 text-[#212B36]" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[200px]">
+              {savedFiles && savedFiles.length > 0 ? (
+                savedFiles.map(file => (
+                  <DropdownMenuItem 
+                    key={file.id}
+                    onSelect={() => handleImportHierarchy(file.id)}
+                  >
+                    {file.original_name}
+                  </DropdownMenuItem>
+                ))
+              ) : (
+                <DropdownMenuItem disabled>
+                  No saved files
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <Trash2 className="h-4 w-4 text-destructive" />
               </Button>
-            </div>
-          </div>
-          <div className="mt-12 flex flex-col items-center justify-center text-center">
-            <p className="text-[22px] text-[#637381]">
-              No active hierarchy. Please select a file to import.
-            </p>
-          </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[200px]">
+              {savedFiles && savedFiles.length > 0 ? (
+                savedFiles.map(file => (
+                  <DropdownMenuItem 
+                    key={file.id}
+                    className="flex items-center justify-between"
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      setFileToDelete(file.id);
+                    }}
+                  >
+                    <span>{file.original_name}</span>
+                    <Trash2 className="h-4 w-4 text-destructive ml-2" />
+                  </DropdownMenuItem>
+                ))
+              ) : (
+                <DropdownMenuItem disabled>
+                  No saved files
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+
+      {!hasActiveHierarchy ? (
+        <div className="flex items-center justify-center p-4">
+          <p className="text-sm text-muted-foreground">No active hierarchy. Please select a file to import.</p>
         </div>
       ) : (
-        <div className="px-8 py-6">
-          {/* Will be populated when there's data */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {hierarchyLevels.map(level => (
+            <div key={level} className="space-y-2">
+              <label htmlFor={level} className="text-sm font-medium text-muted-foreground">
+                {level}
+              </label>
+              <Select
+                value={hierarchyState[level]?.selected || level}
+                onValueChange={value => handleLevelChange(level, value)}
+                disabled={!hierarchyState[level]?.values.length}
+              >
+                <SelectTrigger id={level}>
+                  <SelectValue placeholder={level} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={level}>{level}</SelectItem>
+                  {hierarchyState[level]?.values.map(value => (
+                    <SelectItem key={value} value={value}>
+                      {value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ))}
         </div>
       )}
+
+      <AlertDialog open={!!fileToDelete} onOpenChange={() => setFileToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete File</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this file? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => fileToDelete && handleDeleteFile(fileToDelete)}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
