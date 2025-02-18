@@ -27,12 +27,19 @@ export function LocationFilter() {
   const [hasActiveHierarchy, setHasActiveHierarchy] = useState(false);
   const [fileToDelete, setFileToDelete] = useState<string | null>(null);
 
+  const clearHierarchyState = () => {
+    setHasActiveHierarchy(false);
+    setHierarchyLevels([]);
+    setHierarchyState({});
+  };
+
   const {
     data: locationsData,
     isLoading,
     refetch
   } = useQuery({
     queryKey: ['locations', 'hierarchy'],
+    enabled: false, // Disable automatic fetching
     queryFn: async () => {
       const { data: activeVersionData, error: versionError } = await supabase
         .from('permanent_hierarchy_data')
@@ -43,25 +50,21 @@ export function LocationFilter() {
 
       if (versionError) {
         console.error('Error fetching location hierarchy:', versionError);
-        setHasActiveHierarchy(false);
+        clearHierarchyState();
         return null;
       }
 
       if (!activeVersionData?.data || !Array.isArray(activeVersionData.data)) {
-        setHasActiveHierarchy(false);
-        setHierarchyLevels([]);
-        setHierarchyState({});
+        clearHierarchyState();
         return null;
       }
 
       try {
         const hierarchyData = activeVersionData.data as HierarchyData[];
         if (hierarchyData.length > 0) {
-          setHasActiveHierarchy(true);
           const columns = Object.keys(hierarchyData[0]);
-          setHierarchyLevels(columns);
-
           const newHierarchyState: HierarchyState = {};
+          
           columns.forEach(column => {
             const uniqueValues = new Set(hierarchyData.map(row => row[column]).filter(Boolean));
             newHierarchyState[column] = {
@@ -69,16 +72,17 @@ export function LocationFilter() {
               values: Array.from(uniqueValues).sort()
             };
           });
+
+          setHierarchyLevels(columns);
           setHierarchyState(newHierarchyState);
+          setHasActiveHierarchy(true);
           return hierarchyData;
         }
       } catch (error) {
         console.error('Error processing location hierarchy data:', error);
       }
       
-      setHasActiveHierarchy(false);
-      setHierarchyLevels([]);
-      setHierarchyState({});
+      clearHierarchyState();
       return null;
     }
   });
@@ -158,6 +162,7 @@ export function LocationFilter() {
       });
     } catch (error) {
       console.error('Error importing hierarchy:', error);
+      clearHierarchyState();
       toast({
         variant: "destructive",
         title: "Error",
@@ -183,9 +188,7 @@ export function LocationFilter() {
       if (deleteError) throw deleteError;
 
       if (activeData) {
-        setHasActiveHierarchy(false);
-        setHierarchyLevels([]);
-        setHierarchyState({});
+        clearHierarchyState();
       }
 
       await refetchFiles();
