@@ -12,17 +12,18 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { ProductHierarchyFilter } from "@/components/forecasting/filters/ProductHierarchyFilter";
 import { LocationFilter } from "@/components/forecasting/filters/LocationFilter";
-import { ForecastDataPoint } from "@/types/forecasting";
 import { Card } from "@/components/ui/card";
 import { ForecastingDateRange } from "@/components/forecasting/ForecastingDateRange";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useLocalStorage } from "@/hooks/use-local-storage";
-import { getTranslation } from "@/utils/translation";
+import { getTranslation } from "@/translations";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Forecasting = () => {
   const location = useLocation();
   const currentPath = location.pathname;
+  const { language } = useLanguage();
 
   const [isTimeExpanded, setIsTimeExpanded] = useState(false);
   const [isProductExpanded, setIsProductExpanded] = useState(false);
