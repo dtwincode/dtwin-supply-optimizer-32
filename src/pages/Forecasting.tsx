@@ -13,24 +13,22 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { ProductHierarchyFilter } from "@/components/forecasting/filters/ProductHierarchyFilter";
 import { LocationFilter } from "@/components/forecasting/filters/LocationFilter";
+import { ForecastDataPoint } from "@/types/forecasting";
 import { Card } from "@/components/ui/card";
 import { ForecastingDateRange } from "@/components/forecasting/ForecastingDateRange";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useLocalStorage } from "@/hooks/use-local-storage";
-import { getTranslation } from "@/translations";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { ForecastDataPoint } from "@/types/forecasting";
 
 const Forecasting = () => {
   const location = useLocation();
   const currentPath = location.pathname;
-  const { language } = useLanguage();
 
   const [isTimeExpanded, setIsTimeExpanded] = useState(false);
   const [isProductExpanded, setIsProductExpanded] = useState(false);
   const [isLocationExpanded, setIsLocationExpanded] = useState(false);
 
+  // Tab-specific localStorage keys
   const getStorageKey = (base: string) => `${base}_${currentPath.split('/').pop() || 'analysis'}`;
 
   const [trainingFromDate, setTrainingFromDate] = useLocalStorage(
@@ -50,6 +48,7 @@ const Forecasting = () => {
     new Date('2024-12-31').toISOString()
   );
 
+  // Reset expansion state when changing tabs
   useEffect(() => {
     setIsTimeExpanded(false);
     setIsProductExpanded(false);
@@ -155,6 +154,7 @@ const Forecasting = () => {
     }
   };
 
+  // Function to determine if filters should be shown for current tab
   const shouldShowFilters = () => {
     const path = currentPath.split('/').pop() || '';
     switch (path) {
@@ -176,14 +176,9 @@ const Forecasting = () => {
     <DashboardLayout>
       <div className="flex flex-col">
         <div className="px-6 py-6">
-          <h1 className="text-3xl font-semibold tracking-tight">
-            {getTranslation("navigationItems.forecasting", language)}
-          </h1>
+          <h1 className="text-3xl font-semibold tracking-tight">Demand Forecasting</h1>
           <p className="text-muted-foreground mt-2">
-            {language === 'ar' 
-              ? "تحليل وتنبؤ وتحسين توقعات الطلب باستخدام التحليلات المتقدمة"
-              : "Analyze, predict, and optimize your demand forecasts with advanced analytics"
-            }
+            Analyze, predict, and optimize your demand forecasts with advanced analytics
           </p>
           <Separator className="my-6" />
         </div>

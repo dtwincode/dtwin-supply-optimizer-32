@@ -1,15 +1,7 @@
+
 import { TranslationValue } from '../types';
 
 export type ModuleTranslations = {
-  forecastAnalysis: TranslationValue;
-  futureForecasts: TranslationValue;
-  descriptiveAnalysis: TranslationValue;
-  patternAnalysis: TranslationValue;
-  whatIfAnalysis: TranslationValue;
-  modelValidation: TranslationValue;
-  externalFactors: TranslationValue;
-  timeSelection: TranslationValue;
-  hierarchySelection: TranslationValue;
   skus: TranslationValue;
   active: TranslationValue;
   pipeline: TranslationValue;
@@ -34,42 +26,6 @@ export type ModuleTranslations = {
 };
 
 export const moduleTranslations: ModuleTranslations = {
-  forecastAnalysis: {
-    en: "Forecast Analysis",
-    ar: "تحليل التنبؤ"
-  },
-  futureForecasts: {
-    en: "Future Forecasts",
-    ar: "التنبؤات المستقبلية"
-  },
-  descriptiveAnalysis: {
-    en: "Descriptive Analysis",
-    ar: "التحليل الوصفي"
-  },
-  patternAnalysis: {
-    en: "Pattern Analysis",
-    ar: "تحليل الأنماط"
-  },
-  whatIfAnalysis: {
-    en: "What-If Analysis",
-    ar: "تحليل ماذا لو"
-  },
-  modelValidation: {
-    en: "Model Validation",
-    ar: "التحقق من النموذج"
-  },
-  externalFactors: {
-    en: "External Factors",
-    ar: "العوامل الخارجية"
-  },
-  timeSelection: {
-    en: "Time Period Selection",
-    ar: "اختيار الفترة الزمنية"
-  },
-  hierarchySelection: {
-    en: "Hierarchy Selection",
-    ar: "اختيار التسلسل الهرمي"
-  },
   skus: {
     en: "SKUs",
     ar: "وحدات تخزين"
