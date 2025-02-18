@@ -219,45 +219,60 @@ export function LocationFilter() {
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium">Location Filters</h3>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-              <FileInput className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[200px]">
-            {savedFiles && savedFiles.length > 0 ? (
-              savedFiles.map(file => (
-                <div key={file.id} className="flex items-center justify-between px-2 py-1.5">
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <FileInput className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[200px]">
+              {savedFiles && savedFiles.length > 0 ? (
+                savedFiles.map(file => (
                   <DropdownMenuItem 
-                    className="flex-1"
-                    onSelect={(e) => {
-                      e.preventDefault();
-                      handleImportHierarchy(file.id);
-                    }}
+                    key={file.id}
+                    onSelect={() => handleImportHierarchy(file.id)}
                   >
                     {file.original_name}
                   </DropdownMenuItem>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0"
-                    onClick={(e) => {
-                      e.stopPropagation();
+                ))
+              ) : (
+                <DropdownMenuItem disabled>
+                  No saved files
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[200px]">
+              {savedFiles && savedFiles.length > 0 ? (
+                savedFiles.map(file => (
+                  <DropdownMenuItem 
+                    key={file.id}
+                    className="flex items-center justify-between"
+                    onSelect={(e) => {
+                      e.preventDefault();
                       setFileToDelete(file.id);
                     }}
                   >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
-              ))
-            ) : (
-              <DropdownMenuItem disabled>
-                No saved files
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+                    <span>{file.original_name}</span>
+                    <Trash2 className="h-4 w-4 text-destructive ml-2" />
+                  </DropdownMenuItem>
+                ))
+              ) : (
+                <DropdownMenuItem disabled>
+                  No saved files
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       {!hasActiveHierarchy ? (
