@@ -27,7 +27,28 @@ export function LocationFilter() {
         .single();
 
       if (error) throw error;
-      return data?.data as LocationFilterData || {};
+      
+      // Ensure we always return an object, even if empty
+      const hierarchyData = data?.data || {};
+      
+      // Validate that the data is in the correct format
+      if (typeof hierarchyData !== 'object' || hierarchyData === null) {
+        console.error('Invalid location hierarchy data format:', hierarchyData);
+        return {};
+      }
+
+      // Convert the data into the expected format
+      const formattedData: LocationFilterData = {};
+      Object.entries(hierarchyData).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+          formattedData[key] = value;
+        } else {
+          console.warn(`Invalid value format for key ${key}:`, value);
+          formattedData[key] = [];
+        }
+      });
+
+      return formattedData;
     }
   });
 
@@ -42,9 +63,12 @@ export function LocationFilter() {
     return <div>Loading locations...</div>;
   }
 
+  // Ensure locationData is an object before trying to use Object.entries
+  const entries = locationData ? Object.entries(locationData) : [];
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {Object.entries(locationData || {}).map(([level, values]) => (
+      {entries.map(([level, values]) => (
         <div key={level} className="space-y-2">
           <label htmlFor={level} className="text-sm font-medium text-muted-foreground">
             {level}
@@ -57,11 +81,11 @@ export function LocationFilter() {
               <SelectValue placeholder={`Select ${level}`} />
             </SelectTrigger>
             <SelectContent>
-              {values.map((value) => (
+              {Array.isArray(values) ? values.map((value) => (
                 <SelectItem key={value} value={value}>
                   {value}
                 </SelectItem>
-              ))}
+              )) : null}
             </SelectContent>
           </Select>
         </div>
