@@ -77,35 +77,39 @@ export const SupplyChainMap = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    let isMounted = true;
+
     const initializeMap = async () => {
       try {
         console.log("Starting map initialization...");
         
-        // Try to get the token with a simpler query
-        const { data, error: tokenError } = await supabase
+        // Fetch the token
+        const { data: secretData, error: secretError } = await supabase
           .from('secrets')
           .select('value')
           .eq('name', 'MAPBOX_PUBLIC_TOKEN')
-          .single();
+          .maybeSingle();
 
-        if (tokenError) {
-          console.error("Token fetch error:", tokenError);
-          throw new Error('Failed to fetch Mapbox token');
+        if (secretError) {
+          throw new Error(`Failed to fetch token: ${secretError.message}`);
         }
 
-        if (!data?.value) {
-          console.error("No token value found");
-          throw new Error('Mapbox token is missing');
+        if (!secretData) {
+          throw new Error('Mapbox token not found. Please ensure it is set in Supabase.');
         }
 
-        console.log("Token retrieved, initializing map...");
+        const token = secretData.value;
         
-        // Initialize the map
-        mapboxgl.accessToken = data.value;
+        if (!token) {
+          throw new Error('Invalid Mapbox token.');
+        }
 
         if (!mapContainer.current) {
           throw new Error('Map container not found');
         }
+
+        // Set the token and initialize map
+        mapboxgl.accessToken = token;
 
         const newMap = new mapboxgl.Map({
           container: mapContainer.current,
@@ -115,12 +119,14 @@ export const SupplyChainMap = () => {
           attributionControl: false
         });
 
-        // Add navigation control
+        // Add navigation controls
         newMap.addControl(new mapboxgl.NavigationControl(), 'top-right');
         newMap.addControl(new mapboxgl.AttributionControl(), 'bottom-right');
 
         // Add markers and connections when map loads
         newMap.on('load', () => {
+          if (!isMounted) return;
+          
           console.log("Map loaded, adding markers...");
           
           locations.forEach(location => {
@@ -185,19 +191,22 @@ export const SupplyChainMap = () => {
             }
           });
 
-          setIsLoading(false);
-          console.log("Map initialization complete");
+          if (isMounted) {
+            setIsLoading(false);
+          }
         });
 
         // Handle map errors
         newMap.on('error', (e) => {
           console.error('Map error:', e);
-          setError(`Map error: ${e.error.message}`);
-          toast({
-            title: "Map Error",
-            description: e.error.message,
-            variant: "destructive",
-          });
+          if (isMounted) {
+            setError(`Map error: ${e.error.message}`);
+            toast({
+              title: "Map Error",
+              description: e.error.message,
+              variant: "destructive",
+            });
+          }
         });
 
         // Store map reference
@@ -205,22 +214,24 @@ export const SupplyChainMap = () => {
 
       } catch (err) {
         console.error("Map initialization failed:", err);
-        const errorMessage = err instanceof Error ? err.message : 'Failed to initialize map';
-        setError(errorMessage);
-        toast({
-          title: "Error",
-          description: errorMessage,
-          variant: "destructive",
-        });
-        setIsLoading(false);
+        if (isMounted) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to initialize map';
+          setError(errorMessage);
+          toast({
+            title: "Error",
+            description: errorMessage,
+            variant: "destructive",
+          });
+          setIsLoading(false);
+        }
       }
     };
 
-    // Initialize the map
     initializeMap();
 
-    // Cleanup on unmount
+    // Cleanup
     return () => {
+      isMounted = false;
       if (map.current) {
         map.current.remove();
       }
