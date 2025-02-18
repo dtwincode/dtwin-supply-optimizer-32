@@ -1,78 +1,24 @@
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Card } from '@/components/ui/card';
 import { useLogisticsTracking } from '@/hooks/useLogisticsTracking';
 import { BaseMap } from '@/components/shared/maps/BaseMap';
-import { Button } from '@/components/ui/button';
-import { 
-  Clock, 
-  DollarSign, 
-  Navigation,
-  AlertTriangle 
-} from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
-
-type RouteProfile = 'driving' | 'driving-traffic';
-type OptimizationType = 'time' | 'cost';
 
 export const LogisticsMap = () => {
   const marker = useRef<mapboxgl.Marker | null>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const { trackingData } = useLogisticsTracking();
-  const [routeProfile, setRouteProfile] = useState<RouteProfile>('driving-traffic');
-  const [optimizationType, setOptimizationType] = useState<OptimizationType>('time');
-  const [alternateRoutes, setAlternateRoutes] = useState<any[]>([]);
-  const [trafficIncidents, setTrafficIncidents] = useState<any[]>([]);
-  const [isUpdatingRoute, setIsUpdatingRoute] = useState(false);
 
-  const addRoute = async (map: mapboxgl.Map, waypoints: Array<[number, number]>) => {
-    if (isUpdatingRoute) return;
-    setIsUpdatingRoute(true);
-
+  const addRoute = async (map: mapboxgl.Map, start: [number, number], end: [number, number]) => {
     try {
-      // Remove duplicate coordinates
-      const uniqueWaypoints = waypoints.filter((wp, index, arr) => {
-        if (index === 0) return true;
-        const prev = arr[index - 1];
-        return !(wp[0] === prev[0] && wp[1] === prev[1]);
-      });
-
-      const waypointsStr = uniqueWaypoints.map(wp => `${wp[0]},${wp[1]}`).join(';');
-      
-      // Base parameters always included
-      let params = 'steps=true&geometries=geojson&alternatives=true&overview=full';
-      
-      if (optimizationType === 'time') {
-        params += '&annotations=duration,distance,speed,congestion';
-        if (routeProfile === 'driving-traffic') {
-          params += '&depart_at=now';
-        }
-      } else {
-        params += '&annotations=duration,distance';
-      }
-
       const query = await fetch(
-        `https://api.mapbox.com/directions/v5/mapbox/${routeProfile}/${waypointsStr}?${params}&access_token=${mapboxgl.accessToken}`
+        `https://api.mapbox.com/directions/v5/mapbox/driving/${start[0]},${start[1]};${end[0]},${end[1]}?steps=true&geometries=geojson&access_token=${mapboxgl.accessToken}`
       );
-      
       const json = await query.json();
-      
-      if (!json.routes || json.routes.length === 0) {
-        throw new Error('No routes found');
-      }
-
-      setAlternateRoutes(json.routes.slice(1));
-      const primaryRoute = json.routes[0];
-      const route = primaryRoute.geometry.coordinates;
-
-      // Show estimated time
-      const estimatedMinutes = Math.round(primaryRoute.duration / 60);
-      toast({
-        title: "Route Updated",
-        description: `Estimated delivery time: ${estimatedMinutes} minutes`,
-      });
+      const data = json.routes[0];
+      const route = data.geometry.coordinates;
 
       const geojson = {
         type: 'Feature',
@@ -83,28 +29,11 @@ export const LogisticsMap = () => {
         }
       };
 
-      // Handle traffic incidents
-      setTrafficIncidents([]);
-      if (primaryRoute.incidents) {
-        setTrafficIncidents(primaryRoute.incidents);
-        primaryRoute.incidents.forEach((incident: any) => {
-          new mapboxgl.Marker({ color: '#ff0000' })
-            .setLngLat(incident.location)
-            .setPopup(new mapboxgl.Popup().setHTML(
-              `<div>
-                <h4>Traffic Alert</h4>
-                <p>${incident.description}</p>
-                <p>Delay: ${Math.round(incident.delay / 60)} minutes</p>
-              </div>`
-            ))
-            .addTo(map);
-        });
-      }
-
-      // Update or add route layer
+      // If the route already exists on the map, we'll reset it using setData
       if (map.getSource('route')) {
         (map.getSource('route') as mapboxgl.GeoJSONSource).setData(geojson as any);
       } else {
+        // Otherwise, we'll make a new request to add the route
         map.addLayer({
           id: 'route',
           type: 'line',
@@ -117,54 +46,18 @@ export const LogisticsMap = () => {
             'line-cap': 'round'
           },
           paint: {
-            'line-color': [
-              'match',
-              ['get', 'congestion'],
-              'low', '#22c55e',
-              'moderate', '#f59e0b',
-              'heavy', '#ef4444',
-              'severe', '#7f1d1d',
-              '#3b82f6'
-            ],
+            'line-color': '#3b82f6',
             'line-width': 4,
             'line-opacity': 0.75
           }
         });
       }
 
-      // Update alternate routes
-      alternateRoutes.forEach((altRoute, index) => {
-        const altGeojson = {
-          type: 'Feature',
-          properties: {},
-          geometry: altRoute.geometry
-        };
-
-        const altRouteId = `route-alternative-${index}`;
-
-        if (map.getSource(altRouteId)) {
-          (map.getSource(altRouteId) as mapboxgl.GeoJSONSource).setData(altGeojson as any);
-        } else {
-          map.addLayer({
-            id: altRouteId,
-            type: 'line',
-            source: {
-              type: 'geojson',
-              data: altGeojson as any
-            },
-            layout: {
-              'line-join': 'round',
-              'line-cap': 'round'
-            },
-            paint: {
-              'line-color': '#94a3b8',
-              'line-width': 3,
-              'line-opacity': 0.5,
-              'line-dasharray': [2, 2]
-            }
-          });
-        }
-      });
+      // Add start marker (Riyadh hub)
+      new mapboxgl.Marker({ color: '#22c55e' })
+        .setLngLat(start)
+        .setPopup(new mapboxgl.Popup().setHTML('<h3>Distribution Hub</h3><p>Riyadh</p>'))
+        .addTo(map);
 
       // Fit map to show entire route
       const coordinates = route;
@@ -175,16 +68,8 @@ export const LogisticsMap = () => {
       map.fitBounds(bounds, {
         padding: 50
       });
-
     } catch (error) {
       console.error('Error adding route:', error);
-      toast({
-        title: "Route Error",
-        description: "Failed to update route. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsUpdatingRoute(false);
     }
   };
 
@@ -198,64 +83,37 @@ export const LogisticsMap = () => {
         zoom: 5,
         essential: true
       });
-      return;
-    }
-
-    const { latitude, longitude, waypoints = [] } = trackingData;
-    
-    // Add destination marker with popup
-    marker.current = new mapboxgl.Marker({ color: '#ef4444' })
-      .setLngLat([longitude, latitude])
-      .setPopup(new mapboxgl.Popup().setHTML(
-        `<h3>Final Destination</h3>
-         <p>Status: ${trackingData.status}</p>
-         <p>Last Updated: ${new Date(trackingData.timestamp).toLocaleString()}</p>
-         ${trackingData.eta ? `<p>ETA: ${new Date(trackingData.eta).toLocaleString()}</p>` : ''}`
-      ))
-      .addTo(loadedMap);
-    
-    // Add markers for all waypoints
-    waypoints.forEach((waypoint, index) => {
-      let color = '#22c55e'; // Default green for completed
-      if (waypoint.status === 'in_progress') {
-        color = '#f59e0b'; // Orange for in progress
-      } else if (waypoint.status === 'pending') {
-        color = '#ef4444'; // Red for pending
-      }
-
-      let status = '';
-      switch (waypoint.status) {
-        case 'completed':
-          status = '✅ Completed';
-          break;
-        case 'in_progress':
-          status = '🚚 In Progress';
-          break;
-        case 'pending':
-          status = '⏳ Pending';
-          break;
-      }
-
-      new mapboxgl.Marker({ color })
-        .setLngLat([waypoint.longitude, waypoint.latitude])
+    } else {
+      const { latitude, longitude, waypoints = [] } = trackingData;
+      
+      // Add destination marker with popup
+      marker.current = new mapboxgl.Marker({ color: '#ef4444' })
+        .setLngLat([longitude, latitude])
         .setPopup(new mapboxgl.Popup().setHTML(
-          `<div style="min-width: 200px;">
-             <h3 style="font-weight: bold; margin-bottom: 8px;">Checkpoint ${index + 1}</h3>
-             <p style="margin: 4px 0;">Status: ${status}</p>
-             <p style="margin: 4px 0;">Time: ${new Date(waypoint.timestamp).toLocaleString()}</p>
-           </div>`
+          `<h3>Delivery Location</h3>
+           <p>Status: ${trackingData.status}</p>
+           <p>Last Updated: ${new Date(trackingData.timestamp).toLocaleString()}</p>
+           ${trackingData.eta ? `<p>ETA: ${new Date(trackingData.eta).toLocaleString()}</p>` : ''}
+          `
         ))
         .addTo(loadedMap);
-    });
-    
-    // Create array of coordinates for the complete route
-    const routeWaypoints = waypoints.map(wp => [wp.longitude, wp.latitude] as [number, number]);
-    // Add final destination
-    routeWaypoints.push([longitude, latitude]);
-    
-    // Add the complete route
-    if (routeWaypoints.length > 1) {
-      addRoute(loadedMap, routeWaypoints);
+      
+      // Add waypoint markers
+      waypoints.forEach((waypoint, index) => {
+        const color = waypoint.status === 'completed' ? '#22c55e' : '#f59e0b';
+        new mapboxgl.Marker({ color })
+          .setLngLat([waypoint.longitude, waypoint.latitude])
+          .setPopup(new mapboxgl.Popup().setHTML(
+            `<h3>Waypoint ${index + 1}</h3>
+             <p>Status: ${waypoint.status}</p>
+             <p>Passed: ${new Date(waypoint.timestamp).toLocaleString()}</p>`
+          ))
+          .addTo(loadedMap);
+      });
+      
+      // Add start point in Riyadh and route to current location
+      const startPoint: [number, number] = [46.6753, 24.7136]; // Riyadh coordinates
+      addRoute(loadedMap, startPoint, [longitude, latitude]);
     }
   };
 
@@ -263,7 +121,6 @@ export const LogisticsMap = () => {
     if (trackingData && map.current) {
       const { latitude, longitude, waypoints = [] } = trackingData;
       
-      // Update destination marker position
       if (!marker.current) {
         marker.current = new mapboxgl.Marker({ color: '#ef4444' })
           .setLngLat([longitude, latitude])
@@ -272,63 +129,17 @@ export const LogisticsMap = () => {
         marker.current.setLngLat([longitude, latitude]);
       }
 
-      // Update route with all waypoints
-      const routeWaypoints = waypoints.map(wp => [wp.longitude, wp.latitude] as [number, number]);
-      routeWaypoints.push([longitude, latitude]);
-      
-      if (routeWaypoints.length > 1) {
-        addRoute(map.current, routeWaypoints);
-      }
+      // Update route when tracking data changes
+      const startPoint: [number, number] = [46.6753, 24.7136]; // Riyadh coordinates
+      addRoute(map.current, startPoint, [longitude, latitude]);
     }
-  }, [trackingData, routeProfile, optimizationType]);
+  }, [trackingData]);
 
   return (
-    <Card className="relative">
-      <div className="absolute top-4 right-4 z-10 flex gap-2 bg-white/90 p-2 rounded-lg shadow">
-        <Button
-          size="sm"
-          variant={routeProfile === 'driving-traffic' ? 'default' : 'outline'}
-          onClick={() => setRouteProfile('driving-traffic')}
-        >
-          <Clock className="h-4 w-4 mr-2" />
-          Traffic
-        </Button>
-        <Button
-          size="sm"
-          variant={routeProfile === 'driving' ? 'default' : 'outline'}
-          onClick={() => setRouteProfile('driving')}
-        >
-          <Navigation className="h-4 w-4 mr-2" />
-          Standard
-        </Button>
-        <Button
-          size="sm"
-          variant={optimizationType === 'time' ? 'default' : 'outline'}
-          onClick={() => setOptimizationType('time')}
-        >
-          <Clock className="h-4 w-4 mr-2" />
-          Time
-        </Button>
-        <Button
-          size="sm"
-          variant={optimizationType === 'cost' ? 'default' : 'outline'}
-          onClick={() => setOptimizationType('cost')}
-        >
-          <DollarSign className="h-4 w-4 mr-2" />
-          Cost
-        </Button>
-      </div>
-      {trafficIncidents.length > 0 && (
-        <div className="absolute top-16 right-4 z-10 bg-red-50 p-2 rounded-lg shadow">
-          <div className="flex items-center text-red-700 text-sm">
-            <AlertTriangle className="h-4 w-4 mr-2" />
-            {trafficIncidents.length} Traffic Incident(s)
-          </div>
-        </div>
-      )}
+    <Card>
       <BaseMap 
         onMapLoad={handleMapLoad}
-        center={[45.0792, 23.8859]}
+        center={[45.0792, 23.8859]} // Center of Saudi Arabia
         zoom={5}
       />
     </Card>
