@@ -1,3 +1,4 @@
+
 import DashboardLayout from "@/components/DashboardLayout";
 import { ForecastingTabs } from "@/components/forecasting/ForecastingTabs";
 import { ForecastAnalysisTab } from "@/components/forecasting/tabs/ForecastAnalysisTab";
@@ -8,8 +9,8 @@ import { WhatIfAnalysisTab } from "@/components/forecasting/tabs/WhatIfAnalysisT
 import { ValidationTab } from "@/components/forecasting/tabs/ValidationTab";
 import { ExternalFactorsTab } from "@/components/forecasting/tabs/ExternalFactorsTab";
 import { Separator } from "@/components/ui/separator";
-import { Routes, Route } from "react-router-dom";
-import { useState } from "react";
+import { Routes, Route, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { ProductHierarchyFilter } from "@/components/forecasting/filters/ProductHierarchyFilter";
 import { LocationFilter } from "@/components/forecasting/filters/LocationFilter";
 import { ForecastDataPoint } from "@/types/forecasting";
@@ -20,14 +21,39 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 
 const Forecasting = () => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+
   const [isTimeExpanded, setIsTimeExpanded] = useState(false);
   const [isProductExpanded, setIsProductExpanded] = useState(false);
   const [isLocationExpanded, setIsLocationExpanded] = useState(false);
 
-  const [trainingFromDate, setTrainingFromDate] = useLocalStorage('trainingFromDate', new Date('2024-01-01').toISOString());
-  const [trainingToDate, setTrainingToDate] = useLocalStorage('trainingToDate', new Date('2024-09-30').toISOString());
-  const [testingFromDate, setTestingFromDate] = useLocalStorage('testingFromDate', new Date('2024-10-01').toISOString());
-  const [testingToDate, setTestingToDate] = useLocalStorage('testingToDate', new Date('2024-12-31').toISOString());
+  // Tab-specific localStorage keys
+  const getStorageKey = (base: string) => `${base}_${currentPath.split('/').pop() || 'analysis'}`;
+
+  const [trainingFromDate, setTrainingFromDate] = useLocalStorage(
+    getStorageKey('trainingFromDate'),
+    new Date('2024-01-01').toISOString()
+  );
+  const [trainingToDate, setTrainingToDate] = useLocalStorage(
+    getStorageKey('trainingToDate'),
+    new Date('2024-09-30').toISOString()
+  );
+  const [testingFromDate, setTestingFromDate] = useLocalStorage(
+    getStorageKey('testingFromDate'),
+    new Date('2024-10-01').toISOString()
+  );
+  const [testingToDate, setTestingToDate] = useLocalStorage(
+    getStorageKey('testingToDate'),
+    new Date('2024-12-31').toISOString()
+  );
+
+  // Reset expansion state when changing tabs
+  useEffect(() => {
+    setIsTimeExpanded(false);
+    setIsProductExpanded(false);
+    setIsLocationExpanded(false);
+  }, [currentPath]);
 
   const dummyData = {
     filteredData: [{
@@ -128,6 +154,24 @@ const Forecasting = () => {
     }
   };
 
+  // Function to determine if filters should be shown for current tab
+  const shouldShowFilters = () => {
+    const path = currentPath.split('/').pop() || '';
+    switch (path) {
+      case '':
+      case 'distribution':
+      case 'descriptive':
+        return true;
+      case 'pattern':
+      case 'what-if':
+      case 'validation':
+      case 'external':
+        return false;
+      default:
+        return true;
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="flex flex-col">
@@ -143,110 +187,114 @@ const Forecasting = () => {
           <ForecastingTabs />
         </div>
 
-        <div className="px-6 space-y-6 mt-6">
-          <div className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40">
-            <Button
-              variant="ghost"
-              className="w-full flex items-center justify-between p-6 hover:bg-primary/5"
-              onClick={() => handleSectionToggle('time')}
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-lg font-semibold text-primary">Time Period Selection</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  {isTimeExpanded ? "Click to collapse" : "Click to expand"}
-                </span>
-                {isTimeExpanded ? (
-                  <ChevronUp className="h-5 w-5 text-primary" />
-                ) : (
-                  <ChevronDown className="h-5 w-5 text-primary" />
-                )}
-              </div>
-            </Button>
-
-            {isTimeExpanded && (
-              <div className="p-6 space-y-6 border-t bg-primary/5">
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                  <Card className="p-6">
-                    <h4 className="text-base font-medium mb-4">Training Period</h4>
-                    <ForecastingDateRange
-                      fromDate={new Date(trainingFromDate)}
-                      toDate={new Date(trainingToDate)}
-                      setFromDate={(date) => setTrainingFromDate(date.toISOString())}
-                      setToDate={(date) => setTrainingToDate(date.toISOString())}
-                    />
-                  </Card>
-                  <Card className="p-6">
-                    <h4 className="text-base font-medium mb-4">Testing Period</h4>
-                    <ForecastingDateRange
-                      fromDate={new Date(testingFromDate)}
-                      toDate={new Date(testingToDate)}
-                      setFromDate={(date) => setTestingFromDate(date.toISOString())}
-                      setToDate={(date) => setTestingToDate(date.toISOString())}
-                    />
-                  </Card>
+        {shouldShowFilters() && (
+          <div className="px-6 space-y-6 mt-6">
+            <div className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40">
+              <Button
+                variant="ghost"
+                className="w-full flex items-center justify-between p-6 hover:bg-primary/5"
+                onClick={() => handleSectionToggle('time')}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-lg font-semibold text-primary">Time Period Selection</span>
                 </div>
-              </div>
-            )}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    {isTimeExpanded ? "Click to collapse" : "Click to expand"}
+                  </span>
+                  {isTimeExpanded ? (
+                    <ChevronUp className="h-5 w-5 text-primary" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-primary" />
+                  )}
+                </div>
+              </Button>
+
+              {isTimeExpanded && (
+                <div className="p-6 space-y-6 border-t bg-primary/5">
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                    <Card className="p-6">
+                      <h4 className="text-base font-medium mb-4">Training Period</h4>
+                      <ForecastingDateRange
+                        fromDate={new Date(trainingFromDate)}
+                        toDate={new Date(trainingToDate)}
+                        setFromDate={(date) => setTrainingFromDate(date.toISOString())}
+                        setToDate={(date) => setTrainingToDate(date.toISOString())}
+                      />
+                    </Card>
+                    <Card className="p-6">
+                      <h4 className="text-base font-medium mb-4">Testing Period</h4>
+                      <ForecastingDateRange
+                        fromDate={new Date(testingFromDate)}
+                        toDate={new Date(testingToDate)}
+                        setFromDate={(date) => setTestingFromDate(date.toISOString())}
+                        setToDate={(date) => setTestingToDate(date.toISOString())}
+                      />
+                    </Card>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40">
+              <Button
+                variant="ghost"
+                className="w-full flex items-center justify-between p-6 hover:bg-primary/5"
+                onClick={() => handleSectionToggle('product')}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-lg font-semibold text-primary">Product Hierarchy</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    {isProductExpanded ? "Click to collapse" : "Click to expand"}
+                  </span>
+                  {isProductExpanded ? (
+                    <ChevronUp className="h-5 w-5 text-primary" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-primary" />
+                  )}
+                </div>
+              </Button>
+
+              {isProductExpanded && (
+                <div className="p-6 space-y-6 border-t bg-primary/5">
+                  <ProductHierarchyFilter />
+                </div>
+              )}
+            </div>
+
+            <div className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40">
+              <Button
+                variant="ghost"
+                className="w-full flex items-center justify-between p-6 hover:bg-primary/5"
+                onClick={() => handleSectionToggle('location')}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-lg font-semibold text-primary">Location Hierarchy</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    {isLocationExpanded ? "Click to collapse" : "Click to expand"}
+                  </span>
+                  {isLocationExpanded ? (
+                    <ChevronUp className="h-5 w-5 text-primary" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-primary" />
+                  )}
+                </div>
+              </Button>
+
+              {isLocationExpanded && (
+                <div className="p-6 space-y-6 border-t bg-primary/5">
+                  <LocationFilter />
+                </div>
+              )}
+            </div>
           </div>
+        )}
 
-          <div className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40">
-            <Button
-              variant="ghost"
-              className="w-full flex items-center justify-between p-6 hover:bg-primary/5"
-              onClick={() => handleSectionToggle('product')}
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-lg font-semibold text-primary">Product Hierarchy</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  {isProductExpanded ? "Click to collapse" : "Click to expand"}
-                </span>
-                {isProductExpanded ? (
-                  <ChevronUp className="h-5 w-5 text-primary" />
-                ) : (
-                  <ChevronDown className="h-5 w-5 text-primary" />
-                )}
-              </div>
-            </Button>
-
-            {isProductExpanded && (
-              <div className="p-6 space-y-6 border-t bg-primary/5">
-                <ProductHierarchyFilter />
-              </div>
-            )}
-          </div>
-
-          <div className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40">
-            <Button
-              variant="ghost"
-              className="w-full flex items-center justify-between p-6 hover:bg-primary/5"
-              onClick={() => handleSectionToggle('location')}
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-lg font-semibold text-primary">Location Hierarchy</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  {isLocationExpanded ? "Click to collapse" : "Click to expand"}
-                </span>
-                {isLocationExpanded ? (
-                  <ChevronUp className="h-5 w-5 text-primary" />
-                ) : (
-                  <ChevronDown className="h-5 w-5 text-primary" />
-                )}
-              </div>
-            </Button>
-
-            {isLocationExpanded && (
-              <div className="p-6 space-y-6 border-t bg-primary/5">
-                <LocationFilter />
-              </div>
-            )}
-          </div>
-
+        <div className="px-6 mt-6">
           <Routes>
             <Route index element={<ForecastAnalysisTab 
               filteredData={dummyData.filteredData} 
