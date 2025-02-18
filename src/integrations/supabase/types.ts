@@ -1697,7 +1697,7 @@ export type Database = {
             foreignKeyName: "permanent_hierarchy_data_source_upload_id_fkey"
             columns: ["source_upload_id"]
             isOneToOne: false
-            referencedRelation: "temp_hierarchy_uploads"
+            referencedRelation: "permanent_hierarchy_files"
             referencedColumns: ["id"]
           },
         ]
