@@ -14,7 +14,14 @@ export const LogisticsMap = () => {
   const handleMapLoad = (loadedMap: mapboxgl.Map) => {
     map.current = loadedMap;
     
-    if (trackingData) {
+    // If no tracking data, center on Saudi Arabia
+    if (!trackingData) {
+      loadedMap.flyTo({
+        center: [45.0792, 23.8859], // Center of Saudi Arabia
+        zoom: 5,
+        essential: true
+      });
+    } else {
       const { latitude, longitude } = trackingData;
       marker.current = new mapboxgl.Marker()
         .setLngLat([longitude, latitude])
@@ -22,6 +29,7 @@ export const LogisticsMap = () => {
       
       loadedMap.flyTo({
         center: [longitude, latitude],
+        zoom: 8,
         essential: true
       });
     }
@@ -41,6 +49,7 @@ export const LogisticsMap = () => {
 
       map.current.flyTo({
         center: [longitude, latitude],
+        zoom: 8,
         essential: true
       });
     }
@@ -50,8 +59,8 @@ export const LogisticsMap = () => {
     <Card>
       <BaseMap 
         onMapLoad={handleMapLoad}
-        center={[-74.5, 40]}
-        zoom={9}
+        center={[45.0792, 23.8859]} // Center of Saudi Arabia
+        zoom={5}
       />
     </Card>
   );
