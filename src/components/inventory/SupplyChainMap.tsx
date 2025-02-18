@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -132,11 +131,6 @@ export const SupplyChainMap = () => {
         console.log('Setting up Mapbox with token...');
         mapboxgl.accessToken = token.value;
         
-        // Add error handler for mapboxgl
-        mapboxgl.on('error', (e) => {
-          console.error('Mapbox GL JS error:', e);
-        });
-        
         console.log('Creating map instance...');
         map.current = new mapboxgl.Map({
           container: mapContainer.current,
@@ -151,6 +145,17 @@ export const SupplyChainMap = () => {
 
         // Add navigation controls
         map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
+        // Handle map errors
+        map.current.on('error', (e) => {
+          console.error('Mapbox map error:', e);
+          setError("An error occurred while loading the map");
+          toast({
+            title: "Error",
+            description: "Map loading failed",
+            variant: "destructive",
+          });
+        });
 
         map.current.on('load', () => {
           if (!map.current) return;
@@ -225,16 +230,6 @@ export const SupplyChainMap = () => {
           console.log('All markers and connections added');
           setIsMapInitialized(true);
           setIsLoading(false);
-        });
-
-        map.current.on('error', (e) => {
-          console.error('Mapbox map error:', e);
-          setError("An error occurred while loading the map");
-          toast({
-            title: "Error",
-            description: "Map loading failed",
-            variant: "destructive",
-          });
         });
 
       } catch (error) {
