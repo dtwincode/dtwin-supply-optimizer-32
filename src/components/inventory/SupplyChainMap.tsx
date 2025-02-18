@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -83,33 +82,13 @@ export const SupplyChainMap = () => {
         setIsLoading(true);
         console.log('Fetching Mapbox token...');
         
-        // First, let's get all secrets to debug
-        const { data: allSecrets, error: listError } = await supabase
+        const { data: token, error: tokenError } = await supabase
           .from('secrets')
-          .select('*');
-        
-        console.log('All secrets:', allSecrets);
-
-        if (listError) {
-          console.error('Error fetching secrets:', listError);
-          setError("Unable to access configuration.");
-          toast({
-            title: "Error",
-            description: "Unable to access configuration",
-            variant: "destructive",
-          });
-          setIsLoading(false);
-          return;
-        }
-
-        // Now try to get our specific token
-        const { data, error: tokenError } = await supabase
-          .from('secrets')
-          .select('*')
+          .select('value')
           .eq('name', 'MAPBOX_PUBLIC_TOKEN')
-          .single();
+          .maybeSingle();
 
-        console.log('Token query response:', { data, error: tokenError });
+        console.log('Token query response:', { data: token, error: tokenError });
 
         if (tokenError) {
           console.error('Token error:', tokenError);
@@ -123,7 +102,7 @@ export const SupplyChainMap = () => {
           return;
         }
 
-        if (!data?.value) {
+        if (!token?.value) {
           console.error('No token found in secrets table');
           setError("Mapbox token not found. Please ensure it's properly configured.");
           toast({
@@ -146,7 +125,7 @@ export const SupplyChainMap = () => {
         }
 
         console.log('Initializing Mapbox with token...');
-        mapboxgl.accessToken = data.value;
+        mapboxgl.accessToken = token.value;
         
         map.current = new mapboxgl.Map({
           container: mapContainer.current,
