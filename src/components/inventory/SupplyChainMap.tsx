@@ -87,7 +87,7 @@ export const SupplyChainMap = () => {
           .from('secrets')
           .select('*')
           .eq('name', 'MAPBOX_PUBLIC_TOKEN')
-          .single();
+          .maybeSingle();
 
         console.log("Secret query result:", { 
           data: secretData ? 'Token exists' : 'No token found',
@@ -101,6 +101,11 @@ export const SupplyChainMap = () => {
 
         if (!secretData) {
           console.error("No secret data found");
+          toast({
+            title: "Configuration Error",
+            description: "Mapbox token not found. Please ensure it is set in your Supabase project.",
+            variant: "destructive",
+          });
           throw new Error('Mapbox token not found. Please ensure it is set in Supabase.');
         }
 
