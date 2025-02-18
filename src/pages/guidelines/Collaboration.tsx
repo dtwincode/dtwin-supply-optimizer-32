@@ -1,3 +1,4 @@
+
 import DashboardLayout from "@/components/DashboardLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Separator } from "@/components/ui/separator";
@@ -31,81 +32,65 @@ const Collaboration = () => {
           <div className="prose dark:prose-invert max-w-none">
             <h2>{language === 'ar' ? "العمل مع فريقك" : "Working with Your Team"}</h2>
             
-            <h3>{language === 'ar' ? "مشاركة التوقعات" : "Sharing Forecasts"}</h3>
-            <p>{language === 'ar'
-              ? "تعرف على كيفية مشاركة التوقعات مع أعضاء فريقك للحصول على رؤى أفضل."
-              : "Learn how to share forecasts with your team members for better insights."}
-            </p>
+            <h3>{language === 'ar' ? "مشاركة التحليلات" : "Sharing Analytics"}</h3>
             <ul>
               <li>
-                <strong>{language === 'ar' ? "مشاركة المشاريع" : "Project Sharing"}</strong>
+                <strong>{language === 'ar' ? "لوحات المعلومات المشتركة" : "Shared Dashboards"}</strong>
                 <p>{language === 'ar'
-                  ? "شارك مشاريع التنبؤ مع الزملاء"
-                  : "Share forecasting projects with colleagues"}
+                  ? "إنشاء ومشاركة لوحات معلومات مخصصة مع فريقك"
+                  : "Create and share custom dashboards with your team"}
                 </p>
               </li>
               <li>
-                <strong>{language === 'ar' ? "أذونات الوصول" : "Access Permissions"}</strong>
+                <strong>{language === 'ar' ? "التقارير التلقائية" : "Automated Reports"}</strong>
                 <p>{language === 'ar'
-                  ? "إدارة أذونات الوصول لضمان أمان البيانات"
-                  : "Manage access permissions to ensure data security"}
+                  ? "جدولة وإرسال التقارير تلقائياً إلى أعضاء الفريق"
+                  : "Schedule and automatically send reports to team members"}
+                </p>
+              </li>
+              <li>
+                <strong>{language === 'ar' ? "التعليقات والملاحظات" : "Comments and Notes"}</strong>
+                <p>{language === 'ar'
+                  ? "إضافة تعليقات وملاحظات على التنبؤات والتحليلات"
+                  : "Add comments and notes to forecasts and analyses"}
                 </p>
               </li>
             </ul>
 
-            <h3>{language === 'ar' ? "التعاون في الوقت الفعلي" : "Real-Time Collaboration"}</h3>
-            <p>{language === 'ar'
-              ? "التعاون في الوقت الفعلي لتحسين دقة التوقعات."
-              : "Collaborate in real-time to improve forecast accuracy."}
-            </p>
+            <h3>{language === 'ar' ? "إدارة الأدوار" : "Role Management"}</h3>
             <ul>
               <li>
-                <strong>{language === 'ar' ? "التعليقات والملاحظات" : "Comments and Feedback"}</strong>
+                <strong>{language === 'ar' ? "أدوار المستخدم" : "User Roles"}</strong>
                 <p>{language === 'ar'
-                  ? "تبادل التعليقات والملاحظات حول التوقعات"
-                  : "Exchange comments and feedback on forecasts"}
+                  ? "تعيين أدوار وصلاحيات مختلفة لأعضاء الفريق"
+                  : "Assign different roles and permissions to team members"}
                 </p>
               </li>
               <li>
-                <strong>{language === 'ar' ? "تتبع التغييرات" : "Change Tracking"}</strong>
+                <strong>{language === 'ar' ? "سير العمل" : "Workflows"}</strong>
                 <p>{language === 'ar'
-                  ? "تتبع التغييرات التي يجريها أعضاء الفريق"
-                  : "Track changes made by team members"}
+                  ? "إنشاء وإدارة سير العمل للموافقات والمراجعات"
+                  : "Create and manage workflows for approvals and reviews"}
                 </p>
               </li>
             </ul>
 
-            <h3>{language === 'ar' ? "إدارة المستخدمين" : "User Management"}</h3>
-            <p>{language === 'ar'
-              ? "إدارة المستخدمين والأدوار داخل المنصة."
-              : "Manage users and roles within the platform."}
-            </p>
+            <h3>{language === 'ar' ? "التواصل" : "Communication"}</h3>
             <ul>
               <li>
-                <strong>{language === 'ar' ? "إضافة مستخدمين جدد" : "Adding New Users"}</strong>
+                <strong>{language === 'ar' ? "التنبيهات" : "Alerts"}</strong>
                 <p>{language === 'ar'
-                  ? "دعوة مستخدمين جدد للانضمام إلى فريقك"
-                  : "Invite new users to join your team"}
+                  ? "إعداد تنبيهات مخصصة للأحداث المهمة"
+                  : "Set up custom alerts for important events"}
                 </p>
               </li>
               <li>
-                <strong>{language === 'ar' ? "إدارة الأدوار" : "Role Management"}</strong>
+                <strong>{language === 'ar' ? "المناقشات" : "Discussions"}</strong>
                 <p>{language === 'ar'
-                  ? "تعيين أدوار مختلفة للمستخدمين"
-                  : "Assign different roles to users"}
+                  ? "بدء مناقشات حول التنبؤات والتحليلات"
+                  : "Start discussions about forecasts and analyses"}
                 </p>
               </li>
-            </ul>
-
-            <h3>{language === 'ar' ? "أفضل الممارسات" : "Best Practices"}</h3>
-            <p>{language === 'ar'
-              ? "نصائح لتحسين التعاون وتحقيق أقصى استفادة من المنصة."
-              : "Tips for improving collaboration and maximizing the platform's benefits."}
-            </p>
-            <ul>
-              <li>{language === 'ar' ? "تحديد الأدوار والمسؤوليات بوضوح" : "Clearly define roles and responsibilities"}</li>
-              <li>{language === 'ar' ? "استخدام التعليقات بفعالية" : "Use comments effectively"}</li>
-              <li>{language === 'ar' ? "مراجعة التوقعات بانتظام" : "Review forecasts regularly"}</li>
             </ul>
           </div>
         </Card>
