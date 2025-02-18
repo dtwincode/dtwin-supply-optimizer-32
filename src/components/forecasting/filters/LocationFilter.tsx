@@ -41,7 +41,8 @@ export function LocationFilter() {
       const formattedData: LocationFilterData = {};
       Object.entries(hierarchyData).forEach(([key, value]) => {
         if (Array.isArray(value)) {
-          formattedData[key] = value;
+          // Convert all values to strings to ensure type safety
+          formattedData[key] = value.map(item => String(item));
         } else {
           console.warn(`Invalid value format for key ${key}:`, value);
           formattedData[key] = [];
