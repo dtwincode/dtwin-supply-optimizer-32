@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -54,7 +55,7 @@ export function ProductHierarchyFilter() {
     isLoading: isLoadingFiles,
     refetch: refetchFiles
   } = useQuery({
-    queryKey: ['saved-product-hierarchies'],
+    queryKey: ['saved-product-hierarchies', currentTab],
     queryFn: async () => {
       const { data: files, error } = await supabase
         .from('permanent_hierarchy_files')
