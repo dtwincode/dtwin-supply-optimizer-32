@@ -10,6 +10,13 @@ interface TrackingData {
   longitude: number;
   status: string;
   timestamp: string;
+  eta?: string;
+  waypoints?: Array<{
+    latitude: number;
+    longitude: number;
+    status: string;
+    timestamp: string;
+  }>;
 }
 
 export const useLogisticsTracking = (orderId?: string) => {
@@ -32,7 +39,22 @@ export const useLogisticsTracking = (orderId?: string) => {
           latitude: 26.3892, // Dammam coordinates
           longitude: 50.1872,
           status: 'in_transit',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          eta: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), // ETA 2 hours from now
+          waypoints: [
+            {
+              latitude: 24.7136,
+              longitude: 46.6753,
+              status: 'completed',
+              timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString() // 4 hours ago
+            },
+            {
+              latitude: 25.3569,
+              longitude: 49.0507,
+              status: 'completed',
+              timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() // 2 hours ago
+            }
+          ]
         }] as TrackingData[];
       }
       

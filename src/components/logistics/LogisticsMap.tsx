@@ -84,7 +84,7 @@ export const LogisticsMap = () => {
         essential: true
       });
     } else {
-      const { latitude, longitude } = trackingData;
+      const { latitude, longitude, waypoints = [] } = trackingData;
       
       // Add destination marker with popup
       marker.current = new mapboxgl.Marker({ color: '#ef4444' })
@@ -92,9 +92,24 @@ export const LogisticsMap = () => {
         .setPopup(new mapboxgl.Popup().setHTML(
           `<h3>Delivery Location</h3>
            <p>Status: ${trackingData.status}</p>
-           <p>Last Updated: ${new Date(trackingData.timestamp).toLocaleString()}</p>`
+           <p>Last Updated: ${new Date(trackingData.timestamp).toLocaleString()}</p>
+           ${trackingData.eta ? `<p>ETA: ${new Date(trackingData.eta).toLocaleString()}</p>` : ''}
+          `
         ))
         .addTo(loadedMap);
+      
+      // Add waypoint markers
+      waypoints.forEach((waypoint, index) => {
+        const color = waypoint.status === 'completed' ? '#22c55e' : '#f59e0b';
+        new mapboxgl.Marker({ color })
+          .setLngLat([waypoint.longitude, waypoint.latitude])
+          .setPopup(new mapboxgl.Popup().setHTML(
+            `<h3>Waypoint ${index + 1}</h3>
+             <p>Status: ${waypoint.status}</p>
+             <p>Passed: ${new Date(waypoint.timestamp).toLocaleString()}</p>`
+          ))
+          .addTo(loadedMap);
+      });
       
       // Add start point in Riyadh and route to current location
       const startPoint: [number, number] = [46.6753, 24.7136]; // Riyadh coordinates
@@ -104,7 +119,7 @@ export const LogisticsMap = () => {
 
   useEffect(() => {
     if (trackingData && map.current) {
-      const { latitude, longitude } = trackingData;
+      const { latitude, longitude, waypoints = [] } = trackingData;
       
       if (!marker.current) {
         marker.current = new mapboxgl.Marker({ color: '#ef4444' })
