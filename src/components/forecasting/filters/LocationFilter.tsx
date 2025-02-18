@@ -1,14 +1,12 @@
-
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Card } from "@/components/ui/card";
 import { Loader2, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter } from "@/components/ui/alert-dialog";
 
 interface HierarchyData {
   [key: string]: string;
@@ -189,68 +187,67 @@ export function LocationFilter() {
 
   if (isLoading) {
     return (
-      <Card className="p-6 w-full">
+      <div className="w-full">
         <div className="flex items-center justify-center space-x-2">
           <Loader2 className="h-5 w-5 animate-spin text-primary" />
         </div>
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card className="p-6 w-full">
-      <div className="space-y-4">
-        <div className="flex items-center justify-end">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <Settings className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[200px]">
-              {savedFiles?.map(file => (
-                <DropdownMenuItem 
-                  key={file.id} 
-                  onSelect={(e) => {
-                    e.preventDefault();
-                    setDeleteFileId(file.id);
-                  }}
-                >
-                  {file.original_name}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        {!hasActiveHierarchy ? (
-          <div className="flex items-center justify-center p-4"></div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {hierarchyLevels.map(level => (
-              <div key={level}>
-                <Select
-                  value={hierarchyState[level]?.selected || 'all'}
-                  onValueChange={value => handleLevelChange(level, value)}
-                  disabled={!hierarchyState[level]?.values.length}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">-</SelectItem>
-                    {hierarchyState[level]?.values.map(value => (
-                      <SelectItem key={value} value={value}>
-                        {value}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+    <div className="w-full space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-medium">Filters</h3>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <Settings className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-[200px]">
+            {savedFiles?.map(file => (
+              <DropdownMenuItem 
+                key={file.id} 
+                onSelect={(e) => {
+                  e.preventDefault();
+                  setDeleteFileId(file.id);
+                }}
+              >
+                {file.original_name}
+              </DropdownMenuItem>
             ))}
-          </div>
-        )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
+
+      {!hasActiveHierarchy ? (
+        <div className="flex items-center justify-center p-4"></div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {hierarchyLevels.map(level => (
+            <div key={level}>
+              <Select
+                value={hierarchyState[level]?.selected || 'all'}
+                onValueChange={value => handleLevelChange(level, value)}
+                disabled={!hierarchyState[level]?.values.length}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">-</SelectItem>
+                  {hierarchyState[level]?.values.map(value => (
+                    <SelectItem key={value} value={value}>
+                      {value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ))}
+        </div>
+      )}
 
       <AlertDialog open={!!deleteFileId} onOpenChange={() => setDeleteFileId(null)}>
         <AlertDialogContent>
@@ -260,6 +257,6 @@ export function LocationFilter() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Card>
+    </div>
   );
 }
