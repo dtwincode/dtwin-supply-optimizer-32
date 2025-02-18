@@ -110,7 +110,12 @@ export const BaseMap = ({
     return () => {
       isMounted = false;
       if (map.current) {
-        map.current.remove();
+        // Properly cleanup the map instance
+        try {
+          map.current.remove();
+        } catch (e) {
+          console.error('Error cleaning up map:', e);
+        }
       }
     };
   }, [center, zoom, onMapLoad, toast]);

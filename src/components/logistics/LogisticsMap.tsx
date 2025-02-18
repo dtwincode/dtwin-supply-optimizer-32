@@ -35,17 +35,26 @@ export const LogisticsMap = () => {
         return !(wp[0] === prev[0] && wp[1] === prev[1]);
       });
 
-      // Create waypoints string for the Mapbox Directions API with traffic consideration
+      // Create waypoints string for the Mapbox Directions API
       const waypointsStr = uniqueWaypoints.map(wp => `${wp[0]},${wp[1]}`).join(';');
       
-      // Add optimization parameters based on selected type
-      const optimizationParams = optimizationType === 'time' 
-        ? '&depart_at=now&annotations=duration,distance,speed,congestion&overview=full'
-        : '&annotations=duration,distance,congestion&optimize=cost&overview=full';
+      // Prepare API parameters based on optimization type
+      let params = 'steps=true&geometries=geojson&alternatives=true&overview=full';
+      
+      if (optimizationType === 'time') {
+        params += '&annotations=duration,distance,speed,congestion';
+        if (routeProfile === 'driving-traffic') {
+          params += '&depart_at=now';
+        }
+      } else {
+        // For cost optimization, we don't use traffic data
+        params += '&annotations=duration,distance';
+      }
 
       const query = await fetch(
-        `https://api.mapbox.com/directions/v5/mapbox/${routeProfile}/${waypointsStr}?steps=true&geometries=geojson&alternatives=true${optimizationParams}&access_token=${mapboxgl.accessToken}`
+        `https://api.mapbox.com/directions/v5/mapbox/${routeProfile}/${waypointsStr}?${params}&access_token=${mapboxgl.accessToken}`
       );
+      
       const json = await query.json();
       
       if (!json.routes || json.routes.length === 0) {
