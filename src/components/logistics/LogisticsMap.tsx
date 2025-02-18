@@ -25,20 +25,23 @@ export const LogisticsMap = () => {
   const [optimizationType, setOptimizationType] = useState<OptimizationType>('time');
   const [alternateRoutes, setAlternateRoutes] = useState<any[]>([]);
   const [trafficIncidents, setTrafficIncidents] = useState<any[]>([]);
+  const [isUpdatingRoute, setIsUpdatingRoute] = useState(false);
 
   const addRoute = async (map: mapboxgl.Map, waypoints: Array<[number, number]>) => {
+    if (isUpdatingRoute) return;
+    setIsUpdatingRoute(true);
+
     try {
-      // Remove duplicate coordinates by filtering consecutive identical points
+      // Remove duplicate coordinates
       const uniqueWaypoints = waypoints.filter((wp, index, arr) => {
         if (index === 0) return true;
         const prev = arr[index - 1];
         return !(wp[0] === prev[0] && wp[1] === prev[1]);
       });
 
-      // Create waypoints string for the Mapbox Directions API
       const waypointsStr = uniqueWaypoints.map(wp => `${wp[0]},${wp[1]}`).join(';');
       
-      // Prepare API parameters based on optimization type
+      // Base parameters always included
       let params = 'steps=true&geometries=geojson&alternatives=true&overview=full';
       
       if (optimizationType === 'time') {
@@ -47,7 +50,6 @@ export const LogisticsMap = () => {
           params += '&depart_at=now';
         }
       } else {
-        // For cost optimization, we don't use traffic data
         params += '&annotations=duration,distance';
       }
 
@@ -61,13 +63,11 @@ export const LogisticsMap = () => {
         throw new Error('No routes found');
       }
 
-      // Store alternate routes for later use
       setAlternateRoutes(json.routes.slice(1));
-
       const primaryRoute = json.routes[0];
       const route = primaryRoute.geometry.coordinates;
 
-      // Show estimated time with traffic
+      // Show estimated time
       const estimatedMinutes = Math.round(primaryRoute.duration / 60);
       toast({
         title: "Route Updated",
@@ -83,7 +83,8 @@ export const LogisticsMap = () => {
         }
       };
 
-      // Add traffic incidents if available
+      // Handle traffic incidents
+      setTrafficIncidents([]);
       if (primaryRoute.incidents) {
         setTrafficIncidents(primaryRoute.incidents);
         primaryRoute.incidents.forEach((incident: any) => {
@@ -100,11 +101,10 @@ export const LogisticsMap = () => {
         });
       }
 
-      // If the route already exists on the map, we'll reset it using setData
+      // Update or add route layer
       if (map.getSource('route')) {
         (map.getSource('route') as mapboxgl.GeoJSONSource).setData(geojson as any);
       } else {
-        // Otherwise, we'll make a new request to add the route
         map.addLayer({
           id: 'route',
           type: 'line',
@@ -132,7 +132,7 @@ export const LogisticsMap = () => {
         });
       }
 
-      // Add alternate routes with different styling
+      // Update alternate routes
       alternateRoutes.forEach((altRoute, index) => {
         const altGeojson = {
           type: 'Feature',
@@ -175,6 +175,7 @@ export const LogisticsMap = () => {
       map.fitBounds(bounds, {
         padding: 50
       });
+
     } catch (error) {
       console.error('Error adding route:', error);
       toast({
@@ -182,6 +183,8 @@ export const LogisticsMap = () => {
         description: "Failed to update route. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsUpdatingRoute(false);
     }
   };
 
@@ -251,7 +254,9 @@ export const LogisticsMap = () => {
     routeWaypoints.push([longitude, latitude]);
     
     // Add the complete route
-    addRoute(loadedMap, routeWaypoints);
+    if (routeWaypoints.length > 1) {
+      addRoute(loadedMap, routeWaypoints);
+    }
   };
 
   useEffect(() => {
@@ -270,9 +275,12 @@ export const LogisticsMap = () => {
       // Update route with all waypoints
       const routeWaypoints = waypoints.map(wp => [wp.longitude, wp.latitude] as [number, number]);
       routeWaypoints.push([longitude, latitude]);
-      addRoute(map.current, routeWaypoints);
+      
+      if (routeWaypoints.length > 1) {
+        addRoute(map.current, routeWaypoints);
+      }
     }
-  }, [trackingData]);
+  }, [trackingData, routeProfile, optimizationType]);
 
   return (
     <Card className="relative">
