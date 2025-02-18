@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Index from "./pages/index";
 import Auth from "./pages/Auth";
@@ -18,37 +17,40 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from './components/ui/toaster';
+import { FilterProvider } from "./contexts/FilterContext";
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
-    <Router>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <LanguageProvider>
-            <AuthProvider>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/marketing" element={<Marketing />} />
-                <Route path="/forecasting/*" element={<Forecasting />} />
-                <Route path="/inventory" element={<Inventory />} />
-                <Route path="/sales-planning" element={<SalesPlanning />} />
-                <Route path="/reports" element={<Reports />} />
-                <Route path="/logistics" element={<Logistics />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/sql-config" element={<SQLConfig />} />
-                <Route path="/ask-ai" element={<AskAI />} />
-                <Route path="/tickets" element={<Tickets />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-              <Toaster />
-            </AuthProvider>
-          </LanguageProvider>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </Router>
+    <FilterProvider>
+      <Router>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <LanguageProvider>
+              <AuthProvider>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/marketing" element={<Marketing />} />
+                  <Route path="/forecasting/*" element={<Forecasting />} />
+                  <Route path="/inventory" element={<Inventory />} />
+                  <Route path="/sales-planning" element={<SalesPlanning />} />
+                  <Route path="/reports" element={<Reports />} />
+                  <Route path="/logistics" element={<Logistics />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/sql-config" element={<SQLConfig />} />
+                  <Route path="/ask-ai" element={<AskAI />} />
+                  <Route path="/tickets" element={<Tickets />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+                <Toaster />
+              </AuthProvider>
+            </LanguageProvider>
+          </TooltipProvider>
+        </QueryClientProvider>
+      </Router>
+    </FilterProvider>
   );
 }
 

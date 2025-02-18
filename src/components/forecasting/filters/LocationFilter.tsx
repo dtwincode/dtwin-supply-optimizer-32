@@ -1,27 +1,20 @@
 
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useLocation } from "react-router-dom";
+import { useFilters } from "@/contexts/FilterContext";
 
 interface LocationFilterData {
   [key: string]: string[];
 }
 
-interface LocationState {
-  [level: string]: string;
-}
-
 export function LocationFilter() {
   const location = useLocation();
   const currentTab = location.pathname.split('/').pop() || 'analysis';
+  const { getLocationState, setLocationState } = useFilters();
 
-  const [selectedLocations, setSelectedLocations] = useLocalStorage<LocationState>(
-    `selectedLocations_${currentTab}`,
-    {}
-  );
+  const locationState = getLocationState(currentTab);
 
   const { data: locationData, isLoading } = useQuery({
     queryKey: ['location-hierarchy', currentTab],
@@ -39,10 +32,10 @@ export function LocationFilter() {
   });
 
   const handleLocationChange = (level: string, value: string) => {
-    setSelectedLocations(prev => ({
-      ...prev,
+    setLocationState(currentTab, {
+      ...locationState,
       [level]: value
-    }));
+    });
   };
 
   if (isLoading) {
@@ -57,7 +50,7 @@ export function LocationFilter() {
             {level}
           </label>
           <Select
-            value={selectedLocations[level] || ''}
+            value={locationState[level] || ''}
             onValueChange={(value) => handleLocationChange(level, value)}
           >
             <SelectTrigger id={level}>

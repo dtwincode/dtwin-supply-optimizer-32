@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,18 +7,11 @@ import { Loader2, FileInput, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
-import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useLocation } from "react-router-dom";
+import { useFilters } from "@/contexts/FilterContext";
 
 interface HierarchyData {
   [key: string]: string;
-}
-
-interface HierarchyState {
-  [level: string]: {
-    selected: string;
-    values: string[];
-  };
 }
 
 export function ProductHierarchyFilter() {
@@ -30,24 +22,23 @@ export function ProductHierarchyFilter() {
   const [fileToDelete, setFileToDelete] = useState<string | null>(null);
   const [isLoadingHierarchy, setIsLoadingHierarchy] = useState(false);
   
-  // Use tab-specific localStorage keys
-  const [hierarchyState, setHierarchyState] = useLocalStorage<HierarchyState>(
-    `productHierarchyState_${currentTab}`, 
-    {}
-  );
-  const [hierarchyLevels, setHierarchyLevels] = useLocalStorage<string[]>(
-    `productHierarchyLevels_${currentTab}`, 
-    []
-  );
-  const [hasActiveHierarchy, setHasActiveHierarchy] = useLocalStorage<boolean>(
-    `productHasActiveHierarchy_${currentTab}`, 
-    false
-  );
+  const {
+    getProductHierarchyState,
+    setProductHierarchyState,
+    getHierarchyLevels,
+    setHierarchyLevels,
+    getHasActiveHierarchy,
+    setHasActiveHierarchy
+  } = useFilters();
+
+  const hierarchyState = getProductHierarchyState(currentTab);
+  const hierarchyLevels = getHierarchyLevels(currentTab);
+  const hasActiveHierarchy = getHasActiveHierarchy(currentTab);
 
   const clearHierarchyState = () => {
-    setHasActiveHierarchy(false);
-    setHierarchyLevels([]);
-    setHierarchyState({});
+    setHasActiveHierarchy(currentTab, false);
+    setHierarchyLevels(currentTab, []);
+    setProductHierarchyState(currentTab, {});
   };
 
   const {
@@ -94,7 +85,7 @@ export function ProductHierarchyFilter() {
       }
 
       const columns = Object.keys(hierarchyData[0]);
-      const newHierarchyState: HierarchyState = {};
+      const newHierarchyState: Record<string, { selected: string; values: string[] }> = {};
       
       columns.forEach(column => {
         const uniqueValues = new Set(hierarchyData.map(row => row[column]).filter(Boolean));
@@ -104,9 +95,9 @@ export function ProductHierarchyFilter() {
         };
       });
 
-      setHierarchyLevels(columns);
-      setHierarchyState(newHierarchyState);
-      setHasActiveHierarchy(true);
+      setHierarchyLevels(currentTab, columns);
+      setProductHierarchyState(currentTab, newHierarchyState);
+      setHasActiveHierarchy(currentTab, true);
     } catch (error) {
       console.error('Error fetching hierarchy:', error);
       clearHierarchyState();
@@ -116,13 +107,13 @@ export function ProductHierarchyFilter() {
   };
 
   const handleLevelChange = (level: string, value: string) => {
-    setHierarchyState(prev => ({
-      ...prev,
+    setProductHierarchyState(currentTab, {
+      ...hierarchyState,
       [level]: {
-        ...prev[level],
+        ...hierarchyState[level],
         selected: value
       }
-    }));
+    });
   };
 
   const handleImportHierarchy = async (fileId: string) => {
