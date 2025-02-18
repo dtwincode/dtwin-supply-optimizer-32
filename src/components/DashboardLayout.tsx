@@ -22,7 +22,7 @@ const navigationItems = [
   { name: "navigationItems.reports", icon: FileText, href: "/reports" },
   { name: "navigationItems.askAI", icon: Search, href: "/ask-ai" },
   { name: "navigationItems.settings", icon: Database, href: "/settings" },
-  { name: "navigationItems.guidelines", icon: BookOpen, href: "/guidelines" },
+  { name: "navigationItems.guidelines", icon: BookOpen, href: "/guidelines" }
 ];
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
