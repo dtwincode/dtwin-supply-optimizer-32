@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -82,14 +83,29 @@ export const SupplyChainMap = () => {
       try {
         console.log("Starting map initialization...");
         
+        // First, let's check if the secrets table exists and has our token
+        const { data: tableInfo, error: tableError } = await supabase
+          .from('secrets')
+          .select('count')
+          .single();
+        
+        console.log("Checking secrets table:", { tableInfo, tableError });
+
+        if (tableError) {
+          throw new Error(`Failed to access secrets table: ${tableError.message}`);
+        }
+
+        // Now try to get the specific token
         const { data: secrets, error: secretError } = await supabase
           .from('secrets')
           .select('value')
-          .eq('name', 'MAPBOX_PUBLIC_TOKEN');
+          .eq('name', 'MAPBOX_PUBLIC_TOKEN')
+          .limit(1);
 
         console.log("Secret query result:", { 
           hasData: secrets && secrets.length > 0,
-          error: secretError
+          error: secretError,
+          secretsReceived: secrets
         });
 
         if (secretError) {
