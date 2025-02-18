@@ -1,25 +1,11 @@
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Truck, Clock, PackageCheck, AlertOctagon, Filter } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LogisticsMap } from "@/components/logistics/LogisticsMap";
+import { LogisticsMetricsGrid } from "@/components/logistics/metrics/LogisticsMetricsGrid";
+import { LogisticsOrdersTable } from "@/components/logistics/orders/LogisticsOrdersTable";
+import { POPipelineTable } from "@/components/logistics/pipeline/POPipelineTable";
+import { LogisticsFilters } from "@/components/logistics/filters/LogisticsFilters";
 
 // Mock data - replace with actual API data
 const logisticsData = [
@@ -58,7 +44,6 @@ const logisticsData = [
   },
 ];
 
-// New mock data for PO pipeline monitoring
 const poPipelineData = [
   {
     id: "PO-2024-001",
@@ -108,53 +93,7 @@ const Logistics = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card className="p-6">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 bg-primary-50 rounded-full">
-                <Truck className="h-6 w-6 text-primary-500" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">In Transit</p>
-                <p className="text-2xl font-semibold">25</p>
-              </div>
-            </div>
-          </Card>
-          <Card className="p-6">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 bg-warning-50 rounded-full">
-                <Clock className="h-6 w-6 text-warning-500" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Processing</p>
-                <p className="text-2xl font-semibold">18</p>
-              </div>
-            </div>
-          </Card>
-          <Card className="p-6">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 bg-success-50 rounded-full">
-                <PackageCheck className="h-6 w-6 text-success-500" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Delivered</p>
-                <p className="text-2xl font-semibold">42</p>
-              </div>
-            </div>
-          </Card>
-          <Card className="p-6">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 bg-danger-50 rounded-full">
-                <AlertOctagon className="h-6 w-6 text-danger-500" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Delayed</p>
-                <p className="text-2xl font-semibold">7</p>
-              </div>
-            </div>
-          </Card>
-        </div>
-
+        <LogisticsMetricsGrid />
         <LogisticsMap />
 
         <Tabs defaultValue="orders" className="w-full">
@@ -166,58 +105,7 @@ const Logistics = () => {
           <TabsContent value="orders">
             <Card>
               <div className="p-6">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Order Ref</TableHead>
-                      <TableHead>Supplier</TableHead>
-                      <TableHead>Items</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>ETD</TableHead>
-                      <TableHead>ETA</TableHead>
-                      <TableHead>Lead Time</TableHead>
-                      <TableHead>Priority</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {logisticsData.map((order) => (
-                      <TableRow key={order.id}>
-                        <TableCell className="font-medium">{order.orderRef}</TableCell>
-                        <TableCell>{order.supplier}</TableCell>
-                        <TableCell>{order.items}</TableCell>
-                        <TableCell>
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              order.status === "in-transit"
-                                ? "bg-primary-50 text-primary-700"
-                                : order.status === "delayed"
-                                ? "bg-danger-50 text-danger-700"
-                                : "bg-warning-50 text-warning-700"
-                            }`}
-                          >
-                            {order.status.toUpperCase()}
-                          </span>
-                        </TableCell>
-                        <TableCell>{order.etd}</TableCell>
-                        <TableCell>{order.eta}</TableCell>
-                        <TableCell>{order.leadTime}</TableCell>
-                        <TableCell>
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              order.priority === "high"
-                                ? "bg-danger-50 text-danger-700"
-                                : order.priority === "medium"
-                                ? "bg-warning-50 text-warning-700"
-                                : "bg-success-50 text-success-700"
-                            }`}
-                          >
-                            {order.priority.toUpperCase()}
-                          </span>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <LogisticsOrdersTable orders={logisticsData} />
               </div>
             </Card>
           </TabsContent>
@@ -232,107 +120,9 @@ const Logistics = () => {
                       Monitor and track purchase orders through different stages
                     </p>
                   </div>
-                  <div className="flex gap-2">
-                    <Select defaultValue="all">
-                      <SelectTrigger className="w-[150px]">
-                        <SelectValue placeholder="Filter by Stage" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Stages</SelectItem>
-                        <SelectItem value="documentation">Documentation</SelectItem>
-                        <SelectItem value="shipping">Shipping</SelectItem>
-                        <SelectItem value="quality-check">Quality Check</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <LogisticsFilters />
                 </div>
-
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>PO ID</TableHead>
-                      <TableHead>Supplier</TableHead>
-                      <TableHead>Stage</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Start Date</TableHead>
-                      <TableHead>ETA</TableHead>
-                      <TableHead>Completion</TableHead>
-                      <TableHead>Blockers</TableHead>
-                      <TableHead>Last Updated</TableHead>
-                      <TableHead>Priority</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {poPipelineData.map((po) => (
-                      <TableRow key={po.id}>
-                        <TableCell className="font-medium">{po.id}</TableCell>
-                        <TableCell>{po.supplier}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="capitalize">
-                            {po.stage}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              po.status === "in-progress"
-                                ? "default"
-                                : po.status === "delayed"
-                                ? "destructive"
-                                : "secondary"
-                            }
-                            className="capitalize"
-                          >
-                            {po.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{po.startDate}</TableCell>
-                        <TableCell>{po.eta}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <div className="w-24 h-2 bg-secondary rounded-full overflow-hidden">
-                              <div
-                                className={`h-full ${
-                                  po.completionRate >= 80
-                                    ? "bg-success"
-                                    : po.completionRate >= 40
-                                    ? "bg-warning"
-                                    : "bg-primary"
-                                }`}
-                                style={{ width: `${po.completionRate}%` }}
-                              />
-                            </div>
-                            <span className="text-sm text-muted-foreground">
-                              {po.completionRate}%
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {po.blockers ? (
-                            <span className="text-destructive">{po.blockers}</span>
-                          ) : (
-                            <span className="text-muted-foreground">None</span>
-                          )}
-                        </TableCell>
-                        <TableCell>{po.lastUpdated}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              po.priority === "high"
-                                ? "destructive"
-                                : po.priority === "medium"
-                                ? "secondary"
-                                : "default"
-                            }
-                            className="capitalize"
-                          >
-                            {po.priority}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <POPipelineTable data={poPipelineData} />
               </div>
             </Card>
           </TabsContent>
