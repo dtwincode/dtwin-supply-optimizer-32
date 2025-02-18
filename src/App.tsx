@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Index from "./pages/index";
 import Auth from "./pages/Auth";
@@ -9,6 +10,7 @@ import Reports from "./pages/Reports";
 import Logistics from "./pages/Logistics";
 import Settings from "./pages/Settings";
 import AskAI from "./pages/AskAI";
+import Guidelines from "./pages/Guidelines";
 import NotFound from "./pages/NotFound";
 import Tickets from "./pages/Tickets";
 import SQLConfig from "./pages/SQLConfig";
@@ -39,6 +41,7 @@ function App() {
                   <Route path="/reports" element={<Reports />} />
                   <Route path="/logistics" element={<Logistics />} />
                   <Route path="/settings" element={<Settings />} />
+                  <Route path="/guidelines" element={<Guidelines />} />
                   <Route path="/sql-config" element={<SQLConfig />} />
                   <Route path="/ask-ai" element={<AskAI />} />
                   <Route path="/tickets" element={<Tickets />} />

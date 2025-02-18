@@ -37,6 +37,9 @@ export const navigationTranslations: NavigationItems = {
   settings: {
     en: "Data",
     ar: "البيانات"
+  },
+  guidelines: {
+    en: "Guidelines",
+    ar: "الدليل الإرشادي"
   }
 };
-
