@@ -1,27 +1,62 @@
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Card } from '@/components/ui/card';
 import { useLogisticsTracking } from '@/hooks/useLogisticsTracking';
 import { BaseMap } from '@/components/shared/maps/BaseMap';
+import { Button } from '@/components/ui/button';
+import { 
+  Clock, 
+  DollarSign, 
+  Navigation,
+  AlertTriangle 
+} from 'lucide-react';
+import { toast } from '@/components/ui/use-toast';
+
+type RouteProfile = 'driving' | 'driving-traffic';
+type OptimizationType = 'time' | 'cost';
 
 export const LogisticsMap = () => {
   const marker = useRef<mapboxgl.Marker | null>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const { trackingData } = useLogisticsTracking();
+  const [routeProfile, setRouteProfile] = useState<RouteProfile>('driving-traffic');
+  const [optimizationType, setOptimizationType] = useState<OptimizationType>('time');
+  const [alternateRoutes, setAlternateRoutes] = useState<any[]>([]);
+  const [trafficIncidents, setTrafficIncidents] = useState<any[]>([]);
 
   const addRoute = async (map: mapboxgl.Map, waypoints: Array<[number, number]>) => {
     try {
-      // Create waypoints string for the Mapbox Directions API
+      // Create waypoints string for the Mapbox Directions API with traffic consideration
       const waypointsStr = waypoints.map(wp => `${wp[0]},${wp[1]}`).join(';');
       
+      // Add optimization parameters based on selected type
+      const optimizationParams = optimizationType === 'time' 
+        ? '&depart_at=now&annotations=duration,distance,speed,congestion'
+        : '&annotations=duration,distance,congestion&optimize=cost';
+
       const query = await fetch(
-        `https://api.mapbox.com/directions/v5/mapbox/driving/${waypointsStr}?steps=true&geometries=geojson&access_token=${mapboxgl.accessToken}`
+        `https://api.mapbox.com/directions/v5/mapbox/${routeProfile}/${waypointsStr}?steps=true&geometries=geojson&alternatives=true${optimizationParams}&access_token=${mapboxgl.accessToken}`
       );
       const json = await query.json();
-      const data = json.routes[0];
-      const route = data.geometry.coordinates;
+      
+      if (!json.routes || json.routes.length === 0) {
+        throw new Error('No routes found');
+      }
+
+      // Store alternate routes for later use
+      setAlternateRoutes(json.routes.slice(1));
+
+      const primaryRoute = json.routes[0];
+      const route = primaryRoute.geometry.coordinates;
+
+      // Show estimated time with traffic
+      const estimatedMinutes = Math.round(primaryRoute.duration / 60);
+      toast({
+        title: "Route Updated",
+        description: `Estimated delivery time: ${estimatedMinutes} minutes`,
+      });
 
       const geojson = {
         type: 'Feature',
@@ -31,6 +66,23 @@ export const LogisticsMap = () => {
           coordinates: route
         }
       };
+
+      // Add traffic incidents if available
+      if (primaryRoute.incidents) {
+        setTrafficIncidents(primaryRoute.incidents);
+        primaryRoute.incidents.forEach((incident: any) => {
+          new mapboxgl.Marker({ color: '#ff0000' })
+            .setLngLat(incident.location)
+            .setPopup(new mapboxgl.Popup().setHTML(
+              `<div>
+                <h4>Traffic Alert</h4>
+                <p>${incident.description}</p>
+                <p>Delay: ${Math.round(incident.delay / 60)} minutes</p>
+              </div>`
+            ))
+            .addTo(map);
+        });
+      }
 
       // If the route already exists on the map, we'll reset it using setData
       if (map.getSource('route')) {
@@ -49,12 +101,54 @@ export const LogisticsMap = () => {
             'line-cap': 'round'
           },
           paint: {
-            'line-color': '#3b82f6',
+            'line-color': [
+              'match',
+              ['get', 'congestion'],
+              'low', '#22c55e',
+              'moderate', '#f59e0b',
+              'heavy', '#ef4444',
+              'severe', '#7f1d1d',
+              '#3b82f6'
+            ],
             'line-width': 4,
             'line-opacity': 0.75
           }
         });
       }
+
+      // Add alternate routes with different styling
+      alternateRoutes.forEach((altRoute, index) => {
+        const altGeojson = {
+          type: 'Feature',
+          properties: {},
+          geometry: altRoute.geometry
+        };
+
+        const altRouteId = `route-alternative-${index}`;
+
+        if (map.getSource(altRouteId)) {
+          (map.getSource(altRouteId) as mapboxgl.GeoJSONSource).setData(altGeojson as any);
+        } else {
+          map.addLayer({
+            id: altRouteId,
+            type: 'line',
+            source: {
+              type: 'geojson',
+              data: altGeojson as any
+            },
+            layout: {
+              'line-join': 'round',
+              'line-cap': 'round'
+            },
+            paint: {
+              'line-color': '#94a3b8',
+              'line-width': 3,
+              'line-opacity': 0.5,
+              'line-dasharray': [2, 2]
+            }
+          });
+        }
+      });
 
       // Fit map to show entire route
       const coordinates = route;
@@ -67,6 +161,11 @@ export const LogisticsMap = () => {
       });
     } catch (error) {
       console.error('Error adding route:', error);
+      toast({
+        title: "Route Error",
+        description: "Failed to update route. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -160,10 +259,52 @@ export const LogisticsMap = () => {
   }, [trackingData]);
 
   return (
-    <Card>
+    <Card className="relative">
+      <div className="absolute top-4 right-4 z-10 flex gap-2 bg-white/90 p-2 rounded-lg shadow">
+        <Button
+          size="sm"
+          variant={routeProfile === 'driving-traffic' ? 'default' : 'outline'}
+          onClick={() => setRouteProfile('driving-traffic')}
+        >
+          <Clock className="h-4 w-4 mr-2" />
+          Traffic
+        </Button>
+        <Button
+          size="sm"
+          variant={routeProfile === 'driving' ? 'default' : 'outline'}
+          onClick={() => setRouteProfile('driving')}
+        >
+          <Navigation className="h-4 w-4 mr-2" />
+          Standard
+        </Button>
+        <Button
+          size="sm"
+          variant={optimizationType === 'time' ? 'default' : 'outline'}
+          onClick={() => setOptimizationType('time')}
+        >
+          <Clock className="h-4 w-4 mr-2" />
+          Time
+        </Button>
+        <Button
+          size="sm"
+          variant={optimizationType === 'cost' ? 'default' : 'outline'}
+          onClick={() => setOptimizationType('cost')}
+        >
+          <DollarSign className="h-4 w-4 mr-2" />
+          Cost
+        </Button>
+      </div>
+      {trafficIncidents.length > 0 && (
+        <div className="absolute top-16 right-4 z-10 bg-red-50 p-2 rounded-lg shadow">
+          <div className="flex items-center text-red-700 text-sm">
+            <AlertTriangle className="h-4 w-4 mr-2" />
+            {trafficIncidents.length} Traffic Incident(s)
+          </div>
+        </div>
+      )}
       <BaseMap 
         onMapLoad={handleMapLoad}
-        center={[45.0792, 23.8859]} // Center of Saudi Arabia
+        center={[45.0792, 23.8859]}
         zoom={5}
       />
     </Card>
