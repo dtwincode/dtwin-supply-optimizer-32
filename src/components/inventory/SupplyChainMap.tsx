@@ -83,25 +83,37 @@ export const SupplyChainMap = () => {
       try {
         console.log("Starting map initialization...");
         
-        // Fetch the token
+        // Fetch the token with detailed logging
         const { data: secretData, error: secretError } = await supabase
           .from('secrets')
-          .select('value')
+          .select('*')
           .eq('name', 'MAPBOX_PUBLIC_TOKEN')
           .maybeSingle();
 
+        console.log("Secret query result:", { secretData, secretError });
+
         if (secretError) {
+          console.error("Secret fetch error:", secretError);
           throw new Error(`Failed to fetch token: ${secretError.message}`);
         }
 
         if (!secretData) {
+          console.error("No secret data found");
           throw new Error('Mapbox token not found. Please ensure it is set in Supabase.');
         }
 
         const token = secretData.value;
         
         if (!token) {
+          console.error("Token is empty or undefined");
           throw new Error('Invalid Mapbox token.');
+        }
+
+        console.log("Retrieved token starts with:", token.substring(0, 4));
+
+        if (!token.startsWith('pk.')) {
+          console.error("Token doesn't start with 'pk.'");
+          throw new Error('Invalid Mapbox public token format.');
         }
 
         if (!mapContainer.current) {
