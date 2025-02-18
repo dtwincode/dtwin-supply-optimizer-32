@@ -24,6 +24,13 @@ export type UITranslations = {
   signIn: TranslationValue;
   signUp: TranslationValue;
   signOut: TranslationValue;
+  clickToExpand: TranslationValue;
+  analyze: TranslationValue;
+  predict: TranslationValue;
+  optimize: TranslationValue;
+  timePeriod: TranslationValue;
+  productHierarchy: TranslationValue;
+  locationHierarchy: TranslationValue;
 };
 
 export const uiTranslations: UITranslations = {
@@ -114,5 +121,33 @@ export const uiTranslations: UITranslations = {
   signOut: {
     en: "Sign Out",
     ar: "تسجيل الخروج"
+  },
+  clickToExpand: {
+    en: "Click to expand",
+    ar: "انقر للتوسيع"
+  },
+  analyze: {
+    en: "Analyze",
+    ar: "تحليل"
+  },
+  predict: {
+    en: "Predict",
+    ar: "تنبؤ"
+  },
+  optimize: {
+    en: "Optimize",
+    ar: "تحسين"
+  },
+  timePeriod: {
+    en: "Time Period",
+    ar: "الفترة الزمنية"
+  },
+  productHierarchy: {
+    en: "Product Hierarchy",
+    ar: "التسلسل الهرمي للمنتجات"
+  },
+  locationHierarchy: {
+    en: "Location Hierarchy",
+    ar: "التسلسل الهرمي للمواقع"
   }
 };
