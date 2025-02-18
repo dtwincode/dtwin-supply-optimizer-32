@@ -77,40 +77,50 @@ export function LocationFilter() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 p-6 rounded-lg border bg-card">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Location Filters</h3>
+        <div className="space-y-1">
+          <h3 className="font-semibold text-base">Location Filters</h3>
+          <p className="text-sm text-muted-foreground">Filter by location hierarchy.</p>
+        </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="icon">
+          <Button variant="ghost" size="icon" className="hover:bg-muted">
             <ArrowDownToLine className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" onClick={handleClearFilters}>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={handleClearFilters}
+            className="hover:bg-muted"
+          >
             <Trash2 className="h-4 w-4 text-destructive" />
           </Button>
         </div>
       </div>
-      {Object.entries(locationData).map(([level, options]) => (
-        <div key={level} className="space-y-2">
-          <label htmlFor={level} className="text-sm font-medium text-muted-foreground">
-            {level}
-          </label>
-          <Select
-            value={locationState[level] || ''}
-            onValueChange={(value) => handleLocationChange(level, value)}
-          >
-            <SelectTrigger id={level}>
-              <SelectValue placeholder={`Select ${level}`} />
-            </SelectTrigger>
-            <SelectContent>
-              {Array.isArray(options) && options.map((option) => (
-                <SelectItem key={option} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      ))}
+      <div className="grid gap-4">
+        {Object.entries(locationData).map(([level, options]) => (
+          <div key={level} className="grid gap-2">
+            <label htmlFor={level} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              {level}
+            </label>
+            <Select
+              value={locationState[level] || ''}
+              onValueChange={(value) => handleLocationChange(level, value)}
+            >
+              <SelectTrigger id={level} className="bg-background">
+                <SelectValue placeholder={`Select ${level}`} />
+              </SelectTrigger>
+              <SelectContent>
+                {Array.isArray(options) && options.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
