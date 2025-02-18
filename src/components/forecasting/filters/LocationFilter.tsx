@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -75,16 +76,21 @@ export function LocationFilter() {
   } = useQuery({
     queryKey: ['saved-location-hierarchies'],
     queryFn: async () => {
+      console.log('Fetching saved location hierarchy files...');
       const {
         data: files,
         error
-      } = await supabase.from('permanent_hierarchy_files').select('*').eq('hierarchy_type', 'location_hierarchy').order('created_at', {
-        ascending: false
-      });
+      } = await supabase
+        .from('permanent_hierarchy_files')
+        .select('*')
+        .eq('hierarchy_type', 'location_hierarchy')
+        .order('created_at', { ascending: false });
+
       if (error) {
         console.error('Error fetching saved hierarchies:', error);
         return [];
       }
+      console.log('Retrieved files:', files);
       return files || [];
     }
   });
@@ -195,6 +201,8 @@ export function LocationFilter() {
     );
   }
 
+  console.log('Saved files:', savedFiles);
+
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between">
@@ -205,18 +213,24 @@ export function LocationFilter() {
               <FileInput className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[200px]">
-            {savedFiles?.map(file => (
-              <DropdownMenuItem 
-                key={file.id} 
-                onSelect={(e) => {
-                  e.preventDefault();
-                  handleImportHierarchy(file.id);
-                }}
-              >
-                {file.original_name}
+          <DropdownMenuContent align="end" className="w-[200px] bg-popover">
+            {savedFiles && savedFiles.length > 0 ? (
+              savedFiles.map(file => (
+                <DropdownMenuItem 
+                  key={file.id} 
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    handleImportHierarchy(file.id);
+                  }}
+                >
+                  {file.original_name}
+                </DropdownMenuItem>
+              ))
+            ) : (
+              <DropdownMenuItem disabled>
+                No saved files
               </DropdownMenuItem>
-            ))}
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
