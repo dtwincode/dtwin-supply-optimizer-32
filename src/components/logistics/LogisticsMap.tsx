@@ -28,13 +28,20 @@ export const LogisticsMap = () => {
 
   const addRoute = async (map: mapboxgl.Map, waypoints: Array<[number, number]>) => {
     try {
+      // Remove duplicate coordinates by filtering consecutive identical points
+      const uniqueWaypoints = waypoints.filter((wp, index, arr) => {
+        if (index === 0) return true;
+        const prev = arr[index - 1];
+        return !(wp[0] === prev[0] && wp[1] === prev[1]);
+      });
+
       // Create waypoints string for the Mapbox Directions API with traffic consideration
-      const waypointsStr = waypoints.map(wp => `${wp[0]},${wp[1]}`).join(';');
+      const waypointsStr = uniqueWaypoints.map(wp => `${wp[0]},${wp[1]}`).join(';');
       
       // Add optimization parameters based on selected type
       const optimizationParams = optimizationType === 'time' 
-        ? '&depart_at=now&annotations=duration,distance,speed,congestion'
-        : '&annotations=duration,distance,congestion&optimize=cost';
+        ? '&depart_at=now&annotations=duration,distance,speed,congestion&overview=full'
+        : '&annotations=duration,distance,congestion&optimize=cost&overview=full';
 
       const query = await fetch(
         `https://api.mapbox.com/directions/v5/mapbox/${routeProfile}/${waypointsStr}?steps=true&geometries=geojson&alternatives=true${optimizationParams}&access_token=${mapboxgl.accessToken}`
