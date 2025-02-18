@@ -4,21 +4,13 @@ import { Separator } from "@/components/ui/separator";
 import { Card } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
-import { BookOpen, BarChart2, Users, Settings, Search } from "lucide-react";
+import { BarChart2, Users, Settings, Search, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Guidelines = () => {
   const { language, isRTL } = useLanguage();
 
   const sections = [
-    {
-      icon: BookOpen,
-      title: language === 'ar' ? "البدء والإعداد" : "Getting Started",
-      content: language === 'ar' 
-        ? "تعرف على كيفية بدء استخدام أداة التنبؤ بالطلب وإعداد حسابك"
-        : "Learn how to get started with the demand forecasting tool and set up your account",
-      href: "/guidelines/getting-started"
-    },
     {
       icon: BarChart2,
       title: language === 'ar' ? "أساسيات التنبؤ" : "Forecasting Basics",
@@ -50,6 +42,14 @@ const Guidelines = () => {
         ? "تعرف على كيفية استخدام مساعد الذكاء الاصطناعي للحصول على إجابات فورية"
         : "Learn how to use the AI assistant for instant answers",
       href: "/guidelines/ai-assistant"
+    },
+    {
+      icon: BookOpen,
+      title: language === 'ar' ? "البدء والإعداد" : "Getting Started",
+      content: language === 'ar' 
+        ? "تعرف على كيفية بدء استخدام أداة التنبؤ بالطلب وإعداد حسابك"
+        : "Learn how to get started with the demand forecasting tool and set up your account",
+      href: "/guidelines/getting-started"
     }
   ];
 
