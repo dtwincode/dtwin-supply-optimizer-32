@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -85,13 +86,13 @@ export const SupplyChainMap = () => {
     async function initializeMapWithToken() {
       try {
         setIsLoading(true);
-        const { data, error: tokenError } = await supabase
+        const { data: secretData, error: tokenError } = await supabase
           .from('secrets')
-          .select('value')
+          .select('*')
           .eq('name', 'MAPBOX_PUBLIC_TOKEN')
-          .maybeSingle<Secret>();
+          .single();
 
-        if (tokenError || !data?.value) {
+        if (tokenError || !secretData?.value) {
           setError("Unable to load map configuration. Please try again later.");
           toast({
             title: "Error",
@@ -104,7 +105,7 @@ export const SupplyChainMap = () => {
         if (!mapContainer.current || !locations.length || isMapInitialized) return;
 
         // Initialize map
-        mapboxgl.accessToken = data.value;
+        mapboxgl.accessToken = secretData.value;
         
         map.current = new mapboxgl.Map({
           container: mapContainer.current,
