@@ -1,10 +1,9 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Loader2, FileInput } from "lucide-react";
+import { Loader2, FileInput, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
@@ -25,7 +24,7 @@ export function LocationFilter() {
   const [hierarchyState, setHierarchyState] = useState<HierarchyState>({});
   const [hierarchyLevels, setHierarchyLevels] = useState<string[]>([]);
   const [hasActiveHierarchy, setHasActiveHierarchy] = useState(false);
-  const [deleteFileId, setDeleteFileId] = useState<string | null>(null);
+  const [fileToDelete, setFileToDelete] = useState<string | null>(null);
 
   const {
     data: locationsData,
@@ -113,7 +112,6 @@ export function LocationFilter() {
 
   const handleImportHierarchy = async (fileId: string) => {
     try {
-      // First, fetch the file data
       const { data: fileData, error: fileError } = await supabase
         .from('permanent_hierarchy_files')
         .select('data')
@@ -122,7 +120,6 @@ export function LocationFilter() {
 
       if (fileError) throw fileError;
 
-      // Get the current max version
       const { data: versionData, error: versionError } = await supabase
         .from('permanent_hierarchy_data')
         .select('version')
@@ -133,13 +130,11 @@ export function LocationFilter() {
 
       const nextVersion = (versionData?.version || 0) + 1;
 
-      // Deactivate all current versions
       await supabase
         .from('permanent_hierarchy_data')
         .update({ is_active: false })
         .eq('hierarchy_type', 'location_hierarchy');
 
-      // Insert new version
       const { error: insertError } = await supabase
         .from('permanent_hierarchy_data')
         .insert({
@@ -170,6 +165,47 @@ export function LocationFilter() {
     }
   };
 
+  const handleDeleteFile = async (fileId: string) => {
+    try {
+      const { data: activeData } = await supabase
+        .from('permanent_hierarchy_data')
+        .select('id')
+        .eq('source_upload_id', fileId)
+        .eq('is_active', true)
+        .single();
+
+      const { error: deleteError } = await supabase
+        .from('permanent_hierarchy_files')
+        .delete()
+        .eq('id', fileId);
+
+      if (deleteError) throw deleteError;
+
+      if (activeData) {
+        setHierarchyState({});
+        setHierarchyLevels([]);
+        setHasActiveHierarchy(false);
+      }
+
+      await refetchFiles();
+      await refetch();
+
+      toast({
+        title: "Success",
+        description: "File deleted successfully"
+      });
+    } catch (error) {
+      console.error('Error deleting file:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete file"
+      });
+    } finally {
+      setFileToDelete(null);
+    }
+  };
+
   if (isLoading || isLoadingFiles) {
     return (
       <div className="w-full">
@@ -193,15 +229,28 @@ export function LocationFilter() {
           <DropdownMenuContent align="end" className="w-[200px] bg-popover">
             {savedFiles && savedFiles.length > 0 ? (
               savedFiles.map(file => (
-                <DropdownMenuItem 
-                  key={file.id} 
-                  onSelect={(e) => {
-                    e.preventDefault();
-                    handleImportHierarchy(file.id);
-                  }}
-                >
-                  {file.original_name}
-                </DropdownMenuItem>
+                <div key={file.id} className="flex items-center justify-between px-2 py-1.5">
+                  <DropdownMenuItem 
+                    className="flex-1"
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      handleImportHierarchy(file.id);
+                    }}
+                  >
+                    {file.original_name}
+                  </DropdownMenuItem>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setFileToDelete(file.id);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
               ))
             ) : (
               <DropdownMenuItem disabled>
@@ -241,6 +290,26 @@ export function LocationFilter() {
           ))}
         </div>
       )}
+
+      <AlertDialog open={!!fileToDelete} onOpenChange={() => setFileToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete File</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this file? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => fileToDelete && handleDeleteFile(fileToDelete)}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
