@@ -11,10 +11,13 @@ export const LogisticsMap = () => {
   const map = useRef<mapboxgl.Map | null>(null);
   const { trackingData } = useLogisticsTracking();
 
-  const addRoute = async (map: mapboxgl.Map, start: [number, number], end: [number, number]) => {
+  const addRoute = async (map: mapboxgl.Map, waypoints: Array<[number, number]>) => {
     try {
+      // Create waypoints string for the Mapbox Directions API
+      const waypointsStr = waypoints.map(wp => `${wp[0]},${wp[1]}`).join(';');
+      
       const query = await fetch(
-        `https://api.mapbox.com/directions/v5/mapbox/driving/${start[0]},${start[1]};${end[0]},${end[1]}?steps=true&geometries=geojson&access_token=${mapboxgl.accessToken}`
+        `https://api.mapbox.com/directions/v5/mapbox/driving/${waypointsStr}?steps=true&geometries=geojson&access_token=${mapboxgl.accessToken}`
       );
       const json = await query.json();
       const data = json.routes[0];
@@ -53,12 +56,6 @@ export const LogisticsMap = () => {
         });
       }
 
-      // Add start marker (Riyadh hub)
-      new mapboxgl.Marker({ color: '#22c55e' })
-        .setLngLat(start)
-        .setPopup(new mapboxgl.Popup().setHTML('<h3>Distribution Hub</h3><p>Riyadh</p>'))
-        .addTo(map);
-
       // Fit map to show entire route
       const coordinates = route;
       const bounds = coordinates.reduce((bounds: mapboxgl.LngLatBounds, coord: number[]) => {
@@ -83,44 +80,70 @@ export const LogisticsMap = () => {
         zoom: 5,
         essential: true
       });
-    } else {
-      const { latitude, longitude, waypoints = [] } = trackingData;
-      
-      // Add destination marker with popup
-      marker.current = new mapboxgl.Marker({ color: '#ef4444' })
-        .setLngLat([longitude, latitude])
+      return;
+    }
+
+    const { latitude, longitude, waypoints = [] } = trackingData;
+    
+    // Add destination marker with popup
+    marker.current = new mapboxgl.Marker({ color: '#ef4444' })
+      .setLngLat([longitude, latitude])
+      .setPopup(new mapboxgl.Popup().setHTML(
+        `<h3>Final Destination</h3>
+         <p>Status: ${trackingData.status}</p>
+         <p>Last Updated: ${new Date(trackingData.timestamp).toLocaleString()}</p>
+         ${trackingData.eta ? `<p>ETA: ${new Date(trackingData.eta).toLocaleString()}</p>` : ''}`
+      ))
+      .addTo(loadedMap);
+    
+    // Add markers for all waypoints
+    waypoints.forEach((waypoint, index) => {
+      let color = '#22c55e'; // Default green for completed
+      if (waypoint.status === 'in_progress') {
+        color = '#f59e0b'; // Orange for in progress
+      } else if (waypoint.status === 'pending') {
+        color = '#ef4444'; // Red for pending
+      }
+
+      let status = '';
+      switch (waypoint.status) {
+        case 'completed':
+          status = '✅ Completed';
+          break;
+        case 'in_progress':
+          status = '🚚 In Progress';
+          break;
+        case 'pending':
+          status = '⏳ Pending';
+          break;
+      }
+
+      new mapboxgl.Marker({ color })
+        .setLngLat([waypoint.longitude, waypoint.latitude])
         .setPopup(new mapboxgl.Popup().setHTML(
-          `<h3>Delivery Location</h3>
-           <p>Status: ${trackingData.status}</p>
-           <p>Last Updated: ${new Date(trackingData.timestamp).toLocaleString()}</p>
-           ${trackingData.eta ? `<p>ETA: ${new Date(trackingData.eta).toLocaleString()}</p>` : ''}
-          `
+          `<div style="min-width: 200px;">
+             <h3 style="font-weight: bold; margin-bottom: 8px;">Checkpoint ${index + 1}</h3>
+             <p style="margin: 4px 0;">Status: ${status}</p>
+             <p style="margin: 4px 0;">Time: ${new Date(waypoint.timestamp).toLocaleString()}</p>
+           </div>`
         ))
         .addTo(loadedMap);
-      
-      // Add waypoint markers
-      waypoints.forEach((waypoint, index) => {
-        const color = waypoint.status === 'completed' ? '#22c55e' : '#f59e0b';
-        new mapboxgl.Marker({ color })
-          .setLngLat([waypoint.longitude, waypoint.latitude])
-          .setPopup(new mapboxgl.Popup().setHTML(
-            `<h3>Waypoint ${index + 1}</h3>
-             <p>Status: ${waypoint.status}</p>
-             <p>Passed: ${new Date(waypoint.timestamp).toLocaleString()}</p>`
-          ))
-          .addTo(loadedMap);
-      });
-      
-      // Add start point in Riyadh and route to current location
-      const startPoint: [number, number] = [46.6753, 24.7136]; // Riyadh coordinates
-      addRoute(loadedMap, startPoint, [longitude, latitude]);
-    }
+    });
+    
+    // Create array of coordinates for the complete route
+    const routeWaypoints = waypoints.map(wp => [wp.longitude, wp.latitude] as [number, number]);
+    // Add final destination
+    routeWaypoints.push([longitude, latitude]);
+    
+    // Add the complete route
+    addRoute(loadedMap, routeWaypoints);
   };
 
   useEffect(() => {
     if (trackingData && map.current) {
       const { latitude, longitude, waypoints = [] } = trackingData;
       
+      // Update destination marker position
       if (!marker.current) {
         marker.current = new mapboxgl.Marker({ color: '#ef4444' })
           .setLngLat([longitude, latitude])
@@ -129,9 +152,10 @@ export const LogisticsMap = () => {
         marker.current.setLngLat([longitude, latitude]);
       }
 
-      // Update route when tracking data changes
-      const startPoint: [number, number] = [46.6753, 24.7136]; // Riyadh coordinates
-      addRoute(map.current, startPoint, [longitude, latitude]);
+      // Update route with all waypoints
+      const routeWaypoints = waypoints.map(wp => [wp.longitude, wp.latitude] as [number, number]);
+      routeWaypoints.push([longitude, latitude]);
+      addRoute(map.current, routeWaypoints);
     }
   }, [trackingData]);
 
