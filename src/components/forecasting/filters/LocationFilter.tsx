@@ -280,13 +280,16 @@ export function LocationFilter() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {hierarchyLevels.map(level => (
-            <div key={level}>
+            <div key={level} className="space-y-2">
+              <label htmlFor={level} className="text-sm font-medium text-muted-foreground">
+                {level}
+              </label>
               <Select
                 value={hierarchyState[level]?.selected || level}
                 onValueChange={value => handleLevelChange(level, value)}
                 disabled={!hierarchyState[level]?.values.length}
               >
-                <SelectTrigger>
+                <SelectTrigger id={level}>
                   <SelectValue placeholder={level} />
                 </SelectTrigger>
                 <SelectContent>
