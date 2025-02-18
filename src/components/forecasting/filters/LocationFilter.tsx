@@ -31,10 +31,7 @@ export function LocationFilter() {
 
       if (error) throw error;
       
-      // Ensure we handle the data properly
       const hierarchyData = data?.data || {};
-      
-      // Convert the data into the expected format and validate arrays
       const formattedData: LocationFilterData = {};
       Object.entries(hierarchyData).forEach(([key, value]) => {
         if (Array.isArray(value)) {
