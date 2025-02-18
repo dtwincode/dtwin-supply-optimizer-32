@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -83,14 +82,13 @@ export const SupplyChainMap = () => {
       try {
         console.log("Starting map initialization...");
         
-        const { data: secretData, error: secretError } = await supabase
+        const { data: secrets, error: secretError } = await supabase
           .from('secrets')
-          .select('*')
-          .eq('name', 'MAPBOX_PUBLIC_TOKEN')
-          .maybeSingle();
+          .select('value')
+          .eq('name', 'MAPBOX_PUBLIC_TOKEN');
 
         console.log("Secret query result:", { 
-          data: secretData ? 'Token exists' : 'No token found',
+          hasData: secrets && secrets.length > 0,
           error: secretError
         });
 
@@ -99,8 +97,8 @@ export const SupplyChainMap = () => {
           throw new Error(`Failed to fetch token: ${secretError.message}`);
         }
 
-        if (!secretData) {
-          console.error("No secret data found");
+        if (!secrets || secrets.length === 0) {
+          console.error("No Mapbox token found in secrets");
           toast({
             title: "Configuration Error",
             description: "Mapbox token not found. Please ensure it is set in your Supabase project.",
@@ -109,10 +107,10 @@ export const SupplyChainMap = () => {
           throw new Error('Mapbox token not found. Please ensure it is set in Supabase.');
         }
 
-        const token = secretData.value;
+        const token = secrets[0].value;
         
         if (!token) {
-          console.error("Token is empty or undefined");
+          console.error("Token value is empty");
           throw new Error('Invalid Mapbox token.');
         }
 
