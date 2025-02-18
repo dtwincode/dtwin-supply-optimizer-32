@@ -1,4 +1,5 @@
 
+import { useQuery } from '@tanstack/react-query';
 import {
   Table,
   TableBody,
@@ -8,44 +9,58 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { getEnhancedOrders } from '@/services/logisticsService';
+import { useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
-interface LogisticsOrder {
-  id: number;
-  orderRef: string;
-  supplier: string;
-  items: number;
-  status: string;
-  etd: string;
-  eta: string;
-  leadTime: string;
-  priority: string;
-}
+export const LogisticsOrdersTable = () => {
+  const { data: orders, refetch } = useQuery({
+    queryKey: ['enhanced-orders'],
+    queryFn: getEnhancedOrders,
+  });
 
-interface LogisticsOrdersTableProps {
-  orders: LogisticsOrder[];
-}
+  useEffect(() => {
+    const channel = supabase
+      .channel('enhanced-orders-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'logistics_enhanced_orders',
+        },
+        () => {
+          refetch();
+        }
+      )
+      .subscribe();
 
-export const LogisticsOrdersTable = ({ orders }: LogisticsOrdersTableProps) => {
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [refetch]);
+
+  if (!orders) return null;
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead>Order Ref</TableHead>
-          <TableHead>Supplier</TableHead>
-          <TableHead>Items</TableHead>
+          <TableHead>Carrier</TableHead>
+          <TableHead>Tracking Number</TableHead>
           <TableHead>Status</TableHead>
-          <TableHead>ETD</TableHead>
-          <TableHead>ETA</TableHead>
-          <TableHead>Lead Time</TableHead>
+          <TableHead>Estimated Delivery</TableHead>
+          <TableHead>Shipping Method</TableHead>
           <TableHead>Priority</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {orders.map((order) => (
           <TableRow key={order.id}>
-            <TableCell className="font-medium">{order.orderRef}</TableCell>
-            <TableCell>{order.supplier}</TableCell>
-            <TableCell>{order.items}</TableCell>
+            <TableCell className="font-medium">{order.order_ref}</TableCell>
+            <TableCell>{order.carrier}</TableCell>
+            <TableCell>{order.tracking_number}</TableCell>
             <TableCell>
               <Badge
                 variant={
@@ -60,9 +75,8 @@ export const LogisticsOrdersTable = ({ orders }: LogisticsOrdersTableProps) => {
                 {order.status}
               </Badge>
             </TableCell>
-            <TableCell>{order.etd}</TableCell>
-            <TableCell>{order.eta}</TableCell>
-            <TableCell>{order.leadTime}</TableCell>
+            <TableCell>{new Date(order.estimated_delivery).toLocaleDateString()}</TableCell>
+            <TableCell>{order.shipping_method}</TableCell>
             <TableCell>
               <Badge
                 variant={

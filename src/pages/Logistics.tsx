@@ -7,43 +7,6 @@ import { LogisticsOrdersTable } from "@/components/logistics/orders/LogisticsOrd
 import { POPipelineTable } from "@/components/logistics/pipeline/POPipelineTable";
 import { LogisticsFilters } from "@/components/logistics/filters/LogisticsFilters";
 
-// Mock data - replace with actual API data
-const logisticsData = [
-  {
-    id: 1,
-    orderRef: "PO-001",
-    supplier: "Supplier A",
-    items: 25,
-    status: "in-transit",
-    etd: "2024-02-15",
-    eta: "2024-02-20",
-    leadTime: "5 days",
-    priority: "high",
-  },
-  {
-    id: 2,
-    orderRef: "PO-002",
-    supplier: "Supplier B",
-    items: 15,
-    status: "delayed",
-    etd: "2024-02-12",
-    eta: "2024-02-18",
-    leadTime: "6 days",
-    priority: "medium",
-  },
-  {
-    id: 3,
-    orderRef: "PO-003",
-    supplier: "Supplier C",
-    items: 30,
-    status: "processing",
-    etd: "2024-02-18",
-    eta: "2024-02-22",
-    leadTime: "4 days",
-    priority: "low",
-  },
-];
-
 const poPipelineData = [
   {
     id: "PO-2024-001",
@@ -105,7 +68,7 @@ const Logistics = () => {
           <TabsContent value="orders">
             <Card>
               <div className="p-6">
-                <LogisticsOrdersTable orders={logisticsData} />
+                <LogisticsOrdersTable />
               </div>
             </Card>
           </TabsContent>

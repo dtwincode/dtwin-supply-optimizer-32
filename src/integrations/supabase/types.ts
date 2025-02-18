@@ -1307,6 +1307,39 @@ export type Database = {
           },
         ]
       }
+      logistics_analytics: {
+        Row: {
+          created_at: string | null
+          dimension: string | null
+          id: string
+          metadata: Json | null
+          metric_type: string
+          metric_value: number | null
+          timestamp: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          dimension?: string | null
+          id?: string
+          metadata?: Json | null
+          metric_type: string
+          metric_value?: number | null
+          timestamp?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          dimension?: string | null
+          id?: string
+          metadata?: Json | null
+          metric_type?: string
+          metric_value?: number | null
+          timestamp?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       logistics_data: {
         Row: {
           actual_delivery: string | null
@@ -1364,6 +1397,120 @@ export type Database = {
           type?: string | null
           updated_at?: string
           weight?: number | null
+        }
+        Relationships: []
+      }
+      logistics_documents: {
+        Row: {
+          created_at: string | null
+          document_type: string
+          file_url: string | null
+          id: string
+          metadata: Json | null
+          order_id: string
+          status: string | null
+          updated_at: string | null
+          version: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          document_type: string
+          file_url?: string | null
+          id?: string
+          metadata?: Json | null
+          order_id: string
+          status?: string | null
+          updated_at?: string | null
+          version?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          document_type?: string
+          file_url?: string | null
+          id?: string
+          metadata?: Json | null
+          order_id?: string
+          status?: string | null
+          updated_at?: string | null
+          version?: number | null
+        }
+        Relationships: []
+      }
+      logistics_enhanced_orders: {
+        Row: {
+          actual_delivery: string | null
+          carrier: string | null
+          created_at: string | null
+          estimated_delivery: string | null
+          id: string
+          metadata: Json | null
+          order_ref: string
+          priority: string | null
+          shipping_method: string | null
+          status: string | null
+          tracking_number: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          actual_delivery?: string | null
+          carrier?: string | null
+          created_at?: string | null
+          estimated_delivery?: string | null
+          id?: string
+          metadata?: Json | null
+          order_ref: string
+          priority?: string | null
+          shipping_method?: string | null
+          status?: string | null
+          tracking_number?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          actual_delivery?: string | null
+          carrier?: string | null
+          created_at?: string | null
+          estimated_delivery?: string | null
+          id?: string
+          metadata?: Json | null
+          order_ref?: string
+          priority?: string | null
+          shipping_method?: string | null
+          status?: string | null
+          tracking_number?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      logistics_tracking: {
+        Row: {
+          created_at: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          order_id: string
+          status: string | null
+          timestamp: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          order_id: string
+          status?: string | null
+          timestamp?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          order_id?: string
+          status?: string | null
+          timestamp?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
