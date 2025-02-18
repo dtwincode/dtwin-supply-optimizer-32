@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,6 +8,7 @@ import { Loader2, FileInput, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
+import { useLocalStorage } from "@/hooks/use-local-storage";
 
 interface HierarchyData {
   [key: string]: string;
@@ -21,11 +23,13 @@ interface HierarchyState {
 
 export function LocationFilter() {
   const { toast } = useToast();
-  const [hierarchyState, setHierarchyState] = useState<HierarchyState>({});
-  const [hierarchyLevels, setHierarchyLevels] = useState<string[]>([]);
-  const [hasActiveHierarchy, setHasActiveHierarchy] = useState(false);
   const [fileToDelete, setFileToDelete] = useState<string | null>(null);
   const [isLoadingHierarchy, setIsLoadingHierarchy] = useState(false);
+  
+  // Use localStorage for hierarchy state
+  const [hierarchyState, setHierarchyState] = useLocalStorage<HierarchyState>("locationHierarchyState", {});
+  const [hierarchyLevels, setHierarchyLevels] = useLocalStorage<string[]>("locationHierarchyLevels", []);
+  const [hasActiveHierarchy, setHasActiveHierarchy] = useLocalStorage<boolean>("locationHasActiveHierarchy", false);
 
   const clearHierarchyState = () => {
     setHasActiveHierarchy(false);
