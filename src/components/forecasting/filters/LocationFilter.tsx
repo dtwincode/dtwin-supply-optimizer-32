@@ -33,12 +33,12 @@ export function LocationFilter() {
   } = useFilters();
 
   const locationState = getLocationState(currentTab);
-  const hierarchyLevels = getHierarchyLevels(currentTab);
-  const hasActiveHierarchy = getHasActiveHierarchy(currentTab);
+  const hierarchyLevels = getHierarchyLevels(currentTab, 'location');
+  const hasActiveHierarchy = getHasActiveHierarchy(currentTab, 'location');
 
   const clearHierarchyState = () => {
-    setHasActiveHierarchy(currentTab, false);
-    setHierarchyLevels(currentTab, []);
+    setHasActiveHierarchy(currentTab, 'location', false);
+    setHierarchyLevels(currentTab, 'location', []);
     setLocationState(currentTab, {});
     setAvailableValues({});
   };
@@ -96,10 +96,10 @@ export function LocationFilter() {
         newAvailableValues[column] = uniqueValues;
       });
 
-      setHierarchyLevels(currentTab, columns);
+      setHierarchyLevels(currentTab, 'location', columns);
       setLocationState(currentTab, newLocationState);
       setAvailableValues(newAvailableValues);
-      setHasActiveHierarchy(currentTab, true);
+      setHasActiveHierarchy(currentTab, 'location', true);
     } catch (error) {
       console.error('Error fetching hierarchy:', error);
       clearHierarchyState();
