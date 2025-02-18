@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -84,30 +85,48 @@ export const SupplyChainMap = () => {
         
         const { data: secretData, error: secretError } = await supabase
           .from('secrets')
-          .select('value')
+          .select('*')
           .eq('name', 'MAPBOX_PUBLIC_TOKEN')
           .single();
 
-        console.log("Secret query completed");
+        console.log("Secret query result:", { 
+          data: secretData ? 'Token exists' : 'No token found',
+          error: secretError
+        });
 
         if (secretError) {
           console.error("Secret fetch error:", secretError);
           throw new Error(`Failed to fetch token: ${secretError.message}`);
         }
 
-        if (!secretData?.value) {
-          console.error("No token value found");
-          throw new Error('Mapbox token not found or is empty. Please ensure it is set in Supabase.');
+        if (!secretData) {
+          console.error("No secret data found");
+          throw new Error('Mapbox token not found. Please ensure it is set in Supabase.');
         }
 
         const token = secretData.value;
-        console.log("Token retrieved successfully");
+        
+        if (!token) {
+          console.error("Token is empty or undefined");
+          throw new Error('Invalid Mapbox token.');
+        }
+
+        console.log("Retrieved token format check:", {
+          length: token.length,
+          startsWithPk: token.startsWith('pk.'),
+        });
+
+        if (!token.startsWith('pk.')) {
+          console.error("Token doesn't start with 'pk.'");
+          throw new Error('Invalid Mapbox public token format.');
+        }
 
         if (!mapContainer.current) {
           throw new Error('Map container not found');
         }
 
         mapboxgl.accessToken = token;
+        console.log("Mapbox token set successfully");
 
         const newMap = new mapboxgl.Map({
           container: mapContainer.current,
