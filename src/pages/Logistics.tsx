@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,6 +7,7 @@ import { LogisticsMetricsGrid } from "@/components/logistics/metrics/LogisticsMe
 import { LogisticsOrdersTable } from "@/components/logistics/orders/LogisticsOrdersTable";
 import { POPipelineTable } from "@/components/logistics/pipeline/POPipelineTable";
 import { LogisticsFilters } from "@/components/logistics/filters/LogisticsFilters";
+import { DocumentUpload } from "@/components/logistics/documents/DocumentUpload";
 
 const poPipelineData = [
   {
@@ -63,6 +65,7 @@ const Logistics = () => {
           <TabsList>
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="po-pipeline">PO Pipeline</TabsTrigger>
+            <TabsTrigger value="documents">Documents</TabsTrigger>
           </TabsList>
 
           <TabsContent value="orders">
@@ -86,6 +89,20 @@ const Logistics = () => {
                   <LogisticsFilters />
                 </div>
                 <POPipelineTable data={poPipelineData} />
+              </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="documents">
+            <Card>
+              <div className="p-6">
+                <div className="space-y-1 mb-6">
+                  <h3 className="text-lg font-medium">Document Management</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Upload and manage logistics documents
+                  </p>
+                </div>
+                <DocumentUpload orderId="sample-order-id" />
               </div>
             </Card>
           </TabsContent>
