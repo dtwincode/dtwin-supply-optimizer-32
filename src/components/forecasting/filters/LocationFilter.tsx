@@ -49,6 +49,8 @@ export function LocationFilter() {
 
       if (!activeVersionData?.data || !Array.isArray(activeVersionData.data)) {
         setHasActiveHierarchy(false);
+        setHierarchyLevels([]);
+        setHierarchyState({});
         return null;
       }
 
@@ -75,6 +77,8 @@ export function LocationFilter() {
       }
       
       setHasActiveHierarchy(false);
+      setHierarchyLevels([]);
+      setHierarchyState({});
       return null;
     }
   });
@@ -146,8 +150,6 @@ export function LocationFilter() {
 
       if (insertError) throw insertError;
 
-      setHierarchyState({});
-      setHierarchyLevels([]);
       await refetch();
 
       toast({
@@ -181,9 +183,9 @@ export function LocationFilter() {
       if (deleteError) throw deleteError;
 
       if (activeData) {
-        setHierarchyState({});
-        setHierarchyLevels([]);
         setHasActiveHierarchy(false);
+        setHierarchyLevels([]);
+        setHierarchyState({});
       }
 
       await refetchFiles();
