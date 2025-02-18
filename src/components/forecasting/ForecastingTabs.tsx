@@ -2,10 +2,10 @@
 import { cn } from "@/lib/utils";
 import { Link, useLocation } from "react-router-dom";
 import { ForecastDataPoint } from "@/types/forecasting";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslation } from "@/translations";
 
 interface ForecastingTabsProps {
+  activeTab?: string;
+  setActiveTab?: (tab: string) => void;
   historicalData?: Array<{ date: string; actual: number; predicted: number; }>;
   filteredData?: ForecastDataPoint[];
   confidenceIntervals?: Array<{ upper: number; lower: number; }>;
@@ -39,44 +39,45 @@ interface ForecastingTabsProps {
   whatIfScenario?: any[];
 }
 
-export const ForecastingTabs: React.FC<ForecastingTabsProps> = (props) => {
+export const ForecastingTabs = ({
+  activeTab,
+  setActiveTab,
+  historicalData,
+  filteredData,
+  confidenceIntervals,
+  decomposition,
+  validationResults,
+  crossValidationResults,
+  weatherLocation,
+  setWeatherLocation,
+  weatherData,
+  fetchWeatherForecast,
+  marketEvents,
+  setMarketEvents,
+  newEvent,
+  setNewEvent,
+  priceAnalysis,
+  historicalPriceData,
+  addHistoricalPricePoint,
+  calculatePriceAnalysis,
+  forecastTableData,
+  whatIfScenario
+}: ForecastingTabsProps) => {
   const location = useLocation();
   const currentPath = location.pathname;
-  const { language, isRTL } = useLanguage();
 
   const tabs = [
-    { 
-      name: "moduleTranslations.forecastAnalysis",
-      path: "/forecasting" 
-    },
-    { 
-      name: "moduleTranslations.futureForecasts",
-      path: "/forecasting/distribution" 
-    },
-    { 
-      name: "moduleTranslations.descriptiveAnalysis",
-      path: "/forecasting/descriptive" 
-    },
-    { 
-      name: "moduleTranslations.patternAnalysis",
-      path: "/forecasting/pattern" 
-    },
-    { 
-      name: "moduleTranslations.whatIfAnalysis",
-      path: "/forecasting/what-if" 
-    },
-    { 
-      name: "moduleTranslations.modelValidation",
-      path: "/forecasting/validation" 
-    },
-    { 
-      name: "moduleTranslations.externalFactors",
-      path: "/forecasting/external" 
-    }
+    { name: "Forecast Analysis", path: "/forecasting" },
+    { name: "Future Forecast", path: "/forecasting/distribution" },
+    { name: "Descriptive Analysis", path: "/forecasting/descriptive" },
+    { name: "Pattern Analysis", path: "/forecasting/pattern" },
+    { name: "What-If Analysis", path: "/forecasting/what-if" },
+    { name: "Model Validation", path: "/forecasting/validation" },
+    { name: "External Factors", path: "/forecasting/external" }
   ];
 
   return (
-    <div className="border-b" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className="border-b">
       <nav className="flex space-x-4 px-6" aria-label="Tabs">
         {tabs.map((tab) => (
           <Link
@@ -90,7 +91,7 @@ export const ForecastingTabs: React.FC<ForecastingTabsProps> = (props) => {
                 : "border-transparent text-muted-foreground"
             )}
           >
-            {getTranslation(tab.name, language)}
+            {tab.name}
           </Link>
         ))}
       </nav>
