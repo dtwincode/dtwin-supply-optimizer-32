@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -35,6 +35,13 @@ export function ProductHierarchyFilter() {
   const hierarchyState = getProductHierarchyState(currentTab);
   const hierarchyLevels = getHierarchyLevels(currentTab, 'product');
   const hasActiveHierarchy = getHasActiveHierarchy(currentTab, 'product');
+
+  // Add useEffect to fetch active hierarchy when component mounts or tab changes
+  useEffect(() => {
+    if (!isLoadingHierarchy) {
+      fetchActiveHierarchy();
+    }
+  }, [currentTab]); // Re-run when tab changes
 
   const clearHierarchyState = () => {
     setHasActiveHierarchy(currentTab, 'product', false);

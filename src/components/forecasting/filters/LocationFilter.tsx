@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -64,6 +64,12 @@ export function LocationFilter() {
       return files || [];
     }
   });
+
+  useEffect(() => {
+    if (!isLoadingHierarchy) {
+      fetchActiveHierarchy();
+    }
+  }, [currentTab]);
 
   const fetchActiveHierarchy = async () => {
     setIsLoadingHierarchy(true);
