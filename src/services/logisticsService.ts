@@ -32,3 +32,18 @@ export const updateOrderStatus = async (orderId: string, status: string) => {
 
   if (error) throw error;
 };
+
+// Add sample tracking data for testing
+export const addSampleTrackingData = async () => {
+  const { error } = await supabase
+    .from('logistics_tracking')
+    .insert([
+      {
+        latitude: 40.7128,
+        longitude: -74.0060,
+        status: 'in-transit',
+      }
+    ]);
+
+  if (error) throw error;
+};
