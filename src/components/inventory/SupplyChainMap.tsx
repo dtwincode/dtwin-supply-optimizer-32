@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -88,35 +89,44 @@ export const SupplyChainMap = () => {
           .eq('name', 'MAPBOX_PUBLIC_TOKEN')
           .single();
 
+        console.log("Secret query result:", { 
+          data: secretData ? 'Token exists' : 'No token found',
+          error: secretError
+        });
+
         if (secretError) {
           console.error("Secret fetch error:", secretError);
-          throw new Error(`Failed to fetch Mapbox token: ${secretError.message}`);
+          throw new Error(`Failed to fetch token: ${secretError.message}`);
         }
 
         if (!secretData) {
-          console.error("No Mapbox token found in database");
-          throw new Error('Mapbox token not found in database. Please ensure it is set in Supabase.');
+          console.error("No secret data found");
+          throw new Error('Mapbox token not found. Please ensure it is set in Supabase.');
         }
 
         const token = secretData.value;
         
-        if (!token || typeof token !== 'string') {
-          console.error("Invalid token format:", { tokenType: typeof token });
-          throw new Error('Invalid Mapbox token format.');
+        if (!token) {
+          console.error("Token is empty or undefined");
+          throw new Error('Invalid Mapbox token.');
         }
+
+        console.log("Retrieved token format check:", {
+          length: token.length,
+          startsWithPk: token.startsWith('pk.'),
+        });
 
         if (!token.startsWith('pk.')) {
-          console.error("Token validation failed: doesn't start with 'pk.'");
-          throw new Error('Invalid Mapbox public token format. Token should start with "pk."');
+          console.error("Token doesn't start with 'pk.'");
+          throw new Error('Invalid Mapbox public token format.');
         }
 
-        console.log("Mapbox token validation passed");
-
         if (!mapContainer.current) {
-          throw new Error('Map container element not found in DOM');
+          throw new Error('Map container not found');
         }
 
         mapboxgl.accessToken = token;
+        console.log("Mapbox token set successfully");
 
         const newMap = new mapboxgl.Map({
           container: mapContainer.current,
@@ -132,7 +142,7 @@ export const SupplyChainMap = () => {
         newMap.on('load', () => {
           if (!isMounted) return;
           
-          console.log("Map loaded successfully, adding markers...");
+          console.log("Map loaded, adding markers...");
           
           locations.forEach(location => {
             const marker = document.createElement('div');
@@ -195,12 +205,11 @@ export const SupplyChainMap = () => {
 
           if (isMounted) {
             setIsLoading(false);
-            console.log("Map initialization completed successfully");
           }
         });
 
         newMap.on('error', (e) => {
-          console.error('Mapbox error:', e);
+          console.error('Map error:', e);
           if (isMounted) {
             setError(`Map error: ${e.error.message}`);
             toast({
