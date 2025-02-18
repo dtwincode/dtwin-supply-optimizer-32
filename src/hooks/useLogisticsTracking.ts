@@ -23,9 +23,22 @@ export const useLogisticsTracking = (orderId?: string) => {
         .limit(1);
 
       if (error) throw error;
+      
+      // If no data, return sample data for development
+      if (!data || data.length === 0) {
+        return [{
+          id: 'sample-1',
+          order_id: 'order-123',
+          latitude: 26.3892, // Dammam coordinates
+          longitude: 50.1872,
+          status: 'in_transit',
+          timestamp: new Date().toISOString()
+        }] as TrackingData[];
+      }
+      
       return data as TrackingData[];
     },
-    enabled: !!orderId,
+    enabled: true, // Always enable to show sample data
   });
 
   useEffect(() => {

@@ -1,3 +1,4 @@
+
 import { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -51,6 +52,22 @@ export const LogisticsMap = () => {
           }
         });
       }
+
+      // Add start marker (Riyadh hub)
+      new mapboxgl.Marker({ color: '#22c55e' })
+        .setLngLat(start)
+        .setPopup(new mapboxgl.Popup().setHTML('<h3>Distribution Hub</h3><p>Riyadh</p>'))
+        .addTo(map);
+
+      // Fit map to show entire route
+      const coordinates = route;
+      const bounds = coordinates.reduce((bounds: mapboxgl.LngLatBounds, coord: number[]) => {
+        return bounds.extend(coord as mapboxgl.LngLatLike);
+      }, new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
+
+      map.fitBounds(bounds, {
+        padding: 50
+      });
     } catch (error) {
       console.error('Error adding route:', error);
     }
@@ -68,19 +85,20 @@ export const LogisticsMap = () => {
       });
     } else {
       const { latitude, longitude } = trackingData;
-      marker.current = new mapboxgl.Marker()
+      
+      // Add destination marker with popup
+      marker.current = new mapboxgl.Marker({ color: '#ef4444' })
         .setLngLat([longitude, latitude])
+        .setPopup(new mapboxgl.Popup().setHTML(
+          `<h3>Delivery Location</h3>
+           <p>Status: ${trackingData.status}</p>
+           <p>Last Updated: ${new Date(trackingData.timestamp).toLocaleString()}</p>`
+        ))
         .addTo(loadedMap);
       
       // Add start point in Riyadh and route to current location
       const startPoint: [number, number] = [46.6753, 24.7136]; // Riyadh coordinates
       addRoute(loadedMap, startPoint, [longitude, latitude]);
-      
-      loadedMap.flyTo({
-        center: [longitude, latitude],
-        zoom: 8,
-        essential: true
-      });
     }
   };
 
@@ -89,7 +107,7 @@ export const LogisticsMap = () => {
       const { latitude, longitude } = trackingData;
       
       if (!marker.current) {
-        marker.current = new mapboxgl.Marker()
+        marker.current = new mapboxgl.Marker({ color: '#ef4444' })
           .setLngLat([longitude, latitude])
           .addTo(map.current);
       } else {
@@ -99,12 +117,6 @@ export const LogisticsMap = () => {
       // Update route when tracking data changes
       const startPoint: [number, number] = [46.6753, 24.7136]; // Riyadh coordinates
       addRoute(map.current, startPoint, [longitude, latitude]);
-
-      map.current.flyTo({
-        center: [longitude, latitude],
-        zoom: 8,
-        essential: true
-      });
     }
   }, [trackingData]);
 
