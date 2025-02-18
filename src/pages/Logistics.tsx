@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Truck, Clock, PackageCheck, AlertOctagon, Filter } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LogisticsMap } from "@/components/logistics/LogisticsMap";
 
 // Mock data - replace with actual API data
 const logisticsData = [
@@ -153,6 +154,8 @@ const Logistics = () => {
             </div>
           </Card>
         </div>
+
+        <LogisticsMap />
 
         <Tabs defaultValue="orders" className="w-full">
           <TabsList>
