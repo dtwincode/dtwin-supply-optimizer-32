@@ -83,6 +83,9 @@ export const SupplyChainMap = () => {
         setIsLoading(true);
         console.log('Starting map initialization...');
         
+        // Add a small delay to ensure everything is properly loaded
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
         // Debug: Check if we can access the secrets table
         const { count, error: countError } = await supabase
           .from('secrets')
@@ -129,12 +132,21 @@ export const SupplyChainMap = () => {
         console.log('Setting up Mapbox with token...');
         mapboxgl.accessToken = token.value;
         
+        // Add error handler for mapboxgl
+        mapboxgl.on('error', (e) => {
+          console.error('Mapbox GL JS error:', e);
+        });
+        
         console.log('Creating map instance...');
         map.current = new mapboxgl.Map({
           container: mapContainer.current,
           style: 'mapbox://styles/mapbox/light-v11',
           center: [45.0792, 23.8859], // Center of Saudi Arabia
-          zoom: 5
+          zoom: 5,
+          transformRequest: (url, resourceType) => {
+            console.log('Mapbox transform request:', { url, resourceType });
+            return { url };
+          }
         });
 
         // Add navigation controls
