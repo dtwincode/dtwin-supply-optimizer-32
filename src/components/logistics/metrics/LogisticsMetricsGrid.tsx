@@ -1,37 +1,24 @@
 
-import { Truck, Clock, PackageCheck, AlertOctagon } from 'lucide-react';
-import { LogisticsMetricsCard } from './LogisticsMetricsCard';
+import { MetricsCard } from '../analytics/MetricsCard';
 
 export const LogisticsMetricsGrid = () => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-      <LogisticsMetricsCard
-        icon={Truck}
-        label="In Transit"
-        value={25}
-        bgColor="bg-primary-50"
-        textColor="text-primary-500"
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <MetricsCard
+        title="On-Time Delivery Rate"
+        metricType="on_time_delivery"
       />
-      <LogisticsMetricsCard
-        icon={Clock}
-        label="Processing"
-        value={18}
-        bgColor="bg-warning-50"
-        textColor="text-warning-500"
+      <MetricsCard
+        title="Average Transit Time"
+        metricType="avg_transit_time"
       />
-      <LogisticsMetricsCard
-        icon={PackageCheck}
-        label="Delivered"
-        value={42}
-        bgColor="bg-success-50"
-        textColor="text-success-500"
+      <MetricsCard
+        title="Delivery Success Rate"
+        metricType="delivery_success"
       />
-      <LogisticsMetricsCard
-        icon={AlertOctagon}
-        label="Delayed"
-        value={7}
-        bgColor="bg-danger-50"
-        textColor="text-danger-500"
+      <MetricsCard
+        title="Cost per Shipment"
+        metricType="cost_per_shipment"
       />
     </div>
   );
