@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,7 +6,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Loader2, FileInput } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
 
 interface HierarchyData {
   [key: string]: string;
@@ -212,7 +211,7 @@ export function LocationFilter() {
                 key={file.id} 
                 onSelect={(e) => {
                   e.preventDefault();
-                  setDeleteFileId(file.id);
+                  handleImportHierarchy(file.id);
                 }}
               >
                 {file.original_name}
@@ -223,7 +222,9 @@ export function LocationFilter() {
       </div>
 
       {!hasActiveHierarchy ? (
-        <div className="flex items-center justify-center p-4"></div>
+        <div className="flex items-center justify-center p-4">
+          <p className="text-sm text-muted-foreground">No active hierarchy. Please select a file to import.</p>
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {hierarchyLevels.map(level => (
@@ -234,10 +235,10 @@ export function LocationFilter() {
                 disabled={!hierarchyState[level]?.values.length}
               >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder={level} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">-</SelectItem>
+                  <SelectItem value="all">All</SelectItem>
                   {hierarchyState[level]?.values.map(value => (
                     <SelectItem key={value} value={value}>
                       {value}
@@ -252,9 +253,15 @@ export function LocationFilter() {
 
       <AlertDialog open={!!deleteFileId} onOpenChange={() => setDeleteFileId(null)}>
         <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete File</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this file? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel></AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteHierarchy}></AlertDialogAction>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteHierarchy}>Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
