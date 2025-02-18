@@ -11,6 +11,7 @@ import Logistics from "./pages/Logistics";
 import Settings from "./pages/Settings";
 import AskAI from "./pages/AskAI";
 import Guidelines from "./pages/Guidelines";
+import { GettingStarted, ForecastingBasics, Collaboration, Advanced, AIAssistant } from "./pages/guidelines";
 import NotFound from "./pages/NotFound";
 import Tickets from "./pages/Tickets";
 import SQLConfig from "./pages/SQLConfig";
