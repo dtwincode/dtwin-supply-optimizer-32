@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,11 +8,9 @@ import { Loader2, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-
 interface HierarchyData {
   [key: string]: string;
 }
-
 interface HierarchyState {
   [level: string]: {
     selected: string;
@@ -21,14 +18,14 @@ interface HierarchyState {
     label: string;
   };
 }
-
 export function LocationFilter() {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [hierarchyState, setHierarchyState] = useState<HierarchyState>({});
   const [hierarchyLevels, setHierarchyLevels] = useState<string[]>([]);
   const [hasActiveHierarchy, setHasActiveHierarchy] = useState(false);
   const [deleteFileId, setDeleteFileId] = useState<string | null>(null);
-
   const {
     data: locationsData,
     isLoading,
@@ -60,7 +57,6 @@ export function LocationFilter() {
               label: column
             };
           });
-
           if (activeVersionData.source_upload_id) {
             const {
               data: sourceFile
@@ -86,7 +82,6 @@ export function LocationFilter() {
       return null;
     }
   });
-
   const {
     data: savedFiles,
     refetch: refetchFiles
@@ -106,10 +101,11 @@ export function LocationFilter() {
       return files || [];
     }
   });
-
   const handleLevelChange = (level: string, value: string) => {
     setHierarchyState(prev => {
-      const newState = { ...prev };
+      const newState = {
+        ...prev
+      };
       newState[level].selected = value;
       const levelIndex = hierarchyLevels.indexOf(level);
       hierarchyLevels.slice(levelIndex + 1).forEach(dependentLevel => {
@@ -120,7 +116,6 @@ export function LocationFilter() {
       return newState;
     });
   };
-
   const handleImportHierarchy = async (fileId: string) => {
     try {
       const {
@@ -128,7 +123,6 @@ export function LocationFilter() {
         error: fileError
       } = await supabase.from('permanent_hierarchy_files').select('data, metadata').eq('id', fileId).single();
       if (fileError) throw fileError;
-
       const {
         data: versionData,
         error: versionError
@@ -138,7 +132,6 @@ export function LocationFilter() {
       if (versionError && !versionError.message.includes('No rows returned')) {
         throw versionError;
       }
-
       const nextVersion = (versionData?.version || 0) + 1;
       const {
         error: insertError
@@ -150,14 +143,12 @@ export function LocationFilter() {
         source_upload_id: fileId
       });
       if (insertError) throw insertError;
-
       const {
         error: updateError
       } = await supabase.from('permanent_hierarchy_data').update({
         is_active: false
       }).neq('version', nextVersion).eq('hierarchy_type', 'location_hierarchy');
       if (updateError) throw updateError;
-
       setHierarchyState({});
       setHierarchyLevels([]);
       await refetch();
@@ -174,18 +165,13 @@ export function LocationFilter() {
       });
     }
   };
-
   const handleDeleteHierarchy = async () => {
     if (!deleteFileId) return;
-
     try {
-      const { error: deleteError } = await supabase
-        .from('permanent_hierarchy_files')
-        .delete()
-        .eq('id', deleteFileId);
-
+      const {
+        error: deleteError
+      } = await supabase.from('permanent_hierarchy_files').delete().eq('id', deleteFileId);
       if (deleteError) throw deleteError;
-
       await refetchFiles();
       toast({
         title: "Success",
@@ -202,20 +188,15 @@ export function LocationFilter() {
       setDeleteFileId(null);
     }
   };
-
   if (isLoading) {
-    return (
-      <Card className="p-6 w-full">
+    return <Card className="p-6 w-full">
         <div className="flex items-center justify-center space-x-2">
           <Loader2 className="h-5 w-5 animate-spin text-primary" />
           <p className="text-sm text-muted-foreground">Loading filters...</p>
         </div>
-      </Card>
-    );
+      </Card>;
   }
-
-  return (
-    <Card className="p-6 w-full">
+  return <Card className="p-6 w-full">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-medium">Filters</h3>
@@ -226,41 +207,26 @@ export function LocationFilter() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[200px]">
-              {savedFiles?.map(file => (
-                <DropdownMenuItem 
-                  key={file.id} 
-                  onSelect={(e) => {
-                    e.preventDefault();
-                    setDeleteFileId(file.id);
-                  }}
-                >
+              {savedFiles?.map(file => <DropdownMenuItem key={file.id} onSelect={e => {
+              e.preventDefault();
+              setDeleteFileId(file.id);
+            }}>
                   {file.original_name}
-                </DropdownMenuItem>
-              ))}
-              {(!savedFiles || savedFiles.length === 0) && (
-                <DropdownMenuItem disabled>
+                </DropdownMenuItem>)}
+              {(!savedFiles || savedFiles.length === 0) && <DropdownMenuItem disabled>
                   No saved hierarchies
-                </DropdownMenuItem>
-              )}
+                </DropdownMenuItem>}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
 
-        {!hasActiveHierarchy ? (
-          <div className="flex items-center justify-center p-4">
+        {!hasActiveHierarchy ? <div className="flex items-center justify-center p-4">
             <p className="text-sm text-muted-foreground">
               Import a hierarchy file to see filters
             </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {hierarchyLevels.map(level => (
-              <div key={level} className="space-y-2">
-                <Select
-                  value={hierarchyState[level]?.selected || 'all'}
-                  onValueChange={value => handleLevelChange(level, value)}
-                  disabled={!hierarchyState[level]?.values.length}
-                >
+          </div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {hierarchyLevels.map(level => <div key={level} className="space-y-2">
+                <Select value={hierarchyState[level]?.selected || 'all'} onValueChange={value => handleLevelChange(level, value)} disabled={!hierarchyState[level]?.values.length}>
                   <SelectTrigger>
                     <SelectValue placeholder={hierarchyState[level]?.label} />
                   </SelectTrigger>
@@ -268,17 +234,13 @@ export function LocationFilter() {
                     <SelectItem value="all">
                       All {hierarchyState[level]?.label}
                     </SelectItem>
-                    {hierarchyState[level]?.values.map(value => (
-                      <SelectItem key={value} value={value}>
+                    {hierarchyState[level]?.values.map(value => <SelectItem key={value} value={value}>
                         {value}
-                      </SelectItem>
-                    ))}
+                      </SelectItem>)}
                   </SelectContent>
                 </Select>
-              </div>
-            ))}
-          </div>
-        )}
+              </div>)}
+          </div>}
       </div>
 
       <AlertDialog open={!!deleteFileId} onOpenChange={() => setDeleteFileId(null)}>
@@ -295,6 +257,5 @@ export function LocationFilter() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Card>
-  );
+    </Card>;
 }
