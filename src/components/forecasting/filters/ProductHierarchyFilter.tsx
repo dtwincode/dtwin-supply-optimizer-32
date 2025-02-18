@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { useLocalStorage } from "@/hooks/use-local-storage";
+import { useLocation } from "react-router-dom";
 
 interface HierarchyData {
   [key: string]: string;
@@ -23,13 +23,25 @@ interface HierarchyState {
 
 export function ProductHierarchyFilter() {
   const { toast } = useToast();
+  const location = useLocation();
+  const currentTab = location.pathname.split('/').pop() || 'analysis';
+  
   const [fileToDelete, setFileToDelete] = useState<string | null>(null);
   const [isLoadingHierarchy, setIsLoadingHierarchy] = useState(false);
   
-  // Use localStorage for hierarchy state with product-specific keys
-  const [hierarchyState, setHierarchyState] = useLocalStorage<HierarchyState>("productHierarchyState", {});
-  const [hierarchyLevels, setHierarchyLevels] = useLocalStorage<string[]>("productHierarchyLevels", []);
-  const [hasActiveHierarchy, setHasActiveHierarchy] = useLocalStorage<boolean>("productHasActiveHierarchy", false);
+  // Use tab-specific localStorage keys
+  const [hierarchyState, setHierarchyState] = useLocalStorage<HierarchyState>(
+    `productHierarchyState_${currentTab}`, 
+    {}
+  );
+  const [hierarchyLevels, setHierarchyLevels] = useLocalStorage<string[]>(
+    `productHierarchyLevels_${currentTab}`, 
+    []
+  );
+  const [hasActiveHierarchy, setHasActiveHierarchy] = useLocalStorage<boolean>(
+    `productHasActiveHierarchy_${currentTab}`, 
+    false
+  );
 
   const clearHierarchyState = () => {
     setHasActiveHierarchy(false);
