@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -85,23 +86,26 @@ export const SupplyChainMap = () => {
         setIsLoading(true);
         console.log('Starting map initialization...');
         
-        const { data: token, error: tokenError } = await supabase
+        // Query the secrets table with explicit return type
+        const { data, error: tokenError } = await supabase
           .from('secrets')
-          .select('*')
+          .select('name, value')
           .eq('name', 'MAPBOX_PUBLIC_TOKEN')
-          .maybeSingle();
+          .single();
 
-        console.log('Full Supabase response:', { token, tokenError });
+        console.log('Supabase query response:', { data, error: tokenError });
 
         if (tokenError) {
           console.error('Token fetch error:', tokenError);
           throw new Error(`Failed to fetch Mapbox token: ${tokenError.message}`);
         }
 
-        if (!token?.value) {
-          console.error('No token found in secrets table');
+        if (!data?.value) {
+          console.error('No token value found:', data);
           throw new Error('Mapbox token not found in secrets. Please ensure the token is properly set in Supabase.');
         }
+
+        console.log('Token retrieved successfully');
 
         if (!mapContainer.current || !locations.length || isMapInitialized) {
           console.log('Initialization conditions not met:', {
@@ -112,8 +116,8 @@ export const SupplyChainMap = () => {
           return;
         }
 
-        console.log('Setting up Mapbox with token value...');
-        mapboxgl.accessToken = token.value;
+        console.log('Setting up Mapbox with token...');
+        mapboxgl.accessToken = data.value;
         
         console.log('Creating map instance...');
         map.current = new mapboxgl.Map({
