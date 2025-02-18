@@ -86,26 +86,33 @@ export const SupplyChainMap = () => {
         setIsLoading(true);
         console.log('Starting map initialization...');
         
-        // Query the secrets table with explicit return type
-        const { data: token, error: tokenError } = await supabase
+        // First, let's check if we can query the secrets table
+        const { data: secrets, error: secretsError } = await supabase
+          .from('secrets')
+          .select('*');
+          
+        console.log('All secrets:', secrets); // This will help us verify the table exists and has data
+        
+        // Now query for the specific token
+        const { data: tokenData, error: tokenError } = await supabase
           .from('secrets')
           .select('value')
           .eq('name', 'MAPBOX_PUBLIC_TOKEN')
-          .maybeSingle();
+          .single();
 
-        console.log('Supabase query response:', { token, error: tokenError });
+        console.log('Token query response:', { tokenData, tokenError });
 
         if (tokenError) {
           console.error('Token fetch error:', tokenError);
           throw new Error(`Failed to fetch Mapbox token: ${tokenError.message}`);
         }
 
-        if (!token?.value) {
-          console.error('No token value found:', token);
-          throw new Error('Mapbox token not found in secrets. Please ensure the token is properly set in Supabase.');
+        if (!tokenData?.value) {
+          console.error('No token value found in response:', tokenData);
+          throw new Error('Mapbox token not found or empty. Please ensure the token is properly set in Supabase.');
         }
 
-        console.log('Token retrieved successfully');
+        console.log('Token retrieved successfully:', tokenData.value.substring(0, 10) + '...');
 
         if (!mapContainer.current || !locations.length || isMapInitialized) {
           console.log('Initialization conditions not met:', {
@@ -117,7 +124,7 @@ export const SupplyChainMap = () => {
         }
 
         console.log('Setting up Mapbox with token...');
-        mapboxgl.accessToken = token.value;
+        mapboxgl.accessToken = tokenData.value;
         
         console.log('Creating map instance...');
         map.current = new mapboxgl.Map({
@@ -135,7 +142,7 @@ export const SupplyChainMap = () => {
           setError("An error occurred while loading the map");
           toast({
             title: "Error",
-            description: "Map loading failed",
+            description: "Map loading failed: " + e.error.message,
             variant: "destructive",
           });
         });
