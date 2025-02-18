@@ -1,4 +1,3 @@
-
 import DashboardLayout from "@/components/DashboardLayout";
 import { ForecastingTabs } from "@/components/forecasting/ForecastingTabs";
 import { ForecastAnalysisTab } from "@/components/forecasting/tabs/ForecastAnalysisTab";
@@ -11,7 +10,7 @@ import { ExternalFactorsTab } from "@/components/forecasting/tabs/ExternalFactor
 import { Separator } from "@/components/ui/separator";
 import { Routes, Route } from "react-router-dom";
 import { useState } from "react";
-import { ProductFilter } from "@/components/forecasting/filters/ProductFilter";
+import { ProductHierarchyFilter } from "@/components/forecasting/filters/ProductHierarchyFilter";
 import { LocationFilter } from "@/components/forecasting/filters/LocationFilter";
 import { ForecastDataPoint } from "@/types/forecasting";
 import { Card } from "@/components/ui/card";
@@ -24,20 +23,6 @@ const Forecasting = () => {
   const [isTimeExpanded, setIsTimeExpanded] = useState(false);
   const [isProductExpanded, setIsProductExpanded] = useState(false);
   const [isLocationExpanded, setIsLocationExpanded] = useState(false);
-
-  const [selectedL1MainProd, setSelectedL1MainProd] = useLocalStorage('selectedL1MainProd', 'all');
-  const [selectedL2ProdLine, setSelectedL2ProdLine] = useLocalStorage('selectedL2ProdLine', 'all');
-  const [selectedL3ProdCategory, setSelectedL3ProdCategory] = useLocalStorage('selectedL3ProdCategory', 'all');
-  const [selectedL4DeviceMake, setSelectedL4DeviceMake] = useLocalStorage('selectedL4DeviceMake', 'all');
-  const [selectedL5ProdSubCategory, setSelectedL5ProdSubCategory] = useLocalStorage('selectedL5ProdSubCategory', 'all');
-  const [selectedL6DeviceModel, setSelectedL6DeviceModel] = useLocalStorage('selectedL6DeviceModel', 'all');
-  const [selectedL7DeviceColor, setSelectedL7DeviceColor] = useLocalStorage('selectedL7DeviceColor', 'all');
-  const [selectedL8DeviceStorage, setSelectedL8DeviceStorage] = useLocalStorage('selectedL8DeviceStorage', 'all');
-
-  const [selectedChannel, setSelectedChannel] = useLocalStorage('selectedChannel', 'all');
-  const [selectedWarehouse, setSelectedWarehouse] = useLocalStorage('selectedWarehouse', 'all');
-  
-  const [searchQuery, setSearchQuery] = useLocalStorage('searchQuery', '');
 
   const [trainingFromDate, setTrainingFromDate] = useLocalStorage('trainingFromDate', new Date('2024-01-01').toISOString());
   const [trainingToDate, setTrainingToDate] = useLocalStorage('trainingToDate', new Date('2024-09-30').toISOString());
@@ -229,25 +214,7 @@ const Forecasting = () => {
 
             {isProductExpanded && (
               <div className="p-6 space-y-6 border-t bg-primary/5">
-                <ProductFilter
-                  selectedL1MainProd={selectedL1MainProd}
-                  setSelectedL1MainProd={setSelectedL1MainProd}
-                  selectedL2ProdLine={selectedL2ProdLine}
-                  setSelectedL2ProdLine={setSelectedL2ProdLine}
-                  selectedL3ProdCategory={selectedL3ProdCategory}
-                  setSelectedL3ProdCategory={setSelectedL3ProdCategory}
-                  selectedL4DeviceMake={selectedL4DeviceMake}
-                  setSelectedL4DeviceMake={setSelectedL4DeviceMake}
-                  selectedL5ProdSubCategory={selectedL5ProdSubCategory}
-                  setSelectedL5ProdSubCategory={setSelectedL5ProdSubCategory}
-                  selectedL6DeviceModel={selectedL6DeviceModel}
-                  setSelectedL6DeviceModel={setSelectedL6DeviceModel}
-                  selectedL7DeviceColor={selectedL7DeviceColor}
-                  setSelectedL7DeviceColor={setSelectedL7DeviceColor}
-                  selectedL8DeviceStorage={selectedL8DeviceStorage}
-                  setSelectedL8DeviceStorage={setSelectedL8DeviceStorage}
-                  forecastData={dummyData.filteredData}
-                />
+                <ProductHierarchyFilter />
               </div>
             )}
           </div>
