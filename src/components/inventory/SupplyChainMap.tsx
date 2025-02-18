@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -82,14 +83,14 @@ export const SupplyChainMap = () => {
       try {
         console.log("Starting map initialization...");
         
-        const { data: secrets, error: secretError } = await supabase
+        const { data: secret, error: secretError } = await supabase
           .from('secrets')
           .select('value')
           .eq('name', 'MAPBOX_PUBLIC_TOKEN')
-          .single();
+          .maybeSingle();
 
         console.log("Secret query result:", { 
-          hasData: !!secrets,
+          hasData: !!secret,
           error: secretError
         });
 
@@ -98,12 +99,12 @@ export const SupplyChainMap = () => {
           throw new Error(`Failed to fetch token: ${secretError.message}`);
         }
 
-        if (!secrets?.value) {
+        if (!secret) {
           console.error("No Mapbox token found");
           throw new Error('Mapbox token not found. Please ensure it is set in Supabase.');
         }
 
-        const token = secrets.value;
+        const token = secret.value;
         
         if (!token.startsWith('pk.')) {
           console.error("Invalid token format");
