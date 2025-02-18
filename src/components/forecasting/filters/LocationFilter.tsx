@@ -27,7 +27,19 @@ export function LocationFilter() {
         .single();
 
       if (error) throw error;
-      return data?.data as LocationFilterData || {};
+      
+      // Ensure we handle the data properly
+      const hierarchyData = data?.data || {};
+      
+      // Convert the data into the expected format and validate arrays
+      const formattedData: LocationFilterData = {};
+      Object.entries(hierarchyData).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+          formattedData[key] = value;
+        }
+      });
+
+      return formattedData;
     }
   });
 
@@ -51,17 +63,17 @@ export function LocationFilter() {
       {Object.entries(locationData).map(([level, options], index) => (
         <div key={level} className="space-y-2">
           <label htmlFor={level} className="text-sm font-medium text-muted-foreground">
-            {index}
+            {level}
           </label>
           <Select
             value={locationState[level] || ''}
             onValueChange={(value) => handleLocationChange(level, value)}
           >
             <SelectTrigger id={level}>
-              <SelectValue placeholder={`Select ${index}`} />
+              <SelectValue placeholder={`Select ${level}`} />
             </SelectTrigger>
             <SelectContent>
-              {options.map((option) => (
+              {Array.isArray(options) && options.map((option) => (
                 <SelectItem key={option} value={option}>
                   {option}
                 </SelectItem>
