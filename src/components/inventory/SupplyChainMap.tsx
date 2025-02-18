@@ -73,71 +73,46 @@ export const SupplyChainMap = () => {
   const [locations] = React.useState<Location[]>(sampleLocations);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isMapInitialized, setIsMapInitialized] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    let isMounted = true;
+    let mounted = true;
 
-    async function initializeMapWithToken() {
+    const initializeMap = async () => {
       try {
-        if (!isMounted) return;
-        setIsLoading(true);
-        
-        const { data, error: tokenError } = await supabase
+        const { data: tokenData, error: tokenError } = await supabase
           .from('secrets')
           .select('value')
           .eq('name', 'MAPBOX_PUBLIC_TOKEN')
-          .limit(1);
+          .maybeSingle();
 
-        if (tokenError) {
-          throw new Error(`Failed to fetch Mapbox token: ${tokenError.message}`);
+        if (tokenError || !tokenData?.value) {
+          throw new Error('Failed to load Mapbox token. Please check your configuration.');
         }
 
-        const token = data?.[0]?.value;
-        
-        if (!token) {
-          throw new Error('Mapbox token not found. Please ensure the token is properly set in Supabase.');
-        }
+        if (!mapContainer.current || !mounted) return;
 
-        if (!mapContainer.current || !locations.length || isMapInitialized) {
-          return;
-        }
+        mapboxgl.accessToken = tokenData.value;
 
-        mapboxgl.accessToken = token;
-        
-        map.current = new mapboxgl.Map({
+        const newMap = new mapboxgl.Map({
           container: mapContainer.current,
-          style: 'mapbox://styles/mapbox/light-v11',
-          center: [45.0792, 23.8859], // Center of Saudi Arabia
+          style: 'mapbox://styles/mapbox/streets-v12',
+          center: [45.0792, 23.8859],
           zoom: 5
         });
 
-        map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+        newMap.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
-        map.current.on('error', (e) => {
-          if (!isMounted) return;
-          setError("An error occurred while loading the map");
-          toast({
-            title: "Error",
-            description: "Map loading failed: " + e.error.message,
-            variant: "destructive",
-          });
-        });
-
-        map.current.on('load', () => {
-          if (!map.current || !isMounted) return;
+        newMap.on('load', () => {
+          if (!mounted) return;
 
           locations.forEach(location => {
-            if (!location.coordinates) return;
-
             const marker = document.createElement('div');
             marker.className = 'p-2 rounded-full';
             marker.style.backgroundColor = getLocationColor(location.type);
             marker.style.width = '12px';
             marker.style.height = '12px';
             marker.style.border = '2px solid white';
-            marker.style.boxShadow = '0 0 0 1px rgba(0, 0, 0, 0.1)';
 
             new mapboxgl.Marker(marker)
               .setLngLat([location.coordinates.lng, location.coordinates.lat])
@@ -150,14 +125,13 @@ export const SupplyChainMap = () => {
                     </div>
                   `)
               )
-              .addTo(map.current);
+              .addTo(newMap);
 
             if (location.parent_id) {
-              const parentLocation = locations.find(loc => loc.id === location.parent_id);
-              if (parentLocation?.coordinates) {
-                const lineId = `line-${location.id}-${parentLocation.id}`;
-                
-                map.current.addSource(lineId, {
+              const parent = locations.find(l => l.id === location.parent_id);
+              if (parent) {
+                const lineId = `line-${location.id}`;
+                newMap.addSource(lineId, {
                   type: 'geojson',
                   data: {
                     type: 'Feature',
@@ -166,13 +140,13 @@ export const SupplyChainMap = () => {
                       type: 'LineString',
                       coordinates: [
                         [location.coordinates.lng, location.coordinates.lat],
-                        [parentLocation.coordinates.lng, parentLocation.coordinates.lat]
+                        [parent.coordinates.lng, parent.coordinates.lat]
                       ]
                     }
                   }
                 });
 
-                map.current.addLayer({
+                newMap.addLayer({
                   id: lineId,
                   type: 'line',
                   source: lineId,
@@ -190,33 +164,33 @@ export const SupplyChainMap = () => {
             }
           });
 
-          if (isMounted) {
-            setIsMapInitialized(true);
-            setIsLoading(false);
-          }
+          setIsLoading(false);
         });
 
-      } catch (error) {
-        if (!isMounted) return;
-        setError(error instanceof Error ? error.message : "An error occurred while loading the map");
+        map.current = newMap;
+
+      } catch (err) {
+        if (!mounted) return;
+        const errorMessage = err instanceof Error ? err.message : 'Failed to initialize map';
+        setError(errorMessage);
         toast({
           title: "Error",
-          description: error instanceof Error ? error.message : "Failed to initialize map",
+          description: errorMessage,
           variant: "destructive",
         });
         setIsLoading(false);
       }
-    }
+    };
 
-    initializeMapWithToken();
-    
+    initializeMap();
+
     return () => {
-      isMounted = false;
+      mounted = false;
       if (map.current) {
         map.current.remove();
       }
     };
-  }, [locations, isMapInitialized, toast]);
+  }, [locations, toast]);
 
   const getLocationColor = (type: string) => {
     switch (type.toLowerCase()) {
@@ -231,29 +205,24 @@ export const SupplyChainMap = () => {
     }
   };
 
-  if (error) {
-    return (
-      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-        <div className="p-6">
-          <div className="text-center text-red-500">{error}</div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
       <div className="p-6">
         <h3 className="text-lg font-semibold mb-4">Supply Chain Network</h3>
-        {isLoading ? (
-          <div className="h-[400px] flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        ) : (
-          <div className="h-[400px] relative rounded-lg overflow-hidden">
+        <div className="h-[400px] relative rounded-lg overflow-hidden bg-gray-50">
+          {isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          )}
+          {error ? (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-red-500 text-center p-4">{error}</div>
+            </div>
+          ) : (
             <div ref={mapContainer} className="absolute inset-0" />
-          </div>
-        )}
+          )}
+        </div>
         <div className="flex gap-4 mt-4 text-sm">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-red-500" />
