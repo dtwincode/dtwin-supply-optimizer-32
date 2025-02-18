@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,7 +33,6 @@ export function LocationFilter() {
     setHierarchyState({});
   };
 
-  // Only fetch saved files
   const {
     data: savedFiles,
     isLoading: isLoadingFiles,
@@ -84,7 +82,7 @@ export function LocationFilter() {
       columns.forEach(column => {
         const uniqueValues = new Set(hierarchyData.map(row => row[column]).filter(Boolean));
         newHierarchyState[column] = {
-          selected: 'all',
+          selected: column,
           values: Array.from(uniqueValues).sort()
         };
       });
@@ -131,13 +129,11 @@ export function LocationFilter() {
 
       const nextVersion = (versionData?.version || 0) + 1;
 
-      // Deactivate current active hierarchy
       await supabase
         .from('permanent_hierarchy_data')
         .update({ is_active: false })
         .eq('hierarchy_type', 'location_hierarchy');
 
-      // Insert new active hierarchy
       const { error: insertError } = await supabase
         .from('permanent_hierarchy_data')
         .insert({
@@ -150,7 +146,6 @@ export function LocationFilter() {
 
       if (insertError) throw insertError;
 
-      // Fetch the newly imported hierarchy
       await fetchActiveHierarchy();
 
       toast({
@@ -287,7 +282,7 @@ export function LocationFilter() {
           {hierarchyLevels.map(level => (
             <div key={level}>
               <Select
-                value={hierarchyState[level]?.selected || 'all'}
+                value={hierarchyState[level]?.selected || level}
                 onValueChange={value => handleLevelChange(level, value)}
                 disabled={!hierarchyState[level]?.values.length}
               >
@@ -295,7 +290,7 @@ export function LocationFilter() {
                   <SelectValue placeholder={level} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value={level}>{level}</SelectItem>
                   {hierarchyState[level]?.values.map(value => (
                     <SelectItem key={value} value={value}>
                       {value}
