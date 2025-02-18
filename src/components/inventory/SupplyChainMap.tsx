@@ -86,25 +86,51 @@ export const SupplyChainMap = () => {
     async function initializeMapWithToken() {
       try {
         setIsLoading(true);
+        console.log('Fetching Mapbox token...');
+        
         const { data, error: tokenError } = await supabase
           .from('secrets')
           .select('value')
           .eq('name', 'MAPBOX_PUBLIC_TOKEN')
-          .maybeSingle<Secret>();
+          .maybeSingle();
 
-        if (tokenError || !data?.value) {
+        console.log('Supabase response:', { data, error: tokenError });
+
+        if (tokenError) {
+          console.error('Token error:', tokenError);
           setError("Unable to load map configuration. Please try again later.");
           toast({
             title: "Error",
             description: "Unable to load map configuration",
             variant: "destructive",
           });
+          setIsLoading(false);
           return;
         }
 
-        if (!mapContainer.current || !locations.length || isMapInitialized) return;
+        if (!data?.value) {
+          console.error('No token found in secrets table');
+          setError("Mapbox token not found. Please ensure it's properly configured.");
+          toast({
+            title: "Error",
+            description: "Mapbox token not configured",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
 
-        // Initialize map
+        if (!mapContainer.current || !locations.length || isMapInitialized) {
+          console.log('Early return conditions:', {
+            hasContainer: !!mapContainer.current,
+            hasLocations: locations.length > 0,
+            isInitialized: isMapInitialized
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        console.log('Initializing Mapbox with token...');
         mapboxgl.accessToken = data.value;
         
         map.current = new mapboxgl.Map({
@@ -186,9 +212,21 @@ export const SupplyChainMap = () => {
             }
           });
 
+          console.log('Map initialization complete');
           setIsMapInitialized(true);
           setIsLoading(false);
         });
+
+        map.current.on('error', (e) => {
+          console.error('Mapbox error:', e);
+          setError("An error occurred while loading the map");
+          toast({
+            title: "Error",
+            description: "Map loading failed",
+            variant: "destructive",
+          });
+        });
+
       } catch (error) {
         console.error('Error initializing map:', error);
         setError("An error occurred while loading the map");
@@ -197,6 +235,7 @@ export const SupplyChainMap = () => {
           description: "Failed to initialize map",
           variant: "destructive",
         });
+        setIsLoading(false);
       }
     }
 
