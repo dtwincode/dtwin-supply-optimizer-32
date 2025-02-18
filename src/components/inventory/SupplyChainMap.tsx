@@ -77,32 +77,20 @@ export const SupplyChainMap = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    let isMounted = true; // Track component mount state
+
     async function initializeMapWithToken() {
       try {
+        if (!isMounted) return;
         setIsLoading(true);
         console.log('Starting map initialization...');
         
-        // Add a small delay to ensure everything is properly loaded
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
         // Debug: Check if we can access the secrets table
-        const { count, error: countError } = await supabase
-          .from('secrets')
-          .select('*', { count: 'exact', head: true });
-          
-        console.log('Secrets table access check:', { count, error: countError });
-
-        if (countError) {
-          console.error('Error accessing secrets table:', countError);
-          throw new Error('Cannot access secrets table');
-        }
-
-        // Try to get the Mapbox token
         const { data: token, error: tokenError } = await supabase
           .from('secrets')
           .select('value')
           .eq('name', 'MAPBOX_PUBLIC_TOKEN')
-          .maybeSingle();
+          .single();
 
         console.log('Mapbox token query result:', {
           hasToken: !!token,
@@ -136,11 +124,7 @@ export const SupplyChainMap = () => {
           container: mapContainer.current,
           style: 'mapbox://styles/mapbox/light-v11',
           center: [45.0792, 23.8859], // Center of Saudi Arabia
-          zoom: 5,
-          transformRequest: (url, resourceType) => {
-            console.log('Mapbox transform request:', { url, resourceType });
-            return { url };
-          }
+          zoom: 5
         });
 
         // Add navigation controls
@@ -148,6 +132,7 @@ export const SupplyChainMap = () => {
 
         // Handle map errors
         map.current.on('error', (e) => {
+          if (!isMounted) return;
           console.error('Mapbox map error:', e);
           setError("An error occurred while loading the map");
           toast({
@@ -158,7 +143,7 @@ export const SupplyChainMap = () => {
         });
 
         map.current.on('load', () => {
-          if (!map.current) return;
+          if (!map.current || !isMounted) return;
           console.log('Map loaded successfully');
 
           // Add markers and connections
@@ -227,12 +212,15 @@ export const SupplyChainMap = () => {
             }
           });
 
-          console.log('All markers and connections added');
-          setIsMapInitialized(true);
-          setIsLoading(false);
+          if (isMounted) {
+            console.log('All markers and connections added');
+            setIsMapInitialized(true);
+            setIsLoading(false);
+          }
         });
 
       } catch (error) {
+        if (!isMounted) return;
         console.error('Map initialization error:', error);
         setError(error instanceof Error ? error.message : "An error occurred while loading the map");
         toast({
@@ -247,6 +235,7 @@ export const SupplyChainMap = () => {
     initializeMapWithToken();
     
     return () => {
+      isMounted = false;
       if (map.current) {
         map.current.remove();
       }
