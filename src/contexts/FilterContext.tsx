@@ -1,6 +1,5 @@
 
 import React, { createContext, useContext, useState } from 'react';
-import { useLocation } from 'react-router-dom';
 
 interface HierarchyState {
   [level: string]: {
@@ -29,7 +28,7 @@ const FilterContext = createContext<FilterContextType | undefined>(undefined);
 export function FilterProvider({ children }: { children: React.ReactNode }) {
   const [productHierarchyStates, setProductHierarchyStates] = useState<Record<string, HierarchyState>>({});
   const [locationStates, setLocationStates] = useState<Record<string, LocationState>>({});
-  const [hierarchyLevels, setHierarchyLevels] = useState<Record<string, string[]>>({});
+  const [hierarchyLevels, setHierarchyLevelsState] = useState<Record<string, string[]>>({});
   const [hasActiveHierarchies, setHasActiveHierarchies] = useState<Record<string, boolean>>({});
 
   const getProductHierarchyState = (tab: string) => productHierarchyStates[tab] || {};
@@ -44,7 +43,7 @@ export function FilterProvider({ children }: { children: React.ReactNode }) {
 
   const getHierarchyLevels = (tab: string) => hierarchyLevels[tab] || [];
   const setHierarchyLevels = (tab: string, levels: string[]) => {
-    setHierarchyLevels(prev => ({ ...prev, [tab]: levels }));
+    setHierarchyLevelsState(prev => ({ ...prev, [tab]: levels }));
   };
 
   const getHasActiveHierarchy = (tab: string) => hasActiveHierarchies[tab] || false;
