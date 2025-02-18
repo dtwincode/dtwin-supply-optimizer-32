@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -80,53 +81,55 @@ export const SupplyChainMap = () => {
     async function initializeMapWithToken() {
       try {
         setIsLoading(true);
-        console.log('Fetching Mapbox token...');
+        console.log('Starting map initialization...');
         
+        // Debug: Check if we can access the secrets table
+        const { count, error: countError } = await supabase
+          .from('secrets')
+          .select('*', { count: 'exact', head: true });
+          
+        console.log('Secrets table access check:', { count, error: countError });
+
+        if (countError) {
+          console.error('Error accessing secrets table:', countError);
+          throw new Error('Cannot access secrets table');
+        }
+
+        // Try to get the Mapbox token
         const { data: token, error: tokenError } = await supabase
           .from('secrets')
           .select('value')
           .eq('name', 'MAPBOX_PUBLIC_TOKEN')
           .maybeSingle();
 
-        console.log('Token query response:', { data: token, error: tokenError });
+        console.log('Mapbox token query result:', {
+          hasToken: !!token,
+          error: tokenError
+        });
 
         if (tokenError) {
-          console.error('Token error:', tokenError);
-          setError("Unable to load map configuration. Please try again later.");
-          toast({
-            title: "Error",
-            description: "Unable to load map configuration",
-            variant: "destructive",
-          });
-          setIsLoading(false);
-          return;
+          console.error('Token fetch error:', tokenError);
+          throw new Error('Failed to fetch Mapbox token');
         }
 
         if (!token?.value) {
-          console.error('No token found in secrets table');
-          setError("Mapbox token not found. Please ensure it's properly configured.");
-          toast({
-            title: "Error",
-            description: "Mapbox token not configured",
-            variant: "destructive",
-          });
-          setIsLoading(false);
-          return;
+          console.error('No Mapbox token found in secrets');
+          throw new Error('Mapbox token not found');
         }
 
         if (!mapContainer.current || !locations.length || isMapInitialized) {
-          console.log('Early return conditions:', {
+          console.log('Initialization conditions not met:', {
             hasContainer: !!mapContainer.current,
             hasLocations: locations.length > 0,
             isInitialized: isMapInitialized
           });
-          setIsLoading(false);
           return;
         }
 
-        console.log('Initializing Mapbox with token...');
+        console.log('Setting up Mapbox with token...');
         mapboxgl.accessToken = token.value;
         
+        console.log('Creating map instance...');
         map.current = new mapboxgl.Map({
           container: mapContainer.current,
           style: 'mapbox://styles/mapbox/light-v11',
@@ -139,6 +142,7 @@ export const SupplyChainMap = () => {
 
         map.current.on('load', () => {
           if (!map.current) return;
+          console.log('Map loaded successfully');
 
           // Add markers and connections
           locations.forEach(location => {
@@ -206,13 +210,13 @@ export const SupplyChainMap = () => {
             }
           });
 
-          console.log('Map initialization complete');
+          console.log('All markers and connections added');
           setIsMapInitialized(true);
           setIsLoading(false);
         });
 
         map.current.on('error', (e) => {
-          console.error('Mapbox error:', e);
+          console.error('Mapbox map error:', e);
           setError("An error occurred while loading the map");
           toast({
             title: "Error",
@@ -222,11 +226,11 @@ export const SupplyChainMap = () => {
         });
 
       } catch (error) {
-        console.error('Error initializing map:', error);
-        setError("An error occurred while loading the map");
+        console.error('Map initialization error:', error);
+        setError(error instanceof Error ? error.message : "An error occurred while loading the map");
         toast({
           title: "Error",
-          description: "Failed to initialize map",
+          description: error instanceof Error ? error.message : "Failed to initialize map",
           variant: "destructive",
         });
         setIsLoading(false);
