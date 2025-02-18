@@ -4,10 +4,22 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Separator } from "@/components/ui/separator";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const Advanced = () => {
   const { language, isRTL } = useLanguage();
+
+  const guidelines = [
+    { path: "/guidelines/getting-started", title: language === 'ar' ? "البدء والإعداد" : "Getting Started" },
+    { path: "/guidelines/forecasting-basics", title: language === 'ar' ? "أساسيات التنبؤ" : "Forecasting Basics" },
+    { path: "/guidelines/collaboration", title: language === 'ar' ? "التعاون" : "Collaboration" },
+    { path: "/guidelines/advanced", title: language === 'ar' ? "الميزات المتقدمة" : "Advanced Features" },
+    { path: "/guidelines/ai-assistant", title: language === 'ar' ? "مساعد الذكاء الاصطناعي" : "AI Assistant" },
+  ];
+
+  const currentIndex = guidelines.findIndex(g => g.path === "/guidelines/advanced");
+  const prevGuide = currentIndex > 0 ? guidelines[currentIndex - 1] : null;
+  const nextGuide = currentIndex < guidelines.length - 1 ? guidelines[currentIndex + 1] : null;
 
   return (
     <DashboardLayout>
@@ -28,7 +40,7 @@ const Advanced = () => {
         
         <Separator className="my-6" />
 
-        <Card className="p-6">
+        <Card className="p-6 mb-6">
           <div className="prose dark:prose-invert max-w-none">
             <h2>{language === 'ar' ? "استكشاف الميزات المتقدمة" : "Exploring Advanced Features"}</h2>
             
@@ -108,6 +120,39 @@ const Advanced = () => {
             </ul>
           </div>
         </Card>
+
+        {/* Guidelines Navigation */}
+        <div className="flex items-center justify-between mt-6 gap-4">
+          {prevGuide && (
+            <Link
+              to={prevGuide.path}
+              className="flex items-center gap-2 p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors flex-1"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              <div>
+                <div className="text-sm text-muted-foreground">
+                  {language === 'ar' ? "السابق" : "Previous"}
+                </div>
+                <div className="font-medium">{prevGuide.title}</div>
+              </div>
+            </Link>
+          )}
+          
+          {nextGuide && (
+            <Link
+              to={nextGuide.path}
+              className="flex items-center justify-end gap-2 p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors flex-1 text-right"
+            >
+              <div>
+                <div className="text-sm text-muted-foreground">
+                  {language === 'ar' ? "التالي" : "Next"}
+                </div>
+                <div className="font-medium">{nextGuide.title}</div>
+              </div>
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+          )}
+        </div>
       </div>
     </DashboardLayout>
   );
