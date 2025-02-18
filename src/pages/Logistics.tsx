@@ -8,6 +8,7 @@ import { LogisticsOrdersTable } from "@/components/logistics/orders/LogisticsOrd
 import { POPipelineTable } from "@/components/logistics/pipeline/POPipelineTable";
 import { LogisticsFilters } from "@/components/logistics/filters/LogisticsFilters";
 import { DocumentUpload } from "@/components/logistics/documents/DocumentUpload";
+import { DocumentList } from "@/components/logistics/documents/DocumentList";
 
 const poPipelineData = [
   {
@@ -102,7 +103,16 @@ const Logistics = () => {
                     Upload and manage logistics documents
                   </p>
                 </div>
-                <DocumentUpload orderId="sample-order-id" />
+                <div className="space-y-8">
+                  <DocumentUpload 
+                    orderId="sample-order-id" 
+                    onUploadComplete={() => window.location.reload()}
+                  />
+                  <div className="pt-4 border-t">
+                    <h4 className="text-sm font-medium mb-4">Uploaded Documents</h4>
+                    <DocumentList orderId="sample-order-id" />
+                  </div>
+                </div>
               </div>
             </Card>
           </TabsContent>
