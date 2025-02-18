@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -83,29 +82,15 @@ export const SupplyChainMap = () => {
       try {
         console.log("Starting map initialization...");
         
-        // First, let's check if the secrets table exists and has our token
-        const { data: tableInfo, error: tableError } = await supabase
-          .from('secrets')
-          .select('count')
-          .single();
-        
-        console.log("Checking secrets table:", { tableInfo, tableError });
-
-        if (tableError) {
-          throw new Error(`Failed to access secrets table: ${tableError.message}`);
-        }
-
-        // Now try to get the specific token
         const { data: secrets, error: secretError } = await supabase
           .from('secrets')
           .select('value')
           .eq('name', 'MAPBOX_PUBLIC_TOKEN')
-          .limit(1);
+          .single();
 
         console.log("Secret query result:", { 
-          hasData: secrets && secrets.length > 0,
-          error: secretError,
-          secretsReceived: secrets
+          hasData: !!secrets,
+          error: secretError
         });
 
         if (secretError) {
@@ -113,30 +98,15 @@ export const SupplyChainMap = () => {
           throw new Error(`Failed to fetch token: ${secretError.message}`);
         }
 
-        if (!secrets || secrets.length === 0) {
-          console.error("No Mapbox token found in secrets");
-          toast({
-            title: "Configuration Error",
-            description: "Mapbox token not found. Please ensure it is set in your Supabase project.",
-            variant: "destructive",
-          });
+        if (!secrets?.value) {
+          console.error("No Mapbox token found");
           throw new Error('Mapbox token not found. Please ensure it is set in Supabase.');
         }
 
-        const token = secrets[0].value;
+        const token = secrets.value;
         
-        if (!token) {
-          console.error("Token value is empty");
-          throw new Error('Invalid Mapbox token.');
-        }
-
-        console.log("Retrieved token format check:", {
-          length: token.length,
-          startsWithPk: token.startsWith('pk.'),
-        });
-
         if (!token.startsWith('pk.')) {
-          console.error("Token doesn't start with 'pk.'");
+          console.error("Invalid token format");
           throw new Error('Invalid Mapbox public token format.');
         }
 
