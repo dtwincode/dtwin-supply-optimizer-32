@@ -30,6 +30,16 @@ export const uploadDocument = async (
 ) => {
   const fileExt = file.name.split('.').pop();
   const fileName = `${orderId}/${documentType}_${Date.now()}.${fileExt}`;
+  
+  // First, ensure the bucket exists
+  const { data: bucketData, error: bucketError } = await supabase
+    .storage
+    .createBucket('logistics-documents', { public: true });
+
+  if (bucketError && !bucketError.message.includes('already exists')) {
+    throw bucketError;
+  }
+
   const { error: uploadError } = await supabase.storage
     .from('logistics-documents')
     .upload(fileName, file);

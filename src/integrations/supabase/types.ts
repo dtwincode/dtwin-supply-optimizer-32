@@ -1402,36 +1402,36 @@ export type Database = {
       }
       logistics_documents: {
         Row: {
-          created_at: string | null
+          created_at: string
           document_type: string
           file_url: string | null
           id: string
           metadata: Json | null
           order_id: string
           status: string | null
-          updated_at: string | null
+          updated_at: string
           version: number | null
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           document_type: string
           file_url?: string | null
           id?: string
           metadata?: Json | null
           order_id: string
           status?: string | null
-          updated_at?: string | null
+          updated_at?: string
           version?: number | null
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           document_type?: string
           file_url?: string | null
           id?: string
           metadata?: Json | null
           order_id?: string
           status?: string | null
-          updated_at?: string | null
+          updated_at?: string
           version?: number | null
         }
         Relationships: []
