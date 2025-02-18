@@ -27,29 +27,7 @@ export function LocationFilter() {
         .single();
 
       if (error) throw error;
-      
-      // Ensure we always return an object, even if empty
-      const hierarchyData = data?.data || {};
-      
-      // Validate that the data is in the correct format
-      if (typeof hierarchyData !== 'object' || hierarchyData === null) {
-        console.error('Invalid location hierarchy data format:', hierarchyData);
-        return {};
-      }
-
-      // Convert the data into the expected format
-      const formattedData: LocationFilterData = {};
-      Object.entries(hierarchyData).forEach(([key, value]) => {
-        if (Array.isArray(value)) {
-          // Convert all values to strings to ensure type safety
-          formattedData[key] = value.map(item => String(item));
-        } else {
-          console.warn(`Invalid value format for key ${key}:`, value);
-          formattedData[key] = [];
-        }
-      });
-
-      return formattedData;
+      return data?.data as LocationFilterData || {};
     }
   });
 
@@ -64,29 +42,30 @@ export function LocationFilter() {
     return <div>Loading locations...</div>;
   }
 
-  // Ensure locationData is an object before trying to use Object.entries
-  const entries = locationData ? Object.entries(locationData) : [];
+  if (!locationData) {
+    return null;
+  }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {entries.map(([level, values]) => (
+    <div className="space-y-4">
+      {Object.entries(locationData).map(([level, options], index) => (
         <div key={level} className="space-y-2">
           <label htmlFor={level} className="text-sm font-medium text-muted-foreground">
-            {level}
+            {index}
           </label>
           <Select
             value={locationState[level] || ''}
             onValueChange={(value) => handleLocationChange(level, value)}
           >
             <SelectTrigger id={level}>
-              <SelectValue placeholder={`Select ${level}`} />
+              <SelectValue placeholder={`Select ${index}`} />
             </SelectTrigger>
             <SelectContent>
-              {Array.isArray(values) ? values.map((value) => (
-                <SelectItem key={value} value={value}>
-                  {value}
+              {options.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {option}
                 </SelectItem>
-              )) : null}
+              ))}
             </SelectContent>
           </Select>
         </div>
