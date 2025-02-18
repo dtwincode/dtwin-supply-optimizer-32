@@ -10,11 +10,11 @@ const Advanced = () => {
   const { language, isRTL } = useLanguage();
 
   const guidelines = [
-    { path: "/guidelines/getting-started", title: language === 'ar' ? "البدء والإعداد" : "Getting Started" },
     { path: "/guidelines/forecasting-basics", title: language === 'ar' ? "أساسيات التنبؤ" : "Forecasting Basics" },
     { path: "/guidelines/collaboration", title: language === 'ar' ? "التعاون" : "Collaboration" },
     { path: "/guidelines/advanced", title: language === 'ar' ? "الميزات المتقدمة" : "Advanced Features" },
     { path: "/guidelines/ai-assistant", title: language === 'ar' ? "مساعد الذكاء الاصطناعي" : "AI Assistant" },
+    { path: "/guidelines/getting-started", title: language === 'ar' ? "البدء والإعداد" : "Getting Started" },
   ];
 
   const currentIndex = guidelines.findIndex(g => g.path === "/guidelines/advanced");
