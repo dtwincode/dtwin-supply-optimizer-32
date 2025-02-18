@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,7 +10,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useLocation } from "react-router-dom";
 import { useFilters } from "@/contexts/FilterContext";
 
-interface LocationFilterData {
+interface HierarchyData {
   [key: string]: string[];
 }
 
@@ -22,6 +21,7 @@ export function LocationFilter() {
   
   const [fileToDelete, setFileToDelete] = useState<string | null>(null);
   const [isLoadingHierarchy, setIsLoadingHierarchy] = useState(false);
+  const [availableValues, setAvailableValues] = useState<HierarchyData>({});
   
   const {
     getLocationState,
@@ -32,7 +32,7 @@ export function LocationFilter() {
     setHasActiveHierarchy
   } = useFilters();
 
-  const hierarchyState = getLocationState(currentTab);
+  const locationState = getLocationState(currentTab);
   const hierarchyLevels = getHierarchyLevels(currentTab);
   const hasActiveHierarchy = getHasActiveHierarchy(currentTab);
 
@@ -40,6 +40,7 @@ export function LocationFilter() {
     setHasActiveHierarchy(currentTab, false);
     setHierarchyLevels(currentTab, []);
     setLocationState(currentTab, {});
+    setAvailableValues({});
   };
 
   const {
@@ -79,25 +80,25 @@ export function LocationFilter() {
         return;
       }
 
-      const hierarchyData = activeVersionData.data as LocationFilterData[];
+      const hierarchyData = activeVersionData.data;
       if (hierarchyData.length === 0) {
         clearHierarchyState();
         return;
       }
 
       const columns = Object.keys(hierarchyData[0]);
-      const newHierarchyState: Record<string, { selected: string; values: string[] }> = {};
+      const newLocationState: Record<string, string> = {};
+      const newAvailableValues: HierarchyData = {};
       
       columns.forEach(column => {
-        const uniqueValues = new Set(hierarchyData.map(row => row[column]).filter(Boolean));
-        newHierarchyState[column] = {
-          selected: column,
-          values: Array.from(uniqueValues).sort()
-        };
+        const uniqueValues = Array.from(new Set(hierarchyData.map(row => row[column]).filter(Boolean)));
+        newLocationState[column] = column;
+        newAvailableValues[column] = uniqueValues;
       });
 
       setHierarchyLevels(currentTab, columns);
-      setLocationState(currentTab, newHierarchyState);
+      setLocationState(currentTab, newLocationState);
+      setAvailableValues(newAvailableValues);
       setHasActiveHierarchy(currentTab, true);
     } catch (error) {
       console.error('Error fetching hierarchy:', error);
@@ -109,11 +110,8 @@ export function LocationFilter() {
 
   const handleLevelChange = (level: string, value: string) => {
     setLocationState(currentTab, {
-      ...hierarchyState,
-      [level]: {
-        ...hierarchyState[level],
-        selected: value
-      }
+      ...locationState,
+      [level]: value
     });
   };
 
@@ -294,16 +292,16 @@ export function LocationFilter() {
                 {level}
               </label>
               <Select
-                value={hierarchyState[level]?.selected || level}
+                value={locationState[level] || level}
                 onValueChange={value => handleLevelChange(level, value)}
-                disabled={!hierarchyState[level]?.values.length}
+                disabled={!availableValues[level]?.length}
               >
                 <SelectTrigger id={level}>
                   <SelectValue placeholder={level} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={level}>{level}</SelectItem>
-                  {hierarchyState[level]?.values.map(value => (
+                  {availableValues[level]?.map(value => (
                     <SelectItem key={value} value={value}>
                       {value}
                     </SelectItem>
