@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -78,65 +79,61 @@ export const SupplyChainMap = () => {
   useEffect(() => {
     const initializeMap = async () => {
       try {
-        console.log("Fetching Mapbox token...");
-        const { data: secrets, error: secretsError } = await supabase
-          .from('secrets')
-          .select('*')
-          .eq('name', 'MAPBOX_PUBLIC_TOKEN');
+        console.log("Starting map initialization...");
         
-        console.log("All secrets:", secrets);
+        // Try to get the token with a simpler query
+        const { data, error: tokenError } = await supabase
+          .from('secrets')
+          .select('value')
+          .eq('name', 'MAPBOX_PUBLIC_TOKEN')
+          .single();
 
-        if (secretsError) {
-          console.error("Error fetching token:", secretsError);
-          throw new Error(`Failed to fetch token: ${secretsError.message}`);
+        if (tokenError) {
+          console.error("Token fetch error:", tokenError);
+          throw new Error('Failed to fetch Mapbox token');
         }
 
-        if (!secrets || secrets.length === 0 || !secrets[0].value) {
-          console.error("No token found or token is empty");
-          throw new Error('Mapbox token not found or is empty. Please check your configuration.');
+        if (!data?.value) {
+          console.error("No token value found");
+          throw new Error('Mapbox token is missing');
         }
 
-        const token = secrets[0].value;
-        console.log("Token retrieved successfully");
+        console.log("Token retrieved, initializing map...");
+        
+        // Initialize the map
+        mapboxgl.accessToken = data.value;
 
         if (!mapContainer.current) {
-          console.error("Map container not found");
-          return;
+          throw new Error('Map container not found');
         }
 
-        mapboxgl.accessToken = token;
-        console.log("Mapbox token set");
-
-        console.log("Initializing map...");
-        map.current = new mapboxgl.Map({
+        const newMap = new mapboxgl.Map({
           container: mapContainer.current,
-          style: 'mapbox://styles/mapbox/streets-v12',
+          style: 'mapbox://styles/mapbox/light-v11',
           center: [45.0792, 23.8859],
-          zoom: 5
+          zoom: 5,
+          attributionControl: false
         });
 
-        map.current.on('error', (e) => {
-          console.error("Mapbox error:", e);
-          setError(`Map error: ${e.error.message}`);
-          toast({
-            title: "Map Error",
-            description: e.error.message,
-            variant: "destructive",
-          });
-        });
+        // Add navigation control
+        newMap.addControl(new mapboxgl.NavigationControl(), 'top-right');
+        newMap.addControl(new mapboxgl.AttributionControl(), 'bottom-right');
 
-        map.current.on('load', () => {
-          console.log("Map loaded successfully");
-          setIsLoading(false);
+        // Add markers and connections when map loads
+        newMap.on('load', () => {
+          console.log("Map loaded, adding markers...");
           
           locations.forEach(location => {
+            // Create marker element
             const marker = document.createElement('div');
-            marker.className = 'p-2 rounded-full';
+            marker.className = 'rounded-full';
             marker.style.backgroundColor = getLocationColor(location.type);
             marker.style.width = '12px';
             marker.style.height = '12px';
             marker.style.border = '2px solid white';
+            marker.style.boxShadow = '0 0 0 1px rgba(0, 0, 0, 0.1)';
 
+            // Add marker to map
             new mapboxgl.Marker(marker)
               .setLngLat([location.coordinates.lng, location.coordinates.lat])
               .setPopup(
@@ -148,13 +145,14 @@ export const SupplyChainMap = () => {
                     </div>
                   `)
               )
-              .addTo(map.current!);
+              .addTo(newMap);
 
+            // Draw connection lines to parent locations
             if (location.parent_id) {
               const parent = locations.find(l => l.id === location.parent_id);
               if (parent) {
                 const lineId = `line-${location.id}`;
-                map.current!.addSource(lineId, {
+                newMap.addSource(lineId, {
                   type: 'geojson',
                   data: {
                     type: 'Feature',
@@ -169,7 +167,7 @@ export const SupplyChainMap = () => {
                   }
                 });
 
-                map.current!.addLayer({
+                newMap.addLayer({
                   id: lineId,
                   type: 'line',
                   source: lineId,
@@ -186,10 +184,27 @@ export const SupplyChainMap = () => {
               }
             }
           });
+
+          setIsLoading(false);
+          console.log("Map initialization complete");
         });
 
+        // Handle map errors
+        newMap.on('error', (e) => {
+          console.error('Map error:', e);
+          setError(`Map error: ${e.error.message}`);
+          toast({
+            title: "Map Error",
+            description: e.error.message,
+            variant: "destructive",
+          });
+        });
+
+        // Store map reference
+        map.current = newMap;
+
       } catch (err) {
-        console.error("Initialization error:", err);
+        console.error("Map initialization failed:", err);
         const errorMessage = err instanceof Error ? err.message : 'Failed to initialize map';
         setError(errorMessage);
         toast({
@@ -201,8 +216,10 @@ export const SupplyChainMap = () => {
       }
     };
 
+    // Initialize the map
     initializeMap();
 
+    // Cleanup on unmount
     return () => {
       if (map.current) {
         map.current.remove();
