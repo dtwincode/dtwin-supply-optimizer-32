@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,7 +25,6 @@ export function LocationFilter() {
   const [hierarchyLevels, setHierarchyLevels] = useState<string[]>([]);
   const [hasActiveHierarchy, setHasActiveHierarchy] = useState(false);
   const [fileToDelete, setFileToDelete] = useState<string | null>(null);
-  const [isOpen, setIsOpen] = useState(false);
 
   const {
     data: locationsData,
@@ -87,6 +85,7 @@ export function LocationFilter() {
   } = useQuery({
     queryKey: ['saved-location-hierarchies'],
     queryFn: async () => {
+      console.log('Fetching saved location hierarchy files...');
       const { data: files, error } = await supabase
         .from('permanent_hierarchy_files')
         .select('*')
@@ -98,6 +97,7 @@ export function LocationFilter() {
         return [];
       }
 
+      console.log('Retrieved files:', files);
       return files || [];
     }
   });
@@ -150,7 +150,6 @@ export function LocationFilter() {
       setHierarchyState({});
       setHierarchyLevels([]);
       await refetch();
-      setIsOpen(false);
 
       toast({
         title: "Success",
@@ -190,7 +189,6 @@ export function LocationFilter() {
 
       await refetchFiles();
       await refetch();
-      setIsOpen(false);
 
       toast({
         title: "Success",
@@ -222,32 +220,35 @@ export function LocationFilter() {
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium">Location Filters</h3>
-        <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+        <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
               <FileInput className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[200px]">
+          <DropdownMenuContent align="end" className="w-[200px] bg-popover">
             {savedFiles && savedFiles.length > 0 ? (
               savedFiles.map(file => (
-                <div key={file.id} className="flex items-center justify-between px-2 py-1.5 hover:bg-accent">
-                  <button
-                    className="flex-1 text-left text-sm"
-                    onClick={() => handleImportHierarchy(file.id)}
+                <div key={file.id} className="flex items-center justify-between px-2 py-1.5">
+                  <DropdownMenuItem 
+                    className="flex-1"
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      handleImportHierarchy(file.id);
+                    }}
                   >
                     {file.original_name}
-                  </button>
+                  </DropdownMenuItem>
                   <Button
                     variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 p-1 ml-2 hover:bg-destructive/10"
+                    size="sm"
+                    className="h-8 w-8 p-0"
                     onClick={(e) => {
                       e.stopPropagation();
                       setFileToDelete(file.id);
                     }}
                   >
-                    <Trash2 className="h-4 w-4 text-destructive hover:text-destructive" />
+                    <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
                 </div>
               ))
