@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -85,7 +86,6 @@ export function LocationFilter() {
   } = useQuery({
     queryKey: ['saved-location-hierarchies'],
     queryFn: async () => {
-      console.log('Fetching saved location hierarchy files...');
       const { data: files, error } = await supabase
         .from('permanent_hierarchy_files')
         .select('*')
@@ -97,7 +97,6 @@ export function LocationFilter() {
         return [];
       }
 
-      console.log('Retrieved files:', files);
       return files || [];
     }
   });
@@ -226,7 +225,7 @@ export function LocationFilter() {
               <FileInput className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[200px] bg-popover">
+          <DropdownMenuContent align="end" className="w-[200px]">
             {savedFiles && savedFiles.length > 0 ? (
               savedFiles.map(file => (
                 <div key={file.id} className="flex items-center justify-between px-2 py-1.5">
