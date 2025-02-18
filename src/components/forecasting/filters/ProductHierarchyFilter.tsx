@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,12 +33,12 @@ export function ProductHierarchyFilter() {
   } = useFilters();
 
   const hierarchyState = getProductHierarchyState(currentTab);
-  const hierarchyLevels = getHierarchyLevels(currentTab);
-  const hasActiveHierarchy = getHasActiveHierarchy(currentTab);
+  const hierarchyLevels = getHierarchyLevels(currentTab, 'product');
+  const hasActiveHierarchy = getHasActiveHierarchy(currentTab, 'product');
 
   const clearHierarchyState = () => {
-    setHasActiveHierarchy(currentTab, false);
-    setHierarchyLevels(currentTab, []);
+    setHasActiveHierarchy(currentTab, 'product', false);
+    setHierarchyLevels(currentTab, 'product', []);
     setProductHierarchyState(currentTab, {});
   };
 
@@ -95,9 +96,9 @@ export function ProductHierarchyFilter() {
         };
       });
 
-      setHierarchyLevels(currentTab, columns);
+      setHierarchyLevels(currentTab, 'product', columns);
       setProductHierarchyState(currentTab, newHierarchyState);
-      setHasActiveHierarchy(currentTab, true);
+      setHasActiveHierarchy(currentTab, 'product', true);
     } catch (error) {
       console.error('Error fetching hierarchy:', error);
       clearHierarchyState();
