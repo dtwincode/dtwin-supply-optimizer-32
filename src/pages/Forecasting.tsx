@@ -1,3 +1,4 @@
+
 import DashboardLayout from "@/components/DashboardLayout";
 import { ForecastingTabs } from "@/components/forecasting/ForecastingTabs";
 import { ForecastAnalysisTab } from "@/components/forecasting/tabs/ForecastAnalysisTab";
@@ -19,6 +20,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { getTranslation } from "@/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ForecastDataPoint } from "@/types/forecasting";
 
 const Forecasting = () => {
   const location = useLocation();
