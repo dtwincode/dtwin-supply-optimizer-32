@@ -226,29 +226,26 @@ export function LocationFilter() {
               <FileInput className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[200px] bg-popover">
+          <DropdownMenuContent align="end" className="w-[200px]">
             {savedFiles && savedFiles.length > 0 ? (
               savedFiles.map(file => (
-                <div key={file.id} className="flex items-center justify-between px-2 py-1.5">
-                  <DropdownMenuItem 
-                    className="flex-1"
-                    onSelect={(e) => {
-                      e.preventDefault();
-                      handleImportHierarchy(file.id);
-                    }}
+                <div key={file.id} className="flex items-center justify-between px-2 py-1.5 hover:bg-accent">
+                  <button
+                    className="flex-1 text-left text-sm"
+                    onClick={() => handleImportHierarchy(file.id)}
                   >
                     {file.original_name}
-                  </DropdownMenuItem>
+                  </button>
                   <Button
                     variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0"
+                    size="icon"
+                    className="h-8 w-8 p-1 ml-2 hover:bg-destructive/10"
                     onClick={(e) => {
                       e.stopPropagation();
                       setFileToDelete(file.id);
                     }}
                   >
-                    <Trash2 className="h-4 w-4 text-destructive" />
+                    <Trash2 className="h-4 w-4 text-destructive hover:text-destructive" />
                   </Button>
                 </div>
               ))
