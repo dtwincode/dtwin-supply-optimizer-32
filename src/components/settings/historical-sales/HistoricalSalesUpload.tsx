@@ -6,28 +6,81 @@ import { SavedFiles } from "../files/SavedFiles";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
+import { ColumnSelector } from "../location-hierarchy/components/ColumnSelector";
+import { HierarchyTable } from "../hierarchy/components/HierarchyTable";
 
 export function HistoricalSalesUpload() {
+  const [uploadedData, setUploadedData] = useState<any[] | null>(null);
+  const [tempUploadId, setTempUploadId] = useState<string | null>(null);
+  const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set());
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
 
-  const handleUploadSuccess = (data: any[]) => {
+  const handleUploadSuccess = (data: any[], uploadId: string) => {
+    setUploadedData(data);
+    setTempUploadId(uploadId);
+    if (data[0]) {
+      setSelectedColumns(new Set(Object.keys(data[0])));
+    }
     setError(null);
     setUploadProgress(100);
     setIsUploading(false);
-    setRefreshTrigger(prev => prev + 1);
     toast({
       title: "Upload Successful",
       description: `${data.length} records have been uploaded successfully`,
     });
   };
 
+  const handleUploadError = (error: string) => {
+    setError(error);
+    setUploadedData(null);
+    setTempUploadId(null);
+    setUploadProgress(0);
+    setIsUploading(false);
+    toast({
+      variant: "destructive",
+      title: "Upload Error",
+      description: error
+    });
+  };
+
+  const handleSaveSuccess = async () => {
+    if (isSaving) return;
+
+    try {
+      setIsSaving(true);
+      setUploadedData(null);
+      setTempUploadId(null);
+      setSelectedColumns(new Set());
+      setRefreshTrigger(prev => prev + 1);
+      
+      toast({
+        title: "Success",
+        description: "File saved and processed successfully"
+      });
+    } catch (error) {
+      console.error('Error in save process:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to complete save process"
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleUploadProgress = (progress: number) => {
     setUploadProgress(progress);
     setIsUploading(true);
+  };
+
+  const handleColumnSelect = (columns: Set<string>) => {
+    setSelectedColumns(columns);
   };
 
   return (
@@ -42,7 +95,9 @@ export function HistoricalSalesUpload() {
         <CardContent className="p-6">
           <div className="space-y-6">
             <FileUpload
-              onUploadComplete={handleUploadSuccess}
+              onUploadComplete={(data, fileName) => {
+                handleUploadSuccess(data, `historical_sales_${new Date().getTime()}`);
+              }}
               onProgress={handleUploadProgress}
               allowedFileTypes={[".csv", ".xlsx"]}
               maxSize={5}
@@ -55,6 +110,36 @@ export function HistoricalSalesUpload() {
                   Uploading... {uploadProgress}%
                 </p>
               </div>
+            )}
+
+            {uploadedData && tempUploadId && (
+              <>
+                <ColumnSelector
+                  tableName="historical_sales"
+                  combinedHeaders={uploadedData[0] ? Object.keys(uploadedData[0]).map(header => ({
+                    header,
+                    level: null
+                  })) : []}
+                  selectedColumns={selectedColumns}
+                  onSelectedColumnsChange={handleColumnSelect}
+                  tempUploadId={tempUploadId}
+                  data={uploadedData}
+                  onSaveSuccess={handleSaveSuccess}
+                  hierarchyType="historical_sales"
+                />
+
+                <div className="mt-6">
+                  <h3 className="text-lg font-medium mb-4">Data Preview</h3>
+                  <HierarchyTable
+                    data={uploadedData}
+                    columns={Array.from(selectedColumns)}
+                    combinedHeaders={Array.from(selectedColumns).map(header => ({
+                      column: header,
+                      sampleData: uploadedData[0]?.[header]?.toString() || ''
+                    }))}
+                  />
+                </div>
+              </>
             )}
           </div>
         </CardContent>
