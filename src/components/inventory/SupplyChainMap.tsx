@@ -87,21 +87,21 @@ export const SupplyChainMap = () => {
         console.log('Starting map initialization...');
         
         // Query the secrets table with explicit return type
-        const { data, error: tokenError } = await supabase
+        const { data: token, error: tokenError } = await supabase
           .from('secrets')
-          .select('name, value')
+          .select('value')
           .eq('name', 'MAPBOX_PUBLIC_TOKEN')
-          .single();
+          .maybeSingle();
 
-        console.log('Supabase query response:', { data, error: tokenError });
+        console.log('Supabase query response:', { token, error: tokenError });
 
         if (tokenError) {
           console.error('Token fetch error:', tokenError);
           throw new Error(`Failed to fetch Mapbox token: ${tokenError.message}`);
         }
 
-        if (!data?.value) {
-          console.error('No token value found:', data);
+        if (!token?.value) {
+          console.error('No token value found:', token);
           throw new Error('Mapbox token not found in secrets. Please ensure the token is properly set in Supabase.');
         }
 
@@ -117,7 +117,7 @@ export const SupplyChainMap = () => {
         }
 
         console.log('Setting up Mapbox with token...');
-        mapboxgl.accessToken = data.value;
+        mapboxgl.accessToken = token.value;
         
         console.log('Creating map instance...');
         map.current = new mapboxgl.Map({
