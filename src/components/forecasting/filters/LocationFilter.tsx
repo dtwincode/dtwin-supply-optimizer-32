@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -26,6 +26,7 @@ export function LocationFilter() {
   const [hierarchyLevels, setHierarchyLevels] = useState<string[]>([]);
   const [hasActiveHierarchy, setHasActiveHierarchy] = useState(false);
   const [fileToDelete, setFileToDelete] = useState<string | null>(null);
+  const [isLoadingHierarchy, setIsLoadingHierarchy] = useState(false);
 
   const clearHierarchyState = () => {
     setHasActiveHierarchy(false);
@@ -33,7 +34,7 @@ export function LocationFilter() {
     setHierarchyState({});
   };
 
-  // Fetch saved files
+  // Only fetch saved files
   const {
     data: savedFiles,
     isLoading: isLoadingFiles,
@@ -56,15 +57,9 @@ export function LocationFilter() {
     }
   });
 
-  // Fetch active hierarchy data
-  const {
-    data: locationsData,
-    isLoading,
-    refetch
-  } = useQuery({
-    queryKey: ['locations', 'hierarchy'],
-    enabled: false,
-    queryFn: async () => {
+  const fetchActiveHierarchy = async () => {
+    setIsLoadingHierarchy(true);
+    try {
       const { data: activeVersionData, error: versionError } = await supabase
         .from('permanent_hierarchy_data')
         .select('data')
@@ -74,13 +69,13 @@ export function LocationFilter() {
 
       if (versionError || !activeVersionData?.data || !Array.isArray(activeVersionData.data)) {
         clearHierarchyState();
-        return null;
+        return;
       }
 
       const hierarchyData = activeVersionData.data as HierarchyData[];
       if (hierarchyData.length === 0) {
         clearHierarchyState();
-        return null;
+        return;
       }
 
       const columns = Object.keys(hierarchyData[0]);
@@ -97,14 +92,13 @@ export function LocationFilter() {
       setHierarchyLevels(columns);
       setHierarchyState(newHierarchyState);
       setHasActiveHierarchy(true);
-      return hierarchyData;
+    } catch (error) {
+      console.error('Error fetching hierarchy:', error);
+      clearHierarchyState();
+    } finally {
+      setIsLoadingHierarchy(false);
     }
-  });
-
-  // Check for active hierarchy on component mount
-  useEffect(() => {
-    refetch();
-  }, [refetch]);
+  };
 
   const handleLevelChange = (level: string, value: string) => {
     setHierarchyState(prev => ({
@@ -117,6 +111,7 @@ export function LocationFilter() {
   };
 
   const handleImportHierarchy = async (fileId: string) => {
+    setIsLoadingHierarchy(true);
     try {
       const { data: fileData, error: fileError } = await supabase
         .from('permanent_hierarchy_files')
@@ -155,7 +150,9 @@ export function LocationFilter() {
 
       if (insertError) throw insertError;
 
-      await refetch();
+      // Fetch the newly imported hierarchy
+      await fetchActiveHierarchy();
+
       toast({
         title: "Success",
         description: "Location hierarchy imported successfully"
@@ -168,6 +165,8 @@ export function LocationFilter() {
         title: "Error",
         description: "Failed to import location hierarchy"
       });
+    } finally {
+      setIsLoadingHierarchy(false);
     }
   };
 
@@ -192,7 +191,6 @@ export function LocationFilter() {
       }
 
       await refetchFiles();
-      await refetch();
 
       toast({
         title: "Success",
@@ -210,7 +208,7 @@ export function LocationFilter() {
     }
   };
 
-  if (isLoading || isLoadingFiles) {
+  if (isLoadingFiles || isLoadingHierarchy) {
     return (
       <div className="w-full">
         <div className="flex items-center justify-center space-x-2">
