@@ -175,46 +175,48 @@ export function IntegratedDataPreview() {
               <p>Loading integrated data...</p>
             </div>
           ) : (
-            <ScrollArea className="h-[600px] w-full rounded-md border">
-              <div className="min-w-[1600px] w-full">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="text-base whitespace-nowrap px-6">Date</TableHead>
-                      <TableHead className="text-base whitespace-nowrap px-6">SKU</TableHead>
-                      <TableHead className="text-base whitespace-nowrap px-6">Main Product</TableHead>
-                      <TableHead className="text-base whitespace-nowrap px-6">Product Line</TableHead>
-                      <TableHead className="text-base whitespace-nowrap px-6">Category</TableHead>
-                      <TableHead className="text-base whitespace-nowrap px-6">Device Make</TableHead>
-                      <TableHead className="text-base whitespace-nowrap px-6">Sub Category</TableHead>
-                      <TableHead className="text-base whitespace-nowrap px-6">Device Model</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {data.length === 0 ? (
+            <div className="relative overflow-x-auto border rounded-md">
+              <div className="max-h-[600px] overflow-y-auto">
+                <div className="min-w-[1600px]">
+                  <Table>
+                    <TableHeader>
                       <TableRow>
-                        <TableCell colSpan={8} className="text-center py-4">
-                          No integrated data available. Click "Integrate Data" to populate the table.
-                        </TableCell>
+                        <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Date</TableHead>
+                        <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">SKU</TableHead>
+                        <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Main Product</TableHead>
+                        <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Product Line</TableHead>
+                        <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Category</TableHead>
+                        <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Device Make</TableHead>
+                        <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Sub Category</TableHead>
+                        <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Device Model</TableHead>
                       </TableRow>
-                    ) : (
-                      data.map((row, index) => (
-                        <TableRow key={index}>
-                          <TableCell className="whitespace-nowrap px-6">{new Date(row.date).toLocaleDateString()}</TableCell>
-                          <TableCell className="whitespace-nowrap px-6">{row.sku}</TableCell>
-                          <TableCell className="whitespace-nowrap px-6">{row.l1_main_prod}</TableCell>
-                          <TableCell className="whitespace-nowrap px-6">{row.l2_prod_line}</TableCell>
-                          <TableCell className="whitespace-nowrap px-6">{row.l3_prod_category}</TableCell>
-                          <TableCell className="whitespace-nowrap px-6">{row.l4_device_make}</TableCell>
-                          <TableCell className="whitespace-nowrap px-6">{row.l5_prod_sub_category}</TableCell>
-                          <TableCell className="whitespace-nowrap px-6">{row.l6_device_model}</TableCell>
+                    </TableHeader>
+                    <TableBody>
+                      {data.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={8} className="text-center py-4">
+                            No integrated data available. Click "Integrate Data" to populate the table.
+                          </TableCell>
                         </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
+                      ) : (
+                        data.map((row, index) => (
+                          <TableRow key={index}>
+                            <TableCell className="whitespace-nowrap px-6">{new Date(row.date).toLocaleDateString()}</TableCell>
+                            <TableCell className="whitespace-nowrap px-6">{row.sku}</TableCell>
+                            <TableCell className="whitespace-nowrap px-6">{row.l1_main_prod}</TableCell>
+                            <TableCell className="whitespace-nowrap px-6">{row.l2_prod_line}</TableCell>
+                            <TableCell className="whitespace-nowrap px-6">{row.l3_prod_category}</TableCell>
+                            <TableCell className="whitespace-nowrap px-6">{row.l4_device_make}</TableCell>
+                            <TableCell className="whitespace-nowrap px-6">{row.l5_prod_sub_category}</TableCell>
+                            <TableCell className="whitespace-nowrap px-6">{row.l6_device_model}</TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
               </div>
-            </ScrollArea>
+            </div>
           )}
         </div>
       </CardContent>
