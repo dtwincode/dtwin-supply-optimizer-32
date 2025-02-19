@@ -22,6 +22,7 @@ export function IntegratedDataPreview() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log('Fetching integrated data...');
         const { data: integratedData, error } = await supabase
           .from('integrated_forecast_data')
           .select(`
@@ -40,7 +41,12 @@ export function IntegratedDataPreview() {
           `)
           .limit(10);
 
-        if (error) throw error;
+        if (error) {
+          console.error('Supabase query error:', error);
+          throw error;
+        }
+
+        console.log('Raw integrated data:', integratedData);
 
         // Transform the joined data to match IntegratedData interface
         const transformedData: IntegratedData[] = (integratedData || []).map(item => ({
@@ -54,6 +60,7 @@ export function IntegratedDataPreview() {
           warehouse: item.location_hierarchy?.warehouse || ''
         }));
 
+        console.log('Transformed data:', transformedData);
         setData(transformedData);
       } catch (error) {
         console.error('Error fetching integrated data:', error);
