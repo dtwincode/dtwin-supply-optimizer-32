@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -174,19 +175,19 @@ export function IntegratedDataPreview() {
               <p>Loading integrated data...</p>
             </div>
           ) : (
-            <ScrollArea className="h-[600px] rounded-md border">
-              <div className="min-w-[1200px]">
+            <ScrollArea className="h-[600px] w-full rounded-md border">
+              <div className="min-w-[1600px] w-full">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="text-base">Date</TableHead>
-                      <TableHead className="text-base">SKU</TableHead>
-                      <TableHead className="text-base">Main Product</TableHead>
-                      <TableHead className="text-base">Product Line</TableHead>
-                      <TableHead className="text-base">Category</TableHead>
-                      <TableHead className="text-base">Device Make</TableHead>
-                      <TableHead className="text-base">Sub Category</TableHead>
-                      <TableHead className="text-base">Device Model</TableHead>
+                      <TableHead className="text-base whitespace-nowrap px-6">Date</TableHead>
+                      <TableHead className="text-base whitespace-nowrap px-6">SKU</TableHead>
+                      <TableHead className="text-base whitespace-nowrap px-6">Main Product</TableHead>
+                      <TableHead className="text-base whitespace-nowrap px-6">Product Line</TableHead>
+                      <TableHead className="text-base whitespace-nowrap px-6">Category</TableHead>
+                      <TableHead className="text-base whitespace-nowrap px-6">Device Make</TableHead>
+                      <TableHead className="text-base whitespace-nowrap px-6">Sub Category</TableHead>
+                      <TableHead className="text-base whitespace-nowrap px-6">Device Model</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -199,14 +200,14 @@ export function IntegratedDataPreview() {
                     ) : (
                       data.map((row, index) => (
                         <TableRow key={index}>
-                          <TableCell>{new Date(row.date).toLocaleDateString()}</TableCell>
-                          <TableCell>{row.sku}</TableCell>
-                          <TableCell>{row.l1_main_prod}</TableCell>
-                          <TableCell>{row.l2_prod_line}</TableCell>
-                          <TableCell>{row.l3_prod_category}</TableCell>
-                          <TableCell>{row.l4_device_make}</TableCell>
-                          <TableCell>{row.l5_prod_sub_category}</TableCell>
-                          <TableCell>{row.l6_device_model}</TableCell>
+                          <TableCell className="whitespace-nowrap px-6">{new Date(row.date).toLocaleDateString()}</TableCell>
+                          <TableCell className="whitespace-nowrap px-6">{row.sku}</TableCell>
+                          <TableCell className="whitespace-nowrap px-6">{row.l1_main_prod}</TableCell>
+                          <TableCell className="whitespace-nowrap px-6">{row.l2_prod_line}</TableCell>
+                          <TableCell className="whitespace-nowrap px-6">{row.l3_prod_category}</TableCell>
+                          <TableCell className="whitespace-nowrap px-6">{row.l4_device_make}</TableCell>
+                          <TableCell className="whitespace-nowrap px-6">{row.l5_prod_sub_category}</TableCell>
+                          <TableCell className="whitespace-nowrap px-6">{row.l6_device_model}</TableCell>
                         </TableRow>
                       ))
                     )}
