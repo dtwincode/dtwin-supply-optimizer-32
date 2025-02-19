@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -102,7 +103,15 @@ export function IntegratedDataPreview() {
         throw new Error('No historical sales data found. Please upload historical sales data first.');
       }
 
+      // Log the structure of historical data
       console.log('Found historical sales data:', historicalData);
+      console.log('Historical data structure:', {
+        hasData: historicalData.length > 0,
+        firstRecord: historicalData[0],
+        dataStructure: historicalData[0]?.data ? 
+          `Array with ${Array.isArray(historicalData[0].data) ? historicalData[0].data.length : 0} items` : 
+          'No data array found'
+      });
 
       // Call the populate function
       const { data: result, error } = await supabase.rpc('populate_integrated_forecast_data');
