@@ -12,25 +12,32 @@ export const industries: Industry[] = [
         score: 0,
         subcategories: [
           {
-            name: "Seasonal Trends",
-            nameAr: "الاتجاهات الموسمية",
+            name: "Statistical Forecasting",
+            nameAr: "التنبؤ الإحصائي",
             level: 0,
-            description: "Analysis of seasonal shopping patterns",
-            descriptionAr: "تحليل أنماط التسوق الموسمية"
+            description: "Use of statistical methods for demand prediction",
+            descriptionAr: "استخدام الأساليب الإحصائية للتنبؤ بالطلب"
           },
           {
-            name: "Promotion Impact",
-            nameAr: "تأثير العروض",
+            name: "Promotional Impact Analysis",
+            nameAr: "تحليل تأثير العروض",
             level: 0,
-            description: "Measuring promotional campaign effectiveness",
-            descriptionAr: "قياس فعالية الحملات الترويجية"
+            description: "Analysis of promotional campaigns on demand",
+            descriptionAr: "تحليل تأثير الحملات الترويجية على الطلب"
           },
           {
-            name: "Store Traffic",
-            nameAr: "حركة المتجر",
+            name: "Market Intelligence Integration",
+            nameAr: "تكامل معلومات السوق",
             level: 0,
-            description: "Foot traffic analysis and prediction",
-            descriptionAr: "تحليل وتوقع حركة المرور في المتجر"
+            description: "Integration of market data and trends",
+            descriptionAr: "دمج بيانات واتجاهات السوق"
+          },
+          {
+            name: "Machine Learning Models",
+            nameAr: "نماذج التعلم الآلي",
+            level: 0,
+            description: "Advanced ML-based forecasting models",
+            descriptionAr: "نماذج التنبؤ المتقدمة القائمة على التعلم الآلي"
           }
         ]
       },
@@ -40,53 +47,172 @@ export const industries: Industry[] = [
         score: 0,
         subcategories: [
           {
-            name: "Stock Monitoring",
-            nameAr: "مراقبة المخزون",
+            name: "Stock Level Optimization",
+            nameAr: "تحسين مستويات المخزون",
             level: 0,
-            description: "Inventory level monitoring approach",
-            descriptionAr: "نهج مراقبة مستوى المخزون"
+            description: "Optimal inventory level management",
+            descriptionAr: "إدارة المستوى الأمثل للمخزون"
           },
           {
             name: "Buffer Management",
             nameAr: "إدارة المخزون الاحتياطي",
             level: 0,
-            description: "Safety stock management method",
-            descriptionAr: "طريقة إدارة المخزون الاحتياطي"
+            description: "Strategic buffer positioning and sizing",
+            descriptionAr: "تحديد وتحجيم المخزون الاحتياطي الاستراتيجي"
           },
           {
-            name: "Lead Time Tracking",
-            nameAr: "تتبع وقت التوريد",
+            name: "Warehouse Management",
+            nameAr: "إدارة المستودعات",
             level: 0,
-            description: "Supplier lead time tracking system",
-            descriptionAr: "نظام تتبع وقت التوريد"
+            description: "Warehouse operations and optimization",
+            descriptionAr: "عمليات وتحسين المستودعات"
+          },
+          {
+            name: "Multi-Echelon Optimization",
+            nameAr: "تحسين متعدد المستويات",
+            level: 0,
+            description: "Network-wide inventory optimization",
+            descriptionAr: "تحسين المخزون على مستوى الشبكة"
+          }
+        ]
+      },
+      {
+        name: "Supply Chain Planning",
+        nameAr: "تخطيط سلسلة التوريد",
+        score: 0,
+        subcategories: [
+          {
+            name: "Sales & Operations Planning",
+            nameAr: "تخطيط المبيعات والعمليات",
+            level: 0,
+            description: "Integrated business planning process",
+            descriptionAr: "عملية تخطيط الأعمال المتكاملة"
+          },
+          {
+            name: "Network Design",
+            nameAr: "تصميم الشبكة",
+            level: 0,
+            description: "Supply chain network optimization",
+            descriptionAr: "تحسين شبكة سلسلة التوريد"
+          },
+          {
+            name: "Supplier Collaboration",
+            nameAr: "التعاون مع الموردين",
+            level: 0,
+            description: "Strategic supplier relationship management",
+            descriptionAr: "إدارة العلاقات الاستراتيجية مع الموردين"
+          },
+          {
+            name: "Risk Management",
+            nameAr: "إدارة المخاطر",
+            level: 0,
+            description: "Supply chain risk assessment and mitigation",
+            descriptionAr: "تقييم وتخفيف مخاطر سلسلة التوريد"
           }
         ]
       },
       {
         name: "Logistics Capabilities",
-        nameAr: "قدرات الخدمات اللوجستية",
+        nameAr: "القدرات اللوجستية",
         score: 0,
         subcategories: [
           {
-            name: "Route Optimization",
-            nameAr: "تحسين المسار",
+            name: "Transportation Management",
+            nameAr: "إدارة النقل",
             level: 0,
-            description: "Delivery route planning approach",
-            descriptionAr: "نهج تخطيط مسار التسليم"
+            description: "Fleet and route optimization",
+            descriptionAr: "تحسين الأسطول والمسارات"
           },
           {
-            name: "Shipment Tracking",
-            nameAr: "تتبع الشحنات",
+            name: "Last Mile Delivery",
+            nameAr: "التوصيل للميل الأخير",
             level: 0,
-            description: "Shipment tracking capabilities",
-            descriptionAr: "قدرات تتبع الشحنات"
+            description: "Final delivery optimization",
+            descriptionAr: "تحسين التوصيل النهائي"
           },
           {
-            name: "Performance Monitoring",
-            nameAr: "مراقبة الأداء",
+            name: "Reverse Logistics",
+            nameAr: "الخدمات اللوجستية العكسية",
             level: 0,
-            description: "Delivery performance measurement",
-            descriptionAr: "قياس أداء التسليم"
+            description: "Returns and recycling management",
+            descriptionAr: "إدارة المرتجعات وإعادة التدوير"
+          },
+          {
+            name: "Cross-Docking",
+            nameAr: "التحميل المتقاطع",
+            level: 0,
+            description: "Efficient cross-docking operations",
+            descriptionAr: "عمليات التحميل المتقاطع الفعالة"
+          }
+        ]
+      },
+      {
+        name: "Digital Transformation",
+        nameAr: "التحول الرقمي",
+        score: 0,
+        subcategories: [
+          {
+            name: "Process Automation",
+            nameAr: "أتمتة العمليات",
+            level: 0,
+            description: "Automated workflow implementation",
+            descriptionAr: "تنفيذ سير العمل الآلي"
+          },
+          {
+            name: "Data Analytics",
+            nameAr: "تحليل البيانات",
+            level: 0,
+            description: "Advanced analytics capabilities",
+            descriptionAr: "قدرات التحليلات المتقدمة"
+          },
+          {
+            name: "IoT Integration",
+            nameAr: "تكامل إنترنت الأشياء",
+            level: 0,
+            description: "Smart device network implementation",
+            descriptionAr: "تنفيذ شبكة الأجهزة الذكية"
+          },
+          {
+            name: "Blockchain Integration",
+            nameAr: "تكامل البلوكتشين",
+            level: 0,
+            description: "Blockchain technology adoption",
+            descriptionAr: "تبني تقنية البلوكتشين"
+          }
+        ]
+      },
+      {
+        name: "Sustainability",
+        nameAr: "الاستدامة",
+        score: 0,
+        subcategories: [
+          {
+            name: "Carbon Footprint",
+            nameAr: "البصمة الكربونية",
+            level: 0,
+            description: "Emissions tracking and reduction",
+            descriptionAr: "تتبع وتخفيض الانبعاثات"
+          },
+          {
+            name: "Waste Management",
+            nameAr: "إدارة النفايات",
+            level: 0,
+            description: "Waste reduction and recycling",
+            descriptionAr: "تقليل النفايات وإعادة التدوير"
+          },
+          {
+            name: "Green Transportation",
+            nameAr: "النقل الأخضر",
+            level: 0,
+            description: "Sustainable transportation methods",
+            descriptionAr: "طرق النقل المستدامة"
+          },
+          {
+            name: "Circular Economy",
+            nameAr: "الاقتصاد الدائري",
+            level: 0,
+            description: "Circular economy practices",
+            descriptionAr: "ممارسات الاقتصاد الدائري"
           }
         ]
       }
