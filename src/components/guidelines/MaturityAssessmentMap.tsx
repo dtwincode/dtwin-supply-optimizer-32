@@ -1,8 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HelpCircle, Info, BookOpen, BarChart2 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+interface Industry {
+  id: string;
+  name: string;
+  nameAr: string;
+  maturityData: MaturityCategory[];
+}
 
 interface MaturityCategory {
   name: string;
@@ -17,116 +31,389 @@ interface MaturityCategory {
   }[];
 }
 
-const maturityData: MaturityCategory[] = [
+const industries: Industry[] = [
   {
-    name: "Demand Forecasting",
-    nameAr: "التنبؤ بالطلب",
-    score: 0,
-    subcategories: [
+    id: "retail",
+    name: "Retail",
+    nameAr: "تجارة التجزئة",
+    maturityData: [
       {
-        name: "Data Collection",
-        nameAr: "جمع البيانات",
-        level: 0,
-        description: "How frequently you collect sales data",
-        descriptionAr: "مدى تكرار جمع بيانات المبيعات"
+        name: "Demand Forecasting",
+        nameAr: "التنبؤ بالطلب",
+        score: 0,
+        subcategories: [
+          {
+            name: "Seasonal Trends",
+            nameAr: "الاتجاهات الموسمية",
+            level: 0,
+            description: "Analysis of seasonal shopping patterns",
+            descriptionAr: "تحليل أنماط التسوق الموسمية"
+          },
+          {
+            name: "Promotion Impact",
+            nameAr: "تأثير العروض",
+            level: 0,
+            description: "Measuring promotional campaign effectiveness",
+            descriptionAr: "قياس فعالية الحملات الترويجية"
+          },
+          {
+            name: "Store Traffic",
+            nameAr: "حركة المتجر",
+            level: 0,
+            description: "Foot traffic analysis and prediction",
+            descriptionAr: "تحليل وتوقع حركة المرور في المتجر"
+          }
+        ]
       },
       {
-        name: "Historical Data",
-        nameAr: "البيانات التاريخية",
-        level: 0,
-        description: "Available historical data coverage",
-        descriptionAr: "تغطية البيانات التاريخية المتاحة"
+        name: "Inventory Management",
+        nameAr: "إدارة المخزون",
+        score: 0,
+        subcategories: [
+          {
+            name: "Stock Monitoring",
+            nameAr: "مراقبة المخزون",
+            level: 0,
+            description: "Inventory level monitoring approach",
+            descriptionAr: "نهج مراقبة مستوى المخزون"
+          },
+          {
+            name: "Buffer Management",
+            nameAr: "إدارة المخزون الاحتياطي",
+            level: 0,
+            description: "Safety stock management method",
+            descriptionAr: "طريقة إدارة المخزون الاحتياطي"
+          },
+          {
+            name: "Lead Time Tracking",
+            nameAr: "تتبع وقت التوريد",
+            level: 0,
+            description: "Supplier lead time tracking system",
+            descriptionAr: "نظام تتبع وقت التوريد"
+          }
+        ]
       },
       {
-        name: "Seasonality",
-        nameAr: "الموسمية",
-        level: 0,
-        description: "Seasonal pattern tracking capability",
-        descriptionAr: "قدرة تتبع النمط الموسمي"
+        name: "Logistics Capabilities",
+        nameAr: "قدرات الخدمات اللوجستية",
+        score: 0,
+        subcategories: [
+          {
+            name: "Route Optimization",
+            nameAr: "تحسين المسار",
+            level: 0,
+            description: "Delivery route planning approach",
+            descriptionAr: "نهج تخطيط مسار التسليم"
+          },
+          {
+            name: "Shipment Tracking",
+            nameAr: "تتبع الشحنات",
+            level: 0,
+            description: "Shipment tracking capabilities",
+            descriptionAr: "قدرات تتبع الشحنات"
+          },
+          {
+            name: "Performance Monitoring",
+            nameAr: "مراقبة الأداء",
+            level: 0,
+            description: "Delivery performance measurement",
+            descriptionAr: "قياس أداء التسليم"
+          }
+        ]
+      },
+      {
+        name: "Sales & Marketing",
+        nameAr: "المبيعات والتسويق",
+        score: 0,
+        subcategories: [
+          {
+            name: "Promotion Impact",
+            nameAr: "تأثير الترويج",
+            level: 0,
+            description: "Promotional impact measurement",
+            descriptionAr: "قياس تأثير الترويج"
+          },
+          {
+            name: "Market Events",
+            nameAr: "أحداث السوق",
+            level: 0,
+            description: "Market event tracking system",
+            descriptionAr: "نظام تتبع أحداث السوق"
+          },
+          {
+            name: "Channel Performance",
+            nameAr: "أداء القنوات",
+            level: 0,
+            description: "Channel performance monitoring",
+            descriptionAr: "مراقبة أداء القنوات"
+          }
+        ]
       }
     ]
   },
   {
-    name: "Inventory Management",
-    nameAr: "إدارة المخزون",
-    score: 0,
-    subcategories: [
+    id: "pharmacy",
+    name: "Pharmacy",
+    nameAr: "صيدلية",
+    maturityData: [
       {
-        name: "Stock Monitoring",
-        nameAr: "مراقبة المخزون",
-        level: 0,
-        description: "Inventory level monitoring approach",
-        descriptionAr: "نهج مراقبة مستوى المخزون"
+        name: "Inventory Management",
+        nameAr: "إدارة المخزون",
+        score: 0,
+        subcategories: [
+          {
+            name: "Expiry Tracking",
+            nameAr: "تتبع انتهاء الصلاحية",
+            level: 0,
+            description: "Medication expiry date monitoring",
+            descriptionAr: "مراقبة تواريخ انتهاء صلاحية الأدوية"
+          },
+          {
+            name: "Cold Chain",
+            nameAr: "سلسلة التبريد",
+            level: 0,
+            description: "Temperature-sensitive product management",
+            descriptionAr: "إدارة المنتجات الحساسة للحرارة"
+          },
+          {
+            name: "Prescription Trends",
+            nameAr: "اتجاهات الوصفات الطبية",
+            level: 0,
+            description: "Prescription pattern analysis",
+            descriptionAr: "تحليل نمط الوصفات الطبية"
+          }
+        ]
       },
       {
-        name: "Buffer Management",
-        nameAr: "إدارة المخزون الاحتياطي",
-        level: 0,
-        description: "Safety stock management method",
-        descriptionAr: "طريقة إدارة المخزون الاحتياطي"
+        name: "Demand Forecasting",
+        nameAr: "التنبؤ بالطلب",
+        score: 0,
+        subcategories: [
+          {
+            name: "Data Collection",
+            nameAr: "جمع البيانات",
+            level: 0,
+            description: "How frequently you collect sales data",
+            descriptionAr: "مدى تكرار جمع بيانات المبيعات"
+          },
+          {
+            name: "Historical Data",
+            nameAr: "البيانات التاريخية",
+            level: 0,
+            description: "Available historical data coverage",
+            descriptionAr: "تغطية البيانات التاريخية المتاحة"
+          },
+          {
+            name: "Seasonality",
+            nameAr: "الموسمية",
+            level: 0,
+            description: "Seasonal pattern tracking capability",
+            descriptionAr: "قدرة تتبع النمط الموسمي"
+          }
+        ]
       },
       {
-        name: "Lead Time Tracking",
-        nameAr: "تتبع وقت التوريد",
-        level: 0,
-        description: "Supplier lead time tracking system",
-        descriptionAr: "نظام تتبع وقت التوريد"
+        name: "Logistics Capabilities",
+        nameAr: "قدرات الخدمات اللوجستية",
+        score: 0,
+        subcategories: [
+          {
+            name: "Route Optimization",
+            nameAr: "تحسين المسار",
+            level: 0,
+            description: "Delivery route planning approach",
+            descriptionAr: "نهج تخطيط مسار التسليم"
+          },
+          {
+            name: "Shipment Tracking",
+            nameAr: "تتبع الشحنات",
+            level: 0,
+            description: "Shipment tracking capabilities",
+            descriptionAr: "قدرات تتبع الشحنات"
+          },
+          {
+            name: "Performance Monitoring",
+            nameAr: "مراقبة الأداء",
+            level: 0,
+            description: "Delivery performance measurement",
+            descriptionAr: "قياس أداء التسليم"
+          }
+        ]
+      },
+      {
+        name: "Sales & Marketing",
+        nameAr: "المبيعات والتسويق",
+        score: 0,
+        subcategories: [
+          {
+            name: "Promotion Impact",
+            nameAr: "تأثير الترويج",
+            level: 0,
+            description: "Promotional impact measurement",
+            descriptionAr: "قياس تأثير الترويج"
+          },
+          {
+            name: "Market Events",
+            nameAr: "أحداث السوق",
+            level: 0,
+            description: "Market event tracking system",
+            descriptionAr: "نظام تتبع أحداث السوق"
+          },
+          {
+            name: "Channel Performance",
+            nameAr: "أداء القنوات",
+            level: 0,
+            description: "Channel performance monitoring",
+            descriptionAr: "مراقبة أداء القنوات"
+          }
+        ]
       }
     ]
   },
   {
-    name: "Logistics Capabilities",
-    nameAr: "قدرات الخدمات اللوجستية",
-    score: 0,
-    subcategories: [
+    id: "fmcg",
+    name: "FMCG",
+    nameAr: "السلع الاستهلاكية",
+    maturityData: [
       {
-        name: "Route Optimization",
-        nameAr: "تحسين المسار",
-        level: 0,
-        description: "Delivery route planning approach",
-        descriptionAr: "نهج تخطيط مسار التسليم"
+        name: "Supply Chain",
+        nameAr: "سلسلة التوريد",
+        score: 0,
+        subcategories: [
+          {
+            name: "Raw Material Planning",
+            nameAr: "تخطيط المواد الخام",
+            level: 0,
+            description: "Raw material requirement forecasting",
+            descriptionAr: "التنبؤ باحتياجات المواد الخام"
+          },
+          {
+            name: "Production Scheduling",
+            nameAr: "جدولة الإنتاج",
+            level: 0,
+            description: "Production line optimization",
+            descriptionAr: "تحسين خط الإنتاج"
+          },
+          {
+            name: "Distribution Network",
+            nameAr: "شبكة التوزيع",
+            level: 0,
+            description: "Distribution channel management",
+            descriptionAr: "إدارة قنوات التوزيع"
+          }
+        ]
       },
       {
-        name: "Shipment Tracking",
-        nameAr: "تتبع الشحنات",
-        level: 0,
-        description: "Shipment tracking capabilities",
-        descriptionAr: "قدرات تتبع الشحنات"
+        name: "Demand Forecasting",
+        nameAr: "التنبؤ بالطلب",
+        score: 0,
+        subcategories: [
+          {
+            name: "Data Collection",
+            nameAr: "جمع البيانات",
+            level: 0,
+            description: "How frequently you collect sales data",
+            descriptionAr: "مدى تكرار جمع بيانات المبيعات"
+          },
+          {
+            name: "Historical Data",
+            nameAr: "البيانات التاريخية",
+            level: 0,
+            description: "Available historical data coverage",
+            descriptionAr: "تغطية البيانات التاريخية المتاحة"
+          },
+          {
+            name: "Seasonality",
+            nameAr: "الموسمية",
+            level: 0,
+            description: "Seasonal pattern tracking capability",
+            descriptionAr: "قدرة تتبع النمط الموسمي"
+          }
+        ]
       },
       {
-        name: "Performance Monitoring",
-        nameAr: "مراقبة الأداء",
-        level: 0,
-        description: "Delivery performance measurement",
-        descriptionAr: "قياس أداء التسليم"
-      }
-    ]
-  },
-  {
-    name: "Sales & Marketing",
-    nameAr: "المبيعات والتسويق",
-    score: 0,
-    subcategories: [
-      {
-        name: "Promotion Impact",
-        nameAr: "تأثير الترويج",
-        level: 0,
-        description: "Promotional impact measurement",
-        descriptionAr: "قياس تأثير الترويج"
+        name: "Inventory Management",
+        nameAr: "إدارة المخزون",
+        score: 0,
+        subcategories: [
+          {
+            name: "Stock Monitoring",
+            nameAr: "مراقبة المخزون",
+            level: 0,
+            description: "Inventory level monitoring approach",
+            descriptionAr: "نهج مراقبة مستوى المخزون"
+          },
+          {
+            name: "Buffer Management",
+            nameAr: "إدارة المخزون الاحتياطي",
+            level: 0,
+            description: "Safety stock management method",
+            descriptionAr: "طريقة إدارة المخزون الاحتياطي"
+          },
+          {
+            name: "Lead Time Tracking",
+            nameAr: "تتبع وقت التوريد",
+            level: 0,
+            description: "Supplier lead time tracking system",
+            descriptionAr: "نظام تتبع وقت التوريد"
+          }
+        ]
       },
       {
-        name: "Market Events",
-        nameAr: "أحداث السوق",
-        level: 0,
-        description: "Market event tracking system",
-        descriptionAr: "نظام تتبع أحداث السوق"
+        name: "Logistics Capabilities",
+        nameAr: "قدرات الخدمات اللوجستية",
+        score: 0,
+        subcategories: [
+          {
+            name: "Route Optimization",
+            nameAr: "تحسين المسار",
+            level: 0,
+            description: "Delivery route planning approach",
+            descriptionAr: "نهج تخطيط مسار التسليم"
+          },
+          {
+            name: "Shipment Tracking",
+            nameAr: "تتبع الشحنات",
+            level: 0,
+            description: "Shipment tracking capabilities",
+            descriptionAr: "قدرات تتبع الشحنات"
+          },
+          {
+            name: "Performance Monitoring",
+            nameAr: "مراقبة الأداء",
+            level: 0,
+            description: "Delivery performance measurement",
+            descriptionAr: "قياس أداء التسليم"
+          }
+        ]
       },
       {
-        name: "Channel Performance",
-        nameAr: "أداء القنوات",
-        level: 0,
-        description: "Channel performance monitoring",
-        descriptionAr: "مراقبة أداء القنوات"
+        name: "Sales & Marketing",
+        nameAr: "المبيعات والتسويق",
+        score: 0,
+        subcategories: [
+          {
+            name: "Promotion Impact",
+            nameAr: "تأثير الترويج",
+            level: 0,
+            description: "Promotional impact measurement",
+            descriptionAr: "قياس تأثير الترويج"
+          },
+          {
+            name: "Market Events",
+            nameAr: "أحداث السوق",
+            level: 0,
+            description: "Market event tracking system",
+            descriptionAr: "نظام تتبع أحداث السوق"
+          },
+          {
+            name: "Channel Performance",
+            nameAr: "أداء القنوات",
+            level: 0,
+            description: "Channel performance monitoring",
+            descriptionAr: "مراقبة أداء القنوات"
+          }
+        ]
       }
     ]
   }
@@ -157,6 +444,9 @@ const getLevelName = (level: number, isArabic: boolean) => {
 export const MaturityAssessmentMap = () => {
   const { language, isRTL } = useLanguage();
   const isArabic = language === 'ar';
+  const [selectedIndustry, setSelectedIndustry] = useState(industries[0].id);
+
+  const currentIndustry = industries.find(i => i.id === selectedIndustry) || industries[0];
 
   return (
     <div className="p-6 space-y-8" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -165,33 +455,56 @@ export const MaturityAssessmentMap = () => {
           <div className="p-2 bg-primary/10 rounded-lg">
             <BookOpen className="h-5 w-5 text-primary" />
           </div>
-          <div className="space-y-2">
-            <h3 className="font-semibold text-lg">
-              {isArabic ? "كيفية استخدام تقييم النضج" : "How to Use the Maturity Assessment"}
-            </h3>
-            <div className="space-y-2 text-sm text-muted-foreground">
-              <p>
-                {isArabic 
-                  ? "١. راجع كل فئة ومؤشراتها الفرعية لفهم مستوى نضجك الحالي"
-                  : "1. Review each category and its subcategories to understand your current maturity level"}
-              </p>
-              <p>
-                {isArabic
-                  ? "٢. قيّم مستواك الحالي باستخدام المقياس من ٠ إلى ٤"
-                  : "2. Assess your current level using the 0-4 scale"}
-              </p>
-              <p>
-                {isArabic
-                  ? "٣. استخدم دليل المستويات في الأسفل لفهم كل مستوى"
-                  : "3. Use the level guide at the bottom to understand each level"}
-              </p>
+          <div className="space-y-4 flex-grow">
+            <div>
+              <h3 className="font-semibold text-lg mb-2">
+                {isArabic ? "كيفية استخدام تقييم النضج" : "How to Use the Maturity Assessment"}
+              </h3>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <p>
+                  {isArabic 
+                    ? "١. اختر القطاع الصناعي الخاص بك"
+                    : "1. Select your industry sector"}
+                </p>
+                <p>
+                  {isArabic 
+                    ? "٢. راجع كل فئة ومؤشراتها الفرعية لفهم مستوى نضجك الحالي"
+                    : "2. Review each category and its subcategories to understand your current maturity level"}
+                </p>
+                <p>
+                  {isArabic
+                    ? "٣. قيّم مستواك الحالي باستخدام المقياس من ٠ إلى ٤"
+                    : "3. Assess your current level using the 0-4 scale"}
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium">
+                {isArabic ? "اختر القطاع" : "Select Industry"}
+              </label>
+              <Select
+                value={selectedIndustry}
+                onValueChange={setSelectedIndustry}
+              >
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder={isArabic ? "اختر القطاع" : "Select industry"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {industries.map((industry) => (
+                    <SelectItem key={industry.id} value={industry.id}>
+                      {isArabic ? industry.nameAr : industry.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
       </Card>
 
       <div className="grid gap-6 md:grid-cols-2">
-        {maturityData.map((category, idx) => (
+        {currentIndustry.maturityData.map((category, idx) => (
           <Card key={idx} className="p-6">
             <div className="flex items-center gap-3 mb-4">
               <BarChart2 className="h-5 w-5 text-primary" />
