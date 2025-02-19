@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Database, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface IntegratedData {
   date: string;
@@ -173,44 +174,46 @@ export function IntegratedDataPreview() {
               <p>Loading integrated data...</p>
             </div>
           ) : (
-            <div className="border rounded-md overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-base">Date</TableHead>
-                    <TableHead className="text-base">SKU</TableHead>
-                    <TableHead className="text-base">Main Product</TableHead>
-                    <TableHead className="text-base">Product Line</TableHead>
-                    <TableHead className="text-base">Category</TableHead>
-                    <TableHead className="text-base">Device Make</TableHead>
-                    <TableHead className="text-base">Sub Category</TableHead>
-                    <TableHead className="text-base">Device Model</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.length === 0 ? (
+            <ScrollArea className="h-[600px] rounded-md border">
+              <div className="min-w-[1200px]">
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center py-4">
-                        No integrated data available. Click "Integrate Data" to populate the table.
-                      </TableCell>
+                      <TableHead className="text-base">Date</TableHead>
+                      <TableHead className="text-base">SKU</TableHead>
+                      <TableHead className="text-base">Main Product</TableHead>
+                      <TableHead className="text-base">Product Line</TableHead>
+                      <TableHead className="text-base">Category</TableHead>
+                      <TableHead className="text-base">Device Make</TableHead>
+                      <TableHead className="text-base">Sub Category</TableHead>
+                      <TableHead className="text-base">Device Model</TableHead>
                     </TableRow>
-                  ) : (
-                    data.map((row, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{new Date(row.date).toLocaleDateString()}</TableCell>
-                        <TableCell>{row.sku}</TableCell>
-                        <TableCell>{row.l1_main_prod}</TableCell>
-                        <TableCell>{row.l2_prod_line}</TableCell>
-                        <TableCell>{row.l3_prod_category}</TableCell>
-                        <TableCell>{row.l4_device_make}</TableCell>
-                        <TableCell>{row.l5_prod_sub_category}</TableCell>
-                        <TableCell>{row.l6_device_model}</TableCell>
+                  </TableHeader>
+                  <TableBody>
+                    {data.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={8} className="text-center py-4">
+                          No integrated data available. Click "Integrate Data" to populate the table.
+                        </TableCell>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
+                    ) : (
+                      data.map((row, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{new Date(row.date).toLocaleDateString()}</TableCell>
+                          <TableCell>{row.sku}</TableCell>
+                          <TableCell>{row.l1_main_prod}</TableCell>
+                          <TableCell>{row.l2_prod_line}</TableCell>
+                          <TableCell>{row.l3_prod_category}</TableCell>
+                          <TableCell>{row.l4_device_make}</TableCell>
+                          <TableCell>{row.l5_prod_sub_category}</TableCell>
+                          <TableCell>{row.l6_device_model}</TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </ScrollArea>
           )}
         </div>
       </CardContent>
