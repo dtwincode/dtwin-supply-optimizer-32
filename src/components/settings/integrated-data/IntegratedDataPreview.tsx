@@ -28,11 +28,11 @@ export function IntegratedDataPreview() {
             date,
             actual_value,
             sku,
-            product_hierarchy!inner (
-              name as product_name,
+            product_hierarchy (
+              name,
               l1_main_prod
             ),
-            location_hierarchy!inner (
+            location_hierarchy (
               region,
               city,
               warehouse
@@ -42,7 +42,19 @@ export function IntegratedDataPreview() {
 
         if (error) throw error;
 
-        setData(integratedData || []);
+        // Transform the joined data to match IntegratedData interface
+        const transformedData: IntegratedData[] = (integratedData || []).map(item => ({
+          date: item.date,
+          actual_value: item.actual_value,
+          sku: item.sku,
+          product_name: item.product_hierarchy?.name || '',
+          l1_main_prod: item.product_hierarchy?.l1_main_prod || '',
+          region: item.location_hierarchy?.region || '',
+          city: item.location_hierarchy?.city || '',
+          warehouse: item.location_hierarchy?.warehouse || ''
+        }));
+
+        setData(transformedData);
       } catch (error) {
         console.error('Error fetching integrated data:', error);
       } finally {
