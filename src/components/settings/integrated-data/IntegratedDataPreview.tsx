@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Database, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface IntegratedData {
   date: string;
@@ -27,6 +26,7 @@ export function IntegratedDataPreview() {
   const [isIntegrating, setIsIntegrating] = useState(false);
 
   const fetchData = async () => {
+    setIsLoading(true);
     try {
       console.log('Fetching integrated data...');
       const { data: integratedData, error } = await supabase
@@ -53,7 +53,6 @@ export function IntegratedDataPreview() {
       if (!integratedData || integratedData.length === 0) {
         console.log('No data found in integrated_forecast_data table');
         setData([]);
-        setIsLoading(false);
         return;
       }
 
@@ -82,10 +81,6 @@ export function IntegratedDataPreview() {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   const handleIntegration = async () => {
     setIsIntegrating(true);
@@ -136,6 +131,11 @@ export function IntegratedDataPreview() {
     }
   };
 
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   return (
     <Card>
       <CardContent className="p-6">
@@ -159,12 +159,12 @@ export function IntegratedDataPreview() {
               </Button>
               <Button
                 variant="outline"
-                onClick={fetchData}
+                onClick={() => fetchData()}
                 disabled={isLoading}
                 className="flex items-center gap-2 text-lg"
                 size="lg"
               >
-                <RefreshCw className="h-5 w-5" />
+                <RefreshCw className={`h-5 w-5 ${isLoading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
             </div>
