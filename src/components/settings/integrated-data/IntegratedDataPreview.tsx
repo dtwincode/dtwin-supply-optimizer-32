@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -18,13 +17,6 @@ interface IntegratedData {
   l4_device_make: string;
   l5_prod_sub_category: string;
   l6_device_model: string;
-  l7_device_color: string;
-  l8_device_storage: string;
-  // Location hierarchy levels
-  region: string;
-  city: string;
-  channel: string;
-  warehouse: string;
 }
 
 export function IntegratedDataPreview() {
@@ -46,13 +38,7 @@ export function IntegratedDataPreview() {
           l3_prod_category,
           l4_device_make,
           l5_prod_sub_category,
-          l6_device_model,
-          l7_device_color,
-          l8_device_storage,
-          region,
-          city,
-          channel,
-          warehouse
+          l6_device_model
         `);
 
       if (error) {
@@ -78,13 +64,7 @@ export function IntegratedDataPreview() {
         l3_prod_category: item.l3_prod_category || 'N/A',
         l4_device_make: item.l4_device_make || 'N/A',
         l5_prod_sub_category: item.l5_prod_sub_category || 'N/A',
-        l6_device_model: item.l6_device_model || 'N/A',
-        l7_device_color: item.l7_device_color || 'N/A',
-        l8_device_storage: item.l8_device_storage || 'N/A',
-        region: item.region || 'N/A',
-        city: item.city || 'N/A',
-        channel: item.channel || 'N/A',
-        warehouse: item.warehouse || 'N/A'
+        l6_device_model: item.l6_device_model || 'N/A'
       }));
 
       console.log('Transformed data:', transformedData);
@@ -160,8 +140,8 @@ export function IntegratedDataPreview() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-medium">Integrated Dataset Preview</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="text-2xl font-bold">Integrated Dataset Preview</h3>
+              <p className="text-lg text-muted-foreground">
                 View and manage the combined forecast data from all sources
               </p>
             </div>
@@ -169,18 +149,20 @@ export function IntegratedDataPreview() {
               <Button
                 onClick={handleIntegration}
                 disabled={isIntegrating}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 text-lg"
+                size="lg"
               >
-                <Database className="h-4 w-4" />
+                <Database className="h-5 w-5" />
                 {isIntegrating ? "Integrating..." : "Integrate Data"}
               </Button>
               <Button
                 variant="outline"
                 onClick={fetchData}
                 disabled={isLoading}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 text-lg"
+                size="lg"
               >
-                <RefreshCw className="h-4 w-4" />
+                <RefreshCw className="h-5 w-5" />
                 Refresh
               </Button>
             </div>
@@ -195,29 +177,20 @@ export function IntegratedDataPreview() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>SKU</TableHead>
-                    {/* Product Hierarchy */}
-                    <TableHead>Main Product</TableHead>
-                    <TableHead>Product Line</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Device Make</TableHead>
-                    <TableHead>Sub Category</TableHead>
-                    <TableHead>Device Model</TableHead>
-                    <TableHead>Color</TableHead>
-                    <TableHead>Storage</TableHead>
-                    {/* Location Hierarchy */}
-                    <TableHead>Region</TableHead>
-                    <TableHead>City</TableHead>
-                    <TableHead>Channel</TableHead>
-                    <TableHead>Warehouse</TableHead>
-                    <TableHead className="text-right">Actual Value</TableHead>
+                    <TableHead className="text-base">Date</TableHead>
+                    <TableHead className="text-base">SKU</TableHead>
+                    <TableHead className="text-base">Main Product</TableHead>
+                    <TableHead className="text-base">Product Line</TableHead>
+                    <TableHead className="text-base">Category</TableHead>
+                    <TableHead className="text-base">Device Make</TableHead>
+                    <TableHead className="text-base">Sub Category</TableHead>
+                    <TableHead className="text-base">Device Model</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {data.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={15} className="text-center py-4">
+                      <TableCell colSpan={8} className="text-center py-4">
                         No integrated data available. Click "Integrate Data" to populate the table.
                       </TableCell>
                     </TableRow>
@@ -232,13 +205,6 @@ export function IntegratedDataPreview() {
                         <TableCell>{row.l4_device_make}</TableCell>
                         <TableCell>{row.l5_prod_sub_category}</TableCell>
                         <TableCell>{row.l6_device_model}</TableCell>
-                        <TableCell>{row.l7_device_color}</TableCell>
-                        <TableCell>{row.l8_device_storage}</TableCell>
-                        <TableCell>{row.region}</TableCell>
-                        <TableCell>{row.city}</TableCell>
-                        <TableCell>{row.channel}</TableCell>
-                        <TableCell>{row.warehouse}</TableCell>
-                        <TableCell className="text-right">{row.actual_value.toLocaleString()}</TableCell>
                       </TableRow>
                     ))
                   )}
