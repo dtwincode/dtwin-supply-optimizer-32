@@ -919,6 +919,75 @@ export type Database = {
         }
         Relationships: []
       }
+      integrated_forecast_data: {
+        Row: {
+          actual_value: number | null
+          channel: string | null
+          city: string | null
+          created_at: string
+          date: string
+          forecasted_value: number | null
+          id: string
+          l1_main_prod: string | null
+          l2_prod_line: string | null
+          l3_prod_category: string | null
+          l4_device_make: string | null
+          l5_prod_sub_category: string | null
+          l6_device_model: string | null
+          l7_device_color: string | null
+          l8_device_storage: string | null
+          region: string | null
+          sku: string | null
+          updated_at: string
+          variance: number | null
+          warehouse: string | null
+        }
+        Insert: {
+          actual_value?: number | null
+          channel?: string | null
+          city?: string | null
+          created_at?: string
+          date: string
+          forecasted_value?: number | null
+          id?: string
+          l1_main_prod?: string | null
+          l2_prod_line?: string | null
+          l3_prod_category?: string | null
+          l4_device_make?: string | null
+          l5_prod_sub_category?: string | null
+          l6_device_model?: string | null
+          l7_device_color?: string | null
+          l8_device_storage?: string | null
+          region?: string | null
+          sku?: string | null
+          updated_at?: string
+          variance?: number | null
+          warehouse?: string | null
+        }
+        Update: {
+          actual_value?: number | null
+          channel?: string | null
+          city?: string | null
+          created_at?: string
+          date?: string
+          forecasted_value?: number | null
+          id?: string
+          l1_main_prod?: string | null
+          l2_prod_line?: string | null
+          l3_prod_category?: string | null
+          l4_device_make?: string | null
+          l5_prod_sub_category?: string | null
+          l6_device_model?: string | null
+          l7_device_color?: string | null
+          l8_device_storage?: string | null
+          region?: string | null
+          sku?: string | null
+          updated_at?: string
+          variance?: number | null
+          warehouse?: string | null
+        }
+        Relationships: []
+      }
       inventory_data: {
         Row: {
           adu: number | null
@@ -2494,6 +2563,10 @@ export type Database = {
           p_table_name: string
           p_column_name: string
         }
+        Returns: undefined
+      }
+      populate_integrated_forecast_data: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
       process_hierarchy_configuration: {
