@@ -52,21 +52,25 @@ export function IntegratedDataPreview() {
         return;
       }
 
-      const transformedData: IntegratedData[] = integratedData.map(item => ({
-        date: item.date,
-        actual_value: item.actual_value || 0,
-        sku: item.sku || 'N/A',
-        l1_main_prod: item.l1_main_prod || 'N/A',
-        l2_prod_line: item.l2_prod_line || 'N/A',
-        l3_prod_category: item.l3_prod_category || 'N/A',
-        l4_device_make: item.l4_device_make || 'N/A',
-        l5_prod_sub_category: item.l5_prod_sub_category || 'N/A',
-        l6_device_model: item.l6_device_model || 'N/A',
-        region: item.region || 'N/A',
-        city: item.city || 'N/A',
-        warehouse: item.warehouse || 'N/A',
-        channel: item.channel || 'N/A'
-      }));
+      // Add detailed logging for data transformation
+      const transformedData: IntegratedData[] = integratedData.map((item, index) => {
+        console.log(`Processing row ${index}:`, item);
+        return {
+          date: item.date,
+          actual_value: item.actual_value || 0,
+          sku: item.sku || 'N/A',
+          l1_main_prod: item.l1_main_prod || 'N/A',
+          l2_prod_line: item.l2_prod_line || 'N/A',
+          l3_prod_category: item.l3_prod_category || 'N/A',
+          l4_device_make: item.l4_device_make || 'N/A',
+          l5_prod_sub_category: item.l5_prod_sub_category || 'N/A',
+          l6_device_model: item.l6_device_model || 'N/A',
+          region: item.region || 'N/A',
+          city: item.city || 'N/A',
+          warehouse: item.warehouse || 'N/A',
+          channel: item.channel || 'N/A'
+        };
+      });
 
       console.log('Transformed data:', transformedData);
       setData(transformedData);
@@ -92,6 +96,7 @@ export function IntegratedDataPreview() {
         .from('permanent_hierarchy_files')
         .select('*')
         .eq('hierarchy_type', 'historical_sales')
+        .order('created_at', { ascending: false })
         .limit(1);
 
       if (historicalError) {
@@ -102,6 +107,8 @@ export function IntegratedDataPreview() {
       if (!historicalFiles || historicalFiles.length === 0) {
         throw new Error('No historical sales data found. Please upload historical sales data first.');
       }
+
+      console.log('Found historical data:', historicalFiles[0]);
 
       // Call the integrate_forecast_data function
       const { data: result, error } = await supabase
