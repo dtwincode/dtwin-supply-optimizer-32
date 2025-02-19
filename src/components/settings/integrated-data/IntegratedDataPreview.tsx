@@ -35,21 +35,7 @@ export function IntegratedDataPreview() {
       console.log('Fetching integrated data...');
       const { data: integratedData, error } = await supabase
         .from('integrated_forecast_data')
-        .select(`
-          date,
-          actual_value,
-          sku,
-          l1_main_prod,
-          l2_prod_line,
-          l3_prod_category,
-          l4_device_make,
-          l5_prod_sub_category,
-          l6_device_model,
-          region,
-          city,
-          warehouse,
-          channel
-        `);
+        .select('*');
 
       if (error) {
         console.error('Supabase query error:', error);
@@ -99,22 +85,26 @@ export function IntegratedDataPreview() {
     try {
       console.log('Starting data integration process...');
       
-      // Check if we have the required data
+      // First check if we have historical data
       const { data: historicalData, error: historicalError } = await supabase
         .from('historical_sales_data')
         .select('*')
         .eq('is_active', true)
         .limit(1);
 
-      if (historicalError) throw historicalError;
+      if (historicalError) {
+        console.error('Historical data query error:', historicalError);
+        throw historicalError;
+      }
       
       if (!historicalData || historicalData.length === 0) {
-        throw new Error('No historical sales data found');
+        console.log('No historical sales data found');
+        throw new Error('No historical sales data found. Please upload historical sales data first.');
       }
 
       console.log('Found historical sales data:', historicalData);
 
-      // Proceed with integration
+      // Call the populate function
       const { data: result, error } = await supabase.rpc('populate_integrated_forecast_data');
       
       if (error) {
