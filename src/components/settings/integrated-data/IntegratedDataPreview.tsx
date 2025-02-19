@@ -40,11 +40,11 @@ export function IntegratedDataPreview() {
           date: item.date,
           actual_value: item.actual_value,
           sku: item.sku,
-          product_name: item.name || '',
-          l1_main_prod: item.l1_main_prod || '',
-          region: item.region || '',
-          city: item.city || '',
-          warehouse: item.warehouse || ''
+          product_name: item.l1_main_prod, // Use l1_main_prod as product name since we don't have a separate name field
+          l1_main_prod: item.l1_main_prod,
+          region: item.region,
+          city: item.city,
+          warehouse: item.warehouse
         }));
 
         console.log('Transformed data:', transformedData);
