@@ -926,7 +926,6 @@ export type Database = {
           city: string | null
           created_at: string
           date: string
-          forecasted_value: number | null
           id: string
           l1_main_prod: string | null
           l2_prod_line: string | null
@@ -934,14 +933,9 @@ export type Database = {
           l4_device_make: string | null
           l5_prod_sub_category: string | null
           l6_device_model: string | null
-          l7_device_color: string | null
-          l8_device_storage: string | null
-          location_id: string | null
-          product_id: string | null
           region: string | null
           sku: string | null
           updated_at: string
-          variance: number | null
           warehouse: string | null
         }
         Insert: {
@@ -950,7 +944,6 @@ export type Database = {
           city?: string | null
           created_at?: string
           date: string
-          forecasted_value?: number | null
           id?: string
           l1_main_prod?: string | null
           l2_prod_line?: string | null
@@ -958,14 +951,9 @@ export type Database = {
           l4_device_make?: string | null
           l5_prod_sub_category?: string | null
           l6_device_model?: string | null
-          l7_device_color?: string | null
-          l8_device_storage?: string | null
-          location_id?: string | null
-          product_id?: string | null
           region?: string | null
           sku?: string | null
           updated_at?: string
-          variance?: number | null
           warehouse?: string | null
         }
         Update: {
@@ -974,7 +962,6 @@ export type Database = {
           city?: string | null
           created_at?: string
           date?: string
-          forecasted_value?: number | null
           id?: string
           l1_main_prod?: string | null
           l2_prod_line?: string | null
@@ -982,32 +969,12 @@ export type Database = {
           l4_device_make?: string | null
           l5_prod_sub_category?: string | null
           l6_device_model?: string | null
-          l7_device_color?: string | null
-          l8_device_storage?: string | null
-          location_id?: string | null
-          product_id?: string | null
           region?: string | null
           sku?: string | null
           updated_at?: string
-          variance?: number | null
           warehouse?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "integrated_forecast_data_location_id_fkey"
-            columns: ["location_id"]
-            isOneToOne: false
-            referencedRelation: "location_hierarchy"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "integrated_forecast_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "product_hierarchy"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       inventory_data: {
         Row: {
@@ -2586,7 +2553,7 @@ export type Database = {
         }
         Returns: undefined
       }
-      populate_integrated_forecast_data: {
+      integrate_forecast_data: {
         Args: Record<PropertyKey, never>
         Returns: string
       }

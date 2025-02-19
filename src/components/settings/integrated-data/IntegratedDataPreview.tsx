@@ -87,10 +87,10 @@ export function IntegratedDataPreview() {
       console.log('Starting data integration process...');
       
       // First check if we have historical data
-      const { data: historicalData, error: historicalError } = await supabase
-        .from('historical_sales_data')
+      const { data: historicalFiles, error: historicalError } = await supabase
+        .from('permanent_hierarchy_files')
         .select('*')
-        .eq('is_active', true)
+        .eq('hierarchy_type', 'historical_sales')
         .limit(1);
 
       if (historicalError) {
@@ -98,23 +98,13 @@ export function IntegratedDataPreview() {
         throw historicalError;
       }
       
-      if (!historicalData || historicalData.length === 0) {
-        console.log('No historical sales data found');
+      if (!historicalFiles || historicalFiles.length === 0) {
         throw new Error('No historical sales data found. Please upload historical sales data first.');
       }
 
-      // Log the structure of historical data
-      console.log('Found historical sales data:', historicalData);
-      console.log('Historical data structure:', {
-        hasData: historicalData.length > 0,
-        firstRecord: historicalData[0],
-        dataStructure: historicalData[0]?.data ? 
-          `Array with ${Array.isArray(historicalData[0].data) ? historicalData[0].data.length : 0} items` : 
-          'No data array found'
-      });
-
-      // Call the populate function
-      const { data: result, error } = await supabase.rpc('populate_integrated_forecast_data');
+      // Call the new integrate_forecast_data function
+      const { data: result, error } = await supabase
+        .rpc('integrate_forecast_data');
       
       if (error) {
         console.error('Integration function error:', error);
