@@ -36,7 +36,8 @@ export function IntegratedDataPreview() {
       console.log('Fetching integrated data...');
       const { data: integratedData, error } = await supabase
         .from('integrated_forecast_data')
-        .select('*');
+        .select('*')
+        .order('date', { ascending: true });
 
       if (error) {
         console.error('Supabase query error:', error);
@@ -102,7 +103,7 @@ export function IntegratedDataPreview() {
         throw new Error('No historical sales data found. Please upload historical sales data first.');
       }
 
-      // Call the new integrate_forecast_data function
+      // Call the integrate_forecast_data function
       const { data: result, error } = await supabase
         .rpc('integrate_forecast_data');
       
