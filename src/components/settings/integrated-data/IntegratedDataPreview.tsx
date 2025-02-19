@@ -28,22 +28,14 @@ export function IntegratedDataPreview() {
       console.log('Fetching integrated data...');
       const { data: integratedData, error } = await supabase
         .from('integrated_forecast_data')
-        .select(`
-          date,
-          actual_value,
-          sku,
-          l1_main_prod,
-          l6_device_model,
-          region,
-          city,
-          warehouse
-        `)
-        .limit(10);
+        .select('*');
 
       if (error) {
         console.error('Supabase query error:', error);
         throw error;
       }
+
+      console.log('Raw integrated data:', integratedData);
 
       if (!integratedData || integratedData.length === 0) {
         console.log('No data found in integrated_forecast_data table');
@@ -54,13 +46,13 @@ export function IntegratedDataPreview() {
 
       const transformedData: IntegratedData[] = integratedData.map(item => ({
         date: item.date,
-        actual_value: item.actual_value,
-        sku: item.sku,
+        actual_value: item.actual_value || 0,
+        sku: item.sku || 'N/A',
         product_name: item.l6_device_model || 'N/A',
         main_product: item.l1_main_prod || 'N/A',
-        region: item.region,
-        city: item.city,
-        warehouse: item.warehouse
+        region: item.region || 'N/A',
+        city: item.city || 'N/A',
+        warehouse: item.warehouse || 'N/A'
       }));
 
       console.log('Transformed data:', transformedData);
