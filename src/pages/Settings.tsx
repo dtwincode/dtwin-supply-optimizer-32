@@ -49,7 +49,7 @@ const Settings = () => {
         
         <Card className="p-6">
           <Tabs defaultValue="location" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6 lg:w-[800px]">
+            <TabsList className="grid w-full grid-cols-6 gap-2">
               <TabsTrigger value="location">Location Hierarchy</TabsTrigger>
               <TabsTrigger value="product">Product Hierarchy</TabsTrigger>
               <TabsTrigger value="historical-sales">Historical Sales</TabsTrigger>
@@ -89,3 +89,4 @@ const Settings = () => {
 };
 
 export default Settings;
+
