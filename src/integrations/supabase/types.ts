@@ -2588,7 +2588,7 @@ export type Database = {
       }
       populate_integrated_forecast_data: {
         Args: Record<PropertyKey, never>
-        Returns: undefined
+        Returns: string
       }
       process_hierarchy_configuration: {
         Args: {
