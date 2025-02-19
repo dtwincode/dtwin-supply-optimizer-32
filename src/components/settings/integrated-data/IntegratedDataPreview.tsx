@@ -12,7 +12,7 @@ interface IntegratedData {
   actual_value: number;
   sku: string;
   product_name: string;
-  l1_main_prod: string;
+  main_product: string;
   region: string;
   city: string;
   warehouse: string;
@@ -28,15 +28,22 @@ export function IntegratedDataPreview() {
       console.log('Fetching integrated data...');
       const { data: integratedData, error } = await supabase
         .from('integrated_forecast_data')
-        .select('*')
+        .select(`
+          date,
+          actual_value,
+          sku,
+          l1_main_prod,
+          l6_device_model,
+          region,
+          city,
+          warehouse
+        `)
         .limit(10);
 
       if (error) {
         console.error('Supabase query error:', error);
         throw error;
       }
-
-      console.log('Raw integrated data:', integratedData);
 
       if (!integratedData || integratedData.length === 0) {
         console.log('No data found in integrated_forecast_data table');
@@ -49,8 +56,8 @@ export function IntegratedDataPreview() {
         date: item.date,
         actual_value: item.actual_value,
         sku: item.sku,
-        product_name: item.l1_main_prod,
-        l1_main_prod: item.l1_main_prod,
+        product_name: item.l6_device_model || 'N/A',
+        main_product: item.l1_main_prod || 'N/A',
         region: item.region,
         city: item.city,
         warehouse: item.warehouse
@@ -129,9 +136,9 @@ export function IntegratedDataPreview() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-medium">Integrated Data Preview</h3>
+              <h3 className="text-lg font-medium">Integrated Dataset Preview</h3>
               <p className="text-sm text-muted-foreground">
-                Review and manage integrated forecast data
+                View and manage the combined forecast data from all sources
               </p>
             </div>
             <div className="flex gap-2">
@@ -187,7 +194,7 @@ export function IntegratedDataPreview() {
                         <TableCell>{new Date(row.date).toLocaleDateString()}</TableCell>
                         <TableCell>{row.sku}</TableCell>
                         <TableCell>{row.product_name}</TableCell>
-                        <TableCell>{row.l1_main_prod}</TableCell>
+                        <TableCell>{row.main_product}</TableCell>
                         <TableCell>{row.region}</TableCell>
                         <TableCell>{row.city}</TableCell>
                         <TableCell>{row.warehouse}</TableCell>
