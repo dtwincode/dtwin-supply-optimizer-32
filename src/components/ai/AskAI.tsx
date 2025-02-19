@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
@@ -55,17 +55,24 @@ export const AskAI = () => {
 
     try {
       const { data, error } = await supabase.functions.invoke('process-ai-query', {
-        body: {
-          query,
-          context: "Supply chain management system with inventory, sales, marketing, and logistics data. The user is looking for insights and analysis based on the available data.",
+        body: { prompt: query },
+        headers: {
+          'Content-Type': 'application/json',
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw error;
+      }
+
+      if (!data?.generatedText) {
+        throw new Error('No response received from AI');
+      }
 
       const assistantMessage: Message = {
         role: 'assistant',
-        content: data.response,
+        content: data.generatedText,
         timestamp: new Date(),
       };
 
@@ -74,7 +81,7 @@ export const AskAI = () => {
       
       toast({
         title: "Success",
-        description: "Query processed successfully",
+        description: "Response received successfully",
       });
     } catch (error) {
       console.error('Error processing query:', error);

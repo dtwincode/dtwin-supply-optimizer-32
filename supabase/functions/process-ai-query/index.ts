@@ -10,14 +10,21 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  console.log('Request received:', req.method);
-
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    if (!openAIApiKey) {
+      throw new Error('OpenAI API key not configured');
+    }
+
     const { prompt } = await req.json();
+    
+    if (!prompt) {
+      throw new Error('No prompt provided');
+    }
+
     console.log('Processing prompt:', prompt.substring(0, 100) + '...');
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -31,7 +38,7 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'You are a DDMRP and Supply Chain expert that helps analyze maturity assessments and provide detailed, actionable recommendations.'
+            content: 'You are a DDMRP and Supply Chain expert that helps analyze supply chain data and provide detailed, actionable insights.'
           },
           {
             role: 'user',
@@ -41,16 +48,29 @@ serve(async (req) => {
       }),
     });
 
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('OpenAI API error:', errorData);
+      throw new Error(`OpenAI API error: ${errorData.error?.message || 'Unknown error'}`);
+    }
+
     const data = await response.json();
     
+    if (!data.choices?.[0]?.message?.content) {
+      throw new Error('Invalid response from OpenAI');
+    }
+
     return new Response(
       JSON.stringify({ generatedText: data.choices[0].message.content }), 
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error in process-ai-query:', error);
     return new Response(
-      JSON.stringify({ error: error.message }), 
+      JSON.stringify({ 
+        error: error.message,
+        details: error.toString()
+      }), 
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
