@@ -1,6 +1,6 @@
 
-import { serve } from "std/http/server.ts";
-import "xhr";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
@@ -8,7 +8,6 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Max-Age': '86400',
 };
 
 serve(async (req) => {
@@ -16,17 +15,7 @@ serve(async (req) => {
 
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
-
-  if (req.method !== 'POST') {
-    return new Response(
-      JSON.stringify({ error: 'Method not allowed' }), 
-      { 
-        status: 405,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
-    );
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
@@ -36,11 +25,7 @@ serve(async (req) => {
     }
 
     const { prompt } = await req.json();
-    console.log('Processing prompt, length:', prompt?.length ?? 0);
-
-    if (!prompt) {
-      throw new Error('No prompt provided');
-    }
+    console.log('Processing prompt of length:', prompt?.length ?? 0);
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -70,7 +55,7 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    console.log('Generated response successfully, length:', data.choices[0].message.content.length);
+    console.log('Generated response of length:', data.choices[0].message.content.length);
 
     return new Response(
       JSON.stringify({ generatedText: data.choices[0].message.content }), 
