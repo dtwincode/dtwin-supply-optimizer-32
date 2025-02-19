@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileUpload } from "../upload/FileUpload";
@@ -27,7 +28,7 @@ const formatDataForDisplay = (data: any[]) => {
       if (key.toLowerCase().includes('date') && !isNaN(row[key])) {
         try {
           const date = excelSerialDateToJSDate(Number(row[key]));
-          formattedRow[key] = format(date, 'yyyy-MM-dd HH:mm:ss');
+          formattedRow[key] = format(date, 'yyyy-MM-dd'); // Changed format to only show date
         } catch (e) {
           console.error(`Error formatting date for ${key}:`, e);
         }
