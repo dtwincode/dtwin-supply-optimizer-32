@@ -55,7 +55,7 @@ export function IntegratedDataPreview() {
       // Add detailed logging for data transformation
       const transformedData: IntegratedData[] = integratedData.map((item, index) => {
         console.log(`Processing row ${index}:`, item);
-        return {
+        const transformedItem = {
           date: item.date,
           actual_value: item.actual_value || 0,
           sku: item.sku || 'N/A',
@@ -70,9 +70,11 @@ export function IntegratedDataPreview() {
           warehouse: item.warehouse || 'N/A',
           channel: item.channel || 'N/A'
         };
+        console.log(`Transformed row ${index}:`, transformedItem);
+        return transformedItem;
       });
 
-      console.log('Transformed data:', transformedData);
+      console.log('Final transformed data:', transformedData);
       setData(transformedData);
     } catch (error) {
       console.error('Error fetching integrated data:', error);
@@ -89,7 +91,7 @@ export function IntegratedDataPreview() {
   const handleIntegration = async () => {
     setIsIntegrating(true);
     try {
-      console.log('Starting data integration process...');
+      console.log('Checking for historical sales data...');
       
       // First check if we have historical data
       const { data: historicalFiles, error: historicalError } = await supabase
@@ -105,12 +107,15 @@ export function IntegratedDataPreview() {
       }
       
       if (!historicalFiles || historicalFiles.length === 0) {
+        console.log('No historical sales files found');
         throw new Error('No historical sales data found. Please upload historical sales data first.');
       }
 
-      console.log('Found historical data:', historicalFiles[0]);
+      console.log('Found historical data file:', historicalFiles[0]);
+      console.log('Historical data content:', historicalFiles[0].data);
 
       // Call the integrate_forecast_data function
+      console.log('Calling integrate_forecast_data function...');
       const { data: result, error } = await supabase
         .rpc('integrate_forecast_data');
       
@@ -119,7 +124,7 @@ export function IntegratedDataPreview() {
         throw error;
       }
       
-      console.log('Integration completed, result:', result);
+      console.log('Integration completed successfully:', result);
       
       toast({
         title: "Success",
@@ -127,6 +132,7 @@ export function IntegratedDataPreview() {
       });
       
       // Refresh the data after integration
+      console.log('Refreshing data after integration...');
       await fetchData();
     } catch (error: any) {
       console.error('Integration error:', error);
