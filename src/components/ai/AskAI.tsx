@@ -54,12 +54,17 @@ export const AskAI = () => {
     setIsLoading(true);
 
     try {
+      console.log('Calling Supabase function with query:', query);
+      
       const { data, error } = await supabase.functions.invoke('process-ai-query', {
-        body: { prompt: query },
+        body: JSON.stringify({ prompt: query }),
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabase.auth.session()?.access_token}`,
         },
       });
+
+      console.log('Response received:', { data, error });
 
       if (error) {
         console.error('Supabase function error:', error);
@@ -83,11 +88,11 @@ export const AskAI = () => {
         title: "Success",
         description: "Response received successfully",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error processing query:', error);
       toast({
         title: "Error",
-        description: "Failed to process your query. Please try again.",
+        description: error.message || "Failed to process your query. Please try again.",
         variant: "destructive",
       });
     } finally {

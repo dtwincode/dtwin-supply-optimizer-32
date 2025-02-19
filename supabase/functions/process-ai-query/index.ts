@@ -6,18 +6,13 @@ const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
   'Access-Control-Max-Age': '86400',
 };
 
 serve(async (req) => {
-  // Log the incoming request
-  console.log('Incoming request:', {
-    method: req.method,
-    headers: Object.fromEntries(req.headers.entries()),
-  });
+  console.log('Function invoked:', req.method);
 
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       status: 204,
@@ -27,11 +22,15 @@ serve(async (req) => {
 
   try {
     if (!openAIApiKey) {
+      console.error('OpenAI API key not found');
       throw new Error('OpenAI API key not configured');
     }
 
-    const { prompt } = await req.json();
-    console.log('Received prompt:', prompt?.substring(0, 100));
+    const bodyText = await req.text();
+    console.log('Raw request body:', bodyText);
+
+    const { prompt } = JSON.parse(bodyText);
+    console.log('Parsed prompt:', prompt?.substring(0, 100));
 
     if (!prompt) {
       throw new Error('No prompt provided');
@@ -82,7 +81,7 @@ serve(async (req) => {
     
     return new Response(
       JSON.stringify({ 
-        error: error.message,
+        error: error.message || 'Unknown error occurred',
         details: error.toString(),
       }), 
       { 
