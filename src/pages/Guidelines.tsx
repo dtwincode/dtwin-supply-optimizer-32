@@ -3,9 +3,9 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Separator } from "@/components/ui/separator";
 import { Card } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslation } from "@/translations";
 import { BarChart2, Users, Settings, Search, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
+import { MaturityAssessmentMap } from "@/components/guidelines/MaturityAssessmentMap";
 
 const Guidelines = () => {
   const { language, isRTL } = useLanguage();
@@ -65,6 +65,10 @@ const Guidelines = () => {
             : "Comprehensive guide to using the demand forecasting platform"
           }
         </p>
+        <Separator className="my-6" />
+        
+        <MaturityAssessmentMap />
+        
         <Separator className="my-6" />
         
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
