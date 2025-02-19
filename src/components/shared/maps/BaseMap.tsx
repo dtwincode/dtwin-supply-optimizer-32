@@ -31,6 +31,10 @@ export const BaseMap = ({
 
     const initializeMap = async () => {
       try {
+        if (!mapContainer.current) {
+          throw new Error('Map container not found');
+        }
+
         console.log("Starting map initialization...");
         
         const { data: secret, error: secretError } = await supabase
@@ -53,10 +57,6 @@ export const BaseMap = ({
           throw new Error('Invalid Mapbox public token format.');
         }
 
-        if (!mapContainer.current) {
-          throw new Error('Map container not found');
-        }
-
         mapboxgl.accessToken = token;
 
         const newMap = new mapboxgl.Map({
@@ -70,9 +70,16 @@ export const BaseMap = ({
         newMap.addControl(new mapboxgl.NavigationControl(), 'top-right');
         newMap.addControl(new mapboxgl.AttributionControl(), 'bottom-right');
 
+        // Wait for map to load before setting up event handlers
         newMap.on('load', () => {
           if (!isMounted) return;
-          if (onMapLoad) onMapLoad(newMap);
+          
+          map.current = newMap;
+          
+          if (onMapLoad) {
+            onMapLoad(newMap);
+          }
+          
           setIsLoading(false);
         });
 
@@ -87,8 +94,6 @@ export const BaseMap = ({
             });
           }
         });
-
-        map.current = newMap;
 
       } catch (err) {
         console.error("Map initialization failed:", err);
@@ -111,6 +116,7 @@ export const BaseMap = ({
       isMounted = false;
       if (map.current) {
         map.current.remove();
+        map.current = null;
       }
     };
   }, [center, zoom, onMapLoad, toast]);

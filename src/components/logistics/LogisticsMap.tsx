@@ -1,5 +1,4 @@
-
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Card } from '@/components/ui/card';
@@ -7,11 +6,11 @@ import { useLogisticsTracking } from '@/hooks/useLogisticsTracking';
 import { BaseMap } from '@/components/shared/maps/BaseMap';
 
 export const LogisticsMap = () => {
-  const marker = useRef<mapboxgl.Marker | null>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
+  const [map, setMap] = useState<mapboxgl.Map | null>(null);
+  const markerRef = useRef<mapboxgl.Marker | null>(null);
   const { trackingData } = useLogisticsTracking();
 
-  const addRoute = async (map: mapboxgl.Map, start: [number, number], end: [number, number]) => {
+  const addRoute = async (mapInstance: mapboxgl.Map, start: [number, number], end: [number, number]) => {
     try {
       const query = await fetch(
         `https://api.mapbox.com/directions/v5/mapbox/driving/${start[0]},${start[1]};${end[0]},${end[1]}?steps=true&geometries=geojson&access_token=${mapboxgl.accessToken}`
@@ -29,12 +28,12 @@ export const LogisticsMap = () => {
         }
       };
 
-      // If the route already exists on the map, we'll reset it using setData
-      if (map.getSource('route')) {
-        (map.getSource('route') as mapboxgl.GeoJSONSource).setData(geojson as any);
+      // If the route already exists on the map, reset it using setData
+      if (mapInstance.getSource('route')) {
+        (mapInstance.getSource('route') as mapboxgl.GeoJSONSource).setData(geojson as any);
       } else {
-        // Otherwise, we'll make a new request to add the route
-        map.addLayer({
+        // Otherwise, add a new layer for the route
+        mapInstance.addLayer({
           id: 'route',
           type: 'line',
           source: {
@@ -57,7 +56,7 @@ export const LogisticsMap = () => {
       new mapboxgl.Marker({ color: '#22c55e' })
         .setLngLat(start)
         .setPopup(new mapboxgl.Popup().setHTML('<h3>Distribution Hub</h3><p>Riyadh</p>'))
-        .addTo(map);
+        .addTo(mapInstance);
 
       // Fit map to show entire route
       const coordinates = route;
@@ -65,7 +64,7 @@ export const LogisticsMap = () => {
         return bounds.extend(coord as mapboxgl.LngLatLike);
       }, new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
 
-      map.fitBounds(bounds, {
+      mapInstance.fitBounds(bounds, {
         padding: 50
       });
     } catch (error) {
@@ -74,7 +73,7 @@ export const LogisticsMap = () => {
   };
 
   const handleMapLoad = (loadedMap: mapboxgl.Map) => {
-    map.current = loadedMap;
+    setMap(loadedMap);
     
     // If no tracking data, center on Saudi Arabia
     if (!trackingData) {
@@ -83,57 +82,60 @@ export const LogisticsMap = () => {
         zoom: 5,
         essential: true
       });
-    } else {
-      const { latitude, longitude, waypoints = [] } = trackingData;
-      
-      // Add destination marker with popup
-      marker.current = new mapboxgl.Marker({ color: '#ef4444' })
-        .setLngLat([longitude, latitude])
+      return;
+    }
+
+    const { latitude, longitude, waypoints = [] } = trackingData;
+    
+    // Clear previous marker if it exists
+    if (markerRef.current) {
+      markerRef.current.remove();
+    }
+    
+    // Add destination marker with popup
+    markerRef.current = new mapboxgl.Marker({ color: '#ef4444' })
+      .setLngLat([longitude, latitude])
+      .setPopup(new mapboxgl.Popup().setHTML(
+        `<h3>Delivery Location</h3>
+         <p>Status: ${trackingData.status}</p>
+         <p>Last Updated: ${new Date(trackingData.timestamp).toLocaleString()}</p>
+         ${trackingData.eta ? `<p>ETA: ${new Date(trackingData.eta).toLocaleString()}</p>` : ''}
+        `
+      ))
+      .addTo(loadedMap);
+    
+    // Add waypoint markers
+    waypoints.forEach((waypoint, index) => {
+      const color = waypoint.status === 'completed' ? '#22c55e' : '#f59e0b';
+      new mapboxgl.Marker({ color })
+        .setLngLat([waypoint.longitude, waypoint.latitude])
         .setPopup(new mapboxgl.Popup().setHTML(
-          `<h3>Delivery Location</h3>
-           <p>Status: ${trackingData.status}</p>
-           <p>Last Updated: ${new Date(trackingData.timestamp).toLocaleString()}</p>
-           ${trackingData.eta ? `<p>ETA: ${new Date(trackingData.eta).toLocaleString()}</p>` : ''}
-          `
+          `<h3>Waypoint ${index + 1}</h3>
+           <p>Status: ${waypoint.status}</p>
+           <p>Passed: ${new Date(waypoint.timestamp).toLocaleString()}</p>`
         ))
         .addTo(loadedMap);
-      
-      // Add waypoint markers
-      waypoints.forEach((waypoint, index) => {
-        const color = waypoint.status === 'completed' ? '#22c55e' : '#f59e0b';
-        new mapboxgl.Marker({ color })
-          .setLngLat([waypoint.longitude, waypoint.latitude])
-          .setPopup(new mapboxgl.Popup().setHTML(
-            `<h3>Waypoint ${index + 1}</h3>
-             <p>Status: ${waypoint.status}</p>
-             <p>Passed: ${new Date(waypoint.timestamp).toLocaleString()}</p>`
-          ))
-          .addTo(loadedMap);
-      });
-      
-      // Add start point in Riyadh and route to current location
-      const startPoint: [number, number] = [46.6753, 24.7136]; // Riyadh coordinates
-      addRoute(loadedMap, startPoint, [longitude, latitude]);
-    }
+    });
+    
+    // Add start point in Riyadh and route to current location
+    const startPoint: [number, number] = [46.6753, 24.7136]; // Riyadh coordinates
+    addRoute(loadedMap, startPoint, [longitude, latitude]);
   };
 
   useEffect(() => {
-    if (trackingData && map.current) {
-      const { latitude, longitude, waypoints = [] } = trackingData;
+    if (trackingData && map) {
+      const { latitude, longitude } = trackingData;
       
-      if (!marker.current) {
-        marker.current = new mapboxgl.Marker({ color: '#ef4444' })
-          .setLngLat([longitude, latitude])
-          .addTo(map.current);
-      } else {
-        marker.current.setLngLat([longitude, latitude]);
+      // Update marker position
+      if (markerRef.current) {
+        markerRef.current.setLngLat([longitude, latitude]);
       }
 
-      // Update route when tracking data changes
+      // Update route
       const startPoint: [number, number] = [46.6753, 24.7136]; // Riyadh coordinates
-      addRoute(map.current, startPoint, [longitude, latitude]);
+      addRoute(map, startPoint, [longitude, latitude]);
     }
-  }, [trackingData]);
+  }, [trackingData, map]);
 
   return (
     <Card>
@@ -141,6 +143,7 @@ export const LogisticsMap = () => {
         onMapLoad={handleMapLoad}
         center={[45.0792, 23.8859]} // Center of Saudi Arabia
         zoom={5}
+        className="h-[600px]"
       />
     </Card>
   );
