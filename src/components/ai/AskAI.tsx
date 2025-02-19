@@ -56,11 +56,13 @@ export const AskAI = () => {
     try {
       console.log('Calling Supabase function with query:', query);
       
+      const { data: sessionData } = await supabase.auth.getSession();
+      
       const { data, error } = await supabase.functions.invoke('process-ai-query', {
         body: JSON.stringify({ prompt: query }),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${supabase.auth.session()?.access_token}`,
+          'Authorization': `Bearer ${sessionData?.session?.access_token}`,
         },
       });
 
