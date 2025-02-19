@@ -7,212 +7,212 @@ export const industries: Industry[] = [
     nameAr: "تجارة التجزئة",
     maturityData: [
       {
-        name: "Demand Forecasting",
-        nameAr: "التنبؤ بالطلب",
+        name: "Demand Driven Planning",
+        nameAr: "التخطيط المدفوع بالطلب",
         score: 0,
         subcategories: [
           {
-            name: "Statistical Forecasting",
-            nameAr: "التنبؤ الإحصائي",
+            name: "Strategic Decoupling Points",
+            nameAr: "نقاط الفصل الاستراتيجية",
             level: 0,
-            description: "Use of statistical methods for demand prediction",
-            descriptionAr: "استخدام الأساليب الإحصائية للتنبؤ بالطلب"
+            description: "Strategic placement of inventory positions",
+            descriptionAr: "التحديد الاستراتيجي لمواقع المخزون"
           },
           {
-            name: "Promotional Impact Analysis",
-            nameAr: "تحليل تأثير العروض",
+            name: "Buffer Profiles",
+            nameAr: "ملفات المخزون المؤقت",
             level: 0,
-            description: "Analysis of promotional campaigns on demand",
-            descriptionAr: "تحليل تأثير الحملات الترويجية على الطلب"
+            description: "Buffer profile configuration and management",
+            descriptionAr: "تكوين وإدارة ملفات المخزون المؤقت"
           },
           {
-            name: "Market Intelligence Integration",
-            nameAr: "تكامل معلومات السوق",
+            name: "Dynamic Adjustments",
+            nameAr: "التعديلات الديناميكية",
             level: 0,
-            description: "Integration of market data and trends",
-            descriptionAr: "دمج بيانات واتجاهات السوق"
+            description: "Buffer level dynamic adjustment capability",
+            descriptionAr: "قدرة التعديل الديناميكي لمستويات المخزون"
           },
           {
-            name: "Machine Learning Models",
-            nameAr: "نماذج التعلم الآلي",
+            name: "Demand Signals",
+            nameAr: "إشارات الطلب",
             level: 0,
-            description: "Advanced ML-based forecasting models",
-            descriptionAr: "نماذج التنبؤ المتقدمة القائمة على التعلم الآلي"
+            description: "Real-time demand signal processing",
+            descriptionAr: "معالجة إشارات الطلب في الوقت الفعلي"
           }
         ]
       },
       {
-        name: "Inventory Management",
-        nameAr: "إدارة المخزون",
+        name: "Buffer Management",
+        nameAr: "إدارة المخزون المؤقت",
         score: 0,
         subcategories: [
           {
-            name: "Stock Level Optimization",
-            nameAr: "تحسين مستويات المخزون",
+            name: "Zone Calculation",
+            nameAr: "حساب النطاقات",
             level: 0,
-            description: "Optimal inventory level management",
-            descriptionAr: "إدارة المستوى الأمثل للمخزون"
+            description: "Red, yellow, and green zone calculations",
+            descriptionAr: "حسابات النطاقات الحمراء والصفراء والخضراء"
           },
           {
-            name: "Buffer Management",
-            nameAr: "إدارة المخزون الاحتياطي",
+            name: "Buffer Monitoring",
+            nameAr: "مراقبة المخزون المؤقت",
             level: 0,
-            description: "Strategic buffer positioning and sizing",
-            descriptionAr: "تحديد وتحجيم المخزون الاحتياطي الاستراتيجي"
+            description: "Real-time buffer status monitoring",
+            descriptionAr: "مراقبة حالة المخزون المؤقت في الوقت الفعلي"
           },
           {
-            name: "Warehouse Management",
-            nameAr: "إدارة المستودعات",
+            name: "Adjustment Factors",
+            nameAr: "عوامل التعديل",
             level: 0,
-            description: "Warehouse operations and optimization",
-            descriptionAr: "عمليات وتحسين المستودعات"
+            description: "Lead time and variability factor management",
+            descriptionAr: "إدارة وقت التوريد وعوامل التغير"
           },
           {
-            name: "Multi-Echelon Optimization",
-            nameAr: "تحسين متعدد المستويات",
+            name: "Buffer Alerts",
+            nameAr: "تنبيهات المخزون",
             level: 0,
-            description: "Network-wide inventory optimization",
-            descriptionAr: "تحسين المخزون على مستوى الشبكة"
+            description: "Automated buffer penetration alerts",
+            descriptionAr: "تنبيهات آلية لاختراق المخزون"
           }
         ]
       },
       {
-        name: "Supply Chain Planning",
-        nameAr: "تخطيط سلسلة التوريد",
+        name: "Operational Visibility",
+        nameAr: "الرؤية التشغيلية",
         score: 0,
         subcategories: [
           {
-            name: "Sales & Operations Planning",
-            nameAr: "تخطيط المبيعات والعمليات",
+            name: "Stock Status",
+            nameAr: "حالة المخزون",
             level: 0,
-            description: "Integrated business planning process",
-            descriptionAr: "عملية تخطيط الأعمال المتكاملة"
+            description: "Real-time inventory position visibility",
+            descriptionAr: "رؤية موقع المخزون في الوقت الفعلي"
           },
           {
-            name: "Network Design",
-            nameAr: "تصميم الشبكة",
+            name: "Order Status",
+            nameAr: "حالة الطلبات",
             level: 0,
-            description: "Supply chain network optimization",
-            descriptionAr: "تحسين شبكة سلسلة التوريد"
+            description: "Purchase order tracking and monitoring",
+            descriptionAr: "تتبع ومراقبة أوامر الشراء"
           },
           {
-            name: "Supplier Collaboration",
-            nameAr: "التعاون مع الموردين",
+            name: "Performance Metrics",
+            nameAr: "مقاييس الأداء",
             level: 0,
-            description: "Strategic supplier relationship management",
-            descriptionAr: "إدارة العلاقات الاستراتيجية مع الموردين"
+            description: "Key DDMRP performance indicators",
+            descriptionAr: "مؤشرات الأداء الرئيسية للنظام"
           },
           {
-            name: "Risk Management",
-            nameAr: "إدارة المخاطر",
+            name: "Analytics Dashboard",
+            nameAr: "لوحة التحليلات",
             level: 0,
-            description: "Supply chain risk assessment and mitigation",
-            descriptionAr: "تقييم وتخفيف مخاطر سلسلة التوريد"
+            description: "Integrated analytics and reporting",
+            descriptionAr: "التحليلات والتقارير المتكاملة"
           }
         ]
       },
       {
-        name: "Logistics Capabilities",
-        nameAr: "القدرات اللوجستية",
+        name: "Demand Driven Execution",
+        nameAr: "التنفيذ المدفوع بالطلب",
         score: 0,
         subcategories: [
           {
-            name: "Transportation Management",
-            nameAr: "إدارة النقل",
+            name: "Supply Order Generation",
+            nameAr: "توليد أوامر التوريد",
             level: 0,
-            description: "Fleet and route optimization",
-            descriptionAr: "تحسين الأسطول والمسارات"
+            description: "Automated supply order recommendations",
+            descriptionAr: "توصيات آلية لأوامر التوريد"
           },
           {
-            name: "Last Mile Delivery",
-            nameAr: "التوصيل للميل الأخير",
+            name: "Priority Management",
+            nameAr: "إدارة الأولويات",
             level: 0,
-            description: "Final delivery optimization",
-            descriptionAr: "تحسين التوصيل النهائي"
+            description: "Buffer-based execution priorities",
+            descriptionAr: "أولويات التنفيذ على أساس المخزون المؤقت"
           },
           {
-            name: "Reverse Logistics",
-            nameAr: "الخدمات اللوجستية العكسية",
+            name: "Lead Time Management",
+            nameAr: "إدارة وقت التوريد",
             level: 0,
-            description: "Returns and recycling management",
-            descriptionAr: "إدارة المرتجعات وإعادة التدوير"
+            description: "Decoupled and buffer lead times",
+            descriptionAr: "أوقات التوريد المفصولة والمؤقتة"
           },
           {
-            name: "Cross-Docking",
-            nameAr: "التحميل المتقاطع",
+            name: "Exception Management",
+            nameAr: "إدارة الاستثناءات",
             level: 0,
-            description: "Efficient cross-docking operations",
-            descriptionAr: "عمليات التحميل المتقاطع الفعالة"
+            description: "Alert and exception handling",
+            descriptionAr: "معالجة التنبيهات والاستثناءات"
           }
         ]
       },
       {
-        name: "Digital Transformation",
-        nameAr: "التحول الرقمي",
+        name: "Planning Parameters",
+        nameAr: "معايير التخطيط",
         score: 0,
         subcategories: [
           {
-            name: "Process Automation",
-            nameAr: "أتمتة العمليات",
+            name: "ADU Calculation",
+            nameAr: "حساب الاستخدام اليومي",
             level: 0,
-            description: "Automated workflow implementation",
-            descriptionAr: "تنفيذ سير العمل الآلي"
+            description: "Average daily usage calculation methods",
+            descriptionAr: "طرق حساب متوسط الاستخدام اليومي"
           },
           {
-            name: "Data Analytics",
-            nameAr: "تحليل البيانات",
+            name: "Buffer Profiles",
+            nameAr: "ملفات المخزون",
             level: 0,
-            description: "Advanced analytics capabilities",
-            descriptionAr: "قدرات التحليلات المتقدمة"
+            description: "Buffer profile configuration",
+            descriptionAr: "تكوين ملفات المخزون"
           },
           {
-            name: "IoT Integration",
-            nameAr: "تكامل إنترنت الأشياء",
+            name: "Decoupling Configuration",
+            nameAr: "تكوين نقاط الفصل",
             level: 0,
-            description: "Smart device network implementation",
-            descriptionAr: "تنفيذ شبكة الأجهزة الذكية"
+            description: "Decoupling point setup and management",
+            descriptionAr: "إعداد وإدارة نقاط الفصل"
           },
           {
-            name: "Blockchain Integration",
-            nameAr: "تكامل البلوكتشين",
+            name: "Parameter Maintenance",
+            nameAr: "صيانة المعايير",
             level: 0,
-            description: "Blockchain technology adoption",
-            descriptionAr: "تبني تقنية البلوكتشين"
+            description: "Regular parameter review and updates",
+            descriptionAr: "مراجعة وتحديث المعايير بانتظام"
           }
         ]
       },
       {
-        name: "Sustainability",
-        nameAr: "الاستدامة",
+        name: "Analytics & Reporting",
+        nameAr: "التحليلات والتقارير",
         score: 0,
         subcategories: [
           {
-            name: "Carbon Footprint",
-            nameAr: "البصمة الكربونية",
+            name: "Buffer Performance",
+            nameAr: "أداء المخزون المؤقت",
             level: 0,
-            description: "Emissions tracking and reduction",
-            descriptionAr: "تتبع وتخفيض الانبعاثات"
+            description: "Buffer penetration and status analytics",
+            descriptionAr: "تحليلات اختراق وحالة المخزون المؤقت"
           },
           {
-            name: "Waste Management",
-            nameAr: "إدارة النفايات",
+            name: "Execution Metrics",
+            nameAr: "مقاييس التنفيذ",
             level: 0,
-            description: "Waste reduction and recycling",
-            descriptionAr: "تقليل النفايات وإعادة التدوير"
+            description: "Order generation and execution tracking",
+            descriptionAr: "تتبع توليد وتنفيذ الأوامر"
           },
           {
-            name: "Green Transportation",
-            nameAr: "النقل الأخضر",
+            name: "Financial Impact",
+            nameAr: "الأثر المالي",
             level: 0,
-            description: "Sustainable transportation methods",
-            descriptionAr: "طرق النقل المستدامة"
+            description: "Investment and service level analysis",
+            descriptionAr: "تحليل الاستثمار ومستوى الخدمة"
           },
           {
-            name: "Circular Economy",
-            nameAr: "الاقتصاد الدائري",
+            name: "Performance Reporting",
+            nameAr: "تقارير الأداء",
             level: 0,
-            description: "Circular economy practices",
-            descriptionAr: "ممارسات الاقتصاد الدائري"
+            description: "KPI dashboards and reporting",
+            descriptionAr: "لوحات المؤشرات وإعداد التقارير"
           }
         ]
       }
