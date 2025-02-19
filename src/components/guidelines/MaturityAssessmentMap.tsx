@@ -107,12 +107,28 @@ Based on this assessment, please provide:
 
   const handleProcessAssessment = async () => {
     setLoading(true);
+    console.log('Starting assessment processing...');
+    
     try {
       const { data, error } = await supabase.functions.invoke('process-ai-query', {
-        body: { prompt: generateAssessmentPrompt() }
+        body: { 
+          prompt: generateAssessmentPrompt() 
+        },
+        headers: {
+          'Content-Type': 'application/json',
+        }
       });
 
-      if (error) throw error;
+      console.log('Response received:', { data, error });
+
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw error;
+      }
+
+      if (!data?.generatedText) {
+        throw new Error('No response text received from AI');
+      }
 
       setAiRecommendations(data.generatedText);
       setShowResults(true);
