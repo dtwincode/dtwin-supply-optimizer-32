@@ -7,6 +7,40 @@ export const calculateCategoryScore = (category: MaturityCategory) => {
   return (totalLevels / maxPossibleScore) * 100;
 };
 
+export const getLevelColor = (level: number): string => {
+  switch (level) {
+    case 0:
+      return "bg-gray-300";
+    case 1:
+      return "bg-red-500";
+    case 2:
+      return "bg-yellow-500";
+    case 3:
+      return "bg-blue-500";
+    case 4:
+      return "bg-green-500";
+    default:
+      return "bg-gray-300";
+  }
+};
+
+export const getLevelName = (level: number, isArabic: boolean): string => {
+  switch (level) {
+    case 0:
+      return isArabic ? "غير موجود" : "Non-existent";
+    case 1:
+      return isArabic ? "أساسي" : "Basic";
+    case 2:
+      return isArabic ? "متطور" : "Developing";
+    case 3:
+      return isArabic ? "متقدم" : "Advanced";
+    case 4:
+      return isArabic ? "متميز" : "Excellence";
+    default:
+      return isArabic ? "غير معروف" : "Unknown";
+  }
+};
+
 export const getRecommendations = (score: number, category: MaturityCategory, isArabic: boolean) => {
   if (category.name === "Demand Forecasting") {
     if (score < 25) {
