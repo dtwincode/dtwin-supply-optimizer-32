@@ -42,66 +42,87 @@ export const getLevelName = (level: number, isArabic: boolean): string => {
 };
 
 export const getRecommendations = (score: number, category: MaturityCategory, isArabic: boolean) => {
-  // Demand Forecasting recommendations
+  // Demand Driven Planning recommendations (DDMRP)
   if (category.name === "Demand Forecasting") {
     if (score < 25) {
       return isArabic 
-        ? `تحتاج إلى تطوير عملية جمع البيانات الأساسية. المتطلبات: بيانات المبيعات التاريخية لمدة 12 شهراً على الأقل، تحليل الاتجاهات الموسمية، وتتبع تأثير العروض الترويجية`
-        : `Need to develop basic data collection process. Requirements: Historical sales data for at least 12 months, seasonal trend analysis, and promotional impact tracking`;
+        ? `تطوير أساسيات DDMRP. المتطلبات: تحديد نقاط الفصل الاستراتيجية، تأسيس مستويات المخزون المؤقت، تطوير نظام إشارات الطلب`
+        : `Develop DDMRP fundamentals. Requirements: Strategic decoupling point identification, buffer level establishment, demand signaling system`;
     } else if (score < 50) {
       return isArabic
-        ? `تحسين جودة البيانات وأتمتة التحليل. المتطلبات: نظام تنبؤ آلي، تكامل بيانات نقاط البيع، وتحليل متقدم للاتجاهات`
-        : `Improve data quality and automate analysis. Requirements: Automated forecasting system, POS data integration, and advanced trend analysis`;
+        ? `تحسين تطبيق DDMRP. المتطلبات: تحسين معادلات المخزون المؤقت، أتمتة إشارات الطلب، تكامل بيانات السوق`
+        : `Enhance DDMRP implementation. Requirements: Buffer equation optimization, demand signal automation, market data integration`;
     } else if (score < 75) {
       return isArabic
-        ? `تطبيق تقنيات متقدمة. المتطلبات: تحليلات البيانات الضخمة، التعلم الآلي للتنبؤ، وتكامل بيانات السوق الخارجية`
-        : `Implement advanced techniques. Requirements: Big data analytics, ML forecasting, and external market data integration`;
+        ? `تطبيق DDMRP متقدم. المتطلبات: تعديل ديناميكي للمخزون المؤقت، تحليل تأثير السوق، التخطيط التعاوني`
+        : `Advanced DDMRP implementation. Requirements: Dynamic buffer adjustments, market impact analysis, collaborative planning`;
     } else {
       return isArabic
-        ? `الحفاظ على التميز وتحسين الدقة. المتطلبات: تحديث مستمر للنماذج، تحليل السيناريوهات، والتكامل مع سلسلة التوريد`
-        : `Maintain excellence and improve accuracy. Requirements: Continuous model updates, scenario analysis, and supply chain integration`;
+        ? `تميز في DDMRP. المتطلبات: تكامل سلسلة التوريد بالكامل، تحسين مستمر للنماذج، تخطيط السيناريوهات`
+        : `DDMRP excellence. Requirements: Full supply chain integration, continuous model optimization, scenario planning`;
     }
   }
   
-  // Inventory Management recommendations
+  // Inventory Management recommendations (Based on SCOR model)
   if (category.name === "Inventory Management") {
     if (score < 25) {
       return isArabic
-        ? `تطوير نظام مراقبة المخزون الأساسي. المتطلبات: جرد يدوي دوري، تتبع المنتجات منتهية الصلاحية، وإدارة المخزون الاحتياطي`
-        : `Develop basic inventory monitoring system. Requirements: Periodic manual counting, expiry tracking, and safety stock management`;
+        ? `تطوير إدارة المخزون الأساسية. المتطلبات: تحديد مواقع التخزين الاستراتيجية، تصنيف ABC للمخزون، تطبيق نظام إدارة المخزون الاحتياطي`
+        : `Develop basic inventory management. Requirements: Strategic storage locations, ABC inventory classification, safety stock management system`;
     } else if (score < 50) {
       return isArabic
-        ? `تحسين نظام إدارة المخزون. المتطلبات: نظام باركود، تتبع آلي للمخزون، وتحليل معدل الدوران`
-        : `Improve inventory management system. Requirements: Barcode system, automated tracking, and turnover analysis`;
+        ? `تحسين إدارة المخزون. المتطلبات: تطبيق نظام الباركود، التتبع في الوقت الفعلي، تحليل معدل الدوران والتكلفة`
+        : `Improve inventory management. Requirements: Barcode implementation, real-time tracking, turnover and cost analysis`;
     } else if (score < 75) {
       return isArabic
-        ? `تطبيق نظام متقدم. المتطلبات: نظام RFID، تحليلات تنبؤية للمخزون، وإدارة سلسلة التبريد`
-        : `Implement advanced system. Requirements: RFID system, predictive analytics, and cold chain management`;
+        ? `إدارة مخزون متقدمة. المتطلبات: نظام RFID، تحليلات تنبؤية، إدارة سلسلة التبريد، تحسين المخزون متعدد المستويات`
+        : `Advanced inventory management. Requirements: RFID system, predictive analytics, cold chain management, multi-echelon optimization`;
     } else {
       return isArabic
-        ? `تحسين الكفاءة التشغيلية. المتطلبات: أتمتة كاملة للمستودع، تحليلات متقدمة للمخزون، وتكامل مع الموردين`
-        : `Enhance operational efficiency. Requirements: Full warehouse automation, advanced analytics, and supplier integration`;
+        ? `تميز في إدارة المخزون. المتطلبات: أتمتة المستودعات، تحليلات متقدمة، تكامل الموردين، تحسين الشبكة اللوجستية`
+        : `Inventory management excellence. Requirements: Warehouse automation, advanced analytics, supplier integration, network optimization`;
     }
   }
 
-  // Logistics Capabilities recommendations
+  // Logistics Capabilities recommendations (Based on Gartner's model)
   if (category.name === "Logistics Capabilities") {
     if (score < 25) {
       return isArabic
-        ? `تطوير عمليات النقل الأساسية. المتطلبات: تخطيط المسارات اليدوي، تتبع الشحنات الأساسي، وإدارة المركبات`
-        : `Develop basic transportation operations. Requirements: Manual route planning, basic shipment tracking, and fleet management`;
+        ? `تطوير القدرات اللوجستية الأساسية. المتطلبات: تخطيط المسارات الأساسي، تتبع الشحنات، إدارة الأسطول، تحليل التكاليف`
+        : `Develop basic logistics capabilities. Requirements: Basic route planning, shipment tracking, fleet management, cost analysis`;
     } else if (score < 50) {
       return isArabic
-        ? `تحسين كفاءة التوزيع. المتطلبات: نظام تتبع GPS، تخطيط المسارات الآلي، وتحليل أداء التسليم`
-        : `Improve distribution efficiency. Requirements: GPS tracking system, automated route planning, and delivery performance analysis`;
+        ? `تحسين القدرات اللوجستية. المتطلبات: تتبع GPS متقدم، تخطيط المسارات الديناميكي، تحليل أداء التسليم، إدارة الجودة`
+        : `Enhance logistics capabilities. Requirements: Advanced GPS tracking, dynamic route planning, delivery performance analysis, quality management`;
     } else if (score < 75) {
       return isArabic
-        ? `تطبيق حلول متقدمة. المتطلبات: تحسين المسارات في الوقت الفعلي، تكامل مع العملاء، وتحليلات التكلفة المتقدمة`
-        : `Implement advanced solutions. Requirements: Real-time route optimization, customer integration, and advanced cost analytics`;
+        ? `قدرات لوجستية متقدمة. المتطلبات: تحسين المسارات في الوقت الفعلي، تكامل العملاء، تحليل التكلفة المتقدم، إدارة المخاطر`
+        : `Advanced logistics capabilities. Requirements: Real-time route optimization, customer integration, advanced cost analytics, risk management`;
     } else {
       return isArabic
-        ? `تعزيز الأداء اللوجستي. المتطلبات: أتمتة كاملة للعمليات، تكامل مع سلسلة التوريد، وتحليلات تنبؤية للطلب`
-        : `Enhance logistics performance. Requirements: Full operations automation, supply chain integration, and demand predictive analytics`;
+        ? `تميز في القدرات اللوجستية. المتطلبات: أتمتة العمليات الكاملة، تكامل سلسلة التوريد، التحليلات التنبؤية، الاستدامة`
+        : `Logistics capabilities excellence. Requirements: Full operations automation, supply chain integration, predictive analytics, sustainability`;
+    }
+  }
+
+  // Supply Chain Visibility (Based on Gartner's Digital Supply Chain Framework)
+  if (category.name === "Supply Chain Visibility") {
+    if (score < 25) {
+      return isArabic
+        ? `تطوير الرؤية الأساسية. المتطلبات: تتبع المخزون الأساسي، تحديث حالة الطلبات يدويًا، تقارير أساسية`
+        : `Develop basic visibility. Requirements: Basic inventory tracking, manual order status updates, basic reporting`;
+    } else if (score < 50) {
+      return isArabic
+        ? `تحسين الرؤية. المتطلبات: تتبع في الوقت الفعلي، لوحات معلومات تفاعلية، تنبيهات آلية`
+        : `Enhance visibility. Requirements: Real-time tracking, interactive dashboards, automated alerts`;
+    } else if (score < 75) {
+      return isArabic
+        ? `رؤية متقدمة. المتطلبات: تكامل البيانات من طرف لطرف، تحليلات تنبؤية، رؤية متعددة المستويات`
+        : `Advanced visibility. Requirements: End-to-end data integration, predictive analytics, multi-tier visibility`;
+    } else {
+      return isArabic
+        ? `تميز في الرؤية. المتطلبات: رؤية شاملة للشبكة، تحليلات ذكية، التعاون في الوقت الفعلي`
+        : `Visibility excellence. Requirements: Network-wide visibility, intelligent analytics, real-time collaboration`;
     }
   }
   
@@ -114,50 +135,50 @@ export const getDataRequirements = (score: number, isArabic: boolean) => {
   if (score < 25) {
     return {
       data: isArabic 
-        ? ["بيانات المبيعات الأساسية", "معلومات المخزون الأساسية", "بيانات العملاء الأساسية"]
-        : ["Basic sales data", "Basic inventory information", "Basic customer data"],
+        ? ["بيانات المخزون الأساسية", "بيانات الطلب التاريخية", "بيانات التكلفة الأساسية", "معلومات الموردين الأساسية"]
+        : ["Basic inventory data", "Historical demand data", "Basic cost data", "Basic supplier information"],
       tools: isArabic
-        ? ["جداول Excel أساسية", "نظام نقاط البيع الأساسي"]
-        : ["Basic Excel sheets", "Basic POS system"],
+        ? ["نظام ERP أساسي", "أدوات تخطيط أساسية", "نظام تتبع المخزون"]
+        : ["Basic ERP system", "Basic planning tools", "Inventory tracking system"],
       collaboration: isArabic
-        ? ["تنسيق أسبوعي بين الأقسام", "مشاركة التقارير الأساسية"]
-        : ["Weekly department coordination", "Basic report sharing"]
+        ? ["اجتماعات أسبوعية للتخطيط", "تنسيق داخلي أساسي", "تواصل مع الموردين الرئيسيين"]
+        : ["Weekly planning meetings", "Basic internal coordination", "Key supplier communication"]
     };
   } else if (score < 50) {
     return {
       data: isArabic
-        ? ["بيانات مبيعات تفصيلية", "تتبع المخزون في الوقت الفعلي", "تحليل سلوك العملاء"]
-        : ["Detailed sales data", "Real-time inventory tracking", "Customer behavior analysis"],
+        ? ["بيانات المخزون في الوقت الفعلي", "تحليل الطلب المتقدم", "تحليل التكلفة التفصيلي", "معلومات سلسلة التوريد"]
+        : ["Real-time inventory data", "Advanced demand analysis", "Detailed cost analysis", "Supply chain information"],
       tools: isArabic
-        ? ["نظام تخطيط موارد المؤسسات", "أدوات التحليل المتقدمة", "لوحات المعلومات التفاعلية"]
-        : ["ERP system", "Advanced analytics tools", "Interactive dashboards"],
+        ? ["نظام DDMRP", "أدوات التخطيط المتقدمة", "نظام إدارة المستودعات", "نظام تتبع متقدم"]
+        : ["DDMRP system", "Advanced planning tools", "WMS system", "Advanced tracking system"],
       collaboration: isArabic
-        ? ["اجتماعات يومية للفريق", "مشاركة التحليلات في الوقت الفعلي", "تكامل البيانات بين الإدارات"]
-        : ["Daily team meetings", "Real-time analytics sharing", "Cross-department data integration"]
+        ? ["تخطيط يومي", "تنسيق متعدد الأقسام", "تكامل مع الموردين الرئيسيين"]
+        : ["Daily planning", "Cross-department coordination", "Key supplier integration"]
     };
   } else if (score < 75) {
     return {
       data: isArabic
-        ? ["بيانات السوق الخارجية", "تحليلات التنبؤ المتقدمة", "بيانات سلسلة التوريد الكاملة"]
-        : ["External market data", "Advanced forecasting analytics", "Complete supply chain data"],
+        ? ["تحليلات متقدمة للطلب", "بيانات السوق في الوقت الفعلي", "تحليلات التكلفة المتقدمة", "بيانات سلسلة التوريد الكاملة"]
+        : ["Advanced demand analytics", "Real-time market data", "Advanced cost analytics", "Complete supply chain data"],
       tools: isArabic
-        ? ["منصة تحليلات متكاملة", "أدوات التعلم الآلي", "نظام تخطيط متقدم"]
-        : ["Integrated analytics platform", "Machine learning tools", "Advanced planning system"],
+        ? ["منصة DDMRP متكاملة", "نظام تخطيط متقدم", "أدوات التحليلات التنبؤية", "نظام إدارة النقل"]
+        : ["Integrated DDMRP platform", "Advanced planning system", "Predictive analytics tools", "TMS system"],
       collaboration: isArabic
-        ? ["تعاون في الوقت الفعلي", "مشاركة التنبؤات الآلية", "تكامل مع الموردين"]
-        : ["Real-time collaboration", "Automated forecast sharing", "Supplier integration"]
+        ? ["تخطيط متكامل", "تعاون في الوقت الفعلي", "تكامل كامل مع الموردين"]
+        : ["Integrated planning", "Real-time collaboration", "Full supplier integration"]
     };
   } else {
     return {
       data: isArabic
-        ? ["بيانات السوق الشاملة", "تحليلات متقدمة للعملاء", "بيانات سلسلة التوريد العالمية"]
-        : ["Comprehensive market data", "Advanced customer analytics", "Global supply chain data"],
+        ? ["تحليلات الطلب في الوقت الفعلي", "تحليلات السوق الشاملة", "تحليلات سلسلة التوريد المتقدمة", "بيانات التكلفة الشاملة"]
+        : ["Real-time demand analytics", "Comprehensive market analytics", "Advanced supply chain analytics", "Complete cost data"],
       tools: isArabic
-        ? ["منصة ذكاء أعمال متكاملة", "أدوات تحليل متقدمة", "نظام تخطيط شامل"]
-        : ["Integrated BI platform", "Advanced analytics suite", "Comprehensive planning system"],
+        ? ["منصة DDMRP متقدمة", "نظام تخطيط ذكي", "منصة تحليلات متكاملة", "نظام إدارة سلسلة التوريد الشامل"]
+        : ["Advanced DDMRP platform", "Intelligent planning system", "Integrated analytics platform", "Complete SCM system"],
       collaboration: isArabic
-        ? ["تكامل شامل بين الأقسام", "تعاون مع الشركاء الخارجيين", "مشاركة البيانات في الوقت الفعلي"]
-        : ["Full department integration", "External partner collaboration", "Real-time data sharing"]
+        ? ["تخطيط متكامل وذكي", "تعاون شامل في الوقت الفعلي", "تكامل كامل مع شبكة التوريد"]
+        : ["Intelligent integrated planning", "Comprehensive real-time collaboration", "Full supply network integration"]
     };
   }
 };
