@@ -42,6 +42,7 @@ export const getLevelName = (level: number, isArabic: boolean): string => {
 };
 
 export const getRecommendations = (score: number, category: MaturityCategory, isArabic: boolean) => {
+  // Demand Forecasting recommendations
   if (category.name === "Demand Forecasting") {
     if (score < 25) {
       return isArabic 
@@ -59,6 +60,48 @@ export const getRecommendations = (score: number, category: MaturityCategory, is
       return isArabic
         ? `الحفاظ على التميز وتحسين الدقة. المتطلبات: تحديث مستمر للنماذج، تحليل السيناريوهات، والتكامل مع سلسلة التوريد`
         : `Maintain excellence and improve accuracy. Requirements: Continuous model updates, scenario analysis, and supply chain integration`;
+    }
+  }
+  
+  // Inventory Management recommendations
+  if (category.name === "Inventory Management") {
+    if (score < 25) {
+      return isArabic
+        ? `تطوير نظام مراقبة المخزون الأساسي. المتطلبات: جرد يدوي دوري، تتبع المنتجات منتهية الصلاحية، وإدارة المخزون الاحتياطي`
+        : `Develop basic inventory monitoring system. Requirements: Periodic manual counting, expiry tracking, and safety stock management`;
+    } else if (score < 50) {
+      return isArabic
+        ? `تحسين نظام إدارة المخزون. المتطلبات: نظام باركود، تتبع آلي للمخزون، وتحليل معدل الدوران`
+        : `Improve inventory management system. Requirements: Barcode system, automated tracking, and turnover analysis`;
+    } else if (score < 75) {
+      return isArabic
+        ? `تطبيق نظام متقدم. المتطلبات: نظام RFID، تحليلات تنبؤية للمخزون، وإدارة سلسلة التبريد`
+        : `Implement advanced system. Requirements: RFID system, predictive analytics, and cold chain management`;
+    } else {
+      return isArabic
+        ? `تحسين الكفاءة التشغيلية. المتطلبات: أتمتة كاملة للمستودع، تحليلات متقدمة للمخزون، وتكامل مع الموردين`
+        : `Enhance operational efficiency. Requirements: Full warehouse automation, advanced analytics, and supplier integration`;
+    }
+  }
+
+  // Logistics Capabilities recommendations
+  if (category.name === "Logistics Capabilities") {
+    if (score < 25) {
+      return isArabic
+        ? `تطوير عمليات النقل الأساسية. المتطلبات: تخطيط المسارات اليدوي، تتبع الشحنات الأساسي، وإدارة المركبات`
+        : `Develop basic transportation operations. Requirements: Manual route planning, basic shipment tracking, and fleet management`;
+    } else if (score < 50) {
+      return isArabic
+        ? `تحسين كفاءة التوزيع. المتطلبات: نظام تتبع GPS، تخطيط المسارات الآلي، وتحليل أداء التسليم`
+        : `Improve distribution efficiency. Requirements: GPS tracking system, automated route planning, and delivery performance analysis`;
+    } else if (score < 75) {
+      return isArabic
+        ? `تطبيق حلول متقدمة. المتطلبات: تحسين المسارات في الوقت الفعلي، تكامل مع العملاء، وتحليلات التكلفة المتقدمة`
+        : `Implement advanced solutions. Requirements: Real-time route optimization, customer integration, and advanced cost analytics`;
+    } else {
+      return isArabic
+        ? `تعزيز الأداء اللوجستي. المتطلبات: أتمتة كاملة للعمليات، تكامل مع سلسلة التوريد، وتحليلات تنبؤية للطلب`
+        : `Enhance logistics performance. Requirements: Full operations automation, supply chain integration, and demand predictive analytics`;
     }
   }
   
