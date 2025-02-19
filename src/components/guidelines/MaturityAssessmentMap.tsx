@@ -11,7 +11,6 @@ import { Industry, MaturityCategory } from './types/maturity';
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { calculateCategoryScore } from './utils/maturityUtils';
 
 export const MaturityAssessmentMap = () => {
   const { language, isRTL } = useLanguage();
@@ -25,19 +24,11 @@ export const MaturityAssessmentMap = () => {
 
   const calculateOverallScore = () => {
     const totalScore = currentIndustry.maturityData.reduce((sum, category) => {
-      return sum + calculateCategoryScore(category);
+      const categoryScore = category.subcategories.reduce((catSum, sub) => catSum + sub.level, 0);
+      const maxPossibleScore = category.subcategories.length * 4;
+      return sum + (categoryScore / maxPossibleScore) * 100;
     }, 0);
     return totalScore / currentIndustry.maturityData.length;
-  };
-
-  const handleProcessAssessment = () => {
-    setShowResults(true);
-    toast({
-      title: isArabic ? "تم معالجة التقييم" : "Assessment Processed",
-      description: isArabic 
-        ? "يمكنك الآن رؤية نتائج تقييم النضج الخاص بك"
-        : "You can now view your maturity assessment results",
-    });
   };
 
   const handleUpdateLevel = (categoryIndex: number, subcategoryIndex: number, newLevel: number) => {
@@ -68,6 +59,16 @@ export const MaturityAssessmentMap = () => {
       return newData;
     });
     setShowResults(false);
+  };
+
+  const handleProcessAssessment = () => {
+    setShowResults(true);
+    toast({
+      title: isArabic ? "تم معالجة التقييم" : "Assessment Processed",
+      description: isArabic 
+        ? "يمكنك الآن رؤية نتائج تقييم النضج الخاص بك"
+        : "You can now view your maturity assessment results",
+    });
   };
 
   return (
