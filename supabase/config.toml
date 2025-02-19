@@ -10,7 +10,6 @@ schemas = ["public", "storage"]
 [functions.process-ai-query]
 verify_jwt = false
 import_map = "import_map.json"
-no_public_key = true
 
 [functions.process-hierarchy]
 verify_jwt = false
