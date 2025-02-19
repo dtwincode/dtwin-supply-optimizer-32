@@ -11,10 +11,21 @@ interface IntegratedData {
   date: string;
   actual_value: number;
   sku: string;
-  product_name: string;
-  main_product: string;
+  // Product hierarchy levels
+  l1_main_prod: string;
+  l2_prod_line: string;
+  l3_prod_category: string;
+  l4_device_make: string;
+  l5_prod_sub_category: string;
+  l6_device_model: string;
+  l7_device_color: string;
+  l8_device_storage: string;
+  // Location hierarchy levels
   region: string;
   city: string;
+  country: string;
+  channel: string;
+  sub_channel: string;
   warehouse: string;
 }
 
@@ -28,7 +39,25 @@ export function IntegratedDataPreview() {
       console.log('Fetching integrated data...');
       const { data: integratedData, error } = await supabase
         .from('integrated_forecast_data')
-        .select('*');
+        .select(`
+          date,
+          actual_value,
+          sku,
+          l1_main_prod,
+          l2_prod_line,
+          l3_prod_category,
+          l4_device_make,
+          l5_prod_sub_category,
+          l6_device_model,
+          l7_device_color,
+          l8_device_storage,
+          region,
+          city,
+          country,
+          channel,
+          sub_channel,
+          warehouse
+        `);
 
       if (error) {
         console.error('Supabase query error:', error);
@@ -48,10 +77,19 @@ export function IntegratedDataPreview() {
         date: item.date,
         actual_value: item.actual_value || 0,
         sku: item.sku || 'N/A',
-        product_name: item.l6_device_model || 'N/A',
-        main_product: item.l1_main_prod || 'N/A',
+        l1_main_prod: item.l1_main_prod || 'N/A',
+        l2_prod_line: item.l2_prod_line || 'N/A',
+        l3_prod_category: item.l3_prod_category || 'N/A',
+        l4_device_make: item.l4_device_make || 'N/A',
+        l5_prod_sub_category: item.l5_prod_sub_category || 'N/A',
+        l6_device_model: item.l6_device_model || 'N/A',
+        l7_device_color: item.l7_device_color || 'N/A',
+        l8_device_storage: item.l8_device_storage || 'N/A',
         region: item.region || 'N/A',
         city: item.city || 'N/A',
+        country: item.country || 'N/A',
+        channel: item.channel || 'N/A',
+        sub_channel: item.sub_channel || 'N/A',
         warehouse: item.warehouse || 'N/A'
       }));
 
@@ -159,16 +197,27 @@ export function IntegratedDataPreview() {
               <p>Loading integrated data...</p>
             </div>
           ) : (
-            <div className="border rounded-md">
+            <div className="border rounded-md overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Date</TableHead>
                     <TableHead>SKU</TableHead>
-                    <TableHead>Product Name</TableHead>
+                    {/* Product Hierarchy */}
                     <TableHead>Main Product</TableHead>
+                    <TableHead>Product Line</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Device Make</TableHead>
+                    <TableHead>Sub Category</TableHead>
+                    <TableHead>Device Model</TableHead>
+                    <TableHead>Color</TableHead>
+                    <TableHead>Storage</TableHead>
+                    {/* Location Hierarchy */}
                     <TableHead>Region</TableHead>
+                    <TableHead>Country</TableHead>
                     <TableHead>City</TableHead>
+                    <TableHead>Channel</TableHead>
+                    <TableHead>Sub Channel</TableHead>
                     <TableHead>Warehouse</TableHead>
                     <TableHead className="text-right">Actual Value</TableHead>
                   </TableRow>
@@ -176,7 +225,7 @@ export function IntegratedDataPreview() {
                 <TableBody>
                   {data.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center py-4">
+                      <TableCell colSpan={17} className="text-center py-4">
                         No integrated data available. Click "Integrate Data" to populate the table.
                       </TableCell>
                     </TableRow>
@@ -185,10 +234,19 @@ export function IntegratedDataPreview() {
                       <TableRow key={index}>
                         <TableCell>{new Date(row.date).toLocaleDateString()}</TableCell>
                         <TableCell>{row.sku}</TableCell>
-                        <TableCell>{row.product_name}</TableCell>
-                        <TableCell>{row.main_product}</TableCell>
+                        <TableCell>{row.l1_main_prod}</TableCell>
+                        <TableCell>{row.l2_prod_line}</TableCell>
+                        <TableCell>{row.l3_prod_category}</TableCell>
+                        <TableCell>{row.l4_device_make}</TableCell>
+                        <TableCell>{row.l5_prod_sub_category}</TableCell>
+                        <TableCell>{row.l6_device_model}</TableCell>
+                        <TableCell>{row.l7_device_color}</TableCell>
+                        <TableCell>{row.l8_device_storage}</TableCell>
                         <TableCell>{row.region}</TableCell>
+                        <TableCell>{row.country}</TableCell>
                         <TableCell>{row.city}</TableCell>
+                        <TableCell>{row.channel}</TableCell>
+                        <TableCell>{row.sub_channel}</TableCell>
                         <TableCell>{row.warehouse}</TableCell>
                         <TableCell className="text-right">{row.actual_value.toLocaleString()}</TableCell>
                       </TableRow>
