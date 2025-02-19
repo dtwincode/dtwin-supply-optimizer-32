@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -56,13 +55,10 @@ export const AskAI = () => {
     try {
       console.log('Calling Supabase function with query:', query);
       
-      const { data: sessionData } = await supabase.auth.getSession();
-      
       const { data, error } = await supabase.functions.invoke('process-ai-query', {
         body: JSON.stringify({ prompt: query }),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${sessionData?.session?.access_token}`,
         },
       });
 
