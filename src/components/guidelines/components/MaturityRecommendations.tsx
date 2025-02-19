@@ -9,13 +9,34 @@ interface MaturityRecommendationsProps {
   isArabic: boolean;
   categories: MaturityCategory[];
   overallScore: number;
+  aiRecommendations?: string | null;
 }
 
 export const MaturityRecommendations: React.FC<MaturityRecommendationsProps> = ({
   isArabic,
   categories,
-  overallScore
+  overallScore,
+  aiRecommendations
 }) => {
+  if (aiRecommendations) {
+    return (
+      <Card className="p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <Lightbulb className="h-6 w-6 text-primary" />
+          <h3 className="text-xl font-semibold">
+            {isArabic ? "التوصيات والمتطلبات" : "Recommendations & Requirements"}
+          </h3>
+        </div>
+        
+        <div className="prose max-w-none dark:prose-invert">
+          <div className="whitespace-pre-line">
+            {aiRecommendations}
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <Card className="p-6">
       <div className="flex items-center gap-3 mb-6">

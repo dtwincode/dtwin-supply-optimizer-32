@@ -9,8 +9,9 @@ import { MaturityResults } from './components/MaturityResults';
 import { MaturityRecommendations } from './components/MaturityRecommendations';
 import { Industry, MaturityCategory } from './types/maturity';
 import { Button } from "@/components/ui/button";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export const MaturityAssessmentMap = () => {
   const { language, isRTL } = useLanguage();
@@ -19,8 +20,9 @@ export const MaturityAssessmentMap = () => {
   const [selectedIndustry, setSelectedIndustry] = useState(industries[0].id);
   const [industryData, setIndustryData] = useState<Industry[]>(industries);
   const [showResults, setShowResults] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [aiRecommendations, setAiRecommendations] = useState<string | null>(null);
 
-  // Effect to ensure industryData is always in sync with the source
   useEffect(() => {
     setIndustryData(industries);
     console.log('Industry data updated:', industries[0].maturityData.length, 'categories');
@@ -40,6 +42,7 @@ export const MaturityAssessmentMap = () => {
   const handleIndustryChange = (newIndustryId: string) => {
     setSelectedIndustry(newIndustryId);
     setShowResults(false);
+    setAiRecommendations(null);
     console.log('Industry changed to:', newIndustryId);
   };
 
@@ -72,17 +75,66 @@ export const MaturityAssessmentMap = () => {
       return newData;
     });
     setShowResults(false);
+    setAiRecommendations(null);
   };
 
-  const handleProcessAssessment = () => {
-    setShowResults(true);
-    console.log('Processing assessment for industry:', currentIndustry.name);
-    toast({
-      title: isArabic ? "تم معالجة التقييم" : "Assessment Processed",
-      description: isArabic 
-        ? "يمكنك الآن رؤية نتائج تقييم النضج الخاص بك"
-        : "You can now view your maturity assessment results",
-    });
+  const generateAssessmentPrompt = () => {
+    const overallScore = calculateOverallScore();
+    return `As a DDMRP and Supply Chain expert, analyze this maturity assessment for a ${currentIndustry.name} company:
+
+Overall Maturity Score: ${overallScore.toFixed(1)}%
+
+Detailed Assessment:
+${currentIndustry.maturityData.map(category => {
+  const categoryScore = (category.subcategories.reduce((sum, sub) => sum + sub.level, 0) / 
+    (category.subcategories.length * 4)) * 100;
+  
+  return `
+${category.name} (Score: ${categoryScore.toFixed(1)}%)
+Subcategories:
+${category.subcategories.map(sub => 
+  `- ${sub.name}: Level ${sub.level}/4 (${sub.description})`
+).join('\n')}
+`}).join('\n')}
+
+Based on this assessment, please provide:
+1. Specific recommendations for improvement, prioritized by impact and ease of implementation
+2. Required data, systems, and capabilities needed for advancement
+3. Implementation roadmap with clear milestones
+4. Potential challenges and risk mitigation strategies
+5. Industry-specific considerations and best practices`;
+  };
+
+  const handleProcessAssessment = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('process-ai-query', {
+        body: { prompt: generateAssessmentPrompt() }
+      });
+
+      if (error) throw error;
+
+      setAiRecommendations(data.generatedText);
+      setShowResults(true);
+      
+      toast({
+        title: isArabic ? "تم معالجة التقييم" : "Assessment Processed",
+        description: isArabic 
+          ? "يمكنك الآن رؤية نتائج تقييم النضج الخاص بك"
+          : "You can now view your maturity assessment results",
+      });
+    } catch (error) {
+      console.error('Error processing assessment:', error);
+      toast({
+        title: isArabic ? "حدث خطأ" : "Error",
+        description: isArabic 
+          ? "حدث خطأ أثناء معالجة التقييم. يرجى المحاولة مرة أخرى"
+          : "An error occurred while processing the assessment. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -112,8 +164,13 @@ export const MaturityAssessmentMap = () => {
           onClick={handleProcessAssessment}
           className="gap-2"
           size="lg"
+          disabled={loading}
         >
-          <CheckCircle2 className="w-5 h-5" />
+          {loading ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : (
+            <CheckCircle2 className="w-5 h-5" />
+          )}
           {isArabic ? "معالجة التقييم" : "Process Assessment"}
         </Button>
       </div>
@@ -129,6 +186,7 @@ export const MaturityAssessmentMap = () => {
             isArabic={isArabic}
             categories={currentIndustry.maturityData}
             overallScore={calculateOverallScore()}
+            aiRecommendations={aiRecommendations}
           />
         </>
       )}
