@@ -9,6 +9,3 @@ schemas = ["public", "storage"]
 [functions]
 [functions.process-ai-query]
 verify_jwt = false
-
-[functions.process-hierarchy]
-verify_jwt = false

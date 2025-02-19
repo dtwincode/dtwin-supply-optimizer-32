@@ -5,13 +5,24 @@ const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Max-Age': '86400',
 };
 
 serve(async (req) => {
+  // Log the incoming request
+  console.log('Incoming request:', {
+    method: req.method,
+    headers: Object.fromEntries(req.headers.entries()),
+  });
+
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders,
+    });
   }
 
   try {
@@ -20,12 +31,11 @@ serve(async (req) => {
     }
 
     const { prompt } = await req.json();
-    
+    console.log('Received prompt:', prompt?.substring(0, 100));
+
     if (!prompt) {
       throw new Error('No prompt provided');
     }
-
-    console.log('Processing prompt:', prompt.substring(0, 100) + '...');
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -55,25 +65,32 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    
-    if (!data.choices?.[0]?.message?.content) {
-      throw new Error('Invalid response from OpenAI');
-    }
+    console.log('OpenAI response received');
 
     return new Response(
       JSON.stringify({ generatedText: data.choices[0].message.content }), 
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { 
+        status: 200,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        },
+      }
     );
   } catch (error) {
     console.error('Error in process-ai-query:', error);
+    
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        details: error.toString()
+        details: error.toString(),
       }), 
       { 
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        },
       }
     );
   }
