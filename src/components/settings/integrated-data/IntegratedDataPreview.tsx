@@ -23,9 +23,7 @@ interface IntegratedData {
   // Location hierarchy levels
   region: string;
   city: string;
-  country: string;
   channel: string;
-  sub_channel: string;
   warehouse: string;
 }
 
@@ -53,9 +51,7 @@ export function IntegratedDataPreview() {
           l8_device_storage,
           region,
           city,
-          country,
           channel,
-          sub_channel,
           warehouse
         `);
 
@@ -87,9 +83,7 @@ export function IntegratedDataPreview() {
         l8_device_storage: item.l8_device_storage || 'N/A',
         region: item.region || 'N/A',
         city: item.city || 'N/A',
-        country: item.country || 'N/A',
         channel: item.channel || 'N/A',
-        sub_channel: item.sub_channel || 'N/A',
         warehouse: item.warehouse || 'N/A'
       }));
 
@@ -214,10 +208,8 @@ export function IntegratedDataPreview() {
                     <TableHead>Storage</TableHead>
                     {/* Location Hierarchy */}
                     <TableHead>Region</TableHead>
-                    <TableHead>Country</TableHead>
                     <TableHead>City</TableHead>
                     <TableHead>Channel</TableHead>
-                    <TableHead>Sub Channel</TableHead>
                     <TableHead>Warehouse</TableHead>
                     <TableHead className="text-right">Actual Value</TableHead>
                   </TableRow>
@@ -225,7 +217,7 @@ export function IntegratedDataPreview() {
                 <TableBody>
                   {data.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={17} className="text-center py-4">
+                      <TableCell colSpan={15} className="text-center py-4">
                         No integrated data available. Click "Integrate Data" to populate the table.
                       </TableCell>
                     </TableRow>
@@ -243,10 +235,8 @@ export function IntegratedDataPreview() {
                         <TableCell>{row.l7_device_color}</TableCell>
                         <TableCell>{row.l8_device_storage}</TableCell>
                         <TableCell>{row.region}</TableCell>
-                        <TableCell>{row.country}</TableCell>
                         <TableCell>{row.city}</TableCell>
                         <TableCell>{row.channel}</TableCell>
-                        <TableCell>{row.sub_channel}</TableCell>
                         <TableCell>{row.warehouse}</TableCell>
                         <TableCell className="text-right">{row.actual_value.toLocaleString()}</TableCell>
                       </TableRow>
