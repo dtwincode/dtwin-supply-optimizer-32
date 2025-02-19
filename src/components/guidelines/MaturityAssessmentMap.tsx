@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from "@/contexts/LanguageContext";
 import { industries } from './data/industryData';
 import { InstructionsCard } from './components/InstructionsCard';
@@ -20,6 +20,12 @@ export const MaturityAssessmentMap = () => {
   const [industryData, setIndustryData] = useState<Industry[]>(industries);
   const [showResults, setShowResults] = useState(false);
 
+  // Effect to ensure industryData is always in sync with the source
+  useEffect(() => {
+    setIndustryData(industries);
+    console.log('Industry data updated:', industries[0].maturityData.length, 'categories');
+  }, []);
+
   const currentIndustry = industryData.find(i => i.id === selectedIndustry) || industryData[0];
 
   const calculateOverallScore = () => {
@@ -31,7 +37,14 @@ export const MaturityAssessmentMap = () => {
     return totalScore / currentIndustry.maturityData.length;
   };
 
+  const handleIndustryChange = (newIndustryId: string) => {
+    setSelectedIndustry(newIndustryId);
+    setShowResults(false);
+    console.log('Industry changed to:', newIndustryId);
+  };
+
   const handleUpdateLevel = (categoryIndex: number, subcategoryIndex: number, newLevel: number) => {
+    console.log('Updating level:', { categoryIndex, subcategoryIndex, newLevel });
     setIndustryData(prevData => {
       const newData = [...prevData];
       const industryIndex = newData.findIndex(i => i.id === selectedIndustry);
@@ -63,6 +76,7 @@ export const MaturityAssessmentMap = () => {
 
   const handleProcessAssessment = () => {
     setShowResults(true);
+    console.log('Processing assessment for industry:', currentIndustry.name);
     toast({
       title: isArabic ? "تم معالجة التقييم" : "Assessment Processed",
       description: isArabic 
@@ -76,14 +90,14 @@ export const MaturityAssessmentMap = () => {
       <InstructionsCard
         isArabic={isArabic}
         selectedIndustry={selectedIndustry}
-        setSelectedIndustry={setSelectedIndustry}
+        setSelectedIndustry={handleIndustryChange}
         industries={industryData}
       />
 
       <div className="grid gap-6 md:grid-cols-2">
         {currentIndustry.maturityData.map((category, categoryIdx) => (
           <MaturityCategoryCard
-            key={categoryIdx}
+            key={`${selectedIndustry}-${categoryIdx}`}
             category={category}
             isArabic={isArabic}
             onUpdateLevel={(subcategoryIndex, newLevel) => 
