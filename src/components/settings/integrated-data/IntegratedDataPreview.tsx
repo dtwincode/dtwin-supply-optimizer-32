@@ -25,20 +25,7 @@ export function IntegratedDataPreview() {
         console.log('Fetching integrated data...');
         const { data: integratedData, error } = await supabase
           .from('integrated_forecast_data')
-          .select(`
-            date,
-            actual_value,
-            sku,
-            product_hierarchy (
-              name,
-              l1_main_prod
-            ),
-            location_hierarchy (
-              region,
-              city,
-              warehouse
-            )
-          `)
+          .select('*')
           .limit(10);
 
         if (error) {
@@ -48,16 +35,16 @@ export function IntegratedDataPreview() {
 
         console.log('Raw integrated data:', integratedData);
 
-        // Transform the joined data to match IntegratedData interface
+        // Transform the data to match IntegratedData interface
         const transformedData: IntegratedData[] = (integratedData || []).map(item => ({
           date: item.date,
           actual_value: item.actual_value,
           sku: item.sku,
-          product_name: item.product_hierarchy?.name || '',
-          l1_main_prod: item.product_hierarchy?.l1_main_prod || '',
-          region: item.location_hierarchy?.region || '',
-          city: item.location_hierarchy?.city || '',
-          warehouse: item.location_hierarchy?.warehouse || ''
+          product_name: item.name || '',
+          l1_main_prod: item.l1_main_prod || '',
+          region: item.region || '',
+          city: item.city || '',
+          warehouse: item.warehouse || ''
         }));
 
         console.log('Transformed data:', transformedData);
