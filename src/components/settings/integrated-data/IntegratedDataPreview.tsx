@@ -38,7 +38,14 @@ export function IntegratedDataPreview() {
 
       console.log('Raw integrated data:', integratedData);
 
-      const transformedData: IntegratedData[] = (integratedData || []).map(item => ({
+      if (!integratedData || integratedData.length === 0) {
+        console.log('No data found in integrated_forecast_data table');
+        setData([]);
+        setIsLoading(false);
+        return;
+      }
+
+      const transformedData: IntegratedData[] = integratedData.map(item => ({
         date: item.date,
         actual_value: item.actual_value,
         sku: item.sku,
@@ -70,9 +77,32 @@ export function IntegratedDataPreview() {
   const handleIntegration = async () => {
     setIsIntegrating(true);
     try {
+      console.log('Starting data integration process...');
+      
+      // Check if we have the required data
+      const { data: historicalData, error: historicalError } = await supabase
+        .from('historical_sales_data')
+        .select('*')
+        .eq('is_active', true)
+        .limit(1);
+
+      if (historicalError) throw historicalError;
+      
+      if (!historicalData || historicalData.length === 0) {
+        throw new Error('No historical sales data found');
+      }
+
+      console.log('Found historical sales data:', historicalData);
+
+      // Proceed with integration
       const { data: result, error } = await supabase.rpc('populate_integrated_forecast_data');
       
-      if (error) throw error;
+      if (error) {
+        console.error('Integration function error:', error);
+        throw error;
+      }
+      
+      console.log('Integration completed, result:', result);
       
       toast({
         title: "Success",
@@ -81,11 +111,11 @@ export function IntegratedDataPreview() {
       
       // Refresh the data after integration
       await fetchData();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Integration error:', error);
       toast({
         title: "Integration Failed",
-        description: "Failed to integrate data. Please ensure you have uploaded historical sales data.",
+        description: error.message || "Failed to integrate data. Please ensure you have uploaded historical sales data.",
         variant: "destructive",
       });
     } finally {
