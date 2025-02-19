@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileUpload } from "../upload/FileUpload";
@@ -8,6 +7,35 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { ColumnSelector } from "../location-hierarchy/components/ColumnSelector";
 import { HierarchyTable } from "../hierarchy/components/HierarchyTable";
+import { format } from "date-fns";
+
+const excelSerialDateToJSDate = (serialDate: number) => {
+  const EXCEL_EPOCH = new Date(1899, 11, 30);
+  const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
+  
+  const daysAfterEpoch = serialDate - (serialDate > 60 ? 1 : 0);
+  const timeInMillis = daysAfterEpoch * MILLISECONDS_PER_DAY;
+  const date = new Date(EXCEL_EPOCH.getTime() + timeInMillis);
+  
+  return date;
+};
+
+const formatDataForDisplay = (data: any[]) => {
+  return data.map(row => {
+    const formattedRow = { ...row };
+    Object.keys(row).forEach(key => {
+      if (key.toLowerCase().includes('date') && !isNaN(row[key])) {
+        try {
+          const date = excelSerialDateToJSDate(Number(row[key]));
+          formattedRow[key] = format(date, 'yyyy-MM-dd HH:mm:ss');
+        } catch (e) {
+          console.error(`Error formatting date for ${key}:`, e);
+        }
+      }
+    });
+    return formattedRow;
+  });
+};
 
 export function HistoricalSalesUpload() {
   const [uploadedData, setUploadedData] = useState<any[] | null>(null);
@@ -21,17 +49,18 @@ export function HistoricalSalesUpload() {
   const [isUploading, setIsUploading] = useState(false);
 
   const handleUploadSuccess = (data: any[], uploadId: string) => {
-    setUploadedData(data);
+    const formattedData = formatDataForDisplay(data);
+    setUploadedData(formattedData);
     setTempUploadId(uploadId);
-    if (data[0]) {
-      setSelectedColumns(new Set(Object.keys(data[0])));
+    if (formattedData[0]) {
+      setSelectedColumns(new Set(Object.keys(formattedData[0])));
     }
     setError(null);
     setUploadProgress(100);
     setIsUploading(false);
     toast({
       title: "Upload Successful",
-      description: `${data.length} records have been uploaded successfully`,
+      description: `${formattedData.length} records have been uploaded successfully`,
     });
   };
 
