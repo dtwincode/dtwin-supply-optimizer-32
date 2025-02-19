@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -18,6 +17,11 @@ interface IntegratedData {
   l4_device_make: string;
   l5_prod_sub_category: string;
   l6_device_model: string;
+  // Location hierarchy levels
+  region: string;
+  city: string;
+  warehouse: string;
+  channel: string;
 }
 
 export function IntegratedDataPreview() {
@@ -40,7 +44,11 @@ export function IntegratedDataPreview() {
           l3_prod_category,
           l4_device_make,
           l5_prod_sub_category,
-          l6_device_model
+          l6_device_model,
+          region,
+          city,
+          warehouse,
+          channel
         `);
 
       if (error) {
@@ -65,7 +73,11 @@ export function IntegratedDataPreview() {
         l3_prod_category: item.l3_prod_category || 'N/A',
         l4_device_make: item.l4_device_make || 'N/A',
         l5_prod_sub_category: item.l5_prod_sub_category || 'N/A',
-        l6_device_model: item.l6_device_model || 'N/A'
+        l6_device_model: item.l6_device_model || 'N/A',
+        region: item.region || 'N/A',
+        city: item.city || 'N/A',
+        warehouse: item.warehouse || 'N/A',
+        channel: item.channel || 'N/A'
       }));
 
       console.log('Transformed data:', transformedData);
@@ -131,7 +143,6 @@ export function IntegratedDataPreview() {
     }
   };
 
-  // Fetch data on component mount
   useEffect(() => {
     fetchData();
   }, []);
@@ -182,7 +193,12 @@ export function IntegratedDataPreview() {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Date</TableHead>
+                        <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Sales Value</TableHead>
                         <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">SKU</TableHead>
+                        <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Region</TableHead>
+                        <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">City</TableHead>
+                        <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Warehouse</TableHead>
+                        <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Channel</TableHead>
                         <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Main Product</TableHead>
                         <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Product Line</TableHead>
                         <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Category</TableHead>
@@ -194,7 +210,7 @@ export function IntegratedDataPreview() {
                     <TableBody>
                       {data.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={8} className="text-center py-4">
+                          <TableCell colSpan={13} className="text-center py-4">
                             No integrated data available. Click "Integrate Data" to populate the table.
                           </TableCell>
                         </TableRow>
@@ -202,7 +218,12 @@ export function IntegratedDataPreview() {
                         data.map((row, index) => (
                           <TableRow key={index}>
                             <TableCell className="whitespace-nowrap px-6">{new Date(row.date).toLocaleDateString()}</TableCell>
+                            <TableCell className="whitespace-nowrap px-6">{row.actual_value}</TableCell>
                             <TableCell className="whitespace-nowrap px-6">{row.sku}</TableCell>
+                            <TableCell className="whitespace-nowrap px-6">{row.region}</TableCell>
+                            <TableCell className="whitespace-nowrap px-6">{row.city}</TableCell>
+                            <TableCell className="whitespace-nowrap px-6">{row.warehouse}</TableCell>
+                            <TableCell className="whitespace-nowrap px-6">{row.channel}</TableCell>
                             <TableCell className="whitespace-nowrap px-6">{row.l1_main_prod}</TableCell>
                             <TableCell className="whitespace-nowrap px-6">{row.l2_prod_line}</TableCell>
                             <TableCell className="whitespace-nowrap px-6">{row.l3_prod_category}</TableCell>
