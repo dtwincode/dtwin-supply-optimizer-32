@@ -1,8 +1,8 @@
-
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { HelpCircle, Info, BookOpen, BarChart2 } from "lucide-react";
 
 interface MaturityCategory {
   name: string;
@@ -160,29 +160,57 @@ export const MaturityAssessmentMap = () => {
 
   return (
     <div className="p-6 space-y-8" dir={isRTL ? 'rtl' : 'ltr'}>
-      <div className="space-y-4">
-        <h2 className="text-2xl font-semibold">
-          {isArabic ? "خريطة تقييم النضج" : "Maturity Assessment Map"}
-        </h2>
-        <p className="text-muted-foreground">
-          {isArabic 
-            ? "تقييم شامل لجاهزية المؤسسة عبر المجالات الرئيسية"
-            : "Comprehensive assessment of organizational readiness across key domains"}
-        </p>
-      </div>
+      <Card className="p-6 border-primary/20">
+        <div className="flex items-start gap-4">
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <BookOpen className="h-5 w-5 text-primary" />
+          </div>
+          <div className="space-y-2">
+            <h3 className="font-semibold text-lg">
+              {isArabic ? "كيفية استخدام تقييم النضج" : "How to Use the Maturity Assessment"}
+            </h3>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <p>
+                {isArabic 
+                  ? "١. راجع كل فئة ومؤشراتها الفرعية لفهم مستوى نضجك الحالي"
+                  : "1. Review each category and its subcategories to understand your current maturity level"}
+              </p>
+              <p>
+                {isArabic
+                  ? "٢. قيّم مستواك الحالي باستخدام المقياس من ٠ إلى ٤"
+                  : "2. Assess your current level using the 0-4 scale"}
+              </p>
+              <p>
+                {isArabic
+                  ? "٣. استخدم دليل المستويات في الأسفل لفهم كل مستوى"
+                  : "3. Use the level guide at the bottom to understand each level"}
+              </p>
+            </div>
+          </div>
+        </div>
+      </Card>
 
       <div className="grid gap-6 md:grid-cols-2">
         {maturityData.map((category, idx) => (
           <Card key={idx} className="p-6">
-            <h3 className="text-lg font-semibold mb-4">
-              {isArabic ? category.nameAr : category.name}
-            </h3>
+            <div className="flex items-center gap-3 mb-4">
+              <BarChart2 className="h-5 w-5 text-primary" />
+              <h3 className="text-lg font-semibold">
+                {isArabic ? category.nameAr : category.name}
+              </h3>
+              <div className="ml-auto">
+                <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+              </div>
+            </div>
             <div className="space-y-6">
               {category.subcategories.map((subcat, subIdx) => (
                 <div key={subIdx} className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span>{isArabic ? subcat.nameAr : subcat.name}</span>
-                    <span className="text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <span>{isArabic ? subcat.nameAr : subcat.name}</span>
+                      <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                    </div>
+                    <span className="text-muted-foreground font-medium">
                       {getLevelName(subcat.level, isArabic)}
                     </span>
                   </div>
@@ -203,9 +231,12 @@ export const MaturityAssessmentMap = () => {
       </div>
 
       <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">
-          {isArabic ? "دليل مستويات النضج" : "Maturity Level Guide"}
-        </h3>
+        <div className="flex items-center gap-3 mb-4">
+          <BookOpen className="h-5 w-5 text-primary" />
+          <h3 className="text-lg font-semibold">
+            {isArabic ? "دليل مستويات النضج" : "Maturity Level Guide"}
+          </h3>
+        </div>
         <div className="grid gap-4 md:grid-cols-5">
           {[0, 1, 2, 3, 4].map((level) => (
             <div key={level} className="flex items-center gap-2">
