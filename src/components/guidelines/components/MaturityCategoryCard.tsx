@@ -4,15 +4,24 @@ import { Card } from "@/components/ui/card";
 import { BarChart2, HelpCircle, Info } from "lucide-react";
 import { MaturityCategory } from "../types/maturity";
 import { getLevelColor, getLevelName } from "../utils/maturityUtils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface MaturityCategoryCardProps {
   category: MaturityCategory;
   isArabic: boolean;
+  onUpdateLevel: (subcategoryIndex: number, newLevel: number) => void;
 }
 
 export const MaturityCategoryCard: React.FC<MaturityCategoryCardProps> = ({
   category,
-  isArabic
+  isArabic,
+  onUpdateLevel
 }) => {
   return (
     <Card className="p-6">
@@ -28,14 +37,28 @@ export const MaturityCategoryCard: React.FC<MaturityCategoryCardProps> = ({
       <div className="space-y-6">
         {category.subcategories.map((subcat, subIdx) => (
           <div key={subIdx} className="space-y-2">
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between items-center text-sm">
               <div className="flex items-center gap-2">
                 <span>{isArabic ? subcat.nameAr : subcat.name}</span>
                 <Info className="h-4 w-4 text-muted-foreground cursor-help" />
               </div>
-              <span className="text-muted-foreground font-medium">
-                {getLevelName(subcat.level, isArabic)}
-              </span>
+              <Select
+                value={subcat.level.toString()}
+                onValueChange={(value) => onUpdateLevel(subIdx, parseInt(value))}
+              >
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue>
+                    {getLevelName(subcat.level, isArabic)}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {[0, 1, 2, 3, 4].map((level) => (
+                    <SelectItem key={level} value={level.toString()}>
+                      {getLevelName(level, isArabic)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="h-2 bg-secondary rounded-full overflow-hidden">
               <div 
