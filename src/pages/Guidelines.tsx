@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { BarChart2, Users, Settings, Search, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
 import { MaturityAssessmentMap } from "@/components/guidelines/MaturityAssessmentMap";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Guidelines = () => {
   const { language, isRTL } = useLanguage();
@@ -67,32 +68,45 @@ const Guidelines = () => {
         </p>
         <Separator className="my-6" />
         
-        <MaturityAssessmentMap />
-        
-        <Separator className="my-6" />
-        
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {sections.map((section, index) => {
-            const Icon = section.icon;
-            return (
-              <Link key={index} to={section.href}>
-                <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
-                  <div className="flex items-center gap-4">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <Icon className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">{section.title}</h3>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {section.content}
-                      </p>
-                    </div>
-                  </div>
-                </Card>
-              </Link>
-            );
-          })}
-        </div>
+        <Tabs defaultValue="guidelines" className="w-full">
+          <TabsList className="mb-6">
+            <TabsTrigger value="guidelines">
+              {language === 'ar' ? "الإرشادات" : "Guidelines"}
+            </TabsTrigger>
+            <TabsTrigger value="maturity">
+              {language === 'ar' ? "تقييم النضج" : "Maturity Assessment"}
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="guidelines">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {sections.map((section, index) => {
+                const Icon = section.icon;
+                return (
+                  <Link key={index} to={section.href}>
+                    <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
+                      <div className="flex items-center gap-4">
+                        <div className="p-2 bg-primary/10 rounded-lg">
+                          <Icon className="h-6 w-6 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold">{section.title}</h3>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {section.content}
+                          </p>
+                        </div>
+                      </div>
+                    </Card>
+                  </Link>
+                );
+              })}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="maturity">
+            <MaturityAssessmentMap />
+          </TabsContent>
+        </Tabs>
       </div>
     </DashboardLayout>
   );
