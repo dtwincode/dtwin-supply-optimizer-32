@@ -36,6 +36,11 @@ export function useIntegratedData() {
 
       // تحويل البيانات إلى النوع المتوقع مع دمج metadata
       const transformedData: IntegratedData[] = integratedData.map(item => {
+        // التأكد من أن metadata كائن صالح وتحويله
+        const parsedMetadata = (typeof item.metadata === 'object' && item.metadata !== null) 
+          ? item.metadata as Record<string, any>
+          : {};
+
         const baseData = {
           id: item.id,
           date: item.date,
@@ -45,14 +50,11 @@ export function useIntegratedData() {
           updated_at: item.updated_at,
           validation_status: item.validation_status,
           source_files: item.source_files,
-          metadata: item.metadata // حفظ metadata الأصلي
+          metadata: parsedMetadata
         };
 
-        // التأكد من أن metadata كائن صالح
-        const metadataObj = typeof item.metadata === 'object' ? item.metadata : {};
-        
         // إضافة جميع الحقول من metadata
-        const flattenedMetadata = Object.entries(metadataObj || {}).reduce((acc, [key, value]) => {
+        const flattenedMetadata = Object.entries(parsedMetadata).reduce((acc, [key, value]) => {
           if (value !== null && value !== undefined) {
             acc[key] = value;
           }
