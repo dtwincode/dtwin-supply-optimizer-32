@@ -20,7 +20,7 @@ export interface IntegratedData {
 export type ProductFilterState = {
   selected: string;
   values: string[];
-}
+};
 
 export type HierarchyState = Record<string, ProductFilterState>;
 

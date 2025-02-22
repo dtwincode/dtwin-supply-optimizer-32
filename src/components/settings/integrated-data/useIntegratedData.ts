@@ -1,21 +1,23 @@
 
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
-import { IntegratedData, HierarchyState, LocationState } from "./types";
+import { IntegratedData } from "./types";
 import { useFilters } from "@/contexts/FilterContext";
 import { useLocation } from "react-router-dom";
 
 export function useIntegratedData() {
   const [data, setData] = useState<IntegratedData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [isIntegrating, setIsIntegrating] = useState(false);
   
   const location = useLocation();
   const currentTab = location.pathname.split('/').pop() || 'settings';
   const { getProductHierarchyState, getLocationState } = useFilters();
   
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
+    if (isLoading) return; // Prevent multiple concurrent fetches
+    
     setIsLoading(true);
     try {
       console.log('Fetching integrated data...');
@@ -27,7 +29,8 @@ export function useIntegratedData() {
         .from('integrated_forecast_data')
         .select('*');
 
-      if (productFilters) {
+      // Only apply filters if they exist and have valid values
+      if (productFilters && Object.keys(productFilters).length > 0) {
         Object.entries(productFilters).forEach(([level, { selected }]) => {
           if (selected && selected !== level) {
             query = query.eq(level, selected);
@@ -35,7 +38,7 @@ export function useIntegratedData() {
         });
       }
 
-      if (locationFilters) {
+      if (locationFilters && Object.keys(locationFilters).length > 0) {
         Object.entries(locationFilters).forEach(([level, value]) => {
           if (value && value !== level) {
             query = query.eq(level, value);
@@ -50,54 +53,47 @@ export function useIntegratedData() {
         throw error;
       }
 
-      console.log('Raw integrated data:', integratedData);
-
       if (!integratedData || integratedData.length === 0) {
         console.log('No data found in integrated_forecast_data table');
         setData([]);
         return;
       }
 
-      const transformedData: IntegratedData[] = integratedData.map((item, index) => {
-        console.log(`Processing row ${index}:`, item);
-        const transformedItem = {
-          date: item.date,
-          actual_value: item.actual_value || 0,
-          sku: item.sku || 'N/A',
-          l1_main_prod: item.l1_main_prod || 'N/A',
-          l2_prod_line: item.l2_prod_line || 'N/A',
-          l3_prod_category: item.l3_prod_category || 'N/A',
-          l4_device_make: item.l4_device_make || 'N/A',
-          l5_prod_sub_category: item.l5_prod_sub_category || 'N/A',
-          l6_device_model: item.l6_device_model || 'N/A',
-          region: item.region || 'N/A',
-          city: item.city || 'N/A',
-          warehouse: item.warehouse || 'N/A',
-          channel: item.channel || 'N/A'
-        };
-        console.log(`Transformed row ${index}:`, transformedItem);
-        return transformedItem;
-      });
+      const transformedData = integratedData.map(item => ({
+        date: item.date,
+        actual_value: item.actual_value || 0,
+        sku: item.sku || 'N/A',
+        l1_main_prod: item.l1_main_prod || 'N/A',
+        l2_prod_line: item.l2_prod_line || 'N/A',
+        l3_prod_category: item.l3_prod_category || 'N/A',
+        l4_device_make: item.l4_device_make || 'N/A',
+        l5_prod_sub_category: item.l5_prod_sub_category || 'N/A',
+        l6_device_model: item.l6_device_model || 'N/A',
+        region: item.region || 'N/A',
+        city: item.city || 'N/A',
+        warehouse: item.warehouse || 'N/A',
+        channel: item.channel || 'N/A'
+      }));
 
-      console.log('Final transformed data:', transformedData);
       setData(transformedData);
     } catch (error) {
       console.error('Error fetching integrated data:', error);
       toast({
-        title: "Error",
-        description: "Failed to fetch integrated data. Please try again.",
+        title: "خطأ",
+        description: "فشل في جلب البيانات المتكاملة. يرجى المحاولة مرة أخرى.",
         variant: "destructive",
       });
+      setData([]);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentTab, getProductHierarchyState, getLocationState]);
 
   const handleIntegration = async () => {
+    if (isIntegrating) return;
+    
     setIsIntegrating(true);
     try {
-      console.log('Checking for historical sales data...');
-      
       const { data: historicalFiles, error: historicalError } = await supabase
         .from('permanent_hierarchy_files')
         .select('*')
@@ -105,48 +101,37 @@ export function useIntegratedData() {
         .order('created_at', { ascending: false })
         .limit(1);
 
-      if (historicalError) {
-        console.error('Historical data query error:', historicalError);
-        throw historicalError;
-      }
+      if (historicalError) throw historicalError;
       
-      if (!historicalFiles || historicalFiles.length === 0) {
-        console.log('No historical sales files found');
-        throw new Error('No historical sales data found. Please upload historical sales data first.');
+      if (!historicalFiles?.length) {
+        throw new Error('يرجى تحميل بيانات المبيعات التاريخية أولاً.');
       }
 
-      console.log('Found historical data file:', historicalFiles[0]);
-      console.log('Historical data content:', historicalFiles[0].data);
-
-      console.log('Calling integrate_forecast_data function...');
-      const { data: result, error } = await supabase
-        .rpc('integrate_forecast_data');
-      
-      if (error) {
-        console.error('Integration function error:', error);
-        throw error;
-      }
-      
-      console.log('Integration completed successfully:', result);
+      const { error } = await supabase.rpc('integrate_forecast_data');
+      if (error) throw error;
       
       toast({
-        title: "Success",
-        description: "Data integration completed successfully.",
+        title: "نجاح",
+        description: "تم دمج البيانات بنجاح.",
       });
       
-      console.log('Refreshing data after integration...');
       await fetchData();
     } catch (error: any) {
       console.error('Integration error:', error);
       toast({
-        title: "Integration Failed",
-        description: error.message || "Failed to integrate data. Please ensure you have uploaded historical sales data.",
+        title: "فشل الدمج",
+        description: error.message || "فشل في دمج البيانات. يرجى التأكد من تحميل بيانات المبيعات التاريخية.",
         variant: "destructive",
       });
     } finally {
       setIsIntegrating(false);
     }
   };
+
+  // Fetch data on mount and when filters change
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   return {
     data,
