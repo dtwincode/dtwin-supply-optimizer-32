@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,9 +25,10 @@ export function IntegratedDataPreview() {
     handleIntegration,
     handleSaveMapping,
     selectedMapping,
+    setSelectedMapping,
     validationStatus,
-    hasIntegrated,
-    error
+    error,
+    hasIntegrated
   } = useIntegratedData();
   const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set());
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -79,6 +81,10 @@ export function IntegratedDataPreview() {
 
   const handleMappingSelect = (mappingId: string) => {
     setSelectedMappingId(mappingId);
+    const selectedConfig = savedMappings.find(m => m.id === mappingId);
+    if (selectedConfig) {
+      setSelectedMapping(selectedConfig);
+    }
   };
 
   const getMappingDescription = (mapping: ForecastMappingConfig) => {

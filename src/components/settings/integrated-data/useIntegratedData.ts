@@ -174,6 +174,7 @@ export function useIntegratedData() {
     mappingDialogOpen,
     setMappingDialogOpen,
     selectedMapping,
+    setSelectedMapping,
     validationStatus,
     error,
     hasIntegrated,
