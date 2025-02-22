@@ -2595,10 +2595,17 @@ export type Database = {
         }
         Returns: undefined
       }
-      integrate_forecast_data: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      integrate_forecast_data:
+        | {
+            Args: Record<PropertyKey, never>
+            Returns: string
+          }
+        | {
+            Args: {
+              p_mapping_config: Json
+            }
+            Returns: string
+          }
       process_hierarchy_configuration: {
         Args: {
           p_table_name: string

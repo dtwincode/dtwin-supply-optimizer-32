@@ -124,7 +124,7 @@ export function useIntegratedData() {
       await checkRequiredFiles();
       
       // Create the mapping configuration object
-      const mappingConfig = {
+      const mappingConfig: Record<string, any> = {
         product_mapping: selectedMapping.use_product_mapping,
         location_mapping: selectedMapping.use_location_mapping,
         product_key: selectedMapping.product_key_column,
