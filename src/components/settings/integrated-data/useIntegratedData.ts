@@ -32,20 +32,21 @@ export function useIntegratedData() {
         return;
       }
 
+      // معالجة البيانات قبل عرضها في الجدول
       const transformedData = integratedData.map(item => ({
         date: item.date,
         actual_value: item.actual_value || 0,
-        sku: item.sku || 'N/A',
-        l1_main_prod: item.l1_main_prod || 'N/A',
-        l2_prod_line: item.l2_prod_line || 'N/A',
-        l3_prod_category: item.l3_prod_category || 'N/A',
-        l4_device_make: item.l4_device_make || 'N/A',
-        l5_prod_sub_category: item.l5_prod_sub_category || 'N/A',
-        l6_device_model: item.l6_device_model || 'N/A',
-        region: item.region || 'N/A',
-        city: item.city || 'N/A',
-        warehouse: item.warehouse || 'N/A',
-        channel: item.channel || 'N/A'
+        sku: item.sku,
+        l1_main_prod: item.l1_main_prod || '',
+        l2_prod_line: item.l2_prod_line || '',
+        l3_prod_category: item.l3_prod_category || '',
+        l4_device_make: item.l4_device_make || '',
+        l5_prod_sub_category: item.l5_prod_sub_category || '',
+        l6_device_model: item.l6_device_model || '',
+        region: item.region || '',
+        city: item.city || '',
+        warehouse: item.warehouse || '',
+        channel: item.channel || ''
       }));
 
       setData(transformedData);
@@ -59,7 +60,7 @@ export function useIntegratedData() {
     } finally {
       setIsLoading(false);
     }
-  }, [isLoading]);
+  }, []);  // إزالة isLoading من التبعيات لمنع إعادة التحميل غير الضرورية
 
   const checkRequiredFiles = async () => {
     try {
@@ -114,10 +115,8 @@ export function useIntegratedData() {
     
     setIsIntegrating(true);
     try {
-      // First check if all required files exist
       await checkRequiredFiles();
       
-      // If all files exist, proceed with integration
       const { error } = await supabase.rpc('integrate_forecast_data');
       if (error) throw error;
       
@@ -126,7 +125,6 @@ export function useIntegratedData() {
         description: "تم دمج البيانات بنجاح.",
       });
       
-      // Refresh data after successful integration
       await fetchData();
     } catch (error: any) {
       console.error('Integration error:', error);
@@ -142,7 +140,7 @@ export function useIntegratedData() {
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, []); // إزالة fetchData من التبعيات لمنع التحديث المستمر
 
   return {
     data,
