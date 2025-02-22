@@ -922,57 +922,30 @@ export type Database = {
       integrated_forecast_data: {
         Row: {
           actual_value: number | null
-          channel: string | null
-          city: string | null
           created_at: string
           date: string
           id: string
-          l1_main_prod: string | null
-          l2_prod_line: string | null
-          l3_prod_category: string | null
-          l4_device_make: string | null
-          l5_prod_sub_category: string | null
-          l6_device_model: string | null
-          region: string | null
+          metadata: Json | null
           sku: string | null
           updated_at: string
-          warehouse: string | null
         }
         Insert: {
           actual_value?: number | null
-          channel?: string | null
-          city?: string | null
           created_at?: string
           date: string
           id?: string
-          l1_main_prod?: string | null
-          l2_prod_line?: string | null
-          l3_prod_category?: string | null
-          l4_device_make?: string | null
-          l5_prod_sub_category?: string | null
-          l6_device_model?: string | null
-          region?: string | null
+          metadata?: Json | null
           sku?: string | null
           updated_at?: string
-          warehouse?: string | null
         }
         Update: {
           actual_value?: number | null
-          channel?: string | null
-          city?: string | null
           created_at?: string
           date?: string
           id?: string
-          l1_main_prod?: string | null
-          l2_prod_line?: string | null
-          l3_prod_category?: string | null
-          l4_device_make?: string | null
-          l5_prod_sub_category?: string | null
-          l6_device_model?: string | null
-          region?: string | null
+          metadata?: Json | null
           sku?: string | null
           updated_at?: string
-          warehouse?: string | null
         }
         Relationships: []
       }

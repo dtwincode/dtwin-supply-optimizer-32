@@ -1,12 +1,32 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { IntegratedData } from "./types";
+import { useMemo } from "react";
 
 interface IntegratedDataTableProps {
   data: IntegratedData[];
 }
 
 export function IntegratedDataTable({ data }: IntegratedDataTableProps) {
+  // استخراج جميع الأعمدة الفريدة من البيانات
+  const columns = useMemo(() => {
+    const uniqueColumns = new Set<string>();
+    
+    // إضافة الأعمدة الثابتة
+    uniqueColumns.add('date');
+    uniqueColumns.add('actual_value');
+    uniqueColumns.add('sku');
+    
+    // إضافة الأعمدة الديناميكية من metadata
+    data.forEach(row => {
+      Object.keys(row.metadata || {}).forEach(key => {
+        uniqueColumns.add(key);
+      });
+    });
+    
+    return Array.from(uniqueColumns);
+  }, [data]);
+
   return (
     <div className="relative overflow-x-auto border rounded-md">
       <div className="max-h-[600px] overflow-y-auto">
@@ -14,44 +34,34 @@ export function IntegratedDataTable({ data }: IntegratedDataTableProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Date</TableHead>
-                <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Sales Value</TableHead>
-                <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">SKU</TableHead>
-                <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Region</TableHead>
-                <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">City</TableHead>
-                <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Warehouse</TableHead>
-                <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Channel</TableHead>
-                <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Main Product</TableHead>
-                <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Product Line</TableHead>
-                <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Category</TableHead>
-                <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Device Make</TableHead>
-                <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Sub Category</TableHead>
-                <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">Device Model</TableHead>
+                {columns.map(column => (
+                  <TableHead 
+                    key={column} 
+                    className="text-base whitespace-nowrap px-6 sticky top-0 bg-white"
+                  >
+                    {column.charAt(0).toUpperCase() + column.slice(1).replace(/_/g, ' ')}
+                  </TableHead>
+                ))}
               </TableRow>
             </TableHeader>
             <TableBody>
               {data.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={13} className="text-center py-4">
-                    No integrated data available. Click "Integrate Data" to populate the table.
+                  <TableCell colSpan={columns.length} className="text-center py-4">
+                    لا توجد بيانات متكاملة متاحة. انقر على "دمج البيانات" لملء الجدول.
                   </TableCell>
                 </TableRow>
               ) : (
                 data.map((row, index) => (
                   <TableRow key={index}>
-                    <TableCell className="whitespace-nowrap px-6">{new Date(row.date).toLocaleDateString()}</TableCell>
-                    <TableCell className="whitespace-nowrap px-6">{row.actual_value}</TableCell>
-                    <TableCell className="whitespace-nowrap px-6">{row.sku}</TableCell>
-                    <TableCell className="whitespace-nowrap px-6">{row.region}</TableCell>
-                    <TableCell className="whitespace-nowrap px-6">{row.city}</TableCell>
-                    <TableCell className="whitespace-nowrap px-6">{row.warehouse}</TableCell>
-                    <TableCell className="whitespace-nowrap px-6">{row.channel}</TableCell>
-                    <TableCell className="whitespace-nowrap px-6">{row.l1_main_prod}</TableCell>
-                    <TableCell className="whitespace-nowrap px-6">{row.l2_prod_line}</TableCell>
-                    <TableCell className="whitespace-nowrap px-6">{row.l3_prod_category}</TableCell>
-                    <TableCell className="whitespace-nowrap px-6">{row.l4_device_make}</TableCell>
-                    <TableCell className="whitespace-nowrap px-6">{row.l5_prod_sub_category}</TableCell>
-                    <TableCell className="whitespace-nowrap px-6">{row.l6_device_model}</TableCell>
+                    {columns.map(column => (
+                      <TableCell key={column} className="whitespace-nowrap px-6">
+                        {column === 'date' ? new Date(row[column]).toLocaleDateString() :
+                         column === 'actual_value' ? row[column] :
+                         column === 'sku' ? row[column] :
+                         row.metadata?.[column] || ''}
+                      </TableCell>
+                    ))}
                   </TableRow>
                 ))
               )}
