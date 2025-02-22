@@ -156,8 +156,8 @@ export function MappingConfigDialog({ open, onOpenChange, onSave }: MappingConfi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-y-auto">
+        <DialogHeader className="sticky top-0 bg-background z-10 pb-4">
           <DialogTitle>Integration Mapping Configuration</DialogTitle>
           <DialogDescription>
             Configure how different data hierarchies should be mapped together
@@ -280,7 +280,7 @@ export function MappingConfigDialog({ open, onOpenChange, onSave }: MappingConfi
           )}
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="sticky bottom-0 bg-background pt-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
