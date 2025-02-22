@@ -3,20 +3,48 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { IntegratedData } from "./types";
+import { useFilters } from "@/contexts/FilterContext";
+import { useLocation } from "react-router-dom";
 
 export function useIntegratedData() {
   const [data, setData] = useState<IntegratedData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isIntegrating, setIsIntegrating] = useState(false);
-
+  
+  const location = useLocation();
+  const currentTab = location.pathname.split('/').pop() || 'settings';
+  const { getProductHierarchyState, getLocationState } = useFilters();
+  
   const fetchData = async () => {
     setIsLoading(true);
     try {
       console.log('Fetching integrated data...');
-      const { data: integratedData, error } = await supabase
+      
+      // الحصول على حالة الفلاتر الحالية
+      const productFilters = getProductHierarchyState(currentTab);
+      const locationFilters = getLocationState(currentTab);
+      
+      // بناء الاستعلام الأساسي
+      let query = supabase
         .from('integrated_forecast_data')
-        .select('*')
-        .order('date', { ascending: true });
+        .select('*');
+
+      // إضافة فلاتر المنتج
+      Object.entries(productFilters).forEach(([level, { selected }]) => {
+        if (selected && selected !== level) {
+          query = query.eq(level, selected);
+        }
+      });
+
+      // إضافة فلاتر الموقع
+      Object.entries(locationFilters).forEach(([level, value]) => {
+        if (value && value !== level) {
+          query = query.eq(level, value);
+        }
+      });
+
+      // ترتيب النتائج حسب التاريخ
+      const { data: integratedData, error } = await query.order('date', { ascending: true });
 
       if (error) {
         console.error('Supabase query error:', error);
