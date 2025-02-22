@@ -30,7 +30,18 @@ export function useIntegratedData() {
         return;
       }
 
-      setData(integratedData);
+      // تحويل البيانات إلى النوع المتوقع
+      const transformedData: IntegratedData[] = integratedData.map(item => ({
+        id: item.id,
+        date: item.date,
+        actual_value: item.actual_value,
+        sku: item.sku,
+        metadata: item.metadata as Record<string, any> | null,
+        created_at: item.created_at,
+        updated_at: item.updated_at
+      }));
+
+      setData(transformedData);
     } catch (error) {
       console.error('Error fetching integrated data:', error);
       toast({

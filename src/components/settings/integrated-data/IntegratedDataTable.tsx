@@ -19,9 +19,11 @@ export function IntegratedDataTable({ data }: IntegratedDataTableProps) {
     
     // إضافة الأعمدة الديناميكية من metadata
     data.forEach(row => {
-      Object.keys(row.metadata || {}).forEach(key => {
-        uniqueColumns.add(key);
-      });
+      if (row.metadata) {
+        Object.keys(row.metadata).forEach(key => {
+          uniqueColumns.add(key);
+        });
+      }
     });
     
     return Array.from(uniqueColumns);

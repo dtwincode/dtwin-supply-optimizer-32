@@ -4,5 +4,7 @@ export interface IntegratedData {
   date: string;
   actual_value: number;
   sku: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, any> | null;
+  created_at: string;
+  updated_at: string;
 }
