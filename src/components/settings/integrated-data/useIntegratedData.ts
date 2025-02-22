@@ -16,50 +16,47 @@ export function useIntegratedData() {
   const { getProductHierarchyState, getLocationState } = useFilters();
   
   const fetchData = useCallback(async () => {
-    if (isLoading) return; // Prevent multiple concurrent fetches
+    if (isLoading) return;
     
     setIsLoading(true);
     try {
-      console.log('Fetching integrated data...');
-      
-      const productFilters = getProductHierarchyState(currentTab);
-      const locationFilters = getLocationState(currentTab);
-      
       let query = supabase
         .from('integrated_forecast_data')
         .select('*');
 
-      // Only apply filters if they exist and have valid values
-      if (productFilters && Object.keys(productFilters).length > 0) {
-        Object.entries(productFilters).forEach(([level, { selected }]) => {
-          if (selected && selected !== level) {
-            query = query.eq(level, selected);
+      const productFilters = getProductHierarchyState(currentTab);
+      const locationFilters = getLocationState(currentTab);
+
+      // Apply product filters if they exist
+      if (productFilters) {
+        for (const [level, filter] of Object.entries(productFilters)) {
+          if (filter.selected && filter.selected !== level) {
+            query = query.eq(level, filter.selected);
           }
-        });
+        }
       }
 
-      if (locationFilters && Object.keys(locationFilters).length > 0) {
-        Object.entries(locationFilters).forEach(([level, value]) => {
+      // Apply location filters if they exist
+      if (locationFilters) {
+        for (const [level, value] of Object.entries(locationFilters)) {
           if (value && value !== level) {
             query = query.eq(level, value);
           }
-        });
+        }
       }
 
       const { data: integratedData, error } = await query.order('date', { ascending: true });
 
       if (error) {
-        console.error('Supabase query error:', error);
         throw error;
       }
 
       if (!integratedData || integratedData.length === 0) {
-        console.log('No data found in integrated_forecast_data table');
         setData([]);
         return;
       }
 
-      const transformedData = integratedData.map(item => ({
+      const transformedData: IntegratedData[] = integratedData.map(item => ({
         date: item.date,
         actual_value: item.actual_value || 0,
         sku: item.sku || 'N/A',
@@ -87,7 +84,7 @@ export function useIntegratedData() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentTab, getProductHierarchyState, getLocationState]);
+  }, [currentTab, getProductHierarchyState, getLocationState, isLoading]);
 
   const handleIntegration = async () => {
     if (isIntegrating) return;
@@ -128,7 +125,6 @@ export function useIntegratedData() {
     }
   };
 
-  // Fetch data on mount and when filters change
   useEffect(() => {
     fetchData();
   }, [fetchData]);
