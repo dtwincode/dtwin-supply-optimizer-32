@@ -18,9 +18,8 @@ export function useIntegratedData() {
   const location = useLocation();
 
   const fetchData = useCallback(async () => {
-    // Don't fetch data if integration hasn't been run
     if (isLoading || !hasIntegrated) {
-      setData([]); // Ensure data is empty if no integration has been run
+      setData([]);
       return;
     }
     
@@ -29,11 +28,7 @@ export function useIntegratedData() {
     try {
       const { data: integratedData, error } = await supabase
         .from('integrated_forecast_data')
-        .select(`
-          *,
-          metadata,
-          source_files
-        `)
+        .select('*, metadata, source_files')
         .order('date', { ascending: true });
 
       if (error) throw error;
@@ -124,12 +119,22 @@ export function useIntegratedData() {
     
     setIsIntegrating(true);
     setError(null);
+    
     try {
       await checkRequiredFiles();
       
-      const { error: integrationError } = await supabase.rpc('integrate_forecast_data');
+      // Call the integration function with timeout handling
+      const { data, error } = await supabase.rpc('integrate_forecast_data', {}, {
+        headers: {
+          'Prefer': 'count=exact'
+        },
+        count: 'exact'
+      });
       
-      if (integrationError) throw integrationError;
+      if (error) {
+        console.error('Integration error:', error);
+        throw error;
+      }
       
       setHasIntegrated(true);
       toast({
@@ -140,13 +145,14 @@ export function useIntegratedData() {
       await fetchData();
     } catch (error: any) {
       console.error('Integration error:', error);
-      setError(error.message || "Failed to integrate data. Please make sure all required data is uploaded.");
+      const errorMessage = error.message || "Failed to integrate data. Please make sure all required data is uploaded.";
+      setError(errorMessage);
       toast({
         title: "Integration Failed",
-        description: error.message || "Failed to integrate data. Please make sure all required data is uploaded.",
+        description: errorMessage,
         variant: "destructive",
       });
-      setHasIntegrated(false); // Reset integration status on error
+      setHasIntegrated(false);
     } finally {
       setIsIntegrating(false);
     }
@@ -158,7 +164,6 @@ export function useIntegratedData() {
   };
 
   useEffect(() => {
-    // Reset data if integration hasn't been run
     if (!hasIntegrated) {
       setData([]);
       return;
