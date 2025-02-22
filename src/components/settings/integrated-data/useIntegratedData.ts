@@ -116,13 +116,8 @@ export function useIntegratedData() {
     try {
       await checkRequiredFiles();
       
-      const { error } = await supabase.rpc('integrate_forecast_data', {
-        mapping_config: {
-          product_key: selectedMapping.product_key_column,
-          location_key: selectedMapping.location_key_column,
-          historical_key: selectedMapping.historical_key_column
-        }
-      });
+      // Call the integrate_forecast_data RPC function
+      const { error } = await supabase.rpc('integrate_forecast_data', {}) // Removing mapping_config parameter as it's not expected by the function
       
       if (error) throw error;
       
