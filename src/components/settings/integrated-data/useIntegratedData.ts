@@ -15,7 +15,6 @@ export function useIntegratedData() {
   const currentTab = location.pathname.split('/').pop() || 'settings';
   const { getProductHierarchyState, getLocationState } = useFilters();
 
-  // Simplified data fetching without filters initially
   const fetchData = useCallback(async () => {
     if (isLoading) return;
     
@@ -62,12 +61,9 @@ export function useIntegratedData() {
     }
   }, [isLoading]);
 
-  // Separate integration logic
-  const handleIntegration = async () => {
-    if (isIntegrating) return;
-    
-    setIsIntegrating(true);
+  const checkRequiredFiles = async () => {
     try {
+      // Check for historical sales data
       const { data: historicalFiles, error: historicalError } = await supabase
         .from('permanent_hierarchy_files')
         .select('*')
@@ -76,12 +72,52 @@ export function useIntegratedData() {
         .limit(1);
 
       if (historicalError) throw historicalError;
-      
       if (!historicalFiles?.length) {
-        throw new Error('يرجى تحميل بيانات المبيعات التاريخية أولاً.');
+        throw new Error('يرجى تحميل بيانات المبيعات التاريخية أولاً');
       }
 
-      // Call the integration function
+      // Check for product hierarchy data
+      const { data: productFiles, error: productError } = await supabase
+        .from('permanent_hierarchy_files')
+        .select('*')
+        .eq('hierarchy_type', 'product_hierarchy')
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (productError) throw productError;
+      if (!productFiles?.length) {
+        throw new Error('يرجى تحميل بيانات هيكل المنتجات أولاً');
+      }
+
+      // Check for location hierarchy data
+      const { data: locationFiles, error: locationError } = await supabase
+        .from('permanent_hierarchy_files')
+        .select('*')
+        .eq('hierarchy_type', 'location_hierarchy')
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (locationError) throw locationError;
+      if (!locationFiles?.length) {
+        throw new Error('يرجى تحميل بيانات هيكل المواقع أولاً');
+      }
+
+      return true;
+    } catch (error: any) {
+      console.error('Error checking required files:', error);
+      throw error;
+    }
+  };
+
+  const handleIntegration = async () => {
+    if (isIntegrating) return;
+    
+    setIsIntegrating(true);
+    try {
+      // First check if all required files exist
+      await checkRequiredFiles();
+      
+      // If all files exist, proceed with integration
       const { error } = await supabase.rpc('integrate_forecast_data');
       if (error) throw error;
       
@@ -96,7 +132,7 @@ export function useIntegratedData() {
       console.error('Integration error:', error);
       toast({
         title: "فشل الدمج",
-        description: error.message || "فشل في دمج البيانات. يرجى التأكد من تحميل بيانات المبيعات التاريخية.",
+        description: error.message || "فشل في دمج البيانات. يرجى التأكد من تحميل جميع البيانات المطلوبة.",
         variant: "destructive",
       });
     } finally {
@@ -104,7 +140,6 @@ export function useIntegratedData() {
     }
   };
 
-  // Initial data fetch
   useEffect(() => {
     fetchData();
   }, [fetchData]);
