@@ -123,8 +123,18 @@ export function useIntegratedData() {
     try {
       await checkRequiredFiles();
       
-      // Call the integration function with the correct options type
-      const { data, error } = await supabase.rpc('integrate_forecast_data', {}, {
+      // Pass the mapping configuration to the integration function
+      const { data, error } = await supabase.rpc('integrate_forecast_data', {
+        p_mapping_config: {
+          product_mapping: selectedMapping.use_product_mapping,
+          location_mapping: selectedMapping.use_location_mapping,
+          product_key: selectedMapping.product_key_column,
+          location_key: selectedMapping.location_key_column,
+          historical_product_key: selectedMapping.historical_product_key_column,
+          historical_location_key: selectedMapping.historical_location_key_column,
+          mapping_id: selectedMapping.id
+        }
+      }, {
         count: 'exact'
       });
       
