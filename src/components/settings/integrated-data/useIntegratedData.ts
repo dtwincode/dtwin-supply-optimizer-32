@@ -20,7 +20,11 @@ export function useIntegratedData() {
     try {
       const { data: integratedData, error } = await supabase
         .from('integrated_forecast_data')
-        .select('*')
+        .select(`
+          *,
+          metadata,
+          source_files
+        `)
         .order('date', { ascending: true });
 
       if (error) throw error;
@@ -30,16 +34,35 @@ export function useIntegratedData() {
         return;
       }
 
-      // تحويل البيانات إلى النوع المتوقع
-      const transformedData: IntegratedData[] = integratedData.map(item => ({
-        id: item.id,
-        date: item.date,
-        actual_value: item.actual_value,
-        sku: item.sku,
-        metadata: item.metadata as Record<string, any> | null,
-        created_at: item.created_at,
-        updated_at: item.updated_at
-      }));
+      // تحويل البيانات إلى النوع المتوقع مع دمج metadata
+      const transformedData: IntegratedData[] = integratedData.map(item => {
+        const baseData = {
+          id: item.id,
+          date: item.date,
+          actual_value: item.actual_value,
+          sku: item.sku,
+          created_at: item.created_at,
+          updated_at: item.updated_at,
+          validation_status: item.validation_status,
+          source_files: item.source_files
+        };
+
+        // دمج الـ metadata مع البيانات الأساسية
+        const metadataFields = item.metadata || {};
+        
+        // تحويل كل الحقول من metadata إلى المستوى الأعلى
+        const flattenedData = {
+          ...baseData,
+          ...metadataFields,
+          // إضافة حقول إضافية إذا كانت موجودة في metadata
+          Revenue: metadataFields.Revenue,
+          Units_Sold: metadataFields.Units_Sold,
+          Product_ID: metadataFields.Product_ID,
+          Location_ID: metadataFields.Location_ID,
+        };
+
+        return flattenedData;
+      });
 
       setData(transformedData);
     } catch (error) {
