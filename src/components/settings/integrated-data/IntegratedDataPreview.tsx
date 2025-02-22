@@ -88,6 +88,10 @@ export function IntegratedDataPreview() {
     return `${types.join(' & ')} based mapping`;
   };
 
+  const showPreview = data.length > 0 || isLoading;
+  const showNoMappingMessage = !savedMappings.length;
+  const showNoDataMessage = !isLoading && !data.length && selectedMappingId;
+
   return (
     <div className="space-y-6">
       {/* Configuration Section */}
@@ -104,32 +108,41 @@ export function IntegratedDataPreview() {
             </Alert>
           )}
 
-          <div className="flex items-center gap-4">
-            <div className="flex-1">
-              <Select value={selectedMappingId} onValueChange={handleMappingSelect}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a mapping configuration" />
-                </SelectTrigger>
-                <SelectContent>
-                  {savedMappings.map((mapping) => (
-                    <SelectItem key={mapping.id} value={mapping.id}>
-                      {mapping.mapping_name} ({getMappingDescription(mapping)})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          {showNoMappingMessage ? (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                No mapping configurations found. Create a new mapping configuration to get started.
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <div className="flex items-center gap-4">
+              <div className="flex-1">
+                <Select value={selectedMappingId} onValueChange={handleMappingSelect}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a mapping configuration" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {savedMappings.map((mapping) => (
+                      <SelectItem key={mapping.id} value={mapping.id}>
+                        {mapping.mapping_name} ({getMappingDescription(mapping)})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button onClick={() => setMappingDialogOpen(true)} variant="outline">
+                <PlusCircle className="w-4 h-4 mr-2" />
+                New Mapping
+              </Button>
+              <Button 
+                onClick={handleIntegration} 
+                disabled={isIntegrating || !selectedMappingId}
+              >
+                {isIntegrating ? "Running Integration..." : "Run Integration"}
+              </Button>
             </div>
-            <Button onClick={() => setMappingDialogOpen(true)} variant="outline">
-              <PlusCircle className="w-4 h-4 mr-2" />
-              New Mapping
-            </Button>
-            <Button 
-              onClick={handleIntegration} 
-              disabled={isIntegrating || !selectedMappingId}
-            >
-              {isIntegrating ? "Running Integration..." : "Run Integration"}
-            </Button>
-          </div>
+          )}
 
           {selectedMappingId && (
             <div className="mt-4">
@@ -152,44 +165,46 @@ export function IntegratedDataPreview() {
         </div>
       </Card>
 
-      {/* Preview Section */}
-      <Card className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-lg font-medium">Integrated Data Preview</h3>
-        </div>
-        
-        {data.length > 0 && (
-          <div className="space-y-6">
-            <ColumnSelector
-              tableName="integrated_data"
-              combinedHeaders={Array.from(selectedColumns).map(header => ({
-                header,
-                level: null
-              }))}
-              selectedColumns={selectedColumns}
-              onSelectedColumnsChange={setSelectedColumns}
-              tempUploadId={null}
-              hierarchyType="integrated_data"
-              data={data}
-            />
-            <IntegratedDataTable data={data} selectedColumns={selectedColumns} />
+      {/* Preview Section - Only shown after integration has data */}
+      {showPreview && (
+        <Card className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-lg font-medium">Integrated Data Preview</h3>
           </div>
-        )}
+          
+          {data.length > 0 && (
+            <div className="space-y-6">
+              <ColumnSelector
+                tableName="integrated_data"
+                combinedHeaders={Array.from(selectedColumns).map(header => ({
+                  header,
+                  level: null
+                }))}
+                selectedColumns={selectedColumns}
+                onSelectedColumnsChange={setSelectedColumns}
+                tempUploadId={null}
+                hierarchyType="integrated_data"
+                data={data}
+              />
+              <IntegratedDataTable data={data} selectedColumns={selectedColumns} />
+            </div>
+          )}
 
-        {isLoading && (
-          <div className="flex items-center justify-center py-8">
-            <p className="text-muted-foreground">Loading integrated data...</p>
-          </div>
-        )}
+          {isLoading && (
+            <div className="flex items-center justify-center py-8">
+              <p className="text-muted-foreground">Loading integrated data...</p>
+            </div>
+          )}
 
-        {!isLoading && data.length === 0 && (
-          <div className="flex items-center justify-center py-8">
-            <p className="text-muted-foreground">No integrated data available. Select a mapping configuration and run the integration to see results.</p>
-          </div>
-        )}
-      </Card>
+          {showNoDataMessage && (
+            <div className="flex items-center justify-center py-8">
+              <p className="text-muted-foreground">No integrated data available. Run the integration to see results.</p>
+            </div>
+          )}
+        </Card>
+      )}
 
-      <SavedIntegratedFiles triggerRefresh={refreshTrigger} />
+      {!showNoMappingMessage && <SavedIntegratedFiles triggerRefresh={refreshTrigger} />}
 
       <MappingConfigDialog
         open={mappingDialogOpen}
