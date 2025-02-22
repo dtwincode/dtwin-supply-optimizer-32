@@ -90,7 +90,7 @@ export function IntegratedDataPreview() {
 
   const showPreview = hasIntegrated && (data.length > 0 || isLoading);
   const showNoMappingMessage = !savedMappings.length;
-  const showNoDataMessage = !isLoading && !data.length && selectedMappingId;
+  const showNoDataMessage = !isLoading && !data.length && selectedMappingId && hasIntegrated;
 
   return (
     <div className="space-y-6">
@@ -153,7 +153,7 @@ export function IntegratedDataPreview() {
             </div>
           )}
 
-          {validationStatus && (
+          {validationStatus && hasIntegrated && (
             <Alert variant={validationStatus === 'valid' ? 'default' : 'destructive'}>
               <AlertDescription>
                 {validationStatus === 'valid' 
@@ -204,7 +204,7 @@ export function IntegratedDataPreview() {
         </Card>
       )}
 
-      {!showNoMappingMessage && <SavedIntegratedFiles triggerRefresh={refreshTrigger} />}
+      {hasIntegrated && !showNoMappingMessage && <SavedIntegratedFiles triggerRefresh={refreshTrigger} />}
 
       <MappingConfigDialog
         open={mappingDialogOpen}

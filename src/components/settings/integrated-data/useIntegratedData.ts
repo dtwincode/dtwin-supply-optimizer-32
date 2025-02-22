@@ -19,7 +19,10 @@ export function useIntegratedData() {
 
   const fetchData = useCallback(async () => {
     // Don't fetch data if integration hasn't been run
-    if (isLoading || !hasIntegrated) return;
+    if (isLoading || !hasIntegrated) {
+      setData([]); // Ensure data is empty if no integration has been run
+      return;
+    }
     
     setIsLoading(true);
     setError(null);
@@ -143,6 +146,7 @@ export function useIntegratedData() {
         description: error.message || "Failed to integrate data. Please make sure all required data is uploaded.",
         variant: "destructive",
       });
+      setHasIntegrated(false); // Reset integration status on error
     } finally {
       setIsIntegrating(false);
     }
@@ -154,10 +158,13 @@ export function useIntegratedData() {
   };
 
   useEffect(() => {
-    // Only fetch data if integration has been run
-    if (hasIntegrated) {
-      fetchData();
+    // Reset data if integration hasn't been run
+    if (!hasIntegrated) {
+      setData([]);
+      return;
     }
+    
+    fetchData();
   }, [fetchData, hasIntegrated]);
 
   return {
