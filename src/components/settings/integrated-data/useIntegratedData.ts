@@ -5,6 +5,16 @@ import { toast } from "@/components/ui/use-toast";
 import { IntegratedData, ForecastMappingConfig } from "./types";
 import { useLocation } from "react-router-dom";
 
+interface MappingConfigType {
+  product_mapping: boolean;
+  location_mapping: boolean;
+  product_key: string | undefined;
+  location_key: string | undefined;
+  historical_product_key: string | undefined;
+  historical_location_key: string | undefined;
+  mapping_id: string;
+}
+
 export function useIntegratedData() {
   const [data, setData] = useState<IntegratedData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -123,8 +133,8 @@ export function useIntegratedData() {
     try {
       await checkRequiredFiles();
       
-      // Create the mapping configuration object
-      const mappingConfig: Record<string, any> = {
+      // Create the mapping configuration object with proper typing
+      const mappingConfig: MappingConfigType = {
         product_mapping: selectedMapping.use_product_mapping,
         location_mapping: selectedMapping.use_location_mapping,
         product_key: selectedMapping.product_key_column,
@@ -134,10 +144,15 @@ export function useIntegratedData() {
         mapping_id: selectedMapping.id
       };
 
-      // Call the RPC function with the correct parameter name
-      const { data, error } = await supabase.rpc('integrate_forecast_data', {
-        p_mapping_config: mappingConfig
-      });
+      type IntegrateForecastParams = {
+        p_mapping_config: MappingConfigType;
+      };
+
+      // Call the RPC function with proper typing
+      const { data, error } = await supabase.rpc<string, IntegrateForecastParams>(
+        'integrate_forecast_data',
+        { p_mapping_config: mappingConfig }
+      );
       
       if (error) {
         console.error('Integration error:', error);
