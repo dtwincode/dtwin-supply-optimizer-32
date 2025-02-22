@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -124,22 +125,25 @@ export function MappingConfigDialog({ open, onOpenChange, onSave }: MappingConfi
             product_key_column: selectedHistoricalProductKey,
             location_key_column: selectedHistoricalLocationKey
           },
+          product_key_column: useProductMapping ? selectedProductKey : null,
+          location_key_column: useLocationMapping ? selectedLocationKey : null,
+          historical_product_key_column: useProductMapping ? selectedHistoricalProductKey : null,
+          historical_location_key_column: useLocationMapping ? selectedHistoricalLocationKey : null,
           use_product_mapping: useProductMapping,
           use_location_mapping: useLocationMapping,
           is_active: true
         })
-        .select();
+        .select()
+        .single();
 
       if (error) throw error;
 
-      if (data && data.length > 0) {
-        onSave(data[0] as ForecastMappingConfig);
-        onOpenChange(false);
-        toast({
-          title: "Success",
-          description: "Mapping configuration saved successfully",
-        });
-      }
+      onSave(data as ForecastMappingConfig);
+      onOpenChange(false);
+      toast({
+        title: "Success",
+        description: "Mapping configuration saved successfully",
+      });
     } catch (error) {
       console.error('Error saving mapping:', error);
       toast({

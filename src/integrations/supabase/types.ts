@@ -627,6 +627,8 @@ export type Database = {
           created_by: string | null
           description: string | null
           historical_key_column: string | null
+          historical_location_key_column: string | null
+          historical_product_key_column: string | null
           historical_sales_mapping: Json
           id: string
           is_active: boolean | null
@@ -644,6 +646,8 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           historical_key_column?: string | null
+          historical_location_key_column?: string | null
+          historical_product_key_column?: string | null
           historical_sales_mapping?: Json
           id?: string
           is_active?: boolean | null
@@ -661,6 +665,8 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           historical_key_column?: string | null
+          historical_location_key_column?: string | null
+          historical_product_key_column?: string | null
           historical_sales_mapping?: Json
           id?: string
           is_active?: boolean | null
