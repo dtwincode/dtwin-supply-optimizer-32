@@ -123,11 +123,8 @@ export function useIntegratedData() {
     try {
       await checkRequiredFiles();
       
-      // Call the integration function with timeout handling
+      // Call the integration function with the correct options type
       const { data, error } = await supabase.rpc('integrate_forecast_data', {}, {
-        headers: {
-          'Prefer': 'count=exact'
-        },
         count: 'exact'
       });
       
