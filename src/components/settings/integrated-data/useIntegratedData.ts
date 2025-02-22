@@ -11,14 +11,16 @@ export function useIntegratedData() {
   const [isIntegrating, setIsIntegrating] = useState(false);
   const [mappingDialogOpen, setMappingDialogOpen] = useState(false);
   const [selectedMapping, setSelectedMapping] = useState<ForecastMappingConfig | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [validationStatus, setValidationStatus] = useState<'valid' | 'needs_review' | null>(null);
   
   const location = useLocation();
-  const currentTab = location.pathname.split('/').pop() || 'settings';
 
   const fetchData = useCallback(async () => {
     if (isLoading) return;
     
     setIsLoading(true);
+    setError(null);
     try {
       const { data: integratedData, error } = await supabase
         .from('integrated_forecast_data')
@@ -37,13 +39,16 @@ export function useIntegratedData() {
       }
 
       const transformedData: IntegratedData[] = integratedData.map(item => {
-        const parsedMetadata = (typeof item.metadata === 'object' && item.metadata !== null) 
+        const parsedMetadata = typeof item.metadata === 'object' && item.metadata !== null
           ? item.metadata as Record<string, any>
           : {};
 
         const parsedSourceFiles = Array.isArray(item.source_files) 
           ? item.source_files 
           : (item.source_files ? JSON.parse(item.source_files as string) : []);
+
+        // Set validation status based on the latest record
+        setValidationStatus(item.validation_status as 'valid' | 'needs_review' | null);
 
         const baseData = {
           id: item.id,
@@ -71,8 +76,9 @@ export function useIntegratedData() {
       });
 
       setData(transformedData);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching integrated data:', error);
+      setError('Failed to fetch integrated data. Please try again.');
       toast({
         title: "Error",
         description: "Failed to fetch integrated data. Please try again.",
@@ -94,12 +100,12 @@ export function useIntegratedData() {
 
       if (historicalError) throw historicalError;
       if (!historicalFiles?.length) {
-        throw new Error('Please upload historical sales data first');
+        throw new Error('Please upload historical sales data before running integration');
       }
 
       return true;
     } catch (error: any) {
-      console.error('Error checking required files:', error);
+      setError(error.message);
       throw error;
     }
   };
@@ -113,13 +119,13 @@ export function useIntegratedData() {
     if (isIntegrating) return;
     
     setIsIntegrating(true);
+    setError(null);
     try {
       await checkRequiredFiles();
       
-      // Call the integrate_forecast_data RPC function
-      const { error } = await supabase.rpc('integrate_forecast_data', {}) // Removing mapping_config parameter as it's not expected by the function
+      const { error: integrationError } = await supabase.rpc('integrate_forecast_data');
       
-      if (error) throw error;
+      if (integrationError) throw integrationError;
       
       toast({
         title: "Success",
@@ -129,6 +135,7 @@ export function useIntegratedData() {
       await fetchData();
     } catch (error: any) {
       console.error('Integration error:', error);
+      setError(error.message || "Failed to integrate data. Please make sure all required data is uploaded.");
       toast({
         title: "Integration Failed",
         description: error.message || "Failed to integrate data. Please make sure all required data is uploaded.",
@@ -146,7 +153,7 @@ export function useIntegratedData() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   return {
     data,
@@ -155,6 +162,8 @@ export function useIntegratedData() {
     mappingDialogOpen,
     setMappingDialogOpen,
     selectedMapping,
+    validationStatus,
+    error,
     fetchData,
     handleIntegration,
     handleSaveMapping

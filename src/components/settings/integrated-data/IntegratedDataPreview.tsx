@@ -10,9 +10,9 @@ import { ColumnSelector } from "../product-hierarchy/components/ColumnSelector";
 import { MappingConfigDialog } from "./MappingConfigDialog";
 import { ForecastMappingConfig } from "./types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, AlertCircle } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export function IntegratedDataPreview() {
   const { 
@@ -22,7 +22,10 @@ export function IntegratedDataPreview() {
     mappingDialogOpen,
     setMappingDialogOpen,
     handleIntegration,
-    handleSaveMapping
+    handleSaveMapping,
+    selectedMapping,
+    validationStatus,
+    error
   } = useIntegratedData();
   const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set());
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -86,11 +89,19 @@ export function IntegratedDataPreview() {
 
   return (
     <div className="space-y-6">
+      {/* Configuration Section */}
       <Card className="p-6">
         <div className="flex flex-col space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-medium">Data Integration Configuration</h3>
           </div>
+
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
 
           <div className="flex items-center gap-4">
             <div className="flex-1">
@@ -115,18 +126,32 @@ export function IntegratedDataPreview() {
               onClick={handleIntegration} 
               disabled={isIntegrating || !selectedMappingId}
             >
-              {isIntegrating ? "Integrating..." : "Run Integration"}
+              {isIntegrating ? "Running Integration..." : "Run Integration"}
             </Button>
           </div>
 
           {selectedMappingId && (
-            <div className="mt-4 text-sm text-muted-foreground">
-              {savedMappings.find(m => m.id === selectedMappingId)?.description}
+            <div className="mt-4">
+              <h4 className="text-sm font-medium text-muted-foreground mb-2">Selected Mapping Configuration</h4>
+              <p className="text-sm text-muted-foreground">
+                {savedMappings.find(m => m.id === selectedMappingId)?.description}
+              </p>
             </div>
+          )}
+
+          {validationStatus && (
+            <Alert variant={validationStatus === 'valid' ? 'default' : 'warning'}>
+              <AlertDescription>
+                {validationStatus === 'valid' 
+                  ? 'Data integration is valid and complete' 
+                  : 'Data integration needs review. Some mappings might be incomplete.'}
+              </AlertDescription>
+            </Alert>
           )}
         </div>
       </Card>
 
+      {/* Preview Section */}
       <Card className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-lg font-medium">Integrated Data Preview</h3>
@@ -150,7 +175,17 @@ export function IntegratedDataPreview() {
           </div>
         )}
 
-        {isLoading && <p>Loading...</p>}
+        {isLoading && (
+          <div className="flex items-center justify-center py-8">
+            <p className="text-muted-foreground">Loading integrated data...</p>
+          </div>
+        )}
+
+        {!isLoading && data.length === 0 && (
+          <div className="flex items-center justify-center py-8">
+            <p className="text-muted-foreground">No integrated data available. Select a mapping configuration and run the integration to see results.</p>
+          </div>
+        )}
       </Card>
 
       <SavedIntegratedFiles triggerRefresh={refreshTrigger} />
