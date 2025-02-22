@@ -17,14 +17,22 @@ export function IntegratedDataPreview() {
   useEffect(() => {
     if (data.length > 0) {
       const allColumns = new Set<string>();
-      // Add fixed columns
-      ['date', 'actual_value', 'sku'].forEach(col => allColumns.add(col));
-      // Add metadata columns
+      
+      // استخراج جميع الأعمدة من البيانات نفسها
       data.forEach(row => {
+        // الأعمدة الرئيسية
+        Object.keys(row).forEach(key => {
+          if (key !== 'metadata' && key !== 'id' && key !== 'created_at' && key !== 'updated_at') {
+            allColumns.add(key);
+          }
+        });
+        
+        // الأعمدة الوصفية
         if (row.metadata) {
           Object.keys(row.metadata).forEach(key => allColumns.add(key));
         }
       });
+      
       setSelectedColumns(allColumns);
     }
   }, [data]);
