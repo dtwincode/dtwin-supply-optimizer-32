@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,6 +25,7 @@ export function IntegratedDataPreview() {
     handleSaveMapping,
     selectedMapping,
     validationStatus,
+    hasIntegrated,
     error
   } = useIntegratedData();
   const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set());
@@ -88,7 +88,7 @@ export function IntegratedDataPreview() {
     return `${types.join(' & ')} based mapping`;
   };
 
-  const showPreview = data.length > 0 || isLoading;
+  const showPreview = hasIntegrated && (data.length > 0 || isLoading);
   const showNoMappingMessage = !savedMappings.length;
   const showNoDataMessage = !isLoading && !data.length && selectedMappingId;
 
@@ -165,7 +165,7 @@ export function IntegratedDataPreview() {
         </div>
       </Card>
 
-      {/* Preview Section - Only shown after integration has data */}
+      {/* Preview Section - Only shown after integration has been run */}
       {showPreview && (
         <Card className="p-6">
           <div className="flex justify-between items-center mb-6">

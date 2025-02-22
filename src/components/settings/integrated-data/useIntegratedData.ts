@@ -13,11 +13,13 @@ export function useIntegratedData() {
   const [selectedMapping, setSelectedMapping] = useState<ForecastMappingConfig | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [validationStatus, setValidationStatus] = useState<'valid' | 'needs_review' | null>(null);
+  const [hasIntegrated, setHasIntegrated] = useState(false);
   
   const location = useLocation();
 
   const fetchData = useCallback(async () => {
-    if (isLoading) return;
+    // Don't fetch data if integration hasn't been run
+    if (isLoading || !hasIntegrated) return;
     
     setIsLoading(true);
     setError(null);
@@ -47,7 +49,6 @@ export function useIntegratedData() {
           ? item.source_files 
           : (item.source_files ? JSON.parse(item.source_files as string) : []);
 
-        // Set validation status based on the latest record
         setValidationStatus(item.validation_status as 'valid' | 'needs_review' | null);
 
         const baseData = {
@@ -87,7 +88,7 @@ export function useIntegratedData() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [hasIntegrated, isLoading]);
 
   const checkRequiredFiles = async () => {
     try {
@@ -127,6 +128,7 @@ export function useIntegratedData() {
       
       if (integrationError) throw integrationError;
       
+      setHasIntegrated(true);
       toast({
         title: "Success",
         description: "Data integrated successfully.",
@@ -152,8 +154,11 @@ export function useIntegratedData() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    // Only fetch data if integration has been run
+    if (hasIntegrated) {
+      fetchData();
+    }
+  }, [fetchData, hasIntegrated]);
 
   return {
     data,
@@ -164,6 +169,7 @@ export function useIntegratedData() {
     selectedMapping,
     validationStatus,
     error,
+    hasIntegrated,
     fetchData,
     handleIntegration,
     handleSaveMapping
