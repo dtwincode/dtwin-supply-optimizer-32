@@ -2,13 +2,15 @@
 import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
-import { IntegratedData } from "./types";
+import { IntegratedData, ForecastMappingConfig } from "./types";
 import { useLocation } from "react-router-dom";
 
 export function useIntegratedData() {
   const [data, setData] = useState<IntegratedData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isIntegrating, setIsIntegrating] = useState(false);
+  const [mappingDialogOpen, setMappingDialogOpen] = useState(false);
+  const [selectedMapping, setSelectedMapping] = useState<ForecastMappingConfig | null>(null);
   
   const location = useLocation();
   const currentTab = location.pathname.split('/').pop() || 'settings';
@@ -34,14 +36,11 @@ export function useIntegratedData() {
         return;
       }
 
-      // تحويل البيانات إلى النوع المتوقع مع دمج metadata
       const transformedData: IntegratedData[] = integratedData.map(item => {
-        // التأكد من أن metadata كائن صالح وتحويله
         const parsedMetadata = (typeof item.metadata === 'object' && item.metadata !== null) 
           ? item.metadata as Record<string, any>
           : {};
 
-        // تحويل source_files إلى مصفوفة
         const parsedSourceFiles = Array.isArray(item.source_files) 
           ? item.source_files 
           : (item.source_files ? JSON.parse(item.source_files as string) : []);
@@ -58,7 +57,6 @@ export function useIntegratedData() {
           metadata: parsedMetadata
         };
 
-        // إضافة جميع الحقول من metadata
         const flattenedMetadata = Object.entries(parsedMetadata).reduce((acc, [key, value]) => {
           if (value !== null && value !== undefined) {
             acc[key] = value;
@@ -76,8 +74,8 @@ export function useIntegratedData() {
     } catch (error) {
       console.error('Error fetching integrated data:', error);
       toast({
-        title: "خطأ",
-        description: "فشل في جلب البيانات المتكاملة. يرجى المحاولة مرة أخرى.",
+        title: "Error",
+        description: "Failed to fetch integrated data. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -96,7 +94,7 @@ export function useIntegratedData() {
 
       if (historicalError) throw historicalError;
       if (!historicalFiles?.length) {
-        throw new Error('يرجى تحميل بيانات المبيعات التاريخية أولاً');
+        throw new Error('Please upload historical sales data first');
       }
 
       return true;
@@ -107,31 +105,48 @@ export function useIntegratedData() {
   };
 
   const handleIntegration = async () => {
+    if (!selectedMapping) {
+      setMappingDialogOpen(true);
+      return;
+    }
+
     if (isIntegrating) return;
     
     setIsIntegrating(true);
     try {
       await checkRequiredFiles();
       
-      const { error } = await supabase.rpc('integrate_forecast_data');
+      const { error } = await supabase.rpc('integrate_forecast_data', {
+        mapping_config: {
+          product_key: selectedMapping.product_key_column,
+          location_key: selectedMapping.location_key_column,
+          historical_key: selectedMapping.historical_key_column
+        }
+      });
+      
       if (error) throw error;
       
       toast({
-        title: "نجاح",
-        description: "تم دمج البيانات بنجاح.",
+        title: "Success",
+        description: "Data integrated successfully.",
       });
       
       await fetchData();
     } catch (error: any) {
       console.error('Integration error:', error);
       toast({
-        title: "فشل الدمج",
-        description: error.message || "فشل في دمج البيانات. يرجى التأكد من تحميل جميع البيانات المطلوبة.",
+        title: "Integration Failed",
+        description: error.message || "Failed to integrate data. Please make sure all required data is uploaded.",
         variant: "destructive",
       });
     } finally {
       setIsIntegrating(false);
     }
+  };
+
+  const handleSaveMapping = (mapping: ForecastMappingConfig) => {
+    setSelectedMapping(mapping);
+    handleIntegration();
   };
 
   useEffect(() => {
@@ -142,7 +157,11 @@ export function useIntegratedData() {
     data,
     isLoading,
     isIntegrating,
+    mappingDialogOpen,
+    setMappingDialogOpen,
+    selectedMapping,
     fetchData,
-    handleIntegration
+    handleIntegration,
+    handleSaveMapping
   };
 }

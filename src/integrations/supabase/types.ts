@@ -621,6 +621,54 @@ export type Database = {
         }
         Relationships: []
       }
+      forecast_integration_mappings: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          historical_key_column: string | null
+          historical_sales_mapping: Json
+          id: string
+          is_active: boolean | null
+          location_hierarchy_mapping: Json
+          location_key_column: string | null
+          mapping_name: string
+          product_hierarchy_mapping: Json
+          product_key_column: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          historical_key_column?: string | null
+          historical_sales_mapping?: Json
+          id?: string
+          is_active?: boolean | null
+          location_hierarchy_mapping?: Json
+          location_key_column?: string | null
+          mapping_name: string
+          product_hierarchy_mapping?: Json
+          product_key_column?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          historical_key_column?: string | null
+          historical_sales_mapping?: Json
+          id?: string
+          is_active?: boolean | null
+          location_hierarchy_mapping?: Json
+          location_key_column?: string | null
+          mapping_name?: string
+          product_hierarchy_mapping?: Json
+          product_key_column?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       forecast_models: {
         Row: {
           created_at: string | null
@@ -2553,6 +2601,14 @@ export type Database = {
           p_selected_columns: string[]
         }
         Returns: undefined
+      }
+      validate_forecast_mapping: {
+        Args: {
+          p_historical_mapping: Json
+          p_product_mapping: Json
+          p_location_mapping: Json
+        }
+        Returns: boolean
       }
     }
     Enums: {

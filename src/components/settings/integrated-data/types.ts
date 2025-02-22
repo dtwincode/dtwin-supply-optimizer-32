@@ -11,3 +11,18 @@ export interface IntegratedData {
   source_files?: any[];
   mapping_config?: Record<string, any>;
 }
+
+export interface ForecastMappingConfig {
+  id: string;
+  mapping_name: string;
+  description?: string;
+  historical_sales_mapping: Record<string, any>;
+  product_hierarchy_mapping: Record<string, any>;
+  location_hierarchy_mapping: Record<string, any>;
+  historical_key_column?: string;
+  product_key_column?: string;
+  location_key_column?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}

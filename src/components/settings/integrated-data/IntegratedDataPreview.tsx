@@ -7,9 +7,18 @@ import { IntegratedDataTable } from "./IntegratedDataTable";
 import { SavedIntegratedFiles } from "./SavedIntegratedFiles";
 import { useIntegratedData } from "./useIntegratedData";
 import { ColumnSelector } from "../product-hierarchy/components/ColumnSelector";
+import { MappingConfigDialog } from "./MappingConfigDialog";
 
 export function IntegratedDataPreview() {
-  const { data, isLoading, isIntegrating, handleIntegration } = useIntegratedData();
+  const { 
+    data, 
+    isLoading, 
+    isIntegrating, 
+    mappingDialogOpen,
+    setMappingDialogOpen,
+    handleIntegration,
+    handleSaveMapping
+  } = useIntegratedData();
   const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set());
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const { toast } = useToast();
@@ -18,16 +27,13 @@ export function IntegratedDataPreview() {
     if (data.length > 0) {
       const allColumns = new Set<string>();
       
-      // استخراج جميع الأعمدة من البيانات نفسها
       data.forEach(row => {
-        // الأعمدة الرئيسية
         Object.keys(row).forEach(key => {
           if (key !== 'metadata' && key !== 'id' && key !== 'created_at' && key !== 'updated_at') {
             allColumns.add(key);
           }
         });
         
-        // الأعمدة الوصفية
         if (row.metadata) {
           Object.keys(row.metadata).forEach(key => allColumns.add(key));
         }
@@ -42,7 +48,7 @@ export function IntegratedDataPreview() {
       <Card className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-lg font-medium">Integrated Data Preview</h3>
-          <Button onClick={handleIntegration} disabled={isIntegrating}>
+          <Button onClick={() => setMappingDialogOpen(true)} disabled={isIntegrating}>
             {isIntegrating ? "Integrating..." : "Integrate Data"}
           </Button>
         </div>
@@ -69,6 +75,12 @@ export function IntegratedDataPreview() {
       </Card>
 
       <SavedIntegratedFiles triggerRefresh={refreshTrigger} />
+
+      <MappingConfigDialog
+        open={mappingDialogOpen}
+        onOpenChange={setMappingDialogOpen}
+        onSave={handleSaveMapping}
+      />
     </div>
   );
 }
