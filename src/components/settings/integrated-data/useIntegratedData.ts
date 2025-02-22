@@ -133,7 +133,6 @@ export function useIntegratedData() {
     try {
       await checkRequiredFiles();
       
-      // Create the mapping configuration object with proper typing
       const mappingConfig: MappingConfigType = {
         product_mapping: selectedMapping.use_product_mapping,
         location_mapping: selectedMapping.use_location_mapping,
@@ -144,15 +143,9 @@ export function useIntegratedData() {
         mapping_id: selectedMapping.id
       };
 
-      type IntegrateForecastParams = {
-        p_mapping_config: MappingConfigType;
-      };
-
-      // Call the RPC function with proper typing
-      const { data, error } = await supabase.rpc<string, IntegrateForecastParams>(
-        'integrate_forecast_data',
-        { p_mapping_config: mappingConfig }
-      );
+      const { data, error } = await supabase.rpc('integrate_forecast_data', {
+        p_mapping_config: mappingConfig
+      });
       
       if (error) {
         console.error('Integration error:', error);
