@@ -6,6 +6,17 @@ import { IntegratedData } from "./types";
 import { useFilters } from "@/contexts/FilterContext";
 import { useLocation } from "react-router-dom";
 
+interface FilterState {
+  [key: string]: {
+    selected: string;
+    values: string[];
+  };
+}
+
+interface LocationState {
+  [key: string]: string;
+}
+
 export function useIntegratedData() {
   const [data, setData] = useState<IntegratedData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -20,30 +31,25 @@ export function useIntegratedData() {
     try {
       console.log('Fetching integrated data...');
       
-      // الحصول على حالة الفلاتر الحالية
-      const productFilters = getProductHierarchyState(currentTab);
-      const locationFilters = getLocationState(currentTab);
+      const productFilters: FilterState = getProductHierarchyState(currentTab);
+      const locationFilters: LocationState = getLocationState(currentTab);
       
-      // بناء الاستعلام الأساسي
       let query = supabase
         .from('integrated_forecast_data')
         .select('*');
 
-      // إضافة فلاتر المنتج
       Object.entries(productFilters).forEach(([level, { selected }]) => {
         if (selected && selected !== level) {
           query = query.eq(level, selected);
         }
       });
 
-      // إضافة فلاتر الموقع
       Object.entries(locationFilters).forEach(([level, value]) => {
         if (value && value !== level) {
           query = query.eq(level, value);
         }
       });
 
-      // ترتيب النتائج حسب التاريخ
       const { data: integratedData, error } = await query.order('date', { ascending: true });
 
       if (error) {
