@@ -130,13 +130,13 @@ export function useIntegratedData() {
       await checkRequiredFiles();
       
       const mappingConfig: MappingConfigType = {
-        product_mapping: selectedMapping.use_product_mapping,
-        location_mapping: selectedMapping.use_location_mapping,
-        product_key: selectedMapping.product_key_column || null,
-        location_key: selectedMapping.location_key_column || null,
-        historical_product_key: selectedMapping.historical_product_key_column || null,
-        historical_location_key: selectedMapping.historical_location_key_column || null,
-        mapping_id: selectedMapping.id
+        use_product_mapping: selectedMapping.use_product_mapping,
+        use_location_mapping: selectedMapping.use_location_mapping,
+        product_key_column: selectedMapping.product_key_column || null,
+        location_key_column: selectedMapping.location_key_column || null,
+        historical_product_key_column: selectedMapping.historical_product_key_column || null,
+        historical_location_key_column: selectedMapping.historical_location_key_column || null,
+        id: selectedMapping.id
       };
 
       const { data, error } = await supabase.rpc('integrate_forecast_data', {
