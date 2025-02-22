@@ -1,5 +1,6 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { IntegratedData } from "./types";
 import { useMemo } from "react";
 
@@ -8,7 +9,7 @@ interface IntegratedDataTableProps {
 }
 
 export function IntegratedDataTable({ data }: IntegratedDataTableProps) {
-  // استخراج جميع الأعمدة الفريدة من البيانات
+  // استخراج جميع الأعمدة الثابتة والديناميكية
   const columns = useMemo(() => {
     const uniqueColumns = new Set<string>();
     
@@ -16,6 +17,7 @@ export function IntegratedDataTable({ data }: IntegratedDataTableProps) {
     uniqueColumns.add('date');
     uniqueColumns.add('actual_value');
     uniqueColumns.add('sku');
+    uniqueColumns.add('validation_status');
     
     // إضافة الأعمدة الديناميكية من metadata
     data.forEach(row => {
@@ -28,6 +30,18 @@ export function IntegratedDataTable({ data }: IntegratedDataTableProps) {
     
     return Array.from(uniqueColumns);
   }, [data]);
+
+  const getValidationStatusColor = (status?: string) => {
+    switch (status) {
+      case 'valid':
+        return 'bg-green-500';
+      case 'needs_review':
+        return 'bg-yellow-500';
+      case 'pending':
+      default:
+        return 'bg-gray-500';
+    }
+  };
 
   return (
     <div className="relative overflow-x-auto border rounded-md">
@@ -44,12 +58,15 @@ export function IntegratedDataTable({ data }: IntegratedDataTableProps) {
                     {column.charAt(0).toUpperCase() + column.slice(1).replace(/_/g, ' ')}
                   </TableHead>
                 ))}
+                <TableHead className="text-base whitespace-nowrap px-6 sticky top-0 bg-white">
+                  Source Files
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={columns.length} className="text-center py-4">
+                  <TableCell colSpan={columns.length + 1} className="text-center py-4">
                     لا توجد بيانات متكاملة متاحة. انقر على "دمج البيانات" لملء الجدول.
                   </TableCell>
                 </TableRow>
@@ -61,9 +78,27 @@ export function IntegratedDataTable({ data }: IntegratedDataTableProps) {
                         {column === 'date' ? new Date(row[column]).toLocaleDateString() :
                          column === 'actual_value' ? row[column] :
                          column === 'sku' ? row[column] :
+                         column === 'validation_status' ? (
+                           <Badge 
+                             className={`${getValidationStatusColor(row.validation_status)}`}
+                           >
+                             {row.validation_status || 'pending'}
+                           </Badge>
+                         ) :
                          row.metadata?.[column] || ''}
                       </TableCell>
                     ))}
+                    <TableCell className="whitespace-nowrap px-6">
+                      {row.source_files?.map((file: any, idx: number) => (
+                        <Badge 
+                          key={idx}
+                          variant="outline" 
+                          className="mr-2"
+                        >
+                          {file.file_name}
+                        </Badge>
+                      ))}
+                    </TableCell>
                   </TableRow>
                 ))
               )}

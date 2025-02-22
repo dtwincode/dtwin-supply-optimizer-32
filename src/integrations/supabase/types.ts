@@ -925,27 +925,36 @@ export type Database = {
           created_at: string
           date: string
           id: string
+          mapping_config: Json | null
           metadata: Json | null
           sku: string | null
+          source_files: Json | null
           updated_at: string
+          validation_status: string | null
         }
         Insert: {
           actual_value?: number | null
           created_at?: string
           date: string
           id?: string
+          mapping_config?: Json | null
           metadata?: Json | null
           sku?: string | null
+          source_files?: Json | null
           updated_at?: string
+          validation_status?: string | null
         }
         Update: {
           actual_value?: number | null
           created_at?: string
           date?: string
           id?: string
+          mapping_config?: Json | null
           metadata?: Json | null
           sku?: string | null
+          source_files?: Json | null
           updated_at?: string
+          validation_status?: string | null
         }
         Relationships: []
       }
