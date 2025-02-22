@@ -83,7 +83,7 @@ export default function Auth() {
               <Button 
                 className="w-full" 
                 type="submit" 
-                disabled={isSubmitting}
+                disabled={isSubmitting || !email || !password}
               >
                 {isSubmitting ? "Please wait..." : "Sign In"}
               </Button>
@@ -92,7 +92,7 @@ export default function Auth() {
                 type="button" 
                 variant="outline"
                 onClick={(e) => { e.preventDefault(); handleSubmit("signUp"); }}
-                disabled={isSubmitting}
+                disabled={isSubmitting || !email || !password}
               >
                 {isSubmitting ? "Please wait..." : "Sign Up"}
               </Button>

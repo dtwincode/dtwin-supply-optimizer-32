@@ -20,13 +20,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check active sessions and sets the user
+    // التحقق من وجود جلسة نشطة
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setIsLoading(false);
     });
 
-    // Listen for changes on auth state (logged in, signed out, etc.)
+    // الاستماع للتغييرات في حالة المصادقة
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       setIsLoading(false);
