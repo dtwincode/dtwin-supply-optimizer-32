@@ -41,6 +41,11 @@ export function useIntegratedData() {
           ? item.metadata as Record<string, any>
           : {};
 
+        // تحويل source_files إلى مصفوفة
+        const parsedSourceFiles = Array.isArray(item.source_files) 
+          ? item.source_files 
+          : (item.source_files ? JSON.parse(item.source_files as string) : []);
+
         const baseData = {
           id: item.id,
           date: item.date,
@@ -49,7 +54,7 @@ export function useIntegratedData() {
           created_at: item.created_at,
           updated_at: item.updated_at,
           validation_status: item.validation_status,
-          source_files: item.source_files,
+          source_files: parsedSourceFiles,
           metadata: parsedMetadata
         };
 
