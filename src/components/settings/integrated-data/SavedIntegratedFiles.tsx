@@ -73,6 +73,10 @@ export function SavedIntegratedFiles({ triggerRefresh = 0 }: SavedIntegratedFile
 
   const handleDownload = async (file: SavedFile) => {
     try {
+      if (!Array.isArray(file.data)) {
+        throw new Error('Invalid file data format');
+      }
+
       const fileData = file.data;
       const fileName = file.original_name;
       

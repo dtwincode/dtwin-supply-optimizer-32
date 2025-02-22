@@ -32,57 +32,6 @@ export function IntegratedDataPreview() {
     }
   }, [data]);
 
-  const handleSaveData = async () => {
-    if (!user) return;
-
-    try {
-      const timestamp = new Date().getTime();
-      const filteredData = data.map(row => {
-        const newRow: any = {
-          date: row.date,
-          actual_value: row.actual_value,
-          sku: row.sku
-        };
-        
-        if (row.metadata) {
-          Object.entries(row.metadata).forEach(([key, value]) => {
-            if (selectedColumns.has(key)) {
-              newRow[key] = value;
-            }
-          });
-        }
-        return newRow;
-      });
-
-      const { error } = await supabase
-        .from('permanent_hierarchy_files')
-        .insert({
-          file_name: `integrated_data_${timestamp}`,
-          original_name: `integrated_data_${new Date().toISOString().slice(0, 10)}.csv`,
-          hierarchy_type: 'integrated_data',
-          data: filteredData,
-          selected_columns: Array.from(selectedColumns),
-          created_by: user.id
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Data saved successfully",
-      });
-      
-      setRefreshTrigger(prev => prev + 1);
-    } catch (error) {
-      console.error('Error saving data:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save data",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <div className="space-y-6">
       <Card className="p-6">
@@ -105,16 +54,8 @@ export function IntegratedDataPreview() {
               onSelectedColumnsChange={setSelectedColumns}
               tempUploadId={null}
               hierarchyType="integrated_data"
+              data={data}
             />
-            
-            <Button 
-              onClick={handleSaveData}
-              disabled={selectedColumns.size === 0}
-              className="mb-4"
-            >
-              Save Selected Columns
-            </Button>
-
             <IntegratedDataTable data={data} selectedColumns={selectedColumns} />
           </div>
         )}
