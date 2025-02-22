@@ -44,14 +44,15 @@ export function useIntegratedData() {
           created_at: item.created_at,
           updated_at: item.updated_at,
           validation_status: item.validation_status,
-          source_files: item.source_files
+          source_files: item.source_files,
+          metadata: item.metadata // حفظ metadata الأصلي
         };
 
-        // دمج الـ metadata مع البيانات الأساسية
-        const metadata = typeof item.metadata === 'object' ? item.metadata : {};
+        // التأكد من أن metadata كائن صالح
+        const metadataObj = typeof item.metadata === 'object' ? item.metadata : {};
         
         // إضافة جميع الحقول من metadata
-        const flattenedMetadata = Object.entries(metadata || {}).reduce((acc, [key, value]) => {
+        const flattenedMetadata = Object.entries(metadataObj || {}).reduce((acc, [key, value]) => {
           if (value !== null && value !== undefined) {
             acc[key] = value;
           }
