@@ -7,15 +7,12 @@ import { IntegratedDataTable } from "./IntegratedDataTable";
 import { SavedIntegratedFiles } from "./SavedIntegratedFiles";
 import { useIntegratedData } from "./useIntegratedData";
 import { ColumnSelector } from "../product-hierarchy/components/ColumnSelector";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
 
 export function IntegratedDataPreview() {
   const { data, isLoading, isIntegrating, handleIntegration } = useIntegratedData();
   const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set());
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const { toast } = useToast();
-  const { user } = useAuth();
 
   useEffect(() => {
     if (data.length > 0) {
