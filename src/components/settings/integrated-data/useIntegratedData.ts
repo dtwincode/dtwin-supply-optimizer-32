@@ -5,14 +5,10 @@ import { toast } from "@/components/ui/use-toast";
 import { IntegratedData, ForecastMappingConfig } from "./types";
 import { useLocation } from "react-router-dom";
 
+type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+
 interface MappingConfigType {
-  product_mapping: boolean;
-  location_mapping: boolean;
-  product_key: string | undefined;
-  location_key: string | undefined;
-  historical_product_key: string | undefined;
-  historical_location_key: string | undefined;
-  mapping_id: string;
+  [key: string]: JsonValue;
 }
 
 export function useIntegratedData() {
@@ -136,10 +132,10 @@ export function useIntegratedData() {
       const mappingConfig: MappingConfigType = {
         product_mapping: selectedMapping.use_product_mapping,
         location_mapping: selectedMapping.use_location_mapping,
-        product_key: selectedMapping.product_key_column,
-        location_key: selectedMapping.location_key_column,
-        historical_product_key: selectedMapping.historical_product_key_column,
-        historical_location_key: selectedMapping.historical_location_key_column,
+        product_key: selectedMapping.product_key_column || null,
+        location_key: selectedMapping.location_key_column || null,
+        historical_product_key: selectedMapping.historical_product_key_column || null,
+        historical_location_key: selectedMapping.historical_location_key_column || null,
         mapping_id: selectedMapping.id
       };
 
