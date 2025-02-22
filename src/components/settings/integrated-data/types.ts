@@ -17,15 +17,11 @@ export interface IntegratedData {
   channel: string;
 }
 
-export interface ProductFilterState {
+export type ProductFilterState = {
   selected: string;
   values: string[];
 }
 
-export interface HierarchyState {
-  [key: string]: ProductFilterState;
-}
+export type HierarchyState = Record<string, ProductFilterState>;
 
-export interface LocationState {
-  [key: string]: string;
-}
+export type LocationState = Record<string, string>;

@@ -20,24 +20,28 @@ export function useIntegratedData() {
     try {
       console.log('Fetching integrated data...');
       
-      const productFilters = getProductHierarchyState(currentTab) as HierarchyState;
-      const locationFilters = getLocationState(currentTab) as LocationState;
+      const productFilters = getProductHierarchyState(currentTab);
+      const locationFilters = getLocationState(currentTab);
       
       let query = supabase
         .from('integrated_forecast_data')
         .select('*');
 
-      Object.entries(productFilters).forEach(([level, { selected }]) => {
-        if (selected && selected !== level) {
-          query = query.eq(level, selected);
-        }
-      });
+      if (productFilters) {
+        Object.entries(productFilters).forEach(([level, { selected }]) => {
+          if (selected && selected !== level) {
+            query = query.eq(level, selected);
+          }
+        });
+      }
 
-      Object.entries(locationFilters).forEach(([level, value]) => {
-        if (value && value !== level) {
-          query = query.eq(level, value);
-        }
-      });
+      if (locationFilters) {
+        Object.entries(locationFilters).forEach(([level, value]) => {
+          if (value && value !== level) {
+            query = query.eq(level, value);
+          }
+        });
+      }
 
       const { data: integratedData, error } = await query.order('date', { ascending: true });
 
