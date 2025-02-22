@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PlusCircle, AlertCircle } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { supabase } from "@/integrations/supabase/client";
 
 export function IntegratedDataPreview() {
   const { 
@@ -140,7 +141,7 @@ export function IntegratedDataPreview() {
           )}
 
           {validationStatus && (
-            <Alert variant={validationStatus === 'valid' ? 'default' : 'warning'}>
+            <Alert variant={validationStatus === 'valid' ? 'default' : 'destructive'}>
               <AlertDescription>
                 {validationStatus === 'valid' 
                   ? 'Data integration is valid and complete' 
