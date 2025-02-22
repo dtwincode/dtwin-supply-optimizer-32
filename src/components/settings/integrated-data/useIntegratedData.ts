@@ -14,49 +14,26 @@ export function useIntegratedData() {
   const location = useLocation();
   const currentTab = location.pathname.split('/').pop() || 'settings';
   const { getProductHierarchyState, getLocationState } = useFilters();
-  
+
+  // Simplified data fetching without filters initially
   const fetchData = useCallback(async () => {
     if (isLoading) return;
     
     setIsLoading(true);
     try {
-      let query = supabase
+      const { data: integratedData, error } = await supabase
         .from('integrated_forecast_data')
-        .select('*');
+        .select('*')
+        .order('date', { ascending: true });
 
-      const productFilters = getProductHierarchyState(currentTab);
-      const locationFilters = getLocationState(currentTab);
-
-      // Apply product filters if they exist
-      if (productFilters) {
-        for (const [level, filter] of Object.entries(productFilters)) {
-          if (filter.selected && filter.selected !== level) {
-            query = query.eq(level, filter.selected);
-          }
-        }
-      }
-
-      // Apply location filters if they exist
-      if (locationFilters) {
-        for (const [level, value] of Object.entries(locationFilters)) {
-          if (value && value !== level) {
-            query = query.eq(level, value);
-          }
-        }
-      }
-
-      const { data: integratedData, error } = await query.order('date', { ascending: true });
-
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
       if (!integratedData || integratedData.length === 0) {
         setData([]);
         return;
       }
 
-      const transformedData: IntegratedData[] = integratedData.map(item => ({
+      const transformedData = integratedData.map(item => ({
         date: item.date,
         actual_value: item.actual_value || 0,
         sku: item.sku || 'N/A',
@@ -80,12 +57,12 @@ export function useIntegratedData() {
         description: "فشل في جلب البيانات المتكاملة. يرجى المحاولة مرة أخرى.",
         variant: "destructive",
       });
-      setData([]);
     } finally {
       setIsLoading(false);
     }
-  }, [currentTab, getProductHierarchyState, getLocationState, isLoading]);
+  }, [isLoading]);
 
+  // Separate integration logic
   const handleIntegration = async () => {
     if (isIntegrating) return;
     
@@ -104,6 +81,7 @@ export function useIntegratedData() {
         throw new Error('يرجى تحميل بيانات المبيعات التاريخية أولاً.');
       }
 
+      // Call the integration function
       const { error } = await supabase.rpc('integrate_forecast_data');
       if (error) throw error;
       
@@ -112,6 +90,7 @@ export function useIntegratedData() {
         description: "تم دمج البيانات بنجاح.",
       });
       
+      // Refresh data after successful integration
       await fetchData();
     } catch (error: any) {
       console.error('Integration error:', error);
@@ -125,6 +104,7 @@ export function useIntegratedData() {
     }
   };
 
+  // Initial data fetch
   useEffect(() => {
     fetchData();
   }, [fetchData]);
