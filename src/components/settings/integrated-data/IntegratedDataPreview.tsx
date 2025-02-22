@@ -31,7 +31,6 @@ export function IntegratedDataPreview() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Fetch saved mapping configurations
     const fetchMappings = async () => {
       try {
         const { data: mappings, error } = await supabase
@@ -78,6 +77,13 @@ export function IntegratedDataPreview() {
     setSelectedMappingId(mappingId);
   };
 
+  const getMappingDescription = (mapping: ForecastMappingConfig) => {
+    const types = [];
+    if (mapping.use_product_mapping) types.push('Product');
+    if (mapping.use_location_mapping) types.push('Location');
+    return `${types.join(' & ')} based mapping`;
+  };
+
   return (
     <div className="space-y-6">
       <Card className="p-6">
@@ -95,7 +101,7 @@ export function IntegratedDataPreview() {
                 <SelectContent>
                   {savedMappings.map((mapping) => (
                     <SelectItem key={mapping.id} value={mapping.id}>
-                      {mapping.mapping_name} ({mapping.mapping_type}-based)
+                      {mapping.mapping_name} ({getMappingDescription(mapping)})
                     </SelectItem>
                   ))}
                 </SelectContent>

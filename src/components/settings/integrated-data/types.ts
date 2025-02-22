@@ -19,7 +19,8 @@ export interface ForecastMappingConfig {
   historical_sales_mapping: Record<string, any>;
   product_hierarchy_mapping: Record<string, any>;
   location_hierarchy_mapping: Record<string, any>;
-  historical_key_column?: string;
+  historical_product_key_column?: string;
+  historical_location_key_column?: string;
   product_key_column?: string;
   location_key_column?: string;
   use_product_mapping: boolean;

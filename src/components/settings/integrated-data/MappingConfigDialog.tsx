@@ -34,7 +34,8 @@ export function MappingConfigDialog({ open, onOpenChange, onSave }: MappingConfi
   const [historicalColumns, setHistoricalColumns] = useState<string[]>([]);
   const [selectedProductKey, setSelectedProductKey] = useState<string>("");
   const [selectedLocationKey, setSelectedLocationKey] = useState<string>("");
-  const [selectedHistoricalKey, setSelectedHistoricalKey] = useState<string>("");
+  const [selectedHistoricalProductKey, setSelectedHistoricalProductKey] = useState<string>("");
+  const [selectedHistoricalLocationKey, setSelectedHistoricalLocationKey] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -94,12 +95,13 @@ export function MappingConfigDialog({ open, onOpenChange, onSave }: MappingConfi
   }, [open]);
 
   const handleSave = async () => {
-    if (!mappingName || !selectedHistoricalKey || 
+    if (!mappingName || 
+        (!selectedHistoricalProductKey && !selectedHistoricalLocationKey) ||
         (!selectedProductKey && !selectedLocationKey) ||
         (!useProductMapping && !useLocationMapping)) {
       toast({
         title: "Validation Error",
-        description: "Please fill in all required fields and select at least one mapping type",
+        description: "Please fill in all required fields and select at least one mapping type with corresponding keys",
         variant: "destructive",
       });
       return;
@@ -111,12 +113,22 @@ export function MappingConfigDialog({ open, onOpenChange, onSave }: MappingConfi
         .insert({
           mapping_name: mappingName,
           description,
-          product_hierarchy_mapping: useProductMapping ? { key_column: selectedProductKey } : {},
-          location_hierarchy_mapping: useLocationMapping ? { key_column: selectedLocationKey } : {},
-          historical_sales_mapping: { key_column: selectedHistoricalKey },
+          product_hierarchy_mapping: useProductMapping ? { 
+            key_column: selectedProductKey,
+            historical_key_column: selectedHistoricalProductKey
+          } : {},
+          location_hierarchy_mapping: useLocationMapping ? { 
+            key_column: selectedLocationKey,
+            historical_key_column: selectedHistoricalLocationKey
+          } : {},
+          historical_sales_mapping: { 
+            product_key_column: selectedHistoricalProductKey,
+            location_key_column: selectedHistoricalLocationKey
+          },
           product_key_column: useProductMapping ? selectedProductKey : null,
           location_key_column: useLocationMapping ? selectedLocationKey : null,
-          historical_key_column: selectedHistoricalKey,
+          historical_product_key_column: useProductMapping ? selectedHistoricalProductKey : null,
+          historical_location_key_column: useLocationMapping ? selectedHistoricalLocationKey : null,
           use_product_mapping: useProductMapping,
           use_location_mapping: useLocationMapping,
           is_active: true,
@@ -196,56 +208,76 @@ export function MappingConfigDialog({ open, onOpenChange, onSave }: MappingConfi
           </div>
 
           {useProductMapping && (
-            <div className="grid gap-2">
-              <Label>Product Key Column</Label>
-              <Select value={selectedProductKey} onValueChange={setSelectedProductKey}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select product key column" />
-                </SelectTrigger>
-                <SelectContent>
-                  {productColumns.map((column) => (
-                    <SelectItem key={column} value={column}>
-                      {column}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="space-y-4">
+              <div className="grid gap-2">
+                <Label>Product Hierarchy Key Column</Label>
+                <Select value={selectedProductKey} onValueChange={setSelectedProductKey}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select product hierarchy key column" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {productColumns.map((column) => (
+                      <SelectItem key={column} value={column}>
+                        {column}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid gap-2">
+                <Label>Historical Sales Product Key Column</Label>
+                <Select value={selectedHistoricalProductKey} onValueChange={setSelectedHistoricalProductKey}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select historical sales product key" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {historicalColumns.map((column) => (
+                      <SelectItem key={column} value={column}>
+                        {column}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           )}
 
           {useLocationMapping && (
-            <div className="grid gap-2">
-              <Label>Location Key Column</Label>
-              <Select value={selectedLocationKey} onValueChange={setSelectedLocationKey}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select location key column" />
-                </SelectTrigger>
-                <SelectContent>
-                  {locationColumns.map((column) => (
-                    <SelectItem key={column} value={column}>
-                      {column}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="space-y-4">
+              <div className="grid gap-2">
+                <Label>Location Hierarchy Key Column</Label>
+                <Select value={selectedLocationKey} onValueChange={setSelectedLocationKey}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select location hierarchy key column" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {locationColumns.map((column) => (
+                      <SelectItem key={column} value={column}>
+                        {column}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid gap-2">
+                <Label>Historical Sales Location Key Column</Label>
+                <Select value={selectedHistoricalLocationKey} onValueChange={setSelectedHistoricalLocationKey}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select historical sales location key" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {historicalColumns.map((column) => (
+                      <SelectItem key={column} value={column}>
+                        {column}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           )}
-
-          <div className="grid gap-2">
-            <Label>Historical Sales Key Column</Label>
-            <Select value={selectedHistoricalKey} onValueChange={setSelectedHistoricalKey}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select historical key column" />
-              </SelectTrigger>
-              <SelectContent>
-                {historicalColumns.map((column) => (
-                  <SelectItem key={column} value={column}>
-                    {column}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
         </div>
 
         <DialogFooter>
