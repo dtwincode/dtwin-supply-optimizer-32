@@ -6,30 +6,13 @@ import { useMemo } from "react";
 
 interface IntegratedDataTableProps {
   data: IntegratedData[];
+  selectedColumns: Set<string>;
 }
 
-export function IntegratedDataTable({ data }: IntegratedDataTableProps) {
-  // استخراج جميع الأعمدة الثابتة والديناميكية
+export function IntegratedDataTable({ data, selectedColumns }: IntegratedDataTableProps) {
   const columns = useMemo(() => {
-    const uniqueColumns = new Set<string>();
-    
-    // إضافة الأعمدة الثابتة
-    uniqueColumns.add('date');
-    uniqueColumns.add('actual_value');
-    uniqueColumns.add('sku');
-    uniqueColumns.add('validation_status');
-    
-    // إضافة الأعمدة الديناميكية من metadata
-    data.forEach(row => {
-      if (row.metadata) {
-        Object.keys(row.metadata).forEach(key => {
-          uniqueColumns.add(key);
-        });
-      }
-    });
-    
-    return Array.from(uniqueColumns);
-  }, [data]);
+    return Array.from(selectedColumns);
+  }, [selectedColumns]);
 
   const getValidationStatusColor = (status?: string) => {
     switch (status) {
@@ -67,7 +50,7 @@ export function IntegratedDataTable({ data }: IntegratedDataTableProps) {
               {data.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={columns.length + 1} className="text-center py-4">
-                    لا توجد بيانات متكاملة متاحة. انقر على "دمج البيانات" لملء الجدول.
+                    No integrated data available. Click "Integrate Data" to populate the table.
                   </TableCell>
                 </TableRow>
               ) : (
