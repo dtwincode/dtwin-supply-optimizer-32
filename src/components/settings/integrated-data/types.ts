@@ -22,7 +22,8 @@ export interface ForecastMappingConfig {
   historical_key_column?: string;
   product_key_column?: string;
   location_key_column?: string;
-  mapping_type: 'location' | 'product';
+  use_product_mapping: boolean;
+  use_location_mapping: boolean;
   is_active: boolean;
   created_at: string;
   updated_at: string;

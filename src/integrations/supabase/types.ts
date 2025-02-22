@@ -636,6 +636,8 @@ export type Database = {
           product_hierarchy_mapping: Json
           product_key_column: string | null
           updated_at: string
+          use_location_mapping: boolean | null
+          use_product_mapping: boolean | null
         }
         Insert: {
           created_at?: string
@@ -651,6 +653,8 @@ export type Database = {
           product_hierarchy_mapping?: Json
           product_key_column?: string | null
           updated_at?: string
+          use_location_mapping?: boolean | null
+          use_product_mapping?: boolean | null
         }
         Update: {
           created_at?: string
@@ -666,6 +670,8 @@ export type Database = {
           product_hierarchy_mapping?: Json
           product_key_column?: string | null
           updated_at?: string
+          use_location_mapping?: boolean | null
+          use_product_mapping?: boolean | null
         }
         Relationships: []
       }

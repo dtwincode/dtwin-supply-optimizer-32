@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ForecastMappingConfig } from "./types";
 
 interface MappingConfigDialogProps {
@@ -26,7 +27,8 @@ interface MappingConfigDialogProps {
 export function MappingConfigDialog({ open, onOpenChange, onSave }: MappingConfigDialogProps) {
   const [mappingName, setMappingName] = useState("");
   const [description, setDescription] = useState("");
-  const [mappingType, setMappingType] = useState<'location' | 'product'>('product');
+  const [useProductMapping, setUseProductMapping] = useState(false);
+  const [useLocationMapping, setUseLocationMapping] = useState(false);
   const [productColumns, setProductColumns] = useState<string[]>([]);
   const [locationColumns, setLocationColumns] = useState<string[]>([]);
   const [historicalColumns, setHistoricalColumns] = useState<string[]>([]);
@@ -39,7 +41,6 @@ export function MappingConfigDialog({ open, onOpenChange, onSave }: MappingConfi
     const fetchColumns = async () => {
       setIsLoading(true);
       try {
-        // Fetch columns from permanent_hierarchy_files
         const { data: productData } = await supabase
           .from('permanent_hierarchy_files')
           .select('data')
@@ -94,11 +95,11 @@ export function MappingConfigDialog({ open, onOpenChange, onSave }: MappingConfi
 
   const handleSave = async () => {
     if (!mappingName || !selectedHistoricalKey || 
-        (mappingType === 'product' && !selectedProductKey) || 
-        (mappingType === 'location' && !selectedLocationKey)) {
+        (!selectedProductKey && !selectedLocationKey) ||
+        (!useProductMapping && !useLocationMapping)) {
       toast({
         title: "Validation Error",
-        description: "Please fill in all required fields",
+        description: "Please fill in all required fields and select at least one mapping type",
         variant: "destructive",
       });
       return;
@@ -110,13 +111,14 @@ export function MappingConfigDialog({ open, onOpenChange, onSave }: MappingConfi
         .insert({
           mapping_name: mappingName,
           description,
-          product_hierarchy_mapping: mappingType === 'product' ? { key_column: selectedProductKey } : {},
-          location_hierarchy_mapping: mappingType === 'location' ? { key_column: selectedLocationKey } : {},
+          product_hierarchy_mapping: useProductMapping ? { key_column: selectedProductKey } : {},
+          location_hierarchy_mapping: useLocationMapping ? { key_column: selectedLocationKey } : {},
           historical_sales_mapping: { key_column: selectedHistoricalKey },
-          product_key_column: mappingType === 'product' ? selectedProductKey : null,
-          location_key_column: mappingType === 'location' ? selectedLocationKey : null,
+          product_key_column: useProductMapping ? selectedProductKey : null,
+          location_key_column: useLocationMapping ? selectedLocationKey : null,
           historical_key_column: selectedHistoricalKey,
-          mapping_type: mappingType,
+          use_product_mapping: useProductMapping,
+          use_location_mapping: useLocationMapping,
           is_active: true,
         })
         .select()
@@ -172,19 +174,28 @@ export function MappingConfigDialog({ open, onOpenChange, onSave }: MappingConfi
           </div>
 
           <div className="grid gap-2">
-            <Label>Mapping Type</Label>
-            <Select value={mappingType} onValueChange={(value: 'location' | 'product') => setMappingType(value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select mapping type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="product">Product-based</SelectItem>
-                <SelectItem value="location">Location-based</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label>Mapping Types</Label>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="product-mapping"
+                  checked={useProductMapping}
+                  onCheckedChange={(checked) => setUseProductMapping(checked as boolean)}
+                />
+                <Label htmlFor="product-mapping">Product-based Mapping</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="location-mapping"
+                  checked={useLocationMapping}
+                  onCheckedChange={(checked) => setUseLocationMapping(checked as boolean)}
+                />
+                <Label htmlFor="location-mapping">Location-based Mapping</Label>
+              </div>
+            </div>
           </div>
 
-          {mappingType === 'product' && (
+          {useProductMapping && (
             <div className="grid gap-2">
               <Label>Product Key Column</Label>
               <Select value={selectedProductKey} onValueChange={setSelectedProductKey}>
@@ -202,7 +213,7 @@ export function MappingConfigDialog({ open, onOpenChange, onSave }: MappingConfi
             </div>
           )}
 
-          {mappingType === 'location' && (
+          {useLocationMapping && (
             <div className="grid gap-2">
               <Label>Location Key Column</Label>
               <Select value={selectedLocationKey} onValueChange={setSelectedLocationKey}>
