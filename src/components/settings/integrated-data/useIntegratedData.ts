@@ -48,20 +48,20 @@ export function useIntegratedData() {
         };
 
         // دمج الـ metadata مع البيانات الأساسية
-        const metadataFields = item.metadata || {};
+        const metadata = typeof item.metadata === 'object' ? item.metadata : {};
         
-        // تحويل كل الحقول من metadata إلى المستوى الأعلى
-        const flattenedData = {
-          ...baseData,
-          ...metadataFields,
-          // إضافة حقول إضافية إذا كانت موجودة في metadata
-          Revenue: metadataFields.Revenue,
-          Units_Sold: metadataFields.Units_Sold,
-          Product_ID: metadataFields.Product_ID,
-          Location_ID: metadataFields.Location_ID,
-        };
+        // إضافة جميع الحقول من metadata
+        const flattenedMetadata = Object.entries(metadata || {}).reduce((acc, [key, value]) => {
+          if (value !== null && value !== undefined) {
+            acc[key] = value;
+          }
+          return acc;
+        }, {} as Record<string, any>);
 
-        return flattenedData;
+        return {
+          ...baseData,
+          ...flattenedMetadata
+        };
       });
 
       setData(transformedData);
