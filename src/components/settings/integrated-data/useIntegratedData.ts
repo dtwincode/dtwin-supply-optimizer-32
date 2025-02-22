@@ -2,20 +2,9 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
-import { IntegratedData } from "./types";
+import { IntegratedData, HierarchyState, LocationState } from "./types";
 import { useFilters } from "@/contexts/FilterContext";
 import { useLocation } from "react-router-dom";
-
-interface FilterState {
-  [key: string]: {
-    selected: string;
-    values: string[];
-  };
-}
-
-interface LocationState {
-  [key: string]: string;
-}
 
 export function useIntegratedData() {
   const [data, setData] = useState<IntegratedData[]>([]);
@@ -31,8 +20,8 @@ export function useIntegratedData() {
     try {
       console.log('Fetching integrated data...');
       
-      const productFilters: FilterState = getProductHierarchyState(currentTab);
-      const locationFilters: LocationState = getLocationState(currentTab);
+      const productFilters = getProductHierarchyState(currentTab) as HierarchyState;
+      const locationFilters = getLocationState(currentTab) as LocationState;
       
       let query = supabase
         .from('integrated_forecast_data')

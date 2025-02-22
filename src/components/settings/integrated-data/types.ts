@@ -16,3 +16,16 @@ export interface IntegratedData {
   warehouse: string;
   channel: string;
 }
+
+export interface ProductFilterState {
+  selected: string;
+  values: string[];
+}
+
+export interface HierarchyState {
+  [key: string]: ProductFilterState;
+}
+
+export interface LocationState {
+  [key: string]: string;
+}
