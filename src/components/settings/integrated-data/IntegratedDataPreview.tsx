@@ -8,6 +8,11 @@ import { SavedIntegratedFiles } from "./SavedIntegratedFiles";
 import { useIntegratedData } from "./useIntegratedData";
 import { ColumnSelector } from "../product-hierarchy/components/ColumnSelector";
 import { MappingConfigDialog } from "./MappingConfigDialog";
+import { ForecastMappingConfig } from "./types";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { PlusCircle } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 export function IntegratedDataPreview() {
   const { 
@@ -21,7 +26,33 @@ export function IntegratedDataPreview() {
   } = useIntegratedData();
   const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set());
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [savedMappings, setSavedMappings] = useState<ForecastMappingConfig[]>([]);
+  const [selectedMappingId, setSelectedMappingId] = useState<string>("");
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Fetch saved mapping configurations
+    const fetchMappings = async () => {
+      try {
+        const { data: mappings, error } = await supabase
+          .from('forecast_integration_mappings')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setSavedMappings(mappings as ForecastMappingConfig[]);
+      } catch (error) {
+        console.error('Error fetching mappings:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch mapping configurations",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchMappings();
+  }, [mappingDialogOpen]);
 
   useEffect(() => {
     if (data.length > 0) {
@@ -43,14 +74,56 @@ export function IntegratedDataPreview() {
     }
   }, [data]);
 
+  const handleMappingSelect = (mappingId: string) => {
+    setSelectedMappingId(mappingId);
+  };
+
   return (
     <div className="space-y-6">
       <Card className="p-6">
+        <div className="flex flex-col space-y-4">
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-medium">Data Integration Configuration</h3>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="flex-1">
+              <Select value={selectedMappingId} onValueChange={handleMappingSelect}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a mapping configuration" />
+                </SelectTrigger>
+                <SelectContent>
+                  {savedMappings.map((mapping) => (
+                    <SelectItem key={mapping.id} value={mapping.id}>
+                      {mapping.mapping_name} ({mapping.mapping_type}-based)
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button onClick={() => setMappingDialogOpen(true)} variant="outline">
+              <PlusCircle className="w-4 h-4 mr-2" />
+              New Mapping
+            </Button>
+            <Button 
+              onClick={handleIntegration} 
+              disabled={isIntegrating || !selectedMappingId}
+            >
+              {isIntegrating ? "Integrating..." : "Run Integration"}
+            </Button>
+          </div>
+
+          {selectedMappingId && (
+            <div className="mt-4 text-sm text-muted-foreground">
+              {savedMappings.find(m => m.id === selectedMappingId)?.description}
+            </div>
+          )}
+        </div>
+      </Card>
+
+      <Card className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-lg font-medium">Integrated Data Preview</h3>
-          <Button onClick={() => setMappingDialogOpen(true)} disabled={isIntegrating}>
-            {isIntegrating ? "Integrating..." : "Integrate Data"}
-          </Button>
         </div>
         
         {data.length > 0 && (
