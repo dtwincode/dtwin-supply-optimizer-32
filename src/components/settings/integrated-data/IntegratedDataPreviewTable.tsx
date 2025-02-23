@@ -18,13 +18,22 @@ export function IntegratedDataPreviewTable({
 }: IntegratedDataPreviewTableProps) {
   const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set());
 
-  // Get all possible columns from the data
+  // Get all possible columns from the data, excluding system columns
   const availableColumns = useMemo(() => {
     const columns = new Set<string>();
+    const excludedColumns = [
+      'id', 
+      'metadata', 
+      'source_files',
+      'created_at',
+      'updated_at',
+      'validation_status',
+      'actual_value'
+    ];
+
     data.forEach(row => {
       Object.keys(row).forEach(key => {
-        // Skip internal metadata fields
-        if (!['id', 'metadata', 'source_files'].includes(key)) {
+        if (!excludedColumns.includes(key)) {
           columns.add(key);
         }
       });
