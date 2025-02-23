@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
@@ -183,6 +184,8 @@ export function useIntegratedData() {
         historical_location_key_column: selectedMapping.historical_location_key_column || null,
         id: selectedMapping.id
       };
+
+      console.log("Sending mapping config:", mappingConfig);
 
       const { data: result, error } = await supabase.rpc('integrate_forecast_data', {
         p_mapping_config: mappingConfig
