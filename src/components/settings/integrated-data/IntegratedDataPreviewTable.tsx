@@ -4,6 +4,14 @@ import { IntegratedData } from "./types";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState, useMemo } from "react";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Filter } from "lucide-react";
 
 interface IntegratedDataPreviewTableProps {
   data: IntegratedData[];
@@ -17,6 +25,7 @@ export function IntegratedDataPreviewTable({
   validationStatus 
 }: IntegratedDataPreviewTableProps) {
   const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set());
+  const [filters, setFilters] = useState<Record<string, string>>({});
 
   // Get all possible columns from the data, excluding system columns
   const availableColumns = useMemo(() => {
@@ -42,6 +51,20 @@ export function IntegratedDataPreviewTable({
     return Array.from(columns);
   }, [data]);
 
+  // Get unique values for each column
+  const uniqueValues = useMemo(() => {
+    const values: Record<string, Set<string>> = {};
+    availableColumns.forEach(column => {
+      values[column] = new Set();
+      data.forEach(row => {
+        if (row[column] !== undefined && row[column] !== null) {
+          values[column].add(String(row[column]));
+        }
+      });
+    });
+    return values;
+  }, [data, availableColumns]);
+
   const toggleColumn = (column: string) => {
     setSelectedColumns(prev => {
       const newSet = new Set(prev);
@@ -53,6 +76,22 @@ export function IntegratedDataPreviewTable({
       return newSet;
     });
   };
+
+  const handleFilterChange = (column: string, value: string) => {
+    setFilters(prev => ({
+      ...prev,
+      [column]: value === "all" ? "" : value
+    }));
+  };
+
+  const filteredData = useMemo(() => {
+    return data.filter(row => {
+      return Object.entries(filters).every(([column, filterValue]) => {
+        if (!filterValue) return true;
+        return String(row[column]) === filterValue;
+      });
+    });
+  }, [data, filters]);
 
   if (isLoading) {
     return (
@@ -105,13 +144,33 @@ export function IntegratedDataPreviewTable({
                 <TableRow>
                   {displayColumns.map((column) => (
                     <TableHead key={column} className="min-w-[150px]">
-                      {column}
+                      <div className="flex items-center justify-between">
+                        <span>{column}</span>
+                        <Select
+                          value={filters[column] || "all"}
+                          onValueChange={(value) => handleFilterChange(column, value)}
+                        >
+                          <SelectTrigger className="w-8 h-8 p-0">
+                            <SelectValue>
+                              <Filter className="h-4 w-4" />
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            {Array.from(uniqueValues[column] || []).map((value) => (
+                              <SelectItem key={value} value={value}>
+                                {value}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </TableHead>
                   ))}
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.map((row, index) => (
+                {filteredData.map((row, index) => (
                   <TableRow key={row.id || index}>
                     {displayColumns.map((column) => (
                       <TableCell 
