@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -123,20 +122,34 @@ export function MappingConfigDialog({
     }
   }, [open]);
 
-  const handleSelectMapping = (config: ForecastMappingConfig) => {
-    setCurrentMapping(config);
-    setMappingName(config.mapping_name);
-    setDescription(config.description || '');
-    setUseProductMapping(config.use_product_mapping);
-    setUseLocationMapping(config.use_location_mapping);
-    setSelectedProductKey(config.product_key_column || '');
-    setSelectedLocationKey(config.location_key_column || '');
-    setSelectedHistoricalProductKey(config.historical_product_key_column || '');
-    setSelectedHistoricalLocationKey(config.historical_location_key_column || '');
-    onSave(config);
+  const handleSelectMapping = async (config: ForecastMappingConfig) => {
+    try {
+      setCurrentMapping(config);
+      setMappingName(config.mapping_name);
+      setDescription(config.description || '');
+      setUseProductMapping(config.use_product_mapping);
+      setUseLocationMapping(config.use_location_mapping);
+      setSelectedProductKey(config.product_key_column || '');
+      setSelectedLocationKey(config.location_key_column || '');
+      setSelectedHistoricalProductKey(config.historical_product_key_column || '');
+      setSelectedHistoricalLocationKey(config.historical_location_key_column || '');
+      onSave(config);
+
+      toast({
+        title: "Configuration Selected",
+        description: `Selected mapping: ${config.mapping_name}`,
+      });
+    } catch (error) {
+      console.error('Error selecting mapping:', error);
+      toast({
+        title: "Error",
+        description: "Failed to select mapping configuration",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!currentMapping) {
       toast({
         title: "Error",
@@ -146,7 +159,37 @@ export function MappingConfigDialog({
       return;
     }
 
-    onDelete?.();
+    try {
+      const { error } = await supabase
+        .from('forecast_integration_mappings')
+        .delete()
+        .eq('id', currentMapping.id);
+
+      if (error) throw error;
+
+      onDelete?.();
+      setCurrentMapping(null);
+      setMappingName("");
+      setDescription("");
+      setUseProductMapping(false);
+      setUseLocationMapping(false);
+      setSelectedProductKey("");
+      setSelectedLocationKey("");
+      setSelectedHistoricalProductKey("");
+      setSelectedHistoricalLocationKey("");
+
+      toast({
+        title: "Success",
+        description: "Mapping configuration deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting mapping:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete mapping configuration",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSave = async () => {
@@ -227,8 +270,9 @@ export function MappingConfigDialog({
                 <Card
                   key={config.id}
                   className={`p-4 cursor-pointer hover:border-primary transition-colors ${
-                    currentMapping?.id === config.id ? 'border-primary' : ''
+                    currentMapping?.id === config.id ? 'border-primary bg-primary/5' : ''
                   }`}
+                  onClick={() => handleSelectMapping(config)}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
@@ -236,7 +280,12 @@ export function MappingConfigDialog({
                         <h4 className="font-medium">{config.mapping_name}</h4>
                         <Popover>
                           <PopoverTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8"
+                              onClick={(e) => e.stopPropagation()}
+                            >
                               <Info className="h-4 w-4" />
                             </Button>
                           </PopoverTrigger>
@@ -261,19 +310,14 @@ export function MappingConfigDialog({
                       )}
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleSelectMapping(config)}
-                      >
-                        Select
-                        <ChevronRight className="ml-2 h-4 w-4" />
-                      </Button>
                       {currentMapping?.id === config.id && (
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={handleDelete}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete();
+                          }}
                           className="h-8 w-8 hover:bg-destructive hover:text-destructive-foreground"
                         >
                           <X className="h-4 w-4" />
