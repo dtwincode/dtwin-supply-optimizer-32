@@ -76,8 +76,13 @@ const sampleConfidenceIntervals = sampleData.map((_, i) => {
 
 const PatternAnalysisCard = ({ data }: { data: ForecastDataPoint[] }) => {
   const analyzePatterns = () => {
-    const forecastValues = data.map(d => d.forecast).filter(f => f !== null) as number[];
-    const actualValues = data.map(d => d.actual).filter(a => a !== null) as number[];
+    const forecastValues = data
+      .map(d => d.forecast)
+      .filter((f): f is number => f !== null && !isNaN(Number(f)));
+    
+    const actualValues = data
+      .map(d => d.actual)
+      .filter((a): a is number => a !== null && !isNaN(Number(a)));
     
     const trend = forecastValues.length > 1 ? 
       ((forecastValues[forecastValues.length - 1] - forecastValues[0]) / forecastValues[0]) * 100 : 0;
@@ -86,11 +91,12 @@ const PatternAnalysisCard = ({ data }: { data: ForecastDataPoint[] }) => {
       Math.abs(Math.max(...actualValues) - Math.min(...actualValues)) / 
       (actualValues.reduce((a, b) => a + b, 0) / actualValues.length) : 0;
     
-    const mean = actualValues.reduce((a, b) => a + (b || 0), 0) / actualValues.length;
+    const mean = actualValues.reduce((a, b) => a + Number(b), 0) / actualValues.length;
+    
     const volatility = actualValues.length > 1 ?
       Math.sqrt(
         actualValues.reduce((sum, val) => 
-          sum + Math.pow((val || 0) - mean, 2), 
+          sum + Math.pow(Number(val) - mean, 2), 
           0
         ) / (actualValues.length - 1)
       ) : 0;
@@ -104,21 +110,32 @@ const PatternAnalysisCard = ({ data }: { data: ForecastDataPoint[] }) => {
 
   const patterns = analyzePatterns();
 
-  const trendData = data.map((d, index) => ({
-    index,
-    value: d.forecast || 0
-  })).filter(d => d.value !== null);
+  const trendData = data
+    .map((d, index) => ({
+      index,
+      value: typeof d.forecast === 'number' ? d.forecast : 0
+    }))
+    .filter(d => d.value !== null);
 
-  const seasonalityData = data.map((d, index) => ({
-    index,
-    value: d.actual || 0
-  })).filter(d => d.value !== null);
+  const seasonalityData = data
+    .map((d, index) => ({
+      index,
+      value: typeof d.actual === 'number' ? d.actual : 0
+    }))
+    .filter(d => d.value !== null);
 
-  const volatilityData = data.map((d, index) => ({
-    index,
-    value: d.actual || 0,
-    average: data.reduce((sum, item) => sum + (item.actual || 0), 0) / data.length
-  })).filter(d => d.value !== null);
+  const average = data.reduce((sum, item) => 
+    sum + (typeof item.actual === 'number' ? item.actual : 0), 
+    0
+  ) / data.length;
+
+  const volatilityData = data
+    .map((d, index) => ({
+      index,
+      value: typeof d.actual === 'number' ? d.actual : 0,
+      average
+    }))
+    .filter(d => d.value !== null);
 
   const MiniChart = ({ data, color }: { data: any[], color: string }) => (
     <div className="h-[60px] w-full mt-2">
