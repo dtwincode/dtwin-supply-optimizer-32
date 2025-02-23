@@ -95,23 +95,26 @@ export const ForecastAnalysisTab = ({
 
             let parameters: ModelParameter[] = [];
             if (Array.isArray(item.parameters)) {
-              parameters = item.parameters.map(param => ({
-                name: String(param.name || ''),
-                value: Number(param.value || 0),
-                min: param.min ? Number(param.min) : undefined,
-                max: param.max ? Number(param.max) : undefined,
-                step: param.step ? Number(param.step) : undefined,
-                description: String(param.description || '')
-              }));
+              parameters = item.parameters.map(param => {
+                const p = param as Record<string, unknown>;
+                return {
+                  name: String(p.name || ''),
+                  value: Number(p.value || 0),
+                  min: p.min ? Number(p.min) : undefined,
+                  max: p.max ? Number(p.max) : undefined,
+                  step: p.step ? Number(p.step) : undefined,
+                  description: String(p.description || '')
+                };
+              });
             }
 
-            const rawMetrics = metricsData?.training_metrics;
+            const rawMetrics = metricsData?.training_metrics as Record<string, unknown> | undefined;
             let metrics: ModelPerformanceMetrics | undefined;
             
             if (rawMetrics && typeof rawMetrics === 'object') {
               metrics = {
                 accuracy: typeof rawMetrics.accuracy === 'number' ? rawMetrics.accuracy : 0,
-                trend: (rawMetrics.trend as 'improving' | 'stable' | 'declining') || 'stable',
+                trend: (String(rawMetrics.trend || 'stable')) as 'improving' | 'stable' | 'declining',
                 trained_at: metricsData.trained_at || new Date().toISOString(),
                 mape: typeof rawMetrics.mape === 'number' ? rawMetrics.mape : undefined,
                 mae: typeof rawMetrics.mae === 'number' ? rawMetrics.mae : undefined,
