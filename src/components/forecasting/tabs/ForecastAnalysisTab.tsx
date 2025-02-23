@@ -84,6 +84,17 @@ const PatternAnalysisCard = ({ data }: { data: ForecastDataPoint[] }) => {
     <div className="h-[60px] w-full mt-2">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
+          <XAxis hide={true} />
+          <YAxis hide={true} />
+          <Tooltip
+            formatter={(value: any) => [Math.round(value), "Units"]}
+            contentStyle={{
+              backgroundColor: 'white',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              padding: '8px'
+            }}
+          />
           <Line
             type="monotone"
             dataKey="value"
@@ -101,6 +112,17 @@ const PatternAnalysisCard = ({ data }: { data: ForecastDataPoint[] }) => {
     <div className="h-[60px] w-full mt-2">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
+          <XAxis hide={true} />
+          <YAxis hide={true} />
+          <Tooltip
+            formatter={(value: any) => [Math.round(value), "Units"]}
+            contentStyle={{
+              backgroundColor: 'white',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              padding: '8px'
+            }}
+          />
           <Area
             type="monotone"
             dataKey="value"
@@ -152,6 +174,14 @@ const PatternAnalysisCard = ({ data }: { data: ForecastDataPoint[] }) => {
               <p className="text-sm text-muted-foreground">
                 Overall directional movement in the forecast over time
               </p>
+              <div className="bg-muted/50 p-3 rounded-lg space-y-1">
+                <p className="text-xs text-muted-foreground">Key Insights:</p>
+                <ul className="text-xs space-y-1 list-disc list-inside">
+                  <li>Growth rate: {(patterns.trend / data.length).toFixed(2)}% per period</li>
+                  <li>Momentum: {Math.abs(patterns.trend) > 5 ? 'Strong' : 'Moderate'}</li>
+                  <li>Consistency: {Math.abs(patterns.trend) < 2 ? 'Stable' : 'Variable'}</li>
+                </ul>
+              </div>
             </div>
             <MiniChart data={trendData} color={patterns.trend >= 0 ? "#10B981" : "#EF4444"} />
           </div>
@@ -170,6 +200,14 @@ const PatternAnalysisCard = ({ data }: { data: ForecastDataPoint[] }) => {
               <p className="text-sm text-muted-foreground">
                 Cyclical patterns and recurring demand fluctuations
               </p>
+              <div className="bg-muted/50 p-3 rounded-lg space-y-1">
+                <p className="text-xs text-muted-foreground">Pattern Strength:</p>
+                <ul className="text-xs space-y-1 list-disc list-inside">
+                  <li>Peak amplitude: {(patterns.seasonality * 200).toFixed(1)}% from mean</li>
+                  <li>Pattern type: {patterns.seasonality > 0.2 ? 'Strong seasonal' : 'Weak seasonal'}</li>
+                  <li>Cycle length: {Math.round(data.length / 4)} periods</li>
+                </ul>
+              </div>
             </div>
             <MiniChart data={seasonalityData} color="#3B82F6" />
           </div>
@@ -188,6 +226,14 @@ const PatternAnalysisCard = ({ data }: { data: ForecastDataPoint[] }) => {
               <p className="text-sm text-muted-foreground">
                 Measure of demand variability and uncertainty
               </p>
+              <div className="bg-muted/50 p-3 rounded-lg space-y-1">
+                <p className="text-xs text-muted-foreground">Risk Assessment:</p>
+                <ul className="text-xs space-y-1 list-disc list-inside">
+                  <li>Coefficient of variation: {(patterns.volatility / (data.reduce((sum, d) => sum + (d.actual || 0), 0) / data.length) * 100).toFixed(1)}%</li>
+                  <li>Stability: {patterns.volatility < 10 ? 'High' : patterns.volatility < 30 ? 'Medium' : 'Low'}</li>
+                  <li>Forecast confidence: {100 - (patterns.volatility * 2).toFixed(1)}%</li>
+                </ul>
+              </div>
             </div>
             <VolatilityChart data={volatilityData} color="#EAB308" />
           </div>
