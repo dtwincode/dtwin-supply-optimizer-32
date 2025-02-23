@@ -1,8 +1,11 @@
 
 import { ForecastChart } from "@/components/forecasting/ForecastChart";
 import { ForecastTable } from "@/components/forecasting/ForecastTable";
+import { ModelSelectionCard } from "@/components/forecasting/ModelSelectionCard";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { useState } from "react";
+import { toast } from "sonner";
 
 interface ForecastDistributionTabProps {
   forecastTableData: any[];
@@ -11,8 +14,27 @@ interface ForecastDistributionTabProps {
 export const ForecastDistributionTab = ({ 
   forecastTableData 
 }: ForecastDistributionTabProps) => {
+  const [selectedModel, setSelectedModel] = useState("exp-smoothing");
+  const [modelParameters, setModelParameters] = useState<any[]>([]);
+
+  const handleModelChange = (modelId: string) => {
+    setSelectedModel(modelId);
+    toast.success(`Model changed to ${modelId}`);
+  };
+
+  const handleParametersChange = (modelId: string, parameters: any[]) => {
+    setModelParameters(parameters);
+    toast.success("Model parameters updated");
+  };
+
   return (
     <div className="space-y-6">
+      <ModelSelectionCard
+        selectedModel={selectedModel}
+        onModelChange={handleModelChange}
+        onParametersChange={handleParametersChange}
+      />
+
       {/* Charts and Tables */}
       <div className="space-y-6">
         {/* Forecast Distribution Chart */}

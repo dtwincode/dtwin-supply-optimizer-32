@@ -1,8 +1,12 @@
 
 import { ForecastChart } from "@/components/forecasting/ForecastChart";
 import { ForecastMetricsCards } from "@/components/forecasting/ForecastMetricsCards";
+import { ModelSelectionCard } from "@/components/forecasting/ModelSelectionCard";
 import { Card } from "@/components/ui/card";
 import { ForecastDataPoint } from "@/types/forecasting";
+import { useState } from "react";
+import { findBestFitModel } from "@/utils/forecasting/modelSelection";
+import { toast } from "sonner";
 
 interface ForecastAnalysisTabProps {
   filteredData: ForecastDataPoint[];
@@ -13,6 +17,9 @@ export const ForecastAnalysisTab = ({
   filteredData,
   confidenceIntervals
 }: ForecastAnalysisTabProps) => {
+  const [selectedModel, setSelectedModel] = useState("exp-smoothing");
+  const [modelParameters, setModelParameters] = useState<any[]>([]);
+
   // Calculate metrics from filteredData
   const calculateMetrics = (data: ForecastDataPoint[]) => {
     const actualValues = data.filter(d => d.actual !== null).map(d => d.actual!);
@@ -50,10 +57,39 @@ export const ForecastAnalysisTab = ({
     };
   };
 
+  const handleModelChange = (modelId: string) => {
+    setSelectedModel(modelId);
+    // Find best parameters for the selected model
+    const actualValues = filteredData
+      .filter(d => d.actual !== null)
+      .map(d => d.actual!);
+      
+    const modelResults = [{
+      modelId,
+      modelName: modelId,
+      forecast: filteredData.map(d => d.forecast)
+    }];
+
+    const bestFit = findBestFitModel(actualValues, modelResults);
+    setModelParameters(bestFit.optimizedParameters || []);
+    toast.success(`Model changed to ${modelId}`);
+  };
+
+  const handleParametersChange = (modelId: string, parameters: any[]) => {
+    setModelParameters(parameters);
+    toast.success("Model parameters updated");
+  };
+
   const metrics = calculateMetrics(filteredData);
 
   return (
     <div className="space-y-6">
+      <ModelSelectionCard
+        selectedModel={selectedModel}
+        onModelChange={handleModelChange}
+        onParametersChange={handleParametersChange}
+      />
+
       <ForecastMetricsCards metrics={metrics} />
       
       <Card className="p-6">
