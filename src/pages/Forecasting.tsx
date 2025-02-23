@@ -23,9 +23,10 @@ const Forecasting = () => {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  const [isTimeExpanded, setIsTimeExpanded] = useState(true);
-  const [isProductExpanded, setIsProductExpanded] = useState(true);
-  const [isLocationExpanded, setIsLocationExpanded] = useState(true);
+  // Set all filter sections to be collapsed by default
+  const [isTimeExpanded, setIsTimeExpanded] = useState(false);
+  const [isProductExpanded, setIsProductExpanded] = useState(false);
+  const [isLocationExpanded, setIsLocationExpanded] = useState(false);
 
   // Tab-specific localStorage keys
   const getStorageKey = (base: string) => `${base}_${currentPath.split('/').pop() || 'analysis'}`;
