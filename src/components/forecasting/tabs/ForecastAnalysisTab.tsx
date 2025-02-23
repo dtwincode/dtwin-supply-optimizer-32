@@ -4,9 +4,14 @@ import { ForecastMetricsCards } from "@/components/forecasting/ForecastMetricsCa
 import { ModelSelectionCard } from "@/components/forecasting/ModelSelectionCard";
 import { Card } from "@/components/ui/card";
 import { ForecastDataPoint } from "@/types/forecasting";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { findBestFitModel } from "@/utils/forecasting/modelSelection";
 import { toast } from "sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Save, Compare, TrendingUp, History } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { ModelParameter } from "@/types/models/commonTypes";
 
 interface ForecastAnalysisTabProps {
   filteredData: ForecastDataPoint[];
@@ -18,66 +23,92 @@ export const ForecastAnalysisTab = ({
   confidenceIntervals
 }: ForecastAnalysisTabProps) => {
   const [selectedModel, setSelectedModel] = useState("exp-smoothing");
-  const [modelParameters, setModelParameters] = useState<any[]>([]);
+  const [modelParameters, setModelParameters] = useState<ModelParameter[]>([]);
+  const [savedModels, setSavedModels] = useState<any[]>([]);
+  const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
+  const [modelPerformance, setModelPerformance] = useState<{
+    accuracy: number;
+    lastUpdated: string;
+    trend: 'improving' | 'stable' | 'declining';
+  }>({
+    accuracy: 0,
+    lastUpdated: '',
+    trend: 'stable'
+  });
 
-  // Calculate metrics from filteredData
-  const calculateMetrics = (data: ForecastDataPoint[]) => {
-    const actualValues = data.filter(d => d.actual !== null).map(d => d.actual!);
-    const forecastValues = data.filter(d => d.actual !== null).map(d => d.forecast);
-    
-    if (actualValues.length === 0) {
-      return {
-        mape: 0,
-        mae: 0,
-        rmse: 0
-      };
+  // Fetch saved models on component mount
+  useEffect(() => {
+    fetchSavedModels();
+    fetchModelPerformance();
+  }, [selectedModel]);
+
+  const fetchSavedModels = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('saved_model_configs')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setSavedModels(data || []);
+    } catch (error) {
+      console.error('Error fetching saved models:', error);
+      toast.error('Failed to load saved models');
     }
+  };
 
-    // Calculate MAPE
-    const mape = actualValues.reduce((sum, actual, i) => {
-      return sum + Math.abs((actual - forecastValues[i]) / actual);
-    }, 0) / actualValues.length * 100;
+  const fetchModelPerformance = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('model_training_history')
+        .select('*')
+        .eq('model_version', selectedModel)
+        .order('trained_at', { ascending: false })
+        .limit(1);
 
-    // Calculate MAE
-    const mae = actualValues.reduce((sum, actual, i) => {
-      return sum + Math.abs(actual - forecastValues[i]);
-    }, 0) / actualValues.length;
+      if (error) throw error;
 
-    // Calculate RMSE
-    const rmse = Math.sqrt(
-      actualValues.reduce((sum, actual, i) => {
-        return sum + Math.pow(actual - forecastValues[i], 2);
-      }, 0) / actualValues.length
-    );
-
-    return {
-      mape,
-      mae,
-      rmse
-    };
+      if (data && data[0]) {
+        const metrics = data[0].training_metrics;
+        setModelPerformance({
+          accuracy: metrics.accuracy || 0,
+          lastUpdated: new Date(data[0].trained_at).toLocaleDateString(),
+          trend: metrics.trend || 'stable'
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching model performance:', error);
+      toast.error('Failed to load model performance data');
+    }
   };
 
   const handleModelChange = (modelId: string) => {
     setSelectedModel(modelId);
-    // Find best parameters for the selected model
-    const actualValues = filteredData
-      .filter(d => d.actual !== null)
-      .map(d => d.actual!);
-      
-    const modelResults = [{
-      modelId,
-      modelName: modelId,
-      forecast: filteredData.map(d => d.forecast)
-    }];
-
-    const bestFit = findBestFitModel(actualValues, modelResults);
-    setModelParameters(bestFit.optimizedParameters || []);
-    toast.success(`Model changed to ${modelId}`);
   };
 
-  const handleParametersChange = (modelId: string, parameters: any[]) => {
+  const handleParametersChange = (modelId: string, parameters: ModelParameter[]) => {
     setModelParameters(parameters);
-    toast.success("Model parameters updated");
+  };
+
+  const handleSaveModel = async () => {
+    try {
+      const { error } = await supabase
+        .from('saved_model_configs')
+        .insert({
+          model_id: selectedModel,
+          parameters: modelParameters,
+          product_id: 'default',
+          product_name: 'Default Product',
+          auto_run: true
+        });
+
+      if (error) throw error;
+      toast.success('Model configuration saved successfully');
+      fetchSavedModels();
+    } catch (error) {
+      console.error('Error saving model:', error);
+      toast.error('Failed to save model configuration');
+    }
   };
 
   const metrics = calculateMetrics(filteredData);
@@ -89,6 +120,63 @@ export const ForecastAnalysisTab = ({
         onModelChange={handleModelChange}
         onParametersChange={handleParametersChange}
       />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Model Performance Monitoring Card */}
+        <Card className="p-6">
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold">Model Performance</h3>
+              <Button variant="outline" size="sm" onClick={handleSaveModel}>
+                <Save className="h-4 w-4 mr-2" />
+                Save Model
+              </Button>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Accuracy Trend</span>
+                <div className="flex items-center">
+                  <TrendingUp className={`h-4 w-4 mr-2 ${
+                    modelPerformance.trend === 'improving' ? 'text-green-500' :
+                    modelPerformance.trend === 'declining' ? 'text-red-500' :
+                    'text-yellow-500'
+                  }`} />
+                  <span className="text-sm font-medium">{modelPerformance.accuracy.toFixed(2)}%</span>
+                </div>
+              </div>
+              <div className="text-xs text-muted-foreground">
+                Last updated: {modelPerformance.lastUpdated}
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Saved Models Card */}
+        <Card className="p-6">
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Saved Models</h3>
+            <div className="space-y-2">
+              {savedModels.map((model) => (
+                <div
+                  key={model.id}
+                  className="flex items-center justify-between p-2 bg-muted rounded-lg"
+                >
+                  <div className="flex items-center">
+                    <History className="h-4 w-4 mr-2" />
+                    <span className="text-sm">{model.model_id}</span>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => {
+                    setSelectedModel(model.model_id);
+                    setModelParameters(model.parameters);
+                  }}>
+                    Load
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Card>
+      </div>
 
       <ForecastMetricsCards metrics={metrics} />
       
@@ -108,4 +196,41 @@ export const ForecastAnalysisTab = ({
       </Card>
     </div>
   );
+};
+
+// Helper function to calculate metrics
+const calculateMetrics = (data: ForecastDataPoint[]) => {
+  const actualValues = data.filter(d => d.actual !== null).map(d => d.actual!);
+  const forecastValues = data.filter(d => d.actual !== null).map(d => d.forecast);
+  
+  if (actualValues.length === 0) {
+    return {
+      mape: 0,
+      mae: 0,
+      rmse: 0
+    };
+  }
+
+  // Calculate MAPE
+  const mape = actualValues.reduce((sum, actual, i) => {
+    return sum + Math.abs((actual - forecastValues[i]) / actual);
+  }, 0) / actualValues.length * 100;
+
+  // Calculate MAE
+  const mae = actualValues.reduce((sum, actual, i) => {
+    return sum + Math.abs(actual - forecastValues[i]);
+  }, 0) / actualValues.length;
+
+  // Calculate RMSE
+  const rmse = Math.sqrt(
+    actualValues.reduce((sum, actual, i) => {
+      return sum + Math.pow(actual - forecastValues[i], 2);
+    }, 0) / actualValues.length
+  );
+
+  return {
+    mape,
+    mae,
+    rmse
+  };
 };
