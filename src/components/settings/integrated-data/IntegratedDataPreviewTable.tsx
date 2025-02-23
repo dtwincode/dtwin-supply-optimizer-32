@@ -27,6 +27,21 @@ export function IntegratedDataPreviewTable({
   const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set());
   const [filters, setFilters] = useState<Record<string, string>>({});
 
+  // Extract historical sales dates from metadata
+  const extractDateFromMetadata = (row: IntegratedData): string => {
+    if (row.metadata && typeof row.metadata === 'object') {
+      const metadataObj = row.metadata as Record<string, any>;
+      // Look for date fields in metadata
+      const dateFields = ['date', 'sales_date', 'transaction_date'];
+      for (const field of dateFields) {
+        if (metadataObj[field]) {
+          return String(metadataObj[field]);
+        }
+      }
+    }
+    return row.date || '';
+  };
+
   // Get all possible columns from the data, excluding system columns
   const availableColumns = useMemo(() => {
     const columns = new Set<string>();
@@ -37,13 +52,22 @@ export function IntegratedDataPreviewTable({
       'created_at',
       'updated_at',
       'validation_status',
-      'actual_value',
-      'Date' // Exclude uppercase 'Date' as we're using lowercase 'date'
+      'actual_value'
     ];
 
+    // Add date column first
+    columns.add('date');
+
     data.forEach(row => {
+      if (row.metadata && typeof row.metadata === 'object') {
+        Object.keys(row.metadata).forEach(key => {
+          if (!excludedColumns.includes(key)) {
+            columns.add(key);
+          }
+        });
+      }
       Object.keys(row).forEach(key => {
-        if (!excludedColumns.includes(key)) {
+        if (!excludedColumns.includes(key) && key !== 'date' && key !== 'metadata') {
           columns.add(key);
         }
       });
@@ -51,25 +75,20 @@ export function IntegratedDataPreviewTable({
     return Array.from(columns);
   }, [data]);
 
-  // Format date value helper function
-  const formatDateValue = (value: any): string => {
-    if (!value) return '';
-    if (typeof value === 'string') return value;
-    if (value instanceof Date) return value.toISOString().split('T')[0];
-    return String(value);
-  };
-
   // Get unique values for each column
   const uniqueValues = useMemo(() => {
     const values: Record<string, Set<string>> = {};
     availableColumns.forEach(column => {
       values[column] = new Set();
       data.forEach(row => {
-        const value = row[column];
-        if (value !== undefined && value !== null && value !== '') {
-          if (column === 'date') {
-            values[column].add(formatDateValue(value));
-          } else {
+        if (column === 'date') {
+          const dateValue = extractDateFromMetadata(row);
+          if (dateValue) {
+            values[column].add(dateValue);
+          }
+        } else {
+          const value = row.metadata?.[column] ?? row[column];
+          if (value !== undefined && value !== null && value !== '') {
             values[column].add(String(value));
           }
         }
@@ -103,10 +122,12 @@ export function IntegratedDataPreviewTable({
         if (!filterValue) return true;
         
         if (column === 'date') {
-          return formatDateValue(row[column]) === filterValue;
+          const dateValue = extractDateFromMetadata(row);
+          return dateValue === filterValue;
         }
         
-        return String(row[column]) === filterValue;
+        const value = row.metadata?.[column] ?? row[column];
+        return String(value) === filterValue;
       });
     });
   }, [data, filters]);
@@ -198,10 +219,13 @@ export function IntegratedDataPreviewTable({
                         key={`${row.id || index}-${column}`} 
                         className="min-w-[150px]"
                       >
-                        {column === 'date' ? formatDateValue(row[column]) : (
-                          typeof row[column] === 'object'
-                            ? JSON.stringify(row[column])
-                            : String(row[column] ?? '')
+                        {column === 'date' ? extractDateFromMetadata(row) : (
+                          (() => {
+                            const value = row.metadata?.[column] ?? row[column];
+                            return typeof value === 'object'
+                              ? JSON.stringify(value)
+                              : String(value ?? '');
+                          })()
                         )}
                       </TableCell>
                     ))}
