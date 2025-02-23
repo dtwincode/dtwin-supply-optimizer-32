@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { IntegratedDataPreviewTable } from "./IntegratedDataPreviewTable";
 import { useIntegratedData } from "./useIntegratedData";
@@ -54,7 +55,7 @@ export function IntegratedDataPreview() {
       />
 
       <div className="flex justify-end">
-        <Button variant="primary" onClick={handleIntegration} disabled={isIntegrating}>
+        <Button variant="default" onClick={handleIntegration} disabled={isIntegrating}>
           {isIntegrating ? "Integrating..." : "Run Integration"}
         </Button>
       </div>
