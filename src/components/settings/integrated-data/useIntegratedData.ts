@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
@@ -175,17 +174,17 @@ export function useIntegratedData() {
     setIsIntegrating(true);
     setError(null);
 
-    let loadingToastId: string | number | undefined;
     let backgroundCheckInterval: NodeJS.Timeout;
     
     try {
       await checkRequiredFiles();
       
-      loadingToastId = toast({
+      // Show initial loading toast
+      toast({
         title: "Integration Started",
         description: "Starting data integration process. This may take several minutes...",
         duration: null, // Toast will persist
-      }).id;
+      });
       
       const mappingConfig: MappingConfigType = {
         use_product_mapping: selectedMapping.use_product_mapping,
@@ -256,13 +255,11 @@ export function useIntegratedData() {
 
       setHasIntegrated(false);
     } finally {
-      if (loadingToastId) {
-        toast({
-          id: loadingToastId,
-          title: "Integration Status",
-          description: "Integration process has completed.",
-        });
-      }
+      // Show completion toast
+      toast({
+        title: "Integration Status",
+        description: "Integration process has completed.",
+      });
       setIsIntegrating(false);
     }
   }, [selectedMapping, isIntegrating, checkRequiredFiles, fetchData]);
