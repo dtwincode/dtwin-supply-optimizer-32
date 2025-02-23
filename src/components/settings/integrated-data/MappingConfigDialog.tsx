@@ -130,18 +130,16 @@ export function MappingConfigDialog({
       return;
     }
 
-    if (onDelete) {
-      onDelete();
-      setCurrentMapping(null);
-      setMappingName("");
-      setDescription("");
-      setUseProductMapping(false);
-      setUseLocationMapping(false);
-      setSelectedProductKey("");
-      setSelectedLocationKey("");
-      setSelectedHistoricalProductKey("");
-      setSelectedHistoricalLocationKey("");
-    }
+    onDelete?.();
+    setCurrentMapping(null);
+    setMappingName("");
+    setDescription("");
+    setUseProductMapping(false);
+    setUseLocationMapping(false);
+    setSelectedProductKey("");
+    setSelectedLocationKey("");
+    setSelectedHistoricalProductKey("");
+    setSelectedHistoricalLocationKey("");
   };
 
   const handleSave = async () => {
@@ -225,7 +223,7 @@ export function MappingConfigDialog({
                     currentMapping?.id === config.id ? 'border-primary' : ''
                   }`}
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <h4 className="font-medium">{config.mapping_name}</h4>
@@ -259,7 +257,10 @@ export function MappingConfigDialog({
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleSelectMapping(config)}
+                        onClick={() => {
+                          handleSelectMapping(config);
+                          onSave(config);
+                        }}
                       >
                         Select
                         <ChevronRight className="ml-2 h-4 w-4" />

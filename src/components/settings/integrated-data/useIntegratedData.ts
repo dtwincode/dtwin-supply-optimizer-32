@@ -23,6 +23,148 @@ export function useIntegratedData() {
   
   const location = useLocation();
 
+  const fetchSavedMappings = useCallback(async () => {
+    try {
+      const { data: mappings, error } = await supabase
+        .from('forecast_integration_mappings')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setSavedMappings(mappings || []);
+    } catch (error: any) {
+      console.error('Error fetching mappings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load saved mappings",
+        variant: "destructive",
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (mappingDialogOpen) {
+      fetchSavedMappings();
+    }
+  }, [mappingDialogOpen, fetchSavedMappings]);
+
+  const handleDeleteMapping = async () => {
+    if (!selectedMapping?.id) {
+      toast({
+        title: "Error",
+        description: "No mapping configuration selected",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('forecast_integration_mappings')
+        .delete()
+        .eq('id', selectedMapping.id);
+
+      if (error) throw error;
+
+      // Update local state
+      setSavedMappings(current => current.filter(m => m.id !== selectedMapping.id));
+      setSelectedMapping(null);
+      toast({
+        title: "Success",
+        description: "Mapping configuration deleted successfully",
+      });
+    } catch (error: any) {
+      console.error('Error deleting mapping:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete mapping configuration",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSaveMapping = (mapping: ForecastMappingConfig) => {
+    setSelectedMapping(mapping);
+    handleIntegration();
+  };
+
+  const handleIntegration = async () => {
+    if (!selectedMapping) {
+      setMappingDialogOpen(true);
+      return;
+    }
+
+    if (isIntegrating) return;
+    
+    setIsIntegrating(true);
+    setError(null);
+    
+    try {
+      await checkRequiredFiles();
+      
+      const mappingConfig: MappingConfigType = {
+        use_product_mapping: selectedMapping.use_product_mapping,
+        use_location_mapping: selectedMapping.use_location_mapping,
+        product_key_column: selectedMapping.product_key_column || null,
+        location_key_column: selectedMapping.location_key_column || null,
+        historical_product_key_column: selectedMapping.historical_product_key_column || null,
+        historical_location_key_column: selectedMapping.historical_location_key_column || null,
+        id: selectedMapping.id
+      };
+
+      const { data, error } = await supabase.rpc('integrate_forecast_data', {
+        p_mapping_config: mappingConfig
+      });
+      
+      if (error) {
+        console.error('Integration error:', error);
+        throw error;
+      }
+      
+      setHasIntegrated(true);
+      toast({
+        title: "Success",
+        description: "Data integrated successfully.",
+      });
+      
+      await fetchData();
+    } catch (error: any) {
+      console.error('Integration error:', error);
+      const errorMessage = error.message || "Failed to integrate data. Please make sure all required data is uploaded.";
+      setError(errorMessage);
+      toast({
+        title: "Integration Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      setHasIntegrated(false);
+    } finally {
+      setIsIntegrating(false);
+    }
+  };
+
+  const checkRequiredFiles = async () => {
+    try {
+      const { data: historicalFiles, error: historicalError } = await supabase
+        .from('permanent_hierarchy_files')
+        .select('*')
+        .eq('hierarchy_type', 'historical_sales')
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (historicalError) throw historicalError;
+      if (!historicalFiles?.length) {
+        throw new Error('Please upload historical sales data before running integration');
+      }
+
+      return true;
+    } catch (error: any) {
+      setError(error.message);
+      throw error;
+    }
+  };
+
   const fetchData = useCallback(async () => {
     if (isLoading || !hasIntegrated) {
       setData([]);
@@ -93,159 +235,6 @@ export function useIntegratedData() {
       setIsLoading(false);
     }
   }, [hasIntegrated, isLoading]);
-
-  const checkRequiredFiles = async () => {
-    try {
-      const { data: historicalFiles, error: historicalError } = await supabase
-        .from('permanent_hierarchy_files')
-        .select('*')
-        .eq('hierarchy_type', 'historical_sales')
-        .order('created_at', { ascending: false })
-        .limit(1);
-
-      if (historicalError) throw historicalError;
-      if (!historicalFiles?.length) {
-        throw new Error('Please upload historical sales data before running integration');
-      }
-
-      return true;
-    } catch (error: any) {
-      setError(error.message);
-      throw error;
-    }
-  };
-
-  const handleIntegration = async () => {
-    if (!selectedMapping) {
-      setMappingDialogOpen(true);
-      return;
-    }
-
-    if (isIntegrating) return;
-    
-    setIsIntegrating(true);
-    setError(null);
-    
-    try {
-      await checkRequiredFiles();
-      
-      const mappingConfig: MappingConfigType = {
-        use_product_mapping: selectedMapping.use_product_mapping,
-        use_location_mapping: selectedMapping.use_location_mapping,
-        product_key_column: selectedMapping.product_key_column || null,
-        location_key_column: selectedMapping.location_key_column || null,
-        historical_product_key_column: selectedMapping.historical_product_key_column || null,
-        historical_location_key_column: selectedMapping.historical_location_key_column || null,
-        id: selectedMapping.id
-      };
-
-      const { data, error } = await supabase.rpc('integrate_forecast_data', {
-        p_mapping_config: mappingConfig
-      });
-      
-      if (error) {
-        console.error('Integration error:', error);
-        throw error;
-      }
-      
-      setHasIntegrated(true);
-      toast({
-        title: "Success",
-        description: "Data integrated successfully.",
-      });
-      
-      await fetchData();
-    } catch (error: any) {
-      console.error('Integration error:', error);
-      const errorMessage = error.message || "Failed to integrate data. Please make sure all required data is uploaded.";
-      setError(errorMessage);
-      toast({
-        title: "Integration Failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
-      setHasIntegrated(false);
-    } finally {
-      setIsIntegrating(false);
-    }
-  };
-
-  const handleSaveMapping = (mapping: ForecastMappingConfig) => {
-    setSelectedMapping(mapping);
-    handleIntegration();
-  };
-
-  const handleDeleteMapping = async () => {
-    if (!selectedMapping?.id) {
-      toast({
-        title: "Error",
-        description: "No mapping configuration selected",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('forecast_integration_mappings')
-        .delete()
-        .eq('id', selectedMapping.id);
-
-      if (error) throw error;
-
-      // Update local state
-      setSavedMappings(current => current.filter(m => m.id !== selectedMapping.id));
-      setSelectedMapping(null);
-      setMappingDialogOpen(false);
-
-      toast({
-        title: "Success",
-        description: "Mapping configuration deleted successfully",
-      });
-    } catch (error: any) {
-      console.error('Error deleting mapping:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete mapping configuration",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const fetchSavedMappings = useCallback(async () => {
-    try {
-      const { data: mappings, error } = await supabase
-        .from('forecast_integration_mappings')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      setSavedMappings(mappings || []);
-    } catch (error: any) {
-      console.error('Error fetching mappings:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load saved mappings",
-        variant: "destructive",
-      });
-    }
-  }, []);
-
-  useEffect(() => {
-    if (mappingDialogOpen) {
-      fetchSavedMappings();
-    }
-  }, [mappingDialogOpen, fetchSavedMappings]);
-
-  useEffect(() => {
-    if (!hasIntegrated) {
-      setData([]);
-      return;
-    }
-    
-    fetchData();
-  }, [fetchData, hasIntegrated]);
 
   return {
     data,
