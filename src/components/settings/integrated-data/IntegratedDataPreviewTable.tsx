@@ -38,7 +38,6 @@ export function IntegratedDataPreviewTable({
       'updated_at',
       'validation_status',
       'actual_value'
-      // Removed 'date' from excluded columns to show it in the table
     ];
 
     data.forEach(row => {
@@ -59,9 +58,13 @@ export function IntegratedDataPreviewTable({
       data.forEach(row => {
         const value = row[column];
         if (value !== undefined && value !== null && value !== '') {
-          // Format date values if the column is 'date'
-          if (column === 'date' && value instanceof Date) {
-            values[column].add(value.toISOString().split('T')[0]);
+          if (column === 'Date') {
+            // Ensure we handle both string and Date objects
+            const dateValue = typeof value === 'string' ? value : 
+                            value && typeof value === 'object' && 'toISOString' in value ? 
+                            value.toISOString().split('T')[0] : 
+                            String(value);
+            values[column].add(dateValue);
           } else {
             values[column].add(String(value));
           }
@@ -94,11 +97,13 @@ export function IntegratedDataPreviewTable({
     return data.filter(row => {
       return Object.entries(filters).every(([column, filterValue]) => {
         if (!filterValue) return true;
-        if (column === 'date') {
-          const rowDate = row[column] instanceof Date 
-            ? row[column].toISOString().split('T')[0]
-            : String(row[column]);
-          return rowDate === filterValue;
+        if (column === 'Date') {
+          const rowValue = row[column];
+          const dateValue = typeof rowValue === 'string' ? rowValue :
+                          rowValue && typeof rowValue === 'object' && 'toISOString' in rowValue ?
+                          rowValue.toISOString().split('T')[0] :
+                          String(rowValue);
+          return dateValue === filterValue;
         }
         return String(row[column]) === filterValue;
       });
@@ -171,7 +176,7 @@ export function IntegratedDataPreviewTable({
                             <SelectItem value="all">All</SelectItem>
                             {Array.from(uniqueValues[column] || [])
                               .filter(value => value !== '')
-                              .sort((a, b) => column === 'date' ? b.localeCompare(a) : a.localeCompare(b))
+                              .sort((a, b) => column === 'Date' ? b.localeCompare(a) : a.localeCompare(b))
                               .map((value) => (
                                 <SelectItem key={value} value={value}>
                                   {value}
@@ -192,11 +197,16 @@ export function IntegratedDataPreviewTable({
                         key={`${row.id || index}-${column}`} 
                         className="min-w-[150px]"
                       >
-                        {typeof row[column] === 'object' 
-                          ? column === 'date' && row[column] instanceof Date
-                            ? row[column].toISOString().split('T')[0]
-                            : JSON.stringify(row[column]) 
-                          : String(row[column] ?? '')}
+                        {column === 'Date' && row[column] ? (
+                          typeof row[column] === 'string' ? row[column] :
+                          typeof row[column] === 'object' && 'toISOString' in row[column] ?
+                          row[column].toISOString().split('T')[0] :
+                          String(row[column])
+                        ) : (
+                          typeof row[column] === 'object' 
+                            ? JSON.stringify(row[column]) 
+                            : String(row[column] ?? '')
+                        )}
                       </TableCell>
                     ))}
                   </TableRow>
