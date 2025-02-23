@@ -340,7 +340,6 @@ export const ForecastAnalysisTab = ({
   );
 };
 
-// Helper function to calculate metrics
 const calculateMetrics = (data: ForecastDataPoint[]) => {
   const actualValues = data.filter(d => d.actual !== null).map(d => d.actual!);
   const forecastValues = data.filter(d => d.actual !== null).map(d => d.forecast);
@@ -353,17 +352,14 @@ const calculateMetrics = (data: ForecastDataPoint[]) => {
     };
   }
 
-  // Calculate MAPE
   const mape = actualValues.reduce((sum, actual, i) => {
     return sum + Math.abs((actual - forecastValues[i]) / actual);
   }, 0) / actualValues.length * 100;
 
-  // Calculate MAE
   const mae = actualValues.reduce((sum, actual, i) => {
     return sum + Math.abs(actual - forecastValues[i]);
   }, 0) / actualValues.length;
 
-  // Calculate RMSE
   const rmse = Math.sqrt(
     actualValues.reduce((sum, actual, i) => {
       return sum + Math.pow(actual - forecastValues[i], 2);
