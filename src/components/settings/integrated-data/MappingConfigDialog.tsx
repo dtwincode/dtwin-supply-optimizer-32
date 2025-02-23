@@ -51,6 +51,7 @@ export function MappingConfigDialog({
   const [selectedHistoricalProductKey, setSelectedHistoricalProductKey] = useState<string>("");
   const [selectedHistoricalLocationKey, setSelectedHistoricalLocationKey] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const [currentMapping, setCurrentMapping] = useState<ForecastMappingConfig | null>(null);
 
   useEffect(() => {
     const fetchColumns = async () => {
@@ -168,6 +169,18 @@ export function MappingConfigDialog({
     }
   };
 
+  const handleSelectMapping = (config: ForecastMappingConfig) => {
+    setCurrentMapping(config);
+    setMappingName(config.mapping_name);
+    setDescription(config.description || '');
+    setUseProductMapping(config.use_product_mapping);
+    setUseLocationMapping(config.use_location_mapping);
+    setSelectedProductKey(config.product_key_column || '');
+    setSelectedLocationKey(config.location_key_column || '');
+    setSelectedHistoricalProductKey(config.historical_product_key_column || '');
+    setSelectedHistoricalLocationKey(config.historical_location_key_column || '');
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-y-auto">
@@ -186,7 +199,7 @@ export function MappingConfigDialog({
                 <Card
                   key={config.id}
                   className={`p-4 ${
-                    selectedMapping?.id === config.id ? 'border-primary' : ''
+                    currentMapping?.id === config.id ? 'border-primary' : ''
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -223,29 +236,21 @@ export function MappingConfigDialog({
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => {
-                          setSelectedMapping(config);
-                          setMappingName(config.mapping_name);
-                          setDescription(config.description || '');
-                          setUseProductMapping(config.use_product_mapping);
-                          setUseLocationMapping(config.use_location_mapping);
-                          setSelectedProductKey(config.product_key_column || '');
-                          setSelectedLocationKey(config.location_key_column || '');
-                          setSelectedHistoricalProductKey(config.historical_product_key_column || '');
-                          setSelectedHistoricalLocationKey(config.historical_location_key_column || '');
-                        }}
+                        onClick={() => handleSelectMapping(config)}
                       >
                         Select
                         <ChevronRight className="ml-2 h-4 w-4" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onDelete && config.id === selectedMapping?.id && onDelete()}
-                        className="h-8 w-8 hover:bg-destructive hover:text-destructive-foreground"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
+                      {currentMapping?.id === config.id && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={onDelete}
+                          className="h-8 w-8 hover:bg-destructive hover:text-destructive-foreground"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </Card>
@@ -375,7 +380,7 @@ export function MappingConfigDialog({
 
         <DialogFooter className="sticky bottom-0 bg-background pt-4">
           <div className="flex justify-between w-full">
-            {selectedMapping && (
+            {currentMapping && (
               <Button
                 variant="destructive"
                 onClick={onDelete}

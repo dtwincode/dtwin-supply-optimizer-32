@@ -5,6 +5,13 @@ export interface IntegratedData {
   sku: string;
   actual_value: number;
   validation_status: string | null;
+  metadata?: Record<string, any>;
+  source_files?: Array<{
+    file_name: string;
+    [key: string]: any;
+  }>;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface ForecastMappingConfig {
