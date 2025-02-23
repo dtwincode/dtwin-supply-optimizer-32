@@ -13,6 +13,7 @@ export function IntegratedDataPreview() {
     setMappingDialogOpen,
     selectedMapping,
     setSelectedMapping,
+    savedMappings,
     validationStatus,
     error,
     handleIntegration,
@@ -40,6 +41,7 @@ export function IntegratedDataPreview() {
         onSave={handleSaveMapping}
         selectedMapping={selectedMapping}
         onDelete={handleDeleteMapping}
+        savedMappings={savedMappings}
       />
 
       {error && (

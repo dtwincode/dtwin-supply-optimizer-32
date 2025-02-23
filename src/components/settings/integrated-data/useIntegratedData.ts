@@ -16,6 +16,7 @@ export function useIntegratedData() {
   const [isIntegrating, setIsIntegrating] = useState(false);
   const [mappingDialogOpen, setMappingDialogOpen] = useState(false);
   const [selectedMapping, setSelectedMapping] = useState<ForecastMappingConfig | null>(null);
+  const [savedMappings, setSavedMappings] = useState<ForecastMappingConfig[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [validationStatus, setValidationStatus] = useState<'valid' | 'needs_review' | null>(null);
   const [hasIntegrated, setHasIntegrated] = useState(false);
@@ -208,6 +209,32 @@ export function useIntegratedData() {
     }
   };
 
+  const fetchSavedMappings = useCallback(async () => {
+    try {
+      const { data: mappings, error } = await supabase
+        .from('forecast_integration_mappings')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setSavedMappings(mappings || []);
+    } catch (error: any) {
+      console.error('Error fetching mappings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load saved mappings",
+        variant: "destructive",
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (mappingDialogOpen) {
+      fetchSavedMappings();
+    }
+  }, [mappingDialogOpen, fetchSavedMappings]);
+
   useEffect(() => {
     if (!hasIntegrated) {
       setData([]);
@@ -225,6 +252,7 @@ export function useIntegratedData() {
     setMappingDialogOpen,
     selectedMapping,
     setSelectedMapping,
+    savedMappings,
     validationStatus,
     error,
     hasIntegrated,

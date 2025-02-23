@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -16,6 +17,10 @@ import { toast } from "@/components/ui/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ForecastMappingConfig } from "./types";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card } from "@/components/ui/card";
+import { Info, X, ChevronRight } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface MappingConfigDialogProps {
   open: boolean;
@@ -23,6 +28,7 @@ interface MappingConfigDialogProps {
   onSave: (mapping: ForecastMappingConfig) => void;
   selectedMapping?: ForecastMappingConfig | null;
   onDelete?: () => void;
+  savedMappings: ForecastMappingConfig[];
 }
 
 export function MappingConfigDialog({ 
@@ -30,7 +36,8 @@ export function MappingConfigDialog({
   onOpenChange, 
   onSave,
   selectedMapping,
-  onDelete 
+  onDelete,
+  savedMappings
 }: MappingConfigDialogProps) {
   const [mappingName, setMappingName] = useState("");
   const [description, setDescription] = useState("");
@@ -170,6 +177,85 @@ export function MappingConfigDialog({
             Configure how different data hierarchies should be mapped together
           </DialogDescription>
         </DialogHeader>
+
+        <div className="space-y-2">
+          <Label>Saved Configurations</Label>
+          <ScrollArea className="h-[200px] rounded-md border">
+            <div className="p-4 space-y-2">
+              {savedMappings.map((config) => (
+                <Card
+                  key={config.id}
+                  className={`p-4 ${
+                    selectedMapping?.id === config.id ? 'border-primary' : ''
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-medium">{config.mapping_name}</h4>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <Info className="h-4 w-4" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-80">
+                            <div className="space-y-2">
+                              <h5 className="font-medium">Configuration Details</h5>
+                              <div className="text-sm">
+                                <p><span className="font-medium">Product Mapping:</span> {config.use_product_mapping ? 'Yes' : 'No'}</p>
+                                <p><span className="font-medium">Location Mapping:</span> {config.use_location_mapping ? 'Yes' : 'No'}</p>
+                                {config.description && (
+                                  <p><span className="font-medium">Description:</span> {config.description}</p>
+                                )}
+                              </div>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                      {config.description && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {config.description}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedMapping(config);
+                          setMappingName(config.mapping_name);
+                          setDescription(config.description || '');
+                          setUseProductMapping(config.use_product_mapping);
+                          setUseLocationMapping(config.use_location_mapping);
+                          setSelectedProductKey(config.product_key_column || '');
+                          setSelectedLocationKey(config.location_key_column || '');
+                          setSelectedHistoricalProductKey(config.historical_product_key_column || '');
+                          setSelectedHistoricalLocationKey(config.historical_location_key_column || '');
+                        }}
+                      >
+                        Select
+                        <ChevronRight className="ml-2 h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onDelete && config.id === selectedMapping?.id && onDelete()}
+                        className="h-8 w-8 hover:bg-destructive hover:text-destructive-foreground"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+              {savedMappings.length === 0 && (
+                <p className="text-muted-foreground text-sm p-2">No saved configurations</p>
+              )}
+            </div>
+          </ScrollArea>
+        </div>
 
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
