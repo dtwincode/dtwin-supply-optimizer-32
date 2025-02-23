@@ -42,7 +42,7 @@ const PatternAnalysisCard = ({ data }: { data: ForecastDataPoint[] }) => {
     const actualValues = data.map(d => d.actual).filter(a => a !== null) as number[];
     
     const trend = forecastValues.length > 1 ? 
-      forecastValues[forecastValues.length - 1] - forecastValues[0] : 0;
+      ((forecastValues[forecastValues.length - 1] - forecastValues[0]) / forecastValues[0]) * 100 : 0;
     
     const seasonality = actualValues.length >= 12 ? 
       Math.abs(Math.max(...actualValues) - Math.min(...actualValues)) / 
@@ -63,7 +63,7 @@ const PatternAnalysisCard = ({ data }: { data: ForecastDataPoint[] }) => {
   const patterns = analyzePatterns();
 
   return (
-    <Card className="p-6 mt-6">
+    <Card className="p-6">
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Pattern Analysis</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -130,6 +130,7 @@ export const ForecastAnalysisTab = ({
   const [savedModels, setSavedModels] = useState<SavedModelConfig[]>([]);
   const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
+  const [confidenceLevel, setConfidenceLevel] = useState<string>("95");
   const [modelPerformance, setModelPerformance] = useState<{
     accuracy: number;
     lastUpdated: string;
@@ -139,7 +140,6 @@ export const ForecastAnalysisTab = ({
     lastUpdated: '',
     trend: 'stable'
   });
-  const [confidenceLevel, setConfidenceLevel] = useState<string>("95");
 
   useEffect(() => {
     fetchSavedModels();
