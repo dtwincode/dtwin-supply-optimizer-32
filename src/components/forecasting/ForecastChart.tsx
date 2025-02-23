@@ -42,10 +42,12 @@ export const ForecastChart = ({
     return {
       ...item,
       formattedWeek: formattedDate,
-      actual: Number(item.actual) || 0,
-      forecast: Number(item.forecast) || 0,
-      upper: Number(item.upper) || Number(item.forecast) || 0,
-      lower: Number(item.lower) || Number(item.forecast) || 0
+      actual: item.actual !== undefined ? Number(item.actual) : null,
+      forecast: item.forecast !== undefined ? Number(item.forecast) : null,
+      upper: item.upper !== undefined ? Number(item.upper) : 
+             item.forecast !== undefined ? Number(item.forecast) : null,
+      lower: item.lower !== undefined ? Number(item.lower) : 
+             item.forecast !== undefined ? Number(item.forecast) : null
     };
   });
 
@@ -73,7 +75,11 @@ export const ForecastChart = ({
         />
         <Tooltip
           labelFormatter={(label) => `Week of ${label}`}
-          formatter={(value: number) => [Math.round(value), "Units"]}
+          formatter={(value: any) => {
+            // Handle null or undefined values
+            if (value === null || value === undefined) return ['-', 'Units'];
+            return [Math.round(value), "Units"];
+          }}
           contentStyle={{
             backgroundColor: 'white',
             border: '1px solid #ccc',
@@ -96,6 +102,7 @@ export const ForecastChart = ({
           fill="#F59E0B"
           fillOpacity={0.08}
           name="Confidence Interval"
+          connectNulls
         />
         <Area
           type="monotone"
@@ -104,6 +111,7 @@ export const ForecastChart = ({
           fill="#F59E0B"
           fillOpacity={0.08}
           name=" "
+          connectNulls
         />
         <Line
           type="monotone"
@@ -113,6 +121,7 @@ export const ForecastChart = ({
           strokeWidth={2.5}
           dot={false}
           isAnimationActive={false}
+          connectNulls
         />
         <Line
           type="monotone"
@@ -122,6 +131,7 @@ export const ForecastChart = ({
           strokeWidth={2.5}
           dot={false}
           isAnimationActive={false}
+          connectNulls
         />
       </ComposedChart>
     </ResponsiveContainer>
