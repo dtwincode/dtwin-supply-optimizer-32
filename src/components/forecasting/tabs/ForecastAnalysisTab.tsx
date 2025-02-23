@@ -13,9 +13,48 @@ export const ForecastAnalysisTab = ({
   filteredData,
   confidenceIntervals
 }: ForecastAnalysisTabProps) => {
+  // Calculate metrics from filteredData
+  const calculateMetrics = (data: ForecastDataPoint[]) => {
+    const actualValues = data.filter(d => d.actual !== null).map(d => d.actual!);
+    const forecastValues = data.filter(d => d.actual !== null).map(d => d.forecast);
+    
+    if (actualValues.length === 0) {
+      return {
+        mape: 0,
+        mae: 0,
+        rmse: 0
+      };
+    }
+
+    // Calculate MAPE
+    const mape = actualValues.reduce((sum, actual, i) => {
+      return sum + Math.abs((actual - forecastValues[i]) / actual);
+    }, 0) / actualValues.length * 100;
+
+    // Calculate MAE
+    const mae = actualValues.reduce((sum, actual, i) => {
+      return sum + Math.abs(actual - forecastValues[i]);
+    }, 0) / actualValues.length;
+
+    // Calculate RMSE
+    const rmse = Math.sqrt(
+      actualValues.reduce((sum, actual, i) => {
+        return sum + Math.pow(actual - forecastValues[i], 2);
+      }, 0) / actualValues.length
+    );
+
+    return {
+      mape,
+      mae,
+      rmse
+    };
+  };
+
+  const metrics = calculateMetrics(filteredData);
+
   return (
     <div className="space-y-6">
-      <ForecastMetricsCards data={filteredData} />
+      <ForecastMetricsCards metrics={metrics} />
       
       <Card className="p-6">
         <div className="space-y-2 mb-4">

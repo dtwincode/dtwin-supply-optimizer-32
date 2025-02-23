@@ -1,6 +1,11 @@
 
 import { TrendingUp, AlertCircle, Zap, Share2 } from "lucide-react";
-import { type ModelMetrics } from "@/utils/forecasting/metricsCalculation";
+
+interface ModelMetrics {
+  mape: number;
+  mae: number;
+  rmse: number;
+}
 
 interface ForecastMetricsCardsProps {
   metrics: ModelMetrics;
@@ -12,7 +17,7 @@ export const ForecastMetricsCards = ({ metrics }: ForecastMetricsCardsProps) => 
       <div className="bg-white p-3 rounded-lg shadow-sm border">
         <div className="flex items-center space-x-3">
           <div className="p-2 bg-primary-50 rounded-full">
-            <TrendingUp className="h-5 w-5 text-primary-500" />
+            <TrendingUp className="h-5 w-5 text-primary" />
           </div>
           <div>
             <p className="text-sm text-gray-500">Forecast Accuracy</p>
@@ -27,7 +32,7 @@ export const ForecastMetricsCards = ({ metrics }: ForecastMetricsCardsProps) => 
           </div>
           <div>
             <p className="text-sm text-gray-500">MAPE</p>
-            <p className="text-xl font-semibold">{metrics.mape}%</p>
+            <p className="text-xl font-semibold">{metrics.mape.toFixed(1)}%</p>
           </div>
         </div>
       </div>
@@ -38,7 +43,7 @@ export const ForecastMetricsCards = ({ metrics }: ForecastMetricsCardsProps) => 
           </div>
           <div>
             <p className="text-sm text-gray-500">MAE</p>
-            <p className="text-xl font-semibold">{metrics.mae}</p>
+            <p className="text-xl font-semibold">{metrics.mae.toFixed(2)}</p>
           </div>
         </div>
       </div>
@@ -49,7 +54,7 @@ export const ForecastMetricsCards = ({ metrics }: ForecastMetricsCardsProps) => 
           </div>
           <div>
             <p className="text-sm text-gray-500">RMSE</p>
-            <p className="text-xl font-semibold">{metrics.rmse}</p>
+            <p className="text-xl font-semibold">{metrics.rmse.toFixed(2)}</p>
           </div>
         </div>
       </div>
