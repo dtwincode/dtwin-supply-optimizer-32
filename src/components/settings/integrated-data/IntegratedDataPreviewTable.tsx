@@ -29,7 +29,7 @@ export function IntegratedDataPreviewTable({
 
   // Get all possible columns from the data, excluding system columns
   const availableColumns = useMemo(() => {
-    const columns = new Set<string>();
+    const columns = new Set(['Date']); // Always include Date column first
     const excludedColumns = [
       'id', 
       'metadata', 
@@ -37,12 +37,13 @@ export function IntegratedDataPreviewTable({
       'created_at',
       'updated_at',
       'validation_status',
-      'actual_value'
+      'actual_value',
+      'date' // Exclude lowercase 'date' as we're using 'Date'
     ];
 
     data.forEach(row => {
       Object.keys(row).forEach(key => {
-        if (!excludedColumns.includes(key)) {
+        if (!excludedColumns.includes(key) && key !== 'Date') {
           columns.add(key);
         }
       });
@@ -55,21 +56,28 @@ export function IntegratedDataPreviewTable({
     const values: Record<string, Set<string>> = {};
     availableColumns.forEach(column => {
       values[column] = new Set();
-      data.forEach(row => {
-        const value = row[column];
-        if (value !== undefined && value !== null && value !== '') {
-          if (column === 'Date') {
-            // Ensure we handle both string and Date objects
-            const dateValue = typeof value === 'string' ? value : 
-                            value && typeof value === 'object' && 'toISOString' in value ? 
-                            value.toISOString().split('T')[0] : 
-                            String(value);
-            values[column].add(dateValue);
-          } else {
+      if (column === 'Date') {
+        // Special handling for Date column
+        data.forEach(row => {
+          const dateValue = row.date || row.Date;
+          if (dateValue) {
+            const formattedDate = typeof dateValue === 'string' 
+              ? dateValue 
+              : dateValue instanceof Date 
+                ? dateValue.toISOString().split('T')[0]
+                : String(dateValue);
+            values[column].add(formattedDate);
+          }
+        });
+      } else {
+        // Handle other columns
+        data.forEach(row => {
+          const value = row[column];
+          if (value !== undefined && value !== null && value !== '') {
             values[column].add(String(value));
           }
-        }
-      });
+        });
+      }
     });
     return values;
   }, [data, availableColumns]);
@@ -97,14 +105,17 @@ export function IntegratedDataPreviewTable({
     return data.filter(row => {
       return Object.entries(filters).every(([column, filterValue]) => {
         if (!filterValue) return true;
+        
         if (column === 'Date') {
-          const rowValue = row[column];
-          const dateValue = typeof rowValue === 'string' ? rowValue :
-                          rowValue && typeof rowValue === 'object' && 'toISOString' in rowValue ?
-                          rowValue.toISOString().split('T')[0] :
-                          String(rowValue);
-          return dateValue === filterValue;
+          const dateValue = row.date || row.Date;
+          const formattedDate = typeof dateValue === 'string'
+            ? dateValue
+            : dateValue instanceof Date
+              ? dateValue.toISOString().split('T')[0]
+              : String(dateValue);
+          return formattedDate === filterValue;
         }
+        
         return String(row[column]) === filterValue;
       });
     });
@@ -197,14 +208,18 @@ export function IntegratedDataPreviewTable({
                         key={`${row.id || index}-${column}`} 
                         className="min-w-[150px]"
                       >
-                        {column === 'Date' && row[column] ? (
-                          typeof row[column] === 'string' ? row[column] :
-                          typeof row[column] === 'object' && 'toISOString' in row[column] ?
-                          row[column].toISOString().split('T')[0] :
-                          String(row[column])
+                        {column === 'Date' ? (
+                          (() => {
+                            const dateValue = row.date || row.Date;
+                            return typeof dateValue === 'string'
+                              ? dateValue
+                              : dateValue instanceof Date
+                                ? dateValue.toISOString().split('T')[0]
+                                : String(dateValue || '');
+                          })()
                         ) : (
-                          typeof row[column] === 'object' 
-                            ? JSON.stringify(row[column]) 
+                          typeof row[column] === 'object'
+                            ? JSON.stringify(row[column])
                             : String(row[column] ?? '')
                         )}
                       </TableCell>
