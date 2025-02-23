@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
@@ -175,6 +174,40 @@ export function useIntegratedData() {
     handleIntegration();
   };
 
+  const handleDeleteMapping = async () => {
+    if (!selectedMapping?.id) {
+      toast({
+        title: "Error",
+        description: "No mapping configuration selected",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('forecast_integration_mappings')
+        .delete()
+        .eq('id', selectedMapping.id);
+
+      if (error) throw error;
+
+      setSelectedMapping(null);
+      setMappingDialogOpen(false);
+      toast({
+        title: "Success",
+        description: "Mapping configuration deleted successfully",
+      });
+    } catch (error: any) {
+      console.error('Error deleting mapping:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete mapping configuration",
+        variant: "destructive",
+      });
+    }
+  };
+
   useEffect(() => {
     if (!hasIntegrated) {
       setData([]);
@@ -197,6 +230,7 @@ export function useIntegratedData() {
     hasIntegrated,
     fetchData,
     handleIntegration,
-    handleSaveMapping
+    handleSaveMapping,
+    handleDeleteMapping
   };
 }

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -22,9 +21,17 @@ interface MappingConfigDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (mapping: ForecastMappingConfig) => void;
+  selectedMapping?: ForecastMappingConfig | null;
+  onDelete?: () => void;
 }
 
-export function MappingConfigDialog({ open, onOpenChange, onSave }: MappingConfigDialogProps) {
+export function MappingConfigDialog({ 
+  open, 
+  onOpenChange, 
+  onSave,
+  selectedMapping,
+  onDelete 
+}: MappingConfigDialogProps) {
   const [mappingName, setMappingName] = useState("");
   const [description, setDescription] = useState("");
   const [useProductMapping, setUseProductMapping] = useState(false);
@@ -281,12 +288,25 @@ export function MappingConfigDialog({ open, onOpenChange, onSave }: MappingConfi
         </div>
 
         <DialogFooter className="sticky bottom-0 bg-background pt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleSave} disabled={isLoading}>
-            {isLoading ? "Saving..." : "Save Configuration"}
-          </Button>
+          <div className="flex justify-between w-full">
+            {selectedMapping && (
+              <Button
+                variant="destructive"
+                onClick={onDelete}
+                type="button"
+              >
+                Delete
+              </Button>
+            )}
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSave} disabled={isLoading}>
+                {isLoading ? "Saving..." : "Save Configuration"}
+              </Button>
+            </div>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
