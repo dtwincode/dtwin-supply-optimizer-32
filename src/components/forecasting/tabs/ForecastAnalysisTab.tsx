@@ -9,7 +9,7 @@ import { findBestFitModel } from "@/utils/forecasting/modelSelection";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Save, TrendingUp, History } from "lucide-react"; 
+import { Save, TrendingUp, History, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ModelParameter } from "@/types/models/commonTypes";
 import { Database } from "@/integrations/supabase/types";
@@ -18,6 +18,9 @@ interface ModelPerformanceMetrics {
   accuracy: number;
   trend: 'improving' | 'stable' | 'declining';
   trained_at: string;
+  mape?: number;
+  mae?: number;
+  rmse?: number;
 }
 
 interface SavedModelConfig {
@@ -25,6 +28,7 @@ interface SavedModelConfig {
   model_id: string;
   parameters: ModelParameter[];
   created_at: string;
+  performance_metrics?: ModelPerformanceMetrics;
 }
 
 interface ForecastAnalysisTabProps {
@@ -40,6 +44,7 @@ export const ForecastAnalysisTab = ({
   const [modelParameters, setModelParameters] = useState<ModelParameter[]>([]);
   const [savedModels, setSavedModels] = useState<SavedModelConfig[]>([]);
   const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
+  const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [modelPerformance, setModelPerformance] = useState<{
     accuracy: number;
     lastUpdated: string;
@@ -64,12 +69,25 @@ export const ForecastAnalysisTab = ({
 
       if (error) throw error;
       
-      // Transform the data to match SavedModelConfig type
-      const transformedData: SavedModelConfig[] = (data || []).map(item => ({
-        id: item.id,
-        model_id: item.model_id,
-        parameters: Array.isArray(item.parameters) ? item.parameters : [],
-        created_at: item.created_at
+      // Transform and fetch performance metrics for each model
+      const transformedData: SavedModelConfig[] = await Promise.all((data || []).map(async (item) => {
+        const metricsResponse = await supabase
+          .from('model_training_history')
+          .select('training_metrics')
+          .eq('model_version', item.model_id)
+          .order('trained_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        const metrics = metricsResponse.data?.training_metrics as ModelPerformanceMetrics | null;
+
+        return {
+          id: item.id,
+          model_id: item.model_id,
+          parameters: Array.isArray(item.parameters) ? item.parameters : [],
+          created_at: item.created_at,
+          performance_metrics: metrics || undefined
+        };
       }));
 
       setSavedModels(transformedData);
@@ -91,7 +109,6 @@ export const ForecastAnalysisTab = ({
       if (error) throw error;
 
       if (data && data[0]) {
-        // Safely type cast the training metrics
         const rawMetrics = data[0].training_metrics as unknown;
         const metrics = rawMetrics as ModelPerformanceMetrics;
         
@@ -115,9 +132,24 @@ export const ForecastAnalysisTab = ({
     setModelParameters(parameters);
   };
 
+  const handleDeleteModel = async (modelId: string) => {
+    try {
+      const { error } = await supabase
+        .from('saved_model_configs')
+        .delete()
+        .eq('id', modelId);
+
+      if (error) throw error;
+      toast.success('Model configuration deleted successfully');
+      fetchSavedModels();
+    } catch (error) {
+      console.error('Error deleting model:', error);
+      toast.error('Failed to delete model configuration');
+    }
+  };
+
   const handleSaveModel = async () => {
     try {
-      // Convert ModelParameter[] to a JSON-compatible format
       const parametersJson = modelParameters.map(param => ({
         name: param.name,
         value: param.value,
@@ -194,18 +226,74 @@ export const ForecastAnalysisTab = ({
               {savedModels.map((model) => (
                 <div
                   key={model.id}
-                  className="flex items-center justify-between p-2 bg-muted rounded-lg"
+                  className="space-y-2 bg-muted rounded-lg overflow-hidden"
                 >
-                  <div className="flex items-center">
-                    <History className="h-4 w-4 mr-2" />
-                    <span className="text-sm">{model.model_id}</span>
+                  <div className="flex items-center justify-between p-3">
+                    <div className="flex items-center">
+                      <History className="h-4 w-4 mr-2" />
+                      <span className="text-sm font-medium">{model.model_id}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button variant="ghost" size="sm" onClick={() => {
+                        setSelectedModel(model.model_id);
+                        setModelParameters(model.parameters);
+                      }}>
+                        Load
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => setExpandedModel(expandedModel === model.id ? null : model.id)}
+                      >
+                        {expandedModel === model.id ? 
+                          <ChevronUp className="h-4 w-4" /> : 
+                          <ChevronDown className="h-4 w-4" />
+                        }
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => handleDeleteModel(model.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <Button variant="ghost" size="sm" onClick={() => {
-                    setSelectedModel(model.model_id);
-                    setModelParameters(model.parameters);
-                  }}>
-                    Load
-                  </Button>
+                  
+                  {expandedModel === model.id && model.performance_metrics && (
+                    <div className="p-3 bg-background/50 border-t space-y-2">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Accuracy</p>
+                          <p className="text-sm font-medium">
+                            {model.performance_metrics.accuracy?.toFixed(2)}%
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">MAPE</p>
+                          <p className="text-sm font-medium">
+                            {model.performance_metrics.mape?.toFixed(2)}%
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">MAE</p>
+                          <p className="text-sm font-medium">
+                            {model.performance_metrics.mae?.toFixed(2)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">RMSE</p>
+                          <p className="text-sm font-medium">
+                            {model.performance_metrics.rmse?.toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Trend: {model.performance_metrics.trend}
+                      </p>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
