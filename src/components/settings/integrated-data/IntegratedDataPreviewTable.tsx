@@ -38,7 +38,7 @@ export function IntegratedDataPreviewTable({
       'updated_at',
       'validation_status',
       'actual_value',
-      'date' // Excluding the incorrect date column
+      'date'
     ];
 
     data.forEach(row => {
@@ -57,8 +57,9 @@ export function IntegratedDataPreviewTable({
     availableColumns.forEach(column => {
       values[column] = new Set();
       data.forEach(row => {
-        if (row[column] !== undefined && row[column] !== null) {
-          values[column].add(String(row[column]));
+        const value = row[column];
+        if (value !== undefined && value !== null && value !== '') {
+          values[column].add(String(value));
         }
       });
     });
@@ -157,10 +158,12 @@ export function IntegratedDataPreviewTable({
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="all">All</SelectItem>
-                            {Array.from(uniqueValues[column] || []).map((value) => (
-                              <SelectItem key={value} value={value}>
-                                {value}
-                              </SelectItem>
+                            {Array.from(uniqueValues[column] || [])
+                              .filter(value => value !== '') // Filter out empty strings
+                              .map((value) => (
+                                <SelectItem key={value} value={value}>
+                                  {value}
+                                </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
