@@ -108,17 +108,14 @@ export function useIntegratedData() {
       const { data: mappings, error } = await supabase
         .from('forecast_integration_mappings')
         .select('*')
-        .eq('is_active', true)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      // Ensure we only include valid mappings and log the results
-      const validMappings = (mappings || []).filter(m => m && m.id && m.is_active);
+      const validMappings = (mappings || []).filter(m => m && m.id);
       console.log("Valid mappings:", validMappings);
       setSavedMappings(validMappings);
       
-      // Clear selected mapping if it's not in valid mappings
       if (selectedMapping && !validMappings.find(m => m.id === selectedMapping.id)) {
         setSelectedMapping(null);
       }
@@ -230,22 +227,16 @@ export function useIntegratedData() {
     try {
       console.log("Deleting mapping:", selectedMapping.id);
       
-      // First update local state to ensure immediate UI response
       setSavedMappings(current => current.filter(m => m.id !== selectedMapping.id));
       setSelectedMapping(null);
 
-      // Then update the database
       const { error } = await supabase
         .from('forecast_integration_mappings')
-        .update({ 
-          is_active: false,
-          updated_at: new Date().toISOString()
-        })
+        .delete()
         .eq('id', selectedMapping.id);
 
       if (error) {
-        // If database update fails, revert the local state
-        console.error("Database update failed, reverting local state");
+        console.error("Database delete failed, reverting local state");
         await fetchSavedMappings();
         throw error;
       }
