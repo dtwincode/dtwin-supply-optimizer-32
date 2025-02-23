@@ -8,7 +8,7 @@ import { findBestFitModel } from "@/utils/forecasting/modelSelection";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Save, TrendingUp, History, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { Save, TrendingUp, TrendingDown, Calendar, BarChart2, History, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ModelParameter } from "@/types/models/commonTypes";
 import { Database } from "@/integrations/supabase/types";
@@ -35,6 +35,91 @@ interface ForecastAnalysisTabProps {
   filteredData: ForecastDataPoint[];
   confidenceIntervals: Array<{ upper: number; lower: number; }>;
 }
+
+const PatternAnalysisCard = ({ data }: { data: ForecastDataPoint[] }) => {
+  const analyzePatterns = () => {
+    const forecastValues = data.map(d => d.forecast).filter(f => f !== null) as number[];
+    const actualValues = data.map(d => d.actual).filter(a => a !== null) as number[];
+    
+    const trend = forecastValues.length > 1 ? 
+      forecastValues[forecastValues.length - 1] - forecastValues[0] : 0;
+    
+    const seasonality = actualValues.length >= 12 ? 
+      Math.abs(Math.max(...actualValues) - Math.min(...actualValues)) / 
+      (actualValues.reduce((a, b) => a + b, 0) / actualValues.length) : 0;
+    
+    const volatility = actualValues.length > 1 ?
+      Math.sqrt(actualValues.reduce((sum, val) => 
+        sum + Math.pow(val - (actualValues.reduce((a, b) => a + b, 0) / actualValues.length), 2), 0) 
+        / (actualValues.length - 1)) : 0;
+
+    return {
+      trend,
+      seasonality,
+      volatility
+    };
+  };
+
+  const patterns = analyzePatterns();
+
+  return (
+    <Card className="p-6 mt-6">
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Pattern Analysis</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {patterns.trend > 0 ? (
+                  <TrendingUp className="h-4 w-4 text-green-500" />
+                ) : (
+                  <TrendingDown className="h-4 w-4 text-red-500" />
+                )}
+                <span className="font-medium">Trend</span>
+              </div>
+              <span className="text-sm text-muted-foreground">
+                {Math.abs(patterns.trend).toFixed(1)}% {patterns.trend >= 0 ? "Upward" : "Downward"}
+              </span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Overall directional movement in the forecast
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-blue-500" />
+                <span className="font-medium">Seasonality</span>
+              </div>
+              <span className="text-sm text-muted-foreground">
+                {(patterns.seasonality * 100).toFixed(1)}% Variation
+              </span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Cyclical patterns in the demand data
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <BarChart2 className="h-4 w-4 text-yellow-500" />
+                <span className="font-medium">Volatility</span>
+              </div>
+              <span className="text-sm text-muted-foreground">
+                {patterns.volatility.toFixed(1)} Units
+              </span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Measure of demand variability
+            </p>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+};
 
 export const ForecastAnalysisTab = ({
   filteredData,
@@ -395,6 +480,8 @@ export const ForecastAnalysisTab = ({
           </div>
         </div>
       </Card>
+
+      <PatternAnalysisCard data={filteredData} />
     </div>
   );
 };
