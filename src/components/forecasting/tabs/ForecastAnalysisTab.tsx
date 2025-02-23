@@ -1,4 +1,3 @@
-
 import { ForecastChart } from "@/components/forecasting/ForecastChart";
 import { ForecastMetricsCards } from "@/components/forecasting/ForecastMetricsCards";
 import { ModelSelectionCard } from "@/components/forecasting/ModelSelectionCard";
@@ -69,7 +68,6 @@ export const ForecastAnalysisTab = ({
 
       if (error) throw error;
       
-      // Transform and fetch performance metrics for each model
       const transformedData: SavedModelConfig[] = await Promise.all((data || []).map(async (item) => {
         const metricsResponse = await supabase
           .from('model_training_history')
@@ -79,14 +77,31 @@ export const ForecastAnalysisTab = ({
           .limit(1)
           .single();
 
-        const metrics = metricsResponse.data?.training_metrics as ModelPerformanceMetrics | null;
+        const parameters = (item.parameters as any[])?.map(param => ({
+          name: param.name as string,
+          value: param.value as number,
+          min: param.min as number | undefined,
+          max: param.max as number | undefined,
+          step: param.step as number | undefined,
+          description: param.description as string
+        })) || [];
+
+        const rawMetrics = metricsResponse.data?.training_metrics as any;
+        const metrics: ModelPerformanceMetrics | undefined = rawMetrics ? {
+          accuracy: typeof rawMetrics.accuracy === 'number' ? rawMetrics.accuracy : 0,
+          trend: rawMetrics.trend as 'improving' | 'stable' | 'declining' || 'stable',
+          trained_at: rawMetrics.trained_at as string || new Date().toISOString(),
+          mape: typeof rawMetrics.mape === 'number' ? rawMetrics.mape : undefined,
+          mae: typeof rawMetrics.mae === 'number' ? rawMetrics.mae : undefined,
+          rmse: typeof rawMetrics.rmse === 'number' ? rawMetrics.rmse : undefined
+        } : undefined;
 
         return {
           id: item.id,
           model_id: item.model_id,
-          parameters: Array.isArray(item.parameters) ? item.parameters : [],
+          parameters,
           created_at: item.created_at,
-          performance_metrics: metrics || undefined
+          performance_metrics: metrics
         };
       }));
 
@@ -109,13 +124,17 @@ export const ForecastAnalysisTab = ({
       if (error) throw error;
 
       if (data && data[0]) {
-        const rawMetrics = data[0].training_metrics as unknown;
-        const metrics = rawMetrics as ModelPerformanceMetrics;
+        const rawMetrics = data[0].training_metrics as any;
+        const metrics: ModelPerformanceMetrics = {
+          accuracy: typeof rawMetrics?.accuracy === 'number' ? rawMetrics.accuracy : 0,
+          trend: rawMetrics?.trend as 'improving' | 'stable' | 'declining' || 'stable',
+          trained_at: data[0].trained_at
+        };
         
         setModelPerformance({
-          accuracy: typeof metrics?.accuracy === 'number' ? metrics.accuracy : 0,
-          lastUpdated: new Date(data[0].trained_at).toLocaleDateString(),
-          trend: metrics?.trend || 'stable'
+          accuracy: metrics.accuracy,
+          lastUpdated: new Date(metrics.trained_at).toLocaleDateString(),
+          trend: metrics.trend
         });
       }
     } catch (error) {
