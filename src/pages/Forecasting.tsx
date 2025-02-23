@@ -9,7 +9,7 @@ import { ValidationTab } from "@/components/forecasting/tabs/ValidationTab";
 import { ExternalFactorsTab } from "@/components/forecasting/tabs/ExternalFactorsTab";
 import { Separator } from "@/components/ui/separator";
 import { Routes, Route, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ProductHierarchyFilter } from "@/components/forecasting/filters/ProductHierarchyFilter";
 import { LocationFilter } from "@/components/forecasting/filters/LocationFilter";
 import { ForecastDataPoint } from "@/types/forecasting";
@@ -48,15 +48,25 @@ const Forecasting = () => {
     new Date('2024-12-31').toISOString()
   );
 
-  // Reset expansion state when changing tabs
-  useEffect(() => {
-    const tab = currentPath.split('/').pop() || '';
-    const shouldShowFilters = ['', 'distribution', 'descriptive'].includes(tab);
-    
-    setIsTimeExpanded(shouldShowFilters);
-    setIsProductExpanded(shouldShowFilters);
-    setIsLocationExpanded(shouldShowFilters);
-  }, [currentPath]);
+  const handleSectionToggle = (section: 'time' | 'product' | 'location') => {
+    switch (section) {
+      case 'time':
+        setIsTimeExpanded(!isTimeExpanded);
+        break;
+      case 'product':
+        setIsProductExpanded(!isProductExpanded);
+        break;
+      case 'location':
+        setIsLocationExpanded(!isLocationExpanded);
+        break;
+    }
+  };
+
+  // Function to determine if filters should be shown for current tab
+  const shouldShowFilters = () => {
+    const path = currentPath.split('/').pop() || '';
+    return ['', 'distribution', 'descriptive'].includes(path);
+  };
 
   const dummyData = {
     filteredData: [{
@@ -141,26 +151,6 @@ const Forecasting = () => {
     addHistoricalPricePoint: () => {},
     calculatePriceAnalysis: () => {},
     whatIfScenario: []
-  };
-
-  const handleSectionToggle = (section: 'time' | 'product' | 'location') => {
-    switch (section) {
-      case 'time':
-        setIsTimeExpanded(!isTimeExpanded);
-        break;
-      case 'product':
-        setIsProductExpanded(!isProductExpanded);
-        break;
-      case 'location':
-        setIsLocationExpanded(!isLocationExpanded);
-        break;
-    }
-  };
-
-  // Function to determine if filters should be shown for current tab
-  const shouldShowFilters = () => {
-    const path = currentPath.split('/').pop() || '';
-    return ['', 'distribution', 'descriptive'].includes(path);
   };
 
   // مكون الفلاتر
