@@ -18,7 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ForecastMappingConfig } from "./types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
-import { Info, X, ChevronRight } from "lucide-react";
+import { Info, X } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface MappingConfigDialogProps {
@@ -122,7 +122,7 @@ export function MappingConfigDialog({
     }
   }, [open]);
 
-  const handleSelectMapping = async (config: ForecastMappingConfig) => {
+  const handleSelectMapping = (config: ForecastMappingConfig) => {
     try {
       setCurrentMapping(config);
       setMappingName(config.mapping_name);
@@ -134,10 +134,10 @@ export function MappingConfigDialog({
       setSelectedHistoricalProductKey(config.historical_product_key_column || '');
       setSelectedHistoricalLocationKey(config.historical_location_key_column || '');
       onSave(config);
-
+      
       toast({
         title: "Configuration Selected",
-        description: `Selected mapping: ${config.mapping_name}`,
+        description: "Selected mapping configuration: " + config.mapping_name,
       });
     } catch (error) {
       console.error('Error selecting mapping:', error);
@@ -269,10 +269,10 @@ export function MappingConfigDialog({
               {savedMappings.map((config) => (
                 <Card
                   key={config.id}
+                  onClick={() => handleSelectMapping(config)}
                   className={`p-4 cursor-pointer hover:border-primary transition-colors ${
                     currentMapping?.id === config.id ? 'border-primary bg-primary/5' : ''
                   }`}
-                  onClick={() => handleSelectMapping(config)}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
@@ -309,21 +309,19 @@ export function MappingConfigDialog({
                         </p>
                       )}
                     </div>
-                    <div className="flex items-center gap-2">
-                      {currentMapping?.id === config.id && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete();
-                          }}
-                          className="h-8 w-8 hover:bg-destructive hover:text-destructive-foreground"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
+                    {currentMapping?.id === config.id && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete?.();
+                        }}
+                        className="h-8 w-8 hover:bg-destructive hover:text-destructive-foreground"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 </Card>
               ))}
