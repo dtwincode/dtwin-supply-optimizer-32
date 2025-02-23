@@ -109,7 +109,6 @@ interface FiltersSectionProps {
   isProductExpanded: boolean;
   isLocationExpanded: boolean;
   handleSectionToggle: (section: 'time' | 'product' | 'location') => void;
-  showFilters: boolean;
   trainingFromDate: string;
   trainingToDate: string;
   testingFromDate: string;
@@ -125,7 +124,6 @@ const FiltersSection = memo<FiltersSectionProps>(({
   isProductExpanded, 
   isLocationExpanded, 
   handleSectionToggle,
-  showFilters,
   trainingFromDate,
   trainingToDate,
   testingFromDate,
@@ -135,8 +133,6 @@ const FiltersSection = memo<FiltersSectionProps>(({
   setTestingFromDate,
   setTestingToDate
 }) => {
-  if (!showFilters) return null;
-
   return (
     <div className="px-6 space-y-6 mt-6">
       <div className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40">
@@ -288,8 +284,6 @@ const Forecasting = () => {
     }
   };
 
-  const showFilters = ['', 'distribution', 'descriptive'].includes(currentPath.split('/').pop() || '');
-
   return (
     <DashboardLayout>
       <div className="flex flex-col">
@@ -310,7 +304,6 @@ const Forecasting = () => {
           isProductExpanded={isProductExpanded}
           isLocationExpanded={isLocationExpanded}
           handleSectionToggle={handleSectionToggle}
-          showFilters={showFilters}
           trainingFromDate={trainingFromDate}
           trainingToDate={trainingToDate}
           testingFromDate={testingFromDate}
