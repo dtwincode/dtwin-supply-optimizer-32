@@ -7,6 +7,7 @@ import FinancialMetrics from "@/components/dashboard/FinancialMetrics";
 import ModuleSummaryCards from "@/components/dashboard/ModuleSummaryCards";
 import DashboardCharts from "@/components/dashboard/DashboardCharts";
 import SustainabilityMetrics from "@/components/dashboard/SustainabilityMetrics";
+import { memo } from "react";
 
 const Index = () => {
   const { language, isRTL } = useLanguage();
@@ -19,15 +20,24 @@ const Index = () => {
             {getTranslation('dashboard', language)}
           </h3>
           
-          <DashboardMetrics />
-          <FinancialMetrics />
-          <SustainabilityMetrics />
-          <ModuleSummaryCards />
-          <DashboardCharts />
+          <MemoizedMetrics />
         </section>
       </div>
     </DashboardLayout>
   );
 };
+
+// Memoize the metrics components to prevent unnecessary re-renders
+const MemoizedMetrics = memo(() => (
+  <>
+    <DashboardMetrics />
+    <FinancialMetrics />
+    <SustainabilityMetrics />
+    <ModuleSummaryCards />
+    <DashboardCharts />
+  </>
+));
+
+MemoizedMetrics.displayName = 'MemoizedMetrics';
 
 export default Index;
