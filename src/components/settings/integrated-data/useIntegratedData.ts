@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
@@ -103,6 +102,37 @@ export function useIntegratedData() {
     }
   }, []);
 
+  const fetchSavedMappings = useCallback(async () => {
+    try {
+      const { data: mappings, error } = await supabase
+        .from('forecast_integration_mappings')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setSavedMappings(mappings || []);
+    } catch (error: any) {
+      console.error('Error fetching mappings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load saved mappings",
+        variant: "destructive",
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSavedMappings();
+  }, [fetchSavedMappings]);
+
+  useEffect(() => {
+    if (mappingDialogOpen) {
+      fetchSavedMappings();
+    }
+  }, [mappingDialogOpen, fetchSavedMappings]);
+
   const handleIntegration = useCallback(async () => {
     if (!selectedMapping) {
       setMappingDialogOpen(true);
@@ -176,32 +206,6 @@ export function useIntegratedData() {
     }
   }, [selectedMapping, isIntegrating, checkRequiredFiles, fetchData]);
 
-  const fetchSavedMappings = useCallback(async () => {
-    try {
-      const { data: mappings, error } = await supabase
-        .from('forecast_integration_mappings')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      setSavedMappings(mappings || []);
-    } catch (error: any) {
-      console.error('Error fetching mappings:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load saved mappings",
-        variant: "destructive",
-      });
-    }
-  }, []);
-
-  useEffect(() => {
-    if (mappingDialogOpen) {
-      fetchSavedMappings();
-    }
-  }, [mappingDialogOpen, fetchSavedMappings]);
-
   const handleDeleteMapping = useCallback(async () => {
     if (!selectedMapping?.id) {
       toast({
@@ -215,12 +219,13 @@ export function useIntegratedData() {
     try {
       const { error } = await supabase
         .from('forecast_integration_mappings')
-        .delete()
+        .update({ is_active: false })
         .eq('id', selectedMapping.id);
 
       if (error) throw error;
 
-      setSavedMappings(current => current.filter(m => m.id !== selectedMapping.id));
+      await fetchSavedMappings();
+      
       setSelectedMapping(null);
       toast({
         title: "Success",
@@ -234,7 +239,7 @@ export function useIntegratedData() {
         variant: "destructive",
       });
     }
-  }, [selectedMapping]);
+  }, [selectedMapping, fetchSavedMappings]);
 
   const handleSaveMapping = useCallback((mapping: ForecastMappingConfig) => {
     setSelectedMapping(mapping);
