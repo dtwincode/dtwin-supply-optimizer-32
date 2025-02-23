@@ -1,7 +1,7 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { IntegratedData } from "./types";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState, useMemo } from "react";
 
@@ -87,9 +87,9 @@ export function IntegratedDataPreviewTable({
         </div>
       </div>
 
-      <div className="rounded-lg border">
-        <ScrollArea className="h-[600px] rounded-md border">
-          <div className="relative w-full overflow-auto">
+      <div className="rounded-md border">
+        <ScrollArea className="h-[600px] w-full">
+          <div className="w-[max-content] min-w-full">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -118,6 +118,7 @@ export function IntegratedDataPreviewTable({
               </TableBody>
             </Table>
           </div>
+          <ScrollBar orientation="horizontal" />
         </ScrollArea>
       </div>
     </div>
