@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
@@ -49,7 +50,7 @@ export function useIntegratedData() {
     }
   }, [mappingDialogOpen, fetchSavedMappings]);
 
-  const handleDeleteMapping = async () => {
+  const handleDeleteMapping = useCallback(async () => {
     if (!selectedMapping?.id) {
       toast({
         title: "Error",
@@ -67,7 +68,6 @@ export function useIntegratedData() {
 
       if (error) throw error;
 
-      // Update local state
       setSavedMappings(current => current.filter(m => m.id !== selectedMapping.id));
       setSelectedMapping(null);
       toast({
@@ -82,14 +82,34 @@ export function useIntegratedData() {
         variant: "destructive",
       });
     }
-  };
+  }, [selectedMapping]);
 
-  const handleSaveMapping = (mapping: ForecastMappingConfig) => {
+  const handleSaveMapping = useCallback((mapping: ForecastMappingConfig) => {
     setSelectedMapping(mapping);
-    handleIntegration();
-  };
+  }, []);
 
-  const handleIntegration = async () => {
+  const checkRequiredFiles = useCallback(async () => {
+    try {
+      const { data: historicalFiles, error: historicalError } = await supabase
+        .from('permanent_hierarchy_files')
+        .select('*')
+        .eq('hierarchy_type', 'historical_sales')
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (historicalError) throw historicalError;
+      if (!historicalFiles?.length) {
+        throw new Error('Please upload historical sales data before running integration');
+      }
+
+      return true;
+    } catch (error: any) {
+      setError(error.message);
+      throw error;
+    }
+  }, []);
+
+  const handleIntegration = useCallback(async () => {
     if (!selectedMapping) {
       setMappingDialogOpen(true);
       return;
@@ -142,32 +162,10 @@ export function useIntegratedData() {
     } finally {
       setIsIntegrating(false);
     }
-  };
-
-  const checkRequiredFiles = async () => {
-    try {
-      const { data: historicalFiles, error: historicalError } = await supabase
-        .from('permanent_hierarchy_files')
-        .select('*')
-        .eq('hierarchy_type', 'historical_sales')
-        .order('created_at', { ascending: false })
-        .limit(1);
-
-      if (historicalError) throw historicalError;
-      if (!historicalFiles?.length) {
-        throw new Error('Please upload historical sales data before running integration');
-      }
-
-      return true;
-    } catch (error: any) {
-      setError(error.message);
-      throw error;
-    }
-  };
+  }, [selectedMapping, isIntegrating, checkRequiredFiles, fetchData]);
 
   const fetchData = useCallback(async () => {
     if (isLoading || !hasIntegrated) {
-      setData([]);
       return;
     }
     
@@ -197,7 +195,7 @@ export function useIntegratedData() {
 
         setValidationStatus(item.validation_status as 'valid' | 'needs_review' | null);
 
-        const baseData = {
+        return {
           id: item.id,
           date: item.date,
           actual_value: item.actual_value,
@@ -206,19 +204,8 @@ export function useIntegratedData() {
           updated_at: item.updated_at,
           validation_status: item.validation_status,
           source_files: parsedSourceFiles,
-          metadata: parsedMetadata
-        };
-
-        const flattenedMetadata = Object.entries(parsedMetadata).reduce((acc, [key, value]) => {
-          if (value !== null && value !== undefined) {
-            acc[key] = value;
-          }
-          return acc;
-        }, {} as Record<string, any>);
-
-        return {
-          ...baseData,
-          ...flattenedMetadata
+          metadata: parsedMetadata,
+          ...parsedMetadata
         };
       });
 
@@ -234,7 +221,7 @@ export function useIntegratedData() {
     } finally {
       setIsLoading(false);
     }
-  }, [hasIntegrated, isLoading]);
+  }, [isLoading, hasIntegrated]);
 
   return {
     data,
