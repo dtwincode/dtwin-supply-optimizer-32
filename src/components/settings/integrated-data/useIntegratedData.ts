@@ -176,14 +176,15 @@ export function useIntegratedData() {
     setError(null);
 
     let loadingToastId: string | number | undefined;
+    let backgroundCheckInterval: NodeJS.Timeout;
     
     try {
       await checkRequiredFiles();
       
       loadingToastId = toast({
         title: "Integration Started",
-        description: "Processing data in batches. This may take a few minutes...",
-        duration: 120000, // 2 minutes
+        description: "Starting data integration process. This may take several minutes...",
+        duration: null, // Toast will persist
       }).id;
       
       const mappingConfig: MappingConfigType = {
@@ -203,7 +204,35 @@ export function useIntegratedData() {
       });
       
       if (error) {
-        console.error('Integration error:', error);
+        if (error.code === '57014') { // Statement timeout error code
+          // Set up background check for integration completion
+          toast({
+            title: "Integration Status",
+            description: "Integration is taking longer than expected. The process will continue in the background.",
+            duration: 5000,
+          });
+          
+          // Start periodic checks for new data
+          backgroundCheckInterval = setInterval(async () => {
+            const { data: checkData } = await supabase
+              .from('integrated_forecast_data')
+              .select('id')
+              .limit(1);
+            
+            if (checkData && checkData.length > 0) {
+              clearInterval(backgroundCheckInterval);
+              setIsIntegrating(false);
+              setHasIntegrated(true);
+              toast({
+                title: "Integration Complete",
+                description: "Data integration has finished successfully.",
+              });
+              await fetchData();
+            }
+          }, 10000); // Check every 10 seconds
+          
+          return;
+        }
         throw error;
       }
       
@@ -218,23 +247,22 @@ export function useIntegratedData() {
       console.error('Integration error:', error);
       let errorMessage = error.message || "Failed to integrate data";
       
-      if (error.code === '57014') {
-        errorMessage = "Integration is taking longer than expected. The process will continue in the background.";
-      } else if (error.message.includes('historical sales data')) {
-        errorMessage = "Please upload historical sales data before running integration.";
-      }
-      
       setError(errorMessage);
       toast({
-        title: "Integration Status",
+        title: "Integration Error",
         description: errorMessage,
-        variant: error.code === '57014' ? "default" : "destructive",
+        variant: "destructive",
       });
 
-      if (error.code !== '57014') {
-        setHasIntegrated(false);
-      }
+      setHasIntegrated(false);
     } finally {
+      if (loadingToastId) {
+        toast({
+          id: loadingToastId,
+          title: "Integration Status",
+          description: "Integration process has completed.",
+        });
+      }
       setIsIntegrating(false);
     }
   }, [selectedMapping, isIntegrating, checkRequiredFiles, fetchData]);
