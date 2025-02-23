@@ -77,29 +77,26 @@ const sampleConfidenceIntervals = sampleData.map((_, i) => {
 const PatternAnalysisCard = ({ data }: { data: ForecastDataPoint[] }) => {
   const analyzePatterns = () => {
     const forecastValues = data
-      .map(d => d.forecast)
-      .filter((f): f is number => f !== null && !isNaN(Number(f)));
+      .map(d => typeof d.forecast === 'number' ? d.forecast : 0)
+      .filter(f => !isNaN(f));
     
     const actualValues = data
-      .map(d => d.actual)
-      .filter((a): a is number => a !== null && !isNaN(Number(a)));
+      .map(d => typeof d.actual === 'number' ? d.actual : 0)
+      .filter(a => !isNaN(a));
     
     const trend = forecastValues.length > 1 ? 
       ((forecastValues[forecastValues.length - 1] - forecastValues[0]) / forecastValues[0]) * 100 : 0;
     
+    const meanActual = actualValues.length > 0 ? 
+      actualValues.reduce((a, b) => a + b, 0) / actualValues.length : 0;
+    
     const seasonality = actualValues.length >= 12 ? 
-      Math.abs(Math.max(...actualValues) - Math.min(...actualValues)) / 
-      (actualValues.reduce((a, b) => a + b, 0) / actualValues.length) : 0;
+      Math.abs(Math.max(...actualValues) - Math.min(...actualValues)) / meanActual : 0;
     
-    const mean = actualValues.reduce((a, b) => a + Number(b), 0) / actualValues.length;
-    
-    const volatility = actualValues.length > 1 ?
-      Math.sqrt(
-        actualValues.reduce((sum, val) => 
-          sum + Math.pow(Number(val) - mean, 2), 
-          0
-        ) / (actualValues.length - 1)
-      ) : 0;
+    const squaredDiffs = actualValues.map(val => Math.pow(val - meanActual, 2));
+    const variance = squaredDiffs.length > 1 ? 
+      squaredDiffs.reduce((a, b) => a + b, 0) / (actualValues.length - 1) : 0;
+    const volatility = Math.sqrt(variance);
 
     return {
       trend,
@@ -115,19 +112,21 @@ const PatternAnalysisCard = ({ data }: { data: ForecastDataPoint[] }) => {
       index,
       value: typeof d.forecast === 'number' ? d.forecast : 0
     }))
-    .filter(d => d.value !== null);
+    .filter(d => !isNaN(d.value));
 
   const seasonalityData = data
     .map((d, index) => ({
       index,
       value: typeof d.actual === 'number' ? d.actual : 0
     }))
-    .filter(d => d.value !== null);
+    .filter(d => !isNaN(d.value));
 
-  const average = data.reduce((sum, item) => 
-    sum + (typeof item.actual === 'number' ? item.actual : 0), 
-    0
-  ) / data.length;
+  const validActuals = data
+    .map(item => typeof item.actual === 'number' ? item.actual : 0)
+    .filter(val => !isNaN(val));
+  
+  const average = validActuals.length > 0 ? 
+    validActuals.reduce((sum, val) => sum + val, 0) / validActuals.length : 0;
 
   const volatilityData = data
     .map((d, index) => ({
@@ -135,7 +134,7 @@ const PatternAnalysisCard = ({ data }: { data: ForecastDataPoint[] }) => {
       value: typeof d.actual === 'number' ? d.actual : 0,
       average
     }))
-    .filter(d => d.value !== null);
+    .filter(d => !isNaN(d.value));
 
   const MiniChart = ({ data, color }: { data: any[], color: string }) => (
     <div className="h-[60px] w-full mt-2">
