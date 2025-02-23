@@ -21,6 +21,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import { Info, X, Check, Save } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
 
 interface MappingConfigDialogProps {
   open: boolean;
@@ -49,6 +50,8 @@ export function MappingConfigDialog({
   const [selectedLocationKey, setSelectedLocationKey] = useState("");
   const [selectedHistoricalProductKey, setSelectedHistoricalProductKey] = useState("");
   const [selectedHistoricalLocationKey, setSelectedHistoricalLocationKey] = useState("");
+  const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
+  const [availableColumns, setAvailableColumns] = useState<string[]>([]);
 
   // Reset form when dialog opens/closes
   useEffect(() => {
@@ -62,12 +65,45 @@ export function MappingConfigDialog({
         setSelectedLocationKey(selectedMapping.location_key_column || "");
         setSelectedHistoricalProductKey(selectedMapping.historical_product_key_column || "");
         setSelectedHistoricalLocationKey(selectedMapping.historical_location_key_column || "");
+        setSelectedColumns(selectedMapping.selected_columns || []);
         setCurrentMapping(selectedMapping);
       } else {
         resetForm();
       }
     }
   }, [open, selectedMapping]);
+
+  // Fetch available columns
+  useEffect(() => {
+    const fetchColumns = async () => {
+      try {
+        const { data: historicalData } = await supabase
+          .from('permanent_hierarchy_files')
+          .select('data')
+          .eq('hierarchy_type', 'historical_sales')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (historicalData?.data && Array.isArray(historicalData.data) && historicalData.data.length > 0) {
+          const firstRow = historicalData.data[0];
+          const columns = Object.keys(firstRow);
+          setAvailableColumns(columns);
+        }
+      } catch (error) {
+        console.error('Error fetching columns:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch available columns",
+          variant: "destructive",
+        });
+      }
+    };
+
+    if (open) {
+      fetchColumns();
+    }
+  }, [open]);
 
   const resetForm = useCallback(() => {
     setMappingName("");
@@ -78,6 +114,7 @@ export function MappingConfigDialog({
     setSelectedLocationKey("");
     setSelectedHistoricalProductKey("");
     setSelectedHistoricalLocationKey("");
+    setSelectedColumns([]);
     setCurrentMapping(null);
   }, []);
 
@@ -91,6 +128,7 @@ export function MappingConfigDialog({
     setSelectedLocationKey(config.location_key_column || "");
     setSelectedHistoricalProductKey(config.historical_product_key_column || "");
     setSelectedHistoricalLocationKey(config.historical_location_key_column || "");
+    setSelectedColumns(config.selected_columns || []);
   }, []);
 
   const handleActivate = useCallback((config: ForecastMappingConfig, e: React.MouseEvent) => {
@@ -111,6 +149,17 @@ export function MappingConfigDialog({
     }
   }, [onSave]);
 
+  const handleToggleColumn = useCallback((column: string) => {
+    setSelectedColumns(prev => {
+      const isSelected = prev.includes(column);
+      if (isSelected) {
+        return prev.filter(c => c !== column);
+      } else {
+        return [...prev, column];
+      }
+    });
+  }, []);
+
   const handleSave = useCallback(async () => {
     if (!mappingName) {
       toast({
@@ -121,9 +170,18 @@ export function MappingConfigDialog({
       return;
     }
 
+    if (selectedColumns.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please select at least one column",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const newMapping: Partial<ForecastMappingConfig> = {
+      const newMapping = {
         mapping_name: mappingName,
         description,
         use_product_mapping: useProductMapping,
@@ -132,6 +190,7 @@ export function MappingConfigDialog({
         location_key_column: selectedLocationKey,
         historical_product_key_column: selectedHistoricalProductKey,
         historical_location_key_column: selectedHistoricalLocationKey,
+        selected_columns: selectedColumns,
       };
 
       const { data, error } = await supabase
@@ -168,6 +227,7 @@ export function MappingConfigDialog({
     selectedLocationKey,
     selectedHistoricalProductKey,
     selectedHistoricalLocationKey,
+    selectedColumns,
     onOpenChange,
     resetForm,
   ]);
@@ -263,6 +323,8 @@ export function MappingConfigDialog({
             </ScrollArea>
           </div>
 
+          <Separator />
+
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Configuration Name</Label>
@@ -285,6 +347,29 @@ export function MappingConfigDialog({
             </div>
 
             <div className="space-y-2">
+              <Label>Column Selection</Label>
+              <ScrollArea className="h-[200px] rounded-md border">
+                <div className="p-4 space-y-2">
+                  {availableColumns.map((column) => (
+                    <div key={column} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`column-${column}`}
+                        checked={selectedColumns.includes(column)}
+                        onCheckedChange={() => handleToggleColumn(column)}
+                      />
+                      <label
+                        htmlFor={`column-${column}`}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        {column}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+
+            <div className="space-y-2">
               <Label>Mapping Options</Label>
               <div className="space-y-4">
                 <div className="flex items-center space-x-2">
@@ -300,6 +385,48 @@ export function MappingConfigDialog({
                     Use Product Mapping
                   </label>
                 </div>
+
+                {useProductMapping && (
+                  <div className="space-y-2 pl-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="productKey">Product Key Column</Label>
+                      <Select
+                        value={selectedProductKey}
+                        onValueChange={setSelectedProductKey}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select product key column" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {selectedColumns.map((column) => (
+                            <SelectItem key={column} value={column}>
+                              {column}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="historicalProductKey">Historical Product Key Column</Label>
+                      <Select
+                        value={selectedHistoricalProductKey}
+                        onValueChange={setSelectedHistoricalProductKey}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select historical product key column" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {selectedColumns.map((column) => (
+                            <SelectItem key={column} value={column}>
+                              {column}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="useLocationMapping"
@@ -313,6 +440,47 @@ export function MappingConfigDialog({
                     Use Location Mapping
                   </label>
                 </div>
+
+                {useLocationMapping && (
+                  <div className="space-y-2 pl-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="locationKey">Location Key Column</Label>
+                      <Select
+                        value={selectedLocationKey}
+                        onValueChange={setSelectedLocationKey}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select location key column" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {selectedColumns.map((column) => (
+                            <SelectItem key={column} value={column}>
+                              {column}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="historicalLocationKey">Historical Location Key Column</Label>
+                      <Select
+                        value={selectedHistoricalLocationKey}
+                        onValueChange={setSelectedHistoricalLocationKey}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select historical location key column" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {selectedColumns.map((column) => (
+                            <SelectItem key={column} value={column}>
+                              {column}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
