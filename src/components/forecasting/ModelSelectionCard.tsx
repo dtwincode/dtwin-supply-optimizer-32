@@ -12,6 +12,9 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { ModelParameter } from "@/types/models/commonTypes";
+import { Button } from "@/components/ui/button";
+import { PlayCircle } from "lucide-react";
+import { toast } from "sonner";
 
 interface ModelSelectionCardProps {
   selectedModel: string;
@@ -30,6 +33,12 @@ export const ModelSelectionCard = ({
     onParametersChange(currentModel.id, params);
   };
 
+  const handleRunModel = () => {
+    toast.success(`Running ${currentModel.name} model...`);
+    // Trigger the model run with current parameters
+    onParametersChange(currentModel.id, currentModel.parameters);
+  };
+
   return (
     <Card className="p-6">
       <div className="space-y-4">
@@ -40,7 +49,7 @@ export const ModelSelectionCard = ({
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <Select
               value={selectedModel}
@@ -67,6 +76,17 @@ export const ModelSelectionCard = ({
               model={currentModel}
               onParametersChange={handleParametersChange}
             />
+          </div>
+
+          <div>
+            <Button 
+              onClick={handleRunModel}
+              className="w-full"
+              variant="default"
+            >
+              <PlayCircle className="mr-2 h-4 w-4" />
+              Run Model
+            </Button>
           </div>
         </div>
       </div>
