@@ -1,3 +1,4 @@
+
 import { ForecastChart } from "@/components/forecasting/ForecastChart";
 import { ForecastMetricsCards } from "@/components/forecasting/ForecastMetricsCards";
 import { ModelSelectionCard } from "@/components/forecasting/ModelSelectionCard";
@@ -565,3 +566,4 @@ const calculateMetrics = (data: ForecastDataPoint[]) => {
     rmse
   };
 };
+
