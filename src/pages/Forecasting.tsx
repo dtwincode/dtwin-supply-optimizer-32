@@ -9,7 +9,7 @@ import { ValidationTab } from "@/components/forecasting/tabs/ValidationTab";
 import { ExternalFactorsTab } from "@/components/forecasting/tabs/ExternalFactorsTab";
 import { Separator } from "@/components/ui/separator";
 import { Routes, Route, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useState, memo } from "react";
 import { ProductHierarchyFilter } from "@/components/forecasting/filters/ProductHierarchyFilter";
 import { LocationFilter } from "@/components/forecasting/filters/LocationFilter";
 import { ForecastDataPoint } from "@/types/forecasting";
@@ -104,57 +104,24 @@ const dummyData = {
   whatIfScenario: []
 };
 
-const Forecasting = () => {
-  const location = useLocation();
-  const currentPath = location.pathname;
+const FiltersSection = memo(({ 
+  isTimeExpanded, 
+  isProductExpanded, 
+  isLocationExpanded, 
+  handleSectionToggle,
+  showFilters,
+  trainingFromDate,
+  trainingToDate,
+  testingFromDate,
+  testingToDate,
+  setTrainingFromDate,
+  setTrainingToDate,
+  setTestingFromDate,
+  setTestingToDate
+}) => {
+  if (!showFilters) return null;
 
-  // Set all filter sections to be collapsed by default
-  const [isTimeExpanded, setIsTimeExpanded] = useState(false);
-  const [isProductExpanded, setIsProductExpanded] = useState(false);
-  const [isLocationExpanded, setIsLocationExpanded] = useState(false);
-
-  // Tab-specific localStorage keys
-  const getStorageKey = (base: string) => `${base}_${currentPath.split('/').pop() || 'analysis'}`;
-
-  const [trainingFromDate, setTrainingFromDate] = useLocalStorage(
-    getStorageKey('trainingFromDate'),
-    new Date('2024-01-01').toISOString()
-  );
-  const [trainingToDate, setTrainingToDate] = useLocalStorage(
-    getStorageKey('trainingToDate'),
-    new Date('2024-09-30').toISOString()
-  );
-  const [testingFromDate, setTestingFromDate] = useLocalStorage(
-    getStorageKey('testingFromDate'),
-    new Date('2024-10-01').toISOString()
-  );
-  const [testingToDate, setTestingToDate] = useLocalStorage(
-    getStorageKey('testingToDate'),
-    new Date('2024-12-31').toISOString()
-  );
-
-  const handleSectionToggle = (section: 'time' | 'product' | 'location') => {
-    switch (section) {
-      case 'time':
-        setIsTimeExpanded(!isTimeExpanded);
-        break;
-      case 'product':
-        setIsProductExpanded(!isProductExpanded);
-        break;
-      case 'location':
-        setIsLocationExpanded(!isLocationExpanded);
-        break;
-    }
-  };
-
-  // Function to determine if filters should be shown for current tab
-  const shouldShowFilters = () => {
-    const path = currentPath.split('/').pop() || '';
-    return ['', 'distribution', 'descriptive'].includes(path);
-  };
-
-  // مكون الفلاتر
-  const FiltersSection = () => shouldShowFilters() ? (
+  return (
     <div className="px-6 space-y-6 mt-6">
       <div className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40">
         <Button
@@ -259,7 +226,56 @@ const Forecasting = () => {
         )}
       </div>
     </div>
-  ) : null;
+  );
+});
+
+FiltersSection.displayName = 'FiltersSection';
+
+const Forecasting = () => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+
+  // Set all filter sections to be collapsed by default
+  const [isTimeExpanded, setIsTimeExpanded] = useState(false);
+  const [isProductExpanded, setIsProductExpanded] = useState(false);
+  const [isLocationExpanded, setIsLocationExpanded] = useState(false);
+
+  // Tab-specific localStorage keys
+  const getStorageKey = (base: string) => `${base}_${currentPath.split('/').pop() || 'analysis'}`;
+
+  const [trainingFromDate, setTrainingFromDate] = useLocalStorage(
+    getStorageKey('trainingFromDate'),
+    new Date('2024-01-01').toISOString()
+  );
+  const [trainingToDate, setTrainingToDate] = useLocalStorage(
+    getStorageKey('trainingToDate'),
+    new Date('2024-09-30').toISOString()
+  );
+  const [testingFromDate, setTestingFromDate] = useLocalStorage(
+    getStorageKey('testingFromDate'),
+    new Date('2024-10-01').toISOString()
+  );
+  const [testingToDate, setTestingToDate] = useLocalStorage(
+    getStorageKey('testingToDate'),
+    new Date('2024-12-31').toISOString()
+  );
+
+  const handleSectionToggle = (section: 'time' | 'product' | 'location') => {
+    switch (section) {
+      case 'time':
+        setIsTimeExpanded(!isTimeExpanded);
+        break;
+      case 'product':
+        setIsProductExpanded(!isProductExpanded);
+        break;
+      case 'location':
+        setIsLocationExpanded(!isLocationExpanded);
+        break;
+    }
+  };
+
+  // Function to determine if filters should be shown for current tab
+  const showFilters = ['', 'distribution', 'descriptive'].includes(currentPath.split('/').pop() || '');
 
   return (
     <DashboardLayout>
@@ -276,7 +292,21 @@ const Forecasting = () => {
           <ForecastingTabs />
         </div>
 
-        <FiltersSection />
+        <FiltersSection 
+          isTimeExpanded={isTimeExpanded}
+          isProductExpanded={isProductExpanded}
+          isLocationExpanded={isLocationExpanded}
+          handleSectionToggle={handleSectionToggle}
+          showFilters={showFilters}
+          trainingFromDate={trainingFromDate}
+          trainingToDate={trainingToDate}
+          testingFromDate={testingFromDate}
+          testingToDate={testingToDate}
+          setTrainingFromDate={setTrainingFromDate}
+          setTrainingToDate={setTrainingToDate}
+          setTestingFromDate={setTestingFromDate}
+          setTestingToDate={setTestingToDate}
+        />
 
         <div className="px-6 mt-6">
           <Routes>
