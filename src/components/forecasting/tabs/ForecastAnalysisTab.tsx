@@ -1,4 +1,3 @@
-
 import { ForecastChart } from "@/components/forecasting/ForecastChart";
 import { ForecastMetricsCards } from "@/components/forecasting/ForecastMetricsCards";
 import { ModelSelectionCard } from "@/components/forecasting/ModelSelectionCard";
@@ -31,11 +30,6 @@ interface SavedModelConfig {
   parameters: ModelParameter[];
   created_at: string;
   performance_metrics?: ModelPerformanceMetrics;
-}
-
-interface ForecastAnalysisTabProps {
-  filteredData: ForecastDataPoint[];
-  confidenceIntervals: Array<{ upper: number; lower: number; }>;
 }
 
 const sampleData: ForecastDataPoint[] = Array.from({ length: 24 }, (_, i) => {
@@ -106,7 +100,6 @@ const PatternAnalysisCard = ({ data }: { data: ForecastDataPoint[] }) => {
 
   const patterns = analyzePatterns();
 
-  // Prepare data for mini charts
   const trendData = data.map((d, index) => ({
     index,
     value: d.forecast
@@ -566,4 +559,3 @@ const calculateMetrics = (data: ForecastDataPoint[]) => {
     rmse
   };
 };
-

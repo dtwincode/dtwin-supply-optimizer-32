@@ -316,10 +316,7 @@ const Forecasting = () => {
 
         <div className="px-6 mt-6">
           <Routes>
-            <Route index element={<ForecastAnalysisTab 
-              filteredData={dummyData.filteredData} 
-              confidenceIntervals={dummyData.confidenceIntervals} 
-            />} />
+            <Route index element={<ForecastAnalysisTab />} />
             <Route path="distribution" element={<ForecastDistributionTab forecastTableData={dummyData.forecastTableData} />} />
             <Route path="descriptive" element={<DescriptiveAnalysisTab filteredData={dummyData.filteredData} />} />
             <Route path="pattern" element={<DecompositionTab filteredData={dummyData.filteredData} decomposition={dummyData.decomposition} />} />
