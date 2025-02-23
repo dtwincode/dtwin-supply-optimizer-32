@@ -103,6 +103,7 @@ export function useIntegratedData() {
   }, []);
 
   const fetchSavedMappings = useCallback(async () => {
+    console.log("Fetching saved mappings...");
     try {
       const { data: mappings, error } = await supabase
         .from('forecast_integration_mappings')
@@ -112,9 +113,12 @@ export function useIntegratedData() {
 
       if (error) throw error;
 
-      const validMappings = (mappings || []).filter(m => m && m.id);
+      // Ensure we only include valid mappings and log the results
+      const validMappings = (mappings || []).filter(m => m && m.id && m.is_active);
+      console.log("Valid mappings:", validMappings);
       setSavedMappings(validMappings);
       
+      // Clear selected mapping if it's not in valid mappings
       if (selectedMapping && !validMappings.find(m => m.id === selectedMapping.id)) {
         setSelectedMapping(null);
       }
@@ -129,11 +133,13 @@ export function useIntegratedData() {
   }, [selectedMapping]);
 
   useEffect(() => {
+    console.log("Initial fetch of saved mappings");
     fetchSavedMappings();
   }, [fetchSavedMappings]);
 
   useEffect(() => {
     if (mappingDialogOpen) {
+      console.log("Dialog opened, fetching mappings");
       fetchSavedMappings();
     }
   }, [mappingDialogOpen, fetchSavedMappings]);
@@ -222,22 +228,32 @@ export function useIntegratedData() {
     }
 
     try {
-      const { error } = await supabase
-        .from('forecast_integration_mappings')
-        .update({ is_active: false })
-        .eq('id', selectedMapping.id);
-
-      if (error) throw error;
-
+      console.log("Deleting mapping:", selectedMapping.id);
+      
+      // First update local state to ensure immediate UI response
       setSavedMappings(current => current.filter(m => m.id !== selectedMapping.id));
       setSelectedMapping(null);
+
+      // Then update the database
+      const { error } = await supabase
+        .from('forecast_integration_mappings')
+        .update({ 
+          is_active: false,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', selectedMapping.id);
+
+      if (error) {
+        // If database update fails, revert the local state
+        console.error("Database update failed, reverting local state");
+        await fetchSavedMappings();
+        throw error;
+      }
 
       toast({
         title: "Success",
         description: "Mapping configuration deleted successfully",
       });
-
-      await fetchSavedMappings();
     } catch (error: any) {
       console.error('Error deleting mapping:', error);
       toast({
