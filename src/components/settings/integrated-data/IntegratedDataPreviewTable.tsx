@@ -51,6 +51,14 @@ export function IntegratedDataPreviewTable({
     return Array.from(columns);
   }, [data]);
 
+  // Format date value helper function
+  const formatDateValue = (value: any): string => {
+    if (!value) return '';
+    if (typeof value === 'string') return value;
+    if (value instanceof Date) return value.toISOString().split('T')[0];
+    return String(value);
+  };
+
   // Get unique values for each column
   const uniqueValues = useMemo(() => {
     const values: Record<string, Set<string>> = {};
@@ -59,14 +67,8 @@ export function IntegratedDataPreviewTable({
       data.forEach(row => {
         const value = row[column];
         if (value !== undefined && value !== null && value !== '') {
-          // Format date values if the column is 'date'
           if (column === 'date') {
-            const dateStr = typeof value === 'string' 
-              ? value 
-              : value instanceof Date 
-                ? value.toISOString().split('T')[0] 
-                : String(value);
-            values[column].add(dateStr);
+            values[column].add(formatDateValue(value));
           } else {
             values[column].add(String(value));
           }
@@ -101,13 +103,7 @@ export function IntegratedDataPreviewTable({
         if (!filterValue) return true;
         
         if (column === 'date') {
-          const dateValue = row[column];
-          const formattedDate = typeof dateValue === 'string'
-            ? dateValue
-            : dateValue instanceof Date
-              ? dateValue.toISOString().split('T')[0]
-              : String(dateValue);
-          return formattedDate === filterValue;
+          return formatDateValue(row[column]) === filterValue;
         }
         
         return String(row[column]) === filterValue;
@@ -202,16 +198,7 @@ export function IntegratedDataPreviewTable({
                         key={`${row.id || index}-${column}`} 
                         className="min-w-[150px]"
                       >
-                        {column === 'date' ? (
-                          (() => {
-                            const dateValue = row[column];
-                            return typeof dateValue === 'string'
-                              ? dateValue
-                              : dateValue instanceof Date
-                                ? dateValue.toISOString().split('T')[0]
-                                : String(dateValue || '');
-                          })()
-                        ) : (
+                        {column === 'date' ? formatDateValue(row[column]) : (
                           typeof row[column] === 'object'
                             ? JSON.stringify(row[column])
                             : String(row[column] ?? '')
