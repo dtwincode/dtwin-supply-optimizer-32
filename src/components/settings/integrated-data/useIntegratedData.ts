@@ -23,13 +23,16 @@ export function useIntegratedData() {
   
   const location = useLocation();
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (showLoading = true) => {
     if (isLoading) {
       return;
     }
     
-    setIsLoading(true);
+    if (showLoading) {
+      setIsLoading(true);
+    }
     setError(null);
+
     try {
       const { data: integratedData, error } = await supabase
         .from('integrated_forecast_data')
@@ -93,13 +96,15 @@ export function useIntegratedData() {
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      if (showLoading) {
+        setIsLoading(false);
+      }
     }
-  }, [isLoading]);
+  }, []);
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, []);
 
   const checkRequiredFiles = useCallback(async () => {
     try {
@@ -225,7 +230,7 @@ export function useIntegratedData() {
                 title: "Integration Complete",
                 description: "Data integration has finished successfully.",
               });
-              await fetchData();
+              await fetchData(false);
             }
           }, 10000);
           
@@ -235,7 +240,7 @@ export function useIntegratedData() {
       }
       
       setHasIntegrated(true);
-      await fetchData();
+      await fetchData(false);
       
       toast({
         title: "Success",
