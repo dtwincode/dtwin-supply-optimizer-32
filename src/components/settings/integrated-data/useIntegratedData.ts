@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
@@ -108,15 +107,15 @@ export function useIntegratedData() {
       const { data: mappings, error } = await supabase
         .from('forecast_integration_mappings')
         .select('*')
-        .eq('is_active', true)  // Only fetch active mappings
+        .eq('is_active', true)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      setSavedMappings(mappings || []);
+      const validMappings = (mappings || []).filter(m => m && m.id);
+      setSavedMappings(validMappings);
       
-      // If the currently selected mapping was deleted, clear it
-      if (selectedMapping && !mappings?.find(m => m.id === selectedMapping.id)) {
+      if (selectedMapping && !validMappings.find(m => m.id === selectedMapping.id)) {
         setSelectedMapping(null);
       }
     } catch (error: any) {
@@ -129,12 +128,10 @@ export function useIntegratedData() {
     }
   }, [selectedMapping]);
 
-  // Fetch saved mappings on component mount
   useEffect(() => {
     fetchSavedMappings();
   }, [fetchSavedMappings]);
 
-  // Also fetch when dialog opens
   useEffect(() => {
     if (mappingDialogOpen) {
       fetchSavedMappings();
@@ -232,13 +229,15 @@ export function useIntegratedData() {
 
       if (error) throw error;
 
-      await fetchSavedMappings();
+      setSavedMappings(current => current.filter(m => m.id !== selectedMapping.id));
       setSelectedMapping(null);
-      
+
       toast({
         title: "Success",
         description: "Mapping configuration deleted successfully",
       });
+
+      await fetchSavedMappings();
     } catch (error: any) {
       console.error('Error deleting mapping:', error);
       toast({

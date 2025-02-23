@@ -108,6 +108,20 @@ export function MappingConfigDialog({
     }
   }, [open]);
 
+  useEffect(() => {
+    if (open) {
+      setCurrentMapping(null);
+      setMappingName("");
+      setDescription("");
+      setUseProductMapping(false);
+      setUseLocationMapping(false);
+      setSelectedProductKey("");
+      setSelectedLocationKey("");
+      setSelectedHistoricalProductKey("");
+      setSelectedHistoricalLocationKey("");
+    }
+  }, [open]);
+
   const handleSelectMapping = (config: ForecastMappingConfig) => {
     setCurrentMapping(config);
     setMappingName(config.mapping_name);
