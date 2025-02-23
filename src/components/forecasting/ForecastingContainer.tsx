@@ -19,7 +19,6 @@ export function ForecastingContainer() {
   const [scenarioName, setScenarioName] = useState("");
   const { toast } = useToast();
 
-  // Handler functions
   const handleDateRangeChange = (startDate: Date, endDate: Date) => {
     console.log("Date range changed:", startDate, endDate);
   };
@@ -55,46 +54,50 @@ export function ForecastingContainer() {
 
       <Card className="mt-6">
         <CardContent className="p-6">
-          <ForecastingTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-
-          {activeTab === "metrics" && <ForecastMetricsCards metrics={{
-            mape: 5.2,
-            mae: 2.3,
-            rmse: 3.1
-          }} />}
-          {activeTab === "filters" && (
-            <ForecastFilters
-              searchQuery={""}
-              setSearchQuery={() => {}}
-              selectedRegion={"all"}
-              setSelectedRegion={() => {}}
-              selectedCity={"all"}
-              setSelectedCity={() => {}}
-              selectedChannel={"all"}
-              setSelectedChannel={() => {}}
-              selectedWarehouse={"all"}
-              setSelectedWarehouse={() => {}}
-              selectedL1MainProd={"all"}
-              setSelectedL1MainProd={() => {}}
-              selectedL2ProdLine={"all"}
-              setSelectedL2ProdLine={() => {}}
-              selectedL3ProdCategory={"all"}
-              setSelectedL3ProdCategory={() => {}}
-              selectedL4DeviceMake={"all"}
-              setSelectedL4DeviceMake={() => {}}
-              selectedL5ProdSubCategory={"all"}
-              setSelectedL5ProdSubCategory={() => {}}
-              selectedL6DeviceModel={"all"}
-              setSelectedL6DeviceModel={() => {}}
-              selectedL7DeviceColor={"all"}
-              setSelectedL7DeviceColor={() => {}}
-              selectedL8DeviceStorage={"all"}
-              setSelectedL8DeviceStorage={() => {}}
-              channelTypes={[]}
-              warehouses={[]}
-              forecastData={[]}
-            />
-          )}
+          <div className="space-y-6">
+            {activeTab === "metrics" && (
+              <ForecastMetricsCards
+                metrics={{
+                  mape: 5.2,
+                  mae: 2.3,
+                  rmse: 3.1
+                }}
+              />
+            )}
+            {activeTab === "filters" && (
+              <ForecastFilters
+                searchQuery=""
+                setSearchQuery={() => {}}
+                selectedRegion="all"
+                setSelectedRegion={() => {}}
+                selectedCity="all"
+                setSelectedCity={() => {}}
+                selectedChannel="all"
+                setSelectedChannel={() => {}}
+                selectedWarehouse="all"
+                setSelectedWarehouse={() => {}}
+                selectedL1MainProd="all"
+                setSelectedL1MainProd={() => {}}
+                selectedL2ProdLine="all"
+                setSelectedL2ProdLine={() => {}}
+                selectedL3ProdCategory="all"
+                setSelectedL3ProdCategory={() => {}}
+                selectedL4DeviceMake="all"
+                setSelectedL4DeviceMake={() => {}}
+                selectedL5ProdSubCategory="all"
+                setSelectedL5ProdSubCategory={() => {}}
+                selectedL6DeviceModel="all"
+                setSelectedL6DeviceModel={() => {}}
+                selectedL7DeviceColor="all"
+                setSelectedL7DeviceColor={() => {}}
+                selectedL8DeviceStorage="all"
+                setSelectedL8DeviceStorage={() => {}}
+                channelTypes={[]}
+                warehouses={[]}
+                forecastData={[]}
+              />
+            )}
+          </div>
         </CardContent>
       </Card>
 
