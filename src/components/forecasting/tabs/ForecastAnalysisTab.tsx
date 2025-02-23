@@ -9,6 +9,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { SavedScenario } from "@/types/forecasting";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { ChevronUp, ChevronDown } from "lucide-react";
+import { ForecastingDateRange } from "@/components/forecasting/ForecastingDateRange";
 
 interface ForecastAnalysisTabProps {
   filteredData: any[];
@@ -27,6 +30,9 @@ export const ForecastAnalysisTab = ({
   const [trainingToDate, setTrainingToDate] = useState<Date>(new Date('2024-09-30'));
   const [testingFromDate, setTestingFromDate] = useState<Date>(new Date('2024-10-01'));
   const [testingToDate, setTestingToDate] = useState<Date>(new Date('2024-12-31'));
+  const [isTimeExpanded, setIsTimeExpanded] = useState(false);
+  const [isProductExpanded, setIsProductExpanded] = useState(false);
+  const [isLocationExpanded, setIsLocationExpanded] = useState(false);
 
   const handleModelChange = (modelId: string) => {
     setSelectedModel(modelId);
@@ -51,9 +57,132 @@ export const ForecastAnalysisTab = ({
     console.log("Parameters updated for model:", modelId, parameters);
   };
 
+  const handleSectionToggle = (section: 'time' | 'product' | 'location') => {
+    switch (section) {
+      case 'time':
+        setIsTimeExpanded(!isTimeExpanded);
+        break;
+      case 'product':
+        setIsProductExpanded(!isProductExpanded);
+        break;
+      case 'location':
+        setIsLocationExpanded(!isLocationExpanded);
+        break;
+    }
+  };
+
   return (
     <div className="space-y-8">
-      {/* Step 1: Model Selection & Configuration */}
+      {/* Filter Sections */}
+      <div className="space-y-6">
+        {/* Time Period Selection */}
+        <div className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40">
+          <Button
+            variant="ghost"
+            className="w-full flex items-center justify-between p-6 hover:bg-primary/5"
+            onClick={() => handleSectionToggle('time')}
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-lg font-semibold text-primary">Time Period Selection</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                {isTimeExpanded ? "Click to collapse" : "Click to expand"}
+              </span>
+              {isTimeExpanded ? (
+                <ChevronUp className="h-5 w-5 text-primary" />
+              ) : (
+                <ChevronDown className="h-5 w-5 text-primary" />
+              )}
+            </div>
+          </Button>
+
+          {isTimeExpanded && (
+            <div className="p-6 space-y-6 border-t bg-primary/5">
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <Card className="p-6">
+                  <h4 className="text-base font-medium mb-4">Training Period</h4>
+                  <ForecastingDateRange
+                    fromDate={trainingFromDate}
+                    toDate={trainingToDate}
+                    setFromDate={setTrainingFromDate}
+                    setToDate={setTrainingToDate}
+                  />
+                </Card>
+                <Card className="p-6">
+                  <h4 className="text-base font-medium mb-4">Testing Period</h4>
+                  <ForecastingDateRange
+                    fromDate={testingFromDate}
+                    toDate={testingToDate}
+                    setFromDate={setTestingFromDate}
+                    setToDate={setTestingToDate}
+                  />
+                </Card>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Product Hierarchy */}
+        <div className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40">
+          <Button
+            variant="ghost"
+            className="w-full flex items-center justify-between p-6 hover:bg-primary/5"
+            onClick={() => handleSectionToggle('product')}
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-lg font-semibold text-primary">Product Hierarchy</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                {isProductExpanded ? "Click to collapse" : "Click to expand"}
+              </span>
+              {isProductExpanded ? (
+                <ChevronUp className="h-5 w-5 text-primary" />
+              ) : (
+                <ChevronDown className="h-5 w-5 text-primary" />
+              )}
+            </div>
+          </Button>
+
+          {isProductExpanded && (
+            <div className="p-6 border-t bg-primary/5">
+              {/* Add Product Hierarchy Filter content here */}
+            </div>
+          )}
+        </div>
+
+        {/* Location Hierarchy */}
+        <div className="w-full relative bg-background rounded-lg border-2 border-primary/20 shadow-lg transition-all duration-300 hover:border-primary/40">
+          <Button
+            variant="ghost"
+            className="w-full flex items-center justify-between p-6 hover:bg-primary/5"
+            onClick={() => handleSectionToggle('location')}
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-lg font-semibold text-primary">Location Hierarchy</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                {isLocationExpanded ? "Click to collapse" : "Click to expand"}
+              </span>
+              {isLocationExpanded ? (
+                <ChevronUp className="h-5 w-5 text-primary" />
+              ) : (
+                <ChevronDown className="h-5 w-5 text-primary" />
+              )}
+            </div>
+          </Button>
+
+          {isLocationExpanded && (
+            <div className="p-6 border-t bg-primary/5">
+              {/* Add Location Hierarchy Filter content here */}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Step 1: Model Selection */}
       <div>
         <div className="space-y-2 mb-4">
           <h3 className="text-lg font-semibold">Step 1: Select Model</h3>
