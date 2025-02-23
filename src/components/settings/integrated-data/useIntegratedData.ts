@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
@@ -125,10 +124,11 @@ export function useIntegratedData() {
       const validMappings = mappings.filter(m => m && m.id);
       console.log("Valid mappings:", validMappings);
       setSavedMappings(validMappings);
-      
-      if (selectedMapping && !validMappings.find(m => m.id === selectedMapping.id)) {
-        console.log("Selected mapping no longer exists, clearing selection");
-        setSelectedMapping(null);
+
+      // Find and set the active mapping
+      const activeMapping = validMappings.find(m => m.is_active);
+      if (activeMapping) {
+        setSelectedMapping(activeMapping);
       }
     } catch (error: any) {
       console.error('Error fetching mappings:', error);
@@ -139,19 +139,12 @@ export function useIntegratedData() {
       });
       setSavedMappings([]);
     }
-  }, [selectedMapping]);
+  }, []);
 
   useEffect(() => {
     console.log("Initial fetch of saved mappings");
     fetchSavedMappings();
   }, [fetchSavedMappings]);
-
-  useEffect(() => {
-    if (mappingDialogOpen) {
-      console.log("Dialog opened, fetching mappings");
-      fetchSavedMappings();
-    }
-  }, [mappingDialogOpen, fetchSavedMappings]);
 
   const handleIntegration = useCallback(async () => {
     if (!selectedMapping) {
@@ -228,60 +221,36 @@ export function useIntegratedData() {
     }
   }, [selectedMapping, isIntegrating, checkRequiredFiles, fetchData]);
 
-  const handleDeleteMapping = useCallback(async () => {
-    if (!selectedMapping?.id) {
-      toast({
-        title: "Error",
-        description: "No mapping configuration selected",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const handleSaveMapping = useCallback(async (mapping: ForecastMappingConfig) => {
     try {
-      console.log("Deleting mapping:", selectedMapping.id);
-      
-      const { error, data } = await supabase
+      // First, deactivate all other mappings
+      await supabase
         .from('forecast_integration_mappings')
-        .delete()
-        .eq('id', selectedMapping.id)
-        .select();
+        .update({ is_active: false })
+        .neq('id', mapping.id);
 
-      if (error) {
-        console.error("Database delete error:", error);
-        throw error;
-      }
+      // Then activate the selected mapping
+      await supabase
+        .from('forecast_integration_mappings')
+        .update({ is_active: true })
+        .eq('id', mapping.id);
 
-      console.log("Delete response:", data);
-
-      setSavedMappings(current => {
-        const newMappings = current.filter(m => m.id !== selectedMapping.id);
-        console.log("Updated mappings list:", newMappings);
-        return newMappings;
-      });
-      setSelectedMapping(null);
-      setMappingDialogOpen(false);
+      setSelectedMapping(mapping);
+      await fetchSavedMappings();
 
       toast({
         title: "Success",
-        description: "Mapping configuration deleted successfully",
+        description: "Mapping configuration activated successfully",
       });
-
-      await fetchSavedMappings();
-    } catch (error: any) {
-      console.error('Error deleting mapping:', error);
+    } catch (error) {
+      console.error('Error activating mapping:', error);
       toast({
         title: "Error",
-        description: `Failed to delete mapping configuration: ${error.message}`,
+        description: "Failed to activate mapping configuration",
         variant: "destructive",
       });
-      await fetchSavedMappings();
     }
-  }, [selectedMapping, fetchSavedMappings]);
-
-  const handleSaveMapping = useCallback((mapping: ForecastMappingConfig) => {
-    setSelectedMapping(mapping);
-  }, []);
+  }, [fetchSavedMappings]);
 
   return {
     data,
@@ -298,7 +267,10 @@ export function useIntegratedData() {
     fetchData,
     handleIntegration,
     handleSaveMapping,
-    handleDeleteMapping,
+    handleDeleteMapping: () => {
+      setSelectedMapping(null);
+      fetchSavedMappings();
+    },
     fetchSavedMappings
   };
 }

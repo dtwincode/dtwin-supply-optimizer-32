@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { IntegratedDataPreviewTable } from "./IntegratedDataPreviewTable";
 import { useIntegratedData } from "./useIntegratedData";
 import { MappingConfigDialog } from "./MappingConfigDialog";
+import { Badge } from "@/components/ui/badge";
 
 export function IntegratedDataPreview() {
   const { 
@@ -30,9 +31,18 @@ export function IntegratedDataPreview() {
             View and manage integrated forecast data
           </p>
         </div>
-        <Button onClick={() => setMappingDialogOpen(true)}>
-          Configure Integration
-        </Button>
+        <div className="flex items-center gap-4">
+          {selectedMapping && (
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary">
+                Active Config: {selectedMapping.mapping_name}
+              </Badge>
+            </div>
+          )}
+          <Button onClick={() => setMappingDialogOpen(true)}>
+            Configure Integration
+          </Button>
+        </div>
       </div>
 
       <MappingConfigDialog
@@ -57,7 +67,11 @@ export function IntegratedDataPreview() {
       />
 
       <div className="flex justify-end">
-        <Button variant="default" onClick={handleIntegration} disabled={isIntegrating}>
+        <Button 
+          variant="default" 
+          onClick={handleIntegration} 
+          disabled={isIntegrating || !selectedMapping}
+        >
           {isIntegrating ? "Integrating..." : "Run Integration"}
         </Button>
       </div>
