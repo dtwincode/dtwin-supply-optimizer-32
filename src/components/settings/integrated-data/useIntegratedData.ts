@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
@@ -52,6 +53,14 @@ export function useIntegratedData() {
           ? item.source_files 
           : (item.source_files ? JSON.parse(item.source_files as string) : []);
 
+        // Ensure validation_status is one of the allowed values
+        let typedValidationStatus: 'valid' | 'needs_review' | 'pending' = 'pending';
+        if (item.validation_status === 'valid' || 
+            item.validation_status === 'needs_review' || 
+            item.validation_status === 'pending') {
+          typedValidationStatus = item.validation_status;
+        }
+
         return {
           id: item.id,
           date: item.date,
@@ -59,7 +68,7 @@ export function useIntegratedData() {
           sku: item.sku,
           created_at: item.created_at,
           updated_at: item.updated_at,
-          validation_status: item.validation_status,
+          validation_status: typedValidationStatus,
           source_files: parsedSourceFiles,
           metadata: parsedMetadata,
           ...parsedMetadata
@@ -67,7 +76,16 @@ export function useIntegratedData() {
       });
 
       setData(transformedData);
-      setValidationStatus(integratedData[0]?.validation_status as 'valid' | 'needs_review' | null);
+      
+      // Set validation status from the first item if it exists
+      if (transformedData.length > 0) {
+        setValidationStatus(
+          transformedData[0].validation_status === 'valid' || 
+          transformedData[0].validation_status === 'needs_review' 
+            ? transformedData[0].validation_status 
+            : null
+        );
+      }
     } catch (error: any) {
       console.error('Error fetching integrated data:', error);
       setError('Failed to fetch integrated data. Please try again.');
