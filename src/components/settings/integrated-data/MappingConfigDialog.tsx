@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -109,6 +108,42 @@ export function MappingConfigDialog({
     }
   }, [open]);
 
+  const handleSelectMapping = (config: ForecastMappingConfig) => {
+    setCurrentMapping(config);
+    setMappingName(config.mapping_name);
+    setDescription(config.description || '');
+    setUseProductMapping(config.use_product_mapping);
+    setUseLocationMapping(config.use_location_mapping);
+    setSelectedProductKey(config.product_key_column || '');
+    setSelectedLocationKey(config.location_key_column || '');
+    setSelectedHistoricalProductKey(config.historical_product_key_column || '');
+    setSelectedHistoricalLocationKey(config.historical_location_key_column || '');
+  };
+
+  const handleDelete = () => {
+    if (!currentMapping) {
+      toast({
+        title: "Error",
+        description: "No mapping configuration selected",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (onDelete) {
+      onDelete();
+      setCurrentMapping(null);
+      setMappingName("");
+      setDescription("");
+      setUseProductMapping(false);
+      setUseLocationMapping(false);
+      setSelectedProductKey("");
+      setSelectedLocationKey("");
+      setSelectedHistoricalProductKey("");
+      setSelectedHistoricalLocationKey("");
+    }
+  };
+
   const handleSave = async () => {
     if (!mappingName || 
         (!selectedHistoricalProductKey && !selectedHistoricalLocationKey) ||
@@ -169,18 +204,6 @@ export function MappingConfigDialog({
     }
   };
 
-  const handleSelectMapping = (config: ForecastMappingConfig) => {
-    setCurrentMapping(config);
-    setMappingName(config.mapping_name);
-    setDescription(config.description || '');
-    setUseProductMapping(config.use_product_mapping);
-    setUseLocationMapping(config.use_location_mapping);
-    setSelectedProductKey(config.product_key_column || '');
-    setSelectedLocationKey(config.location_key_column || '');
-    setSelectedHistoricalProductKey(config.historical_product_key_column || '');
-    setSelectedHistoricalLocationKey(config.historical_location_key_column || '');
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-y-auto">
@@ -202,7 +225,7 @@ export function MappingConfigDialog({
                     currentMapping?.id === config.id ? 'border-primary' : ''
                   }`}
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <h4 className="font-medium">{config.mapping_name}</h4>
@@ -245,7 +268,7 @@ export function MappingConfigDialog({
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={onDelete}
+                          onClick={handleDelete}
                           className="h-8 w-8 hover:bg-destructive hover:text-destructive-foreground"
                         >
                           <X className="h-4 w-4" />
@@ -383,7 +406,7 @@ export function MappingConfigDialog({
             {currentMapping && (
               <Button
                 variant="destructive"
-                onClick={onDelete}
+                onClick={handleDelete}
                 type="button"
               >
                 Delete

@@ -193,8 +193,11 @@ export function useIntegratedData() {
 
       if (error) throw error;
 
+      // Update local state
+      setSavedMappings(current => current.filter(m => m.id !== selectedMapping.id));
       setSelectedMapping(null);
       setMappingDialogOpen(false);
+
       toast({
         title: "Success",
         description: "Mapping configuration deleted successfully",
@@ -259,6 +262,7 @@ export function useIntegratedData() {
     fetchData,
     handleIntegration,
     handleSaveMapping,
-    handleDeleteMapping
+    handleDeleteMapping,
+    fetchSavedMappings
   };
 }
