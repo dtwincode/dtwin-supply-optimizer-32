@@ -87,32 +87,37 @@ export function IntegratedDataPreviewTable({
         </div>
       </div>
 
-      <div className="border rounded-lg">
-        <ScrollArea className="h-[600px]">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {displayColumns.map((column) => (
-                  <TableHead key={column} className="whitespace-nowrap">
-                    {column}
-                  </TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.map((row, index) => (
-                <TableRow key={row.id || index}>
+      <div className="rounded-lg border">
+        <ScrollArea className="h-[600px] rounded-md border">
+          <div className="relative w-full overflow-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
                   {displayColumns.map((column) => (
-                    <TableCell key={`${row.id || index}-${column}`} className="whitespace-nowrap">
-                      {typeof row[column] === 'object' 
-                        ? JSON.stringify(row[column]) 
-                        : String(row[column] ?? '')}
-                    </TableCell>
+                    <TableHead key={column} className="min-w-[150px]">
+                      {column}
+                    </TableHead>
                   ))}
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {data.map((row, index) => (
+                  <TableRow key={row.id || index}>
+                    {displayColumns.map((column) => (
+                      <TableCell 
+                        key={`${row.id || index}-${column}`} 
+                        className="min-w-[150px]"
+                      >
+                        {typeof row[column] === 'object' 
+                          ? JSON.stringify(row[column]) 
+                          : String(row[column] ?? '')}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </ScrollArea>
       </div>
     </div>
