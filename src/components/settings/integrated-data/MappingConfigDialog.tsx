@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -132,6 +133,7 @@ export function MappingConfigDialog({
     setSelectedLocationKey(config.location_key_column || '');
     setSelectedHistoricalProductKey(config.historical_product_key_column || '');
     setSelectedHistoricalLocationKey(config.historical_location_key_column || '');
+    onSave(config);
   };
 
   const handleDelete = () => {
@@ -145,15 +147,6 @@ export function MappingConfigDialog({
     }
 
     onDelete?.();
-    setCurrentMapping(null);
-    setMappingName("");
-    setDescription("");
-    setUseProductMapping(false);
-    setUseLocationMapping(false);
-    setSelectedProductKey("");
-    setSelectedLocationKey("");
-    setSelectedHistoricalProductKey("");
-    setSelectedHistoricalLocationKey("");
   };
 
   const handleSave = async () => {
@@ -233,7 +226,7 @@ export function MappingConfigDialog({
               {savedMappings.map((config) => (
                 <Card
                   key={config.id}
-                  className={`p-4 ${
+                  className={`p-4 cursor-pointer hover:border-primary transition-colors ${
                     currentMapping?.id === config.id ? 'border-primary' : ''
                   }`}
                 >
@@ -271,10 +264,7 @@ export function MappingConfigDialog({
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => {
-                          handleSelectMapping(config);
-                          onSave(config);
-                        }}
+                        onClick={() => handleSelectMapping(config)}
                       >
                         Select
                         <ChevronRight className="ml-2 h-4 w-4" />
