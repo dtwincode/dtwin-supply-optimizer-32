@@ -12,6 +12,7 @@ import { Save, TrendingUp, History, Trash2, ChevronDown, ChevronUp } from "lucid
 import { supabase } from "@/integrations/supabase/client";
 import { ModelParameter } from "@/types/models/commonTypes";
 import { Database } from "@/integrations/supabase/types";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ModelPerformanceMetrics {
   accuracy: number;
@@ -53,6 +54,7 @@ export const ForecastAnalysisTab = ({
     lastUpdated: '',
     trend: 'stable'
   });
+  const [confidenceLevel, setConfidenceLevel] = useState<string>("95");
 
   useEffect(() => {
     fetchSavedModels();
@@ -246,7 +248,6 @@ export const ForecastAnalysisTab = ({
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Model Performance Monitoring Card */}
         <Card className="p-6">
           <div className="space-y-4">
             <div className="flex justify-between items-center">
@@ -275,7 +276,6 @@ export const ForecastAnalysisTab = ({
           </div>
         </Card>
 
-        {/* Saved Models Card */}
         <Card className="p-6">
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Saved Models</h3>
@@ -361,17 +361,38 @@ export const ForecastAnalysisTab = ({
       <ForecastMetricsCards metrics={metrics} />
       
       <Card className="p-6">
-        <div className="space-y-2 mb-4">
-          <h3 className="text-lg font-semibold">Forecast Analysis</h3>
-          <p className="text-sm text-muted-foreground">
-            Visual analysis of forecasted values with confidence intervals
-          </p>
-        </div>
-        <div className="h-[400px]">
-          <ForecastChart 
-            data={filteredData} 
-            confidenceIntervals={confidenceIntervals}
-          />
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold">Forecast Analysis</h3>
+              <p className="text-sm text-muted-foreground">
+                Visual analysis of forecasted values with confidence intervals
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Confidence Level:</span>
+              <Select
+                value={confidenceLevel}
+                onValueChange={setConfidenceLevel}
+              >
+                <SelectTrigger className="w-[100px]">
+                  <SelectValue placeholder="95%" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="90">90%</SelectItem>
+                  <SelectItem value="95">95%</SelectItem>
+                  <SelectItem value="99">99%</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="h-[400px]">
+            <ForecastChart 
+              data={filteredData} 
+              confidenceIntervals={confidenceIntervals}
+              confidenceLevel={Number(confidenceLevel)}
+            />
+          </div>
         </div>
       </Card>
     </div>

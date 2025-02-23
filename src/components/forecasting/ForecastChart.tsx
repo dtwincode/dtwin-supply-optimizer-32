@@ -13,29 +13,36 @@ import {
   ReferenceDot
 } from "recharts";
 import { format, parseISO } from "date-fns";
+import { calculateConfidenceIntervals } from "@/utils/forecasting/statistics";
 
 interface ForecastChartProps {
   data: any[];
   confidenceIntervals: { upper: number; lower: number }[];
+  confidenceLevel?: number;
 }
 
 export const ForecastChart = ({ 
   data = [], 
-  confidenceIntervals = []
+  confidenceIntervals = [],
+  confidenceLevel = 95
 }: ForecastChartProps) => {
-  // Validate and transform data
-  const validData = data.map(item => {
-    // Ensure we have a valid week/date value
+  // Calculate adjusted confidence intervals based on selected level
+  const adjustedIntervals = calculateConfidenceIntervals(
+    data.map(d => d.forecast),
+    confidenceLevel / 100
+  );
+
+  // Combine data with confidence intervals
+  const chartData = data.map((item, index) => {
     const weekValue = item.week || item.date || '';
     let formattedDate = weekValue;
 
-    // Only try to parse and format if we have a value
     if (weekValue) {
       try {
         formattedDate = format(parseISO(weekValue), 'MMM d');
       } catch (e) {
         console.log('Date parsing failed for:', weekValue);
-        formattedDate = weekValue; // Keep original if parsing fails
+        formattedDate = weekValue;
       }
     }
 
@@ -44,17 +51,15 @@ export const ForecastChart = ({
       formattedWeek: formattedDate,
       actual: item.actual !== undefined ? Number(item.actual) : null,
       forecast: item.forecast !== undefined ? Number(item.forecast) : null,
-      upper: item.upper !== undefined ? Number(item.upper) : 
-             item.forecast !== undefined ? Number(item.forecast) : null,
-      lower: item.lower !== undefined ? Number(item.lower) : 
-             item.forecast !== undefined ? Number(item.forecast) : null
+      upper: adjustedIntervals[index]?.upper,
+      lower: adjustedIntervals[index]?.lower
     };
   });
 
   return (
     <ResponsiveContainer width="100%" height="100%">
       <ComposedChart 
-        data={validData} 
+        data={chartData} 
         margin={{ top: 32, right: 30, left: 10, bottom: 80 }}
       >
         <CartesianGrid strokeDasharray="3 3" />
@@ -76,7 +81,6 @@ export const ForecastChart = ({
         <Tooltip
           labelFormatter={(label) => `Week of ${label}`}
           formatter={(value: any) => {
-            // Handle null or undefined values
             if (value === null || value === undefined) return ['-', 'Units'];
             return [Math.round(value), "Units"];
           }}
@@ -101,7 +105,7 @@ export const ForecastChart = ({
           stroke="none"
           fill="#F59E0B"
           fillOpacity={0.08}
-          name="Confidence Interval"
+          name={`${confidenceLevel}% Confidence Interval`}
           connectNulls
         />
         <Area
