@@ -18,7 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ForecastMappingConfig } from "./types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
-import { Info, X } from "lucide-react";
+import { Info, X, Check, Save } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface MappingConfigDialogProps {
@@ -133,17 +133,28 @@ export function MappingConfigDialog({
       setSelectedLocationKey(config.location_key_column || '');
       setSelectedHistoricalProductKey(config.historical_product_key_column || '');
       setSelectedHistoricalLocationKey(config.historical_location_key_column || '');
-      onSave(config);
-      
-      toast({
-        title: "Configuration Selected",
-        description: "Selected mapping configuration: " + config.mapping_name,
-      });
     } catch (error) {
       console.error('Error selecting mapping:', error);
       toast({
         title: "Error",
         description: "Failed to select mapping configuration",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleActivate = (config: ForecastMappingConfig) => {
+    try {
+      onSave(config);
+      toast({
+        title: "Configuration Activated",
+        description: "Selected mapping configuration: " + config.mapping_name,
+      });
+    } catch (error) {
+      console.error('Error activating mapping:', error);
+      toast({
+        title: "Error",
+        description: "Failed to activate mapping configuration",
         variant: "destructive",
       });
     }
@@ -309,19 +320,32 @@ export function MappingConfigDialog({
                         </p>
                       )}
                     </div>
-                    {currentMapping?.id === config.id && (
+                    <div className="flex items-center gap-2">
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={(e) => {
                           e.stopPropagation();
-                          onDelete?.();
+                          handleActivate(config);
                         }}
-                        className="h-8 w-8 hover:bg-destructive hover:text-destructive-foreground"
+                        className="h-8 w-8 hover:bg-primary hover:text-primary-foreground"
                       >
-                        <X className="h-4 w-4" />
+                        <Check className="h-4 w-4" />
                       </Button>
-                    )}
+                      {currentMapping?.id === config.id && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete?.();
+                          }}
+                          className="h-8 w-8 hover:bg-destructive hover:text-destructive-foreground"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </Card>
               ))}
@@ -453,7 +477,7 @@ export function MappingConfigDialog({
             {currentMapping && (
               <Button
                 variant="destructive"
-                onClick={handleDelete}
+                onClick={onDelete}
                 type="button"
               >
                 Delete
@@ -464,7 +488,8 @@ export function MappingConfigDialog({
                 Cancel
               </Button>
               <Button onClick={handleSave} disabled={isLoading}>
-                {isLoading ? "Saving..." : "Save Configuration"}
+                <Save className="h-4 w-4 mr-2" />
+                {isLoading ? "Saving..." : "Save New Configuration"}
               </Button>
             </div>
           </div>
