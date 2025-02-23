@@ -37,8 +37,8 @@ export function IntegratedDataPreviewTable({
       'created_at',
       'updated_at',
       'validation_status',
-      'actual_value',
-      'date'
+      'actual_value'
+      // Removed 'date' from excluded columns to show it in the table
     ];
 
     data.forEach(row => {
@@ -59,7 +59,12 @@ export function IntegratedDataPreviewTable({
       data.forEach(row => {
         const value = row[column];
         if (value !== undefined && value !== null && value !== '') {
-          values[column].add(String(value));
+          // Format date values if the column is 'date'
+          if (column === 'date' && value instanceof Date) {
+            values[column].add(value.toISOString().split('T')[0]);
+          } else {
+            values[column].add(String(value));
+          }
         }
       });
     });
@@ -89,6 +94,12 @@ export function IntegratedDataPreviewTable({
     return data.filter(row => {
       return Object.entries(filters).every(([column, filterValue]) => {
         if (!filterValue) return true;
+        if (column === 'date') {
+          const rowDate = row[column] instanceof Date 
+            ? row[column].toISOString().split('T')[0]
+            : String(row[column]);
+          return rowDate === filterValue;
+        }
         return String(row[column]) === filterValue;
       });
     });
@@ -159,7 +170,8 @@ export function IntegratedDataPreviewTable({
                           <SelectContent>
                             <SelectItem value="all">All</SelectItem>
                             {Array.from(uniqueValues[column] || [])
-                              .filter(value => value !== '') // Filter out empty strings
+                              .filter(value => value !== '')
+                              .sort((a, b) => column === 'date' ? b.localeCompare(a) : a.localeCompare(b))
                               .map((value) => (
                                 <SelectItem key={value} value={value}>
                                   {value}
@@ -181,7 +193,9 @@ export function IntegratedDataPreviewTable({
                         className="min-w-[150px]"
                       >
                         {typeof row[column] === 'object' 
-                          ? JSON.stringify(row[column]) 
+                          ? column === 'date' && row[column] instanceof Date
+                            ? row[column].toISOString().split('T')[0]
+                            : JSON.stringify(row[column]) 
                           : String(row[column] ?? '')}
                       </TableCell>
                     ))}
