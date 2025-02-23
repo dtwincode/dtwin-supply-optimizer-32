@@ -9,7 +9,7 @@ import { ValidationTab } from "@/components/forecasting/tabs/ValidationTab";
 import { ExternalFactorsTab } from "@/components/forecasting/tabs/ExternalFactorsTab";
 import { Separator } from "@/components/ui/separator";
 import { Routes, Route, useLocation } from "react-router-dom";
-import { useState, memo } from "react";
+import { useState, memo, Dispatch, SetStateAction } from "react";
 import { ProductHierarchyFilter } from "@/components/forecasting/filters/ProductHierarchyFilter";
 import { LocationFilter } from "@/components/forecasting/filters/LocationFilter";
 import { ForecastDataPoint } from "@/types/forecasting";
@@ -104,7 +104,23 @@ const dummyData = {
   whatIfScenario: []
 };
 
-const FiltersSection = memo(({ 
+interface FiltersSectionProps {
+  isTimeExpanded: boolean;
+  isProductExpanded: boolean;
+  isLocationExpanded: boolean;
+  handleSectionToggle: (section: 'time' | 'product' | 'location') => void;
+  showFilters: boolean;
+  trainingFromDate: string;
+  trainingToDate: string;
+  testingFromDate: string;
+  testingToDate: string;
+  setTrainingFromDate: Dispatch<SetStateAction<string>>;
+  setTrainingToDate: Dispatch<SetStateAction<string>>;
+  setTestingFromDate: Dispatch<SetStateAction<string>>;
+  setTestingToDate: Dispatch<SetStateAction<string>>;
+}
+
+const FiltersSection = memo<FiltersSectionProps>(({ 
   isTimeExpanded, 
   isProductExpanded, 
   isLocationExpanded, 
@@ -235,12 +251,10 @@ const Forecasting = () => {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  // Set all filter sections to be collapsed by default
   const [isTimeExpanded, setIsTimeExpanded] = useState(false);
   const [isProductExpanded, setIsProductExpanded] = useState(false);
   const [isLocationExpanded, setIsLocationExpanded] = useState(false);
 
-  // Tab-specific localStorage keys
   const getStorageKey = (base: string) => `${base}_${currentPath.split('/').pop() || 'analysis'}`;
 
   const [trainingFromDate, setTrainingFromDate] = useLocalStorage(
@@ -274,7 +288,6 @@ const Forecasting = () => {
     }
   };
 
-  // Function to determine if filters should be shown for current tab
   const showFilters = ['', 'distribution', 'descriptive'].includes(currentPath.split('/').pop() || '');
 
   return (
