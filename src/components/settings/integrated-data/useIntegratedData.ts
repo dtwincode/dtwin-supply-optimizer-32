@@ -24,7 +24,7 @@ export function useIntegratedData() {
   const location = useLocation();
 
   const fetchData = useCallback(async () => {
-    if (isLoading || !hasIntegrated) {
+    if (isLoading) {
       return;
     }
     
@@ -52,7 +52,6 @@ export function useIntegratedData() {
           ? item.source_files 
           : (item.source_files ? JSON.parse(item.source_files as string) : []);
 
-        // Ensure validation_status is one of the allowed values
         let typedValidationStatus: 'valid' | 'needs_review' | 'pending' = 'pending';
         if (item.validation_status === 'valid' || 
             item.validation_status === 'needs_review' || 
@@ -76,7 +75,6 @@ export function useIntegratedData() {
 
       setData(transformedData);
       
-      // Set validation status from the first item if it exists
       if (transformedData.length > 0) {
         setValidationStatus(
           transformedData[0].validation_status === 'valid' || 
@@ -84,6 +82,7 @@ export function useIntegratedData() {
             ? transformedData[0].validation_status 
             : null
         );
+        setHasIntegrated(true);
       }
     } catch (error: any) {
       console.error('Error fetching integrated data:', error);
@@ -96,7 +95,11 @@ export function useIntegratedData() {
     } finally {
       setIsLoading(false);
     }
-  }, [isLoading, hasIntegrated]);
+  }, [isLoading]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const checkRequiredFiles = useCallback(async () => {
     try {
@@ -142,7 +145,6 @@ export function useIntegratedData() {
       console.log("Valid mappings:", validMappings);
       setSavedMappings(validMappings);
 
-      // Find and set the active mapping
       const activeMapping = validMappings.find(m => m.is_active);
       if (activeMapping) {
         setSelectedMapping(activeMapping);
@@ -179,11 +181,10 @@ export function useIntegratedData() {
     try {
       await checkRequiredFiles();
       
-      // Show initial loading toast
       toast({
         title: "Integration Started",
         description: "Starting data integration process. This may take several minutes...",
-        duration: null, // Toast will persist
+        duration: null,
       });
       
       const mappingConfig: MappingConfigType = {
@@ -203,15 +204,13 @@ export function useIntegratedData() {
       });
       
       if (error) {
-        if (error.code === '57014') { // Statement timeout error code
-          // Set up background check for integration completion
+        if (error.code === '57014') {
           toast({
             title: "Integration Status",
             description: "Integration is taking longer than expected. The process will continue in the background.",
             duration: 5000,
           });
           
-          // Start periodic checks for new data
           backgroundCheckInterval = setInterval(async () => {
             const { data: checkData } = await supabase
               .from('integrated_forecast_data')
@@ -228,7 +227,7 @@ export function useIntegratedData() {
               });
               await fetchData();
             }
-          }, 10000); // Check every 10 seconds
+          }, 10000);
           
           return;
         }
@@ -236,12 +235,12 @@ export function useIntegratedData() {
       }
       
       setHasIntegrated(true);
+      await fetchData();
+      
       toast({
         title: "Success",
         description: result || "Data integrated successfully.",
       });
-      
-      await fetchData();
     } catch (error: any) {
       console.error('Integration error:', error);
       let errorMessage = error.message || "Failed to integrate data";
@@ -252,10 +251,7 @@ export function useIntegratedData() {
         description: errorMessage,
         variant: "destructive",
       });
-
-      setHasIntegrated(false);
     } finally {
-      // Show completion toast
       toast({
         title: "Integration Status",
         description: "Integration process has completed.",
@@ -266,13 +262,11 @@ export function useIntegratedData() {
 
   const handleSaveMapping = useCallback(async (mapping: ForecastMappingConfig) => {
     try {
-      // First, deactivate all other mappings
       await supabase
         .from('forecast_integration_mappings')
         .update({ is_active: false })
         .neq('id', mapping.id);
 
-      // Then activate the selected mapping
       await supabase
         .from('forecast_integration_mappings')
         .update({ is_active: true })
