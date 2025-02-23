@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
@@ -118,6 +117,12 @@ export function useIntegratedData() {
     try {
       await checkRequiredFiles();
       
+      const loadingToast = toast({
+        title: "Integration Started",
+        description: "This may take a few minutes for large datasets...",
+        duration: 60000, // 1 minute
+      });
+      
       const mappingConfig: MappingConfigType = {
         use_product_mapping: selectedMapping.use_product_mapping,
         use_location_mapping: selectedMapping.use_location_mapping,
@@ -146,7 +151,14 @@ export function useIntegratedData() {
       await fetchData();
     } catch (error: any) {
       console.error('Integration error:', error);
-      const errorMessage = error.message || "Failed to integrate data. Please make sure all required data is uploaded.";
+      let errorMessage = error.message || "Failed to integrate data";
+      
+      if (error.code === '57014') {
+        errorMessage = "Integration is taking longer than expected. Please try with a smaller dataset or contact support.";
+      } else if (error.message.includes('historical sales data')) {
+        errorMessage = "Please upload historical sales data before running integration.";
+      }
+      
       setError(errorMessage);
       toast({
         title: "Integration Failed",
@@ -157,7 +169,7 @@ export function useIntegratedData() {
     } finally {
       setIsIntegrating(false);
     }
-  }, [selectedMapping, isIntegrating, checkRequiredFiles, fetchData, setMappingDialogOpen, setError, setHasIntegrated, setIsIntegrating]);
+  }, [selectedMapping, isIntegrating, checkRequiredFiles, fetchData]);
 
   const fetchSavedMappings = useCallback(async () => {
     try {
