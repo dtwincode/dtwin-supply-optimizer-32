@@ -9,9 +9,23 @@ import { findBestFitModel } from "@/utils/forecasting/modelSelection";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Save, Compare, TrendingUp, History } from "lucide-react";
+import { Save, TrendingUp, History } from "lucide-react"; // Removed 'Compare' as it's not available
 import { supabase } from "@/integrations/supabase/client";
 import { ModelParameter } from "@/types/models/commonTypes";
+import { Database } from "@/integrations/supabase/types";
+
+interface ModelPerformanceMetrics {
+  accuracy: number;
+  trend: 'improving' | 'stable' | 'declining';
+  trained_at: string;
+}
+
+interface SavedModelConfig {
+  id: string;
+  model_id: string;
+  parameters: ModelParameter[];
+  created_at: string;
+}
 
 interface ForecastAnalysisTabProps {
   filteredData: ForecastDataPoint[];
@@ -24,7 +38,7 @@ export const ForecastAnalysisTab = ({
 }: ForecastAnalysisTabProps) => {
   const [selectedModel, setSelectedModel] = useState("exp-smoothing");
   const [modelParameters, setModelParameters] = useState<ModelParameter[]>([]);
-  const [savedModels, setSavedModels] = useState<any[]>([]);
+  const [savedModels, setSavedModels] = useState<SavedModelConfig[]>([]);
   const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
   const [modelPerformance, setModelPerformance] = useState<{
     accuracy: number;
@@ -36,7 +50,6 @@ export const ForecastAnalysisTab = ({
     trend: 'stable'
   });
 
-  // Fetch saved models on component mount
   useEffect(() => {
     fetchSavedModels();
     fetchModelPerformance();
@@ -61,7 +74,7 @@ export const ForecastAnalysisTab = ({
     try {
       const { data, error } = await supabase
         .from('model_training_history')
-        .select('*')
+        .select('training_metrics, trained_at')
         .eq('model_version', selectedModel)
         .order('trained_at', { ascending: false })
         .limit(1);
@@ -69,11 +82,11 @@ export const ForecastAnalysisTab = ({
       if (error) throw error;
 
       if (data && data[0]) {
-        const metrics = data[0].training_metrics;
+        const metrics = data[0].training_metrics as ModelPerformanceMetrics;
         setModelPerformance({
-          accuracy: metrics.accuracy || 0,
+          accuracy: metrics?.accuracy || 0,
           lastUpdated: new Date(data[0].trained_at).toLocaleDateString(),
-          trend: metrics.trend || 'stable'
+          trend: metrics?.trend || 'stable'
         });
       }
     } catch (error) {
@@ -92,11 +105,21 @@ export const ForecastAnalysisTab = ({
 
   const handleSaveModel = async () => {
     try {
+      // Convert ModelParameter[] to a JSON-compatible format
+      const parametersJson = modelParameters.map(param => ({
+        name: param.name,
+        value: param.value,
+        min: param.min,
+        max: param.max,
+        step: param.step,
+        description: param.description
+      }));
+
       const { error } = await supabase
         .from('saved_model_configs')
         .insert({
           model_id: selectedModel,
-          parameters: modelParameters,
+          parameters: parametersJson,
           product_id: 'default',
           product_name: 'Default Product',
           auto_run: true
@@ -167,7 +190,7 @@ export const ForecastAnalysisTab = ({
                   </div>
                   <Button variant="ghost" size="sm" onClick={() => {
                     setSelectedModel(model.model_id);
-                    setModelParameters(model.parameters);
+                    setModelParameters(model.parameters as ModelParameter[]);
                   }}>
                     Load
                   </Button>
