@@ -9,7 +9,7 @@ import { findBestFitModel } from "@/utils/forecasting/modelSelection";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Save, TrendingUp, History } from "lucide-react"; // Removed 'Compare' as it's not available
+import { Save, TrendingUp, History } from "lucide-react"; 
 import { supabase } from "@/integrations/supabase/client";
 import { ModelParameter } from "@/types/models/commonTypes";
 import { Database } from "@/integrations/supabase/types";
@@ -63,7 +63,16 @@ export const ForecastAnalysisTab = ({
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setSavedModels(data || []);
+      
+      // Transform the data to match SavedModelConfig type
+      const transformedData: SavedModelConfig[] = (data || []).map(item => ({
+        id: item.id,
+        model_id: item.model_id,
+        parameters: Array.isArray(item.parameters) ? item.parameters : [],
+        created_at: item.created_at
+      }));
+
+      setSavedModels(transformedData);
     } catch (error) {
       console.error('Error fetching saved models:', error);
       toast.error('Failed to load saved models');
@@ -82,9 +91,12 @@ export const ForecastAnalysisTab = ({
       if (error) throw error;
 
       if (data && data[0]) {
-        const metrics = data[0].training_metrics as ModelPerformanceMetrics;
+        // Safely type cast the training metrics
+        const rawMetrics = data[0].training_metrics as unknown;
+        const metrics = rawMetrics as ModelPerformanceMetrics;
+        
         setModelPerformance({
-          accuracy: metrics?.accuracy || 0,
+          accuracy: typeof metrics?.accuracy === 'number' ? metrics.accuracy : 0,
           lastUpdated: new Date(data[0].trained_at).toLocaleDateString(),
           trend: metrics?.trend || 'stable'
         });
@@ -190,7 +202,7 @@ export const ForecastAnalysisTab = ({
                   </div>
                   <Button variant="ghost" size="sm" onClick={() => {
                     setSelectedModel(model.model_id);
-                    setModelParameters(model.parameters as ModelParameter[]);
+                    setModelParameters(model.parameters);
                   }}>
                     Load
                   </Button>
