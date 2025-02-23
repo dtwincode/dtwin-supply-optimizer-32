@@ -17,3 +17,16 @@ export interface ForecastMappingConfig {
   is_active?: boolean;
   selected_columns?: string[];
 }
+
+export interface IntegratedData {
+  id?: string;
+  date: string;
+  actual_value: number;
+  sku: string;
+  created_at?: string;
+  updated_at?: string;
+  validation_status?: 'valid' | 'needs_review' | 'pending';
+  source_files?: any[];
+  metadata?: Record<string, any>;
+  [key: string]: any; // Allow for dynamic fields from metadata
+}
