@@ -11,11 +11,12 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
+import { ModelParameter } from "@/types/models/commonTypes";
 
 interface ModelSelectionCardProps {
   selectedModel: string;
   onModelChange: (modelId: string) => void;
-  onParametersChange: (modelId: string, parameters: any[]) => void;
+  onParametersChange: (modelId: string, parameters: ModelParameter[]) => void;
 }
 
 export const ModelSelectionCard = ({
@@ -24,6 +25,10 @@ export const ModelSelectionCard = ({
   onParametersChange,
 }: ModelSelectionCardProps) => {
   const currentModel = basicModels.find(m => m.id === selectedModel) || basicModels[0];
+
+  const handleParametersChange = (params: ModelParameter[]) => {
+    onParametersChange(currentModel.id, params);
+  };
 
   return (
     <Card className="p-6">
@@ -60,7 +65,7 @@ export const ModelSelectionCard = ({
           <div>
             <ModelParametersDialog
               model={currentModel}
-              onParametersChange={(params) => onParametersChange(currentModel.id, params)}
+              onParametersChange={handleParametersChange}
             />
           </div>
         </div>
