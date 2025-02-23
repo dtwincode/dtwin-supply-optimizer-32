@@ -28,7 +28,7 @@ export function IntegratedDataPreviewTable({
       'created_at',
       'updated_at',
       'validation_status',
-      'actual_value'
+      'date' // Excluding the incorrect date column
     ];
 
     data.forEach(row => {
