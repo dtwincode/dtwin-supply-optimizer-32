@@ -2,7 +2,7 @@
 import { Input } from "@/components/ui/input";
 
 interface EditableCellProps {
-  value: number;
+  value: number | null;
   isEditing: boolean;
   tempValue: string;
   onEdit: () => void;
@@ -36,7 +36,8 @@ export const EditableCell = ({
       onClick={onEdit}
       className="cursor-pointer hover:bg-gray-100 p-1 rounded text-right"
     >
-      {value.toFixed(0)}
+      {value !== null && value !== undefined ? value.toFixed(0) : '-'}
     </div>
   );
 };
+
