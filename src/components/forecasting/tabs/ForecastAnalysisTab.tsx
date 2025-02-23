@@ -86,10 +86,14 @@ const PatternAnalysisCard = ({ data }: { data: ForecastDataPoint[] }) => {
       Math.abs(Math.max(...actualValues) - Math.min(...actualValues)) / 
       (actualValues.reduce((a, b) => a + b, 0) / actualValues.length) : 0;
     
+    const mean = actualValues.reduce((a, b) => a + (b || 0), 0) / actualValues.length;
     const volatility = actualValues.length > 1 ?
-      Math.sqrt(actualValues.reduce((sum, val) => 
-        sum + Math.pow(val - (actualValues.reduce((a, b) => a + b, 0) / actualValues.length), 2), 0) 
-        / (actualValues.length - 1)) : 0;
+      Math.sqrt(
+        actualValues.reduce((sum, val) => 
+          sum + Math.pow((val || 0) - mean, 2), 
+          0
+        ) / (actualValues.length - 1)
+      ) : 0;
 
     return {
       trend,
@@ -102,18 +106,18 @@ const PatternAnalysisCard = ({ data }: { data: ForecastDataPoint[] }) => {
 
   const trendData = data.map((d, index) => ({
     index,
-    value: d.forecast
+    value: d.forecast || 0
   })).filter(d => d.value !== null);
 
   const seasonalityData = data.map((d, index) => ({
     index,
-    value: d.actual
+    value: d.actual || 0
   })).filter(d => d.value !== null);
 
   const volatilityData = data.map((d, index) => ({
     index,
-    value: d.actual,
-    average: d.actual ? data.reduce((sum, item) => sum + (item.actual || 0), 0) / data.length : null
+    value: d.actual || 0,
+    average: data.reduce((sum, item) => sum + (item.actual || 0), 0) / data.length
   })).filter(d => d.value !== null);
 
   const MiniChart = ({ data, color }: { data: any[], color: string }) => (
