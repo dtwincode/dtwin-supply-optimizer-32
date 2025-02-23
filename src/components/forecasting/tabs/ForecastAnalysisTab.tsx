@@ -61,54 +61,89 @@ export const ForecastAnalysisTab = ({
 
   const fetchSavedModels = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: modelData, error: modelError } = await supabase
         .from('saved_model_configs')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      
-      const transformedData: SavedModelConfig[] = await Promise.all((data || []).map(async (item) => {
-        const metricsResponse = await supabase
-          .from('model_training_history')
-          .select('training_metrics')
-          .eq('model_version', item.model_id)
-          .order('trained_at', { ascending: false })
-          .limit(1)
-          .single();
+      if (modelError) {
+        console.error('Error fetching models:', modelError);
+        throw modelError;
+      }
 
-        const parameters = (item.parameters as any[])?.map(param => ({
-          name: param.name as string,
-          value: param.value as number,
-          min: param.min as number | undefined,
-          max: param.max as number | undefined,
-          step: param.step as number | undefined,
-          description: param.description as string
-        })) || [];
+      if (!modelData || !Array.isArray(modelData)) {
+        console.error('No model data returned or invalid format');
+        setSavedModels([]);
+        return;
+      }
 
-        const rawMetrics = metricsResponse.data?.training_metrics as any;
-        const metrics: ModelPerformanceMetrics | undefined = rawMetrics ? {
-          accuracy: typeof rawMetrics.accuracy === 'number' ? rawMetrics.accuracy : 0,
-          trend: rawMetrics.trend as 'improving' | 'stable' | 'declining' || 'stable',
-          trained_at: rawMetrics.trained_at as string || new Date().toISOString(),
-          mape: typeof rawMetrics.mape === 'number' ? rawMetrics.mape : undefined,
-          mae: typeof rawMetrics.mae === 'number' ? rawMetrics.mae : undefined,
-          rmse: typeof rawMetrics.rmse === 'number' ? rawMetrics.rmse : undefined
-        } : undefined;
+      const transformedData: SavedModelConfig[] = await Promise.all(
+        modelData.map(async (item) => {
+          try {
+            const { data: metricsData, error: metricsError } = await supabase
+              .from('model_training_history')
+              .select('training_metrics, trained_at')
+              .eq('model_version', item.model_id)
+              .order('trained_at', { ascending: false })
+              .limit(1)
+              .maybeSingle();
 
-        return {
-          id: item.id,
-          model_id: item.model_id,
-          parameters,
-          created_at: item.created_at,
-          performance_metrics: metrics
-        };
-      }));
+            if (metricsError) {
+              console.error('Error fetching metrics:', metricsError);
+              throw metricsError;
+            }
+
+            let parameters: ModelParameter[] = [];
+            if (Array.isArray(item.parameters)) {
+              parameters = item.parameters.map(param => ({
+                name: String(param.name || ''),
+                value: Number(param.value || 0),
+                min: param.min ? Number(param.min) : undefined,
+                max: param.max ? Number(param.max) : undefined,
+                step: param.step ? Number(param.step) : undefined,
+                description: String(param.description || '')
+              }));
+            }
+
+            const rawMetrics = metricsData?.training_metrics;
+            let metrics: ModelPerformanceMetrics | undefined;
+            
+            if (rawMetrics && typeof rawMetrics === 'object') {
+              metrics = {
+                accuracy: typeof rawMetrics.accuracy === 'number' ? rawMetrics.accuracy : 0,
+                trend: (rawMetrics.trend as 'improving' | 'stable' | 'declining') || 'stable',
+                trained_at: metricsData.trained_at || new Date().toISOString(),
+                mape: typeof rawMetrics.mape === 'number' ? rawMetrics.mape : undefined,
+                mae: typeof rawMetrics.mae === 'number' ? rawMetrics.mae : undefined,
+                rmse: typeof rawMetrics.rmse === 'number' ? rawMetrics.rmse : undefined
+              };
+            }
+
+            return {
+              id: item.id,
+              model_id: item.model_id,
+              parameters,
+              created_at: item.created_at,
+              performance_metrics: metrics
+            };
+          } catch (err) {
+            console.error(`Error processing model ${item.model_id}:`, err);
+            return {
+              id: item.id,
+              model_id: item.model_id,
+              parameters: [],
+              created_at: item.created_at,
+              performance_metrics: undefined
+            };
+          }
+        })
+      );
 
       setSavedModels(transformedData);
     } catch (error) {
       console.error('Error fetching saved models:', error);
       toast.error('Failed to load saved models');
+      setSavedModels([]);
     }
   };
 
