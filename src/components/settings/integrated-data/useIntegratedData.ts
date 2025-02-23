@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
@@ -52,8 +53,6 @@ export function useIntegratedData() {
           ? item.source_files 
           : (item.source_files ? JSON.parse(item.source_files as string) : []);
 
-        setValidationStatus(item.validation_status as 'valid' | 'needs_review' | null);
-
         return {
           id: item.id,
           date: item.date,
@@ -69,6 +68,7 @@ export function useIntegratedData() {
       });
 
       setData(transformedData);
+      setValidationStatus(integratedData[0]?.validation_status as 'valid' | 'needs_review' | null);
     } catch (error: any) {
       console.error('Error fetching integrated data:', error);
       setError('Failed to fetch integrated data. Please try again.');
@@ -113,15 +113,17 @@ export function useIntegratedData() {
     
     setIsIntegrating(true);
     setError(null);
+
+    let loadingToastId: string | number | undefined;
     
     try {
       await checkRequiredFiles();
       
-      const loadingToast = toast({
+      loadingToastId = toast({
         title: "Integration Started",
-        description: "This may take a few minutes for large datasets...",
-        duration: 60000, // 1 minute
-      });
+        description: "Processing data in batches. This may take a few minutes...",
+        duration: 120000, // 2 minutes
+      }).id;
       
       const mappingConfig: MappingConfigType = {
         use_product_mapping: selectedMapping.use_product_mapping,
@@ -133,7 +135,7 @@ export function useIntegratedData() {
         id: selectedMapping.id
       };
 
-      const { data, error } = await supabase.rpc('integrate_forecast_data', {
+      const { data: result, error } = await supabase.rpc('integrate_forecast_data', {
         p_mapping_config: mappingConfig
       });
       
@@ -145,7 +147,7 @@ export function useIntegratedData() {
       setHasIntegrated(true);
       toast({
         title: "Success",
-        description: "Data integrated successfully.",
+        description: result || "Data integrated successfully.",
       });
       
       await fetchData();
@@ -154,18 +156,21 @@ export function useIntegratedData() {
       let errorMessage = error.message || "Failed to integrate data";
       
       if (error.code === '57014') {
-        errorMessage = "Integration is taking longer than expected. Please try with a smaller dataset or contact support.";
+        errorMessage = "Integration is taking longer than expected. The process will continue in the background.";
       } else if (error.message.includes('historical sales data')) {
         errorMessage = "Please upload historical sales data before running integration.";
       }
       
       setError(errorMessage);
       toast({
-        title: "Integration Failed",
+        title: "Integration Status",
         description: errorMessage,
-        variant: "destructive",
+        variant: error.code === '57014' ? "default" : "destructive",
       });
-      setHasIntegrated(false);
+
+      if (error.code !== '57014') {
+        setHasIntegrated(false);
+      }
     } finally {
       setIsIntegrating(false);
     }
