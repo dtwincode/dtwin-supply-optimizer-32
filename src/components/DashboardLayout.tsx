@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { MenuIcon, X, Home, TrendingUp, Package, LineChart, Gift, Truck, FileText, Search, Database, TicketPlus, LogOut, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FloatingAskAI } from "./ai/FloatingAskAI";
@@ -24,6 +24,29 @@ const navigationItems = [
   { name: "navigationItems.settings", icon: Database, href: "/settings" },
   { name: "navigationItems.guidelines", icon: BookOpen, href: "/guidelines" }
 ];
+
+// Memoize the navigation items to prevent unnecessary re-renders
+const NavigationList = memo(({ items, location, language, isRTL }: any) => (
+  <nav className="p-4 space-y-1">
+    {items.map((item: any) => (
+      <Link
+        key={item.name}
+        to={item.href}
+        className={cn(
+          "flex items-center px-4 py-2 text-sm font-medium rounded-lg",
+          location.pathname === item.href || (item.href === "/" && location.pathname === "")
+            ? "bg-dtwin-medium text-white"
+            : "text-gray-600 hover:bg-gray-100"
+        )}
+      >
+        <item.icon className={`h-5 w-5 ${isRTL ? 'ml-3' : 'mr-3'}`} />
+        {getTranslation(item.name, language)}
+      </Link>
+    ))}
+  </nav>
+));
+
+NavigationList.displayName = 'NavigationList';
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -74,23 +97,12 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
               <X className="h-5 w-5" />
             </button>
           </div>
-          <nav className="p-4 space-y-1">
-            {navigationItems.map((item) => (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={cn(
-                  "flex items-center px-4 py-2 text-sm font-medium rounded-lg",
-                  location.pathname === item.href || (item.href === "/" && location.pathname === "")
-                    ? "bg-dtwin-medium text-white"
-                    : "text-gray-600 hover:bg-gray-100"
-                )}
-              >
-                <item.icon className={`h-5 w-5 ${isRTL ? 'ml-3' : 'mr-3'}`} />
-                {getTranslation(item.name, language)}
-              </Link>
-            ))}
-          </nav>
+          <NavigationList 
+            items={navigationItems} 
+            location={location}
+            language={language}
+            isRTL={isRTL}
+          />
         </div>
       </div>
 
