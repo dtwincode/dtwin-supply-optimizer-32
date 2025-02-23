@@ -110,13 +110,23 @@ export function useIntegratedData() {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching mappings:', error);
+        throw error;
+      }
 
-      const validMappings = (mappings || []).filter(m => m && m.id);
+      if (!mappings) {
+        console.log("No mappings found");
+        setSavedMappings([]);
+        return;
+      }
+
+      const validMappings = mappings.filter(m => m && m.id);
       console.log("Valid mappings:", validMappings);
       setSavedMappings(validMappings);
       
       if (selectedMapping && !validMappings.find(m => m.id === selectedMapping.id)) {
+        console.log("Selected mapping no longer exists, clearing selection");
         setSelectedMapping(null);
       }
     } catch (error: any) {
@@ -126,6 +136,7 @@ export function useIntegratedData() {
         description: "Failed to load saved mappings",
         variant: "destructive",
       });
+      setSavedMappings([]);
     }
   }, [selectedMapping]);
 
@@ -227,31 +238,41 @@ export function useIntegratedData() {
     try {
       console.log("Deleting mapping:", selectedMapping.id);
       
-      setSavedMappings(current => current.filter(m => m.id !== selectedMapping.id));
-      setSelectedMapping(null);
-
-      const { error } = await supabase
+      const { error, data } = await supabase
         .from('forecast_integration_mappings')
         .delete()
-        .eq('id', selectedMapping.id);
+        .eq('id', selectedMapping.id)
+        .select();
 
       if (error) {
-        console.error("Database delete failed, reverting local state");
-        await fetchSavedMappings();
+        console.error("Database delete error:", error);
         throw error;
       }
+
+      console.log("Delete response:", data);
+
+      setSavedMappings(current => {
+        const newMappings = current.filter(m => m.id !== selectedMapping.id);
+        console.log("Updated mappings list:", newMappings);
+        return newMappings;
+      });
+      setSelectedMapping(null);
+      setMappingDialogOpen(false);
 
       toast({
         title: "Success",
         description: "Mapping configuration deleted successfully",
       });
+
+      await fetchSavedMappings();
     } catch (error: any) {
       console.error('Error deleting mapping:', error);
       toast({
         title: "Error",
-        description: "Failed to delete mapping configuration",
+        description: `Failed to delete mapping configuration: ${error.message}`,
         variant: "destructive",
       });
+      await fetchSavedMappings();
     }
   }, [selectedMapping, fetchSavedMappings]);
 
