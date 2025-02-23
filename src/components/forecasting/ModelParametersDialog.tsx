@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,7 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface ModelParametersDialogProps {
   model: ModelConfig;
-  onParametersChange: (modelId: string, parameters: ModelParameter[]) => void;
+  onParametersChange: (parameters: ModelParameter[]) => void;
 }
 
 export function ModelParametersDialog({ 
@@ -101,7 +100,7 @@ export function ModelParametersDialog({
   };
 
   const handleSave = () => {
-    onParametersChange(model.id, parameters);
+    onParametersChange(parameters);
     toast({
       title: "Parameters Updated",
       description: `${model.name} parameters have been updated successfully.`,
