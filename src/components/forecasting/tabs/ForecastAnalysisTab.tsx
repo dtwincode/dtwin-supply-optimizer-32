@@ -1,4 +1,3 @@
-
 import { ForecastChart } from "@/components/forecasting/ForecastChart";
 import { ForecastMetricsCards } from "@/components/forecasting/ForecastMetricsCards";
 import { ModelSelectionCard } from "@/components/forecasting/ModelSelectionCard";
@@ -8,9 +7,28 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Save, TrendingUp, TrendingDown, History, Trash2, ChevronDown, ChevronUp, BarChart2 } from "lucide-react";
+import { Save, TrendingUp, TrendingDown, History, Trash2, ChevronDown, ChevronUp, BarChart2, Filter } from "lucide-react";
 import { ModelParameter } from "@/types/models/commonTypes";
 import { PatternAnalysisCard } from "../components/PatternAnalysisCard";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+interface SavedModelConfig {
+  id: string;
+  model_id: string;
+  sku?: string;
+  location_id?: string;
+  parameters: ModelParameter[];
+  created_at: string;
+  performance_metrics?: {
+    accuracy: number;
+    trend: 'improving' | 'stable' | 'declining';
+    trained_at: string;
+    mape?: number;
+    mae?: number;
+    rmse?: number;
+  };
+}
 
 const sampleData: ForecastDataPoint[] = Array.from({ length: 24 }, (_, i) => {
   const baseValue = 1000;
@@ -93,23 +111,6 @@ const calculateMetrics = (data: ForecastDataPoint[]) => {
   };
 };
 
-interface ModelPerformanceMetrics {
-  accuracy: number;
-  trend: 'improving' | 'stable' | 'declining';
-  trained_at: string;
-  mape?: number;
-  mae?: number;
-  rmse?: number;
-}
-
-interface SavedModelConfig {
-  id: string;
-  model_id: string;
-  parameters: ModelParameter[];
-  created_at: string;
-  performance_metrics?: ModelPerformanceMetrics;
-}
-
 const ForecastAnalysisTab = () => {
   const [selectedModels, setSelectedModels] = useState<string[]>([]);
   const [modelParameters, setModelParameters] = useState<ModelParameter[]>([]);
@@ -117,6 +118,9 @@ const ForecastAnalysisTab = () => {
   const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [confidenceLevel, setConfidenceLevel] = useState<string>("95");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedSku, setSelectedSku] = useState<string>("");
+  const [selectedLocation, setSelectedLocation] = useState<string>("");
   const [modelPerformance, setModelPerformance] = useState<{
     accuracy: number;
     lastUpdated: string;
@@ -132,6 +136,8 @@ const ForecastAnalysisTab = () => {
       {
         id: "model-1",
         model_id: "exp-smoothing",
+        sku: "SKU-001",
+        location_id: "LOC-NY",
         parameters: [
           { name: "alpha", value: 0.3, min: 0, max: 1, step: 0.1, description: "Smoothing factor" }
         ],
@@ -148,6 +154,8 @@ const ForecastAnalysisTab = () => {
       {
         id: "model-2",
         model_id: "arima",
+        sku: "SKU-002",
+        location_id: "LOC-LA",
         parameters: [
           { name: "p", value: 1, min: 0, max: 5, step: 1, description: "AR order" },
           { name: "d", value: 1, min: 0, max: 2, step: 1, description: "Difference order" },
@@ -165,6 +173,18 @@ const ForecastAnalysisTab = () => {
       }
     ]);
   }, []);
+
+  const filteredModels = savedModels.filter(model => {
+    const searchLower = searchTerm.toLowerCase();
+    const skuMatch = !selectedSku || model.sku === selectedSku;
+    const locationMatch = !selectedLocation || model.location_id === selectedLocation;
+    return (
+      (model.model_id.toLowerCase().includes(searchLower) ||
+       (model.sku?.toLowerCase().includes(searchLower)) ||
+       (model.location_id?.toLowerCase().includes(searchLower))) &&
+      skuMatch && locationMatch
+    );
+  });
 
   const handleModelChange = (modelId: string) => {
     if (selectedModels.includes(modelId)) {
@@ -193,6 +213,10 @@ const ForecastAnalysisTab = () => {
   };
 
   const handleSaveModel = async () => {
+    if (!selectedSku || !selectedLocation) {
+      toast.error('Please select both SKU and Location before saving');
+      return;
+    }
     toast.success('Model configuration saved successfully');
   };
 
@@ -213,19 +237,49 @@ const ForecastAnalysisTab = () => {
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Model Comparison</h3>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setSelectedModels([])}
-            >
-              Clear Selection
-            </Button>
+            <div className="flex items-center gap-2">
+              <Select value={selectedSku} onValueChange={setSelectedSku}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select SKU" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All SKUs</SelectItem>
+                  {Array.from(new Set(savedModels.map(m => m.sku))).filter(Boolean).map(sku => (
+                    <SelectItem key={sku} value={sku!}>{sku}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select Location" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All Locations</SelectItem>
+                  {Array.from(new Set(savedModels.map(m => m.location_id))).filter(Boolean).map(loc => (
+                    <SelectItem key={loc} value={loc!}>{loc}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setSelectedModels([])}
+              >
+                Clear Selection
+              </Button>
+            </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {selectedModelConfigs.map(model => (
               <Card key={model.id} className="p-4 relative">
                 <div className="space-y-2">
-                  <h4 className="font-medium">{model.model_id}</h4>
+                  <div className="flex justify-between items-start">
+                    <h4 className="font-medium">{model.model_id}</h4>
+                    <div className="text-xs text-muted-foreground">
+                      {model.sku && <div>SKU: {model.sku}</div>}
+                      {model.location_id && <div>Location: {model.location_id}</div>}
+                    </div>
+                  </div>
                   <div className="space-y-1">
                     <div className="flex justify-between">
                       <span className="text-sm text-muted-foreground">Accuracy:</span>
@@ -236,19 +290,19 @@ const ForecastAnalysisTab = () => {
                     <div className="flex justify-between">
                       <span className="text-sm text-muted-foreground">MAPE:</span>
                       <span className="text-sm font-medium">
-                        {model.performance_metrics?.mape.toFixed(2)}%
+                        {model.performance_metrics?.mape?.toFixed(2)}%
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm text-muted-foreground">MAE:</span>
                       <span className="text-sm font-medium">
-                        {model.performance_metrics?.mae.toFixed(2)}
+                        {model.performance_metrics?.mae?.toFixed(2)}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm text-muted-foreground">RMSE:</span>
                       <span className="text-sm font-medium">
-                        {model.performance_metrics?.rmse.toFixed(2)}
+                        {model.performance_metrics?.rmse?.toFixed(2)}
                       </span>
                     </div>
                   </div>
@@ -313,86 +367,108 @@ const ForecastAnalysisTab = () => {
 
         <Card className="p-6">
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Saved Models</h3>
-            <div className="space-y-2">
-              {savedModels.map((model) => (
-                <div
-                  key={model.id}
-                  className="space-y-2 bg-muted rounded-lg overflow-hidden"
-                >
-                  <div className="flex items-center justify-between p-3">
-                    <div className="flex items-center">
-                      <History className="h-4 w-4 mr-2" />
-                      <span className="text-sm font-medium">{model.model_id}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => {
-                          setSelectedModels([model.model_id]); // Fixed: Wrap in array
-                          setModelParameters(model.parameters);
-                        }}
-                      >
-                        Load
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => setExpandedModel(expandedModel === model.id ? null : model.id)}
-                      >
-                        {expandedModel === model.id ? 
-                          <ChevronUp className="h-4 w-4" /> : 
-                          <ChevronDown className="h-4 w-4" />
-                        }
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-destructive hover:text-destructive"
-                        onClick={() => handleDeleteModel(model.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  {expandedModel === model.id && model.performance_metrics && (
-                    <div className="p-3 bg-background/50 border-t space-y-2">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm text-muted-foreground">Accuracy</p>
-                          <p className="text-sm font-medium">
-                            {model.performance_metrics.accuracy.toFixed(2)}%
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">MAPE</p>
-                          <p className="text-sm font-medium">
-                            {model.performance_metrics.mape?.toFixed(2)}%
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">MAE</p>
-                          <p className="text-sm font-medium">
-                            {model.performance_metrics.mae?.toFixed(2)}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">RMSE</p>
-                          <p className="text-sm font-medium">
-                            {model.performance_metrics.rmse?.toFixed(2)}
-                          </p>
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold">Saved Models</h3>
+              <div className="flex items-center gap-2">
+                <Input
+                  placeholder="Search models..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-[200px]"
+                />
+                <Button variant="outline" size="icon">
+                  <Filter className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <ScrollArea className="h-[400px]">
+              <div className="space-y-2">
+                {filteredModels.map((model) => (
+                  <div
+                    key={model.id}
+                    className="space-y-2 bg-muted rounded-lg overflow-hidden"
+                  >
+                    <div className="flex items-center justify-between p-3">
+                      <div className="flex items-center">
+                        <History className="h-4 w-4 mr-2" />
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium">{model.model_id}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {model.sku && `SKU: ${model.sku}`} {model.location_id && `| Location: ${model.location_id}`}
+                          </span>
                         </div>
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        Trend: {model.performance_metrics.trend}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => {
+                            setSelectedModels([model.model_id]);
+                            setModelParameters(model.parameters);
+                            setSelectedSku(model.sku || "");
+                            setSelectedLocation(model.location_id || "");
+                          }}
+                        >
+                          Load
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => setExpandedModel(expandedModel === model.id ? null : model.id)}
+                        >
+                          {expandedModel === model.id ? 
+                            <ChevronUp className="h-4 w-4" /> : 
+                            <ChevronDown className="h-4 w-4" />
+                          }
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => handleDeleteModel(model.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
-                  )}
-                </div>
-              ))}
-            </div>
+                    
+                    {expandedModel === model.id && model.performance_metrics && (
+                      <div className="p-3 bg-background/50 border-t space-y-2">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-sm text-muted-foreground">Accuracy</p>
+                            <p className="text-sm font-medium">
+                              {model.performance_metrics.accuracy.toFixed(2)}%
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">MAPE</p>
+                            <p className="text-sm font-medium">
+                              {model.performance_metrics.mape?.toFixed(2)}%
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">MAE</p>
+                            <p className="text-sm font-medium">
+                              {model.performance_metrics.mae?.toFixed(2)}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">RMSE</p>
+                            <p className="text-sm font-medium">
+                              {model.performance_metrics.rmse?.toFixed(2)}
+                            </p>
+                          </div>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Trend: {model.performance_metrics.trend}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
           </div>
         </Card>
       </div>
