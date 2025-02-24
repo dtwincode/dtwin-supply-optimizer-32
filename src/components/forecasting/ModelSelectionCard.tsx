@@ -85,110 +85,136 @@ export const ModelSelectionCard = ({
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ModelRecommendations 
-          models={[
-            { id: '1', model_id: 'exp-smoothing', performance_metrics: { accuracy: 85.5 } },
-            { id: '2', model_id: 'arima', performance_metrics: { accuracy: 83.2 } },
-            { id: '3', model_id: 'prophet', performance_metrics: { accuracy: 81.8 } }
-          ]} 
-          onSelectModel={onModelChange}
-        />
-        
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight mb-2">Model Selection & Comparison</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input 
-                type="search" 
-                placeholder="Search models..." 
-                className="w-full"
-              />
-              <Select defaultValue="all-skus">
-                <SelectTrigger>
-                  <SelectValue placeholder="All SKUs" />
+      <ModelRecommendations 
+        models={[
+          { 
+            id: '1', 
+            model_id: 'exp-smoothing', 
+            performance_metrics: { 
+              accuracy: 85.5,
+              trend: "improving",
+              trained_at: "2024-03-20",
+              mape: 12.3,
+              rmse: 45.6
+            }
+          },
+          { 
+            id: '2', 
+            model_id: 'arima', 
+            performance_metrics: { 
+              accuracy: 83.2,
+              trend: "stable",
+              trained_at: "2024-03-19",
+              mape: 13.1,
+              rmse: 48.2
+            }
+          },
+          { 
+            id: '3', 
+            model_id: 'prophet', 
+            performance_metrics: { 
+              accuracy: 81.8,
+              trend: "stable",
+              trained_at: "2024-03-18",
+              mape: 14.5,
+              rmse: 50.1
+            }
+          }
+        ]} 
+        onSelectModel={onModelChange}
+      />
+      
+      <div>
+        <h2 className="text-2xl font-bold tracking-tight mb-2">Model Selection & Comparison</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Input 
+            type="search" 
+            placeholder="Search models..." 
+            className="w-full"
+          />
+          <Select defaultValue="all-skus">
+            <SelectTrigger>
+              <SelectValue placeholder="All SKUs" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all-skus">All SKUs</SelectItem>
+              <SelectItem value="selected">Selected SKUs</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <Card className="p-6">
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <h3 className="text-xl font-semibold">Model Selection</h3>
+            <p className="text-muted-foreground">
+              Choose and configure your forecasting model
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+            <div className="md:col-span-5">
+              <Select
+                value={selectedModel}
+                onValueChange={onModelChange}
+              >
+                <SelectTrigger className="h-10">
+                  <SelectValue placeholder="Choose a model" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all-skus">All SKUs</SelectItem>
-                  <SelectItem value="selected">Selected SKUs</SelectItem>
+                  <SelectGroup>
+                    <SelectLabel>Available Models</SelectLabel>
+                    {allModels.map((model) => (
+                      <SelectItem key={model.id} value={model.id}>
+                        {model.name}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
                 </SelectContent>
               </Select>
             </div>
-          </div>
 
-          <Card className="p-6">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <h3 className="text-xl font-semibold">Model Selection</h3>
-                <p className="text-muted-foreground">
-                  Choose and configure your forecasting model
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-                <div className="md:col-span-5">
-                  <Select
-                    value={selectedModel}
-                    onValueChange={onModelChange}
-                  >
-                    <SelectTrigger className="h-10">
-                      <SelectValue placeholder="Choose a model" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Available Models</SelectLabel>
-                        {allModels.map((model) => (
-                          <SelectItem key={model.id} value={model.id}>
-                            {model.name}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="md:col-span-3">
-                  <Button 
-                    variant="outline" 
-                    className="w-full h-10"
-                    asChild
-                  >
-                    <ModelParametersDialog
-                      model={currentModel}
-                      onParametersChange={handleParametersChange}
-                    >
-                      <div className="flex items-center justify-center gap-2">
-                        <Settings2 className="h-4 w-4" />
-                        Parameters
-                      </div>
-                    </ModelParametersDialog>
-                  </Button>
-                </div>
-
-                <div className="md:col-span-4 flex gap-2">
-                  <Button 
-                    onClick={handleRunModel}
-                    className="flex-1 h-10 whitespace-nowrap"
-                    variant="default"
-                  >
-                    <PlayCircle className="h-4 w-4 mr-2" />
-                    Run
-                  </Button>
-                  <Button
-                    onClick={handleAutomaticSelection}
-                    variant="secondary"
-                    disabled={isAutoSelecting}
-                    className="flex-1 h-10 whitespace-nowrap"
-                  >
-                    <Wand2 className="h-4 w-4 mr-2" />
-                    Auto
-                  </Button>
-                </div>
-              </div>
+            <div className="md:col-span-3">
+              <Button 
+                variant="outline" 
+                className="w-full h-10"
+                asChild
+              >
+                <ModelParametersDialog
+                  model={currentModel}
+                  onParametersChange={handleParametersChange}
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <Settings2 className="h-4 w-4" />
+                    Parameters
+                  </div>
+                </ModelParametersDialog>
+              </Button>
             </div>
-          </Card>
+
+            <div className="md:col-span-4 flex gap-2">
+              <Button 
+                onClick={handleRunModel}
+                className="flex-1 h-10 whitespace-nowrap"
+                variant="default"
+              >
+                <PlayCircle className="h-4 w-4 mr-2" />
+                Run
+              </Button>
+              <Button
+                onClick={handleAutomaticSelection}
+                variant="secondary"
+                disabled={isAutoSelecting}
+                className="flex-1 h-10 whitespace-nowrap"
+              >
+                <Wand2 className="h-4 w-4 mr-2" />
+                Auto
+              </Button>
+            </div>
+          </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 };
