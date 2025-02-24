@@ -58,10 +58,10 @@ export const DistributionCharts = ({
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="Min Quantity" fill="#8884d8" />
-                <Bar dataKey="Optimal Quantity" fill="#82ca9d" />
-                <Bar dataKey="Max Quantity" fill="#ffc658" />
-                <Bar dataKey="Current Stock" fill="#ff7300" />
+                <Bar dataKey="Min Quantity" fill="#94A3B8" />
+                <Bar dataKey="Optimal Quantity" fill="#10B981" />
+                <Bar dataKey="Max Quantity" fill="#F59E0B" />
+                <Bar dataKey="Current Stock" fill="#E5E7EB" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -96,21 +96,21 @@ export const DistributionCharts = ({
                 <Line 
                   type="monotone" 
                   dataKey="planned" 
-                  stroke="#82ca9d" 
+                  stroke="#10B981" 
                   name="Planned Quantity"
                   strokeWidth={2}
                 />
                 <Line 
                   type="monotone" 
                   dataKey="minimum" 
-                  stroke="#8884d8" 
+                  stroke="#94A3B8" 
                   strokeDasharray="5 5"
                   name="Minimum"
                 />
                 <Line 
                   type="monotone" 
                   dataKey="maximum" 
-                  stroke="#ffc658" 
+                  stroke="#F59E0B" 
                   strokeDasharray="5 5"
                   name="Maximum"
                 />
