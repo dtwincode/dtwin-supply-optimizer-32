@@ -86,48 +86,48 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
   };
 
   return (
-    <Card className="p-6">
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
+    <Card className="p-6 bg-white shadow-sm">
+      <div className="space-y-6">
+        <div className="flex items-center justify-between border-b border-gray-200 pb-4">
           <div className="flex items-center gap-4">
             <h3 className="text-lg font-semibold">Error Distribution</h3>
             {syncId && (
               <Button
                 variant="outline"
                 size="sm"
-                className={`gap-2 ${isSynced ? 'bg-primary/10' : ''}`}
+                className={`gap-2 relative z-10 ${isSynced ? 'bg-primary/10 border-primary' : ''}`}
                 onClick={() => setIsSynced(!isSynced)}
               >
                 <Link className="h-4 w-4" />
-                {isSynced ? 'Synced' : 'Not Synced'}
+                <span className="whitespace-nowrap">{isSynced ? 'Synced' : 'Not Synced'}</span>
               </Button>
             )}
           </div>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-sm text-muted-foreground px-3 py-1.5 bg-muted rounded-full">
             Forecast Error Analysis
           </span>
         </div>
 
         {selectedRange && (
-          <div className="flex items-center justify-between bg-muted/50 p-2 rounded-lg text-sm">
+          <div className="flex items-center justify-between bg-muted p-3 rounded-lg text-sm shadow-sm">
             <span className="font-medium">
               Selected Range: {distribution[selectedRange[0]]?.range} - {distribution[selectedRange[1]]?.range}
             </span>
-            <Button variant="ghost" size="sm" onClick={resetZoom} className="gap-2">
+            <Button variant="ghost" size="sm" onClick={resetZoom} className="gap-2 hover:bg-muted-foreground/10">
               <RotateCcw className="h-4 w-4" />
               Reset Zoom
             </Button>
           </div>
         )}
 
-        <div className="h-[300px]">
+        <div className="h-[300px] mt-4">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart 
               data={distribution}
               margin={{ top: 10, right: 30, left: 10, bottom: 50 }}
               syncId={isSynced ? syncId : undefined}
             >
-              <CartesianGrid strokeDasharray="3 3" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
               <XAxis 
                 dataKey="range" 
                 angle={-45} 
@@ -135,10 +135,12 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
                 height={80}
                 tick={{ fontSize: 12 }}
                 interval={0}
+                stroke="#6B7280"
               />
               <YAxis 
                 tick={{ fontSize: 12 }}
                 tickMargin={10}
+                stroke="#6B7280"
                 label={{ 
                   value: 'Number of Occurrences', 
                   angle: -90, 
@@ -147,7 +149,7 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
                 }}
               />
               <Tooltip content={<CustomTooltip />} />
-              <Legend />
+              <Legend verticalAlign="top" height={36} />
               <Bar 
                 dataKey="count" 
                 fill="#6366F1" 
@@ -159,15 +161,16 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
                 height={30}
                 stroke="#8884d8"
                 onChange={handleBrushChange}
+                y={10}
               />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
         {selectedRange && (
-          <div className="mt-2 p-3 bg-muted/50 rounded-lg">
-            <h4 className="text-sm font-medium mb-2">Selection Summary</h4>
-            <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="mt-4 p-4 bg-muted rounded-lg shadow-sm">
+            <h4 className="text-sm font-medium mb-3">Selection Summary</h4>
+            <div className="grid grid-cols-2 gap-6 text-sm">
               <div>
                 <span className="text-muted-foreground">Total Errors:</span>
                 <span className="ml-2 font-medium">

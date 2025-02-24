@@ -93,72 +93,74 @@ export const AnomalyDetection = ({
   };
 
   return (
-    <Card className="p-6">
-      <div className="space-y-4">
-        <div className="flex items-center justify-between border-b pb-4">
+    <Card className="p-6 bg-white shadow-sm">
+      <div className="space-y-6">
+        <div className="flex items-center justify-between border-b border-gray-200 pb-4">
           <div className="flex items-center gap-4">
             <h3 className="text-lg font-semibold">Anomaly Detection</h3>
             {syncId && (
               <Button
                 variant="outline"
                 size="sm"
-                className={`gap-2 ${isSynced ? 'bg-primary/10' : ''}`}
+                className={`gap-2 relative z-10 ${isSynced ? 'bg-primary/10 border-primary' : ''}`}
                 onClick={() => setIsSynced(!isSynced)}
               >
                 <Link className="h-4 w-4" />
-                {isSynced ? 'Synced' : 'Not Synced'}
+                <span className="whitespace-nowrap">{isSynced ? 'Synced' : 'Not Synced'}</span>
               </Button>
             )}
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-3 bg-muted/50 px-3 py-2 rounded-lg">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 bg-muted/50 px-4 py-2 rounded-lg shadow-sm">
               <Switch
                 id="show-outliers"
                 checked={showOutliers}
                 onCheckedChange={setShowOutliers}
                 className="data-[state=checked]:bg-primary"
               />
-              <Label htmlFor="show-outliers" className="font-medium cursor-pointer">
+              <Label htmlFor="show-outliers" className="font-medium cursor-pointer whitespace-nowrap">
                 Show Outliers
               </Label>
             </div>
-            <span className="text-sm bg-yellow-100 text-yellow-800 px-3 py-1.5 rounded-full font-medium">
+            <span className="text-sm bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full font-medium shadow-sm whitespace-nowrap">
               {anomalies.length} anomalies detected
             </span>
           </div>
         </div>
 
         {selectedRange && (
-          <div className="flex items-center justify-between bg-muted/50 p-2 rounded-lg text-sm">
+          <div className="flex items-center justify-between bg-muted p-3 rounded-lg text-sm shadow-sm">
             <span className="font-medium">
               Selected Period: {data[selectedRange[0]]?.week} - {data[selectedRange[1]]?.week}
             </span>
-            <Button variant="ghost" size="sm" onClick={resetZoom} className="gap-2">
+            <Button variant="ghost" size="sm" onClick={resetZoom} className="gap-2 hover:bg-muted-foreground/10">
               <RotateCcw className="h-4 w-4" />
               Reset Zoom
             </Button>
           </div>
         )}
 
-        <div className="h-[300px]">
+        <div className="h-[300px] mt-4">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart 
               data={dataWithAnomalies}
-              margin={{ top: 10, right: 30, left: 10, bottom: 0 }}
+              margin={{ top: 10, right: 30, left: 10, bottom: 30 }}
               syncId={isSynced ? syncId : undefined}
             >
-              <CartesianGrid strokeDasharray="3 3" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
               <XAxis 
                 dataKey="week"
                 tick={{ fontSize: 12 }}
                 tickMargin={10}
+                stroke="#6B7280"
               />
               <YAxis 
                 tick={{ fontSize: 12 }}
                 tickMargin={10}
+                stroke="#6B7280"
               />
               <Tooltip content={<CustomTooltip />} />
-              <Legend />
+              <Legend verticalAlign="top" height={36} />
               <Line 
                 type="monotone" 
                 dataKey="actual" 
@@ -209,15 +211,16 @@ export const AnomalyDetection = ({
                 height={30}
                 stroke="#8884d8"
                 onChange={handleBrushChange}
+                y={10}
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
         {selectedRange && (
-          <div className="mt-2 p-3 bg-muted/50 rounded-lg">
-            <h4 className="text-sm font-medium mb-2">Selection Summary</h4>
-            <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="mt-4 p-4 bg-muted rounded-lg shadow-sm">
+            <h4 className="text-sm font-medium mb-3">Selection Summary</h4>
+            <div className="grid grid-cols-2 gap-6 text-sm">
               <div>
                 <span className="text-muted-foreground">Anomalies in Range:</span>
                 <span className="ml-2 font-medium">
@@ -235,18 +238,20 @@ export const AnomalyDetection = ({
         )}
 
         {showOutliers && anomalies.length > 0 && (
-          <div className="space-y-2 mt-4 p-4 bg-muted/50 rounded-lg">
-            <h4 className="text-sm font-medium">Detected Anomalies</h4>
-            <div className="space-y-1">
+          <div className="mt-4 p-4 bg-muted rounded-lg shadow-sm">
+            <h4 className="text-sm font-medium mb-3">Detected Anomalies</h4>
+            <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2">
               {anomalies.map((anomaly, index) => (
                 <div 
                   key={index}
-                  className="flex items-center gap-2 text-sm"
+                  className="flex items-center gap-2 text-sm bg-white p-2 rounded-md shadow-sm"
                 >
-                  <AlertTriangle className="h-4 w-4 text-yellow-500" />
-                  <span>
+                  <AlertTriangle className="h-4 w-4 text-yellow-500 flex-shrink-0" />
+                  <span className="flex-1">
                     Anomaly detected on {anomaly.week} 
-                    (Z-Score: {anomaly.zScore.toFixed(2)})
+                    <span className="ml-2 text-muted-foreground">
+                      (Z-Score: {anomaly.zScore.toFixed(2)})
+                    </span>
                   </span>
                 </div>
               ))}
