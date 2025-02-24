@@ -32,40 +32,45 @@ export const ControlBar = ({
         size="sm"
         onClick={() => onPan('left')}
         disabled={!canPanLeft}
+        className="p-2"
       >
-        <ChevronLeft className="h-4 w-4" />
+        <ChevronLeft className="h-4 w-4 pointer-events-none" />
       </Button>
       <Button
         variant="outline"
         size="sm"
         onClick={onZoomIn}
         disabled={!canZoomIn}
+        className="p-2"
       >
-        <ZoomIn className="h-4 w-4" />
+        <ZoomIn className="h-4 w-4 pointer-events-none" />
       </Button>
       <Button
         variant="outline"
         size="sm"
         onClick={onReset}
         disabled={!isZoomed}
+        className="p-2"
       >
-        <RotateCcw className="h-4 w-4" />
+        <RotateCcw className="h-4 w-4 pointer-events-none" />
       </Button>
       <Button
         variant="outline"
         size="sm"
         onClick={onZoomOut}
         disabled={!canZoomOut}
+        className="p-2"
       >
-        <ZoomOut className="h-4 w-4" />
+        <ZoomOut className="h-4 w-4 pointer-events-none" />
       </Button>
       <Button
         variant="outline"
         size="sm"
         onClick={() => onPan('right')}
         disabled={!canPanRight}
+        className="p-2"
       >
-        <ChevronRight className="h-4 w-4" />
+        <ChevronRight className="h-4 w-4 pointer-events-none" />
       </Button>
     </div>
   );
