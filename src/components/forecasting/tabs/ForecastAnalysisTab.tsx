@@ -119,8 +119,8 @@ const ForecastAnalysisTab = () => {
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [confidenceLevel, setConfidenceLevel] = useState<string>("95");
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedSku, setSelectedSku] = useState<string>("");
-  const [selectedLocation, setSelectedLocation] = useState<string>("");
+  const [selectedSku, setSelectedSku] = useState<string>("all");
+  const [selectedLocation, setSelectedLocation] = useState<string>("all");
   const [modelPerformance, setModelPerformance] = useState<{
     accuracy: number;
     lastUpdated: string;
@@ -176,8 +176,8 @@ const ForecastAnalysisTab = () => {
 
   const filteredModels = savedModels.filter(model => {
     const searchLower = searchTerm.toLowerCase();
-    const skuMatch = !selectedSku || model.sku === selectedSku;
-    const locationMatch = !selectedLocation || model.location_id === selectedLocation;
+    const skuMatch = selectedSku === "all" || model.sku === selectedSku;
+    const locationMatch = selectedLocation === "all" || model.location_id === selectedLocation;
     return (
       (model.model_id.toLowerCase().includes(searchLower) ||
        (model.sku?.toLowerCase().includes(searchLower)) ||
@@ -243,7 +243,7 @@ const ForecastAnalysisTab = () => {
                   <SelectValue placeholder="Select SKU" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All SKUs</SelectItem>
+                  <SelectItem value="all">All SKUs</SelectItem>
                   {Array.from(new Set(savedModels.map(m => m.sku))).filter(Boolean).map(sku => (
                     <SelectItem key={sku} value={sku!}>{sku}</SelectItem>
                   ))}
@@ -254,7 +254,7 @@ const ForecastAnalysisTab = () => {
                   <SelectValue placeholder="Select Location" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Locations</SelectItem>
+                  <SelectItem value="all">All Locations</SelectItem>
                   {Array.from(new Set(savedModels.map(m => m.location_id))).filter(Boolean).map(loc => (
                     <SelectItem key={loc} value={loc!}>{loc}</SelectItem>
                   ))}
@@ -263,7 +263,11 @@ const ForecastAnalysisTab = () => {
               <Button 
                 variant="outline" 
                 size="sm"
-                onClick={() => setSelectedModels([])}
+                onClick={() => {
+                  setSelectedModels([]);
+                  setSelectedSku("all");
+                  setSelectedLocation("all");
+                }}
               >
                 Clear Selection
               </Button>
