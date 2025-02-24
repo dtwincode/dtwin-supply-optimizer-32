@@ -10,8 +10,7 @@ import {
   ResponsiveContainer, 
   CartesianGrid, 
   Legend, 
-  Brush,
-  BrushStartEndIndex
+  Brush
 } from "recharts";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -19,12 +18,17 @@ import { useState } from "react";
 interface ErrorDistributionProps {
   data: ForecastDataPoint[];
   syncId?: string;
-  onBrushChange?: (newIndex: BrushStartEndIndex) => void;
+  onBrushChange?: (newIndex: { startIndex: number; endIndex: number } | null) => void;
 }
 
 export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistributionProps) => {
   const [isSynced, setIsSynced] = useState(true);
   const [selectedRange, setSelectedRange] = useState<[number, number] | null>(null);
+
+  const handleBrushChange = (newIndex: { startIndex: number; endIndex: number } | null) => {
+    setSelectedRange(newIndex ? [newIndex.startIndex, newIndex.endIndex] : null);
+    onBrushChange?.(newIndex);
+  };
 
   const calculateErrorDistribution = () => {
     const errors = data
@@ -56,11 +60,6 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
   };
 
   const distribution = calculateErrorDistribution();
-
-  const handleBrushChange = (newIndex: BrushStartEndIndex) => {
-    setSelectedRange(newIndex ? [newIndex.startIndex, newIndex.endIndex] : null);
-    onBrushChange?.(newIndex);
-  };
 
   const resetZoom = () => {
     setSelectedRange(null);

@@ -12,8 +12,7 @@ import {
   CartesianGrid, 
   Legend,
   ReferenceDot,
-  Brush,
-  BrushStartEndIndex
+  Brush
 } from "recharts";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -23,7 +22,7 @@ import { useState } from "react";
 interface AnomalyDetectionProps {
   data: ForecastDataPoint[];
   syncId?: string;
-  onBrushChange?: (newIndex: BrushStartEndIndex) => void;
+  onBrushChange?: (newIndex: { startIndex: number; endIndex: number } | null) => void;
   dateRange?: [Date, Date];
 }
 
@@ -83,7 +82,7 @@ export const AnomalyDetection = ({
     return null;
   };
 
-  const handleBrushChange = (newIndex: BrushStartEndIndex) => {
+  const handleBrushChange = (newIndex: { startIndex: number; endIndex: number } | null) => {
     setSelectedRange(newIndex ? [newIndex.startIndex, newIndex.endIndex] : null);
     onBrushChange?.(newIndex);
   };
