@@ -292,7 +292,7 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
         
         <DistributionQuantitiesTable
           distributionData={distributionData}
-          onUpdateDistributionData={handleUpdateDistributionData}
+          onUpdateDistributionData={setDistributionData}
           forecastPeriod={forecastPeriod}
         />
       </div>
