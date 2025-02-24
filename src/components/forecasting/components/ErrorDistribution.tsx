@@ -1,12 +1,23 @@
 
 import { Card } from "@/components/ui/card";
 import { ForecastDataPoint } from "@/types/forecasting";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, Brush } from "recharts";
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  Tooltip, 
+  ResponsiveContainer, 
+  CartesianGrid, 
+  Legend, 
+  Brush,
+  BrushStartEndIndex
+} from "recharts";
 
 interface ErrorDistributionProps {
   data: ForecastDataPoint[];
   syncId?: string;
-  onBrushChange?: (domain: [number, number]) => void;
+  onBrushChange?: (newIndex: BrushStartEndIndex) => void;
 }
 
 export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistributionProps) => {
