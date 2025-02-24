@@ -2,24 +2,37 @@
 import { Card } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import { DisaggregationRulesDialog } from "./DisaggregationRulesDialog";
+import { Separator } from "@/components/ui/separator";
 
 interface DistributionCalendarProps {
   selectedDate: Date;
   selectedSKU: string;
   distributionData: any[];
   onSelectDate: (date: Date) => void;
+  disaggregationRules: any[];
+  onUpdateRules: (rules: any[]) => void;
 }
 
 export const DistributionCalendar = ({
   selectedDate,
   selectedSKU,
   distributionData,
-  onSelectDate
+  onSelectDate,
+  disaggregationRules,
+  onUpdateRules
 }: DistributionCalendarProps) => {
   return (
     <Card className="p-6 shadow-sm">
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Distribution Calendar</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Distribution Calendar</h3>
+          <DisaggregationRulesDialog 
+            rules={disaggregationRules}
+            onUpdateRules={onUpdateRules}
+          />
+        </div>
+        <Separator />
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
           <div className="flex-1">
             <Calendar
@@ -47,4 +60,4 @@ export const DistributionCalendar = ({
       </div>
     </Card>
   );
-};
+}

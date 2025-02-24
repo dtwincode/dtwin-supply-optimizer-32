@@ -246,10 +246,6 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
             title="Configure Distribution Parameters"
             description="Set the forecast timeline and select products for distribution planning"
           />
-          <DisaggregationRulesDialog
-            rules={disaggregationRules}
-            onUpdateRules={handleUpdateRules}
-          />
         </div>
         
         <div className="grid gap-6 md:grid-cols-2">
@@ -337,6 +333,8 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
             selectedSKU={selectedSKU}
             distributionData={distributionData}
             onSelectDate={setSelectedDate}
+            disaggregationRules={disaggregationRules}
+            onUpdateRules={handleUpdateRules}
           />
         </div>
       </div>
