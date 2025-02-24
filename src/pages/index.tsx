@@ -8,6 +8,7 @@ import ModuleSummaryCards from "@/components/dashboard/ModuleSummaryCards";
 import DashboardCharts from "@/components/dashboard/DashboardCharts";
 import SustainabilityMetrics from "@/components/dashboard/SustainabilityMetrics";
 import { memo, Suspense, useState, useEffect } from "react";
+import { cn } from "@/lib/utils";  // Added this import
 
 const LoadingFallback = () => (
   <div className="min-h-screen bg-background animate-in fade-in duration-300">
