@@ -25,7 +25,6 @@ const navigationItems = [
   { name: "navigationItems.guidelines", icon: BookOpen, href: "/guidelines" }
 ];
 
-// Memoize the navigation items to prevent unnecessary re-renders
 const NavigationList = memo(({ items, location, language, isRTL }: any) => (
   <nav className="p-4 space-y-1">
     {items.map((item: any) => (
@@ -84,11 +83,13 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         <div className="h-full w-64 bg-white shadow-lg">
           <div className="flex items-center justify-between p-4 border-b">
             <div className="flex items-center w-full justify-center">
-              <img 
-                src="/lovable-uploads/ff1ca214-cc5f-4fa6-8bfd-4818cf19a551.png" 
-                alt="dtwin logo" 
-                className="h-24 w-auto"
-              />
+              <Link to="/">
+                <img 
+                  src="/lovable-uploads/ff1ca214-cc5f-4fa6-8bfd-4818cf19a551.png" 
+                  alt="dtwin logo" 
+                  className="h-24 w-auto"
+                />
+              </Link>
             </div>
             <button
               onClick={() => setSidebarOpen(false)}
