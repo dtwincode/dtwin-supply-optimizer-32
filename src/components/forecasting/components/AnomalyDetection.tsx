@@ -1,8 +1,18 @@
-
 import { Card } from "@/components/ui/card";
 import { AlertTriangle } from "lucide-react";
 import { ForecastDataPoint } from "@/types/forecasting";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, CartesianGrid, Legend } from "recharts";
+import { 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  Tooltip, 
+  ResponsiveContainer, 
+  ReferenceLine, 
+  CartesianGrid, 
+  Legend,
+  ReferenceDot 
+} from "recharts";
 
 interface AnomalyDetectionProps {
   data: ForecastDataPoint[];
