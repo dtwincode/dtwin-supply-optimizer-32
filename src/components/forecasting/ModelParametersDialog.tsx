@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,24 +10,25 @@ import {
 } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { Settings, Wand2 } from "lucide-react";
-import { useState, useEffect } from "react";
-import { ModelConfig, ModelParameter } from "@/types/modelParameters";
-import { useToast } from "@/hooks/use-toast";
+import { useState, useEffect, ReactNode } from "react";
+import { ModelConfig, ModelParameter } from "@/types/models/commonTypes";
+import { toast } from "sonner";
 import { optimizeModelParameters } from "@/utils/forecasting/modelOptimization";
 import { supabase } from "@/integrations/supabase/client";
 
 interface ModelParametersDialogProps {
   model: ModelConfig;
   onParametersChange: (parameters: ModelParameter[]) => void;
+  children: ReactNode;
 }
 
 export function ModelParametersDialog({ 
   model, 
   onParametersChange,
+  children
 }: ModelParametersDialogProps) {
   const [parameters, setParameters] = useState<ModelParameter[]>([]);
   const [isOptimizing, setIsOptimizing] = useState(false);
-  const { toast } = useToast();
 
   useEffect(() => {
     setParameters(model.parameters);
@@ -110,10 +112,7 @@ export function ModelParametersDialog({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Settings className="h-4 w-4 mr-2" />
-          Parameters
-        </Button>
+        {children}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
