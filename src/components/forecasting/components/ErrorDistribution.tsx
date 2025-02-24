@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Link, RotateCcw } from "lucide-react";
 import { ForecastDataPoint } from "@/types/forecasting";
@@ -30,6 +31,11 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
     onBrushChange?.(newIndex);
   };
 
+  const resetZoom = () => {
+    setSelectedRange(null);
+    onBrushChange?.(null);
+  };
+
   const calculateErrorDistribution = () => {
     const errors = data
       .filter(d => d.actual !== null && d.forecast !== null)
@@ -60,11 +66,6 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
   };
 
   const distribution = calculateErrorDistribution();
-
-  const resetZoom = () => {
-    setSelectedRange(null);
-    onBrushChange?.(null);
-  };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {

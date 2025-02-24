@@ -1,5 +1,6 @@
+
 import { Card } from "@/components/ui/card";
-import { AlertTriangle, ZoomIn, RotateCcw, Link } from "lucide-react";
+import { AlertTriangle, RotateCcw, Link } from "lucide-react";
 import { ForecastDataPoint } from "@/types/forecasting";
 import { 
   LineChart, 
@@ -8,7 +9,6 @@ import {
   YAxis, 
   Tooltip, 
   ResponsiveContainer, 
-  ReferenceLine, 
   CartesianGrid, 
   Legend,
   ReferenceDot,
@@ -51,7 +51,7 @@ export const AnomalyDetection = ({
         ...point, 
         isAnomaly: zScore > threshold,
         zScore,
-        mean, // Add mean for visualization
+        mean,
         upperBound: mean + threshold * stdDev,
         lowerBound: mean - threshold * stdDev
       };
@@ -60,6 +60,16 @@ export const AnomalyDetection = ({
 
   const dataWithAnomalies = detectAnomalies(data);
   const anomalies = dataWithAnomalies.filter(d => d.isAnomaly);
+
+  const handleBrushChange = (newIndex: { startIndex: number; endIndex: number } | null) => {
+    setSelectedRange(newIndex ? [newIndex.startIndex, newIndex.endIndex] : null);
+    onBrushChange?.(newIndex);
+  };
+
+  const resetZoom = () => {
+    setSelectedRange(null);
+    onBrushChange?.(null);
+  };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -80,16 +90,6 @@ export const AnomalyDetection = ({
       );
     }
     return null;
-  };
-
-  const handleBrushChange = (newIndex: { startIndex: number; endIndex: number } | null) => {
-    setSelectedRange(newIndex ? [newIndex.startIndex, newIndex.endIndex] : null);
-    onBrushChange?.(newIndex);
-  };
-
-  const resetZoom = () => {
-    setSelectedRange(null);
-    onBrushChange?.(null);
   };
 
   return (
