@@ -1,7 +1,7 @@
 
 import DashboardLayout from "@/components/DashboardLayout";
 import { ForecastingTabs } from "@/components/forecasting/ForecastingTabs";
-import { ForecastAnalysisTab } from "@/components/forecasting/tabs/ForecastAnalysisTab";
+import ForecastAnalysisTab from "@/components/forecasting/tabs/ForecastAnalysisTab";
 import { ForecastDistributionTab } from "@/components/forecasting/tabs/ForecastDistributionTab";
 import { DescriptiveAnalysisTab } from "@/components/forecasting/tabs/DescriptiveAnalysisTab";
 import { WhatIfAnalysisTab } from "@/components/forecasting/tabs/WhatIfAnalysisTab";
