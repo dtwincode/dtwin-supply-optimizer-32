@@ -14,21 +14,36 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [createTicketOpen, setCreateTicketOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isContentVisible, setIsContentVisible] = useState(false);
   const { language, setLanguage, isRTL } = useLanguage();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
+  // Handle initial auth check and loading state
   useEffect(() => {
     if (!user) {
       navigate('/auth');
     } else {
-      setIsLoading(false);
+      // Add a slight delay before removing loading state to ensure smooth transition
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 300);
     }
   }, [user, navigate]);
 
+  // Handle content visibility after loading completes
+  useEffect(() => {
+    if (!isLoading) {
+      // Delay showing content to ensure smooth transition
+      setTimeout(() => {
+        setIsContentVisible(true);
+      }, 100);
+    }
+  }, [isLoading]);
+
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="fixed inset-0 bg-background flex items-center justify-center transition-opacity duration-300">
         <div className="animate-pulse space-y-4">
           <div className="h-8 w-48 bg-gray-200 rounded"></div>
           <div className="h-32 w-96 bg-gray-200 rounded"></div>
@@ -42,7 +57,14 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <div className="min-h-screen bg-background transition-colors duration-300" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div 
+      className={cn(
+        "min-h-screen bg-background",
+        isContentVisible ? "opacity-100" : "opacity-0",
+        "transition-all duration-300 ease-in-out"
+      )} 
+      dir={isRTL ? 'rtl' : 'ltr'}
+    >
       <div
         className={cn(
           "fixed top-0 h-screen transition-transform duration-300 ease-out z-40",
@@ -77,7 +99,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
       <div
         className={cn(
-          "transition-all duration-300",
+          "transition-all duration-300 ease-in-out",
           sidebarOpen ? (isRTL ? 'mr-64' : 'ml-64') : 'ml-0'
         )}
       >
@@ -90,7 +112,12 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           signOut={signOut}
         />
 
-        <main className="transition-opacity duration-300">
+        <main 
+          className={cn(
+            "transition-opacity duration-300 ease-in-out",
+            isContentVisible ? "opacity-100" : "opacity-0"
+          )}
+        >
           <div className="p-6">
             {children}
             <FloatingAskAI />
