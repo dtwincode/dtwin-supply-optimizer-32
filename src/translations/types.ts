@@ -18,7 +18,7 @@ export type NavigationItems = {
   logistics: TranslationValue;
   reports: TranslationValue;
   askAI: TranslationValue;
-  settings: TranslationValue;
+  data: TranslationValue;
   guidelines: TranslationValue;
 };
 
