@@ -326,10 +326,14 @@ const ForecastAnalysisTab = () => {
                       <span className="text-sm font-medium">{model.model_id}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="sm" onClick={() => {
-                        setSelectedModel(model.model_id);
-                        setModelParameters(model.parameters);
-                      }}>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => {
+                          setSelectedModels([model.model_id]); // Fixed: Wrap in array
+                          setModelParameters(model.parameters);
+                        }}
+                      >
                         Load
                       </Button>
                       <Button 
