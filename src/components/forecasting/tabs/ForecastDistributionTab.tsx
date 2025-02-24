@@ -1,9 +1,9 @@
-
 import { useState } from "react";
 import { DistributionQuantitiesTable } from "../components/distribution/DistributionQuantitiesTable";
 import { ImpactAnalysis } from "../components/distribution/ImpactAnalysis";
 import { DistributionCharts } from "../components/distribution/DistributionCharts";
 import { DistributionCalendar } from "../components/distribution/DistributionCalendar";
+import { DisaggregationRulesDialog } from "../components/distribution/DisaggregationRulesDialog";
 import { Card } from "@/components/ui/card";
 import {
   Select,
@@ -12,9 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Info, Settings2 } from "lucide-react";
+import { Info } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 interface DisaggregationRule {
@@ -233,6 +232,11 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
     });
   };
 
+  const handleUpdateRules = (newRules: DisaggregationRule[]) => {
+    setDisaggregationRules(newRules);
+    toast.success("Disaggregation rules updated successfully");
+  };
+
   return (
     <div className="container mx-auto p-4 space-y-8">
       <div className="bg-card rounded-lg border shadow-sm p-6 space-y-6">
@@ -242,10 +246,10 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
             title="Configure Distribution Parameters"
             description="Set the forecast timeline and select products for distribution planning"
           />
-          <Button variant="outline" size="sm" className="flex items-center gap-2">
-            <Settings2 className="h-4 w-4" />
-            Disaggregation Rules
-          </Button>
+          <DisaggregationRulesDialog
+            rules={disaggregationRules}
+            onUpdateRules={handleUpdateRules}
+          />
         </div>
         
         <div className="grid gap-6 md:grid-cols-2">
