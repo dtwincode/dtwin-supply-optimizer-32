@@ -23,15 +23,19 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
   }, [data]);
 
   const handleZoomIn = () => {
-    if (visibleRange[1] - visibleRange[0] <= 4) return;
-    
     const currentRange = visibleRange[1] - visibleRange[0];
-    const newRange = Math.max(Math.floor(currentRange / 2), 4);
-    const center = Math.floor((visibleRange[0] + visibleRange[1]) / 2);
-    const start = Math.max(0, Math.floor(center - newRange / 2));
-    const end = Math.min(distribution.length, Math.floor(center + newRange / 2));
-    
-    console.log('Zoom In:', { start, end, newRange, currentRange });
+    if (currentRange <= 4) return;
+
+    // Calculate the center point of the current visible range
+    const center = visibleRange[0] + Math.floor(currentRange / 2);
+    // Calculate the new range size (half of current, but minimum of 4)
+    const newRangeSize = Math.max(Math.floor(currentRange / 2), 4);
+    // Calculate new start and end points, centered around the current center
+    const halfRange = Math.floor(newRangeSize / 2);
+    const start = Math.max(0, center - halfRange);
+    const end = Math.min(distribution.length, center + halfRange);
+
+    console.log('Zoom In:', { center, newRangeSize, start, end, currentRange });
     
     setVisibleRange([start, end]);
     setZoomLevel(prev => prev * 2);
@@ -39,15 +43,19 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
   };
 
   const handleZoomOut = () => {
-    if (visibleRange[1] - visibleRange[0] >= distribution.length) return;
-    
     const currentRange = visibleRange[1] - visibleRange[0];
-    const newRange = Math.min(currentRange * 2, distribution.length);
-    const center = Math.floor((visibleRange[0] + visibleRange[1]) / 2);
-    const start = Math.max(0, Math.floor(center - newRange / 2));
-    const end = Math.min(distribution.length, Math.floor(center + newRange / 2));
-    
-    console.log('Zoom Out:', { start, end, newRange, currentRange });
+    if (currentRange >= distribution.length) return;
+
+    // Calculate the center point of the current visible range
+    const center = visibleRange[0] + Math.floor(currentRange / 2);
+    // Calculate the new range size (double current, but max of distribution length)
+    const newRangeSize = Math.min(currentRange * 2, distribution.length);
+    // Calculate new start and end points, centered around the current center
+    const halfRange = Math.floor(newRangeSize / 2);
+    const start = Math.max(0, center - halfRange);
+    const end = Math.min(distribution.length, center + halfRange);
+
+    console.log('Zoom Out:', { center, newRangeSize, start, end, currentRange });
     
     setVisibleRange([start, end]);
     setZoomLevel(prev => Math.max(1, prev / 2));
@@ -58,18 +66,18 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
     const currentRange = visibleRange[1] - visibleRange[0];
     const shift = Math.max(1, Math.floor(currentRange / 4));
     let newStart, newEnd;
-    
+
     if (direction === 'left' && visibleRange[0] > 0) {
       newStart = Math.max(0, visibleRange[0] - shift);
-      newEnd = newStart + currentRange;
+      newEnd = Math.min(distribution.length, newStart + currentRange);
     } else if (direction === 'right' && visibleRange[1] < distribution.length) {
       newEnd = Math.min(distribution.length, visibleRange[1] + shift);
-      newStart = newEnd - currentRange;
+      newStart = Math.max(0, newEnd - currentRange);
     } else {
       return;
     }
-    
-    console.log('Pan:', { direction, newStart, newEnd, shift });
+
+    console.log('Pan:', { direction, newStart, newEnd, shift, currentRange });
     
     setVisibleRange([newStart, newEnd]);
     onBrushChange?.({ startIndex: newStart, endIndex: newEnd });
