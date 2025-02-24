@@ -133,6 +133,10 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
     setIsReconciling(true);
     setTimeout(() => {
       setIsReconciling(false);
+      toast({
+        title: "Reconciliation Complete",
+        description: "Distribution quantities have been reconciled successfully."
+      });
     }, 1500);
   };
 
