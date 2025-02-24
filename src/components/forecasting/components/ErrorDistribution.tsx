@@ -1,6 +1,6 @@
 
 import { Card } from "@/components/ui/card";
-import { Link, RotateCcw } from "lucide-react";
+import { Link, RotateCcw, ZoomIn, ZoomOut, ChevronLeft, ChevronRight } from "lucide-react";
 import { ForecastDataPoint } from "@/types/forecasting";
 import { 
   BarChart, 
@@ -10,8 +10,7 @@ import {
   Tooltip, 
   ResponsiveContainer, 
   CartesianGrid, 
-  Legend, 
-  Brush
+  Legend
 } from "recharts";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -24,17 +23,8 @@ interface ErrorDistributionProps {
 
 export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistributionProps) => {
   const [isSynced, setIsSynced] = useState(true);
-  const [selectedRange, setSelectedRange] = useState<[number, number] | null>(null);
-
-  const handleBrushChange = (newIndex: { startIndex: number; endIndex: number } | null) => {
-    setSelectedRange(newIndex ? [newIndex.startIndex, newIndex.endIndex] : null);
-    onBrushChange?.(newIndex);
-  };
-
-  const resetZoom = () => {
-    setSelectedRange(null);
-    onBrushChange?.(null);
-  };
+  const [visibleRange, setVisibleRange] = useState<[number, number]>([0, 0]);
+  const [zoomLevel, setZoomLevel] = useState(1);
 
   const calculateErrorDistribution = () => {
     const errors = data
@@ -67,6 +57,11 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
 
   const distribution = calculateErrorDistribution();
 
+  // Initialize visible range if not set
+  if (visibleRange[1] === 0) {
+    setVisibleRange([0, distribution.length]);
+  }
+
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const binData = payload[0].payload;
@@ -84,6 +79,51 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
     }
     return null;
   };
+
+  const handleZoomIn = () => {
+    const currentRange = visibleRange[1] - visibleRange[0];
+    const newRange = Math.max(Math.floor(currentRange / 2), 4);
+    const center = Math.floor((visibleRange[0] + visibleRange[1]) / 2);
+    const start = Math.max(0, center - Math.floor(newRange / 2));
+    const end = Math.min(distribution.length, start + newRange);
+    setVisibleRange([start, end]);
+    setZoomLevel(zoomLevel * 2);
+    onBrushChange?.({ startIndex: start, endIndex: end });
+  };
+
+  const handleZoomOut = () => {
+    const currentRange = visibleRange[1] - visibleRange[0];
+    const newRange = Math.min(currentRange * 2, distribution.length);
+    const center = Math.floor((visibleRange[0] + visibleRange[1]) / 2);
+    const start = Math.max(0, center - Math.floor(newRange / 2));
+    const end = Math.min(distribution.length, start + newRange);
+    setVisibleRange([start, end]);
+    setZoomLevel(Math.max(1, zoomLevel / 2));
+    onBrushChange?.({ startIndex: start, endIndex: end });
+  };
+
+  const handlePan = (direction: 'left' | 'right') => {
+    const currentRange = visibleRange[1] - visibleRange[0];
+    const shift = Math.max(1, Math.floor(currentRange / 4));
+    
+    if (direction === 'left') {
+      const newStart = Math.max(0, visibleRange[0] - shift);
+      setVisibleRange([newStart, newStart + currentRange]);
+      onBrushChange?.({ startIndex: newStart, endIndex: newStart + currentRange });
+    } else {
+      const newStart = Math.min(distribution.length - currentRange, visibleRange[0] + shift);
+      setVisibleRange([newStart, newStart + currentRange]);
+      onBrushChange?.({ startIndex: newStart, endIndex: newStart + currentRange });
+    }
+  };
+
+  const resetZoom = () => {
+    setVisibleRange([0, distribution.length]);
+    setZoomLevel(1);
+    onBrushChange?.(null);
+  };
+
+  const visibleData = distribution.slice(visibleRange[0], visibleRange[1]);
 
   return (
     <Card className="p-6 bg-white shadow-sm">
@@ -108,22 +148,53 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
           </span>
         </div>
 
-        {selectedRange && (
-          <div className="flex items-center justify-between bg-muted p-3 rounded-lg text-sm shadow-sm">
-            <span className="font-medium">
-              Selected Range: {distribution[selectedRange[0]]?.range} - {distribution[selectedRange[1]]?.range}
-            </span>
-            <Button variant="ghost" size="sm" onClick={resetZoom} className="gap-2 hover:bg-muted-foreground/10">
-              <RotateCcw className="h-4 w-4" />
-              Reset Zoom
-            </Button>
-          </div>
-        )}
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePan('left')}
+            disabled={visibleRange[0] === 0}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleZoomIn}
+            disabled={visibleRange[1] - visibleRange[0] <= 4}
+          >
+            <ZoomIn className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={resetZoom}
+            disabled={zoomLevel === 1}
+          >
+            <RotateCcw className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleZoomOut}
+            disabled={visibleRange[1] - visibleRange[0] === distribution.length}
+          >
+            <ZoomOut className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePan('right')}
+            disabled={visibleRange[1] === distribution.length}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
 
         <div className="h-[300px] mt-4">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart 
-              data={distribution}
+              data={visibleData}
               margin={{ top: 10, right: 30, left: 10, bottom: 60 }}
               syncId={isSynced ? syncId : undefined}
             >
@@ -156,41 +227,26 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
                 name="Error Frequency"
                 radius={[4, 4, 0, 0]}
               />
-              <Brush 
-                dataKey="range"
-                height={20}
-                stroke="#8884d8"
-                onChange={handleBrushChange}
-                y={220}
-                travellerWidth={8}
-                fill="#f3f4f6"
-                startIndex={0}
-                endIndex={distribution.length - 1}
-              />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-        {selectedRange && (
+        {zoomLevel > 1 && (
           <div className="mt-4 p-4 bg-muted rounded-lg shadow-sm">
             <h4 className="text-sm font-medium mb-3">Selection Summary</h4>
             <div className="grid grid-cols-2 gap-6 text-sm">
               <div>
                 <span className="text-muted-foreground">Total Errors:</span>
                 <span className="ml-2 font-medium">
-                  {distribution
-                    .slice(selectedRange[0], selectedRange[1] + 1)
-                    .reduce((sum, bin) => sum + bin.count, 0)}
+                  {visibleData.reduce((sum, bin) => sum + bin.count, 0)}
                 </span>
               </div>
               <div>
                 <span className="text-muted-foreground">Average Error:</span>
                 <span className="ml-2 font-medium">
-                  {(distribution
-                    .slice(selectedRange[0], selectedRange[1] + 1)
+                  {(visibleData
                     .reduce((sum, bin) => sum + (bin.errorRange[0] + bin.errorRange[1]) / 2 * bin.count, 0) /
-                    distribution
-                      .slice(selectedRange[0], selectedRange[1] + 1)
+                    visibleData
                       .reduce((sum, bin) => sum + bin.count, 0))
                     .toFixed(2)}%
                 </span>
