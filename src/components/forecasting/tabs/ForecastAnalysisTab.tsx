@@ -299,7 +299,49 @@ const PatternAnalysisCard = ({ data }: { data: ForecastDataPoint[] }) => {
   );
 };
 
-export const ForecastAnalysisTab = () => {
+const calculateMetrics = (data: ForecastDataPoint[]) => {
+  const actualValues = data.filter(d => d.actual !== null).map(d => d.actual!);
+  const forecastValues = data.filter(d => d.actual !== null && d.forecast !== null).map(d => d.forecast!);
+  
+  if (actualValues.length === 0) {
+    return {
+      mape: 0,
+      mae: 0,
+      rmse: 0
+    };
+  }
+
+  const mape = actualValues.reduce((sum, actual, i) => {
+    if (typeof actual === 'number' && typeof forecastValues[i] === 'number') {
+      return sum + Math.abs((actual - forecastValues[i]) / actual);
+    }
+    return sum;
+  }, 0) / actualValues.length * 100;
+
+  const mae = actualValues.reduce((sum, actual, i) => {
+    if (typeof actual === 'number' && typeof forecastValues[i] === 'number') {
+      return sum + Math.abs(actual - forecastValues[i]);
+    }
+    return sum;
+  }, 0) / actualValues.length;
+
+  const rmse = Math.sqrt(
+    actualValues.reduce((sum, actual, i) => {
+      if (typeof actual === 'number' && typeof forecastValues[i] === 'number') {
+        return sum + Math.pow(actual - forecastValues[i], 2);
+      }
+      return sum;
+    }, 0) / actualValues.length
+  );
+
+  return {
+    mape,
+    mae,
+    rmse
+  };
+};
+
+const ForecastAnalysisTab = () => {
   const [selectedModel, setSelectedModel] = useState("exp-smoothing");
   const [modelParameters, setModelParameters] = useState<ModelParameter[]>([]);
   const [savedModels, setSavedModels] = useState<SavedModelConfig[]>([]);
@@ -470,7 +512,7 @@ export const ForecastAnalysisTab = () => {
                         <div>
                           <p className="text-sm text-muted-foreground">Accuracy</p>
                           <p className="text-sm font-medium">
-                            {model.performance_metrics.accuracy?.toFixed(2)}%
+                            {model.performance_metrics.accuracy.toFixed(2)}%
                           </p>
                         </div>
                         <div>
@@ -547,35 +589,4 @@ export const ForecastAnalysisTab = () => {
   );
 };
 
-const calculateMetrics = (data: ForecastDataPoint[]) => {
-  const actualValues = data.filter(d => d.actual !== null).map(d => d.actual!);
-  const forecastValues = data.filter(d => d.actual !== null && d.forecast !== null).map(d => d.forecast);
-  
-  if (actualValues.length === 0) {
-    return {
-      mape: 0,
-      mae: 0,
-      rmse: 0
-    };
-  }
-
-  const mape = actualValues.reduce((sum, actual, i) => {
-    return sum + Math.abs((actual - forecastValues[i]) / actual);
-  }, 0) / actualValues.length * 100;
-
-  const mae = actualValues.reduce((sum, actual, i) => {
-    return sum + Math.abs(actual - forecastValues[i]);
-  }, 0) / actualValues.length;
-
-  const rmse = Math.sqrt(
-    actualValues.reduce((sum, actual, i) => {
-      return sum + Math.pow(actual - forecastValues[i], 2);
-    }, 0) / actualValues.length
-  );
-
-  return {
-    mape,
-    mae,
-    rmse
-  };
-};
+export default ForecastAnalysisTab;
