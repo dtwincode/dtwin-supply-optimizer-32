@@ -37,11 +37,13 @@ interface DistributionData {
 interface DistributionQuantitiesTableProps {
   distributionData: DistributionData[];
   onUpdateDistributionData: (newData: DistributionData[]) => void;
+  forecastPeriod: string;
 }
 
 export const DistributionQuantitiesTable = ({ 
   distributionData,
-  onUpdateDistributionData
+  onUpdateDistributionData,
+  forecastPeriod
 }: DistributionQuantitiesTableProps) => {
   const { toast } = useToast();
   const [editingCell, setEditingCell] = useState<EditableCell | null>(null);

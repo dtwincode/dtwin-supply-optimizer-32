@@ -25,13 +25,15 @@ interface DistributionChartsProps {
   distributionData: any[];
   weeklyDistribution: any[];
   onSelectSKU: (sku: string) => void;
+  forecastPeriod: string;
 }
 
 export const DistributionCharts = ({
   selectedSKU,
   distributionData,
   weeklyDistribution,
-  onSelectSKU
+  onSelectSKU,
+  forecastPeriod
 }: DistributionChartsProps) => {
   const getQuantitiesChartData = () => {
     return distributionData.map(item => ({
