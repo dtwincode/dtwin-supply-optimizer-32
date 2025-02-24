@@ -1,6 +1,5 @@
-
 import { Card } from "@/components/ui/card";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, ZoomIn, RotateCcw, Link } from "lucide-react";
 import { ForecastDataPoint } from "@/types/forecasting";
 import { 
   LineChart, 
@@ -18,6 +17,7 @@ import {
 } from "recharts";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 interface AnomalyDetectionProps {
@@ -34,8 +34,9 @@ export const AnomalyDetection = ({
   dateRange 
 }: AnomalyDetectionProps) => {
   const [showOutliers, setShowOutliers] = useState(true);
+  const [isSynced, setIsSynced] = useState(true);
+  const [selectedRange, setSelectedRange] = useState<[number, number] | null>(null);
 
-  // Simple anomaly detection using z-score
   const detectAnomalies = (data: ForecastDataPoint[]) => {
     const actualValues = data.map(d => d.actual).filter((v): v is number => v !== null);
     const mean = actualValues.reduce((sum, val) => sum + val, 0) / actualValues.length;
@@ -82,12 +83,35 @@ export const AnomalyDetection = ({
     return null;
   };
 
+  const handleBrushChange = (newIndex: BrushStartEndIndex) => {
+    setSelectedRange(newIndex ? [newIndex.startIndex, newIndex.endIndex] : null);
+    onBrushChange?.(newIndex);
+  };
+
+  const resetZoom = () => {
+    setSelectedRange(null);
+    onBrushChange?.(null);
+  };
+
   return (
     <Card className="p-6">
       <div className="space-y-4">
         <div className="flex items-center justify-between border-b pb-4">
-          <h3 className="text-lg font-semibold">Anomaly Detection</h3>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
+            <h3 className="text-lg font-semibold">Anomaly Detection</h3>
+            {syncId && (
+              <Button
+                variant="outline"
+                size="sm"
+                className={`gap-2 ${isSynced ? 'bg-primary/10' : ''}`}
+                onClick={() => setIsSynced(!isSynced)}
+              >
+                <Link className="h-4 w-4" />
+                {isSynced ? 'Synced' : 'Not Synced'}
+              </Button>
+            )}
+          </div>
+          <div className="flex items-center gap-3">
             <div className="flex items-center gap-3 bg-muted/50 px-3 py-2 rounded-lg">
               <Switch
                 id="show-outliers"
@@ -104,12 +128,25 @@ export const AnomalyDetection = ({
             </span>
           </div>
         </div>
+
+        {selectedRange && (
+          <div className="flex items-center justify-between bg-muted/50 p-2 rounded-lg text-sm">
+            <span className="font-medium">
+              Selected Period: {data[selectedRange[0]]?.week} - {data[selectedRange[1]]?.week}
+            </span>
+            <Button variant="ghost" size="sm" onClick={resetZoom} className="gap-2">
+              <RotateCcw className="h-4 w-4" />
+              Reset Zoom
+            </Button>
+          </div>
+        )}
+
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart 
               data={dataWithAnomalies}
               margin={{ top: 10, right: 30, left: 10, bottom: 0 }}
-              syncId={syncId}
+              syncId={isSynced ? syncId : undefined}
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
@@ -172,11 +209,32 @@ export const AnomalyDetection = ({
                 dataKey="week"
                 height={30}
                 stroke="#8884d8"
-                onChange={onBrushChange}
+                onChange={handleBrushChange}
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
+
+        {selectedRange && (
+          <div className="mt-2 p-3 bg-muted/50 rounded-lg">
+            <h4 className="text-sm font-medium mb-2">Selection Summary</h4>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-muted-foreground">Anomalies in Range:</span>
+                <span className="ml-2 font-medium">
+                  {anomalies.filter((_, i) => i >= selectedRange[0] && i <= selectedRange[1]).length}
+                </span>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Period Length:</span>
+                <span className="ml-2 font-medium">
+                  {selectedRange[1] - selectedRange[0] + 1} weeks
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {showOutliers && anomalies.length > 0 && (
           <div className="space-y-2 mt-4 p-4 bg-muted/50 rounded-lg">
             <h4 className="text-sm font-medium">Detected Anomalies</h4>

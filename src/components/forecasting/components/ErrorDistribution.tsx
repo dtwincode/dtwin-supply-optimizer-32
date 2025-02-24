@@ -1,5 +1,5 @@
-
 import { Card } from "@/components/ui/card";
+import { Link, RotateCcw } from "lucide-react";
 import { ForecastDataPoint } from "@/types/forecasting";
 import { 
   BarChart, 
@@ -13,6 +13,8 @@ import {
   Brush,
   BrushStartEndIndex
 } from "recharts";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 interface ErrorDistributionProps {
   data: ForecastDataPoint[];
@@ -21,6 +23,9 @@ interface ErrorDistributionProps {
 }
 
 export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistributionProps) => {
+  const [isSynced, setIsSynced] = useState(true);
+  const [selectedRange, setSelectedRange] = useState<[number, number] | null>(null);
+
   const calculateErrorDistribution = () => {
     const errors = data
       .filter(d => d.actual !== null && d.forecast !== null)
@@ -52,6 +57,16 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
 
   const distribution = calculateErrorDistribution();
 
+  const handleBrushChange = (newIndex: BrushStartEndIndex) => {
+    setSelectedRange(newIndex ? [newIndex.startIndex, newIndex.endIndex] : null);
+    onBrushChange?.(newIndex);
+  };
+
+  const resetZoom = () => {
+    setSelectedRange(null);
+    onBrushChange?.(null);
+  };
+
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const binData = payload[0].payload;
@@ -74,17 +89,43 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
     <Card className="p-6">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Error Distribution</h3>
+          <div className="flex items-center gap-4">
+            <h3 className="text-lg font-semibold">Error Distribution</h3>
+            {syncId && (
+              <Button
+                variant="outline"
+                size="sm"
+                className={`gap-2 ${isSynced ? 'bg-primary/10' : ''}`}
+                onClick={() => setIsSynced(!isSynced)}
+              >
+                <Link className="h-4 w-4" />
+                {isSynced ? 'Synced' : 'Not Synced'}
+              </Button>
+            )}
+          </div>
           <span className="text-sm text-muted-foreground">
             Forecast Error Analysis
           </span>
         </div>
+
+        {selectedRange && (
+          <div className="flex items-center justify-between bg-muted/50 p-2 rounded-lg text-sm">
+            <span className="font-medium">
+              Selected Range: {distribution[selectedRange[0]]?.range} - {distribution[selectedRange[1]]?.range}
+            </span>
+            <Button variant="ghost" size="sm" onClick={resetZoom} className="gap-2">
+              <RotateCcw className="h-4 w-4" />
+              Reset Zoom
+            </Button>
+          </div>
+        )}
+
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart 
               data={distribution}
               margin={{ top: 10, right: 30, left: 10, bottom: 50 }}
-              syncId={syncId}
+              syncId={isSynced ? syncId : undefined}
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
@@ -117,11 +158,39 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
                 dataKey="range"
                 height={30}
                 stroke="#8884d8"
-                onChange={onBrushChange}
+                onChange={handleBrushChange}
               />
             </BarChart>
           </ResponsiveContainer>
         </div>
+
+        {selectedRange && (
+          <div className="mt-2 p-3 bg-muted/50 rounded-lg">
+            <h4 className="text-sm font-medium mb-2">Selection Summary</h4>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-muted-foreground">Total Errors:</span>
+                <span className="ml-2 font-medium">
+                  {distribution
+                    .slice(selectedRange[0], selectedRange[1] + 1)
+                    .reduce((sum, bin) => sum + bin.count, 0)}
+                </span>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Average Error:</span>
+                <span className="ml-2 font-medium">
+                  {(distribution
+                    .slice(selectedRange[0], selectedRange[1] + 1)
+                    .reduce((sum, bin) => sum + (bin.errorRange[0] + bin.errorRange[1]) / 2 * bin.count, 0) /
+                    distribution
+                      .slice(selectedRange[0], selectedRange[1] + 1)
+                      .reduce((sum, bin) => sum + bin.count, 0))
+                    .toFixed(2)}%
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </Card>
   );
