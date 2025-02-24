@@ -33,9 +33,13 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  BarChart,
+  Bar,
 } from "recharts";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
 
 interface DistributionData {
   id: string;
@@ -61,6 +65,8 @@ interface EditableCell {
 export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableData: any[] }) => {
   const { toast } = useToast();
   const [editingCell, setEditingCell] = useState<EditableCell | null>(null);
+  const [selectedSKU, setSelectedSKU] = useState<string>("SKU001");
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [distributionData, setDistributionData] = useState<DistributionData[]>([
     {
       id: "1",
@@ -204,6 +210,31 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
     if (accuracy >= 90) return "text-green-600";
     if (accuracy >= 80) return "text-yellow-600";
     return "text-red-600";
+  };
+
+  // Generate weekly distribution data
+  const generateWeeklyDistribution = (sku: string) => {
+    const skuData = distributionData.find(d => d.sku === sku);
+    if (!skuData) return [];
+
+    // Generate 4 weeks of data
+    return Array.from({ length: 4 }).map((_, i) => ({
+      week: `Week ${i + 1}`,
+      planned: skuData.optimalQuantity / 4,
+      minimum: skuData.minQuantity / 4,
+      maximum: skuData.maxQuantity / 4
+    }));
+  };
+
+  // Transform data for the quantities comparison chart
+  const getQuantitiesChartData = () => {
+    return distributionData.map(item => ({
+      sku: item.sku,
+      "Min Quantity": item.minQuantity,
+      "Optimal Quantity": item.optimalQuantity,
+      "Max Quantity": item.maxQuantity,
+      "Current Stock": item.currentStock
+    }));
   };
 
   return (
@@ -419,141 +450,114 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
         </div>
       </Card>
 
-      <div className="grid gap-6 grid-cols-1 xl:grid-cols-3">
-        {/* Original Distribution Analysis */}
-        <Card className="xl:col-span-2 p-6">
+      {/* Distribution Charts Section */}
+      <div className="grid gap-6 grid-cols-1 xl:grid-cols-2">
+        {/* Quantities Comparison Chart */}
+        <Card className="p-6">
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Forecast Distribution</h3>
-            {/* Your existing distribution analysis content */}
+            <h3 className="text-lg font-semibold">Distribution Quantities Comparison</h3>
+            <div className="h-[400px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={getQuantitiesChartData()}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="sku" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="Min Quantity" fill="#8884d8" />
+                  <Bar dataKey="Optimal Quantity" fill="#82ca9d" />
+                  <Bar dataKey="Max Quantity" fill="#ffc658" />
+                  <Bar dataKey="Current Stock" fill="#ff7300" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </Card>
 
-        {/* Reconciliation Controls */}
+        {/* Weekly Distribution View */}
         <Card className="p-6">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Reconciliation Settings</h3>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={isReconciling}
-                onClick={handleReconciliation}
-                className="gap-2"
-              >
-                {isReconciling ? (
-                  <RefreshCw className="h-4 w-4 animate-spin" />
-                ) : (
-                  <RefreshCw className="h-4 w-4" />
-                )}
-                Reconcile
-              </Button>
+              <h3 className="text-lg font-semibold">Weekly Distribution</h3>
+              <Select value={selectedSKU} onValueChange={setSelectedSKU}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Select SKU" />
+                </SelectTrigger>
+                <SelectContent>
+                  {distributionData.map(item => (
+                    <SelectItem key={item.sku} value={item.sku}>
+                      {item.sku}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
+            <div className="h-[400px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={generateWeeklyDistribution(selectedSKU)}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="week" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="planned" 
+                    stroke="#82ca9d" 
+                    name="Planned Quantity"
+                    strokeWidth={2}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="minimum" 
+                    stroke="#8884d8" 
+                    strokeDasharray="5 5"
+                    name="Minimum"
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="maximum" 
+                    stroke="#ffc658" 
+                    strokeDasharray="5 5"
+                    name="Maximum"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </Card>
 
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Method</label>
-                <div className="flex gap-2">
-                  <Button
-                    variant={reconciliationMethod === "top-down" ? "default" : "outline"}
-                    onClick={() => setReconciliationMethod("top-down")}
-                    className="flex-1 gap-2"
-                    size="sm"
-                  >
-                    <ArrowDown className="h-4 w-4" />
-                    Top-Down
-                  </Button>
-                  <Button
-                    variant={reconciliationMethod === "bottom-up" ? "default" : "outline"}
-                    onClick={() => setReconciliationMethod("bottom-up")}
-                    className="flex-1 gap-2"
-                    size="sm"
-                  >
-                    <ArrowUp className="h-4 w-4" />
-                    Bottom-Up
-                  </Button>
+        {/* Calendar View */}
+        <Card className="p-6">
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Distribution Calendar</h3>
+            <div className="flex items-center space-x-4">
+              <div className="flex-1">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={(date) => date && setSelectedDate(date)}
+                  className="rounded-md border"
+                />
+              </div>
+              <div className="flex-1 space-y-4">
+                <h4 className="font-medium">Distribution for {format(selectedDate, 'MMM dd, yyyy')}</h4>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    Planned: {Math.round(distributionData.find(d => d.sku === selectedSKU)?.optimalQuantity / 30 || 0)} units
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Minimum: {Math.round(distributionData.find(d => d.sku === selectedSKU)?.minQuantity / 30 || 0)} units
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Maximum: {Math.round(distributionData.find(d => d.sku === selectedSKU)?.maxQuantity / 30 || 0)} units
+                  </p>
                 </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Hierarchy Level</label>
-                <Select value={selectedLevel} onValueChange={setSelectedLevel}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select level" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {hierarchyLevels.map((level) => (
-                      <SelectItem key={level.value} value={level.value}>
-                        {level.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Discrepancies</h4>
-              <div className="space-y-2">
-                {mockData.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-2 text-sm p-2 rounded-lg bg-muted"
-                  >
-                    <AlertTriangle
-                      className={`h-4 w-4 ${
-                        Math.abs(item.difference) > 8 ? "text-red-500" : "text-yellow-500"
-                      }`}
-                    />
-                    <span className="flex-1">
-                      {item.level}: {Math.abs(item.difference)}% {item.difference > 0 ? "above" : "below"}
-                    </span>
-                  </div>
-                ))}
               </div>
             </div>
           </div>
         </Card>
       </div>
-
-      {/* Reconciliation Impact Chart */}
-      <Card className="p-6">
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Reconciliation Impact</h3>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart
-                data={mockData}
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="level" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="actual"
-                  stroke="#82ca9d"
-                  name="Reconciled Forecast"
-                  strokeWidth={2}
-                  dot={{ r: 4 }}
-                  activeDot={{ r: 6 }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="forecast"
-                  stroke="#8884d8"
-                  name="Original Forecast"
-                  strokeWidth={2}
-                  dot={{ r: 4 }}
-                  activeDot={{ r: 6 }}
-                  strokeDasharray="3 3"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </Card>
     </div>
   );
 };
