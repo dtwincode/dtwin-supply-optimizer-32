@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Save, TrendingUp, TrendingDown, History, Trash2, ChevronDown, ChevronUp, BarChart2, Filter } from "lucide-react";
+import { Save, TrendingUp, History, Trash2, ChevronDown, ChevronUp, BarChart2, Filter, Search } from "lucide-react";
 import { ModelParameter } from "@/types/models/commonTypes";
 import { PatternAnalysisCard } from "../components/PatternAnalysisCard";
 import { Input } from "@/components/ui/input";
@@ -227,98 +227,6 @@ const ForecastAnalysisTab = () => {
 
   const metrics = calculateMetrics(sampleData);
 
-  const compareModels = () => {
-    const selectedModelConfigs = savedModels.filter(model => 
-      selectedModels.includes(model.model_id)
-    );
-
-    return (
-      <Card className="p-6 mt-4">
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Model Comparison</h3>
-            <div className="flex items-center gap-2">
-              <Select value={selectedSku} onValueChange={setSelectedSku}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select SKU" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All SKUs</SelectItem>
-                  {Array.from(new Set(savedModels.map(m => m.sku))).filter(Boolean).map(sku => (
-                    <SelectItem key={sku} value={sku!}>{sku}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select Location" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Locations</SelectItem>
-                  {Array.from(new Set(savedModels.map(m => m.location_id))).filter(Boolean).map(loc => (
-                    <SelectItem key={loc} value={loc!}>{loc}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => {
-                  setSelectedModels([]);
-                  setSelectedSku("all");
-                  setSelectedLocation("all");
-                }}
-              >
-                Clear Selection
-              </Button>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {selectedModelConfigs.map(model => (
-              <Card key={model.id} className="p-4 relative">
-                <div className="space-y-2">
-                  <div className="flex justify-between items-start">
-                    <h4 className="font-medium">{model.model_id}</h4>
-                    <div className="text-xs text-muted-foreground">
-                      {model.sku && <div>SKU: {model.sku}</div>}
-                      {model.location_id && <div>Location: {model.location_id}</div>}
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Accuracy:</span>
-                      <span className="text-sm font-medium">
-                        {model.performance_metrics?.accuracy.toFixed(2)}%
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">MAPE:</span>
-                      <span className="text-sm font-medium">
-                        {model.performance_metrics?.mape?.toFixed(2)}%
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">MAE:</span>
-                      <span className="text-sm font-medium">
-                        {model.performance_metrics?.mae?.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">RMSE:</span>
-                      <span className="text-sm font-medium">
-                        {model.performance_metrics?.rmse?.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </Card>
-    );
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4 mb-4">
@@ -327,64 +235,47 @@ const ForecastAnalysisTab = () => {
           onModelChange={handleModelChange}
           onParametersChange={handleParametersChange}
         />
-        <Button 
-          variant="outline"
-          className="h-10"
-          onClick={() => handleModelChange("exp-smoothing")}
-          disabled={selectedModels.includes("exp-smoothing")}
-        >
-          <BarChart2 className="mr-2 h-4 w-4" />
-          Compare
-        </Button>
       </div>
 
-      {selectedModels.length > 0 && compareModels()}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         <Card className="p-6">
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold">Model Performance</h3>
-              <Button variant="outline" size="sm" onClick={handleSaveModel}>
-                <Save className="h-4 w-4 mr-2" />
-                Save Model
-              </Button>
-            </div>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Accuracy Trend</span>
-                <div className="flex items-center">
-                  <TrendingUp className={`h-4 w-4 mr-2 ${
-                    modelPerformance.trend === 'improving' ? 'text-green-500' :
-                    modelPerformance.trend === 'declining' ? 'text-red-500' :
-                    'text-yellow-500'
-                  }`} />
-                  <span className="text-sm font-medium">{modelPerformance.accuracy.toFixed(2)}%</span>
+              <h3 className="text-lg font-semibold">Model Library</h3>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
+                  <Input
+                    placeholder="Search models..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-[200px]"
+                  />
+                  <Select value={selectedSku} onValueChange={setSelectedSku}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select SKU" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All SKUs</SelectItem>
+                      {Array.from(new Set(savedModels.map(m => m.sku))).filter(Boolean).map(sku => (
+                        <SelectItem key={sku} value={sku!}>{sku}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select Location" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Locations</SelectItem>
+                      {Array.from(new Set(savedModels.map(m => m.location_id))).filter(Boolean).map(loc => (
+                        <SelectItem key={loc} value={loc!}>{loc}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
-              <div className="text-xs text-muted-foreground">
-                Last updated: {modelPerformance.lastUpdated}
-              </div>
             </div>
-          </div>
-        </Card>
 
-        <Card className="p-6">
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold">Saved Models</h3>
-              <div className="flex items-center gap-2">
-                <Input
-                  placeholder="Search models..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-[200px]"
-                />
-                <Button variant="outline" size="icon">
-                  <Filter className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
             <ScrollArea className="h-[400px]">
               <div className="space-y-2">
                 {filteredModels.map((model) => (
@@ -409,11 +300,27 @@ const ForecastAnalysisTab = () => {
                           onClick={() => {
                             setSelectedModels([model.model_id]);
                             setModelParameters(model.parameters);
-                            setSelectedSku(model.sku || "");
-                            setSelectedLocation(model.location_id || "");
+                            setSelectedSku(model.sku || "all");
+                            setSelectedLocation(model.location_id || "all");
                           }}
                         >
                           Load
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            if (selectedModels.includes(model.model_id)) {
+                              setSelectedModels(prev => prev.filter(id => id !== model.model_id));
+                            } else if (selectedModels.length < 3) {
+                              setSelectedModels(prev => [...prev, model.model_id]);
+                            } else {
+                              toast.warning("Maximum 3 models can be compared at once");
+                            }
+                          }}
+                        >
+                          <BarChart2 className="h-4 w-4 mr-1" />
+                          {selectedModels.includes(model.model_id) ? "Remove" : "Compare"}
                         </Button>
                         <Button 
                           variant="ghost" 
@@ -441,8 +348,13 @@ const ForecastAnalysisTab = () => {
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <p className="text-sm text-muted-foreground">Accuracy</p>
-                            <p className="text-sm font-medium">
+                            <p className="text-sm font-medium flex items-center gap-1">
                               {model.performance_metrics.accuracy.toFixed(2)}%
+                              <TrendingUp className={`h-4 w-4 ${
+                                model.performance_metrics.trend === 'improving' ? 'text-green-500' :
+                                model.performance_metrics.trend === 'declining' ? 'text-red-500' :
+                                'text-yellow-500'
+                              }`} />
                             </p>
                           </div>
                           <div>
@@ -465,7 +377,7 @@ const ForecastAnalysisTab = () => {
                           </div>
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          Trend: {model.performance_metrics.trend}
+                          Last updated: {model.performance_metrics.trained_at}
                         </p>
                       </div>
                     )}
@@ -475,47 +387,113 @@ const ForecastAnalysisTab = () => {
             </ScrollArea>
           </div>
         </Card>
+
+        {selectedModels.length > 0 && (
+          <Card className="p-6">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold">Model Comparison</h3>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => {
+                    setSelectedModels([]);
+                    setSelectedSku("all");
+                    setSelectedLocation("all");
+                  }}
+                >
+                  Clear Comparison
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {savedModels
+                  .filter(model => selectedModels.includes(model.model_id))
+                  .map(model => (
+                    <Card key={model.id} className="p-4 relative">
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-start">
+                          <h4 className="font-medium">{model.model_id}</h4>
+                          <div className="text-xs text-muted-foreground">
+                            {model.sku && <div>SKU: {model.sku}</div>}
+                            {model.location_id && <div>Location: {model.location_id}</div>}
+                          </div>
+                        </div>
+                        {model.performance_metrics && (
+                          <div className="space-y-1">
+                            <div className="flex justify-between">
+                              <span className="text-sm text-muted-foreground">Accuracy:</span>
+                              <span className="text-sm font-medium">
+                                {model.performance_metrics.accuracy.toFixed(2)}%
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-muted-foreground">MAPE:</span>
+                              <span className="text-sm font-medium">
+                                {model.performance_metrics.mape?.toFixed(2)}%
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-muted-foreground">MAE:</span>
+                              <span className="text-sm font-medium">
+                                {model.performance_metrics.mae?.toFixed(2)}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm text-muted-foreground">RMSE:</span>
+                              <span className="text-sm font-medium">
+                                {model.performance_metrics.rmse?.toFixed(2)}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </Card>
+                ))}
+              </div>
+            </div>
+          </Card>
+        )}
+
+        <ForecastMetricsCards metrics={metrics} />
+        
+        <Card className="p-6">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold">Forecast Analysis</h3>
+                <p className="text-sm text-muted-foreground">
+                  Visual analysis of forecasted values with confidence intervals
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Confidence Level:</span>
+                <Select
+                  value={confidenceLevel}
+                  onValueChange={setConfidenceLevel}
+                >
+                  <SelectTrigger className="w-[100px]">
+                    <SelectValue placeholder="95%" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="90">90%</SelectItem>
+                    <SelectItem value="95">95%</SelectItem>
+                    <SelectItem value="99">99%</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="h-[400px]">
+              <ForecastChart 
+                data={sampleData} 
+                confidenceIntervals={sampleConfidenceIntervals}
+                confidenceLevel={Number(confidenceLevel)}
+              />
+            </div>
+          </div>
+        </Card>
+
+        <PatternAnalysisCard data={sampleData} />
       </div>
-
-      <ForecastMetricsCards metrics={metrics} />
-      
-      <Card className="p-6">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold">Forecast Analysis</h3>
-              <p className="text-sm text-muted-foreground">
-                Visual analysis of forecasted values with confidence intervals
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Confidence Level:</span>
-              <Select
-                value={confidenceLevel}
-                onValueChange={setConfidenceLevel}
-              >
-                <SelectTrigger className="w-[100px]">
-                  <SelectValue placeholder="95%" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="90">90%</SelectItem>
-                  <SelectItem value="95">95%</SelectItem>
-                  <SelectItem value="99">99%</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <div className="h-[400px]">
-            <ForecastChart 
-              data={sampleData} 
-              confidenceIntervals={sampleConfidenceIntervals}
-              confidenceLevel={Number(confidenceLevel)}
-            />
-          </div>
-        </div>
-      </Card>
-
-      <PatternAnalysisCard data={sampleData} />
     </div>
   );
 };
