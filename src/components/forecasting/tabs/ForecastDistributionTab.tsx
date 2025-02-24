@@ -129,6 +129,14 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
     { level: "SKU003", forecast: 80, actual: 75, difference: -5 },
   ];
 
+  const reconciliationData = [
+    { name: 'Week 1', before: 120, after: 115, target: 118 },
+    { name: 'Week 2', before: 150, after: 145, target: 148 },
+    { name: 'Week 3', before: 180, after: 175, target: 178 },
+    { name: 'Week 4', before: 135, after: 132, target: 130 },
+    { name: 'Week 5', before: 160, after: 158, target: 155 },
+  ];
+
   const handleReconciliation = () => {
     setIsReconciling(true);
     setTimeout(() => {
@@ -453,8 +461,9 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
 
       {/* Impact Analysis Section */}
       <Card className="p-6 shadow-sm">
-        <div className="space-y-4">
+        <div className="space-y-6">
           <h3 className="text-lg font-semibold">Distribution Impact Analysis</h3>
+          
           <div className="grid gap-6 md:grid-cols-2">
             <div>
               <h4 className="font-medium mb-4">Reconciliation Method</h4>
@@ -533,6 +542,43 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
                   ))}
                 </TableBody>
               </Table>
+            </div>
+          </div>
+
+          {/* Reconciliation Chart */}
+          <div className="mt-6">
+            <h4 className="font-medium mb-4">Reconciliation Comparison</h4>
+            <div className="h-[400px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={reconciliationData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="before" 
+                    stroke="#8884d8" 
+                    name="Before Reconciliation"
+                    strokeWidth={2}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="after" 
+                    stroke="#82ca9d" 
+                    name="After Reconciliation"
+                    strokeWidth={2}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="target" 
+                    stroke="#ffc658" 
+                    name="Target"
+                    strokeDasharray="5 5"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
           </div>
         </div>
