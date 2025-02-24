@@ -89,7 +89,15 @@ export const ModelSelectionCard = ({
         models={[
           { 
             id: '1', 
-            model_id: 'exp-smoothing', 
+            model_id: 'exp-smoothing',
+            parameters: [
+              {
+                name: "alpha",
+                value: 0.3,
+                description: "Smoothing factor for level"
+              }
+            ],
+            created_at: "2024-03-20T00:00:00Z",
             performance_metrics: { 
               accuracy: 85.5,
               trend: "improving",
@@ -100,7 +108,15 @@ export const ModelSelectionCard = ({
           },
           { 
             id: '2', 
-            model_id: 'arima', 
+            model_id: 'arima',
+            parameters: [
+              {
+                name: "p",
+                value: 1,
+                description: "AR order"
+              }
+            ],
+            created_at: "2024-03-19T00:00:00Z",
             performance_metrics: { 
               accuracy: 83.2,
               trend: "stable",
@@ -111,7 +127,15 @@ export const ModelSelectionCard = ({
           },
           { 
             id: '3', 
-            model_id: 'prophet', 
+            model_id: 'prophet',
+            parameters: [
+              {
+                name: "seasonality_mode",
+                value: 0.5,
+                description: "Seasonality mode"
+              }
+            ],
+            created_at: "2024-03-18T00:00:00Z",
             performance_metrics: { 
               accuracy: 81.8,
               trend: "stable",
