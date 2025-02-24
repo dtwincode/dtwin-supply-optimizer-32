@@ -13,7 +13,7 @@ import {
   Legend
 } from "recharts";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface ErrorDistributionProps {
   data: ForecastDataPoint[];
@@ -25,6 +25,13 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
   const [isSynced, setIsSynced] = useState(true);
   const [visibleRange, setVisibleRange] = useState<[number, number]>([0, 0]);
   const [zoomLevel, setZoomLevel] = useState(1);
+  const [distribution, setDistribution] = useState<any[]>([]);
+
+  useEffect(() => {
+    const calculatedDistribution = calculateErrorDistribution();
+    setDistribution(calculatedDistribution);
+    setVisibleRange([0, calculatedDistribution.length]);
+  }, [data]);
 
   const calculateErrorDistribution = () => {
     const errors = data
@@ -55,13 +62,6 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
     return bins;
   };
 
-  const distribution = calculateErrorDistribution();
-
-  // Initialize visible range if not set
-  if (visibleRange[1] === 0) {
-    setVisibleRange([0, distribution.length]);
-  }
-
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const binData = payload[0].payload;
@@ -81,40 +81,48 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
   };
 
   const handleZoomIn = () => {
-    const currentRange = visibleRange[1] - visibleRange[0];
-    const newRange = Math.max(Math.floor(currentRange / 2), 4);
-    const center = Math.floor((visibleRange[0] + visibleRange[1]) / 2);
-    const start = Math.max(0, center - Math.floor(newRange / 2));
-    const end = Math.min(distribution.length, start + newRange);
-    setVisibleRange([start, end]);
-    setZoomLevel(zoomLevel * 2);
-    onBrushChange?.({ startIndex: start, endIndex: end });
+    setVisibleRange(prevRange => {
+      const currentRange = prevRange[1] - prevRange[0];
+      const newRange = Math.max(Math.floor(currentRange / 2), 4);
+      const center = Math.floor((prevRange[0] + prevRange[1]) / 2);
+      const start = Math.max(0, center - Math.floor(newRange / 2));
+      const end = Math.min(distribution.length, start + newRange);
+      onBrushChange?.({ startIndex: start, endIndex: end });
+      return [start, end] as [number, number];
+    });
+    setZoomLevel(prev => prev * 2);
   };
 
   const handleZoomOut = () => {
-    const currentRange = visibleRange[1] - visibleRange[0];
-    const newRange = Math.min(currentRange * 2, distribution.length);
-    const center = Math.floor((visibleRange[0] + visibleRange[1]) / 2);
-    const start = Math.max(0, center - Math.floor(newRange / 2));
-    const end = Math.min(distribution.length, start + newRange);
-    setVisibleRange([start, end]);
-    setZoomLevel(Math.max(1, zoomLevel / 2));
-    onBrushChange?.({ startIndex: start, endIndex: end });
+    setVisibleRange(prevRange => {
+      const currentRange = prevRange[1] - prevRange[0];
+      const newRange = Math.min(currentRange * 2, distribution.length);
+      const center = Math.floor((prevRange[0] + prevRange[1]) / 2);
+      const start = Math.max(0, center - Math.floor(newRange / 2));
+      const end = Math.min(distribution.length, start + newRange);
+      onBrushChange?.({ startIndex: start, endIndex: end });
+      return [start, end] as [number, number];
+    });
+    setZoomLevel(prev => Math.max(1, prev / 2));
   };
 
   const handlePan = (direction: 'left' | 'right') => {
-    const currentRange = visibleRange[1] - visibleRange[0];
-    const shift = Math.max(1, Math.floor(currentRange / 4));
-    
-    if (direction === 'left') {
-      const newStart = Math.max(0, visibleRange[0] - shift);
-      setVisibleRange([newStart, newStart + currentRange]);
-      onBrushChange?.({ startIndex: newStart, endIndex: newStart + currentRange });
-    } else {
-      const newStart = Math.min(distribution.length - currentRange, visibleRange[0] + shift);
-      setVisibleRange([newStart, newStart + currentRange]);
-      onBrushChange?.({ startIndex: newStart, endIndex: newStart + currentRange });
-    }
+    setVisibleRange(prevRange => {
+      const currentRange = prevRange[1] - prevRange[0];
+      const shift = Math.max(1, Math.floor(currentRange / 4));
+      
+      if (direction === 'left') {
+        const newStart = Math.max(0, prevRange[0] - shift);
+        const newEnd = newStart + currentRange;
+        onBrushChange?.({ startIndex: newStart, endIndex: newEnd });
+        return [newStart, newEnd] as [number, number];
+      } else {
+        const newStart = Math.min(distribution.length - currentRange, prevRange[0] + shift);
+        const newEnd = newStart + currentRange;
+        onBrushChange?.({ startIndex: newStart, endIndex: newEnd });
+        return [newStart, newEnd] as [number, number];
+      }
+    });
   };
 
   const resetZoom = () => {
