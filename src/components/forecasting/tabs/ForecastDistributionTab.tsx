@@ -12,8 +12,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Info } from "lucide-react";
+import { Info, Settings2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+
+interface DisaggregationRule {
+  id: string;
+  name: string;
+  type: 'even' | 'weighted' | 'historical' | 'custom';
+  weightingFactor?: number;
+  customPattern?: number[];
+  daysOfWeek?: {
+    [key: string]: number;  // Monday: 1.2, Tuesday: 0.8, etc.
+  };
+  constraints?: {
+    minDaily?: number;
+    maxDaily?: number;
+    minWeekly?: number;
+    maxWeekly?: number;
+  };
+}
 
 interface DistributionData {
   id: string;
@@ -28,6 +47,10 @@ interface DistributionData {
   forecastAccuracy: number;
   serviceLevel: number;
   lastUpdated: string;
+  disaggregationRuleId?: string;
+  manualOverrides?: {
+    [date: string]: number;
+  };
 }
 
 const StepHeader = ({ number, title, description }: { number: number; title: string; description: string }) => (
@@ -46,6 +69,34 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
   const [selectedSKU, setSelectedSKU] = useState<string>("SKU001");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [forecastPeriod, setForecastPeriod] = useState<string>("7");
+  const [disaggregationRules, setDisaggregationRules] = useState<DisaggregationRule[]>([
+    {
+      id: "rule1",
+      name: "Even Distribution",
+      type: "even"
+    },
+    {
+      id: "rule2",
+      name: "Weekday Weighted",
+      type: "weighted",
+      daysOfWeek: {
+        Monday: 1.2,
+        Tuesday: 1.1,
+        Wednesday: 1.0,
+        Thursday: 1.1,
+        Friday: 1.3,
+        Saturday: 0.7,
+        Sunday: 0.6
+      }
+    },
+    {
+      id: "rule3",
+      name: "Custom Pattern",
+      type: "custom",
+      customPattern: [1, 1.2, 0.8, 1.1, 0.9, 0.7, 0.6]
+    }
+  ]);
+
   const [distributionData, setDistributionData] = useState<DistributionData[]>([
     {
       id: "1",
@@ -101,30 +152,101 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
     { value: "365", label: "365 days" },
   ];
 
+  const applyDisaggregationRule = (sku: string, ruleId: string) => {
+    const rule = disaggregationRules.find(r => r.id === ruleId);
+    const skuData = distributionData.find(d => d.sku === sku);
+    
+    if (!rule || !skuData) return;
+
+    const newData = distributionData.map(item => {
+      if (item.sku === sku) {
+        return {
+          ...item,
+          disaggregationRuleId: ruleId
+        };
+      }
+      return item;
+    });
+
+    setDistributionData(newData);
+    toast.success(`Applied ${rule.name} to ${sku}`);
+  };
+
+  const handleManualOverride = (sku: string, date: string, quantity: number) => {
+    const newData = distributionData.map(item => {
+      if (item.sku === sku) {
+        return {
+          ...item,
+          manualOverrides: {
+            ...(item.manualOverrides || {}),
+            [date]: quantity
+          }
+        };
+      }
+      return item;
+    });
+
+    setDistributionData(newData);
+    toast.success(`Manual override set for ${sku} on ${date}`);
+  };
+
   const generateWeeklyDistribution = (sku: string) => {
     const skuData = distributionData.find(d => d.sku === sku);
     if (!skuData) return [];
 
-    return Array.from({ length: 4 }).map((_, i) => ({
-      week: `Week ${i + 1}`,
-      planned: skuData.optimalQuantity / 4,
-      minimum: skuData.minQuantity / 4,
-      maximum: skuData.maxQuantity / 4
-    }));
-  };
+    const rule = disaggregationRules.find(r => r.id === skuData.disaggregationRuleId);
+    const baseQuantity = skuData.optimalQuantity / 4;
 
-  const handleUpdateDistributionData = (newData: DistributionData[]) => {
-    setDistributionData(newData);
+    if (!rule) {
+      return Array.from({ length: 4 }).map((_, i) => ({
+        week: `Week ${i + 1}`,
+        planned: baseQuantity,
+        minimum: skuData.minQuantity / 4,
+        maximum: skuData.maxQuantity / 4
+      }));
+    }
+
+    return Array.from({ length: 4 }).map((_, i) => {
+      let planned = baseQuantity;
+
+      if (rule.type === 'weighted' && rule.weightingFactor) {
+        planned *= rule.weightingFactor;
+      } else if (rule.type === 'custom' && rule.customPattern) {
+        planned *= rule.customPattern[i % rule.customPattern.length];
+      }
+
+      // Apply any manual overrides
+      const weekStart = new Date(selectedDate);
+      weekStart.setDate(weekStart.getDate() + i * 7);
+      const dateKey = weekStart.toISOString().split('T')[0];
+      
+      if (skuData.manualOverrides?.[dateKey]) {
+        planned = skuData.manualOverrides[dateKey];
+      }
+
+      return {
+        week: `Week ${i + 1}`,
+        planned,
+        minimum: skuData.minQuantity / 4,
+        maximum: skuData.maxQuantity / 4
+      };
+    });
   };
 
   return (
     <div className="container mx-auto p-4 space-y-8">
       <div className="bg-card rounded-lg border shadow-sm p-6 space-y-6">
-        <StepHeader 
-          number={1}
-          title="Configure Distribution Parameters"
-          description="Set the forecast timeline and select products for distribution planning"
-        />
+        <div className="flex justify-between items-start">
+          <StepHeader 
+            number={1}
+            title="Configure Distribution Parameters"
+            description="Set the forecast timeline and select products for distribution planning"
+          />
+          <Button variant="outline" size="sm" className="flex items-center gap-2">
+            <Settings2 className="h-4 w-4" />
+            Disaggregation Rules
+          </Button>
+        </div>
         
         <div className="grid gap-6 md:grid-cols-2">
           <Card className="p-6">
