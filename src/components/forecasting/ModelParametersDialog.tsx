@@ -45,9 +45,8 @@ export function ModelParametersDialog({
   const handleAutoOptimize = async () => {
     try {
       setIsOptimizing(true);
-      toast({
-        title: "Optimizing Parameters",
-        description: "Please wait while we find the optimal parameters...",
+      toast("Optimizing Parameters", {
+        description: "Please wait while we find the optimal parameters..."
       });
 
       // Get data from the last year by default
@@ -84,16 +83,13 @@ export function ModelParametersDialog({
           })
         );
 
-        toast({
-          title: "Parameters Optimized",
-          description: `${model.name} parameters have been automatically optimized based on historical data.`,
+        toast("Parameters Optimized", {
+          description: `${model.name} parameters have been automatically optimized based on historical data.`
         });
       }
     } catch (error) {
       console.error('Error during optimization:', error);
-      toast({
-        variant: "destructive",
-        title: "Optimization Error",
+      toast("Optimization Error", {
         description: "Failed to optimize parameters. Please try again.",
       });
     } finally {
@@ -103,9 +99,8 @@ export function ModelParametersDialog({
 
   const handleSave = () => {
     onParametersChange(parameters);
-    toast({
-      title: "Parameters Updated",
-      description: `${model.name} parameters have been updated successfully.`,
+    toast("Parameters Updated", {
+      description: `${model.name} parameters have been updated successfully.`
     });
   };
 
