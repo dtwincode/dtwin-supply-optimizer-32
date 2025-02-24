@@ -168,3 +168,20 @@ export interface PatternAnalysisResult {
   statisticalTests: StatisticalTest[];
   anomalies: PatternAnomaly[];
 }
+
+export interface SavedModelConfig {
+  id: string;
+  model_id: string;
+  sku?: string;
+  location_id?: string;
+  parameters: ModelParameter[];
+  created_at: string;
+  performance_metrics?: {
+    accuracy: number;
+    trend: 'improving' | 'stable' | 'declining';
+    trained_at: string;
+    mape?: number;
+    mae?: number;
+    rmse?: number;
+  };
+}
