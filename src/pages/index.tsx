@@ -8,10 +8,10 @@ import ModuleSummaryCards from "@/components/dashboard/ModuleSummaryCards";
 import DashboardCharts from "@/components/dashboard/DashboardCharts";
 import SustainabilityMetrics from "@/components/dashboard/SustainabilityMetrics";
 import { memo, Suspense, useState, useEffect } from "react";
-import { cn } from "@/lib/utils";  // Added this import
+import { cn } from "@/lib/utils";
 
 const LoadingFallback = () => (
-  <div className="min-h-screen bg-background animate-in fade-in duration-300">
+  <div className="fixed inset-0 bg-background animate-in fade-in duration-500">
     <div className="animate-pulse space-y-4 p-6">
       <div className="h-8 w-48 bg-gray-200 rounded"></div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -28,10 +28,10 @@ const Index = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Short delay to ensure smooth transition
+    // Increased delay for smoother transition
     const timer = setTimeout(() => {
       setIsVisible(true);
-    }, 100);
+    }, 500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -40,12 +40,12 @@ const Index = () => {
       <Suspense fallback={<LoadingFallback />}>
         <div 
           className={cn(
-            "space-y-6 transition-all duration-300 ease-in-out",
+            "space-y-6 transition-all duration-500 ease-in-out",
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           )} 
           dir={isRTL ? 'rtl' : 'ltr'}
         >
-          <section>
+          <section className="transition-opacity duration-500">
             <h3 className="font-display text-2xl font-semibold mb-4">
               {getTranslation('dashboard', language)}
             </h3>
@@ -59,7 +59,7 @@ const Index = () => {
 };
 
 const MemoizedMetrics = memo(() => (
-  <div className="transition-opacity duration-300">
+  <div className="transition-all duration-500 ease-in-out">
     <DashboardMetrics />
     <FinancialMetrics />
     <SustainabilityMetrics />

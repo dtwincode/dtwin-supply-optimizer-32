@@ -19,31 +19,43 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
-  // Handle initial auth check and loading state
+  // Handle initial auth check and loading state with longer delays
   useEffect(() => {
-    if (!user) {
-      navigate('/auth');
-    } else {
-      // Add a slight delay before removing loading state to ensure smooth transition
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 300);
-    }
+    document.body.style.opacity = '0';
+    const initialDelay = setTimeout(() => {
+      document.body.style.opacity = '1';
+      document.body.style.transition = 'opacity 0.5s ease-in-out';
+      
+      if (!user) {
+        navigate('/auth');
+      } else {
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 500); // Increased delay for smoother transition
+      }
+    }, 100);
+
+    return () => {
+      clearTimeout(initialDelay);
+      document.body.style.opacity = '';
+      document.body.style.transition = '';
+    };
   }, [user, navigate]);
 
   // Handle content visibility after loading completes
   useEffect(() => {
     if (!isLoading) {
-      // Delay showing content to ensure smooth transition
-      setTimeout(() => {
+      const visibilityDelay = setTimeout(() => {
         setIsContentVisible(true);
-      }, 100);
+      }, 300); // Increased delay for content visibility
+
+      return () => clearTimeout(visibilityDelay);
     }
   }, [isLoading]);
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 bg-background flex items-center justify-center transition-opacity duration-300">
+      <div className="fixed inset-0 bg-background flex items-center justify-center transition-all duration-500">
         <div className="animate-pulse space-y-4">
           <div className="h-8 w-48 bg-gray-200 rounded"></div>
           <div className="h-32 w-96 bg-gray-200 rounded"></div>
@@ -61,13 +73,13 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       className={cn(
         "min-h-screen bg-background",
         isContentVisible ? "opacity-100" : "opacity-0",
-        "transition-all duration-300 ease-in-out"
+        "transition-all duration-500 ease-in-out"
       )} 
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       <div
         className={cn(
-          "fixed top-0 h-screen transition-transform duration-300 ease-out z-40",
+          "fixed top-0 h-screen transition-all duration-500 ease-out z-40",
           isRTL ? 'right-0' : 'left-0',
           sidebarOpen ? "translate-x-0" : isRTL ? 'translate-x-full' : '-translate-x-full'
         )}
@@ -99,7 +111,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
       <div
         className={cn(
-          "transition-all duration-300 ease-in-out",
+          "transition-all duration-500 ease-in-out",
           sidebarOpen ? (isRTL ? 'mr-64' : 'ml-64') : 'ml-0'
         )}
       >
@@ -114,8 +126,8 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
         <main 
           className={cn(
-            "transition-opacity duration-300 ease-in-out",
-            isContentVisible ? "opacity-100" : "opacity-0"
+            "transition-all duration-500 ease-in-out",
+            isContentVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           )}
         >
           <div className="p-6">
