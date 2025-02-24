@@ -173,15 +173,21 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
                 <Legend />
                 <Line
                   type="monotone"
-                  dataKey="forecast"
-                  stroke="#8884d8"
-                  name="Original Forecast"
-                />
-                <Line
-                  type="monotone"
                   dataKey="actual"
                   stroke="#82ca9d"
                   name="Reconciled Forecast"
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                  zIndex={2}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="forecast"
+                  stroke="#8884d8"
+                  name="Original Forecast"
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                  zIndex={1}
                 />
               </LineChart>
             </ResponsiveContainer>
