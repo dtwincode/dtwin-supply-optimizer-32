@@ -41,14 +41,20 @@ interface DistributionData {
   id: string;
   sku: string;
   category: string;
+  currentStock: number;
   minQuantity: number;
   optimalQuantity: number;
   maxQuantity: number;
+  leadTime: number;
+  safetyStock: number;
+  forecastAccuracy: number;
+  serviceLevel: number;
+  lastUpdated: string;
 }
 
 interface EditableCell {
   rowId: string;
-  field: 'minQuantity' | 'optimalQuantity' | 'maxQuantity';
+  field: 'minQuantity' | 'optimalQuantity' | 'maxQuantity' | 'safetyStock' | 'serviceLevel';
   value: number;
 }
 
@@ -60,25 +66,43 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
       id: "1",
       sku: "SKU001",
       category: "Electronics",
+      currentStock: 120,
       minQuantity: 100,
       optimalQuantity: 150,
-      maxQuantity: 200
+      maxQuantity: 200,
+      leadTime: 14,
+      safetyStock: 50,
+      forecastAccuracy: 85,
+      serviceLevel: 95,
+      lastUpdated: "2024-03-25"
     },
     {
       id: "2",
       sku: "SKU002",
       category: "Appliances",
+      currentStock: 60,
       minQuantity: 50,
       optimalQuantity: 75,
-      maxQuantity: 100
+      maxQuantity: 100,
+      leadTime: 21,
+      safetyStock: 25,
+      forecastAccuracy: 78,
+      serviceLevel: 92,
+      lastUpdated: "2024-03-25"
     },
     {
       id: "3",
       sku: "SKU003",
       category: "Furniture",
+      currentStock: 35,
       minQuantity: 25,
       optimalQuantity: 40,
-      maxQuantity: 60
+      maxQuantity: 60,
+      leadTime: 30,
+      safetyStock: 15,
+      forecastAccuracy: 92,
+      serviceLevel: 98,
+      lastUpdated: "2024-03-25"
     }
   ]);
 
@@ -106,7 +130,7 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
     }, 1500);
   };
 
-  const handleStartEdit = (rowId: string, field: 'minQuantity' | 'optimalQuantity' | 'maxQuantity', value: number) => {
+  const handleStartEdit = (rowId: string, field: EditableCell['field'], value: number) => {
     setEditingCell({ rowId, field, value });
   };
 
@@ -151,7 +175,8 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
       if (item.id === editingCell.rowId) {
         return {
           ...item,
-          [editingCell.field]: numValue
+          [editingCell.field]: numValue,
+          lastUpdated: new Date().toISOString().split('T')[0]
         };
       }
       return item;
@@ -169,30 +194,49 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
     setEditingCell(null);
   };
 
+  const getServiceLevelColor = (level: number) => {
+    if (level >= 95) return "text-green-600";
+    if (level >= 90) return "text-yellow-600";
+    return "text-red-600";
+  };
+
+  const getForecastAccuracyColor = (accuracy: number) => {
+    if (accuracy >= 90) return "text-green-600";
+    if (accuracy >= 80) return "text-yellow-600";
+    return "text-red-600";
+  };
+
   return (
     <div className="space-y-6">
       {/* Distribution Table */}
       <Card className="p-6">
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Distribution Quantities</h3>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>SKU</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead className="text-right">Min Quantity</TableHead>
-                <TableHead className="text-right">Optimal Quantity</TableHead>
-                <TableHead className="text-right">Max Quantity</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {distributionData.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell>{row.sku}</TableCell>
-                  <TableCell>{row.category}</TableCell>
-                  {(['minQuantity', 'optimalQuantity', 'maxQuantity'] as const).map((field) => (
-                    <TableCell key={field} className="text-right">
-                      {editingCell?.rowId === row.id && editingCell?.field === field ? (
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>SKU</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead className="text-right">Current Stock</TableHead>
+                  <TableHead className="text-right">Min Quantity</TableHead>
+                  <TableHead className="text-right">Optimal Quantity</TableHead>
+                  <TableHead className="text-right">Max Quantity</TableHead>
+                  <TableHead className="text-right">Lead Time (days)</TableHead>
+                  <TableHead className="text-right">Safety Stock</TableHead>
+                  <TableHead className="text-right">Forecast Accuracy (%)</TableHead>
+                  <TableHead className="text-right">Service Level (%)</TableHead>
+                  <TableHead>Last Updated</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {distributionData.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell>{row.sku}</TableCell>
+                    <TableCell>{row.category}</TableCell>
+                    <TableCell className="text-right">{row.currentStock}</TableCell>
+                    <TableCell className="text-right">
+                      {editingCell?.rowId === row.id && editingCell?.field === 'minQuantity' ? (
                         <div className="flex items-center justify-end gap-2">
                           <Input
                             type="number"
@@ -227,17 +271,151 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
                       ) : (
                         <div
                           className="cursor-pointer hover:bg-muted px-2 py-1 rounded"
-                          onClick={() => handleStartEdit(row.id, field, row[field])}
+                          onClick={() => handleStartEdit(row.id, 'minQuantity', row.minQuantity)}
                         >
-                          {row[field]}
+                          {row.minQuantity}
                         </div>
                       )}
                     </TableCell>
-                  ))}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                    <TableCell className="text-right">
+                      {editingCell?.rowId === row.id && editingCell?.field === 'optimalQuantity' ? (
+                        <div className="flex items-center justify-end gap-2">
+                          <Input
+                            type="number"
+                            defaultValue={editingCell.value}
+                            className="w-24 text-right"
+                            autoFocus
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                handleSave((e.target as HTMLInputElement).value);
+                              } else if (e.key === 'Escape') {
+                                handleCancel();
+                              }
+                            }}
+                          />
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleSave((document.querySelector('input[type="number"]') as HTMLInputElement).value)}
+                            >
+                              <Save className="h-4 w-4 text-green-600" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={handleCancel}
+                            >
+                              <X className="h-4 w-4 text-red-600" />
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          className="cursor-pointer hover:bg-muted px-2 py-1 rounded"
+                          onClick={() => handleStartEdit(row.id, 'optimalQuantity', row.optimalQuantity)}
+                        >
+                          {row.optimalQuantity}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {editingCell?.rowId === row.id && editingCell?.field === 'maxQuantity' ? (
+                        <div className="flex items-center justify-end gap-2">
+                          <Input
+                            type="number"
+                            defaultValue={editingCell.value}
+                            className="w-24 text-right"
+                            autoFocus
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                handleSave((e.target as HTMLInputElement).value);
+                              } else if (e.key === 'Escape') {
+                                handleCancel();
+                              }
+                            }}
+                          />
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleSave((document.querySelector('input[type="number"]') as HTMLInputElement).value)}
+                            >
+                              <Save className="h-4 w-4 text-green-600" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={handleCancel}
+                            >
+                              <X className="h-4 w-4 text-red-600" />
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          className="cursor-pointer hover:bg-muted px-2 py-1 rounded"
+                          onClick={() => handleStartEdit(row.id, 'maxQuantity', row.maxQuantity)}
+                        >
+                          {row.maxQuantity}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">{row.leadTime}</TableCell>
+                    <TableCell className="text-right">
+                      {editingCell?.rowId === row.id && editingCell?.field === 'safetyStock' ? (
+                        <div className="flex items-center justify-end gap-2">
+                          <Input
+                            type="number"
+                            defaultValue={editingCell.value}
+                            className="w-24 text-right"
+                            autoFocus
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                handleSave((e.target as HTMLInputElement).value);
+                              } else if (e.key === 'Escape') {
+                                handleCancel();
+                              }
+                            }}
+                          />
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleSave((document.querySelector('input[type="number"]') as HTMLInputElement).value)}
+                            >
+                              <Save className="h-4 w-4 text-green-600" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={handleCancel}
+                            >
+                              <X className="h-4 w-4 text-red-600" />
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          className="cursor-pointer hover:bg-muted px-2 py-1 rounded"
+                          onClick={() => handleStartEdit(row.id, 'safetyStock', row.safetyStock)}
+                        >
+                          {row.safetyStock}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className={`text-right ${getForecastAccuracyColor(row.forecastAccuracy)}`}>
+                      {row.forecastAccuracy}%
+                    </TableCell>
+                    <TableCell className={`text-right ${getServiceLevelColor(row.serviceLevel)}`}>
+                      {row.serviceLevel}%
+                    </TableCell>
+                    <TableCell>{row.lastUpdated}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       </Card>
 
