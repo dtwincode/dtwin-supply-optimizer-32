@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,31 +31,20 @@ import { useToast } from "@/components/ui/use-toast";
 
 interface ImpactAnalysisProps {
   onReconciliationComplete: () => void;
+  forecastPeriod: string;
 }
 
-export const ImpactAnalysis = ({ onReconciliationComplete }: ImpactAnalysisProps) => {
+export const ImpactAnalysis = ({ onReconciliationComplete, forecastPeriod }: ImpactAnalysisProps) => {
   const { toast } = useToast();
   const [reconciliationMethod, setReconciliationMethod] = useState<"top-down" | "bottom-up">("top-down");
   const [selectedLevel, setSelectedLevel] = useState<string>("product");
   const [isReconciling, setIsReconciling] = useState(false);
-  const [forecastPeriod, setForecastPeriod] = useState<string>("7");
-  const [periodUnit, setPeriodUnit] = useState<string>("days");
 
   const hierarchyLevels = [
     { value: "product", label: "Product Level" },
     { value: "category", label: "Category Level" },
     { value: "region", label: "Regional Level" },
     { value: "total", label: "Total Level" },
-  ];
-
-  const periodOptions = [
-    { value: "7", label: "7 days" },
-    { value: "14", label: "14 days" },
-    { value: "30", label: "30 days" },
-    { value: "60", label: "60 days" },
-    { value: "90", label: "90 days" },
-    { value: "180", label: "180 days" },
-    { value: "365", label: "365 days" },
   ];
 
   const mockData = [
@@ -79,7 +67,7 @@ export const ImpactAnalysis = ({ onReconciliationComplete }: ImpactAnalysisProps
       setIsReconciling(false);
       toast({
         title: "Reconciliation Complete",
-        description: `Distribution quantities have been reconciled for the next ${forecastPeriod} ${periodUnit}`
+        description: `Distribution quantities have been reconciled for the next ${forecastPeriod} days`
       });
       onReconciliationComplete();
     }, 1500);
@@ -92,25 +80,8 @@ export const ImpactAnalysis = ({ onReconciliationComplete }: ImpactAnalysisProps
         
         <div className="grid gap-6 md:grid-cols-2">
           <div>
-            <h4 className="font-medium mb-4">Forecast Configuration</h4>
+            <h4 className="font-medium mb-4">Reconciliation Configuration</h4>
             <div className="space-y-4">
-              {/* Forecast Period Selector */}
-              <div className="space-y-2">
-                <label className="text-sm text-muted-foreground">Forecast Timeline</label>
-                <Select value={forecastPeriod} onValueChange={setForecastPeriod}>
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="Select period" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {periodOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
               <div className="space-y-2">
                 <label className="text-sm text-muted-foreground">Reconciliation Method</label>
                 <Select
@@ -194,7 +165,6 @@ export const ImpactAnalysis = ({ onReconciliationComplete }: ImpactAnalysisProps
           </div>
         </div>
 
-        {/* Reconciliation Chart */}
         <div className="mt-6">
           <h4 className="font-medium mb-4">Reconciliation Comparison</h4>
           <div className="h-[400px] w-full">

@@ -1,8 +1,17 @@
+
 import { useState } from "react";
 import { DistributionQuantitiesTable } from "../components/distribution/DistributionQuantitiesTable";
 import { ImpactAnalysis } from "../components/distribution/ImpactAnalysis";
 import { DistributionCharts } from "../components/distribution/DistributionCharts";
 import { DistributionCalendar } from "../components/distribution/DistributionCalendar";
+import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface DistributionData {
   id: string;
@@ -22,6 +31,7 @@ interface DistributionData {
 export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableData: any[] }) => {
   const [selectedSKU, setSelectedSKU] = useState<string>("SKU001");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [forecastPeriod, setForecastPeriod] = useState<string>("7");
   const [distributionData, setDistributionData] = useState<DistributionData[]>([
     {
       id: "1",
@@ -67,6 +77,16 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
     }
   ]);
 
+  const periodOptions = [
+    { value: "7", label: "7 days" },
+    { value: "14", label: "14 days" },
+    { value: "30", label: "30 days" },
+    { value: "60", label: "60 days" },
+    { value: "90", label: "90 days" },
+    { value: "180", label: "180 days" },
+    { value: "365", label: "365 days" },
+  ];
+
   const generateWeeklyDistribution = (sku: string) => {
     const skuData = distributionData.find(d => d.sku === sku);
     if (!skuData) return [];
@@ -85,15 +105,43 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
 
   return (
     <div className="container mx-auto p-4 space-y-8">
+      {/* Forecast Period Selector */}
+      <Card className="p-6 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Forecast Timeline</h3>
+            <p className="text-sm text-muted-foreground">
+              Select the time period for distribution forecast calculations
+            </p>
+          </div>
+          <div className="w-[200px]">
+            <Select value={forecastPeriod} onValueChange={setForecastPeriod}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select period" />
+              </SelectTrigger>
+              <SelectContent>
+                {periodOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </Card>
+
       <DistributionQuantitiesTable
         distributionData={distributionData}
         onUpdateDistributionData={handleUpdateDistributionData}
+        forecastPeriod={forecastPeriod}
       />
 
       <ImpactAnalysis
         onReconciliationComplete={() => {
           // Handle reconciliation completion
         }}
+        forecastPeriod={forecastPeriod}
       />
 
       <DistributionCharts
@@ -101,6 +149,7 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
         distributionData={distributionData}
         weeklyDistribution={generateWeeklyDistribution(selectedSKU)}
         onSelectSKU={setSelectedSKU}
+        forecastPeriod={forecastPeriod}
       />
 
       <DistributionCalendar
