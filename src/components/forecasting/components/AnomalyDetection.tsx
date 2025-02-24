@@ -75,18 +75,21 @@ export const AnomalyDetection = ({ data }: AnomalyDetectionProps) => {
   return (
     <Card className="p-6">
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between border-b pb-4">
           <h3 className="text-lg font-semibold">Anomaly Detection</h3>
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3 bg-muted/50 px-3 py-2 rounded-lg">
               <Switch
                 id="show-outliers"
                 checked={showOutliers}
                 onCheckedChange={setShowOutliers}
+                className="data-[state=checked]:bg-primary"
               />
-              <Label htmlFor="show-outliers">Show Outliers</Label>
+              <Label htmlFor="show-outliers" className="font-medium cursor-pointer">
+                Show Outliers
+              </Label>
             </div>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm bg-yellow-100 text-yellow-800 px-3 py-1.5 rounded-full font-medium">
               {anomalies.length} anomalies detected
             </span>
           </div>
@@ -158,7 +161,7 @@ export const AnomalyDetection = ({ data }: AnomalyDetectionProps) => {
           </ResponsiveContainer>
         </div>
         {showOutliers && anomalies.length > 0 && (
-          <div className="space-y-2">
+          <div className="space-y-2 mt-4 p-4 bg-muted/50 rounded-lg">
             <h4 className="text-sm font-medium">Detected Anomalies</h4>
             <div className="space-y-1">
               {anomalies.map((anomaly, index) => (
