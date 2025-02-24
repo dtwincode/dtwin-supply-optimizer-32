@@ -212,12 +212,10 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
     return "text-red-600";
   };
 
-  // Generate weekly distribution data
   const generateWeeklyDistribution = (sku: string) => {
     const skuData = distributionData.find(d => d.sku === sku);
     if (!skuData) return [];
 
-    // Generate 4 weeks of data
     return Array.from({ length: 4 }).map((_, i) => ({
       week: `Week ${i + 1}`,
       planned: skuData.optimalQuantity / 4,
@@ -226,7 +224,6 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
     }));
   };
 
-  // Transform data for the quantities comparison chart
   const getQuantitiesChartData = () => {
     return distributionData.map(item => ({
       sku: item.sku,
@@ -238,9 +235,8 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
   };
 
   return (
-    <div className="space-y-6">
-      {/* Distribution Table */}
-      <Card className="p-6">
+    <div className="container mx-auto p-4 space-y-8">
+      <Card className="p-6 shadow-sm">
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Distribution Quantities</h3>
           <div className="overflow-x-auto">
@@ -450,13 +446,11 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
         </div>
       </Card>
 
-      {/* Distribution Charts Section */}
       <div className="grid gap-6 grid-cols-1 xl:grid-cols-2">
-        {/* Quantities Comparison Chart */}
-        <Card className="p-6">
+        <Card className="p-6 shadow-sm">
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Distribution Quantities Comparison</h3>
-            <div className="h-[400px]">
+            <div className="h-[400px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={getQuantitiesChartData()}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -474,10 +468,9 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
           </div>
         </Card>
 
-        {/* Weekly Distribution View */}
-        <Card className="p-6">
+        <Card className="p-6 shadow-sm">
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Weekly Distribution</h3>
               <Select value={selectedSKU} onValueChange={setSelectedSKU}>
                 <SelectTrigger className="w-[200px]">
@@ -492,7 +485,7 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
                 </SelectContent>
               </Select>
             </div>
-            <div className="h-[400px]">
+            <div className="h-[400px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={generateWeeklyDistribution(selectedSKU)}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -527,11 +520,10 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
           </div>
         </Card>
 
-        {/* Calendar View */}
-        <Card className="p-6">
+        <Card className="p-6 shadow-sm">
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Distribution Calendar</h3>
-            <div className="flex items-center space-x-4">
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
               <div className="flex-1">
                 <Calendar
                   mode="single"
