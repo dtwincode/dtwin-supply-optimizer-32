@@ -39,12 +39,24 @@ export const ImpactAnalysis = ({ onReconciliationComplete }: ImpactAnalysisProps
   const [reconciliationMethod, setReconciliationMethod] = useState<"top-down" | "bottom-up">("top-down");
   const [selectedLevel, setSelectedLevel] = useState<string>("product");
   const [isReconciling, setIsReconciling] = useState(false);
+  const [forecastPeriod, setForecastPeriod] = useState<string>("7");
+  const [periodUnit, setPeriodUnit] = useState<string>("days");
 
   const hierarchyLevels = [
     { value: "product", label: "Product Level" },
     { value: "category", label: "Category Level" },
     { value: "region", label: "Regional Level" },
     { value: "total", label: "Total Level" },
+  ];
+
+  const periodOptions = [
+    { value: "7", label: "7 days" },
+    { value: "14", label: "14 days" },
+    { value: "30", label: "30 days" },
+    { value: "60", label: "60 days" },
+    { value: "90", label: "90 days" },
+    { value: "180", label: "180 days" },
+    { value: "365", label: "365 days" },
   ];
 
   const mockData = [
@@ -67,7 +79,7 @@ export const ImpactAnalysis = ({ onReconciliationComplete }: ImpactAnalysisProps
       setIsReconciling(false);
       toast({
         title: "Reconciliation Complete",
-        description: "Distribution quantities have been reconciled successfully."
+        description: `Distribution quantities have been reconciled for the next ${forecastPeriod} ${periodUnit}`
       });
       onReconciliationComplete();
     }, 1500);
@@ -80,38 +92,61 @@ export const ImpactAnalysis = ({ onReconciliationComplete }: ImpactAnalysisProps
         
         <div className="grid gap-6 md:grid-cols-2">
           <div>
-            <h4 className="font-medium mb-4">Reconciliation Method</h4>
+            <h4 className="font-medium mb-4">Forecast Configuration</h4>
             <div className="space-y-4">
-              <Select
-                value={reconciliationMethod}
-                onValueChange={(value: "top-down" | "bottom-up") => setReconciliationMethod(value)}
-              >
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Select method" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="top-down">Top-Down</SelectItem>
-                  <SelectItem value="bottom-up">Bottom-Up</SelectItem>
-                </SelectContent>
-              </Select>
+              {/* Forecast Period Selector */}
+              <div className="space-y-2">
+                <label className="text-sm text-muted-foreground">Forecast Timeline</label>
+                <Select value={forecastPeriod} onValueChange={setForecastPeriod}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Select period" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {periodOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-              <Select value={selectedLevel} onValueChange={setSelectedLevel}>
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Select level" />
-                </SelectTrigger>
-                <SelectContent>
-                  {hierarchyLevels.map((level) => (
-                    <SelectItem key={level.value} value={level.value}>
-                      {level.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="space-y-2">
+                <label className="text-sm text-muted-foreground">Reconciliation Method</label>
+                <Select
+                  value={reconciliationMethod}
+                  onValueChange={(value: "top-down" | "bottom-up") => setReconciliationMethod(value)}
+                >
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Select method" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="top-down">Top-Down</SelectItem>
+                    <SelectItem value="bottom-up">Bottom-Up</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm text-muted-foreground">Hierarchy Level</label>
+                <Select value={selectedLevel} onValueChange={setSelectedLevel}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Select level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {hierarchyLevels.map((level) => (
+                      <SelectItem key={level.value} value={level.value}>
+                        {level.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
               <Button 
                 onClick={handleReconciliation}
                 disabled={isReconciling}
-                className="w-[200px]"
+                className="w-[200px] mt-4"
               >
                 {isReconciling ? (
                   <>
