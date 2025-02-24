@@ -15,10 +15,11 @@ import {
 } from "@/components/ui/select";
 import { ModelParameter } from "@/types/models/commonTypes";
 import { Button } from "@/components/ui/button";
-import { PlayCircle, Wand2 } from "lucide-react";
+import { PlayCircle, Settings2, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 import { findBestFitModel, getModelExample } from "@/utils/forecasting/modelSelection";
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
 
 interface ModelSelectionCardProps {
   selectedModel: string;
@@ -60,7 +61,7 @@ export const ModelSelectionCard = ({
       const modelResults = allModels.map(model => ({
         modelId: model.id,
         modelName: model.name,
-        forecast: data.map((val, i) => val * (1 + Math.sin(i) * 0.1)) // Dummy forecast
+        forecast: data.map((val, i) => val * (1 + Math.sin(i) * 0.1))
       }));
 
       const bestModel = findBestFitModel(data, modelResults);
@@ -71,7 +72,6 @@ export const ModelSelectionCard = ({
         description: modelExample.description
       });
 
-      // Update parameters if available
       if (bestModel.optimizedParameters) {
         onParametersChange(bestModel.modelId, bestModel.optimizedParameters);
       }
@@ -84,65 +84,107 @@ export const ModelSelectionCard = ({
   };
 
   return (
-    <Card className="p-6">
-      <div className="space-y-4">
-        <div className="space-y-1">
-          <h3 className="text-lg font-semibold">Model Selection</h3>
-          <p className="text-sm text-muted-foreground">
-            Choose and configure your forecasting model
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="md:col-span-2">
-            <Select
-              value={selectedModel}
-              onValueChange={onModelChange}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Choose a model" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Available Models</SelectLabel>
-                  {allModels.map((model) => (
-                    <SelectItem key={model.id} value={model.id}>
-                      {model.name}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <ModelParametersDialog
-              model={currentModel}
-              onParametersChange={handleParametersChange}
-            />
-          </div>
-
-          <div className="flex gap-2">
-            <Button 
-              onClick={handleRunModel}
-              className="flex-1"
-              variant="default"
-            >
-              <PlayCircle className="mr-2 h-4 w-4" />
-              Run Model
-            </Button>
-            <Button
-              onClick={handleAutomaticSelection}
-              variant="secondary"
-              disabled={isAutoSelecting}
-              className="flex-1"
-            >
-              <Wand2 className="mr-2 h-4 w-4" />
-              Auto Select
-            </Button>
-          </div>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold tracking-tight mb-2">Model Selection & Comparison</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Input 
+            type="search" 
+            placeholder="Search models..." 
+            className="w-full"
+          />
+          <Select defaultValue="all-skus">
+            <SelectTrigger>
+              <SelectValue placeholder="All SKUs" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all-skus">All SKUs</SelectItem>
+              <SelectItem value="selected">Selected SKUs</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select defaultValue="all-locations">
+            <SelectTrigger>
+              <SelectValue placeholder="All Locations" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all-locations">All Locations</SelectItem>
+              <SelectItem value="selected">Selected Locations</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
-    </Card>
+
+      <Card className="p-6">
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <h3 className="text-xl font-semibold">Model Selection</h3>
+            <p className="text-muted-foreground">
+              Choose and configure your forecasting model
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+            <div className="md:col-span-2">
+              <Select
+                value={selectedModel}
+                onValueChange={onModelChange}
+              >
+                <SelectTrigger className="h-10">
+                  <SelectValue placeholder="Choose a model" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Available Models</SelectLabel>
+                    {allModels.map((model) => (
+                      <SelectItem key={model.id} value={model.id}>
+                        {model.name}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Button 
+                variant="outline" 
+                className="w-full h-10"
+                asChild
+              >
+                <ModelParametersDialog
+                  model={currentModel}
+                  onParametersChange={handleParametersChange}
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <Settings2 className="h-4 w-4" />
+                    Parameters
+                  </div>
+                </ModelParametersDialog>
+              </Button>
+            </div>
+
+            <div className="flex gap-2">
+              <Button 
+                onClick={handleRunModel}
+                className="flex-1 h-10"
+                variant="default"
+              >
+                <PlayCircle className="mr-2 h-4 w-4" />
+                Run Model
+              </Button>
+              <Button
+                onClick={handleAutomaticSelection}
+                variant="secondary"
+                disabled={isAutoSelecting}
+                className="flex-1 h-10"
+              >
+                <Wand2 className="mr-2 h-4 w-4" />
+                Auto Select
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </div>
   );
 };
