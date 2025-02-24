@@ -28,12 +28,10 @@ interface DisaggregationRule {
   type: 'even' | 'weighted' | 'historical' | 'custom';
   weightingFactor?: number;
   customPattern?: number[];
-  daysOfWeek?: {
-    [key: string]: number;
+  weekPattern?: {
+    [key: string]: number;  // Week1: 1.2, Week2: 0.8, etc.
   };
   constraints?: {
-    minDaily?: number;
-    maxDaily?: number;
     minWeekly?: number;
     maxWeekly?: number;
   };
@@ -77,7 +75,7 @@ export function DisaggregationRulesDialog({ rules, onUpdateRules }: Props) {
         <DialogHeader className="mb-4">
           <DialogTitle>Configure Disaggregation Rules</DialogTitle>
           <DialogDescription>
-            Define how forecast quantities should be distributed across time periods
+            Define how forecast quantities should be distributed across weeks
           </DialogDescription>
         </DialogHeader>
 
@@ -129,21 +127,21 @@ export function DisaggregationRulesDialog({ rules, onUpdateRules }: Props) {
 
                 {selectedRule.type === 'weighted' && (
                   <div className="grid gap-3">
-                    <Label>Day of Week Weights</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
-                        <div key={day} className="grid gap-1.5">
-                          <Label className="text-xs">{day}</Label>
+                    <Label>Weekly Weights</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {['Week 1', 'Week 2', 'Week 3', 'Week 4'].map((week) => (
+                        <div key={week} className="grid gap-1.5">
+                          <Label className="text-xs">{week}</Label>
                           <Input
                             type="number"
                             step="0.1"
-                            value={selectedRule.daysOfWeek?.[day] || 1}
+                            value={selectedRule.weekPattern?.[week] || 1}
                             onChange={(e) => {
                               const value = parseFloat(e.target.value);
                               handleUpdateRule({
-                                daysOfWeek: {
-                                  ...(selectedRule.daysOfWeek || {}),
-                                  [day]: value
+                                weekPattern: {
+                                  ...(selectedRule.weekPattern || {}),
+                                  [week]: value
                                 }
                               });
                             }}
@@ -165,36 +163,36 @@ export function DisaggregationRulesDialog({ rules, onUpdateRules }: Props) {
                           handleUpdateRule({ customPattern: values });
                         }
                       }}
-                      placeholder="1, 1.2, 0.8, 1.1, 0.9, 0.7, 0.6"
+                      placeholder="1, 1.2, 0.8, 1.1"
                     />
                   </div>
                 )}
 
                 <div className="grid gap-2">
-                  <Label>Constraints</Label>
+                  <Label>Weekly Constraints</Label>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="grid gap-1.5">
-                      <Label className="text-xs">Min Daily</Label>
+                      <Label className="text-xs">Min Weekly</Label>
                       <Input
                         type="number"
-                        value={selectedRule.constraints?.minDaily || 0}
+                        value={selectedRule.constraints?.minWeekly || 0}
                         onChange={(e) => handleUpdateRule({
                           constraints: {
                             ...(selectedRule.constraints || {}),
-                            minDaily: parseInt(e.target.value)
+                            minWeekly: parseInt(e.target.value)
                           }
                         })}
                       />
                     </div>
                     <div className="grid gap-1.5">
-                      <Label className="text-xs">Max Daily</Label>
+                      <Label className="text-xs">Max Weekly</Label>
                       <Input
                         type="number"
-                        value={selectedRule.constraints?.maxDaily || 0}
+                        value={selectedRule.constraints?.maxWeekly || 0}
                         onChange={(e) => handleUpdateRule({
                           constraints: {
                             ...(selectedRule.constraints || {}),
-                            maxDaily: parseInt(e.target.value)
+                            maxWeekly: parseInt(e.target.value)
                           }
                         })}
                       />
