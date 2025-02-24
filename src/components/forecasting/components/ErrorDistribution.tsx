@@ -19,6 +19,7 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
     const calculatedDistribution = calculateErrorDistribution(data);
     setDistribution(calculatedDistribution);
     setVisibleRange([0, calculatedDistribution.length]);
+    setZoomLevel(1);
   }, [data]);
 
   const handleZoomIn = () => {
@@ -27,8 +28,10 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
     const currentRange = visibleRange[1] - visibleRange[0];
     const newRange = Math.max(Math.floor(currentRange / 2), 4);
     const center = Math.floor((visibleRange[0] + visibleRange[1]) / 2);
-    const start = Math.max(0, center - Math.floor(newRange / 2));
-    const end = Math.min(distribution.length, start + newRange);
+    const start = Math.max(0, Math.floor(center - newRange / 2));
+    const end = Math.min(distribution.length, Math.floor(center + newRange / 2));
+    
+    console.log('Zoom In:', { start, end, newRange, currentRange });
     
     setVisibleRange([start, end]);
     setZoomLevel(prev => prev * 2);
@@ -41,8 +44,10 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
     const currentRange = visibleRange[1] - visibleRange[0];
     const newRange = Math.min(currentRange * 2, distribution.length);
     const center = Math.floor((visibleRange[0] + visibleRange[1]) / 2);
-    const start = Math.max(0, center - Math.floor(newRange / 2));
-    const end = Math.min(distribution.length, start + newRange);
+    const start = Math.max(0, Math.floor(center - newRange / 2));
+    const end = Math.min(distribution.length, Math.floor(center + newRange / 2));
+    
+    console.log('Zoom Out:', { start, end, newRange, currentRange });
     
     setVisibleRange([start, end]);
     setZoomLevel(prev => Math.max(1, prev / 2));
@@ -52,21 +57,26 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
   const handlePan = (direction: 'left' | 'right') => {
     const currentRange = visibleRange[1] - visibleRange[0];
     const shift = Math.max(1, Math.floor(currentRange / 4));
+    let newStart, newEnd;
     
     if (direction === 'left' && visibleRange[0] > 0) {
-      const newStart = Math.max(0, visibleRange[0] - shift);
-      const newEnd = newStart + currentRange;
-      setVisibleRange([newStart, newEnd]);
-      onBrushChange?.({ startIndex: newStart, endIndex: newEnd });
+      newStart = Math.max(0, visibleRange[0] - shift);
+      newEnd = newStart + currentRange;
     } else if (direction === 'right' && visibleRange[1] < distribution.length) {
-      const newStart = Math.min(distribution.length - currentRange, visibleRange[0] + shift);
-      const newEnd = newStart + currentRange;
-      setVisibleRange([newStart, newEnd]);
-      onBrushChange?.({ startIndex: newStart, endIndex: newEnd });
+      newEnd = Math.min(distribution.length, visibleRange[1] + shift);
+      newStart = newEnd - currentRange;
+    } else {
+      return;
     }
+    
+    console.log('Pan:', { direction, newStart, newEnd, shift });
+    
+    setVisibleRange([newStart, newEnd]);
+    onBrushChange?.({ startIndex: newStart, endIndex: newEnd });
   };
 
   const resetZoom = () => {
+    console.log('Reset Zoom');
     setVisibleRange([0, distribution.length]);
     setZoomLevel(1);
     onBrushChange?.(null);
