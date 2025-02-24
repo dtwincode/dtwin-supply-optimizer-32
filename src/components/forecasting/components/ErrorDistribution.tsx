@@ -124,7 +124,7 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
           <ResponsiveContainer width="100%" height="100%">
             <BarChart 
               data={distribution}
-              margin={{ top: 10, right: 30, left: 10, bottom: 50 }}
+              margin={{ top: 10, right: 30, left: 10, bottom: 80 }}
               syncId={isSynced ? syncId : undefined}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
@@ -161,7 +161,9 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
                 height={30}
                 stroke="#8884d8"
                 onChange={handleBrushChange}
-                y={10}
+                y={280}
+                travellerWidth={10}
+                fill="#f3f4f6"
               />
             </BarChart>
           </ResponsiveContainer>
