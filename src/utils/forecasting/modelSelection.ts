@@ -2,13 +2,14 @@
 import { ModelMetrics } from './metricsCalculation';
 import { optimizeModelParameters } from './modelOptimization';
 import { calculateMetrics } from './metricsCalculation';
+import { ModelParameter } from '@/types/models/commonTypes';
 
 export interface ModelFitResult {
   modelId: string;
   modelName: string;
   metrics: ModelMetrics;
   score: number;
-  optimizedParameters?: { name: string; value: number }[];
+  optimizedParameters?: ModelParameter[];
 }
 
 const optimizeARIMAOrders = (data: number[]) => {
@@ -44,17 +45,49 @@ export const findBestFitModel = (
       0.3 * metrics.rmse
     );
 
+    // Ensure parameters include descriptions
+    const baseParams = optimizedParams.find(p => p.modelId === modelId)?.parameters || [];
+    const optimizedParameters = baseParams.map(param => ({
+      ...param,
+      description: getParameterDescription(modelId, param.name)
+    }));
+
     return {
       modelId,
       modelName,
       metrics,
       score,
-      optimizedParameters: optimizedParams.find(p => p.modelId === modelId)?.parameters
+      optimizedParameters
     };
   });
 
   // Sort by score (lower is better) and return the best model
   return results.sort((a, b) => a.score - b.score)[0];
+};
+
+const getParameterDescription = (modelId: string, paramName: string): string => {
+  const descriptions: Record<string, Record<string, string>> = {
+    "arima": {
+      p: "Number of autoregressive terms (p)",
+      d: "Number of differences (d)",
+      q: "Number of moving average terms (q)"
+    },
+    "exp-smoothing": {
+      alpha: "Smoothing factor (α) for level",
+      beta: "Smoothing factor (β) for trend",
+      gamma: "Smoothing factor (γ) for seasonality"
+    },
+    // Add descriptions for other models and parameters
+    "default": {
+      windowSize: "Window size for the model",
+      learningRate: "Learning rate for model training",
+      epochs: "Number of training epochs"
+    }
+  };
+
+  return descriptions[modelId]?.[paramName] || 
+         descriptions.default[paramName] || 
+         `Parameter ${paramName} for ${modelId} model`;
 };
 
 export const getModelExample = (modelId: string, data: number[]) => {
