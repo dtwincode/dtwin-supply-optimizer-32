@@ -123,7 +123,7 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
     { value: "total", label: "Total Level" },
   ];
 
-  const mockData: { level: string; forecast: number; actual: number; difference: number; }[] = [
+  const mockData = [
     { level: "SKU001", forecast: 100, actual: 95, difference: -5 },
     { level: "SKU002", forecast: 150, actual: 160, difference: 10 },
     { level: "SKU003", forecast: 80, actual: 75, difference: -5 },
@@ -236,6 +236,7 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
 
   return (
     <div className="container mx-auto p-4 space-y-8">
+      {/* Distribution Table */}
       <Card className="p-6 shadow-sm">
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Distribution Quantities</h3>
@@ -446,6 +447,94 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
         </div>
       </Card>
 
+      {/* Impact Analysis Section */}
+      <Card className="p-6 shadow-sm">
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Distribution Impact Analysis</h3>
+          <div className="grid gap-6 md:grid-cols-2">
+            <div>
+              <h4 className="font-medium mb-4">Reconciliation Method</h4>
+              <div className="space-y-4">
+                <Select
+                  value={reconciliationMethod}
+                  onValueChange={(value: "top-down" | "bottom-up") => setReconciliationMethod(value)}
+                >
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Select method" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="top-down">Top-Down</SelectItem>
+                    <SelectItem value="bottom-up">Bottom-Up</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={selectedLevel} onValueChange={setSelectedLevel}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Select level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {hierarchyLevels.map((level) => (
+                      <SelectItem key={level.value} value={level.value}>
+                        {level.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Button 
+                  onClick={handleReconciliation}
+                  disabled={isReconciling}
+                  className="w-[200px]"
+                >
+                  {isReconciling ? (
+                    <>
+                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                      Reconciling...
+                    </>
+                  ) : (
+                    "Run Reconciliation"
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-medium mb-4">Impact Summary</h4>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Level</TableHead>
+                    <TableHead className="text-right">Forecast</TableHead>
+                    <TableHead className="text-right">Actual</TableHead>
+                    <TableHead className="text-right">Difference</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {mockData.map((row) => (
+                    <TableRow key={row.level}>
+                      <TableCell>{row.level}</TableCell>
+                      <TableCell className="text-right">{row.forecast}</TableCell>
+                      <TableCell className="text-right">{row.actual}</TableCell>
+                      <TableCell className="text-right">
+                        <span className={row.difference > 0 ? "text-green-600" : "text-red-600"}>
+                          {row.difference > 0 ? "+" : ""}{row.difference}
+                          {row.difference > 0 ? (
+                            <ArrowUp className="inline ml-1 h-4 w-4" />
+                          ) : (
+                            <ArrowDown className="inline ml-1 h-4 w-4" />
+                          )}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Distribution Charts Section */}
       <div className="grid gap-6 grid-cols-1 xl:grid-cols-2">
         <Card className="p-6 shadow-sm">
           <div className="space-y-4">
