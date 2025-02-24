@@ -25,52 +25,58 @@ export const ControlBar = ({
   canPanRight,
   isZoomed,
 }: ControlBarProps) => {
+  const handleClick = (handler: () => void) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handler();
+  };
+
   return (
     <div className="flex items-center justify-center gap-2 mb-4">
       <Button
         variant="outline"
-        size="sm"
-        onClick={() => onPan('left')}
+        size="icon"
+        onClick={handleClick(() => onPan('left'))}
         disabled={!canPanLeft}
-        className="p-2"
+        className="h-8 w-8"
       >
-        <ChevronLeft className="h-4 w-4 pointer-events-none" />
+        <ChevronLeft className="h-4 w-4" strokeWidth={2.5} />
       </Button>
       <Button
         variant="outline"
-        size="sm"
-        onClick={onZoomIn}
+        size="icon"
+        onClick={handleClick(onZoomIn)}
         disabled={!canZoomIn}
-        className="p-2"
+        className="h-8 w-8"
       >
-        <ZoomIn className="h-4 w-4 pointer-events-none" />
+        <ZoomIn className="h-4 w-4" strokeWidth={2.5} />
       </Button>
       <Button
         variant="outline"
-        size="sm"
-        onClick={onReset}
+        size="icon"
+        onClick={handleClick(onReset)}
         disabled={!isZoomed}
-        className="p-2"
+        className="h-8 w-8"
       >
-        <RotateCcw className="h-4 w-4 pointer-events-none" />
+        <RotateCcw className="h-4 w-4" strokeWidth={2.5} />
       </Button>
       <Button
         variant="outline"
-        size="sm"
-        onClick={onZoomOut}
+        size="icon"
+        onClick={handleClick(onZoomOut)}
         disabled={!canZoomOut}
-        className="p-2"
+        className="h-8 w-8"
       >
-        <ZoomOut className="h-4 w-4 pointer-events-none" />
+        <ZoomOut className="h-4 w-4" strokeWidth={2.5} />
       </Button>
       <Button
         variant="outline"
-        size="sm"
-        onClick={() => onPan('right')}
+        size="icon"
+        onClick={handleClick(() => onPan('right'))}
         disabled={!canPanRight}
-        className="p-2"
+        className="h-8 w-8"
       >
-        <ChevronRight className="h-4 w-4 pointer-events-none" />
+        <ChevronRight className="h-4 w-4" strokeWidth={2.5} />
       </Button>
     </div>
   );
