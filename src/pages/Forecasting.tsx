@@ -7,6 +7,7 @@ import { DescriptiveAnalysisTab } from "@/components/forecasting/tabs/Descriptiv
 import { WhatIfAnalysisTab } from "@/components/forecasting/tabs/WhatIfAnalysisTab";
 import { ValidationTab } from "@/components/forecasting/tabs/ValidationTab";
 import { ExternalFactorsTab } from "@/components/forecasting/tabs/ExternalFactorsTab";
+import ForecastReconciliationTab from "@/components/forecasting/tabs/ForecastReconciliationTab";
 import { Separator } from "@/components/ui/separator";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { useState } from "react";
@@ -93,6 +94,7 @@ const Forecasting = () => {
             <Route path="what-if" element={<WhatIfAnalysisTab filteredData={dummyData.filteredData} whatIfScenario={dummyData.whatIfScenario} />} />
             <Route path="validation" element={<ValidationTab validationResults={dummyData.validationResults} crossValidationResults={dummyData.crossValidationResults} />} />
             <Route path="external" element={<ExternalFactorsTab {...dummyData} />} />
+            <Route path="reconciliation" element={<ForecastReconciliationTab />} />
           </Routes>
         </div>
       </div>

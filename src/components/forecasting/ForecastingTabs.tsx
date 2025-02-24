@@ -1,99 +1,82 @@
 
-import { cn } from "@/lib/utils";
 import { Link, useLocation } from "react-router-dom";
-import { ForecastDataPoint } from "@/types/forecasting";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { 
+  BarChart3, 
+  CircleDot, 
+  FlipHorizontal, 
+  LineChart, 
+  GitCompareArrows,
+  Microscope, 
+  CloudLightning 
+} from "lucide-react";
 
-interface ForecastingTabsProps {
-  activeTab?: string;
-  setActiveTab?: (tab: string) => void;
-  historicalData?: Array<{ date: string; actual: number; predicted: number; }>;
-  filteredData?: ForecastDataPoint[];
-  confidenceIntervals?: Array<{ upper: number; lower: number; }>;
-  decomposition?: {
-    trend: (number | null)[];
-    seasonal: (number | null)[];
-  };
-  validationResults?: {
-    biasTest: boolean;
-    residualNormality: boolean;
-    heteroskedasticityTest: boolean;
-  };
-  crossValidationResults?: {
-    trainMetrics: { mape: number; mae: number; rmse: number; };
-    testMetrics: { mape: number; mae: number; rmse: number; };
-    validationMetrics: { mape: number; mae: number; rmse: number; };
-  };
-  weatherLocation?: string;
-  setWeatherLocation?: (location: string) => void;
-  weatherData?: any;
-  fetchWeatherForecast?: (location: string) => Promise<any>;
-  marketEvents?: any[];
-  setMarketEvents?: (events: any[]) => void;
-  newEvent?: any;
-  setNewEvent?: (event: any) => void;
-  priceAnalysis?: any;
-  historicalPriceData?: any[];
-  addHistoricalPricePoint?: (price: number, demand: number) => void;
-  calculatePriceAnalysis?: () => void;
-  forecastTableData?: any[];
-  whatIfScenario?: any[];
-}
-
-export const ForecastingTabs = ({
-  activeTab,
-  setActiveTab,
-  historicalData,
-  filteredData,
-  confidenceIntervals,
-  decomposition,
-  validationResults,
-  crossValidationResults,
-  weatherLocation,
-  setWeatherLocation,
-  weatherData,
-  fetchWeatherForecast,
-  marketEvents,
-  setMarketEvents,
-  newEvent,
-  setNewEvent,
-  priceAnalysis,
-  historicalPriceData,
-  addHistoricalPricePoint,
-  calculatePriceAnalysis,
-  forecastTableData,
-  whatIfScenario
-}: ForecastingTabsProps) => {
+export const ForecastingTabs = () => {
   const location = useLocation();
   const currentPath = location.pathname;
 
   const tabs = [
-    { name: "Forecast Analysis", path: "/forecasting" },
-    { name: "Future Forecast", path: "/forecasting/distribution" },
-    { name: "Descriptive Analysis", path: "/forecasting/descriptive" },
-    { name: "What-If Analysis", path: "/forecasting/what-if" },
-    { name: "Model Validation", path: "/forecasting/validation" },
-    { name: "External Factors", path: "/forecasting/external" }
+    {
+      title: "Analysis",
+      href: "/forecasting",
+      icon: LineChart,
+    },
+    {
+      title: "Distribution",
+      href: "/forecasting/distribution",
+      icon: BarChart3,
+    },
+    {
+      title: "Descriptive",
+      href: "/forecasting/descriptive",
+      icon: CircleDot,
+    },
+    {
+      title: "What-If",
+      href: "/forecasting/what-if",
+      icon: FlipHorizontal,
+    },
+    {
+      title: "Validation",
+      href: "/forecasting/validation",
+      icon: Microscope,
+    },
+    {
+      title: "External",
+      href: "/forecasting/external",
+      icon: CloudLightning,
+    },
+    {
+      title: "Reconciliation",
+      href: "/forecasting/reconciliation",
+      icon: GitCompareArrows,
+    },
   ];
 
   return (
-    <div className="border-b">
-      <nav className="flex space-x-4 px-6" aria-label="Tabs">
-        {tabs.map((tab) => (
-          <Link
-            key={tab.path}
-            to={tab.path}
-            className={cn(
-              "px-3 py-4 text-sm font-medium transition-colors hover:text-primary",
-              "border-b-2 -mb-px",
-              currentPath === tab.path
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground"
-            )}
-          >
-            {tab.name}
+    <div className="flex items-center gap-4 border-b">
+      {tabs.map((tab) => {
+        const Icon = tab.icon;
+        const isActive = 
+          (tab.href === "/forecasting" && currentPath === "/forecasting") ||
+          (tab.href !== "/forecasting" && currentPath.startsWith(tab.href));
+
+        return (
+          <Link key={tab.href} to={tab.href}>
+            <Button
+              variant="ghost"
+              className={cn(
+                "gap-2 py-2",
+                isActive && "bg-muted font-medium"
+              )}
+            >
+              <Icon className="h-4 w-4" />
+              {tab.title}
+            </Button>
           </Link>
-        ))}
-      </nav>
+        );
+      })}
     </div>
   );
 };
