@@ -7,7 +7,6 @@ import {
   CircleDot, 
   FlipHorizontal, 
   LineChart, 
-  GitCompareArrows,
   Microscope, 
   CloudLightning 
 } from "lucide-react";
@@ -46,12 +45,7 @@ export const ForecastingTabs = () => {
       title: "External",
       href: "/forecasting/external",
       icon: CloudLightning,
-    },
-    {
-      title: "Reconciliation",
-      href: "/forecasting/reconciliation",
-      icon: GitCompareArrows,
-    },
+    }
   ];
 
   return (
