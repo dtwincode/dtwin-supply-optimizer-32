@@ -12,6 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { InfoCircle } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 interface DistributionData {
   id: string;
@@ -27,6 +29,18 @@ interface DistributionData {
   serviceLevel: number;
   lastUpdated: string;
 }
+
+const StepHeader = ({ number, title, description }: { number: number; title: string; description: string }) => (
+  <div className="flex items-start gap-4 mb-4">
+    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-semibold">
+      {number}
+    </div>
+    <div>
+      <h3 className="text-lg font-semibold">{title}</h3>
+      <p className="text-sm text-muted-foreground">{description}</p>
+    </div>
+  </div>
+);
 
 export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableData: any[] }) => {
   const [selectedSKU, setSelectedSKU] = useState<string>("SKU001");
@@ -105,16 +119,16 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
 
   return (
     <div className="container mx-auto p-4 space-y-8">
-      {/* Forecast Period Selector */}
-      <Card className="p-6 shadow-sm">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Forecast Timeline</h3>
-            <p className="text-sm text-muted-foreground">
-              Select the time period for distribution forecast calculations
-            </p>
-          </div>
-          <div className="w-[200px]">
+      <div className="bg-card rounded-lg border shadow-sm p-6 space-y-6">
+        <StepHeader 
+          number={1}
+          title="Configure Distribution Parameters"
+          description="Set the forecast timeline and select products for distribution planning"
+        />
+        
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card className="p-6">
+            <h4 className="text-base font-medium mb-4">Forecast Timeline</h4>
             <Select value={forecastPeriod} onValueChange={setForecastPeriod}>
               <SelectTrigger>
                 <SelectValue placeholder="Select period" />
@@ -127,37 +141,84 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
                 ))}
               </SelectContent>
             </Select>
-          </div>
+          </Card>
+
+          <Card className="p-6">
+            <h4 className="text-base font-medium mb-4">Product Selection</h4>
+            <Select value={selectedSKU} onValueChange={setSelectedSKU}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select SKU" />
+              </SelectTrigger>
+              <SelectContent>
+                {distributionData.map((item) => (
+                  <SelectItem key={item.sku} value={item.sku}>
+                    {item.sku}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Card>
         </div>
-      </Card>
+      </div>
 
-      <DistributionQuantitiesTable
-        distributionData={distributionData}
-        onUpdateDistributionData={handleUpdateDistributionData}
-        forecastPeriod={forecastPeriod}
-      />
+      <div className="bg-card rounded-lg border shadow-sm p-6 space-y-6">
+        <StepHeader 
+          number={2}
+          title="Review Distribution Quantities"
+          description="Analyze and adjust distribution quantities across your network"
+        />
+        
+        <DistributionQuantitiesTable
+          distributionData={distributionData}
+          onUpdateDistributionData={handleUpdateDistributionData}
+          forecastPeriod={forecastPeriod}
+        />
+      </div>
 
-      <ImpactAnalysis
-        onReconciliationComplete={() => {
-          // Handle reconciliation completion
-        }}
-        forecastPeriod={forecastPeriod}
-      />
+      <div className="bg-card rounded-lg border shadow-sm p-6 space-y-6">
+        <StepHeader 
+          number={3}
+          title="Analyze Distribution Impact"
+          description="Review and reconcile distribution changes across hierarchy levels"
+        />
+        
+        <ImpactAnalysis
+          onReconciliationComplete={() => {
+            // Handle reconciliation completion
+          }}
+          forecastPeriod={forecastPeriod}
+        />
+      </div>
 
-      <DistributionCharts
-        selectedSKU={selectedSKU}
-        distributionData={distributionData}
-        weeklyDistribution={generateWeeklyDistribution(selectedSKU)}
-        onSelectSKU={setSelectedSKU}
-        forecastPeriod={forecastPeriod}
-      />
+      <div className="bg-card rounded-lg border shadow-sm p-6 space-y-6">
+        <StepHeader 
+          number={4}
+          title="Visualize Distribution Plan"
+          description="View distribution patterns and trends across your timeline"
+        />
+        
+        <div className="grid gap-6 lg:grid-cols-2">
+          <DistributionCharts
+            selectedSKU={selectedSKU}
+            distributionData={distributionData}
+            weeklyDistribution={generateWeeklyDistribution(selectedSKU)}
+            onSelectSKU={setSelectedSKU}
+            forecastPeriod={forecastPeriod}
+          />
+          
+          <DistributionCalendar
+            selectedDate={selectedDate}
+            selectedSKU={selectedSKU}
+            distributionData={distributionData}
+            onSelectDate={setSelectedDate}
+          />
+        </div>
+      </div>
 
-      <DistributionCalendar
-        selectedDate={selectedDate}
-        selectedSKU={selectedSKU}
-        distributionData={distributionData}
-        onSelectDate={setSelectedDate}
-      />
+      <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+        <InfoCircle className="h-4 w-4" />
+        <span>Changes are automatically saved as you make them</span>
+      </div>
     </div>
   );
 };
