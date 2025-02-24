@@ -4,38 +4,17 @@ import { ModelSelectionCard } from "@/components/forecasting/ModelSelectionCard"
 import { Card } from "@/components/ui/card";
 import { ForecastDataPoint } from "@/types/forecasting";
 import { useState, useEffect } from "react";
-import { findBestFitModel } from "@/utils/forecasting/modelSelection";
 import { toast } from "sonner";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Save, TrendingUp, TrendingDown, Calendar, BarChart2, History, Trash2, ChevronDown, ChevronUp } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { ModelParameter } from "@/types/models/commonTypes";
-import { Database } from "@/integrations/supabase/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Line, Area, ResponsiveContainer, LineChart, AreaChart, XAxis, YAxis, Tooltip } from "recharts";
-
-interface ModelPerformanceMetrics {
-  accuracy: number;
-  trend: 'improving' | 'stable' | 'declining';
-  trained_at: string;
-  mape?: number;
-  mae?: number;
-  rmse?: number;
-}
-
-interface SavedModelConfig {
-  id: string;
-  model_id: string;
-  parameters: ModelParameter[];
-  created_at: string;
-  performance_metrics?: ModelPerformanceMetrics;
-}
+import { Button } from "@/components/ui/button";
+import { Save, TrendingUp, TrendingDown, History, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { ModelParameter } from "@/types/models/commonTypes";
+import { PatternAnalysisCard } from "../components/PatternAnalysisCard";
 
 const sampleData: ForecastDataPoint[] = Array.from({ length: 24 }, (_, i) => {
   const baseValue = 1000;
   const trend = i * 10;
-  const seasonality = Math.sin(i * Math.PI / 6) * 200; // 12-month seasonality
+  const seasonality = Math.sin(i * Math.PI / 6) * 200;
   const noise = Math.random() * 50 - 25;
   
   const actual = i < 18 ? baseValue + trend + seasonality + noise : null;
@@ -74,236 +53,15 @@ const sampleConfidenceIntervals = sampleData.map((_, i) => {
   };
 });
 
-const PatternAnalysisCard = ({ data }: { data: ForecastDataPoint[] }) => {
-  const analyzePatterns = () => {
-    const forecastValues = data
-      .map(d => typeof d.forecast === 'number' ? d.forecast : 0)
-      .filter(f => !isNaN(f));
-    
-    const actualValues = data
-      .map(d => typeof d.actual === 'number' ? d.actual : 0)
-      .filter(a => !isNaN(a));
-    
-    const trend = forecastValues.length > 1 ? 
-      ((forecastValues[forecastValues.length - 1] - forecastValues[0]) / forecastValues[0]) * 100 : 0;
-    
-    const meanActual = actualValues.length > 0 ? 
-      actualValues.reduce((a, b) => a + b, 0) / actualValues.length : 0;
-    
-    const seasonality = actualValues.length >= 12 ? 
-      Math.abs(Math.max(...actualValues) - Math.min(...actualValues)) / meanActual : 0;
-    
-    const squaredDiffs = actualValues.map(val => Math.pow(val - meanActual, 2));
-    const variance = squaredDiffs.length > 1 ? 
-      squaredDiffs.reduce((a, b) => a + b, 0) / (actualValues.length - 1) : 0;
-    const volatility = Math.sqrt(variance);
-
-    return {
-      trend,
-      seasonality,
-      volatility
-    };
-  };
-
-  const patterns = analyzePatterns();
-
-  const trendData = data
-    .map((d, index) => ({
-      index,
-      value: typeof d.forecast === 'number' ? d.forecast : 0
-    }))
-    .filter(d => !isNaN(d.value));
-
-  const seasonalityData = data
-    .map((d, index) => ({
-      index,
-      value: typeof d.actual === 'number' ? d.actual : 0
-    }))
-    .filter(d => !isNaN(d.value));
-
-  const validActuals = data
-    .map(item => typeof item.actual === 'number' ? item.actual : 0)
-    .filter(val => !isNaN(val));
-  
-  const average = validActuals.length > 0 ? 
-    validActuals.reduce((sum, val) => sum + val, 0) / validActuals.length : 0;
-
-  const volatilityData = data
-    .map((d, index) => ({
-      index,
-      value: typeof d.actual === 'number' ? d.actual : 0,
-      average
-    }))
-    .filter(d => !isNaN(d.value));
-
-  const MiniChart = ({ data, color }: { data: any[], color: string }) => (
-    <div className="h-[60px] w-full mt-2">
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
-          <XAxis hide={true} />
-          <YAxis hide={true} />
-          <Tooltip
-            formatter={(value: any) => [Math.round(value), "Units"]}
-            contentStyle={{
-              backgroundColor: 'white',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              padding: '8px'
-            }}
-          />
-          <Line
-            type="monotone"
-            dataKey="value"
-            stroke={color}
-            strokeWidth={2}
-            dot={false}
-            isAnimationActive={false}
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
-  );
-
-  const VolatilityChart = ({ data, color }: { data: any[], color: string }) => (
-    <div className="h-[60px] w-full mt-2">
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
-          <XAxis hide={true} />
-          <YAxis hide={true} />
-          <Tooltip
-            formatter={(value: any) => [Math.round(value), "Units"]}
-            contentStyle={{
-              backgroundColor: 'white',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              padding: '8px'
-            }}
-          />
-          <Area
-            type="monotone"
-            dataKey="value"
-            stroke={color}
-            fill={color}
-            fillOpacity={0.2}
-            strokeWidth={2}
-            dot={false}
-            isAnimationActive={false}
-          />
-          <Line
-            type="monotone"
-            dataKey="average"
-            stroke={color}
-            strokeDasharray="3 3"
-            strokeWidth={1}
-            dot={false}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
-    </div>
-  );
-
-  return (
-    <Card className="p-6">
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Pattern Analysis</h3>
-          <p className="text-sm text-muted-foreground">
-            Based on {data.length} data points
-          </p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="space-y-3">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  {patterns.trend > 0 ? (
-                    <TrendingUp className="h-4 w-4 text-green-500" />
-                  ) : (
-                    <TrendingDown className="h-4 w-4 text-red-500" />
-                  )}
-                  <span className="font-medium">Trend Analysis</span>
-                </div>
-                <span className="text-sm font-medium text-muted-foreground">
-                  {Math.abs(patterns.trend).toFixed(1)}% {patterns.trend >= 0 ? "Upward" : "Downward"}
-                </span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Overall directional movement in the forecast over time
-              </p>
-              <div className="bg-muted/50 p-3 rounded-lg space-y-1">
-                <p className="text-xs text-muted-foreground">Key Insights:</p>
-                <ul className="text-xs space-y-1 list-disc list-inside">
-                  <li>Growth rate: {(patterns.trend / data.length).toFixed(2)}% per period</li>
-                  <li>Momentum: {Math.abs(patterns.trend) > 5 ? 'Strong' : 'Moderate'}</li>
-                  <li>Consistency: {Math.abs(patterns.trend) < 2 ? 'Stable' : 'Variable'}</li>
-                </ul>
-              </div>
-            </div>
-            <MiniChart data={trendData} color={patterns.trend >= 0 ? "#10B981" : "#EF4444"} />
-          </div>
-
-          <div className="space-y-3">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-blue-500" />
-                  <span className="font-medium">Seasonality</span>
-                </div>
-                <span className="text-sm font-medium text-muted-foreground">
-                  {(patterns.seasonality * 100).toFixed(1)}% Variation
-                </span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Cyclical patterns and recurring demand fluctuations
-              </p>
-              <div className="bg-muted/50 p-3 rounded-lg space-y-1">
-                <p className="text-xs text-muted-foreground">Pattern Strength:</p>
-                <ul className="text-xs space-y-1 list-disc list-inside">
-                  <li>Peak amplitude: {(patterns.seasonality * 200).toFixed(1)}% from mean</li>
-                  <li>Pattern type: {patterns.seasonality > 0.2 ? 'Strong seasonal' : 'Weak seasonal'}</li>
-                  <li>Cycle length: {Math.round(data.length / 4)} periods</li>
-                </ul>
-              </div>
-            </div>
-            <MiniChart data={seasonalityData} color="#3B82F6" />
-          </div>
-
-          <div className="space-y-3">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <BarChart2 className="h-4 w-4 text-yellow-500" />
-                  <span className="font-medium">Volatility</span>
-                </div>
-                <span className="text-sm font-medium text-muted-foreground">
-                  {patterns.volatility.toFixed(1)} Units
-                </span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Measure of demand variability and uncertainty
-              </p>
-              <div className="bg-muted/50 p-3 rounded-lg space-y-1">
-                <p className="text-xs text-muted-foreground">Risk Assessment:</p>
-                <ul className="text-xs space-y-1 list-disc list-inside">
-                  <li>Coefficient of variation: {(patterns.volatility / (data.reduce((sum, d) => sum + (d.actual || 0), 0) / data.length) * 100).toFixed(1)}%</li>
-                  <li>Stability: {patterns.volatility < 10 ? 'High' : patterns.volatility < 30 ? 'Medium' : 'Low'}</li>
-                  <li>Forecast confidence: {100 - (patterns.volatility * 2).toFixed(1)}%</li>
-                </ul>
-              </div>
-            </div>
-            <VolatilityChart data={volatilityData} color="#EAB308" />
-          </div>
-        </div>
-      </div>
-    </Card>
-  );
-};
-
 const calculateMetrics = (data: ForecastDataPoint[]) => {
-  const actualValues = data.filter(d => d.actual !== null).map(d => d.actual!);
-  const forecastValues = data.filter(d => d.actual !== null && d.forecast !== null).map(d => d.forecast!);
-  
-  if (actualValues.length === 0) {
+  const validPairs = data.filter(d => 
+    d.actual !== null && 
+    d.forecast !== null && 
+    typeof d.actual === 'number' && 
+    typeof d.forecast === 'number'
+  );
+
+  if (validPairs.length === 0) {
     return {
       mape: 0,
       mae: 0,
@@ -311,27 +69,20 @@ const calculateMetrics = (data: ForecastDataPoint[]) => {
     };
   }
 
-  const mape = actualValues.reduce((sum, actual, i) => {
-    if (typeof actual === 'number' && typeof forecastValues[i] === 'number') {
-      return sum + Math.abs((actual - forecastValues[i]) / actual);
-    }
-    return sum;
-  }, 0) / actualValues.length * 100;
+  const mape = validPairs.reduce((sum, d) => {
+    const actual = d.actual as number;
+    if (actual === 0) return sum; // Avoid division by zero
+    return sum + Math.abs((actual - (d.forecast as number)) / actual);
+  }, 0) / validPairs.length * 100;
 
-  const mae = actualValues.reduce((sum, actual, i) => {
-    if (typeof actual === 'number' && typeof forecastValues[i] === 'number') {
-      return sum + Math.abs(actual - forecastValues[i]);
-    }
-    return sum;
-  }, 0) / actualValues.length;
+  const mae = validPairs.reduce((sum, d) => 
+    sum + Math.abs((d.actual as number) - (d.forecast as number))
+  , 0) / validPairs.length;
 
   const rmse = Math.sqrt(
-    actualValues.reduce((sum, actual, i) => {
-      if (typeof actual === 'number' && typeof forecastValues[i] === 'number') {
-        return sum + Math.pow(actual - forecastValues[i], 2);
-      }
-      return sum;
-    }, 0) / actualValues.length
+    validPairs.reduce((sum, d) => 
+      sum + Math.pow((d.actual as number) - (d.forecast as number), 2)
+    , 0) / validPairs.length
   );
 
   return {
@@ -340,6 +91,23 @@ const calculateMetrics = (data: ForecastDataPoint[]) => {
     rmse
   };
 };
+
+interface ModelPerformanceMetrics {
+  accuracy: number;
+  trend: 'improving' | 'stable' | 'declining';
+  trained_at: string;
+  mape?: number;
+  mae?: number;
+  rmse?: number;
+}
+
+interface SavedModelConfig {
+  id: string;
+  model_id: string;
+  parameters: ModelParameter[];
+  created_at: string;
+  performance_metrics?: ModelPerformanceMetrics;
+}
 
 const ForecastAnalysisTab = () => {
   const [selectedModel, setSelectedModel] = useState("exp-smoothing");
