@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Save, TrendingUp, TrendingDown, History, Trash2, ChevronDown, ChevronUp, Compare } from "lucide-react";
+import { Save, TrendingUp, TrendingDown, History, Trash2, ChevronDown, ChevronUp, BarChart2 } from "lucide-react";
 import { ModelParameter } from "@/types/models/commonTypes";
 import { PatternAnalysisCard } from "../components/PatternAnalysisCard";
 
@@ -275,7 +275,7 @@ const ForecastAnalysisTab = () => {
           onClick={() => handleModelChange("exp-smoothing")}
           disabled={selectedModels.includes("exp-smoothing")}
         >
-          <Compare className="mr-2 h-4 w-4" />
+          <BarChart2 className="mr-2 h-4 w-4" />
           Compare
         </Button>
       </div>
