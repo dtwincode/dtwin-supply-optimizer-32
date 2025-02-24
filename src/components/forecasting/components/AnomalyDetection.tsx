@@ -12,7 +12,8 @@ import {
   ReferenceLine, 
   CartesianGrid, 
   Legend,
-  ReferenceDot 
+  ReferenceDot,
+  Brush
 } from "recharts";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -20,9 +21,17 @@ import { useState } from "react";
 
 interface AnomalyDetectionProps {
   data: ForecastDataPoint[];
+  syncId?: string;
+  onBrushChange?: (domain: [number, number]) => void;
+  dateRange?: [Date, Date];
 }
 
-export const AnomalyDetection = ({ data }: AnomalyDetectionProps) => {
+export const AnomalyDetection = ({ 
+  data, 
+  syncId,
+  onBrushChange,
+  dateRange 
+}: AnomalyDetectionProps) => {
   const [showOutliers, setShowOutliers] = useState(true);
 
   // Simple anomaly detection using z-score
@@ -99,6 +108,7 @@ export const AnomalyDetection = ({ data }: AnomalyDetectionProps) => {
             <LineChart 
               data={dataWithAnomalies}
               margin={{ top: 10, right: 30, left: 10, bottom: 0 }}
+              syncId={syncId}
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
@@ -157,6 +167,12 @@ export const AnomalyDetection = ({ data }: AnomalyDetectionProps) => {
                   stroke="none"
                 />
               ))}
+              <Brush 
+                dataKey="week"
+                height={30}
+                stroke="#8884d8"
+                onChange={onBrushChange}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>

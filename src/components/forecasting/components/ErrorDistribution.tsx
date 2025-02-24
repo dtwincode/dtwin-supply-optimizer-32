@@ -1,13 +1,15 @@
 
 import { Card } from "@/components/ui/card";
 import { ForecastDataPoint } from "@/types/forecasting";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, Brush } from "recharts";
 
 interface ErrorDistributionProps {
   data: ForecastDataPoint[];
+  syncId?: string;
+  onBrushChange?: (domain: [number, number]) => void;
 }
 
-export const ErrorDistribution = ({ data }: ErrorDistributionProps) => {
+export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistributionProps) => {
   const calculateErrorDistribution = () => {
     const errors = data
       .filter(d => d.actual !== null && d.forecast !== null)
@@ -71,6 +73,7 @@ export const ErrorDistribution = ({ data }: ErrorDistributionProps) => {
             <BarChart 
               data={distribution}
               margin={{ top: 10, right: 30, left: 10, bottom: 50 }}
+              syncId={syncId}
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
@@ -98,6 +101,12 @@ export const ErrorDistribution = ({ data }: ErrorDistributionProps) => {
                 fill="#6366F1" 
                 name="Error Frequency"
                 radius={[4, 4, 0, 0]}
+              />
+              <Brush 
+                dataKey="range"
+                height={30}
+                stroke="#8884d8"
+                onChange={onBrushChange}
               />
             </BarChart>
           </ResponsiveContainer>
