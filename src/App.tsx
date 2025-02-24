@@ -22,16 +22,23 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from './components/ui/toaster';
 import { FilterProvider } from "./contexts/FilterContext";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: false,
+    },
+  },
+});
 
 function App() {
   return (
-    <FilterProvider>
-      <Router>
-        <QueryClientProvider client={queryClient}>
-          <TooltipProvider>
-            <LanguageProvider>
-              <AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <LanguageProvider>
+          <FilterProvider>
+            <TooltipProvider>
+              <Router>
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/auth" element={<Auth />} />
@@ -54,12 +61,12 @@ function App() {
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 <Toaster />
-              </AuthProvider>
-            </LanguageProvider>
-          </TooltipProvider>
-        </QueryClientProvider>
-      </Router>
-    </FilterProvider>
+              </Router>
+            </TooltipProvider>
+          </FilterProvider>
+        </LanguageProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
