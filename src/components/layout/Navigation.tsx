@@ -14,12 +14,12 @@ const navigationItems = [
   { name: "navigationItems.logistics", icon: Truck, href: "/logistics" },
   { name: "navigationItems.reports", icon: FileText, href: "/reports" },
   { name: "navigationItems.askAI", icon: Search, href: "/ask-ai" },
-  { name: "navigationItems.settings", icon: Database, href: "/settings" },
+  { name: "navigationItems.data", icon: Database, href: "/data" }, // Changed from settings to data
   { name: "navigationItems.guidelines", icon: BookOpen, href: "/guidelines" }
 ];
 
 interface NavigationProps {
-  language: 'en' | 'ar';  // Updated type to be specific
+  language: 'en' | 'ar';
   isRTL: boolean;
 }
 
