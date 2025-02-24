@@ -1,4 +1,5 @@
 import { Json } from '@/integrations/supabase/types';
+import { ModelParameter } from '@/types/models/commonTypes';
 
 export interface WeatherData {
   temperature: number;
