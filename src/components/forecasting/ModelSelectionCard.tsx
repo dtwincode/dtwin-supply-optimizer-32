@@ -123,8 +123,8 @@ export const ModelSelectionCard = ({
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-            <div className="md:col-span-2">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+            <div className="md:col-span-5">
               <Select
                 value={selectedModel}
                 onValueChange={onModelChange}
@@ -145,7 +145,7 @@ export const ModelSelectionCard = ({
               </Select>
             </div>
 
-            <div>
+            <div className="md:col-span-3">
               <Button 
                 variant="outline" 
                 className="w-full h-10"
@@ -163,23 +163,23 @@ export const ModelSelectionCard = ({
               </Button>
             </div>
 
-            <div className="flex gap-2">
+            <div className="md:col-span-4 flex gap-2">
               <Button 
                 onClick={handleRunModel}
-                className="flex-1 h-10"
+                className="flex-1 h-10 whitespace-nowrap"
                 variant="default"
               >
-                <PlayCircle className="mr-2 h-4 w-4" />
-                Run Model
+                <PlayCircle className="h-4 w-4" />
+                Run
               </Button>
               <Button
                 onClick={handleAutomaticSelection}
                 variant="secondary"
                 disabled={isAutoSelecting}
-                className="flex-1 h-10"
+                className="flex-1 h-10 whitespace-nowrap"
               >
-                <Wand2 className="mr-2 h-4 w-4" />
-                Auto Select
+                <Wand2 className="h-4 w-4" />
+                Auto
               </Button>
             </div>
           </div>
