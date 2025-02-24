@@ -1,6 +1,6 @@
 
 import { Card } from "@/components/ui/card";
-import { AlertTriangle, RotateCcw, Link } from "lucide-react";
+import { AlertTriangle, Link } from "lucide-react";
 import { ForecastDataPoint } from "@/types/forecasting";
 import { 
   LineChart, 
@@ -11,8 +11,7 @@ import {
   ResponsiveContainer, 
   CartesianGrid, 
   Legend,
-  ReferenceDot,
-  Brush
+  ReferenceDot
 } from "recharts";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -22,19 +21,16 @@ import { useState } from "react";
 interface AnomalyDetectionProps {
   data: ForecastDataPoint[];
   syncId?: string;
-  onBrushChange?: (newIndex: { startIndex: number; endIndex: number } | null) => void;
   dateRange?: [Date, Date];
 }
 
 export const AnomalyDetection = ({ 
   data, 
   syncId,
-  onBrushChange,
   dateRange 
 }: AnomalyDetectionProps) => {
   const [showOutliers, setShowOutliers] = useState(true);
   const [isSynced, setIsSynced] = useState(true);
-  const [selectedRange, setSelectedRange] = useState<[number, number] | null>(null);
 
   const detectAnomalies = (data: ForecastDataPoint[]) => {
     const actualValues = data.map(d => d.actual).filter((v): v is number => v !== null);
@@ -60,16 +56,6 @@ export const AnomalyDetection = ({
 
   const dataWithAnomalies = detectAnomalies(data);
   const anomalies = dataWithAnomalies.filter(d => d.isAnomaly);
-
-  const handleBrushChange = (newIndex: { startIndex: number; endIndex: number } | null) => {
-    setSelectedRange(newIndex ? [newIndex.startIndex, newIndex.endIndex] : null);
-    onBrushChange?.(newIndex);
-  };
-
-  const resetZoom = () => {
-    setSelectedRange(null);
-    onBrushChange?.(null);
-  };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -127,18 +113,6 @@ export const AnomalyDetection = ({
             </span>
           </div>
         </div>
-
-        {selectedRange && (
-          <div className="flex items-center justify-between bg-muted p-3 rounded-lg text-sm shadow-sm">
-            <span className="font-medium">
-              Selected Period: {data[selectedRange[0]]?.week} - {data[selectedRange[1]]?.week}
-            </span>
-            <Button variant="ghost" size="sm" onClick={resetZoom} className="gap-2 hover:bg-muted-foreground/10">
-              <RotateCcw className="h-4 w-4" />
-              Reset Zoom
-            </Button>
-          </div>
-        )}
 
         <div className="h-[300px] mt-4">
           <ResponsiveContainer width="100%" height="100%">
@@ -206,36 +180,9 @@ export const AnomalyDetection = ({
                   stroke="none"
                 />
               ))}
-              <Brush 
-                dataKey="week"
-                height={30}
-                stroke="#8884d8"
-                onChange={handleBrushChange}
-                y={10}
-              />
             </LineChart>
           </ResponsiveContainer>
         </div>
-
-        {selectedRange && (
-          <div className="mt-4 p-4 bg-muted rounded-lg shadow-sm">
-            <h4 className="text-sm font-medium mb-3">Selection Summary</h4>
-            <div className="grid grid-cols-2 gap-6 text-sm">
-              <div>
-                <span className="text-muted-foreground">Anomalies in Range:</span>
-                <span className="ml-2 font-medium">
-                  {anomalies.filter((_, i) => i >= selectedRange[0] && i <= selectedRange[1]).length}
-                </span>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Period Length:</span>
-                <span className="ml-2 font-medium">
-                  {selectedRange[1] - selectedRange[0] + 1} weeks
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
 
         {showOutliers && anomalies.length > 0 && (
           <div className="mt-4 p-4 bg-muted rounded-lg shadow-sm">
