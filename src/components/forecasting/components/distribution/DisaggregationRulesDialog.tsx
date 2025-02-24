@@ -73,16 +73,16 @@ export function DisaggregationRulesDialog({ rules, onUpdateRules }: Props) {
           Disaggregation Rules
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="mb-4">
           <DialogTitle>Configure Disaggregation Rules</DialogTitle>
           <DialogDescription>
             Define how forecast quantities should be distributed across time periods
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-6">
-          <div>
+        <div className="grid gap-4">
+          <div className="grid gap-2">
             <Label>Select Rule</Label>
             <Select value={selectedRule?.id} onValueChange={handleRuleChange}>
               <SelectTrigger>
@@ -99,102 +99,106 @@ export function DisaggregationRulesDialog({ rules, onUpdateRules }: Props) {
           </div>
 
           {selectedRule && (
-            <Card className="p-4 space-y-4">
-              <div>
-                <Label>Rule Name</Label>
-                <Input 
-                  value={selectedRule.name}
-                  onChange={(e) => handleUpdateRule({ name: e.target.value })}
-                />
-              </div>
-
-              <div>
-                <Label>Distribution Type</Label>
-                <Select 
-                  value={selectedRule.type}
-                  onValueChange={(value: DisaggregationRule['type']) => handleUpdateRule({ type: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="even">Even Distribution</SelectItem>
-                    <SelectItem value="weighted">Weighted Distribution</SelectItem>
-                    <SelectItem value="historical">Historical Pattern</SelectItem>
-                    <SelectItem value="custom">Custom Pattern</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {selectedRule.type === 'weighted' && (
-                <div className="space-y-4">
-                  <Label>Day of Week Weights</Label>
-                  {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
-                    <div key={day} className="grid grid-cols-2 gap-4 items-center">
-                      <Label>{day}</Label>
-                      <Input
-                        type="number"
-                        step="0.1"
-                        value={selectedRule.daysOfWeek?.[day] || 1}
-                        onChange={(e) => {
-                          const value = parseFloat(e.target.value);
-                          handleUpdateRule({
-                            daysOfWeek: {
-                              ...(selectedRule.daysOfWeek || {}),
-                              [day]: value
-                            }
-                          });
-                        }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {selectedRule.type === 'custom' && (
-                <div className="space-y-4">
-                  <Label>Custom Pattern (comma-separated weights)</Label>
-                  <Input
-                    value={selectedRule.customPattern?.join(', ')}
-                    onChange={(e) => {
-                      const values = e.target.value.split(',').map(v => parseFloat(v.trim()));
-                      if (values.every(v => !isNaN(v))) {
-                        handleUpdateRule({ customPattern: values });
-                      }
-                    }}
-                    placeholder="1, 1.2, 0.8, 1.1, 0.9, 0.7, 0.6"
+            <Card className="p-4">
+              <div className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label>Rule Name</Label>
+                  <Input 
+                    value={selectedRule.name}
+                    onChange={(e) => handleUpdateRule({ name: e.target.value })}
                   />
                 </div>
-              )}
 
-              <div className="space-y-4">
-                <Label>Constraints</Label>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Min Daily</Label>
+                <div className="grid gap-2">
+                  <Label>Distribution Type</Label>
+                  <Select 
+                    value={selectedRule.type}
+                    onValueChange={(value: DisaggregationRule['type']) => handleUpdateRule({ type: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="even">Even Distribution</SelectItem>
+                      <SelectItem value="weighted">Weighted Distribution</SelectItem>
+                      <SelectItem value="historical">Historical Pattern</SelectItem>
+                      <SelectItem value="custom">Custom Pattern</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {selectedRule.type === 'weighted' && (
+                  <div className="grid gap-3">
+                    <Label>Day of Week Weights</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
+                        <div key={day} className="grid gap-1.5">
+                          <Label className="text-xs">{day}</Label>
+                          <Input
+                            type="number"
+                            step="0.1"
+                            value={selectedRule.daysOfWeek?.[day] || 1}
+                            onChange={(e) => {
+                              const value = parseFloat(e.target.value);
+                              handleUpdateRule({
+                                daysOfWeek: {
+                                  ...(selectedRule.daysOfWeek || {}),
+                                  [day]: value
+                                }
+                              });
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {selectedRule.type === 'custom' && (
+                  <div className="grid gap-2">
+                    <Label>Custom Pattern (comma-separated weights)</Label>
                     <Input
-                      type="number"
-                      value={selectedRule.constraints?.minDaily || 0}
-                      onChange={(e) => handleUpdateRule({
-                        constraints: {
-                          ...(selectedRule.constraints || {}),
-                          minDaily: parseInt(e.target.value)
+                      value={selectedRule.customPattern?.join(', ')}
+                      onChange={(e) => {
+                        const values = e.target.value.split(',').map(v => parseFloat(v.trim()));
+                        if (values.every(v => !isNaN(v))) {
+                          handleUpdateRule({ customPattern: values });
                         }
-                      })}
+                      }}
+                      placeholder="1, 1.2, 0.8, 1.1, 0.9, 0.7, 0.6"
                     />
                   </div>
-                  <div>
-                    <Label>Max Daily</Label>
-                    <Input
-                      type="number"
-                      value={selectedRule.constraints?.maxDaily || 0}
-                      onChange={(e) => handleUpdateRule({
-                        constraints: {
-                          ...(selectedRule.constraints || {}),
-                          maxDaily: parseInt(e.target.value)
-                        }
-                      })}
-                    />
+                )}
+
+                <div className="grid gap-2">
+                  <Label>Constraints</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="grid gap-1.5">
+                      <Label className="text-xs">Min Daily</Label>
+                      <Input
+                        type="number"
+                        value={selectedRule.constraints?.minDaily || 0}
+                        onChange={(e) => handleUpdateRule({
+                          constraints: {
+                            ...(selectedRule.constraints || {}),
+                            minDaily: parseInt(e.target.value)
+                          }
+                        })}
+                      />
+                    </div>
+                    <div className="grid gap-1.5">
+                      <Label className="text-xs">Max Daily</Label>
+                      <Input
+                        type="number"
+                        value={selectedRule.constraints?.maxDaily || 0}
+                        onChange={(e) => handleUpdateRule({
+                          constraints: {
+                            ...(selectedRule.constraints || {}),
+                            maxDaily: parseInt(e.target.value)
+                          }
+                        })}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
