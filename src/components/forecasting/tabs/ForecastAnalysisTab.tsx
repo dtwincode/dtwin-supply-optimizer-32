@@ -1,3 +1,4 @@
+
 import { ForecastChart } from "@/components/forecasting/ForecastChart";
 import { ForecastMetricsCards } from "@/components/forecasting/ForecastMetricsCards";
 import { ModelSelectionCard } from "@/components/forecasting/ModelSelectionCard";
@@ -7,7 +8,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Save, TrendingUp, TrendingDown, History, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { Save, TrendingUp, TrendingDown, History, Trash2, ChevronDown, ChevronUp, Compare } from "lucide-react";
 import { ModelParameter } from "@/types/models/commonTypes";
 import { PatternAnalysisCard } from "../components/PatternAnalysisCard";
 
@@ -110,7 +111,7 @@ interface SavedModelConfig {
 }
 
 const ForecastAnalysisTab = () => {
-  const [selectedModel, setSelectedModel] = useState("exp-smoothing");
+  const [selectedModels, setSelectedModels] = useState<string[]>([]);
   const [modelParameters, setModelParameters] = useState<ModelParameter[]>([]);
   const [savedModels, setSavedModels] = useState<SavedModelConfig[]>([]);
   const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
@@ -166,7 +167,14 @@ const ForecastAnalysisTab = () => {
   }, []);
 
   const handleModelChange = (modelId: string) => {
-    setSelectedModel(modelId);
+    if (selectedModels.includes(modelId)) {
+      setSelectedModels(prev => prev.filter(id => id !== modelId));
+    } else if (selectedModels.length < 3) {
+      setSelectedModels(prev => [...prev, modelId]);
+    } else {
+      toast.warning("Maximum 3 models can be compared at once");
+    }
+
     if (modelId === "exp-smoothing") {
       setModelParameters([
         { name: "alpha", value: 0.3, min: 0, max: 1, step: 0.1, description: "Smoothing factor" }
@@ -195,13 +203,84 @@ const ForecastAnalysisTab = () => {
 
   const metrics = calculateMetrics(sampleData);
 
+  const compareModels = () => {
+    const selectedModelConfigs = savedModels.filter(model => 
+      selectedModels.includes(model.model_id)
+    );
+
+    return (
+      <Card className="p-6 mt-4">
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-semibold">Model Comparison</h3>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setSelectedModels([])}
+            >
+              Clear Selection
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {selectedModelConfigs.map(model => (
+              <Card key={model.id} className="p-4 relative">
+                <div className="space-y-2">
+                  <h4 className="font-medium">{model.model_id}</h4>
+                  <div className="space-y-1">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Accuracy:</span>
+                      <span className="text-sm font-medium">
+                        {model.performance_metrics?.accuracy.toFixed(2)}%
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">MAPE:</span>
+                      <span className="text-sm font-medium">
+                        {model.performance_metrics?.mape.toFixed(2)}%
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">MAE:</span>
+                      <span className="text-sm font-medium">
+                        {model.performance_metrics?.mae.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">RMSE:</span>
+                      <span className="text-sm font-medium">
+                        {model.performance_metrics?.rmse.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </Card>
+    );
+  };
+
   return (
     <div className="space-y-6">
-      <ModelSelectionCard
-        selectedModel={selectedModel}
-        onModelChange={handleModelChange}
-        onParametersChange={handleParametersChange}
-      />
+      <div className="flex items-center gap-4 mb-4">
+        <ModelSelectionCard
+          selectedModel={selectedModels[0] || ""}
+          onModelChange={handleModelChange}
+          onParametersChange={handleParametersChange}
+        />
+        <Button 
+          variant="outline"
+          className="h-10"
+          onClick={() => handleModelChange("exp-smoothing")}
+          disabled={selectedModels.includes("exp-smoothing")}
+        >
+          <Compare className="mr-2 h-4 w-4" />
+          Compare
+        </Button>
+      </div>
+
+      {selectedModels.length > 0 && compareModels()}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="p-6">
