@@ -19,7 +19,7 @@ const navigationItems = [
 ];
 
 interface NavigationProps {
-  language: string;
+  language: 'en' | 'ar';  // Updated type to be specific
   isRTL: boolean;
 }
 

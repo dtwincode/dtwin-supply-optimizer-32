@@ -10,7 +10,7 @@ import { navigationItems } from "./Navigation";
 interface HeaderProps {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
-  language: string;
+  language: 'en' | 'ar';  // Updated type to be specific
   setLanguage: (lang: 'en' | 'ar') => void;
   setCreateTicketOpen: (open: boolean) => void;
   signOut: () => void;
