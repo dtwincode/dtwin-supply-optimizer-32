@@ -164,6 +164,8 @@ export const ErrorDistribution = ({ data, syncId, onBrushChange }: ErrorDistribu
                 y={220}
                 travellerWidth={8}
                 fill="#f3f4f6"
+                startIndex={0}
+                endIndex={distribution.length - 1}
               />
             </BarChart>
           </ResponsiveContainer>
