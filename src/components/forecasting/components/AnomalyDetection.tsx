@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { AlertTriangle } from "lucide-react";
 import { ForecastDataPoint } from "@/types/forecasting";
@@ -13,12 +14,17 @@ import {
   Legend,
   ReferenceDot 
 } from "recharts";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
 
 interface AnomalyDetectionProps {
   data: ForecastDataPoint[];
 }
 
 export const AnomalyDetection = ({ data }: AnomalyDetectionProps) => {
+  const [showOutliers, setShowOutliers] = useState(true);
+
   // Simple anomaly detection using z-score
   const detectAnomalies = (data: ForecastDataPoint[]) => {
     const actualValues = data.map(d => d.actual).filter((v): v is number => v !== null);
@@ -71,9 +77,19 @@ export const AnomalyDetection = ({ data }: AnomalyDetectionProps) => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">Anomaly Detection</h3>
-          <span className="text-sm text-muted-foreground">
-            {anomalies.length} anomalies detected
-          </span>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="show-outliers"
+                checked={showOutliers}
+                onCheckedChange={setShowOutliers}
+              />
+              <Label htmlFor="show-outliers">Show Outliers</Label>
+            </div>
+            <span className="text-sm text-muted-foreground">
+              {anomalies.length} anomalies detected
+            </span>
+          </div>
         </div>
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
@@ -128,7 +144,7 @@ export const AnomalyDetection = ({ data }: AnomalyDetectionProps) => {
                 dot={false}
                 name=" "
               />
-              {anomalies.map((anomaly, index) => (
+              {showOutliers && anomalies.map((anomaly, index) => (
                 <ReferenceDot
                   key={index}
                   x={anomaly.week}
@@ -141,7 +157,7 @@ export const AnomalyDetection = ({ data }: AnomalyDetectionProps) => {
             </LineChart>
           </ResponsiveContainer>
         </div>
-        {anomalies.length > 0 && (
+        {showOutliers && anomalies.length > 0 && (
           <div className="space-y-2">
             <h4 className="text-sm font-medium">Detected Anomalies</h4>
             <div className="space-y-1">
