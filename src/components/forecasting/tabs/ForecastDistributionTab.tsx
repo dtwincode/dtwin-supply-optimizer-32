@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { InfoCircle } from "lucide-react";
+import { Info } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 interface DistributionData {
@@ -216,7 +216,7 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
       </div>
 
       <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-        <InfoCircle className="h-4 w-4" />
+        <Info className="h-4 w-4" />
         <span>Changes are automatically saved as you make them</span>
       </div>
     </div>
