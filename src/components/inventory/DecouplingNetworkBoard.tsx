@@ -286,75 +286,25 @@ export const DecouplingNetworkBoard = () => {
     });
   };
 
-  const handleUpdatePoint = (config: Partial<NodeData>) => {
-    if (!selectedNode) return;
-
-    const processedConfig: Partial<NodeData> = {
-      ...config,
-      bufferSize: config.bufferSize ? Number(config.bufferSize) : undefined,
-      leadTime: config.leadTime ? Number(config.leadTime) : undefined,
-      moq: config.moq ? Number(config.moq) : undefined,
-      lotSizeFactor: config.lotSizeFactor ? Number(config.lotSizeFactor) : undefined,
-      serviceLevel: config.serviceLevel ? Number(config.serviceLevel) : undefined,
-      seasonalityFactor: config.seasonalityFactor ? Number(config.seasonalityFactor) : undefined,
-    };
-
-    setNodes((nds) =>
-      nds.map((node) => {
-        if (node.id === selectedNode.id) {
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              ...processedConfig,
-            },
-          };
-        }
-        return node;
-      })
-    );
-
-    toast({
-      title: "Point Updated",
-      description: "Configuration saved successfully",
-    });
-  };
-
-  const renderConfigOptions = () => {
-    if (!selectedNode || !selectedNode.data.decouplingType) return null;
-    
-    const type = selectedNode.data.decouplingType;
-    const options = decouplingTypes[type].configOptions;
-
-    return Object.entries(options).map(([key, values]) => {
-      if (Array.isArray(values)) {
-        return (
-          <div key={key} className="grid gap-2">
-            <Label>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</Label>
-            <Select
-              value={selectedNode.data[key]?.toString()}
-              onValueChange={(value) => handleUpdatePoint({ 
-                [key]: key.includes('Factor') || key === 'frequency' ? value : Number(value)
-              })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={`Select ${key}...`} />
-              </SelectTrigger>
-              <SelectContent>
-                {values.map((value) => (
-                  <SelectItem key={value} value={value.toString()}>
-                    {typeof value === 'number' ? 
-                      (key.includes('serviceLevel') ? `${(value * 100).toFixed(1)}%` : `${value} units`) 
-                      : value.charAt(0).toUpperCase() + value.slice(1)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+  const nodeTypes = {
+    default: (nodeProps) => (
+      <ContextMenu>
+        <ContextMenuTrigger>
+          <div className={nodeProps.className}>
+            {nodeProps.data.label}
           </div>
-        );
-      }
-      return null;
-    });
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuItem 
+            onClick={() => handleDeleteNode(nodeProps.id)}
+            className="text-red-600 focus:text-red-600 focus:bg-red-50"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Delete Node
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
+    ),
   };
 
   const NetworkControls = () => (
@@ -400,25 +350,41 @@ export const DecouplingNetworkBoard = () => {
     </div>
   );
 
-  const nodeTypes = {
-    default: (nodeProps) => (
-      <ContextMenu>
-        <ContextMenuTrigger>
-          <div className={nodeProps.className}>
-            {nodeProps.data.label}
+  const renderConfigOptions = () => {
+    if (!selectedNode || !selectedNode.data.decouplingType) return null;
+    
+    const type = selectedNode.data.decouplingType;
+    const options = decouplingTypes[type].configOptions;
+
+    return Object.entries(options).map(([key, values]) => {
+      if (Array.isArray(values)) {
+        return (
+          <div key={key} className="grid gap-2">
+            <Label>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</Label>
+            <Select
+              value={selectedNode.data[key]?.toString()}
+              onValueChange={(value) => handleUpdatePoint({ 
+                [key]: key.includes('Factor') || key === 'frequency' ? value : Number(value)
+              })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={`Select ${key}...`} />
+              </SelectTrigger>
+              <SelectContent>
+                {values.map((value) => (
+                  <SelectItem key={value} value={value.toString()}>
+                    {typeof value === 'number' ? 
+                      (key.includes('serviceLevel') ? `${(value * 100).toFixed(1)}%` : `${value} units`) 
+                      : value.charAt(0).toUpperCase() + value.slice(1)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        </ContextMenuTrigger>
-        <ContextMenuContent>
-          <ContextMenuItem 
-            onClick={() => handleDeleteNode(nodeProps.id)}
-            className="text-red-600 focus:text-red-600 focus:bg-red-50"
-          >
-            <Trash2 className="w-4 h-4 mr-2" />
-            Delete Node
-          </ContextMenuItem>
-        </ContextMenuContent>
-      </ContextMenu>
-    ),
+        );
+      }
+      return null;
+    });
   };
 
   return (
