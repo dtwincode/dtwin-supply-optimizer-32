@@ -21,6 +21,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
+import { MapPin, CircleDot } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 const initialNodes = [
   {
@@ -28,7 +30,6 @@ const initialNodes = [
     type: 'input',
     data: { 
       label: 'Supplier Factory',
-      decouplingType: null 
     },
     position: { x: 100, y: 50 },
     style: { 
@@ -135,101 +136,117 @@ const initialEdges = [
 ];
 
 const decouplingTypes = {
-  strategic: { label: 'Strategic Point', color: '#ef4444' },
-  customer_order: { label: 'Customer Order Point', color: '#3b82f6' },
-  stock_point: { label: 'Stock Point', color: '#22c55e' },
-  intermediate: { label: 'Intermediate Point', color: '#a855f7' },
+  strategic: { 
+    label: 'Strategic Point', 
+    color: '#ef4444',
+    description: 'Long lead times, high demand aggregation points'
+  },
+  customer_order: { 
+    label: 'Customer Order Point', 
+    color: '#3b82f6',
+    description: 'Where customer tolerance time meets lead time'
+  },
+  stock_point: { 
+    label: 'Stock Point', 
+    color: '#22c55e',
+    description: 'Buffer against supply/demand variability'
+  },
+  intermediate: { 
+    label: 'Intermediate Point', 
+    color: '#a855f7',
+    description: 'Process decoupling requirements'
+  },
 };
 
 export const DecouplingNetworkBoard = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [selectedNode, setSelectedNode] = useState(null);
+  const [showDecouplingDialog, setShowDecouplingDialog] = useState(false);
+  const [selectedType, setSelectedType] = useState(null);
   const { toast } = useToast();
 
   const onConnect = (params: any) => setEdges((eds) => addEdge(params, eds));
 
-  const handleNodeClick = (_, node) => {
-    setSelectedNode(node);
-  };
+  const handleAddDecouplingPoint = (type: string) => {
+    const newNode = {
+      id: `decoupling-${Date.now()}`,
+      type: 'default',
+      data: { 
+        label: decouplingTypes[type].label,
+        decouplingType: type
+      },
+      position: { x: 400, y: 300 }, // Initial position in center
+      style: {
+        background: '#ffffff',
+        border: `2px solid ${decouplingTypes[type].color}`,
+        borderRadius: '50%',
+        padding: '8px',
+        width: 40,
+        height: 40,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      dragHandle: '.drag-handle',
+    };
 
-  const handleDecouplingTypeChange = (type: string) => {
-    setNodes((nds) =>
-      nds.map((node) => {
-        if (node.id === selectedNode?.id) {
-          const color = decouplingTypes[type]?.color;
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              decouplingType: type,
-            },
-            style: {
-              ...node.style,
-              borderColor: color,
-              borderWidth: '2px',
-            },
-          };
-        }
-        return node;
-      })
-    );
-
-    toast({
-      title: "Decoupling Point Updated",
-      description: `${selectedNode?.data?.label} is now a ${decouplingTypes[type]?.label}`,
-    });
+    setNodes((nds) => [...nds, newNode]);
+    setShowDecouplingDialog(false);
     
-    setSelectedNode(null);
+    toast({
+      title: "Decoupling Point Added",
+      description: `Drag the ${decouplingTypes[type].label.toLowerCase()} to position it in your network`,
+    });
   };
 
   return (
-    <div className="h-[600px] border rounded-lg bg-white">
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onNodeClick={handleNodeClick}
-        fitView
-      >
-        <Background />
-        <Controls />
-        <MiniMap />
-      </ReactFlow>
-
-      <Dialog open={!!selectedNode} onOpenChange={() => setSelectedNode(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Configure Decoupling Point</DialogTitle>
-            <DialogDescription>
-              Select the type of decoupling point for {selectedNode?.data?.label}
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label>Decoupling Point Type</Label>
-              <Select
-                value={selectedNode?.data?.decouplingType || ''}
-                onValueChange={handleDecouplingTypeChange}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select type..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(decouplingTypes).map(([key, { label }]) => (
-                    <SelectItem key={key} value={key}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+    <div className="space-y-4">
+      <div className="flex items-center gap-4 p-4 border-b">
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="flex items-center gap-2">
+              <MapPin className="w-4 h-4" />
+              Add Decoupling Point
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80">
+            <div className="grid gap-4">
+              <h4 className="font-medium leading-none">Select Decoupling Point Type</h4>
+              <div className="grid gap-2">
+                {Object.entries(decouplingTypes).map(([key, { label, color, description }]) => (
+                  <Button
+                    key={key}
+                    variant="outline"
+                    className="justify-start gap-2 h-auto p-3"
+                    onClick={() => handleAddDecouplingPoint(key)}
+                  >
+                    <CircleDot className="w-4 h-4" style={{ color }} />
+                    <div className="flex flex-col items-start">
+                      <span className="text-sm font-medium">{label}</span>
+                      <span className="text-xs text-muted-foreground">{description}</span>
+                    </div>
+                  </Button>
+                ))}
+              </div>
             </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+          </PopoverContent>
+        </Popover>
+      </div>
+
+      <div className="h-[600px] border rounded-lg bg-white">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          fitView
+        >
+          <Background />
+          <Controls />
+          <MiniMap />
+        </ReactFlow>
+      </div>
     </div>
   );
 };
