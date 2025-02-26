@@ -24,7 +24,6 @@ import { useToast } from '@/components/ui/use-toast';
 import { MapPin, CircleDot } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
-// Define the type for node data
 type NodeData = {
   label: string;
   decouplingType?: string | null;
@@ -34,7 +33,6 @@ type NodeData = {
   demandProfile?: 'high' | 'medium' | 'low';
 };
 
-// Define the initial nodes with the correct type
 const initialNodes: Node<NodeData>[] = [
   {
     id: 'supplier-1',
@@ -157,8 +155,8 @@ const decouplingTypes = {
     configOptions: {
       bufferSize: [50, 100, 150],
       leadTime: [7, 14, 30, 45],
-      variabilityFactors: ['high', 'medium', 'low'],
-      demandProfiles: ['high', 'medium', 'low']
+      variabilityFactors: ['high', 'medium', 'low'] as const,
+      demandProfiles: ['high', 'medium', 'low'] as const
     }
   },
   customer_order: { 
@@ -246,6 +244,12 @@ export const DecouplingNetworkBoard = () => {
   const handleUpdateStrategicPoint = (config: Partial<NodeData>) => {
     if (!selectedNode) return;
 
+    const processedConfig: Partial<NodeData> = {
+      ...config,
+      bufferSize: config.bufferSize ? Number(config.bufferSize) : undefined,
+      leadTime: config.leadTime ? Number(config.leadTime) : undefined,
+    };
+
     setNodes((nds) =>
       nds.map((node) => {
         if (node.id === selectedNode.id) {
@@ -253,7 +257,7 @@ export const DecouplingNetworkBoard = () => {
             ...node,
             data: {
               ...node.data,
-              ...config,
+              ...processedConfig,
             },
           };
         }
@@ -331,7 +335,7 @@ export const DecouplingNetworkBoard = () => {
               <Label>Buffer Size</Label>
               <Select
                 value={selectedNode?.data.bufferSize?.toString()}
-                onValueChange={(value) => handleUpdateStrategicPoint({ bufferSize: parseInt(value) })}
+                onValueChange={(value) => handleUpdateStrategicPoint({ bufferSize: Number(value) })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select buffer size..." />
@@ -350,7 +354,7 @@ export const DecouplingNetworkBoard = () => {
               <Label>Lead Time</Label>
               <Select
                 value={selectedNode?.data.leadTime?.toString()}
-                onValueChange={(value) => handleUpdateStrategicPoint({ leadTime: parseInt(value) })}
+                onValueChange={(value) => handleUpdateStrategicPoint({ leadTime: Number(value) })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select lead time..." />
