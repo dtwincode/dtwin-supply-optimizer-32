@@ -11,6 +11,7 @@ import {
   Handle,
   ConnectionMode,
   Edge,
+  EdgeProps,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { useState } from 'react';
@@ -214,15 +215,9 @@ const locationTypes = [
   }
 ];
 
-interface EdgeWithContextProps {
-  id: string;
-  source: string;
-  target: string;
+interface EdgeWithContextProps extends EdgeProps {
   setSelectedEdge: (edge: Edge | null) => void;
   handleDeleteEdge: () => void;
-  className?: string;
-  style?: React.CSSProperties;
-  [key: string]: any;
 }
 
 const EdgeWithContext = ({ 
@@ -572,8 +567,12 @@ export const DecouplingNetworkBoard = () => {
   );
 
   const edgeTypes = {
-    default: (props: EdgeWithContextProps) => (
-      <EdgeWithContext {...props} setSelectedEdge={setSelectedEdge} handleDeleteEdge={handleDeleteEdge} />
+    default: (props: EdgeProps) => (
+      <EdgeWithContext
+        {...props}
+        setSelectedEdge={setSelectedEdge}
+        handleDeleteEdge={handleDeleteEdge}
+      />
     ),
   };
 
