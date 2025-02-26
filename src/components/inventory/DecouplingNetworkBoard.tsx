@@ -20,7 +20,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { MapPin, CircleDot, Maximize2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -341,7 +341,7 @@ export const DecouplingNetworkBoard = () => {
     });
   };
 
-  const Controls = () => (
+  const NetworkControls = () => (
     <div className="flex items-center gap-4 p-4 border-b">
       <Popover>
         <PopoverTrigger asChild>
@@ -384,30 +384,26 @@ export const DecouplingNetworkBoard = () => {
     </div>
   );
 
-  const flowChart = (
-    <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      onConnect={onConnect}
-      onNodeClick={handleNodeClick}
-      fitView
-    >
-      <Background />
-      <Controls />
-      <MiniMap />
-    </ReactFlow>
-  );
-
   return (
     <div className="space-y-4">
       <div className={`border rounded-lg bg-white ${isFullScreen ? 'fixed inset-0 z-50' : 'h-[600px]'}`}>
         <div className="absolute top-0 left-0 right-0 z-10 bg-white border-b">
-          <Controls />
+          <NetworkControls />
         </div>
         <div className="pt-[73px] h-full">
-          {flowChart}
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            onNodeClick={handleNodeClick}
+            fitView
+          >
+            <Background />
+            <Controls />
+            <MiniMap />
+          </ReactFlow>
         </div>
       </div>
 
