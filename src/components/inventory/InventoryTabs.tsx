@@ -55,6 +55,21 @@ export const InventoryTabs = ({ children }: InventoryTabsProps) => {
               // Refresh data if needed
             }} />
           </div>
+          
+          <div className="bg-white rounded-lg shadow-sm border p-4">
+            <div className="text-sm text-muted-foreground mb-4">
+              Configure and visualize your supply chain network decoupling points.
+            </div>
+            <div className="aspect-[16/9] bg-gray-50 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center">
+              <div className="text-center p-4">
+                <h4 className="text-lg font-medium mb-2">Network Board Coming Soon</h4>
+                <p className="text-sm text-muted-foreground">
+                  Interactive whiteboard for configuring network nodes and decoupling points.
+                  Stay tuned for drag-and-drop functionality!
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </TabsContent>
 
