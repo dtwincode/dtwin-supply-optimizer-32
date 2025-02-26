@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { BaseMap } from '../shared/maps/BaseMap';
 import { createMapMarker } from '../shared/maps/MapMarker';
 import { supabase } from '@/integrations/supabase/client';
@@ -61,6 +61,100 @@ export const NetworkDecouplingMap = () => {
   const [map, setMap] = useState<Map | null>(null);
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
+  const [isMapReady, setIsMapReady] = useState(false);
+
+  const addMarkersAndLines = useCallback((mapInstance: Map, locationData: Location[]) => {
+    if (!mapInstance || !locationData.length) return;
+
+    // Clear existing markers and lines
+    const existingMarkers = document.querySelectorAll('.mapboxgl-marker');
+    existingMarkers.forEach(marker => marker.remove());
+
+    // Remove existing lines
+    locationData.forEach(location => {
+      const lineId = `line-${location.id}`;
+      if (mapInstance.getLayer(lineId)) {
+        mapInstance.removeLayer(lineId);
+      }
+      if (mapInstance.getSource(lineId)) {
+        mapInstance.removeSource(lineId);
+      }
+    });
+
+    // Add new markers and lines
+    locationData.forEach(location => {
+      if (!location.coordinates) return;
+
+      const color = location.decoupling_point 
+        ? DECOUPLING_COLORS[location.decoupling_point.type]
+        : '#666666';
+
+      const popupContent = `
+        <div class="p-2">
+          <div class="font-medium">${location.name}</div>
+          <div class="text-sm text-gray-500">
+            Level ${location.level} • ${location.channel}<br/>
+            ${location.city}, ${location.region}
+          </div>
+          ${location.decoupling_point ? `
+            <div class="mt-1 text-sm">
+              <span class="font-medium">Decoupling Point:</span> 
+              ${TYPE_DESCRIPTIONS[location.decoupling_point.type]}
+            </div>
+          ` : ''}
+        </div>
+      `;
+
+      createMapMarker({
+        map: mapInstance,
+        coordinates: [location.coordinates.lng, location.coordinates.lat],
+        color,
+        popupContent
+      });
+
+      // Draw connections between parent and child locations
+      if (location.parent_id) {
+        const parent = locationData.find(l => l.id === location.parent_id);
+        if (parent?.coordinates) {
+          const lineId = `line-${location.id}`;
+          
+          try {
+            mapInstance.addSource(lineId, {
+              type: 'geojson',
+              data: {
+                type: 'Feature',
+                properties: {},
+                geometry: {
+                  type: 'LineString',
+                  coordinates: [
+                    [location.coordinates.lng, location.coordinates.lat],
+                    [parent.coordinates.lng, parent.coordinates.lat]
+                  ]
+                }
+              }
+            });
+
+            mapInstance.addLayer({
+              id: lineId,
+              type: 'line',
+              source: lineId,
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              },
+              paint: {
+                'line-color': '#888',
+                'line-width': 1,
+                'line-dasharray': [2, 1]
+              }
+            });
+          } catch (error) {
+            console.error(`Error adding line for location ${location.id}:`, error);
+          }
+        }
+      }
+    });
+  }, []);
 
   useEffect(() => {
     const fetchLocations = async () => {
@@ -131,77 +225,15 @@ export const NetworkDecouplingMap = () => {
 
   const handleMapLoad = (mapInstance: Map) => {
     setMap(mapInstance);
-    
-    // Add location markers
-    locations.forEach(location => {
-      if (!location.coordinates) return;
-
-      const color = location.decoupling_point 
-        ? DECOUPLING_COLORS[location.decoupling_point.type]
-        : '#666666';
-
-      const popupContent = `
-        <div class="p-2">
-          <div class="font-medium">${location.name}</div>
-          <div class="text-sm text-gray-500">
-            Level ${location.level} • ${location.channel}<br/>
-            ${location.city}, ${location.region}
-          </div>
-          ${location.decoupling_point ? `
-            <div class="mt-1 text-sm">
-              <span class="font-medium">Decoupling Point:</span> 
-              ${TYPE_DESCRIPTIONS[location.decoupling_point.type]}
-            </div>
-          ` : ''}
-        </div>
-      `;
-
-      createMapMarker({
-        map: mapInstance,
-        coordinates: [location.coordinates.lng, location.coordinates.lat],
-        color,
-        popupContent
-      });
-
-      // Draw connections between parent and child locations
-      if (location.parent_id) {
-        const parent = locations.find(l => l.id === location.parent_id);
-        if (parent?.coordinates) {
-          const lineId = `line-${location.id}`;
-          
-          mapInstance.addSource(lineId, {
-            type: 'geojson',
-            data: {
-              type: 'Feature',
-              properties: {},
-              geometry: {
-                type: 'LineString',
-                coordinates: [
-                  [location.coordinates.lng, location.coordinates.lat],
-                  [parent.coordinates.lng, parent.coordinates.lat]
-                ]
-              }
-            }
-          });
-
-          mapInstance.addLayer({
-            id: lineId,
-            type: 'line',
-            source: lineId,
-            layout: {
-              'line-join': 'round',
-              'line-cap': 'round'
-            },
-            paint: {
-              'line-color': '#888',
-              'line-width': 1,
-              'line-dasharray': [2, 1]
-            }
-          });
-        }
-      }
-    });
+    setIsMapReady(true);
   };
+
+  // Add markers and lines when both map and locations are ready
+  useEffect(() => {
+    if (map && isMapReady && locations.length > 0) {
+      addMarkersAndLines(map, locations);
+    }
+  }, [map, isMapReady, locations, addMarkersAndLines]);
 
   return (
     <div className="space-y-4">
