@@ -305,16 +305,16 @@ export const DecouplingNetworkBoard = () => {
     setSelectedNode(node);
   };
 
-  const onDragOver = (event) => {
+  const onDragOver = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
   };
 
-  const onDrop = (event) => {
+  const onDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
 
-    const reactFlowBounds = document.querySelector('.react-flow').getBoundingClientRect();
-    const type = event.dataTransfer.getData('application/reactflow');
+    const reactFlowBounds = document.querySelector('.react-flow')?.getBoundingClientRect();
+    if (!reactFlowBounds) return;
     
     const position = {
       x: event.clientX - reactFlowBounds.left,
@@ -448,7 +448,7 @@ export const DecouplingNetworkBoard = () => {
   const DraggableNodes = () => (
     <div className="flex gap-2 p-4 border-t">
       <div
-        className="flex items-center gap-2 p-2 border rounded cursor-move bg-white hover:bg-gray-50"
+        className="flex items-center gap-2 p-2 border rounded cursor-move hover:bg-gray-50 bg-white"
         draggable
         onDragStart={(event) => {
           event.dataTransfer.setData('application/reactflow', 'default');
