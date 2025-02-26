@@ -7,6 +7,8 @@ import {
   useEdgesState,
   addEdge,
   Node,
+  Position,
+  Handle,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { useState } from 'react';
@@ -223,19 +225,21 @@ export const DecouplingNetworkBoard = () => {
     const sourceNode = nodes.find(n => n.id === params.source);
     const targetNode = nodes.find(n => n.id === params.target);
     
-    if (sourceNode?.data.decouplingType || targetNode?.data.decouplingType) {
-      const newEdge = {
-        ...params,
-        animated: true,
-        style: { stroke: '#ef4444' },
-      };
-      setEdges((eds) => addEdge(newEdge, eds));
-      
-      toast({
-        title: "Connection Created",
-        description: "Decoupling point connected successfully",
-      });
-    }
+    const newEdge = {
+      ...params,
+      animated: true,
+      style: { 
+        stroke: '#9333ea',
+        strokeWidth: 2,
+      },
+    };
+
+    setEdges((eds) => addEdge(newEdge, eds));
+    
+    toast({
+      title: "Connection Created",
+      description: "Nodes connected successfully",
+    });
   };
 
   const handleNodeClick = (_, node) => {
@@ -350,8 +354,22 @@ export const DecouplingNetworkBoard = () => {
     default: (nodeProps) => (
       <ContextMenu>
         <ContextMenuTrigger>
-          <div className={nodeProps.className}>
-            {nodeProps.data.label}
+          <div className="relative flex flex-col items-center">
+            <Handle
+              type="target"
+              position={Position.Left}
+              className="w-4 h-4 !bg-purple-500 border-2 border-white"
+              style={{ left: '-12px' }}
+            />
+            <div className={nodeProps.className}>
+              {nodeProps.data.label}
+            </div>
+            <Handle
+              type="source"
+              position={Position.Right}
+              className="w-4 h-4 !bg-purple-500 border-2 border-white"
+              style={{ right: '-12px' }}
+            />
           </div>
         </ContextMenuTrigger>
         <ContextMenuContent>
@@ -481,6 +499,14 @@ export const DecouplingNetworkBoard = () => {
             onDragOver={onDragOver}
             onDrop={onDrop}
             fitView
+            snapToGrid
+            snapGrid={[15, 15]}
+            defaultEdgeOptions={{
+              type: 'smoothstep',
+              style: { stroke: '#9333ea', strokeWidth: 2 },
+              animated: true,
+            }}
+            connectionMode="loose"
           >
             <Background />
             <Controls />
