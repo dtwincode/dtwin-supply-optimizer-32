@@ -21,7 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
-import { MapPin, CircleDot } from 'lucide-react';
+import { MapPin, CircleDot, Maximize2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -175,17 +175,34 @@ const decouplingTypes = {
   customer_order: { 
     label: 'Customer Order Point', 
     color: '#3b82f6',
-    description: 'Where customer tolerance time meets lead time'
+    description: 'Where customer tolerance time meets lead time',
+    configOptions: {
+      leadTime: [1, 2, 3, 5, 7, 14] as const,
+      serviceLevel: [0.90, 0.95, 0.98, 0.99] as const,
+      replenishmentFrequencies: ['daily', 'weekly'] as const,
+      criticalityFactors: ['high', 'medium', 'low'] as const
+    }
   },
   stock_point: { 
     label: 'Stock Point', 
     color: '#22c55e',
-    description: 'Buffer against supply/demand variability'
+    description: 'Buffer against supply/demand variability',
+    configOptions: {
+      bufferSize: [25, 50, 75, 100] as const,
+      replenishmentFrequencies: ['daily', 'weekly', 'monthly'] as const,
+      variabilityFactors: ['high', 'medium', 'low'] as const,
+      demandProfiles: ['high', 'medium', 'low'] as const
+    }
   },
   intermediate: { 
     label: 'Intermediate Point', 
     color: '#a855f7',
-    description: 'Process decoupling requirements'
+    description: 'Process decoupling requirements',
+    configOptions: {
+      bufferSize: [20, 40, 60, 80] as const,
+      leadTime: [1, 2, 3, 5] as const,
+      moqValues: [5, 10, 20, 50] as const
+    }
   },
 };
 
@@ -193,6 +210,7 @@ export const DecouplingNetworkBoard = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState<NodeData>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNode, setSelectedNode] = useState<Node<NodeData> | null>(null);
+  const [isFullScreen, setIsFullScreen] = useState(false);
   const { toast } = useToast();
 
   const onConnect = (params: any) => {
@@ -215,9 +233,7 @@ export const DecouplingNetworkBoard = () => {
   };
 
   const handleNodeClick = (_, node) => {
-    if (node.data.decouplingType === 'strategic') {
-      setSelectedNode(node);
-    }
+    setSelectedNode(node);
   };
 
   const handleAddDecouplingPoint = (type: string) => {
@@ -254,7 +270,7 @@ export const DecouplingNetworkBoard = () => {
     });
   };
 
-  const handleUpdateStrategicPoint = (config: Partial<NodeData>) => {
+  const handleUpdatePoint = (config: Partial<NodeData>) => {
     if (!selectedNode) return;
 
     const processedConfig: Partial<NodeData> = {
@@ -283,10 +299,63 @@ export const DecouplingNetworkBoard = () => {
     );
 
     toast({
-      title: "Strategic Point Updated",
+      title: "Point Updated",
       description: "Configuration saved successfully",
     });
   };
+
+  const renderConfigOptions = () => {
+    if (!selectedNode || !selectedNode.data.decouplingType) return null;
+    
+    const type = selectedNode.data.decouplingType;
+    const options = decouplingTypes[type].configOptions;
+
+    return Object.entries(options).map(([key, values]) => {
+      if (Array.isArray(values)) {
+        return (
+          <div key={key} className="grid gap-2">
+            <Label>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</Label>
+            <Select
+              value={selectedNode.data[key]?.toString()}
+              onValueChange={(value) => handleUpdatePoint({ 
+                [key]: key.includes('Factor') || key === 'frequency' ? value : Number(value)
+              })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={`Select ${key}...`} />
+              </SelectTrigger>
+              <SelectContent>
+                {values.map((value) => (
+                  <SelectItem key={value} value={value.toString()}>
+                    {typeof value === 'number' ? 
+                      (key.includes('serviceLevel') ? `${(value * 100).toFixed(1)}%` : `${value} units`) 
+                      : value.charAt(0).toUpperCase() + value.slice(1)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        );
+      }
+      return null;
+    });
+  };
+
+  const flowChart = (
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      onConnect={onConnect}
+      onNodeClick={handleNodeClick}
+      fitView
+    >
+      <Background />
+      <Controls />
+      <MiniMap />
+    </ReactFlow>
+  );
 
   return (
     <div className="space-y-4">
@@ -320,210 +389,44 @@ export const DecouplingNetworkBoard = () => {
             </div>
           </PopoverContent>
         </Popover>
+        
+        <Button
+          variant="outline"
+          className="flex items-center gap-2"
+          onClick={() => setIsFullScreen(true)}
+        >
+          <Maximize2 className="w-4 h-4" />
+          Full Screen View
+        </Button>
       </div>
 
-      <div className="h-[600px] border rounded-lg bg-white">
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          onNodeClick={handleNodeClick}
-          fitView
-        >
-          <Background />
-          <Controls />
-          <MiniMap />
-        </ReactFlow>
+      <div className={`border rounded-lg bg-white ${isFullScreen ? 'fixed inset-0 z-50' : 'h-[600px]'}`}>
+        {flowChart}
       </div>
 
       <Dialog open={!!selectedNode} onOpenChange={() => setSelectedNode(null)}>
         <DialogContent className="sm:max-w-[425px] max-h-[80vh]">
           <DialogHeader>
-            <DialogTitle>Configure Strategic Point</DialogTitle>
+            <DialogTitle>Configure {selectedNode?.data.label}</DialogTitle>
             <DialogDescription>
-              Set parameters for this strategic decoupling point
+              Set parameters for this decoupling point
             </DialogDescription>
           </DialogHeader>
           
           <ScrollArea className="h-[60vh]">
             <div className="grid gap-4 py-4 px-4">
-              <div className="grid gap-2">
-                <Label>Buffer Size</Label>
-                <Select
-                  value={selectedNode?.data.bufferSize?.toString()}
-                  onValueChange={(value) => {
-                    const numericValue = Number(value);
-                    if (!isNaN(numericValue)) {
-                      handleUpdateStrategicPoint({ bufferSize: numericValue });
-                    }
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select buffer size..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {decouplingTypes.strategic.configOptions.bufferSize.map((size) => (
-                      <SelectItem key={size} value={size.toString()}>
-                        {size} units
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-            <div className="grid gap-2">
-              <Label>Lead Time</Label>
-              <Select
-                value={selectedNode?.data.leadTime?.toString()}
-                onValueChange={(value) => {
-                  const numericValue = Number(value);
-                  if (!isNaN(numericValue)) {
-                    handleUpdateStrategicPoint({ leadTime: numericValue });
-                  }
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select lead time..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {decouplingTypes.strategic.configOptions.leadTime.map((days) => (
-                    <SelectItem key={days} value={days.toString()}>
-                      {days} days
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {renderConfigOptions()}
             </div>
-
-            <div className="grid gap-2">
-              <Label>Service Level</Label>
-              <Select
-                value={selectedNode?.data.serviceLevel?.toString()}
-                onValueChange={(value) => handleUpdateStrategicPoint({ 
-                  serviceLevel: Number(value)
-                })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select service level..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {decouplingTypes.strategic.configOptions.serviceLevels.map((level) => (
-                    <SelectItem key={level} value={level.toString()}>
-                      {(level * 100).toFixed(1)}%
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid gap-2">
-              <Label>Minimum Order Quantity (MOQ)</Label>
-              <Select
-                value={selectedNode?.data.moq?.toString()}
-                onValueChange={(value) => handleUpdateStrategicPoint({ 
-                  moq: Number(value)
-                })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select MOQ..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {decouplingTypes.strategic.configOptions.moqValues.map((value) => (
-                    <SelectItem key={value} value={value.toString()}>
-                      {value} units
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid gap-2">
-              <Label>Criticality Factor</Label>
-              <Select
-                value={selectedNode?.data.criticalityFactor}
-                onValueChange={(value) => handleUpdateStrategicPoint({ 
-                  criticalityFactor: value as 'high' | 'medium' | 'low'
-                })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select criticality..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {decouplingTypes.strategic.configOptions.criticalityFactors.map((factor) => (
-                    <SelectItem key={factor} value={factor}>
-                      {factor.charAt(0).toUpperCase() + factor.slice(1)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid gap-2">
-              <Label>Replenishment Frequency</Label>
-              <Select
-                value={selectedNode?.data.replenishmentFrequency}
-                onValueChange={(value) => handleUpdateStrategicPoint({ 
-                  replenishmentFrequency: value as 'daily' | 'weekly' | 'monthly'
-                })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select frequency..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {decouplingTypes.strategic.configOptions.replenishmentFrequencies.map((freq) => (
-                    <SelectItem key={freq} value={freq}>
-                      {freq.charAt(0).toUpperCase() + freq.slice(1)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid gap-2">
-              <Label>Variability Factor</Label>
-              <Select
-                value={selectedNode?.data.variabilityFactor}
-                onValueChange={(value) => handleUpdateStrategicPoint({ 
-                  variabilityFactor: value as 'high' | 'medium' | 'low' 
-                })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select variability..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {decouplingTypes.strategic.configOptions.variabilityFactors.map((factor) => (
-                    <SelectItem key={factor} value={factor}>
-                      {factor.charAt(0).toUpperCase() + factor.slice(1)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid gap-2">
-              <Label>Demand Profile</Label>
-              <Select
-                value={selectedNode?.data.demandProfile}
-                onValueChange={(value) => handleUpdateStrategicPoint({ 
-                  demandProfile: value as 'high' | 'medium' | 'low' 
-                })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select demand profile..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {decouplingTypes.strategic.configOptions.demandProfiles.map((profile) => (
-                    <SelectItem key={profile} value={profile}>
-                      {profile.charAt(0).toUpperCase() + profile.slice(1)} Demand
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
           </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isFullScreen} onOpenChange={setIsFullScreen}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] h-[95vh]">
+          <DialogHeader>
+            <DialogTitle>Network View</DialogTitle>
+          </DialogHeader>
+          {flowChart}
         </DialogContent>
       </Dialog>
     </div>
