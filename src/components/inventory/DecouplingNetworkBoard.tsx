@@ -254,11 +254,6 @@ export const DecouplingNetworkBoard = () => {
     });
   };
 
-  const onEdgeClick = (event: React.MouseEvent, edge: Edge) => {
-    event.stopPropagation();
-    setSelectedEdge(edge);
-  };
-
   const handleDeleteEdge = () => {
     if (!selectedEdge) return;
     
@@ -268,6 +263,7 @@ export const DecouplingNetworkBoard = () => {
     toast({
       title: "Connection Removed",
       description: "The connection has been deleted",
+      variant: "destructive",
     });
   };
 
@@ -474,6 +470,38 @@ export const DecouplingNetworkBoard = () => {
     </div>
   );
 
+  const EdgeWithContext = ({ id, source, target, ...props }) => {
+    return (
+      <ContextMenu>
+        <ContextMenuTrigger>
+          <path
+            {...props}
+            className="react-flow__edge-path"
+            data-id={id}
+            data-source={source}
+            data-target={target}
+          />
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuItem 
+            onClick={() => {
+              setSelectedEdge({ id, source, target });
+              handleDeleteEdge();
+            }}
+            className="text-red-600 focus:text-red-600 focus:bg-red-50"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Delete Connection
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
+    );
+  };
+
+  const edgeTypes = {
+    default: EdgeWithContext,
+  };
+
   const renderConfigOptions = () => {
     if (!selectedNode || !selectedNode.data.decouplingType) return null;
     
@@ -524,16 +552,15 @@ export const DecouplingNetworkBoard = () => {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
-            onEdgeClick={onEdgeClick}
-            onNodeClick={handleNodeClick}
             nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
             onDragOver={onDragOver}
             onDrop={onDrop}
             fitView
             snapToGrid
             snapGrid={[15, 15]}
             defaultEdgeOptions={{
-              type: 'smoothstep',
+              type: 'default',
               style: { stroke: '#9333ea', strokeWidth: 2 },
               animated: true,
             }}
