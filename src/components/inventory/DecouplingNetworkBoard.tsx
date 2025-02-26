@@ -34,6 +34,16 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type NodeData = {
   label: string;
@@ -220,13 +230,11 @@ export const DecouplingNetworkBoard = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState<NodeData>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNode, setSelectedNode] = useState<Node<NodeData> | null>(null);
+  const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const { toast } = useToast();
 
   const onConnect = (params: any) => {
-    const sourceNode = nodes.find(n => n.id === params.source);
-    const targetNode = nodes.find(n => n.id === params.target);
-    
     const newEdge = {
       ...params,
       id: `edge-${params.source}-${params.target}-${Date.now()}`,
@@ -247,14 +255,20 @@ export const DecouplingNetworkBoard = () => {
   };
 
   const onEdgeClick = (event: React.MouseEvent, edge: Edge) => {
-    const isConfirmed = window.confirm('Do you want to remove this connection?');
-    if (isConfirmed) {
-      setEdges((edges) => edges.filter((e) => e.id !== edge.id));
-      toast({
-        title: "Connection Removed",
-        description: "The connection has been deleted",
-      });
-    }
+    event.stopPropagation();
+    setSelectedEdge(edge);
+  };
+
+  const handleDeleteEdge = () => {
+    if (!selectedEdge) return;
+    
+    setEdges((edges) => edges.filter((e) => e.id !== selectedEdge.id));
+    setSelectedEdge(null);
+    
+    toast({
+      title: "Connection Removed",
+      description: "The connection has been deleted",
+    });
   };
 
   const handleNodeClick = (_, node) => {
@@ -309,6 +323,7 @@ export const DecouplingNetworkBoard = () => {
     toast({
       title: "Node Deleted",
       description: "The node and its connections have been removed",
+      variant: "destructive",
     });
   };
 
@@ -531,6 +546,26 @@ export const DecouplingNetworkBoard = () => {
         </div>
         <DraggableNodes />
       </div>
+
+      <AlertDialog open={!!selectedEdge} onOpenChange={() => setSelectedEdge(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Connection</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this connection? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteEdge}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Dialog open={!!selectedNode} onOpenChange={() => setSelectedNode(null)}>
         <DialogContent className="sm:max-w-[425px] max-h-[80vh]">
