@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { MapPin, CircleDot } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 type NodeData = {
   label: string;
@@ -338,7 +339,7 @@ export const DecouplingNetworkBoard = () => {
       </div>
 
       <Dialog open={!!selectedNode} onOpenChange={() => setSelectedNode(null)}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] max-h-[80vh]">
           <DialogHeader>
             <DialogTitle>Configure Strategic Point</DialogTitle>
             <DialogDescription>
@@ -346,30 +347,31 @@ export const DecouplingNetworkBoard = () => {
             </DialogDescription>
           </DialogHeader>
           
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label>Buffer Size</Label>
-              <Select
-                value={selectedNode?.data.bufferSize?.toString()}
-                onValueChange={(value) => {
-                  const numericValue = Number(value);
-                  if (!isNaN(numericValue)) {
-                    handleUpdateStrategicPoint({ bufferSize: numericValue });
-                  }
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select buffer size..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {decouplingTypes.strategic.configOptions.bufferSize.map((size) => (
-                    <SelectItem key={size} value={size.toString()}>
-                      {size} units
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <ScrollArea className="h-[60vh]">
+            <div className="grid gap-4 py-4 px-4">
+              <div className="grid gap-2">
+                <Label>Buffer Size</Label>
+                <Select
+                  value={selectedNode?.data.bufferSize?.toString()}
+                  onValueChange={(value) => {
+                    const numericValue = Number(value);
+                    if (!isNaN(numericValue)) {
+                      handleUpdateStrategicPoint({ bufferSize: numericValue });
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select buffer size..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {decouplingTypes.strategic.configOptions.bufferSize.map((size) => (
+                      <SelectItem key={size} value={size.toString()}>
+                        {size} units
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
             <div className="grid gap-2">
               <Label>Lead Time</Label>
@@ -521,6 +523,7 @@ export const DecouplingNetworkBoard = () => {
               </Select>
             </div>
           </div>
+          </ScrollArea>
         </DialogContent>
       </Dialog>
     </div>
