@@ -341,6 +341,49 @@ export const DecouplingNetworkBoard = () => {
     });
   };
 
+  const Controls = () => (
+    <div className="flex items-center gap-4 p-4 border-b">
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="outline" className="flex items-center gap-2">
+            <MapPin className="w-4 h-4" />
+            Add Decoupling Point
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-80">
+          <div className="grid gap-4">
+            <h4 className="font-medium leading-none">Select Decoupling Point Type</h4>
+            <div className="grid gap-2">
+              {Object.entries(decouplingTypes).map(([key, { label, color, description }]) => (
+                <Button
+                  key={key}
+                  variant="outline"
+                  className="justify-start gap-2 h-auto p-3"
+                  onClick={() => handleAddDecouplingPoint(key)}
+                >
+                  <CircleDot className="w-4 h-4" style={{ color }} />
+                  <div className="flex flex-col items-start">
+                    <span className="text-sm font-medium">{label}</span>
+                    <span className="text-xs text-muted-foreground">{description}</span>
+                  </div>
+                </Button>
+              ))}
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
+      
+      <Button
+        variant="outline"
+        className="flex items-center gap-2"
+        onClick={() => setIsFullScreen(!isFullScreen)}
+      >
+        <Maximize2 className="w-4 h-4" />
+        {isFullScreen ? 'Exit Full Screen' : 'Full Screen View'}
+      </Button>
+    </div>
+  );
+
   const flowChart = (
     <ReactFlow
       nodes={nodes}
@@ -359,49 +402,19 @@ export const DecouplingNetworkBoard = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-4 p-4 border-b">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" className="flex items-center gap-2">
-              <MapPin className="w-4 h-4" />
-              Add Decoupling Point
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80">
-            <div className="grid gap-4">
-              <h4 className="font-medium leading-none">Select Decoupling Point Type</h4>
-              <div className="grid gap-2">
-                {Object.entries(decouplingTypes).map(([key, { label, color, description }]) => (
-                  <Button
-                    key={key}
-                    variant="outline"
-                    className="justify-start gap-2 h-auto p-3"
-                    onClick={() => handleAddDecouplingPoint(key)}
-                  >
-                    <CircleDot className="w-4 h-4" style={{ color }} />
-                    <div className="flex flex-col items-start">
-                      <span className="text-sm font-medium">{label}</span>
-                      <span className="text-xs text-muted-foreground">{description}</span>
-                    </div>
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-        
-        <Button
-          variant="outline"
-          className="flex items-center gap-2"
-          onClick={() => setIsFullScreen(true)}
-        >
-          <Maximize2 className="w-4 h-4" />
-          Full Screen View
-        </Button>
+      <div className={`${isFullScreen ? 'hidden' : ''}`}>
+        <Controls />
       </div>
 
       <div className={`border rounded-lg bg-white ${isFullScreen ? 'fixed inset-0 z-50' : 'h-[600px]'}`}>
-        {flowChart}
+        {isFullScreen && (
+          <div className="absolute top-0 left-0 right-0 z-10 bg-white border-b">
+            <Controls />
+          </div>
+        )}
+        <div className={isFullScreen ? 'pt-[73px] h-full' : 'h-full'}>
+          {flowChart}
+        </div>
       </div>
 
       <Dialog open={!!selectedNode} onOpenChange={() => setSelectedNode(null)}>
@@ -418,15 +431,6 @@ export const DecouplingNetworkBoard = () => {
               {renderConfigOptions()}
             </div>
           </ScrollArea>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isFullScreen} onOpenChange={setIsFullScreen}>
-        <DialogContent className="max-w-[95vw] max-h-[95vh] h-[95vh]">
-          <DialogHeader>
-            <DialogTitle>Network View</DialogTitle>
-          </DialogHeader>
-          {flowChart}
         </DialogContent>
       </Dialog>
     </div>
