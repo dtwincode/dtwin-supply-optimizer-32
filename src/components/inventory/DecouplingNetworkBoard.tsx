@@ -214,9 +214,15 @@ const locationTypes = [
   }
 ];
 
-interface EdgeWithContextProps extends Edge {
+interface EdgeWithContextProps {
+  id: string;
+  source: string;
+  target: string;
   setSelectedEdge: (edge: Edge | null) => void;
   handleDeleteEdge: () => void;
+  className?: string;
+  style?: React.CSSProperties;
+  [key: string]: any;
 }
 
 const EdgeWithContext = ({ 
@@ -566,12 +572,8 @@ export const DecouplingNetworkBoard = () => {
   );
 
   const edgeTypes = {
-    default: (props) => (
-      <EdgeWithContext 
-        {...props} 
-        setSelectedEdge={setSelectedEdge}
-        handleDeleteEdge={handleDeleteEdge}
-      />
+    default: (props: EdgeWithContextProps) => (
+      <EdgeWithContext {...props} setSelectedEdge={setSelectedEdge} handleDeleteEdge={handleDeleteEdge} />
     ),
   };
 
