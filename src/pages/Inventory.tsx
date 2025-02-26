@@ -13,21 +13,28 @@ import { InventoryTabs } from "@/components/inventory/InventoryTabs";
 import { InventoryTab } from "@/components/inventory/InventoryTab";
 import { InventoryChart } from "@/components/inventory/InventoryChart";
 import { NetworkDecouplingMap } from "@/components/inventory/NetworkDecouplingMap";
+import { DecouplingPointDialog } from "@/components/inventory/DecouplingPointDialog";
 import { inventoryData } from "@/data/inventoryData";
 import { InventoryItem } from "@/types/inventory";
-
-const ITEMS_PER_PAGE = 10;
 
 const Inventory = () => {
   const { language } = useLanguage();
   const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedLocationId, setSelectedLocationId] = useState<string>("");
 
   const handleCreatePurchaseOrder = (item: InventoryItem) => {
     toast({
       title: getTranslation("common.success", language),
       description: getTranslation("common.purchaseOrderCreated", language),
+    });
+  };
+
+  const handleDecouplingPointSuccess = () => {
+    toast({
+      title: "Success",
+      description: "Decoupling point configuration updated successfully",
     });
   };
 
@@ -45,8 +52,8 @@ const Inventory = () => {
   });
 
   const paginatedData = filteredData.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    (currentPage - 1) * 10,
+    currentPage * 10
   );
 
   return (
@@ -59,10 +66,16 @@ const Inventory = () => {
                 ? 'إدارة المخزون والتتبع'
                 : 'Manage and track inventory levels'}
             </p>
-            <InventoryFilters
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-            />
+            <div className="flex gap-2">
+              <InventoryFilters
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+              />
+              <DecouplingPointDialog 
+                locationId={selectedLocationId}
+                onSuccess={handleDecouplingPointSuccess}
+              />
+            </div>
           </div>
         </div>
 
@@ -81,7 +94,7 @@ const Inventory = () => {
               />
               <div className="mt-4 flex justify-between items-center p-6">
                 <div className="text-sm text-gray-500">
-                  {getTranslation("common.showing", language)} {(currentPage - 1) * ITEMS_PER_PAGE + 1} {getTranslation("common.to", language)} {Math.min(currentPage * ITEMS_PER_PAGE, filteredData.length)} {getTranslation("common.of", language)} {filteredData.length} {getTranslation("common.items", language)}
+                  {getTranslation("common.showing", language)} {(currentPage - 1) * 10 + 1} {getTranslation("common.to", language)} {Math.min(currentPage * 10, filteredData.length)} {getTranslation("common.of", language)} {filteredData.length} {getTranslation("common.items", language)}
                 </div>
                 <div className="flex gap-2">
                   <Button
@@ -93,8 +106,8 @@ const Inventory = () => {
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredData.length / ITEMS_PER_PAGE), p + 1))}
-                    disabled={currentPage === Math.ceil(filteredData.length / ITEMS_PER_PAGE)}
+                    onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredData.length / 10), p + 1))}
+                    disabled={currentPage === Math.ceil(filteredData.length / 10)}
                   >
                     {getTranslation("common.next", language)}
                   </Button>
