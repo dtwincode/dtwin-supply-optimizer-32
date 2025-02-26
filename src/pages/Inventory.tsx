@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
+import { Button } from "@/components/ui/button";
 import InventoryFilters from "@/components/inventory/InventoryFilters";
 import InventorySummaryCards from "@/components/inventory/InventorySummaryCards";
 import { InventoryTabs } from "@/components/inventory/InventoryTabs";

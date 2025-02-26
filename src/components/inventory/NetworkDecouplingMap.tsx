@@ -86,18 +86,32 @@ export const NetworkDecouplingMap = () => {
 
         if (error) throw error;
 
-        const formattedLocations = data.map(loc => ({
-          id: loc.location_id,
-          name: loc.location_description || loc.location_id,
-          level: loc.hierarchy_level,
-          parent_id: loc.parent_id,
-          coordinates: loc.coordinates,
-          channel: loc.channel,
-          city: loc.city,
-          region: loc.region,
-          warehouse: loc.warehouse,
-          decoupling_point: loc.decoupling_points?.[0]
-        }));
+        const formattedLocations = data.map(loc => {
+          // Parse coordinates from JSON if needed
+          let coordinates;
+          if (typeof loc.coordinates === 'string') {
+            try {
+              coordinates = JSON.parse(loc.coordinates);
+            } catch {
+              coordinates = null;
+            }
+          } else {
+            coordinates = loc.coordinates as { lat: number; lng: number } | null;
+          }
+
+          return {
+            id: loc.location_id,
+            name: loc.location_description || loc.location_id,
+            level: loc.hierarchy_level,
+            parent_id: loc.parent_id,
+            coordinates: coordinates || { lat: 0, lng: 0 }, // Provide default if missing
+            channel: loc.channel,
+            city: loc.city,
+            region: loc.region,
+            warehouse: loc.warehouse,
+            decoupling_point: loc.decoupling_points?.[0]
+          };
+        });
 
         setLocations(formattedLocations);
       } catch (error) {
