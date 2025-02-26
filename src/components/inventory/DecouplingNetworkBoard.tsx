@@ -10,6 +10,7 @@ import {
   Position,
   Handle,
   ConnectionMode,
+  Edge,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { useState } from 'react';
@@ -228,11 +229,13 @@ export const DecouplingNetworkBoard = () => {
     
     const newEdge = {
       ...params,
+      id: `edge-${params.source}-${params.target}-${Date.now()}`,
       animated: true,
       style: { 
         stroke: '#9333ea',
         strokeWidth: 2,
       },
+      type: 'smoothstep',
     };
 
     setEdges((eds) => addEdge(newEdge, eds));
@@ -241,6 +244,17 @@ export const DecouplingNetworkBoard = () => {
       title: "Connection Created",
       description: "Nodes connected successfully",
     });
+  };
+
+  const onEdgeClick = (event: React.MouseEvent, edge: Edge) => {
+    const isConfirmed = window.confirm('Do you want to remove this connection?');
+    if (isConfirmed) {
+      setEdges((edges) => edges.filter((e) => e.id !== edge.id));
+      toast({
+        title: "Connection Removed",
+        description: "The connection has been deleted",
+      });
+    }
   };
 
   const handleNodeClick = (_, node) => {
@@ -289,8 +303,8 @@ export const DecouplingNetworkBoard = () => {
   };
 
   const handleDeleteNode = (nodeId: string) => {
-    setNodes((nds) => nds.filter((node) => node.id !== nodeId));
     setEdges((eds) => eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId));
+    setNodes((nds) => nds.filter((node) => node.id !== nodeId));
     
     toast({
       title: "Node Deleted",
@@ -355,21 +369,21 @@ export const DecouplingNetworkBoard = () => {
     default: (nodeProps) => (
       <ContextMenu>
         <ContextMenuTrigger>
-          <div className="relative flex flex-col items-center">
+          <div className="relative flex flex-col items-center p-4 bg-white rounded-lg">
             <Handle
               type="target"
               position={Position.Left}
-              className="w-4 h-4 !bg-purple-500 border-2 border-white"
-              style={{ left: '-12px' }}
+              className="w-3 h-3 !bg-purple-500 border-2 border-white hover:!bg-purple-600 transition-colors"
+              style={{ left: '-10px' }}
             />
-            <div className={nodeProps.className}>
+            <div className="text-sm font-medium">
               {nodeProps.data.label}
             </div>
             <Handle
               type="source"
               position={Position.Right}
-              className="w-4 h-4 !bg-purple-500 border-2 border-white"
-              style={{ right: '-12px' }}
+              className="w-3 h-3 !bg-purple-500 border-2 border-white hover:!bg-purple-600 transition-colors"
+              style={{ right: '-10px' }}
             />
           </div>
         </ContextMenuTrigger>
@@ -495,6 +509,7 @@ export const DecouplingNetworkBoard = () => {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
+            onEdgeClick={onEdgeClick}
             onNodeClick={handleNodeClick}
             nodeTypes={nodeTypes}
             onDragOver={onDragOver}
