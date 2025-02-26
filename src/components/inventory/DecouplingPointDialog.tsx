@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Info } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -25,6 +25,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface LocationWithHierarchy {
   id: string;
@@ -43,17 +49,52 @@ interface DecouplingPointDialogProps {
 }
 
 const TYPE_DESCRIPTIONS = {
-  strategic: "Strategic points (15-20%)",
-  customer_order: "Customer order points (30-40%)",
-  stock_point: "Stock points (40-50%)",
-  intermediate: "Intermediate points (10-15%)"
+  strategic: "Strategic points (15-20% of network)",
+  customer_order: "Customer order points (30-40% of network)",
+  stock_point: "Stock points (40-50% of network)",
+  intermediate: "Intermediate points (10-15% of network)"
 };
 
 const TYPE_RECOMMENDATIONS = {
-  strategic: "Ideal for main distribution centers and key hubs",
-  customer_order: "Best for retail locations and direct customer fulfillment",
-  stock_point: "Suitable for warehouses and regional distribution points",
-  intermediate: "For supporting locations between major nodes"
+  strategic: {
+    description: "Main distribution centers and key hubs",
+    criteria: [
+      "Long lead times (>14 days)",
+      "High demand aggregation",
+      "Critical supply chain convergence points"
+    ]
+  },
+  customer_order: {
+    description: "Retail locations and direct customer fulfillment",
+    criteria: [
+      "Customer tolerance time < lead time",
+      "High service level requirements",
+      "Direct customer demand points"
+    ]
+  },
+  stock_point: {
+    description: "Warehouses and regional distribution points",
+    criteria: [
+      "Medium lead times (7-14 days)",
+      "Regional demand aggregation",
+      "Buffer against supply variability"
+    ]
+  },
+  intermediate: {
+    description: "Supporting locations between major nodes",
+    criteria: [
+      "Short lead times (<7 days)",
+      "Protection against operational variability",
+      "Process decoupling requirements"
+    ]
+  }
+};
+
+const INDUSTRY_BENCHMARKS = {
+  strategic: 0.20, // 20% of total points
+  customer_order: 0.35, // 35% of total points
+  stock_point: 0.35, // 35% of total points
+  intermediate: 0.10 // 10% of total points
 };
 
 export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPointDialogProps) => {
@@ -61,6 +102,7 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [bufferProfiles, setBufferProfiles] = React.useState<BufferProfile[]>([]);
   const [locations, setLocations] = React.useState<LocationWithHierarchy[]>([]);
+  const [currentDistribution, setCurrentDistribution] = React.useState<Record<string, number>>({});
   const [formData, setFormData] = React.useState<Partial<DecouplingPoint>>({
     locationId,
     type: 'stock_point',
@@ -68,6 +110,7 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
 
   React.useEffect(() => {
     const fetchData = async () => {
+      // Fetch buffer profiles
       const { data: profileData, error: profileError } = await supabase
         .from('buffer_profiles')
         .select('*');
@@ -77,9 +120,10 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
         return;
       }
 
+      // Fetch locations
       const { data: locationData, error: locationError } = await supabase
         .from('location_hierarchy')
-        .select('location_id, location_description, hierarchy_level, parent_id, channel, city, region, warehouse')
+        .select('*')
         .eq('active', true);
 
       if (locationError) {
@@ -87,7 +131,20 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
         return;
       }
 
-      setBufferProfiles(profileData.map(profile => ({
+      // Fetch current decoupling points to calculate distribution
+      const { data: decouplingPoints, error: dpError } = await supabase
+        .from('decoupling_points')
+        .select('type');
+
+      if (!dpError && decouplingPoints) {
+        const distribution = decouplingPoints.reduce((acc: Record<string, number>, point) => {
+          acc[point.type] = (acc[point.type] || 0) + 1;
+          return acc;
+        }, {});
+        setCurrentDistribution(distribution);
+      }
+
+      setBufferProfiles(profileData?.map(profile => ({
         id: profile.id,
         name: profile.name,
         description: profile.description,
@@ -95,9 +152,9 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
         leadTimeFactor: profile.lead_time_factor,
         moq: profile.moq,
         lotSizeFactor: profile.lot_size_factor,
-      })));
+      })) || []);
 
-      setLocations(locationData.map(loc => ({
+      setLocations(locationData?.map(loc => ({
         id: loc.location_id,
         name: loc.location_description || loc.location_id,
         level: loc.hierarchy_level,
@@ -106,7 +163,7 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
         city: loc.city,
         region: loc.region,
         warehouse: loc.warehouse
-      })));
+      })) || []);
     };
 
     fetchData();
@@ -183,25 +240,34 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
     );
   };
 
+  const getDistributionStatus = (type: keyof typeof INDUSTRY_BENCHMARKS) => {
+    const total = Object.values(currentDistribution).reduce((sum, count) => sum + count, 0) || 1;
+    const current = (currentDistribution[type] || 0) / total;
+    const benchmark = INDUSTRY_BENCHMARKS[type];
+    
+    if (current <= benchmark) return "text-green-500";
+    return "text-yellow-500";
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline">Define Decoupling Point</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] max-h-[90vh] p-0">
+      <DialogContent className="sm:max-w-[625px] max-h-[90vh] p-0">
         <ScrollArea className="max-h-[90vh] overflow-y-auto">
           <div className="p-6 space-y-4">
             <DialogHeader className="space-y-1.5">
-              <DialogTitle>Define Decoupling Point</DialogTitle>
+              <DialogTitle>Strategic Decoupling Point Positioning</DialogTitle>
               <DialogDescription>
-                Configure a decoupling point based on supply chain benchmarks.
+                Position decoupling points based on DDMRP strategic criteria and industry benchmarks.
               </DialogDescription>
             </DialogHeader>
 
             <Alert variant="default" className="py-2">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
-                Consider placement impact on inventory positioning
+                Strategic positioning impacts overall supply chain performance
               </AlertDescription>
             </Alert>
 
@@ -226,7 +292,19 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="type">Type</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="type">Decoupling Point Type</Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Info className="h-4 w-4 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Position based on DDMRP strategic factors</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <Select
                   value={formData.type}
                   onValueChange={(value) => setFormData(prev => ({ ...prev, type: value as DecouplingPoint['type'] }))}
@@ -238,9 +316,22 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
                     {Object.entries(TYPE_DESCRIPTIONS).map(([type, description]) => (
                       <SelectItem key={type} value={type}>
                         <div className="flex flex-col space-y-1">
-                          <div>{description}</div>
+                          <div className="flex items-center justify-between">
+                            <span>{description}</span>
+                            <Badge variant="outline" className={getDistributionStatus(type as keyof typeof INDUSTRY_BENCHMARKS)}>
+                              {((currentDistribution[type] || 0) * 100).toFixed(1)}%
+                            </Badge>
+                          </div>
                           <div className="text-xs text-muted-foreground">
-                            {TYPE_RECOMMENDATIONS[type as keyof typeof TYPE_RECOMMENDATIONS]}
+                            {TYPE_RECOMMENDATIONS[type as keyof typeof TYPE_RECOMMENDATIONS].description}
+                          </div>
+                          <div className="mt-1">
+                            <div className="text-xs font-medium">Key Criteria:</div>
+                            <ul className="text-xs text-muted-foreground list-disc pl-4">
+                              {TYPE_RECOMMENDATIONS[type as keyof typeof TYPE_RECOMMENDATIONS].criteria.map((criterion, idx) => (
+                                <li key={idx}>{criterion}</li>
+                              ))}
+                            </ul>
                           </div>
                         </div>
                       </SelectItem>
@@ -276,18 +367,18 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Description & Rationale</Label>
+                <Label htmlFor="description">Strategic Rationale</Label>
                 <Textarea
                   id="description"
                   value={formData.description || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Explain the rationale for this decoupling point placement..."
+                  placeholder="Document the strategic reasoning for this decoupling point placement..."
                   className="h-20 resize-none"
                 />
               </div>
 
               <Button type="submit" disabled={isSubmitting} className="w-full">
-                {isSubmitting ? "Creating..." : "Create Decoupling Point"}
+                {isSubmitting ? "Creating..." : "Create Strategic Decoupling Point"}
               </Button>
             </form>
           </div>
@@ -296,3 +387,4 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
     </Dialog>
   );
 };
+
