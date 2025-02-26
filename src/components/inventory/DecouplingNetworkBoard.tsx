@@ -21,7 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { MapPin, CircleDot, Maximize2, Trash2 } from 'lucide-react';
+import { MapPin, CircleDot, Maximize2, Trash2, Plus } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -242,6 +242,47 @@ export const DecouplingNetworkBoard = () => {
     setSelectedNode(node);
   };
 
+  const onDragOver = (event) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  };
+
+  const onDrop = (event) => {
+    event.preventDefault();
+
+    const reactFlowBounds = document.querySelector('.react-flow').getBoundingClientRect();
+    const type = event.dataTransfer.getData('application/reactflow');
+    
+    const position = {
+      x: event.clientX - reactFlowBounds.left,
+      y: event.clientY - reactFlowBounds.top,
+    };
+
+    const newNode = {
+      id: `node-${Date.now()}`,
+      type: 'default',
+      position,
+      data: { 
+        label: 'New Node',
+        decouplingType: null
+      },
+      style: { 
+        background: '#ffffff',
+        border: '1px solid #e5e7eb',
+        borderRadius: '8px',
+        padding: '10px',
+        width: 180,
+      },
+    };
+
+    setNodes((nds) => nds.concat(newNode));
+
+    toast({
+      title: "Node Created",
+      description: "New node has been added to the network",
+    });
+  };
+
   const handleDeleteNode = (nodeId: string) => {
     setNodes((nds) => nds.filter((node) => node.id !== nodeId));
     setEdges((eds) => eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId));
@@ -325,6 +366,22 @@ export const DecouplingNetworkBoard = () => {
       </ContextMenu>
     ),
   };
+
+  const DraggableNodes = () => (
+    <div className="flex gap-2 p-4 border-t">
+      <div
+        className="flex items-center gap-2 p-2 border rounded cursor-move bg-white hover:bg-gray-50"
+        draggable
+        onDragStart={(event) => {
+          event.dataTransfer.setData('application/reactflow', 'default');
+          event.dataTransfer.effectAllowed = 'move';
+        }}
+      >
+        <Plus className="w-4 h-4" />
+        Drag to add node
+      </div>
+    </div>
+  );
 
   const NetworkControls = () => (
     <div className="flex items-center gap-4 p-4 border-b">
@@ -421,6 +478,8 @@ export const DecouplingNetworkBoard = () => {
             onConnect={onConnect}
             onNodeClick={handleNodeClick}
             nodeTypes={nodeTypes}
+            onDragOver={onDragOver}
+            onDrop={onDrop}
             fitView
           >
             <Background />
@@ -428,6 +487,7 @@ export const DecouplingNetworkBoard = () => {
             <MiniMap />
           </ReactFlow>
         </div>
+        <DraggableNodes />
       </div>
 
       <Dialog open={!!selectedNode} onOpenChange={() => setSelectedNode(null)}>
