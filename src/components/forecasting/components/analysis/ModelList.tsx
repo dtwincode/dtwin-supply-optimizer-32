@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { BarChart2, ChevronDown, ChevronUp, History, Trash2 } from "lucide-react";
+import { BarChart2, ChevronDown, ChevronUp, History, Trash2, TrendingUp } from "lucide-react";
 import { SavedModelConfig } from "@/types/forecasting";
 import { toast } from "sonner";
 
