@@ -41,6 +41,12 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 
 type NodeData = {
   label: string;
@@ -207,6 +213,11 @@ const locationTypes = [
     type: 'default'
   }
 ];
+
+interface EdgeWithContextProps extends Edge {
+  setSelectedEdge: (edge: Edge | null) => void;
+  handleDeleteEdge: () => void;
+}
 
 const EdgeWithContext = ({ 
   id, 
@@ -431,37 +442,24 @@ export const DecouplingNetworkBoard = () => {
   };
 
   const nodeTypes = {
-    default: (nodeProps) => (
-      <ContextMenu>
-        <ContextMenuTrigger>
-          <div className="relative flex flex-col items-center p-4 bg-white rounded-lg">
-            <Handle
-              type="target"
-              position={Position.Left}
-              className="w-3 h-3 !bg-purple-500 border-2 border-white hover:!bg-purple-600 transition-colors"
-              style={{ left: '-10px' }}
-            />
-            <div className="text-sm font-medium">
-              {nodeProps.data.label}
-            </div>
-            <Handle
-              type="source"
-              position={Position.Right}
-              className="w-3 h-3 !bg-purple-500 border-2 border-white hover:!bg-purple-600 transition-colors"
-              style={{ right: '-10px' }}
-            />
-          </div>
-        </ContextMenuTrigger>
-        <ContextMenuContent>
-          <ContextMenuItem 
-            onClick={() => handleDeleteNode(nodeProps.id)}
-            className="text-red-600 focus:text-red-600 focus:bg-red-50"
-          >
-            <Trash2 className="w-4 h-4 mr-2" />
-            Delete Node
-          </ContextMenuItem>
-        </ContextMenuContent>
-      </ContextMenu>
+    default: (nodeProps: any) => (
+      <div className="relative flex flex-col items-center p-4 bg-white rounded-lg">
+        <Handle
+          type="target"
+          position={Position.Left}
+          className="w-3 h-3 !bg-purple-500 border-2 border-white hover:!bg-purple-600 transition-colors"
+          style={{ left: '-10px' }}
+        />
+        <div className="text-sm font-medium">
+          {nodeProps.data.label}
+        </div>
+        <Handle
+          type="source"
+          position={Position.Right}
+          className="w-3 h-3 !bg-purple-500 border-2 border-white hover:!bg-purple-600 transition-colors"
+          style={{ right: '-10px' }}
+        />
+      </div>
     ),
   };
 
