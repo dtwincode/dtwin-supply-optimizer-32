@@ -239,8 +239,8 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
 
   return (
     <div className="container mx-auto p-4 space-y-8">
-      <div className="bg-card rounded-lg border shadow-sm p-6 space-y-6">
-        <div className="flex justify-between items-start">
+      <div className="bg-card rounded-lg border shadow-sm p-6">
+        <div className="flex justify-between items-start mb-6">
           <StepHeader 
             number={1}
             title="Configure Distribution Parameters"
@@ -248,7 +248,7 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
           />
         </div>
         
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="space-y-6">
           <Card className="p-6">
             <h4 className="text-base font-medium mb-4">Forecast Timeline</h4>
             <Select value={forecastPeriod} onValueChange={setForecastPeriod}>
@@ -283,7 +283,7 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
         </div>
       </div>
 
-      <div className="bg-card rounded-lg border shadow-sm p-6 space-y-6">
+      <div className="bg-card rounded-lg border shadow-sm p-6">
         <StepHeader 
           number={2}
           title="Review Distribution Quantities"
@@ -297,7 +297,7 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
         />
       </div>
 
-      <div className="bg-card rounded-lg border shadow-sm p-6 space-y-6">
+      <div className="bg-card rounded-lg border shadow-sm p-6">
         <StepHeader 
           number={3}
           title="Analyze Distribution Impact"
@@ -312,14 +312,14 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
         />
       </div>
 
-      <div className="bg-card rounded-lg border shadow-sm p-6 space-y-6">
+      <div className="bg-card rounded-lg border shadow-sm p-6">
         <StepHeader 
           number={4}
           title="Visualize Distribution Plan"
           description="View distribution patterns and trends across your timeline"
         />
         
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="space-y-6">
           <DistributionCharts
             selectedSKU={selectedSKU}
             distributionData={distributionData}
