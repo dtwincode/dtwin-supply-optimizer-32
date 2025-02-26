@@ -25,15 +25,22 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { MapPin, CircleDot, Maximize2, Trash2, Plus } from 'lucide-react';
+import { MapPin, CircleDot, Maximize2, Trash2, Plus, Factory, Building2, Store, Box } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 
 type NodeData = {
   label: string;
@@ -50,119 +57,9 @@ type NodeData = {
   criticalityFactor?: 'high' | 'medium' | 'low';
 };
 
-const initialNodes: Node<NodeData>[] = [
-  {
-    id: 'supplier-1',
-    type: 'input',
-    data: { 
-      label: 'Supplier Factory',
-      decouplingType: null
-    },
-    position: { x: 100, y: 50 },
-    style: { 
-      background: '#ffffff',
-      border: '1px solid #e5e7eb',
-      borderRadius: '8px',
-      padding: '10px',
-      width: 180,
-    },
-  },
-  {
-    id: 'dc-1',
-    type: 'default',
-    data: { 
-      label: 'Regional Distribution Center',
-      decouplingType: null
-    },
-    position: { x: 400, y: 50 },
-    style: { 
-      background: '#ffffff',
-      border: '1px solid #e5e7eb',
-      borderRadius: '8px',
-      padding: '10px',
-      width: 180,
-    },
-  },
-  {
-    id: 'dc-2',
-    type: 'default',
-    data: { 
-      label: 'Local Distribution Center',
-      decouplingType: null
-    },
-    position: { x: 400, y: 200 },
-    style: { 
-      background: '#ffffff',
-      border: '1px solid #e5e7eb',
-      borderRadius: '8px',
-      padding: '10px',
-      width: 180,
-    },
-  },
-  {
-    id: 'retail-1',
-    type: 'output',
-    data: { 
-      label: 'Retail Store',
-      decouplingType: null
-    },
-    position: { x: 700, y: 50 },
-    style: { 
-      background: '#ffffff',
-      border: '1px solid #e5e7eb',
-      borderRadius: '8px',
-      padding: '10px',
-      width: 180,
-    },
-  },
-  {
-    id: 'retail-2',
-    type: 'output',
-    data: { 
-      label: 'Retail Store',
-      decouplingType: null
-    },
-    position: { x: 700, y: 200 },
-    style: { 
-      background: '#ffffff',
-      border: '1px solid #e5e7eb',
-      borderRadius: '8px',
-      padding: '10px',
-      width: 180,
-    },
-  },
-];
+const initialNodes: Node<NodeData>[] = [];
 
-const initialEdges = [
-  { 
-    id: 'e1-2', 
-    source: 'supplier-1', 
-    target: 'dc-1', 
-    animated: true,
-    style: { stroke: '#9333ea' }
-  },
-  { 
-    id: 'e1-3', 
-    source: 'supplier-1', 
-    target: 'dc-2', 
-    animated: true,
-    style: { stroke: '#9333ea' }
-  },
-  { 
-    id: 'e2-4', 
-    source: 'dc-1', 
-    target: 'retail-1', 
-    animated: true,
-    style: { stroke: '#9333ea' }
-  },
-  { 
-    id: 'e3-5', 
-    source: 'dc-2', 
-    target: 'retail-2', 
-    animated: true,
-    style: { stroke: '#9333ea' }
-  },
-];
+const initialEdges = [];
 
 const decouplingTypes = {
   strategic: { 
@@ -216,14 +113,100 @@ const decouplingTypes = {
   },
 };
 
-type EdgeWithContextProps = {
-  id: string;
-  source: string;
-  target: string;
-  setSelectedEdge: (edge: Edge | null) => void;
-  handleDeleteEdge: () => void;
-  [key: string]: any;
-};
+const networkTemplates = [
+  {
+    id: 'simple',
+    name: 'Simple Supply Chain',
+    description: 'Supplier → DC → Retail',
+    nodes: [
+      {
+        id: 'supplier-1',
+        type: 'input',
+        data: { label: 'Supplier', decouplingType: null },
+        position: { x: 100, y: 100 },
+      },
+      {
+        id: 'dc-1',
+        type: 'default',
+        data: { label: 'Distribution Center', decouplingType: null },
+        position: { x: 300, y: 100 },
+      },
+      {
+        id: 'retail-1',
+        type: 'output',
+        data: { label: 'Retail Store', decouplingType: null },
+        position: { x: 500, y: 100 },
+      }
+    ],
+    edges: [
+      { id: 'e1-2', source: 'supplier-1', target: 'dc-1', animated: true },
+      { id: 'e2-3', source: 'dc-1', target: 'retail-1', animated: true }
+    ]
+  },
+  {
+    id: 'hub-spoke',
+    name: 'Hub and Spoke',
+    description: 'Central DC with multiple retail points',
+    nodes: [
+      {
+        id: 'dc-main',
+        type: 'default',
+        data: { label: 'Main DC', decouplingType: null },
+        position: { x: 300, y: 200 },
+      },
+      {
+        id: 'retail-1',
+        type: 'output',
+        data: { label: 'Retail Store 1', decouplingType: null },
+        position: { x: 500, y: 100 },
+      },
+      {
+        id: 'retail-2',
+        type: 'output',
+        data: { label: 'Retail Store 2', decouplingType: null },
+        position: { x: 500, y: 200 },
+      },
+      {
+        id: 'retail-3',
+        type: 'output',
+        data: { label: 'Retail Store 3', decouplingType: null },
+        position: { x: 500, y: 300 },
+      }
+    ],
+    edges: [
+      { id: 'e1-2', source: 'dc-main', target: 'retail-1', animated: true },
+      { id: 'e1-3', source: 'dc-main', target: 'retail-2', animated: true },
+      { id: 'e1-4', source: 'dc-main', target: 'retail-3', animated: true }
+    ]
+  }
+];
+
+const locationTypes = [
+  { 
+    id: 'supplier',
+    label: 'Supplier/Factory',
+    icon: Factory,
+    type: 'input'
+  },
+  { 
+    id: 'dc',
+    label: 'Distribution Center',
+    icon: Building2,
+    type: 'default'
+  },
+  { 
+    id: 'retail',
+    label: 'Retail Store',
+    icon: Store,
+    type: 'output'
+  },
+  { 
+    id: 'inventory',
+    label: 'Inventory Point',
+    icon: Box,
+    type: 'default'
+  }
+];
 
 const EdgeWithContext = ({ 
   id, 
@@ -261,12 +244,49 @@ const EdgeWithContext = ({
 };
 
 export const DecouplingNetworkBoard = () => {
-  const [nodes, setNodes, onNodesChange] = useNodesState<NodeData>(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState<NodeData>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [selectedNode, setSelectedNode] = useState<Node<NodeData> | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const { toast } = useToast();
+
+  const handleTemplateSelect = (template: typeof networkTemplates[0]) => {
+    setNodes(template.nodes);
+    setEdges(template.edges);
+    toast({
+      title: "Template Applied",
+      description: `${template.name} network template has been loaded`,
+    });
+  };
+
+  const handleAddLocation = (locationType: typeof locationTypes[0]) => {
+    const newNode = {
+      id: `${locationType.id}-${Date.now()}`,
+      type: locationType.type,
+      data: { 
+        label: locationType.label,
+        decouplingType: null
+      },
+      position: { 
+        x: 250,
+        y: (nodes.length * 100) + 100
+      },
+      style: { 
+        background: '#ffffff',
+        border: '1px solid #e5e7eb',
+        borderRadius: '8px',
+        padding: '10px',
+        width: 180,
+      },
+    };
+
+    setNodes((nds) => [...nds, newNode]);
+    toast({
+      title: "Location Added",
+      description: `New ${locationType.label} has been added`,
+    });
+  };
 
   const onConnect = (params: any) => {
     const newEdge = {
@@ -461,6 +481,49 @@ export const DecouplingNetworkBoard = () => {
     </div>
   );
 
+  const NetworkBuilder = () => (
+    <Tabs defaultValue="templates" className="w-full">
+      <TabsList className="grid w-full grid-cols-2">
+        <TabsTrigger value="templates">Templates</TabsTrigger>
+        <TabsTrigger value="locations">Add Locations</TabsTrigger>
+      </TabsList>
+      
+      <TabsContent value="templates" className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          {networkTemplates.map((template) => (
+            <Card
+              key={template.id}
+              className="cursor-pointer hover:border-primary"
+              onClick={() => handleTemplateSelect(template)}
+            >
+              <CardHeader>
+                <CardTitle className="text-sm">{template.name}</CardTitle>
+                <CardDescription>{template.description}</CardDescription>
+              </CardHeader>
+            </Card>
+          ))}
+        </div>
+      </TabsContent>
+      
+      <TabsContent value="locations" className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          {locationTypes.map((locationType) => (
+            <Card
+              key={locationType.id}
+              className="cursor-pointer hover:border-primary"
+              onClick={() => handleAddLocation(locationType)}
+            >
+              <CardContent className="flex items-center gap-3 pt-4">
+                <locationType.icon className="w-5 h-5" />
+                <div className="text-sm font-medium">{locationType.label}</div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </TabsContent>
+    </Tabs>
+  );
+
   const NetworkControls = () => (
     <div className="flex items-center gap-4 p-4 border-b">
       <Popover>
@@ -553,6 +616,8 @@ export const DecouplingNetworkBoard = () => {
 
   return (
     <div className="space-y-4">
+      <NetworkBuilder />
+      
       <div className={`border rounded-lg bg-white ${isFullScreen ? 'fixed inset-0 z-50' : 'h-[600px]'}`}>
         <div className="absolute top-0 left-0 right-0 z-10 bg-white border-b">
           <NetworkControls />
