@@ -34,16 +34,6 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 
 type NodeData = {
   label: string;
@@ -226,7 +216,23 @@ const decouplingTypes = {
   },
 };
 
-const EdgeWithContext = ({ id, source, target, ...props }) => {
+type EdgeWithContextProps = {
+  id: string;
+  source: string;
+  target: string;
+  setSelectedEdge: (edge: Edge | null) => void;
+  handleDeleteEdge: () => void;
+  [key: string]: any;
+};
+
+const EdgeWithContext = ({ 
+  id, 
+  source, 
+  target, 
+  setSelectedEdge, 
+  handleDeleteEdge,
+  ...props 
+}: EdgeWithContextProps) => {
   return (
     <ContextMenu>
       <ContextMenuTrigger>
@@ -499,7 +505,13 @@ export const DecouplingNetworkBoard = () => {
   );
 
   const edgeTypes = {
-    default: EdgeWithContext,
+    default: (props) => (
+      <EdgeWithContext 
+        {...props} 
+        setSelectedEdge={setSelectedEdge}
+        handleDeleteEdge={handleDeleteEdge}
+      />
+    ),
   };
 
   const renderConfigOptions = () => {
@@ -573,26 +585,6 @@ export const DecouplingNetworkBoard = () => {
         </div>
         <DraggableNodes />
       </div>
-
-      <AlertDialog open={!!selectedEdge} onOpenChange={() => setSelectedEdge(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Connection</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this connection? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteEdge}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       <Dialog open={!!selectedNode} onOpenChange={() => setSelectedNode(null)}>
         <DialogContent className="sm:max-w-[425px] max-h-[80vh]">
