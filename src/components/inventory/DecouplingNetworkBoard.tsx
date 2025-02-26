@@ -9,6 +9,7 @@ import {
   Node,
   Position,
   Handle,
+  ConnectionMode,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { useState } from 'react';
@@ -506,7 +507,7 @@ export const DecouplingNetworkBoard = () => {
               style: { stroke: '#9333ea', strokeWidth: 2 },
               animated: true,
             }}
-            connectionMode="loose"
+            connectionMode="default"
           >
             <Background />
             <Controls />
