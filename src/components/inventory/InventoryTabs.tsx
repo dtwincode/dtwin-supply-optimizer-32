@@ -8,6 +8,7 @@ import { ADUVisualization } from "./ADUVisualization";
 import { Brain } from "lucide-react";
 import { inventoryData } from "@/data/inventoryData";
 import { AILeadLink } from "./AILeadLink";
+import { DecouplingNetworkBoard } from "./DecouplingNetworkBoard";
 
 interface InventoryTabsProps {
   children: React.ReactNode;
@@ -17,7 +18,7 @@ export const InventoryTabs = ({ children }: InventoryTabsProps) => {
   const { language } = useLanguage();
 
   return (
-    <Tabs defaultValue="inventory" className="w-full">
+    <Tabs defaultValue="decoupling" className="w-full">
       <TabsList className="grid w-full grid-cols-7 lg:w-[1000px] p-4">
         <TabsTrigger value="inventory">
           Inventory
@@ -49,25 +50,21 @@ export const InventoryTabs = ({ children }: InventoryTabsProps) => {
 
       <TabsContent value="decoupling" className="p-6">
         <div className="space-y-6">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold">Decoupling Points Management</h3>
             <DecouplingPointDialog locationId="default" onSuccess={() => {
               // Refresh data if needed
             }} />
           </div>
           
-          <div className="bg-white rounded-lg shadow-sm border p-4">
-            <div className="text-sm text-muted-foreground mb-4">
-              Configure and visualize your supply chain network decoupling points.
-            </div>
-            <div className="aspect-[16/9] bg-gray-50 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center">
-              <div className="text-center p-4">
-                <h4 className="text-lg font-medium mb-2">Network Board Coming Soon</h4>
-                <p className="text-sm text-muted-foreground">
-                  Interactive whiteboard for configuring network nodes and decoupling points.
-                  Stay tuned for drag-and-drop functionality!
-                </p>
+          <div className="bg-white rounded-lg shadow-sm border">
+            <div className="p-4 border-b">
+              <div className="text-sm text-muted-foreground">
+                Configure and visualize your supply chain network decoupling points. Drag nodes to reposition them and click on nodes to configure decoupling points.
               </div>
+            </div>
+            <div className="p-4">
+              <DecouplingNetworkBoard />
             </div>
           </div>
         </div>
