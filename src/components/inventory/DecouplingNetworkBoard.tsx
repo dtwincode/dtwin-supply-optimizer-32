@@ -7,6 +7,7 @@ import {
   useNodesState,
   useEdgesState,
   addEdge,
+  Node,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { useState } from 'react';
@@ -24,12 +25,20 @@ import { useToast } from '@/components/ui/use-toast';
 import { MapPin, CircleDot } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
-const initialNodes = [
+// Define the type for node data
+type NodeData = {
+  label: string;
+  decouplingType?: string | null;
+};
+
+// Define the initial nodes with the correct type
+const initialNodes: Node<NodeData>[] = [
   {
     id: 'supplier-1',
     type: 'input',
     data: { 
       label: 'Supplier Factory',
+      decouplingType: null
     },
     position: { x: 100, y: 50 },
     style: { 
@@ -42,6 +51,7 @@ const initialNodes = [
   },
   {
     id: 'dc-1',
+    type: 'default',
     data: { 
       label: 'Regional Distribution Center',
       decouplingType: null
@@ -57,6 +67,7 @@ const initialNodes = [
   },
   {
     id: 'dc-2',
+    type: 'default',
     data: { 
       label: 'Local Distribution Center',
       decouplingType: null
@@ -159,23 +170,21 @@ const decouplingTypes = {
 };
 
 export const DecouplingNetworkBoard = () => {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [nodes, setNodes, onNodesChange] = useNodesState<NodeData>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [showDecouplingDialog, setShowDecouplingDialog] = useState(false);
-  const [selectedType, setSelectedType] = useState(null);
   const { toast } = useToast();
 
   const onConnect = (params: any) => setEdges((eds) => addEdge(params, eds));
 
   const handleAddDecouplingPoint = (type: string) => {
-    const newNode = {
+    const newNode: Node<NodeData> = {
       id: `decoupling-${Date.now()}`,
       type: 'default',
       data: { 
         label: decouplingTypes[type].label,
         decouplingType: type
       },
-      position: { x: 400, y: 300 }, // Initial position in center
+      position: { x: 400, y: 300 },
       style: {
         background: '#ffffff',
         border: `2px solid ${decouplingTypes[type].color}`,
@@ -187,11 +196,9 @@ export const DecouplingNetworkBoard = () => {
         alignItems: 'center',
         justifyContent: 'center',
       },
-      dragHandle: '.drag-handle',
     };
 
     setNodes((nds) => [...nds, newNode]);
-    setShowDecouplingDialog(false);
     
     toast({
       title: "Decoupling Point Added",
