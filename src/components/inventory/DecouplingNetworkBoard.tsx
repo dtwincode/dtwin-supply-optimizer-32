@@ -402,17 +402,11 @@ export const DecouplingNetworkBoard = () => {
 
   return (
     <div className="space-y-4">
-      <div className={`${isFullScreen ? 'hidden' : ''}`}>
-        <Controls />
-      </div>
-
       <div className={`border rounded-lg bg-white ${isFullScreen ? 'fixed inset-0 z-50' : 'h-[600px]'}`}>
-        {isFullScreen && (
-          <div className="absolute top-0 left-0 right-0 z-10 bg-white border-b">
-            <Controls />
-          </div>
-        )}
-        <div className={isFullScreen ? 'pt-[73px] h-full' : 'h-full'}>
+        <div className="absolute top-0 left-0 right-0 z-10 bg-white border-b">
+          <Controls />
+        </div>
+        <div className="pt-[73px] h-full">
           {flowChart}
         </div>
       </div>
