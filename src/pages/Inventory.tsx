@@ -1,7 +1,6 @@
 
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Button } from "@/components/ui/button";
 import { TabsContent } from "@/components/ui/tabs";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
@@ -12,7 +11,7 @@ import InventorySummaryCards from "@/components/inventory/InventorySummaryCards"
 import { InventoryTabs } from "@/components/inventory/InventoryTabs";
 import { InventoryTab } from "@/components/inventory/InventoryTab";
 import { InventoryChart } from "@/components/inventory/InventoryChart";
-import { SupplyChainMap } from "@/components/inventory/SupplyChainMap";
+import { NetworkDecouplingMap } from "@/components/inventory/NetworkDecouplingMap";
 import { inventoryData } from "@/data/inventoryData";
 import { InventoryItem } from "@/types/inventory";
 
@@ -68,7 +67,7 @@ const Inventory = () => {
 
         <InventorySummaryCards />
         
-        <SupplyChainMap />
+        <NetworkDecouplingMap />
         
         <InventoryChart data={filteredData} />
 
