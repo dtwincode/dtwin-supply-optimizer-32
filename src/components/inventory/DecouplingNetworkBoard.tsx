@@ -507,7 +507,7 @@ export const DecouplingNetworkBoard = () => {
               style: { stroke: '#9333ea', strokeWidth: 2 },
               animated: true,
             }}
-            connectionMode="default"
+            connectionMode={ConnectionMode.Loose}
           >
             <Background />
             <Controls />
