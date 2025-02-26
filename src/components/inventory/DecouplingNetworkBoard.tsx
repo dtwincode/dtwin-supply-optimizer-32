@@ -286,6 +286,25 @@ export const DecouplingNetworkBoard = () => {
     });
   };
 
+  const handleUpdatePoint = (config: Partial<NodeData>) => {
+    if (!selectedNode) return;
+    
+    setNodes((nds) =>
+      nds.map((node) => {
+        if (node.id === selectedNode.id) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              ...config,
+            },
+          };
+        }
+        return node;
+      }),
+    );
+  };
+
   const nodeTypes = {
     default: (nodeProps) => (
       <ContextMenu>
