@@ -1,3 +1,4 @@
+
 import {
   ReactFlow,
   MiniMap,
@@ -29,7 +30,7 @@ type NodeData = {
   decouplingType?: string | null;
   bufferSize?: number;
   leadTime?: number;
-  variabilityFactor?: number;
+  variabilityFactor?: 'high' | 'medium' | 'low';
   demandProfile?: 'high' | 'medium' | 'low';
 };
 
@@ -153,8 +154,8 @@ const decouplingTypes = {
     color: '#ef4444',
     description: 'Long lead times, high demand aggregation points',
     configOptions: {
-      bufferSize: [50, 100, 150],
-      leadTime: [7, 14, 30, 45],
+      bufferSize: [50, 100, 150] as const,
+      leadTime: [7, 14, 30, 45] as const,
       variabilityFactors: ['high', 'medium', 'low'] as const,
       demandProfiles: ['high', 'medium', 'low'] as const
     }
@@ -335,7 +336,12 @@ export const DecouplingNetworkBoard = () => {
               <Label>Buffer Size</Label>
               <Select
                 value={selectedNode?.data.bufferSize?.toString()}
-                onValueChange={(value) => handleUpdateStrategicPoint({ bufferSize: Number(value) })}
+                onValueChange={(value) => {
+                  const numericValue = Number(value);
+                  if (!isNaN(numericValue)) {
+                    handleUpdateStrategicPoint({ bufferSize: numericValue });
+                  }
+                }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select buffer size..." />
@@ -354,7 +360,12 @@ export const DecouplingNetworkBoard = () => {
               <Label>Lead Time</Label>
               <Select
                 value={selectedNode?.data.leadTime?.toString()}
-                onValueChange={(value) => handleUpdateStrategicPoint({ leadTime: Number(value) })}
+                onValueChange={(value) => {
+                  const numericValue = Number(value);
+                  if (!isNaN(numericValue)) {
+                    handleUpdateStrategicPoint({ leadTime: numericValue });
+                  }
+                }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select lead time..." />
@@ -372,8 +383,10 @@ export const DecouplingNetworkBoard = () => {
             <div className="grid gap-2">
               <Label>Variability Factor</Label>
               <Select
-                value={selectedNode?.data.variabilityFactor?.toString()}
-                onValueChange={(value) => handleUpdateStrategicPoint({ variabilityFactor: value })}
+                value={selectedNode?.data.variabilityFactor}
+                onValueChange={(value) => handleUpdateStrategicPoint({ 
+                  variabilityFactor: value as 'high' | 'medium' | 'low' 
+                })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select variability..." />
@@ -392,7 +405,9 @@ export const DecouplingNetworkBoard = () => {
               <Label>Demand Profile</Label>
               <Select
                 value={selectedNode?.data.demandProfile}
-                onValueChange={(value) => handleUpdateStrategicPoint({ demandProfile: value as 'high' | 'medium' | 'low' })}
+                onValueChange={(value) => handleUpdateStrategicPoint({ 
+                  demandProfile: value as 'high' | 'medium' | 'low' 
+                })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select demand profile..." />
