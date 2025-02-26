@@ -1,4 +1,3 @@
-
 import {
   ReactFlow,
   MiniMap,
@@ -32,6 +31,12 @@ type NodeData = {
   leadTime?: number;
   variabilityFactor?: 'high' | 'medium' | 'low';
   demandProfile?: 'high' | 'medium' | 'low';
+  moq?: number;
+  lotSizeFactor?: number;
+  serviceLevel?: number;
+  seasonalityFactor?: number;
+  replenishmentFrequency?: 'daily' | 'weekly' | 'monthly';
+  criticalityFactor?: 'high' | 'medium' | 'low';
 };
 
 const initialNodes: Node<NodeData>[] = [
@@ -154,10 +159,16 @@ const decouplingTypes = {
     color: '#ef4444',
     description: 'Long lead times, high demand aggregation points',
     configOptions: {
-      bufferSize: [50, 100, 150] as const,
-      leadTime: [7, 14, 30, 45] as const,
+      bufferSize: [50, 100, 150, 200, 300, 500] as const,
+      leadTime: [7, 14, 21, 30, 45, 60, 90] as const,
       variabilityFactors: ['high', 'medium', 'low'] as const,
-      demandProfiles: ['high', 'medium', 'low'] as const
+      demandProfiles: ['high', 'medium', 'low'] as const,
+      moqValues: [10, 25, 50, 100, 250, 500] as const,
+      lotSizeFactors: [1.0, 1.25, 1.5, 2.0] as const,
+      serviceLevels: [0.90, 0.95, 0.98, 0.99] as const,
+      replenishmentFrequencies: ['daily', 'weekly', 'monthly'] as const,
+      criticalityFactors: ['high', 'medium', 'low'] as const,
+      seasonalityFactors: [1.0, 1.2, 1.5, 2.0] as const
     }
   },
   customer_order: { 
@@ -249,6 +260,10 @@ export const DecouplingNetworkBoard = () => {
       ...config,
       bufferSize: config.bufferSize ? Number(config.bufferSize) : undefined,
       leadTime: config.leadTime ? Number(config.leadTime) : undefined,
+      moq: config.moq ? Number(config.moq) : undefined,
+      lotSizeFactor: config.lotSizeFactor ? Number(config.lotSizeFactor) : undefined,
+      serviceLevel: config.serviceLevel ? Number(config.serviceLevel) : undefined,
+      seasonalityFactor: config.seasonalityFactor ? Number(config.seasonalityFactor) : undefined,
     };
 
     setNodes((nds) =>
@@ -374,6 +389,90 @@ export const DecouplingNetworkBoard = () => {
                   {decouplingTypes.strategic.configOptions.leadTime.map((days) => (
                     <SelectItem key={days} value={days.toString()}>
                       {days} days
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid gap-2">
+              <Label>Service Level</Label>
+              <Select
+                value={selectedNode?.data.serviceLevel?.toString()}
+                onValueChange={(value) => handleUpdateStrategicPoint({ 
+                  serviceLevel: Number(value)
+                })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select service level..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {decouplingTypes.strategic.configOptions.serviceLevels.map((level) => (
+                    <SelectItem key={level} value={level.toString()}>
+                      {(level * 100).toFixed(1)}%
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid gap-2">
+              <Label>Minimum Order Quantity (MOQ)</Label>
+              <Select
+                value={selectedNode?.data.moq?.toString()}
+                onValueChange={(value) => handleUpdateStrategicPoint({ 
+                  moq: Number(value)
+                })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select MOQ..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {decouplingTypes.strategic.configOptions.moqValues.map((value) => (
+                    <SelectItem key={value} value={value.toString()}>
+                      {value} units
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid gap-2">
+              <Label>Criticality Factor</Label>
+              <Select
+                value={selectedNode?.data.criticalityFactor}
+                onValueChange={(value) => handleUpdateStrategicPoint({ 
+                  criticalityFactor: value as 'high' | 'medium' | 'low'
+                })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select criticality..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {decouplingTypes.strategic.configOptions.criticalityFactors.map((factor) => (
+                    <SelectItem key={factor} value={factor}>
+                      {factor.charAt(0).toUpperCase() + factor.slice(1)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid gap-2">
+              <Label>Replenishment Frequency</Label>
+              <Select
+                value={selectedNode?.data.replenishmentFrequency}
+                onValueChange={(value) => handleUpdateStrategicPoint({ 
+                  replenishmentFrequency: value as 'daily' | 'weekly' | 'monthly'
+                })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select frequency..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {decouplingTypes.strategic.configOptions.replenishmentFrequencies.map((freq) => (
+                    <SelectItem key={freq} value={freq}>
+                      {freq.charAt(0).toUpperCase() + freq.slice(1)}
                     </SelectItem>
                   ))}
                 </SelectContent>
