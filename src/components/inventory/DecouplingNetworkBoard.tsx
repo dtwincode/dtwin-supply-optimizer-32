@@ -226,6 +226,34 @@ const decouplingTypes = {
   },
 };
 
+const EdgeWithContext = ({ id, source, target, ...props }) => {
+  return (
+    <ContextMenu>
+      <ContextMenuTrigger>
+        <path
+          {...props}
+          className="react-flow__edge-path"
+          data-id={id}
+          data-source={source}
+          data-target={target}
+        />
+      </ContextMenuTrigger>
+      <ContextMenuContent>
+        <ContextMenuItem 
+          onClick={() => {
+            setSelectedEdge({ id, source, target });
+            handleDeleteEdge();
+          }}
+          className="text-red-600 focus:text-red-600 focus:bg-red-50"
+        >
+          <Trash2 className="w-4 h-4 mr-2" />
+          Delete Connection
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
+  );
+};
+
 export const DecouplingNetworkBoard = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState<NodeData>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -243,7 +271,7 @@ export const DecouplingNetworkBoard = () => {
         stroke: '#9333ea',
         strokeWidth: 2,
       },
-      type: 'smoothstep',
+      type: 'default',
     };
 
     setEdges((eds) => addEdge(newEdge, eds));
@@ -469,34 +497,6 @@ export const DecouplingNetworkBoard = () => {
       </Button>
     </div>
   );
-
-  const EdgeWithContext = ({ id, source, target, ...props }) => {
-    return (
-      <ContextMenu>
-        <ContextMenuTrigger>
-          <path
-            {...props}
-            className="react-flow__edge-path"
-            data-id={id}
-            data-source={source}
-            data-target={target}
-          />
-        </ContextMenuTrigger>
-        <ContextMenuContent>
-          <ContextMenuItem 
-            onClick={() => {
-              setSelectedEdge({ id, source, target });
-              handleDeleteEdge();
-            }}
-            className="text-red-600 focus:text-red-600 focus:bg-red-50"
-          >
-            <Trash2 className="w-4 h-4 mr-2" />
-            Delete Connection
-          </ContextMenuItem>
-        </ContextMenuContent>
-      </ContextMenu>
-    );
-  };
 
   const edgeTypes = {
     default: EdgeWithContext,
