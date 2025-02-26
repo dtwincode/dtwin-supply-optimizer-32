@@ -21,9 +21,15 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { MapPin, CircleDot, Maximize2 } from 'lucide-react';
+import { MapPin, CircleDot, Maximize2, Trash2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 
 type NodeData = {
   label: string;
@@ -236,6 +242,16 @@ export const DecouplingNetworkBoard = () => {
     setSelectedNode(node);
   };
 
+  const handleDeleteNode = (nodeId: string) => {
+    setNodes((nds) => nds.filter((node) => node.id !== nodeId));
+    setEdges((eds) => eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId));
+    
+    toast({
+      title: "Node Deleted",
+      description: "The node and its connections have been removed",
+    });
+  };
+
   const handleAddDecouplingPoint = (type: string) => {
     const newNode: Node<NodeData> = {
       id: `decoupling-${Date.now()}`,
@@ -384,6 +400,27 @@ export const DecouplingNetworkBoard = () => {
     </div>
   );
 
+  const nodeTypes = {
+    default: (nodeProps) => (
+      <ContextMenu>
+        <ContextMenuTrigger>
+          <div className={nodeProps.className}>
+            {nodeProps.data.label}
+          </div>
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuItem 
+            onClick={() => handleDeleteNode(nodeProps.id)}
+            className="text-red-600 focus:text-red-600 focus:bg-red-50"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Delete Node
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
+    ),
+  };
+
   return (
     <div className="space-y-4">
       <div className={`border rounded-lg bg-white ${isFullScreen ? 'fixed inset-0 z-50' : 'h-[600px]'}`}>
@@ -398,6 +435,7 @@ export const DecouplingNetworkBoard = () => {
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onNodeClick={handleNodeClick}
+            nodeTypes={nodeTypes}
             fitView
           >
             <Background />
