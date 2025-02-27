@@ -16,6 +16,41 @@ import { NetworkDecouplingMap } from "@/components/inventory/NetworkDecouplingMa
 import { DecouplingPointDialog } from "@/components/inventory/DecouplingPointDialog";
 import { inventoryData } from "@/data/inventoryData";
 import { InventoryItem } from "@/types/inventory";
+import { SKUClassifications } from "@/components/inventory/SKUClassifications";
+
+// Mock classification data for the showcase
+const mockClassifications = [
+  {
+    sku: "SKU001",
+    classification: {
+      leadTimeCategory: "high",
+      variabilityLevel: "medium",
+      criticality: "high",
+      score: 85
+    },
+    lastUpdated: "2024-05-15T10:30:00Z"
+  },
+  {
+    sku: "SKU002",
+    classification: {
+      leadTimeCategory: "medium",
+      variabilityLevel: "low",
+      criticality: "medium",
+      score: 65
+    },
+    lastUpdated: "2024-05-14T14:20:00Z"
+  },
+  {
+    sku: "SKU003",
+    classification: {
+      leadTimeCategory: "low",
+      variabilityLevel: "high",
+      criticality: "low",
+      score: 45
+    },
+    lastUpdated: "2024-05-13T08:45:00Z"
+  }
+];
 
 const Inventory = () => {
   const { language } = useLanguage();
@@ -80,6 +115,14 @@ const Inventory = () => {
         </div>
 
         <InventorySummaryCards />
+        
+        {/* Add the SKU Classifications component */}
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">
+            {language === 'ar' ? 'تصنيفات SKU' : 'SKU Classifications'}
+          </h3>
+          <SKUClassifications classifications={mockClassifications} />
+        </Card>
         
         <NetworkDecouplingMap />
         
