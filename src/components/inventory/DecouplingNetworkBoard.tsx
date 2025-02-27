@@ -26,7 +26,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { MapPin, CircleDot, Maximize2, Trash2, Plus, Factory, Building2, Store, Box } from 'lucide-react';
+import { MapPin, CircleDot, Maximize2, Trash2, Plus, Factory, Building2, Store, Box, AlertTriangle } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -48,6 +48,10 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import {
+  Alert,
+  AlertDescription,
+} from "@/components/ui/alert";
 
 type NodeData = {
   label: string;
