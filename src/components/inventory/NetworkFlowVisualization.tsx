@@ -15,6 +15,7 @@ import {
   NodeProps,
   Handle,
   ReactFlow,
+  EdgeProps,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import {
@@ -98,12 +99,12 @@ interface NetworkEdge {
   distance?: number;
 }
 
-// Define a custom edge type that includes our additional properties
-interface CustomEdge extends Edge {
+// Define our custom edge data type
+type CustomEdgeData = {
   transportMode?: 'truck' | 'rail' | 'air' | 'sea';
   transportTime?: number;
   distance?: number;
-}
+};
 
 interface NodeData {
   name: string;
@@ -266,10 +267,18 @@ const initialNodesWithPosition = initialNodes.map((node, index) => {
 });
 
 // Format edges with markers and styling
-const formattedEdges: CustomEdge[] = initialEdges.map(edge => ({
-  ...edge,
+const formattedEdges = initialEdges.map(edge => ({
+  id: edge.id,
+  source: edge.source,
+  target: edge.target,
   type: 'smoothstep',
   animated: true,
+  label: edge.label,
+  data: {
+    transportMode: edge.transportMode,
+    transportTime: edge.transportTime,
+    distance: edge.distance
+  },
   style: { stroke: '#2563eb' },
   markerEnd: {
     type: MarkerType.ArrowClosed,
@@ -288,9 +297,9 @@ const products = [
 
 export function NetworkFlowVisualization() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodesWithPosition);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdge>(formattedEdges);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdgeData>(formattedEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
-  const [selectedEdge, setSelectedEdge] = useState<CustomEdge | null>(null);
+  const [selectedEdge, setSelectedEdge] = useState<Edge<CustomEdgeData> | null>(null);
   const [isNodeDetailsOpen, setIsNodeDetailsOpen] = useState(false);
   const [isEdgeDetailsOpen, setIsEdgeDetailsOpen] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -317,7 +326,7 @@ export function NetworkFlowVisualization() {
   };
 
   const handleEdgeClick = (event: React.MouseEvent, edge: Edge) => {
-    setSelectedEdge(edge as CustomEdge);
+    setSelectedEdge(edge as Edge<CustomEdgeData>);
     setIsEdgeDetailsOpen(true);
   };
 
@@ -329,10 +338,10 @@ export function NetworkFlowVisualization() {
       setEdges(prevEdges => 
         prevEdges.map(edge => ({
           ...edge,
-          label: `${edge.transportTime} days`,
+          label: `${edge.data?.transportTime} days`,
           style: { 
             ...edge.style,
-            strokeWidth: 2 + (edge.transportTime || 0) / 5,
+            strokeWidth: 2 + (edge.data?.transportTime || 0) / 5,
           }
         }))
       );
@@ -810,7 +819,7 @@ export function NetworkFlowVisualization() {
                   <div className="flex items-center mt-1">
                     <Truck className="h-4 w-4 mr-2" />
                     <span className="capitalize">
-                      {selectedEdge.transportMode || 'Truck'}
+                      {selectedEdge.data?.transportMode || 'Truck'}
                     </span>
                   </div>
                 </div>
@@ -820,7 +829,7 @@ export function NetworkFlowVisualization() {
                   <div className="flex items-center mt-1">
                     <Timer className="h-4 w-4 mr-2" />
                     <span>
-                      {selectedEdge.transportTime || '0'} days
+                      {selectedEdge.data?.transportTime || '0'} days
                     </span>
                   </div>
                 </div>
