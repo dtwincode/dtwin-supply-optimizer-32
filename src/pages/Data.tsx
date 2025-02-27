@@ -3,7 +3,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Upload, Database, Table, BarChart3, FileSpreadsheet, Filter, Clock } from "lucide-react";
+import { Upload, Database, Table, BarChart3, FileSpreadsheet, Filter, Clock, Map, Package, TrendingUp } from "lucide-react";
 
 const Data = () => {
   return (
@@ -18,8 +18,11 @@ const Data = () => {
         </div>
         
         <Tabs defaultValue="integrated" className="space-y-4">
-          <TabsList>
+          <TabsList className="w-full flex justify-start overflow-x-auto">
             <TabsTrigger value="integrated">Integrated Data</TabsTrigger>
+            <TabsTrigger value="location">Location Hierarchy</TabsTrigger>
+            <TabsTrigger value="product">Product Hierarchy</TabsTrigger>
+            <TabsTrigger value="sales">Historical Sales</TabsTrigger>
             <TabsTrigger value="sources">Data Sources</TabsTrigger>
             <TabsTrigger value="quality">Data Quality</TabsTrigger>
             <TabsTrigger value="history">Version History</TabsTrigger>
@@ -87,6 +90,162 @@ const Data = () => {
                       <div>{new Date().toLocaleDateString()}</div>
                       <div>{Math.floor(Math.random() * 10) + 1}</div>
                       <div>{Math.floor(Math.random() * 15) + 85}%</div>
+                      <div className="flex justify-end gap-2">
+                        <Button variant="ghost" size="sm">
+                          <FileSpreadsheet className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm">
+                          <Filter className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="location" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Location Hierarchy Management</CardTitle>
+                <CardDescription>
+                  Manage geographical and organizational locations for your supply chain
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-4">
+                    <Map className="h-8 w-8 text-primary" />
+                    <div>
+                      <h3 className="text-lg font-semibold">Location Structure</h3>
+                      <p className="text-muted-foreground">Define regions, cities, warehouses, and channels</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm">Export</Button>
+                    <Button size="sm">Upload Locations</Button>
+                  </div>
+                </div>
+                
+                <div className="border rounded-md overflow-hidden">
+                  <div className="grid grid-cols-5 bg-muted p-3">
+                    <div className="font-medium">Location Name</div>
+                    <div className="font-medium">Type</div>
+                    <div className="font-medium">Parent</div>
+                    <div className="font-medium">Active Nodes</div>
+                    <div className="font-medium text-right">Actions</div>
+                  </div>
+                  {['North America', 'Europe', 'Asia Pacific', 'Africa', 'South America'].map((region, i) => (
+                    <div key={i} className="grid grid-cols-5 p-3 border-t">
+                      <div className="font-medium">{region}</div>
+                      <div>Region</div>
+                      <div>Global</div>
+                      <div>{5 + i}</div>
+                      <div className="flex justify-end gap-2">
+                        <Button variant="ghost" size="sm">
+                          <FileSpreadsheet className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm">
+                          <Filter className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="product" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Product Hierarchy Management</CardTitle>
+                <CardDescription>
+                  Manage categories, product lines, and SKUs across your product portfolio
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-4">
+                    <Package className="h-8 w-8 text-primary" />
+                    <div>
+                      <h3 className="text-lg font-semibold">Product Structure</h3>
+                      <p className="text-muted-foreground">Define categories, families, models, and variants</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm">Export</Button>
+                    <Button size="sm">Upload Products</Button>
+                  </div>
+                </div>
+                
+                <div className="border rounded-md overflow-hidden">
+                  <div className="grid grid-cols-5 bg-muted p-3">
+                    <div className="font-medium">Product Category</div>
+                    <div className="font-medium">Level</div>
+                    <div className="font-medium">Parent</div>
+                    <div className="font-medium">SKU Count</div>
+                    <div className="font-medium text-right">Actions</div>
+                  </div>
+                  {['Electronics', 'Appliances', 'Furniture', 'Clothing', 'Accessories'].map((category, i) => (
+                    <div key={i} className="grid grid-cols-5 p-3 border-t">
+                      <div className="font-medium">{category}</div>
+                      <div>Category</div>
+                      <div>All Products</div>
+                      <div>{Math.floor(Math.random() * 500) + 50}</div>
+                      <div className="flex justify-end gap-2">
+                        <Button variant="ghost" size="sm">
+                          <FileSpreadsheet className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm">
+                          <Filter className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="sales" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Historical Sales Data</CardTitle>
+                <CardDescription>
+                  Manage and analyze your historical sales data for forecasting
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-4">
+                    <TrendingUp className="h-8 w-8 text-primary" />
+                    <div>
+                      <h3 className="text-lg font-semibold">Sales History</h3>
+                      <p className="text-muted-foreground">Import and manage historical sales data for analysis</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm">Download Template</Button>
+                    <Button size="sm">Upload Sales Data</Button>
+                  </div>
+                </div>
+                
+                <div className="border rounded-md overflow-hidden">
+                  <div className="grid grid-cols-5 bg-muted p-3">
+                    <div className="font-medium">Data Set</div>
+                    <div className="font-medium">Time Period</div>
+                    <div className="font-medium">Record Count</div>
+                    <div className="font-medium">Last Updated</div>
+                    <div className="font-medium text-right">Actions</div>
+                  </div>
+                  {['Q1 2023 Sales', 'Q2 2023 Sales', 'Q3 2023 Sales', 'Q4 2023 Sales', 'Q1 2024 Sales'].map((period, i) => (
+                    <div key={i} className="grid grid-cols-5 p-3 border-t">
+                      <div className="font-medium">{period}</div>
+                      <div>{period.replace('Sales', '').trim()}</div>
+                      <div>{Math.floor(Math.random() * 50000) + 10000}</div>
+                      <div>{new Date(Date.now() - i * 7776000000).toLocaleDateString()}</div>
                       <div className="flex justify-end gap-2">
                         <Button variant="ghost" size="sm">
                           <FileSpreadsheet className="h-4 w-4" />
