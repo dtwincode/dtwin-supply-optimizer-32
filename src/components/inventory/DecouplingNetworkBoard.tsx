@@ -585,15 +585,17 @@ export const DecouplingNetworkBoard = () => {
     return Object.entries(options).map(([key, values]) => {
       if (Array.isArray(values)) {
         return (
-          <div key={key} className="grid gap-2">
-            <Label>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</Label>
+          <div key={key} className="space-y-3 py-2">
+            <Label className="text-sm font-medium">
+              {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+            </Label>
             <Select
               value={selectedNode.data[key]?.toString()}
               onValueChange={(value) => handleUpdatePoint({ 
                 [key]: key.includes('Factor') || key === 'frequency' ? value : Number(value)
               })}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder={`Select ${key}...`} />
               </SelectTrigger>
               <SelectContent>
@@ -651,16 +653,25 @@ export const DecouplingNetworkBoard = () => {
       </div>
 
       <Dialog open={!!selectedNode} onOpenChange={() => setSelectedNode(null)}>
-        <DialogContent className="sm:max-w-[425px] max-h-[80vh]">
-          <DialogHeader>
-            <DialogTitle>Configure {selectedNode?.data.label}</DialogTitle>
-            <DialogDescription>
-              Set parameters for this decoupling point
+        <DialogContent className="sm:max-w-[500px] max-h-[80vh]">
+          <DialogHeader className="space-y-3 pb-4">
+            <DialogTitle className="text-xl">
+              Configure {selectedNode?.data.label}
+            </DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              Position decoupling points based on DDMRP strategic criteria and industry benchmarks.
             </DialogDescription>
           </DialogHeader>
           
-          <ScrollArea className="h-[60vh]">
-            <div className="grid gap-4 py-4 px-4">
+          <Alert variant="default" className="mb-4">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              Strategic positioning impacts overall supply chain performance
+            </AlertDescription>
+          </Alert>
+          
+          <ScrollArea className="max-h-[60vh] pr-4">
+            <div className="space-y-6 pb-4">
               {renderConfigOptions()}
             </div>
           </ScrollArea>
