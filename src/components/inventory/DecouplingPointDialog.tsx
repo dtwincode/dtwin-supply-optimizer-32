@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Dialog,
@@ -110,7 +109,6 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
 
   React.useEffect(() => {
     const fetchData = async () => {
-      // Fetch buffer profiles
       const { data: profileData, error: profileError } = await supabase
         .from('buffer_profiles')
         .select('*');
@@ -120,7 +118,6 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
         return;
       }
 
-      // Fetch locations
       const { data: locationData, error: locationError } = await supabase
         .from('location_hierarchy')
         .select('*')
@@ -131,7 +128,6 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
         return;
       }
 
-      // Fetch current decoupling points to calculate distribution
       const { data: decouplingPoints, error: dpError } = await supabase
         .from('decoupling_points')
         .select('type');
@@ -256,44 +252,59 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
       </DialogTrigger>
       <DialogContent className="sm:max-w-[625px] max-h-[90vh] p-0">
         <ScrollArea className="max-h-[90vh] overflow-y-auto">
-          <div className="p-6 space-y-4">
-            <DialogHeader className="space-y-1.5">
-              <DialogTitle>Strategic Decoupling Point Positioning</DialogTitle>
-              <DialogDescription>
+          <div className="p-6 space-y-6">
+            <DialogHeader className="space-y-3">
+              <DialogTitle className="text-xl">
+                Strategic Decoupling Point Positioning
+              </DialogTitle>
+              <DialogDescription className="text-base">
                 Position decoupling points based on DDMRP strategic criteria and industry benchmarks.
               </DialogDescription>
             </DialogHeader>
 
-            <Alert variant="default" className="py-2">
+            <Alert variant="default" className="mb-6">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
                 Strategic positioning impacts overall supply chain performance
               </AlertDescription>
             </Alert>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="location">Location</Label>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-4">
+                <Label htmlFor="location" className="text-base font-medium">Location</Label>
                 <Select
                   value={formData.locationId}
                   onValueChange={(value) => setFormData(prev => ({ ...prev, locationId: value }))}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select location" />
                   </SelectTrigger>
                   <SelectContent>
                     {locations.map((location) => (
                       <SelectItem key={location.id} value={location.id}>
-                        {getLocationDetails(location)}
+                        <div className="flex flex-col py-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{location.name}</span>
+                            <Badge variant="outline" className="text-xs">
+                              Level {location.level}
+                            </Badge>
+                            <Badge variant="secondary" className="text-xs">
+                              {location.channel}
+                            </Badge>
+                          </div>
+                          <div className="text-sm text-muted-foreground mt-1">
+                            {location.city}, {location.region} • {location.warehouse}
+                          </div>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="type">Decoupling Point Type</Label>
+                  <Label className="text-base font-medium">Decoupling Point Type</Label>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger>
@@ -309,27 +320,27 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
                   value={formData.type}
                   onValueChange={(value) => setFormData(prev => ({ ...prev, type: value as DecouplingPoint['type'] }))}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
                     {Object.entries(TYPE_DESCRIPTIONS).map(([type, description]) => (
                       <SelectItem key={type} value={type}>
-                        <div className="flex flex-col space-y-1">
+                        <div className="flex flex-col py-2 space-y-2">
                           <div className="flex items-center justify-between">
-                            <span>{description}</span>
+                            <span className="font-medium">{description}</span>
                             <Badge variant="outline" className={getDistributionStatus(type as keyof typeof INDUSTRY_BENCHMARKS)}>
                               {((currentDistribution[type] || 0) * 100).toFixed(1)}%
                             </Badge>
                           </div>
-                          <div className="text-xs text-muted-foreground">
+                          <div className="text-sm text-muted-foreground">
                             {TYPE_RECOMMENDATIONS[type as keyof typeof TYPE_RECOMMENDATIONS].description}
                           </div>
-                          <div className="mt-1">
-                            <div className="text-xs font-medium">Key Criteria:</div>
-                            <ul className="text-xs text-muted-foreground list-disc pl-4">
+                          <div className="mt-2">
+                            <div className="text-sm font-medium">Key Criteria:</div>
+                            <ul className="text-sm text-muted-foreground list-disc pl-4 mt-1">
                               {TYPE_RECOMMENDATIONS[type as keyof typeof TYPE_RECOMMENDATIONS].criteria.map((criterion, idx) => (
-                                <li key={idx}>{criterion}</li>
+                                <li key={idx} className="mt-1">{criterion}</li>
                               ))}
                             </ul>
                           </div>
@@ -340,8 +351,8 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="bufferProfile">Buffer Profile</Label>
+              <div className="space-y-4">
+                <Label htmlFor="bufferProfile" className="text-base font-medium">Buffer Profile</Label>
                 <Select
                   value={formData.bufferProfileId}
                   onValueChange={(value) => setFormData(prev => ({ ...prev, bufferProfileId: value }))}
@@ -352,10 +363,10 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
                   <SelectContent>
                     {bufferProfiles.map((profile) => (
                       <SelectItem key={profile.id} value={profile.id}>
-                        <div className="flex flex-col space-y-1">
-                          <div>{profile.name}</div>
+                        <div className="flex flex-col py-1">
+                          <div className="font-medium">{profile.name}</div>
                           {profile.description && (
-                            <div className="text-xs text-muted-foreground">
+                            <div className="text-sm text-muted-foreground mt-1">
                               {profile.description}
                             </div>
                           )}
@@ -366,14 +377,14 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="description">Strategic Rationale</Label>
+              <div className="space-y-4">
+                <Label htmlFor="description" className="text-base font-medium">Strategic Rationale</Label>
                 <Textarea
                   id="description"
                   value={formData.description || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                   placeholder="Document the strategic reasoning for this decoupling point placement..."
-                  className="h-20 resize-none"
+                  className="h-24 resize-none"
                 />
               </div>
 
