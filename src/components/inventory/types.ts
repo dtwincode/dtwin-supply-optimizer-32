@@ -20,6 +20,7 @@ export interface Classification {
   leadTimeCategory: 'short' | 'medium' | 'long';
   variabilityLevel: 'low' | 'medium' | 'high';
   criticality: 'low' | 'medium' | 'high';
+  score?: number; // Added score property as optional
 }
 
 export interface SKUClassification {
