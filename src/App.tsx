@@ -15,6 +15,7 @@ import { GettingStarted, ForecastingBasics, Collaboration, Advanced, AIAssistant
 import NotFound from "./pages/NotFound";
 import Tickets from "./pages/Tickets";
 import SQLConfig from "./pages/SQLConfig";
+import Data from "./pages/Data";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -48,6 +49,7 @@ function App() {
                   <Route path="/sales-planning" element={<SalesPlanning />} />
                   <Route path="/reports" element={<Reports />} />
                   <Route path="/logistics" element={<Logistics />} />
+                  <Route path="/data" element={<Data />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="/guidelines" element={<Guidelines />} />
                   <Route path="/guidelines/getting-started" element={<GettingStarted />} />
