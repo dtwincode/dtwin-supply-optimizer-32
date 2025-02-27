@@ -1,6 +1,6 @@
 
 import { memo } from "react";
-import { Home, TrendingUp, Package, LineChart, Gift, Truck, FileText, Search, Settings, BookOpen } from "lucide-react";
+import { Home, TrendingUp, Package, LineChart, Gift, Truck, FileText, Search, Database, BookOpen } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { getTranslation } from "@/translations";
@@ -14,7 +14,7 @@ const navigationItems = [
   { name: "navigationItems.logistics", icon: Truck, href: "/logistics" },
   { name: "navigationItems.reports", icon: FileText, href: "/reports" },
   { name: "navigationItems.askAI", icon: Search, href: "/ask-ai" },
-  { name: "navigationItems.settings", icon: Settings, href: "/settings" },
+  { name: "navigationItems.data", icon: Database, href: "/settings" },
   { name: "navigationItems.guidelines", icon: BookOpen, href: "/guidelines" }
 ];
 
@@ -51,4 +51,3 @@ Navigation.displayName = 'Navigation';
 
 export { navigationItems };
 export default Navigation;
-

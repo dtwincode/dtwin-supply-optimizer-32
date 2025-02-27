@@ -34,13 +34,12 @@ export const navigationTranslations: NavigationItems = {
     en: "Ask AI",
     ar: "اسأل الذكاء الاصطناعي"
   },
-  settings: {
-    en: "Settings",
-    ar: "الإعدادات"
+  data: {
+    en: "Data",
+    ar: "البيانات"
   },
   guidelines: {
     en: "Guidelines",
     ar: "الدليل الإرشادي"
   }
 };
-

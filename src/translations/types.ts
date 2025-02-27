@@ -1,3 +1,4 @@
+
 import { UITranslations } from './common/ui';
 import { InventoryTranslations } from './common/inventory';
 import { ModuleTranslations } from './common/modules';
@@ -18,7 +19,7 @@ export type NavigationItems = {
   logistics: TranslationValue;
   reports: TranslationValue;
   askAI: TranslationValue;
-  settings: TranslationValue;
+  data: TranslationValue;
   guidelines: TranslationValue;
 };
 
