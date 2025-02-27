@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import ReactFlow, {
+import {
   Node,
   Edge,
   Controls,
@@ -14,6 +14,7 @@ import ReactFlow, {
   NodeTypes,
   NodeProps,
   Handle,
+  ReactFlow,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import {
@@ -92,6 +93,13 @@ interface NetworkEdge {
   source: string;
   target: string;
   label?: string;
+  transportMode?: 'truck' | 'rail' | 'air' | 'sea';
+  transportTime?: number;
+  distance?: number;
+}
+
+// Define a custom edge type that includes our additional properties
+interface CustomEdge extends Edge {
   transportMode?: 'truck' | 'rail' | 'air' | 'sea';
   transportTime?: number;
   distance?: number;
@@ -258,7 +266,7 @@ const initialNodesWithPosition = initialNodes.map((node, index) => {
 });
 
 // Format edges with markers and styling
-const formattedEdges = initialEdges.map(edge => ({
+const formattedEdges: CustomEdge[] = initialEdges.map(edge => ({
   ...edge,
   type: 'smoothstep',
   animated: true,
@@ -280,9 +288,9 @@ const products = [
 
 export function NetworkFlowVisualization() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodesWithPosition);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(formattedEdges);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdge>(formattedEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
-  const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
+  const [selectedEdge, setSelectedEdge] = useState<CustomEdge | null>(null);
   const [isNodeDetailsOpen, setIsNodeDetailsOpen] = useState(false);
   const [isEdgeDetailsOpen, setIsEdgeDetailsOpen] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -309,7 +317,7 @@ export function NetworkFlowVisualization() {
   };
 
   const handleEdgeClick = (event: React.MouseEvent, edge: Edge) => {
-    setSelectedEdge(edge);
+    setSelectedEdge(edge as CustomEdge);
     setIsEdgeDetailsOpen(true);
   };
 
@@ -802,7 +810,7 @@ export function NetworkFlowVisualization() {
                   <div className="flex items-center mt-1">
                     <Truck className="h-4 w-4 mr-2" />
                     <span className="capitalize">
-                      {initialEdges.find(e => e.id === selectedEdge.id)?.transportMode || 'Truck'}
+                      {selectedEdge.transportMode || 'Truck'}
                     </span>
                   </div>
                 </div>
@@ -812,7 +820,7 @@ export function NetworkFlowVisualization() {
                   <div className="flex items-center mt-1">
                     <Timer className="h-4 w-4 mr-2" />
                     <span>
-                      {initialEdges.find(e => e.id === selectedEdge.id)?.transportTime || '0'} days
+                      {selectedEdge.transportTime || '0'} days
                     </span>
                   </div>
                 </div>
