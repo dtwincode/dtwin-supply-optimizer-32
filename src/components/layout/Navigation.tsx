@@ -14,7 +14,7 @@ const navigationItems = [
   { name: "navigationItems.logistics", icon: Truck, href: "/logistics" },
   { name: "navigationItems.reports", icon: FileText, href: "/reports" },
   { name: "navigationItems.askAI", icon: Search, href: "/ask-ai" },
-  { name: "navigationItems.data", icon: Database, href: "/settings" },
+  { name: "navigationItems.data", icon: Database, href: "/data" },
   { name: "navigationItems.guidelines", icon: BookOpen, href: "/guidelines" }
 ];
 

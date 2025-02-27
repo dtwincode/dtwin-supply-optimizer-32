@@ -48,7 +48,7 @@ function App() {
                   <Route path="/sales-planning" element={<SalesPlanning />} />
                   <Route path="/reports" element={<Reports />} />
                   <Route path="/logistics" element={<Logistics />} />
-                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/data" element={<Settings />} />
                   <Route path="/guidelines" element={<Guidelines />} />
                   <Route path="/guidelines/getting-started" element={<GettingStarted />} />
                   <Route path="/guidelines/forecasting-basics" element={<ForecastingBasics />} />
@@ -71,4 +71,3 @@ function App() {
 }
 
 export default App;
-
