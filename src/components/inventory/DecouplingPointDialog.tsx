@@ -30,6 +30,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { ChevronUp, ChevronDown } from "lucide-react";
 
 interface LocationWithHierarchy {
   id: string;
@@ -106,6 +107,7 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
     locationId,
     type: 'stock_point',
   });
+  const [expandedType, setExpandedType] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -255,23 +257,16 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
           <div className="p-8">
             <DialogHeader className="mb-8">
               <DialogTitle className="text-xl mb-2">
-                Strategic Decoupling Point Positioning
+                Strategic Decoupling Point
               </DialogTitle>
               <DialogDescription className="text-base">
-                Position decoupling points based on DDMRP strategic criteria and industry benchmarks.
+                Select location and type to optimize your supply chain positioning
               </DialogDescription>
             </DialogHeader>
 
-            <Alert variant="default" className="mb-8">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>
-                Strategic positioning impacts overall supply chain performance
-              </AlertDescription>
-            </Alert>
-
             <form onSubmit={handleSubmit} className="space-y-8">
               <div className="space-y-4">
-                <Label htmlFor="location" className="text-base font-medium block mb-2">Location</Label>
+                <Label htmlFor="location" className="text-base font-medium block">Location</Label>
                 <Select
                   value={formData.locationId}
                   onValueChange={(value) => setFormData(prev => ({ ...prev, locationId: value }))}
@@ -281,20 +276,12 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
                   </SelectTrigger>
                   <SelectContent className="max-h-[300px]">
                     {locations.map((location) => (
-                      <SelectItem key={location.id} value={location.id} className="py-3">
-                        <div className="flex flex-col gap-2">
-                          <div className="flex items-center gap-3 flex-wrap">
-                            <span className="font-medium">{location.name}</span>
-                            <Badge variant="outline" className="text-xs px-2">
-                              Level {location.level}
-                            </Badge>
-                            <Badge variant="secondary" className="text-xs px-2">
-                              {location.channel}
-                            </Badge>
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            {location.city}, {location.region} • {location.warehouse}
-                          </div>
+                      <SelectItem key={location.id} value={location.id} className="py-2">
+                        <div className="flex flex-col gap-1">
+                          <span className="font-medium">{location.name}</span>
+                          <span className="text-sm text-muted-foreground">
+                            {location.city}, {location.region}
+                          </span>
                         </div>
                       </SelectItem>
                     ))}
@@ -303,8 +290,8 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
               </div>
 
               <div className="space-y-4">
-                <div className="flex items-center justify-between mb-2">
-                  <Label className="text-base font-medium">Decoupling Point Type</Label>
+                <div className="flex items-center justify-between">
+                  <Label className="text-base font-medium">Point Type</Label>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger>
@@ -316,43 +303,60 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
                     </Tooltip>
                   </TooltipProvider>
                 </div>
-                <Select
-                  value={formData.type}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, type: value as DecouplingPoint['type'] }))}
-                >
-                  <SelectTrigger className="w-full h-auto min-h-[44px]">
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[400px]">
-                    {Object.entries(TYPE_DESCRIPTIONS).map(([type, description]) => (
-                      <SelectItem key={type} value={type} className="py-4">
-                        <div className="flex flex-col gap-3">
-                          <div className="flex items-center justify-between gap-4">
-                            <span className="font-medium">{description}</span>
-                            <Badge variant="outline" className={`${getDistributionStatus(type as keyof typeof INDUSTRY_BENCHMARKS)} whitespace-nowrap px-2`}>
-                              {((currentDistribution[type] || 0) * 100).toFixed(1)}%
-                            </Badge>
-                          </div>
-                          <div className="text-sm text-muted-foreground">
+
+                <div className="space-y-3">
+                  {Object.entries(TYPE_DESCRIPTIONS).map(([type, description]) => (
+                    <div key={type} className="border rounded-lg p-4">
+                      <div className="flex items-center justify-between gap-4 cursor-pointer" 
+                           onClick={() => setExpandedType(expandedType === type ? null : type)}>
+                        <div className="flex items-center gap-3">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 w-6 p-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setFormData(prev => ({ ...prev, type: type as DecouplingPoint['type'] }));
+                            }}
+                          >
+                            <div className={`h-4 w-4 rounded-full border-2 ${formData.type === type ? 'bg-primary border-primary' : 'border-muted-foreground'}`} />
+                          </Button>
+                          <span className="font-medium">{description}</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Badge variant="outline" className={getDistributionStatus(type as keyof typeof INDUSTRY_BENCHMARKS)}>
+                            {((currentDistribution[type] || 0) * 100).toFixed(1)}%
+                          </Badge>
+                          {expandedType === type ? (
+                            <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                          )}
+                        </div>
+                      </div>
+                      
+                      {expandedType === type && (
+                        <div className="mt-4 pl-9 space-y-3">
+                          <p className="text-sm text-muted-foreground">
                             {TYPE_RECOMMENDATIONS[type as keyof typeof TYPE_RECOMMENDATIONS].description}
-                          </div>
+                          </p>
                           <div>
-                            <div className="text-sm font-medium mb-2">Key Criteria:</div>
-                            <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-2">
+                            <p className="text-sm font-medium mb-2">Key Criteria:</p>
+                            <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
                               {TYPE_RECOMMENDATIONS[type as keyof typeof TYPE_RECOMMENDATIONS].criteria.map((criterion, idx) => (
                                 <li key={idx}>{criterion}</li>
                               ))}
                             </ul>
                           </div>
                         </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div className="space-y-4">
-                <Label htmlFor="bufferProfile" className="text-base font-medium block mb-2">Buffer Profile</Label>
+                <Label htmlFor="bufferProfile" className="text-base font-medium block">Buffer Profile</Label>
                 <Select
                   value={formData.bufferProfileId}
                   onValueChange={(value) => setFormData(prev => ({ ...prev, bufferProfileId: value }))}
@@ -362,8 +366,8 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
                   </SelectTrigger>
                   <SelectContent className="max-h-[300px]">
                     {bufferProfiles.map((profile) => (
-                      <SelectItem key={profile.id} value={profile.id} className="py-3">
-                        <div className="flex flex-col gap-2">
+                      <SelectItem key={profile.id} value={profile.id} className="py-2">
+                        <div className="flex flex-col gap-1">
                           <div className="font-medium">{profile.name}</div>
                           {profile.description && (
                             <div className="text-sm text-muted-foreground">
@@ -378,18 +382,18 @@ export const DecouplingPointDialog = ({ locationId, onSuccess }: DecouplingPoint
               </div>
 
               <div className="space-y-4">
-                <Label htmlFor="description" className="text-base font-medium block mb-2">Strategic Rationale</Label>
+                <Label htmlFor="description" className="text-base font-medium block">Strategic Rationale</Label>
                 <Textarea
                   id="description"
                   value={formData.description || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Document the strategic reasoning for this decoupling point placement..."
-                  className="h-24 resize-none min-h-[96px]"
+                  placeholder="Document the strategic reasoning..."
+                  className="h-20 resize-none"
                 />
               </div>
 
               <Button type="submit" disabled={isSubmitting} className="w-full h-11">
-                {isSubmitting ? "Creating..." : "Create Strategic Decoupling Point"}
+                {isSubmitting ? "Creating..." : "Create Decoupling Point"}
               </Button>
             </form>
           </div>
