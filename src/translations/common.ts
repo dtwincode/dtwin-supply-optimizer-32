@@ -16,6 +16,9 @@ export const commonTranslations: CommonTranslations = {
   skuClassification: inventoryTranslations.skuClassification,
   leadTime: inventoryTranslations.leadTime,
   replenishmentOrders: inventoryTranslations.replenishmentOrders,
+  bufferStatus: inventoryTranslations.bufferStatus,
+  netFlowPosition: inventoryTranslations.netFlowPosition,
+  inventorySummary: inventoryTranslations.inventorySummary,
   
   // Chart translations
   chartTitles: chartTranslations.chartTitles,

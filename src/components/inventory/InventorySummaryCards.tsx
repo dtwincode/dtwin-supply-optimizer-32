@@ -1,8 +1,12 @@
 
 import { Card } from "@/components/ui/card";
 import { CheckCircle, AlertTriangle, Package, Waves } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslation } from "@/translations";
 
 const InventorySummaryCards = () => {
+  const { language, isRTL } = useLanguage();
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
       <Card className="p-6">
@@ -11,7 +15,7 @@ const InventorySummaryCards = () => {
             <CheckCircle className="h-6 w-6 text-success-500" />
           </div>
           <div>
-            <p className="text-sm text-gray-500">Green Zone</p>
+            <p className="text-sm text-gray-500">{getTranslation('common.zones.green', language)}</p>
             <p className="text-2xl font-semibold">45 SKUs</p>
           </div>
         </div>
@@ -22,7 +26,7 @@ const InventorySummaryCards = () => {
             <AlertTriangle className="h-6 w-6 text-warning-500" />
           </div>
           <div>
-            <p className="text-sm text-gray-500">Yellow Zone</p>
+            <p className="text-sm text-gray-500">{getTranslation('common.zones.yellow', language)}</p>
             <p className="text-2xl font-semibold">28 SKUs</p>
           </div>
         </div>
@@ -33,7 +37,7 @@ const InventorySummaryCards = () => {
             <Package className="h-6 w-6 text-danger-500" />
           </div>
           <div>
-            <p className="text-sm text-gray-500">Red Zone</p>
+            <p className="text-sm text-gray-500">{getTranslation('common.zones.red', language)}</p>
             <p className="text-2xl font-semibold">12 SKUs</p>
           </div>
         </div>
@@ -44,7 +48,7 @@ const InventorySummaryCards = () => {
             <Waves className="h-6 w-6 text-primary-500" />
           </div>
           <div>
-            <p className="text-sm text-gray-500">Net Flow Position</p>
+            <p className="text-sm text-gray-500">{getTranslation('common.netFlowPosition', language)}</p>
             <p className="text-2xl font-semibold">105 units</p>
           </div>
         </div>

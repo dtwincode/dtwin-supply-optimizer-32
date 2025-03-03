@@ -21,5 +21,17 @@ export const inventoryTranslations: InventoryTranslations = {
   replenishmentOrders: {
     en: "Replenishment Orders",
     ar: "طلبات إعادة التزويد"
+  },
+  bufferStatus: {
+    en: "Buffer Status",
+    ar: "حالة المخزون"
+  },
+  netFlowPosition: {
+    en: "Net Flow Position",
+    ar: "موقف التدفق الصافي"
+  },
+  inventorySummary: {
+    en: "Inventory Summary",
+    ar: "ملخص المخزون"
   }
 };

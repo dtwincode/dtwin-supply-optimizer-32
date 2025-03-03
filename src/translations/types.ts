@@ -1,4 +1,3 @@
-
 export interface TranslationValue {
   en: string;
   ar: string;
@@ -69,6 +68,9 @@ export interface InventoryTranslations {
   skuClassification: TranslationValue;
   leadTime: TranslationValue;
   replenishmentOrders: TranslationValue;
+  bufferStatus: TranslationValue;
+  netFlowPosition: TranslationValue;
+  inventorySummary: TranslationValue;
 }
 
 export interface ChartTranslations {
@@ -148,6 +150,9 @@ export interface CommonTranslations {
   skuClassification: TranslationValue;
   leadTime: TranslationValue;
   replenishmentOrders: TranslationValue;
+  netFlowPosition: TranslationValue;
+  bufferStatus: TranslationValue;
+  inventorySummary: TranslationValue;
   
   chartTitles: {
     bufferProfile: TranslationValue;
