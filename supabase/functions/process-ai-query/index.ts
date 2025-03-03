@@ -24,6 +24,7 @@ serve(async (req) => {
 
   try {
     console.log('Processing request...');
+    console.log('Request headers:', JSON.stringify(Object.fromEntries([...req.headers])));
 
     // Parse the request body
     let body;
