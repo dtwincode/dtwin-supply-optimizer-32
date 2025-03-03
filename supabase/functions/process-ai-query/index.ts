@@ -1,13 +1,15 @@
 
+// Import necessary modules for Deno
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
-// Define CORS headers
+// Define CORS headers to allow requests from any origin
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
 serve(async (req) => {
@@ -15,6 +17,7 @@ serve(async (req) => {
   
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
+    console.log('Handling OPTIONS request');
     return new Response(null, { headers: corsHeaders });
   }
 
@@ -83,9 +86,10 @@ Output format: ${format === 'chart' ? 'Describe what the chart should show and w
 Current timestamp: ${timestamp || new Date().toISOString()}
 `;
 
+    // Make the API call to OpenAI
+    console.log('Calling OpenAI API...');
+    
     try {
-      // Make the API call to OpenAI
-      console.log('Calling OpenAI API...');
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
