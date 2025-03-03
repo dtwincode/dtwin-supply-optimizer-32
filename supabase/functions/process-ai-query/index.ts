@@ -1,5 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
@@ -26,11 +27,24 @@ serve(async (req) => {
       throw new Error('OpenAI API key not configured');
     }
 
-    const bodyText = await req.text();
-    console.log('Raw request body:', bodyText);
-
-    const { prompt } = JSON.parse(bodyText);
-    console.log('Parsed prompt:', prompt?.substring(0, 100));
+    // Parse the request body safely
+    let prompt;
+    try {
+      const body = await req.text();
+      console.log('Raw request body:', body);
+      
+      if (!body) {
+        throw new Error('Empty request body');
+      }
+      
+      const parsedBody = JSON.parse(body);
+      prompt = parsedBody.prompt;
+      
+      console.log('Parsed prompt:', prompt?.substring(0, 100));
+    } catch (parseError) {
+      console.error('Error parsing request body:', parseError);
+      throw new Error(`Invalid request format: ${parseError.message}`);
+    }
 
     if (!prompt) {
       throw new Error('No prompt provided');

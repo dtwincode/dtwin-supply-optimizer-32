@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Download, ChartBar, FileText, Send, Loader2 } from "lucide-react";
+import { Search, Download, ChartBar, FileText, Send, Loader2, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
@@ -32,6 +32,7 @@ export const AskAI = () => {
   const [selectedFormat, setSelectedFormat] = useState("text");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleSubmit = async () => {
@@ -44,6 +45,7 @@ export const AskAI = () => {
       return;
     }
 
+    setError(null);
     const userMessage: Message = {
       role: 'user',
       content: query,
@@ -67,7 +69,12 @@ export const AskAI = () => {
 
       if (error) {
         console.error('Supabase function error:', error);
-        throw error;
+        throw new Error(`Function error: ${error.message || 'Unknown error'}`);
+      }
+
+      if (data?.error) {
+        console.error('Error in AI response:', data.error);
+        throw new Error(data.error);
       }
 
       if (!data?.generatedText) {
@@ -89,6 +96,7 @@ export const AskAI = () => {
       });
     } catch (error: any) {
       console.error('Error processing query:', error);
+      setError(error.message || "Failed to process your query. Please try again.");
       toast({
         title: "Error",
         description: error.message || "Failed to process your query. Please try again.",
@@ -139,14 +147,27 @@ export const AskAI = () => {
                 </div>
               </div>
             ))}
-            {messages.length === 0 && (
+            {messages.length === 0 && !error && (
               <div className="flex items-center justify-center h-64 text-muted-foreground">
                 <div className="text-center">
                   <Search className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p className="text-lg">Ask anything about your supply chain data</p>
                   <p className="text-sm mt-2">
                     Examples: "What products have the highest demand variability?", 
-                    "Analyze my forecast accuracy trends"
+                    "Analyze my forecast accuracy trends", 
+                    "Which products have the longest lead times?"
+                  </p>
+                </div>
+              </div>
+            )}
+            {error && messages.length === 0 && (
+              <div className="flex items-center justify-center h-64 text-destructive">
+                <div className="text-center">
+                  <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-70" />
+                  <p className="text-lg font-medium">Error connecting to AI assistant</p>
+                  <p className="text-sm mt-2 max-w-md mx-auto">{error}</p>
+                  <p className="text-xs mt-4 text-muted-foreground">
+                    Please ensure the OpenAI API key is correctly configured
                   </p>
                 </div>
               </div>
@@ -193,10 +214,11 @@ export const AskAI = () => {
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKeyPress}
                 className="min-h-[80px]"
+                disabled={isLoading}
               />
               <Button 
                 onClick={handleSubmit} 
-                disabled={isLoading}
+                disabled={isLoading || !query.trim()}
                 className="px-4"
               >
                 {isLoading ? (
