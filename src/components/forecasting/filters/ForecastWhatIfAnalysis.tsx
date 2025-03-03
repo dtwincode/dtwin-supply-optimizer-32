@@ -12,6 +12,25 @@ import { ForecastDataPoint } from "@/types/forecasting";
 import { fetchWeatherForecast } from "@/utils/forecasting/weather";
 import { WeatherData } from "@/types/weatherAndEvents";
 
+// Dummy data for when real data is not available
+const DUMMY_FORECAST_DATA: ForecastDataPoint[] = [
+  { id: "1", week: "2024-01-01", forecast: 120, actual: 118, sku: "SKU001", variance: -2 },
+  { id: "2", week: "2024-01-08", forecast: 130, actual: 135, sku: "SKU001", variance: 5 },
+  { id: "3", week: "2024-01-15", forecast: 125, actual: 122, sku: "SKU001", variance: -3 },
+  { id: "4", week: "2024-01-22", forecast: 135, actual: 140, sku: "SKU001", variance: 5 },
+  { id: "5", week: "2024-01-29", forecast: 145, actual: 142, sku: "SKU001", variance: -3 },
+  { id: "6", week: "2024-02-05", forecast: 150, actual: 155, sku: "SKU001", variance: 5 },
+  { id: "7", week: "2024-02-12", forecast: 160, actual: 158, sku: "SKU001", variance: -2 },
+  { id: "8", week: "2024-02-19", forecast: 170, actual: 175, sku: "SKU001", variance: 5 },
+  { id: "9", week: "2024-02-26", forecast: 165, actual: 160, sku: "SKU001", variance: -5 },
+  { id: "10", week: "2024-03-04", forecast: 175, actual: 180, sku: "SKU001", variance: 5 },
+  { id: "11", week: "2024-03-11", forecast: 185, actual: 182, sku: "SKU001", variance: -3 },
+  { id: "12", week: "2024-03-18", forecast: 195, actual: 198, sku: "SKU001", variance: 3 }
+];
+
+// Sample scenario data with more dramatic changes
+const DUMMY_SCENARIO: number[] = [123, 142, 135, 152, 160, 175, 180, 195, 185, 205, 215, 230];
+
 interface ForecastWhatIfAnalysisProps {
   filteredData: ForecastDataPoint[];
   whatIfParams: {
@@ -63,6 +82,9 @@ export const ForecastWhatIfAnalysis = ({
         }
       }, timeData);
       setGeneratedScenario(newScenario);
+    } else {
+      // Use dummy data when no real data is available
+      setGeneratedScenario(DUMMY_SCENARIO);
     }
   }, [filteredData, whatIfParams, priceData, selectedSKU]);
 
@@ -139,6 +161,17 @@ export const ForecastWhatIfAnalysis = ({
     }
   };
   
+  // Get data for the chart - use actual data if available, otherwise use dummy data
+  const getChartData = () => {
+    const dataSource = filteredData.length > 0 ? filteredData : DUMMY_FORECAST_DATA;
+    
+    return dataSource.map((d, i) => ({
+      week: d.week,
+      forecast: d.forecast,
+      scenario: generatedScenario[i] || 0
+    }));
+  };
+  
   return <Card className="p-6">
       <div className="flex flex-col gap-6">
         <div className="flex justify-between items-center">
@@ -198,15 +231,11 @@ export const ForecastWhatIfAnalysis = ({
 
         <div className="h-[400px]">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={filteredData.map((d, i) => ({
-            week: d.week,
-            forecast: d.forecast,
-            scenario: generatedScenario[i] || 0
-          }))}>
+            <LineChart data={getChartData()}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="week" />
               <YAxis />
-              <Tooltip />
+              <Tooltip formatter={(value) => [`${value} units`, '']} />
               <Legend />
               <Line type="monotone" dataKey="forecast" stroke="#F59E0B" name="Base Forecast" strokeWidth={2} />
               <Line type="monotone" dataKey="scenario" stroke="#10B981" name="Scenario Forecast" strokeWidth={2} />
