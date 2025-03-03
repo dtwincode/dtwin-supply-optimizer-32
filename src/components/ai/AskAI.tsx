@@ -94,7 +94,7 @@ export const AskAI = () => {
     try {
       console.log('Preparing to call Supabase function with query:', query);
       
-      // Use a direct fetch to the edge function with the correct headers
+      // Use a direct fetch to the edge function
       const functionUrl = 'https://mttzjxktvbsixjaqiuxq.supabase.co/functions/v1/process-ai-query';
       
       console.log('Making request to:', functionUrl);
@@ -103,7 +103,6 @@ export const AskAI = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // Include only the apikey in the headers
           'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im10dHpqeGt0dmJzaXhqYXFpdXhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkxNjk4NDEsImV4cCI6MjA1NDc0NTg0MX0.-6wiezDQfeFz3ecyuHP4A6QkcRRxBG4j8pxyAp7hkx8'
         },
         body: JSON.stringify({ 
@@ -287,12 +286,7 @@ export const AskAI = () => {
                 placeholder="Ask anything about your supply chain data..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSubmit();
-                  }
-                }}
+                onKeyDown={handleKeyPress}
                 className="min-h-[80px]"
                 disabled={isLoading}
               />

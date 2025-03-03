@@ -10,6 +10,7 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Content-Type': 'application/json'
 };
 
 serve(async (req) => {
@@ -28,12 +29,12 @@ serve(async (req) => {
     let body;
     try {
       body = await req.json();
-      console.log('Request body parsed successfully');
+      console.log('Request body parsed successfully:', JSON.stringify(body));
     } catch (e) {
       console.error('Error parsing request body:', e);
       return new Response(
         JSON.stringify({ error: 'Invalid request body' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -43,7 +44,7 @@ serve(async (req) => {
       console.error('Missing prompt in request');
       return new Response(
         JSON.stringify({ error: 'Missing prompt in request' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -52,7 +53,7 @@ serve(async (req) => {
       console.error('OpenAI API key not configured');
       return new Response(
         JSON.stringify({ error: 'OpenAI API key not configured in the environment variables' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: corsHeaders }
       );
     }
 
@@ -127,7 +128,7 @@ Current timestamp: ${timestamp || new Date().toISOString()}
         
         return new Response(
           JSON.stringify({ error: `OpenAI API error: ${errorMessage}` }),
-          { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 502, headers: corsHeaders }
         );
       }
 
@@ -138,7 +139,7 @@ Current timestamp: ${timestamp || new Date().toISOString()}
         console.error('Unexpected OpenAI response format:', JSON.stringify(data).slice(0, 200));
         return new Response(
           JSON.stringify({ error: 'Invalid response from OpenAI' }),
-          { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 502, headers: corsHeaders }
         );
       }
 
@@ -149,13 +150,13 @@ Current timestamp: ${timestamp || new Date().toISOString()}
       console.log('Returning successful response');
       return new Response(
         JSON.stringify({ generatedText }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { headers: corsHeaders }
       );
     } catch (error) {
       console.error('Error calling OpenAI API:', error.message);
       return new Response(
         JSON.stringify({ error: `Error calling OpenAI API: ${error.message}` }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: corsHeaders }
       );
     }
   } catch (error) {
@@ -163,7 +164,7 @@ Current timestamp: ${timestamp || new Date().toISOString()}
     console.error('Unexpected error in process-ai-query:', error.message, error.stack);
     return new Response(
       JSON.stringify({ error: `Unexpected error: ${error.message}` }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: corsHeaders }
     );
   }
 });
