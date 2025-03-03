@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { 
   BarChart3, 
-  CircleDot, 
   FlipHorizontal, 
   LineChart, 
   Microscope, 
@@ -25,11 +24,6 @@ export const ForecastingTabs = () => {
       title: "Distribution",
       href: "/forecasting/distribution",
       icon: BarChart3,
-    },
-    {
-      title: "Descriptive",
-      href: "/forecasting/descriptive",
-      icon: CircleDot,
     },
     {
       title: "What-If",

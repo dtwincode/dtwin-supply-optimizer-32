@@ -1,8 +1,8 @@
+
 import DashboardLayout from "@/components/DashboardLayout";
 import { ForecastingTabs } from "@/components/forecasting/ForecastingTabs";
 import ForecastAnalysisTab from "@/components/forecasting/tabs/ForecastAnalysisTab";
 import { ForecastDistributionTab } from "@/components/forecasting/tabs/ForecastDistributionTab";
-import { DescriptiveAnalysisTab } from "@/components/forecasting/tabs/DescriptiveAnalysisTab";
 import { WhatIfAnalysisTab } from "@/components/forecasting/tabs/WhatIfAnalysisTab";
 import { ValidationTab } from "@/components/forecasting/tabs/ValidationTab";
 import { ExternalFactorsTab } from "@/components/forecasting/tabs/ExternalFactorsTab";
@@ -88,7 +88,6 @@ const Forecasting = () => {
           <Routes>
             <Route index element={<ForecastAnalysisTab />} />
             <Route path="distribution" element={<ForecastDistributionTab forecastTableData={dummyData.forecastTableData} />} />
-            <Route path="descriptive" element={<DescriptiveAnalysisTab filteredData={dummyData.filteredData} />} />
             <Route path="what-if" element={<WhatIfAnalysisTab filteredData={dummyData.filteredData} whatIfScenario={dummyData.whatIfScenario} />} />
             <Route path="validation" element={<ValidationTab validationResults={dummyData.validationResults} crossValidationResults={dummyData.crossValidationResults} />} />
             <Route path="external" element={<ExternalFactorsTab {...dummyData} />} />
