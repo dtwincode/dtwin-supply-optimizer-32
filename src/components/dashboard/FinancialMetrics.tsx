@@ -4,7 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
 import { toArabicNumerals } from "@/translations";
 import Image from "../ui/image";
-import { TrendingUp, TrendingDown, DollarSign, Wallet, PiggyBank } from "lucide-react";
+import { TrendingUp, TrendingDown, Wallet, CreditCard, CircleDollarSign } from "lucide-react";
 
 const financialMetrics = [
   {
@@ -12,7 +12,7 @@ const financialMetrics = [
     value: "12.4M",
     change: "+8.2%",
     trend: "up",
-    icon: DollarSign,
+    icon: Wallet,
     color: "text-green-500",
     bgColor: "bg-green-50",
   },
@@ -21,7 +21,7 @@ const financialMetrics = [
     value: "4.2M",
     change: "-3.1%",
     trend: "down",
-    icon: Wallet,
+    icon: CreditCard,
     color: "text-red-500",
     bgColor: "bg-red-50",
   },
@@ -30,7 +30,7 @@ const financialMetrics = [
     value: "24.5%",
     change: "+2.1%",
     trend: "up",
-    icon: PiggyBank,
+    icon: CircleDollarSign,
     color: "text-blue-500",
     bgColor: "bg-blue-50",
   }
@@ -42,7 +42,7 @@ const FinancialMetrics = () => {
   return (
     <div className="mb-8">
       <h4 className="font-display text-xl font-semibold mb-4 flex items-center">
-        <DollarSign className="h-5 w-5 mr-2 text-primary" />
+        <Wallet className="h-5 w-5 mr-2 text-primary" />
         {getTranslation('financialMetrics.title', language)}
       </h4>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
