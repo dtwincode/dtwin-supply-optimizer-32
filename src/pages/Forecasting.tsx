@@ -4,7 +4,6 @@ import { ForecastingTabs } from "@/components/forecasting/ForecastingTabs";
 import ForecastAnalysisTab from "@/components/forecasting/tabs/ForecastAnalysisTab";
 import { ForecastDistributionTab } from "@/components/forecasting/tabs/ForecastDistributionTab";
 import { WhatIfAnalysisTab } from "@/components/forecasting/tabs/WhatIfAnalysisTab";
-import { ValidationTab } from "@/components/forecasting/tabs/ValidationTab";
 import { ExternalFactorsTab } from "@/components/forecasting/tabs/ExternalFactorsTab";
 import { Separator } from "@/components/ui/separator";
 import { Routes, Route, useLocation } from "react-router-dom";
@@ -89,7 +88,6 @@ const Forecasting = () => {
             <Route index element={<ForecastAnalysisTab />} />
             <Route path="distribution" element={<ForecastDistributionTab forecastTableData={dummyData.forecastTableData} />} />
             <Route path="what-if" element={<WhatIfAnalysisTab filteredData={dummyData.filteredData} whatIfScenario={dummyData.whatIfScenario} />} />
-            <Route path="validation" element={<ValidationTab validationResults={dummyData.validationResults} crossValidationResults={dummyData.crossValidationResults} />} />
             <Route path="external" element={<ExternalFactorsTab {...dummyData} />} />
           </Routes>
         </div>
