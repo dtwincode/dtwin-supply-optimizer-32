@@ -57,25 +57,20 @@ export const ExternalFactorsTab = ({
     setNewEvent({ ...newEvent, [field]: value });
   };
 
-  // Convert slider value (0-100) to impact value (-1 to 1)
   const sliderToImpact = (sliderValue: number): number => {
     return parseFloat(((sliderValue - 50) / 50).toFixed(2));
   };
 
-  // Convert impact value (-1 to 1) to slider value (0-100)
   const impactToSlider = (impactValue: number): number => {
     return (impactValue * 50) + 50;
   };
 
-  // Handle slider change
   const handleSliderChange = (value: number[]) => {
     handleEventUpdate('impact', sliderToImpact(value[0]));
     
-    // Add feedback toast when sliding
     const impactValue = sliderToImpact(value[0]);
     const formattedImpact = formatImpactAsPercentage(impactValue);
     
-    // Only show toast for significant changes to avoid toast spam
     if (Math.abs(impactValue) % 0.1 < 0.02) {
       toast({
         title: "Impact Updated",
@@ -89,7 +84,6 @@ export const ExternalFactorsTab = ({
     }
   };
 
-  // Format impact as percentage
   const formatImpactAsPercentage = (impact: number | undefined): string => {
     if (impact === undefined) return "0%";
     const percentage = Math.abs(impact * 100);
@@ -238,16 +232,20 @@ export const ExternalFactorsTab = ({
                     <span>No Impact</span>
                     <span className="text-green-500">+100%</span>
                   </div>
-                  <div className="py-2"> {/* Added padding for larger touch target */}
-                    <Slider
-                      value={[impactToSlider(newEvent.impact || 0)]}
-                      min={0}
-                      max={100}
-                      step={1}
-                      onValueChange={handleSliderChange}
-                      className="mt-1"
-                      aria-label="Impact on demand percentage"
-                    />
+                  
+                  <div className="py-4">
+                    <div className="relative">
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-red-500 via-gray-200 to-green-500 opacity-30 h-3 -z-10"></div>
+                      
+                      <Slider
+                        value={[impactToSlider(newEvent.impact || 0)]}
+                        min={0}
+                        max={100}
+                        step={1}
+                        onValueChange={handleSliderChange}
+                        aria-label="Impact on demand percentage"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
