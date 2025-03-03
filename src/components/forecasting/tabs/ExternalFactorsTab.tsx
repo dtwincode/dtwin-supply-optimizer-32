@@ -2,7 +2,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X } from "lucide-react";
+import { X, Info } from "lucide-react";
 import { 
   Select,
   SelectContent,
@@ -10,6 +10,15 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Label } from "@/components/ui/label";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Textarea } from "@/components/ui/textarea";
 import { type MarketEvent, type WeatherData, type PriceAnalysis } from '@/types/weatherAndEvents';
 import { marketEventTypes, marketEventCategories } from '@/constants/forecasting';
 import { useToast } from "@/hooks/use-toast";
@@ -47,6 +56,28 @@ export const ExternalFactorsTab = ({
 
   const handleEventUpdate = (field: keyof MarketEvent, value: any) => {
     setNewEvent({ ...newEvent, [field]: value });
+  };
+
+  // Convert slider value (0-100) to impact value (-1 to 1)
+  const sliderToImpact = (sliderValue: number): number => {
+    return parseFloat(((sliderValue - 50) / 50).toFixed(2));
+  };
+
+  // Convert impact value (-1 to 1) to slider value (0-100)
+  const impactToSlider = (impactValue: number): number => {
+    return (impactValue * 50) + 50;
+  };
+
+  // Handle slider change
+  const handleSliderChange = (value: number[]) => {
+    handleEventUpdate('impact', sliderToImpact(value[0]));
+  };
+
+  // Format impact as percentage
+  const formatImpactAsPercentage = (impact: number | undefined): string => {
+    if (impact === undefined) return "0%";
+    const percentage = Math.abs(impact * 100);
+    return `${percentage}%`;
   };
 
   return (
@@ -154,18 +185,56 @@ export const ExternalFactorsTab = ({
                 onChange={(e) => handleEventUpdate('date', e.target.value)}
                 className="bg-background"
               />
-              <Input
-                type="number"
-                placeholder="Impact (-1 to 1)"
-                min="-1"
-                max="1"
-                step="0.1"
-                value={newEvent.impact || 0}
-                onChange={(e) => handleEventUpdate('impact', parseFloat(e.target.value))}
-                className="bg-background"
-              />
-              <textarea
-                className="w-full p-2 border rounded bg-background"
+              
+              <div className="space-y-1 mt-4">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center">
+                    <Label className="mr-2">Expected Impact on Demand</Label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p>Adjust the slider to indicate the expected impact:</p>
+                          <ul className="list-disc list-inside mt-1 text-xs">
+                            <li>Left side (red): Decrease in demand</li>
+                            <li>Center: No impact (0%)</li>
+                            <li>Right side (green): Increase in demand</li>
+                          </ul>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <span className="font-medium">
+                    {newEvent.impact === undefined || newEvent.impact === 0 
+                      ? "No impact" 
+                      : newEvent.impact < 0 
+                        ? `${formatImpactAsPercentage(newEvent.impact)} decrease`
+                        : `${formatImpactAsPercentage(newEvent.impact)} increase`
+                    }
+                  </span>
+                </div>
+                
+                <div className="pt-2 px-1">
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-red-500">-100%</span>
+                    <span>No Impact</span>
+                    <span className="text-green-500">+100%</span>
+                  </div>
+                  <Slider
+                    value={[impactToSlider(newEvent.impact || 0)]}
+                    min={0}
+                    max={100}
+                    step={1}
+                    onValueChange={handleSliderChange}
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+              
+              <Textarea
+                className="w-full p-2 border rounded bg-background mt-2"
                 placeholder="Description"
                 value={newEvent.description || ''}
                 onChange={(e) => handleEventUpdate('description', e.target.value)}
@@ -220,7 +289,17 @@ export const ExternalFactorsTab = ({
                   </div>
                   <p className="text-sm text-muted-foreground">{event.date} - {event.type}</p>
                   <p className="text-sm">{event.description}</p>
-                  <p className="text-sm font-medium">Impact: {event.impact}</p>
+                  <p className="text-sm font-medium">
+                    Impact: 
+                    <span className={event.impact < 0 ? "text-red-500" : event.impact > 0 ? "text-green-500" : ""}>
+                      {event.impact === 0 
+                        ? " None" 
+                        : event.impact < 0 
+                          ? ` ${formatImpactAsPercentage(event.impact)} decrease`
+                          : ` ${formatImpactAsPercentage(event.impact)} increase`
+                      }
+                    </span>
+                  </p>
                 </div>
               ))}
             </div>
