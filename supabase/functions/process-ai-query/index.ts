@@ -19,14 +19,8 @@ serve(async (req) => {
   }
 
   try {
-    // Validate the OpenAI API key
-    if (!openAIApiKey) {
-      console.error('OpenAI API key not configured');
-      return new Response(
-        JSON.stringify({ error: 'OpenAI API key not configured in the environment variables' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    // No need to check for authorization - we're allowing anonymous access with the API key
+    console.log('Processing request...');
 
     // Parse the request body
     let body;
@@ -47,6 +41,15 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: 'Missing prompt in request' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check if OpenAI API key is configured
+    if (!openAIApiKey) {
+      console.error('OpenAI API key not configured');
+      return new Response(
+        JSON.stringify({ error: 'OpenAI API key not configured in the environment variables' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
