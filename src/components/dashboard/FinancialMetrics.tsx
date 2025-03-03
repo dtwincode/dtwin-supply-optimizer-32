@@ -1,20 +1,20 @@
 
 import { Card } from "@/components/ui/card";
-import { DollarSign } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
 import { toArabicNumerals } from "@/translations";
+import Image from "../../components/ui/image";
 
 const financialMetrics = [
   {
     title: "Revenue",
-    value: "₸ 12.4M",
+    value: "12.4M",
     change: "+8.2%",
     trend: "up",
   },
   {
     title: "Operating Costs",
-    value: "₸ 4.2M",
+    value: "4.2M",
     change: "-3.1%",
     trend: "down",
   },
@@ -42,7 +42,12 @@ const FinancialMetrics = () => {
                 <p className="text-sm text-gray-500">
                   {getTranslation(`financialMetrics.${metric.title.toLowerCase()}`, language)}
                 </p>
-                <p className="text-2xl font-semibold mt-1">
+                <p className="text-2xl font-semibold mt-1 flex items-center">
+                  <img 
+                    src="/lovable-uploads/b7ca4974-ecc5-4f81-bfc0-6ae96ce56a48.png" 
+                    alt="Currency" 
+                    className="h-5 w-5 mr-1 inline-block" 
+                  />
                   {language === 'ar' ? toArabicNumerals(metric.value) : metric.value}
                 </p>
                 <p className={`text-sm mt-1 ${
@@ -51,7 +56,7 @@ const FinancialMetrics = () => {
                   {language === 'ar' ? toArabicNumerals(metric.change) : metric.change}
                 </p>
               </div>
-              <DollarSign className="h-8 w-8 text-primary" />
+              <Image src="/lovable-uploads/b7ca4974-ecc5-4f81-bfc0-6ae96ce56a48.png" alt="Currency" className="h-8 w-8 text-primary" />
             </div>
           </Card>
         ))}

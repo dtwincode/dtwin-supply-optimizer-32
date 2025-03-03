@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
 import { toArabicNumerals } from "@/translations";
+import Image from "../ui/image";
 import {
   Boxes,
   LineChart,
@@ -39,7 +40,7 @@ const modulesSummary = [
     icon: ShoppingBag,
     stats: "2.1M",
     statsKey: "pipelineValue",
-    prefix: "₸",
+    showCurrency: true,
     route: "/sales-planning",
     color: "text-purple-500",
     bgColor: "bg-purple-50"
@@ -78,9 +79,21 @@ const ModuleSummaryCards = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
 
-  const formatStats = (stats: string, prefix?: string, suffix?: string) => {
+  const formatStats = (stats: string, showCurrency?: boolean, suffix?: string) => {
     const formattedStats = language === 'ar' ? toArabicNumerals(stats) : stats;
-    return `${prefix || ''}${formattedStats}${suffix || ''}`;
+    
+    return (
+      <div className="flex items-center">
+        {showCurrency && (
+          <img 
+            src="/lovable-uploads/b7ca4974-ecc5-4f81-bfc0-6ae96ce56a48.png" 
+            alt="Currency" 
+            className="h-5 w-5 mr-1 inline-block" 
+          />
+        )}
+        {formattedStats}{suffix || ''}
+      </div>
+    );
   };
 
   return (
@@ -100,7 +113,7 @@ const ModuleSummaryCards = () => {
                 {getTranslation(module.title, language)}
               </h4>
               <p className="text-2xl font-semibold mb-2">
-                {formatStats(module.stats, module.prefix, module.suffix)}
+                {formatStats(module.stats, module.showCurrency, module.suffix)}
               </p>
               <p className="text-sm text-gray-500">
                 {getTranslation(module.statsKey, language)}
