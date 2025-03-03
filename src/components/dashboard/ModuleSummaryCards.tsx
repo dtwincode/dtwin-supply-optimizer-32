@@ -85,13 +85,13 @@ const ModuleSummaryCards = () => {
     return (
       <div className="flex items-center">
         {showCurrency && (
-          <img 
+          <Image 
             src="/lovable-uploads/b7ca4974-ecc5-4f81-bfc0-6ae96ce56a48.png" 
             alt="Currency" 
-            className="h-5 w-5 mr-1 inline-block" 
+            className="h-5 w-5 mr-1" 
           />
         )}
-        {formattedStats}{suffix || ''}
+        <span>{formattedStats}{suffix || ''}</span>
       </div>
     );
   };
@@ -112,9 +112,9 @@ const ModuleSummaryCards = () => {
               <h4 className="font-semibold text-lg mb-1">
                 {getTranslation(module.title, language)}
               </h4>
-              <p className="text-2xl font-semibold mb-2">
+              <div className="text-2xl font-semibold mb-2">
                 {formatStats(module.stats, module.showCurrency, module.suffix)}
-              </p>
+              </div>
               <p className="text-sm text-gray-500">
                 {getTranslation(module.statsKey, language)}
               </p>

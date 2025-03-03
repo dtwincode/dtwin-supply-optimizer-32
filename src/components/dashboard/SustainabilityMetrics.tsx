@@ -45,9 +45,9 @@ const SustainabilityMetrics = () => {
                 <p className="text-sm text-gray-500">
                   {getTranslation(`sustainabilityMetrics.${metric.title.toLowerCase().replace(/\s+/g, '')}`, language)}
                 </p>
-                <p className="text-2xl font-semibold mt-1">
-                  {language === 'ar' ? toArabicNumerals(metric.value) : metric.value}
-                </p>
+                <div className="text-2xl font-semibold mt-1">
+                  <span>{language === 'ar' ? toArabicNumerals(metric.value) : metric.value}</span>
+                </div>
                 <p className={`text-sm mt-1 ${
                   metric.trend === 'up' ? 'text-green-500' : 'text-red-500'
                 }`}>
@@ -64,4 +64,3 @@ const SustainabilityMetrics = () => {
 };
 
 export default SustainabilityMetrics;
-

@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
 import { toArabicNumerals } from "@/translations";
-import Image from "../../components/ui/image";
+import Image from "../ui/image";
 
 const financialMetrics = [
   {
@@ -40,23 +40,27 @@ const FinancialMetrics = () => {
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm text-gray-500">
-                  {getTranslation(`financialMetrics.${metric.title.toLowerCase()}`, language)}
+                  {getTranslation(`financialMetrics.${metric.title.toLowerCase().replace(/\s+/g, '')}`, language)}
                 </p>
-                <p className="text-2xl font-semibold mt-1 flex items-center">
-                  <img 
+                <div className="text-2xl font-semibold mt-1 flex items-center">
+                  <Image 
                     src="/lovable-uploads/b7ca4974-ecc5-4f81-bfc0-6ae96ce56a48.png" 
                     alt="Currency" 
-                    className="h-5 w-5 mr-1 inline-block" 
+                    className="h-5 w-5 mr-1" 
                   />
-                  {language === 'ar' ? toArabicNumerals(metric.value) : metric.value}
-                </p>
+                  <span>{language === 'ar' ? toArabicNumerals(metric.value) : metric.value}</span>
+                </div>
                 <p className={`text-sm mt-1 ${
                   metric.trend === 'up' ? 'text-green-500' : 'text-red-500'
                 }`}>
                   {language === 'ar' ? toArabicNumerals(metric.change) : metric.change}
                 </p>
               </div>
-              <Image src="/lovable-uploads/b7ca4974-ecc5-4f81-bfc0-6ae96ce56a48.png" alt="Currency" className="h-8 w-8 text-primary" />
+              <Image 
+                src="/lovable-uploads/b7ca4974-ecc5-4f81-bfc0-6ae96ce56a48.png" 
+                alt="Currency" 
+                className="h-8 w-8" 
+              />
             </div>
           </Card>
         ))}

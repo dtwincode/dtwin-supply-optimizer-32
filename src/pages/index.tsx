@@ -46,9 +46,9 @@ const Index = () => {
           dir={isRTL ? 'rtl' : 'ltr'}
         >
           <section className="transition-opacity duration-500">
-            <h3 className="font-display text-2xl font-semibold mb-4">
+            <h2 className="font-display text-2xl font-semibold mb-6">
               {getTranslation('dashboard', language)}
-            </h3>
+            </h2>
             
             <MemoizedMetrics />
           </section>
@@ -59,7 +59,7 @@ const Index = () => {
 };
 
 const MemoizedMetrics = memo(() => (
-  <div className="transition-all duration-500 ease-in-out">
+  <div className="transition-all duration-500 ease-in-out space-y-10">
     <DashboardMetrics />
     <FinancialMetrics />
     <SustainabilityMetrics />
