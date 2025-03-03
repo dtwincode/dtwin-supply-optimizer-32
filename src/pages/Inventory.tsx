@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
 import { TabsContent } from "@/components/ui/tabs";
@@ -23,7 +22,7 @@ const mockClassifications = [
   {
     sku: "SKU001",
     classification: {
-      leadTimeCategory: "high",
+      leadTimeCategory: "long",
       variabilityLevel: "medium",
       criticality: "high",
       score: 85
@@ -43,7 +42,7 @@ const mockClassifications = [
   {
     sku: "SKU003",
     classification: {
-      leadTimeCategory: "low",
+      leadTimeCategory: "short",
       variabilityLevel: "high",
       criticality: "low",
       score: 45
@@ -116,7 +115,6 @@ const Inventory = () => {
 
         <InventorySummaryCards />
         
-        {/* Add the SKU Classifications component */}
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4">
             {language === 'ar' ? 'تصنيفات SKU' : 'SKU Classifications'}
