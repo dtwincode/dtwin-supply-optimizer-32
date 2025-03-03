@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import {
   Select,
   SelectContent,
@@ -12,8 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Download, ChartBar, FileText, Send, Loader2, AlertCircle } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { Search, Download, ChartBar, FileText, Send, Loader2, AlertCircle, RefreshCw } from "lucide-react";
 
 interface Message {
   role: 'user' | 'assistant';
@@ -42,6 +42,23 @@ Key features:
 - Lead time tracking and optimization
 - Buffer management based on DDMRP principles
 - What-if scenario planning
+
+Current dashboard metrics include:
+- Forecast accuracy (85% overall)
+- Inventory turnover ratio (4.2)
+- Average lead times (14 days)
+- On-time delivery rate (92%)
+- Buffer status (35% green, 45% yellow, 20% red)
+- Service level (95%)
+
+Available data in the system:
+- Historical sales data for the past 24 months
+- Current inventory levels across all locations
+- Lead time data for all suppliers
+- Demand forecasts for the next 12 months
+- Buffer profiles and configurations
+- Product hierarchy and classifications
+- Distribution network information
 
 The user is a demand planner looking to analyze and optimize their supply chain.
 `;
@@ -77,13 +94,12 @@ export const AskAI = () => {
     try {
       console.log('Calling Supabase function with query:', query);
       
-      // Use a direct fetch to the edge function to bypass any client issues
+      // Use a direct fetch to the edge function with anonymous access
       const functionUrl = 'https://mttzjxktvbsixjaqiuxq.supabase.co/functions/v1/process-ai-query';
       const response = await fetch(functionUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${supabase.auth.getSession() ? 'authenticated' : 'anon'}`,
           'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im10dHpqeGt0dmJzaXhqYXFpdXhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkxNjk4NDEsImV4cCI6MjA1NDc0NTg0MX0.-6wiezDQfeFz3ecyuHP4A6QkcRRxBG4j8pxyAp7hkx8'
         },
         body: JSON.stringify({ 
@@ -95,8 +111,15 @@ export const AskAI = () => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to process query');
+        const errorText = await response.text();
+        let errorMessage;
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || `Error ${response.status}: ${response.statusText}`;
+        } catch (e) {
+          errorMessage = `Error ${response.status}: ${errorText || response.statusText}`;
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -137,6 +160,11 @@ export const AskAI = () => {
       e.preventDefault();
       handleSubmit();
     }
+  };
+
+  const handleRetry = () => {
+    setError(null);
+    setMessages([]);
   };
 
   return (
@@ -186,15 +214,27 @@ export const AskAI = () => {
               </div>
             )}
             {error && messages.length === 0 && (
-              <div className="flex items-center justify-center h-64 text-destructive">
-                <div className="text-center">
-                  <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-70" />
-                  <p className="text-lg font-medium">Error connecting to AI assistant</p>
-                  <p className="text-sm mt-2 max-w-md mx-auto">{error}</p>
-                  <p className="text-xs mt-4 text-muted-foreground">
-                    Please ensure the OpenAI API key is correctly configured
-                  </p>
-                </div>
+              <div className="flex items-center justify-center h-64">
+                <Alert variant="destructive" className="max-w-md">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error connecting to AI assistant</AlertTitle>
+                  <AlertDescription>
+                    <p className="mb-4">{error}</p>
+                    <Button variant="outline" size="sm" onClick={handleRetry} className="mt-2">
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Try Again
+                    </Button>
+                  </AlertDescription>
+                </Alert>
+              </div>
+            )}
+            {error && messages.length > 0 && (
+              <div className="flex justify-center my-4">
+                <Alert variant="destructive" className="max-w-md">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
               </div>
             )}
           </div>

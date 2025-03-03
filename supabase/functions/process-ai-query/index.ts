@@ -74,8 +74,8 @@ When responding:
 - When you don't know something specific to the user's data, acknowledge it but provide general best practices
 
 Output format: ${format === 'chart' ? 'Describe what the chart should show and what insights it would reveal' : 
-               format === 'report' ? 'Provide a structured report with sections and insights' : 
-               'Clear and concise textual response'}
+              format === 'report' ? 'Provide a structured report with sections and insights' : 
+              'Clear and concise textual response'}
 
 Current timestamp: ${timestamp || new Date().toISOString()}
 `;
