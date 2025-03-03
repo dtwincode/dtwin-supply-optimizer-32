@@ -2,7 +2,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X, Info } from "lucide-react";
+import { X, Info, CloudSun } from "lucide-react";
 import { 
   Select,
   SelectContent,
@@ -74,6 +74,7 @@ export const ExternalFactorsTab = ({
   const [localWeatherLocation, setLocalWeatherLocation] = React.useState<string>(weatherLocation || '');
   const [localWeatherData, setLocalWeatherData] = React.useState<WeatherData | null>(weatherData);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [lastUpdated, setLastUpdated] = React.useState<string>('');
 
   const handleEventUpdate = (field: keyof MarketEvent, value: any) => {
     setNewEvent({ ...newEvent, [field]: value });
@@ -130,14 +131,16 @@ export const ExternalFactorsTab = ({
       setWeatherLocation(localWeatherLocation);
       const data = await fetchWeatherForecast(localWeatherLocation);
       setLocalWeatherData(data);
+      setLastUpdated(new Date().toLocaleTimeString());
+      
       toast({
         title: "Success",
-        description: `Weather data for ${localWeatherLocation} fetched successfully`,
+        description: `Real-time weather data for ${data.location || localWeatherLocation} fetched successfully`,
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to fetch weather data. Please check the location and try again.",
+        description: "Failed to fetch weather data. Please check the location name and try again.",
         variant: "destructive",
       });
       console.error("Weather fetch error:", error);
@@ -158,7 +161,7 @@ export const ExternalFactorsTab = ({
                 <Input 
                   value={localWeatherLocation}
                   onChange={(e) => setLocalWeatherLocation(e.target.value)}
-                  placeholder="Enter location"
+                  placeholder="Enter location (e.g., Riyadh, London, New York)"
                   className="bg-background"
                 />
                 <Button 
@@ -171,14 +174,49 @@ export const ExternalFactorsTab = ({
             </div>
             
             {localWeatherData && (
-              <div className="space-y-2 mt-4 p-3 border rounded-md border-border">
-                <h4 className="font-medium">Weather for {localWeatherLocation}</h4>
-                <p>Temperature: {localWeatherData.temperature}°C</p>
-                <p>Humidity: {localWeatherData.humidity}%</p>
-                <p>Wind Speed: {localWeatherData.windSpeed} km/h</p>
-                <p>Condition: {localWeatherData.weatherCondition}</p>
+              <div className="mt-4 p-4 border rounded-md border-border bg-card/50">
+                <div className="flex justify-between items-start mb-2">
+                  <div className="flex items-center">
+                    <CloudSun className="h-5 w-5 mr-2 text-blue-500" />
+                    <h4 className="font-medium text-lg">
+                      Weather for {localWeatherData.location || localWeatherLocation}
+                    </h4>
+                  </div>
+                  {lastUpdated && (
+                    <span className="text-xs text-muted-foreground">
+                      Updated at {lastUpdated}
+                    </span>
+                  )}
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">Temperature</p>
+                    <p className="font-medium">{localWeatherData.temperature}°C</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">Humidity</p>
+                    <p className="font-medium">{localWeatherData.humidity}%</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">Wind Speed</p>
+                    <p className="font-medium">{localWeatherData.windSpeed} km/h</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">Precipitation</p>
+                    <p className="font-medium">{localWeatherData.precipitation} mm</p>
+                  </div>
+                </div>
+                
+                <div className="mt-3">
+                  <p className="text-sm text-muted-foreground">Condition</p>
+                  <p className="font-medium capitalize">{localWeatherData.weatherCondition}</p>
+                </div>
+                
                 {localWeatherData.alert && (
-                  <p className="text-red-500 mt-2 font-medium">Alert: {localWeatherData.alert}</p>
+                  <div className="mt-3 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
+                    <p className="text-red-600 dark:text-red-400 font-medium">Alert: {localWeatherData.alert}</p>
+                  </div>
                 )}
               </div>
             )}

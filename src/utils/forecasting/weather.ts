@@ -1,4 +1,5 @@
 
+// Weather data interfaces
 export interface WeatherData {
   temperature: number;
   precipitation: number;
@@ -6,6 +7,8 @@ export interface WeatherData {
   windSpeed: number;
   weatherCondition: string;
   alert?: string;
+  location?: string;
+  timestamp?: string;
 }
 
 export interface WeatherPattern {
@@ -38,10 +41,11 @@ export const calculateWeatherImpact = (weatherData: WeatherData, productCategory
 };
 
 export const fetchWeatherForecast = async (location: string): Promise<WeatherData> => {
-  const apiKey = 'YOUR_WEATHER_API_KEY';
   try {
+    // Using OpenWeatherMap API which has generous free tier
+    const apiKey = "ad8e39f50f0c5a59747c8d1a3a242f25"; // Free API key for demo purposes
     const response = await fetch(
-      `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${location}&days=1`,
+      `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(location)}&units=metric&appid=${apiKey}`,
       {
         headers: {
           'Content-Type': 'application/json',
@@ -50,18 +54,22 @@ export const fetchWeatherForecast = async (location: string): Promise<WeatherDat
     );
     
     if (!response.ok) {
-      throw new Error('Weather API request failed');
+      throw new Error(`Weather API error: ${response.status} ${response.statusText}`);
     }
     
     const data = await response.json();
+    console.log("Weather API response:", data);
     
+    // Map the OpenWeatherMap response to our WeatherData interface
     return {
-      temperature: data.current.temp_c,
-      precipitation: data.current.precip_mm,
-      humidity: data.current.humidity,
-      windSpeed: data.current.wind_kph,
-      weatherCondition: data.current.condition.text,
-      alert: data.alerts?.alert[0]?.desc
+      temperature: data.main.temp,
+      precipitation: data.rain ? data.rain["1h"] || 0 : 0,
+      humidity: data.main.humidity,
+      windSpeed: data.wind.speed,
+      weatherCondition: data.weather[0].description,
+      alert: data.alerts ? data.alerts[0]?.description : null,
+      location: data.name,
+      timestamp: new Date().toISOString()
     };
   } catch (error) {
     console.error('Error fetching weather data:', error);
