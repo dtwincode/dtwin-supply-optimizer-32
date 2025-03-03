@@ -12,7 +12,9 @@ import {
   ShoppingBag,
   Megaphone,
   Truck,
-  FileText
+  FileText,
+  ChevronRight,
+  ChevronLeft
 } from "lucide-react";
 
 const modulesSummary = [
@@ -23,7 +25,8 @@ const modulesSummary = [
     statsKey: "skuCount",
     route: "/inventory",
     color: "text-blue-500",
-    bgColor: "bg-blue-50"
+    bgColor: "bg-blue-50",
+    description: "inventoryDescription"
   },
   {
     title: "demandForecasting",
@@ -33,7 +36,8 @@ const modulesSummary = [
     suffix: "%",
     route: "/forecasting",
     color: "text-green-500",
-    bgColor: "bg-green-50"
+    bgColor: "bg-green-50",
+    description: "forecastingDescription"
   },
   {
     title: "salesPlanning",
@@ -43,7 +47,8 @@ const modulesSummary = [
     showCurrency: true,
     route: "/sales-planning",
     color: "text-purple-500",
-    bgColor: "bg-purple-50"
+    bgColor: "bg-purple-50",
+    description: "salesDescription"
   },
   {
     title: "marketingCampaigns",
@@ -52,7 +57,8 @@ const modulesSummary = [
     statsKey: "activeCampaigns",
     route: "/marketing",
     color: "text-pink-500",
-    bgColor: "bg-pink-50"
+    bgColor: "bg-pink-50",
+    description: "marketingDescription"
   },
   {
     title: "logistics",
@@ -62,7 +68,8 @@ const modulesSummary = [
     suffix: "%",
     route: "/logistics",
     color: "text-orange-500",
-    bgColor: "bg-orange-50"
+    bgColor: "bg-orange-50",
+    description: "logisticsDescription"
   },
   {
     title: "reportsAnalytics",
@@ -71,13 +78,14 @@ const modulesSummary = [
     statsKey: "reportCount",
     route: "/reports",
     color: "text-indigo-500",
-    bgColor: "bg-indigo-50"
+    bgColor: "bg-indigo-50",
+    description: "reportsDescription"
   }
 ];
 
 const ModuleSummaryCards = () => {
   const navigate = useNavigate();
-  const { language } = useLanguage();
+  const { language, isRTL } = useLanguage();
 
   const formatStats = (stats: string, showCurrency?: boolean, suffix?: string) => {
     const formattedStats = language === 'ar' ? toArabicNumerals(stats) : stats;
@@ -97,36 +105,62 @@ const ModuleSummaryCards = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-      {modulesSummary.map((module) => (
-        <Card 
-          key={module.title} 
-          className="p-6 cursor-pointer hover:shadow-lg transition-shadow"
-          onClick={() => navigate(module.route)}
-        >
-          <div className="flex items-start space-x-4">
-            <div className={`p-3 rounded-lg ${module.bgColor}`}>
-              <module.icon className={`h-6 w-6 ${module.color}`} />
-            </div>
-            <div className="flex-1">
-              <h4 className="font-semibold text-lg mb-1">
-                {getTranslation(`modulesSummary.${module.title}`, language)}
-              </h4>
-              <div className="text-2xl font-semibold mb-2">
-                {formatStats(module.stats, module.showCurrency, module.suffix)}
+    <div>
+      <h3 className="font-display text-xl font-semibold mb-4">
+        {getTranslation('common.modules', language)}
+      </h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+        {modulesSummary.map((module) => (
+          <Card 
+            key={module.title} 
+            className="hover:shadow-lg transition-all duration-300 border-t-4"
+            style={{ borderTopColor: module.color.replace('text-', '').includes('blue') ? '#3b82f6' : 
+                                     module.color.replace('text-', '').includes('green') ? '#10b981' :
+                                     module.color.replace('text-', '').includes('purple') ? '#8b5cf6' :
+                                     module.color.replace('text-', '').includes('pink') ? '#ec4899' :
+                                     module.color.replace('text-', '').includes('orange') ? '#f97316' : '#6366f1' }}
+          >
+            <div 
+              className="p-6 cursor-pointer"
+              onClick={() => navigate(module.route)}
+            >
+              <div className="flex items-start space-x-4">
+                <div className={`p-3 rounded-lg ${module.bgColor}`}>
+                  <module.icon className={`h-6 w-6 ${module.color}`} />
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-semibold text-lg mb-1">
+                    {getTranslation(`modulesSummary.${module.title}`, language)}
+                  </h4>
+                  <div className="text-2xl font-semibold mb-2">
+                    {formatStats(module.stats, module.showCurrency, module.suffix)}
+                  </div>
+                  <p className="text-sm text-gray-500 mb-3">
+                    {getTranslation(`common.${module.statsKey}`, language)}
+                  </p>
+                  <p className="text-xs text-gray-500 line-clamp-2">
+                    {getTranslation(`modulesSummary.${module.description}`, language)}
+                  </p>
+                </div>
               </div>
-              <p className="text-sm text-gray-500">
-                {getTranslation(`common.${module.statsKey}`, language)}
-              </p>
+              <div className="mt-4 flex justify-end">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="text-primary hover:text-primary-foreground hover:bg-primary"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(module.route);
+                  }}
+                >
+                  {getTranslation('common.viewDetails', language)} 
+                  {isRTL ? <ChevronLeft className="ml-1 h-4 w-4" /> : <ChevronRight className="ml-1 h-4 w-4" />}
+                </Button>
+              </div>
             </div>
-          </div>
-          <div className="mt-4 flex justify-end">
-            <Button variant="ghost" size="sm">
-              {getTranslation('common.viewDetails', language)} {language === 'ar' ? '←' : '→'}
-            </Button>
-          </div>
-        </Card>
-      ))}
+          </Card>
+        ))}
+      </div>
     </div>
   );
 };

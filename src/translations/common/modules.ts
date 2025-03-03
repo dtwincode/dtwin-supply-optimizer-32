@@ -1,113 +1,29 @@
 
-import { TranslationValue } from '../types';
-
-export type ModuleTranslations = {
-  skus: TranslationValue;
-  active: TranslationValue;
-  pipeline: TranslationValue;
-  onTime: TranslationValue;
-  reports: TranslationValue;
-  description: TranslationValue;
-  accuracy: TranslationValue;
-  planAndTrack: TranslationValue;
-  manageInitiatives: TranslationValue;
-  optimizeDelivery: TranslationValue;
-  accessInsights: TranslationValue;
-  demandforecasting: TranslationValue;
-  accuracyLabel: TranslationValue;
-  salesplanning: TranslationValue;
-  pipelineValue: TranslationValue;
-  logistics: TranslationValue;
-  onTimeDelivery: TranslationValue;
-  marketingcampaigns: TranslationValue;
-  activeCampaigns: TranslationValue;
-  reportsAnalytics: TranslationValue;
-  reportCount: TranslationValue;
-};
+import { ModuleTranslations } from '../types';
 
 export const moduleTranslations: ModuleTranslations = {
-  skus: {
-    en: "SKUs",
-    ar: "وحدات تخزين"
+  inventoryDescription: {
+    en: "Track inventory levels, manage buffer zones, and optimize stock positions across your supply chain network.",
+    ar: "تتبع مستويات المخزون، وإدارة مناطق المخزون الاحتياطي، وتحسين مواقع المخزون عبر شبكة سلسلة التوريد الخاصة بك."
   },
-  active: {
-    en: "active",
-    ar: "نشط"
+  forecastingDescription: {
+    en: "Predict demand patterns, analyze market trends, and create accurate forecasts with AI-powered analytics.",
+    ar: "التنبؤ بأنماط الطلب، وتحليل اتجاهات السوق، وإنشاء تنبؤات دقيقة باستخدام تحليلات تعتمد على الذكاء الاصطناعي."
   },
-  pipeline: {
-    en: "pipeline",
-    ar: "قيد التنفيذ"
+  salesDescription: {
+    en: "Align sales strategies with supply capabilities, manage promotions, and optimize revenue opportunities.",
+    ar: "مواءمة استراتيجيات المبيعات مع قدرات العرض، وإدارة العروض الترويجية، وتحسين فرص الإيرادات."
   },
-  onTime: {
-    en: "on-time",
-    ar: "في الوقت المحدد"
+  marketingDescription: {
+    en: "Plan and execute marketing campaigns that drive demand with full visibility into supply chain impacts.",
+    ar: "تخطيط وتنفيذ الحملات التسويقية التي تدفع الطلب مع رؤية كاملة لتأثيرات سلسلة التوريد."
   },
-  reports: {
-    en: "reports",
-    ar: "تقارير"
+  logisticsDescription: {
+    en: "Manage transportation, track shipments, and optimize delivery networks for timely fulfillment.",
+    ar: "إدارة النقل، وتتبع الشحنات، وتحسين شبكات التسليم للوفاء في الوقت المناسب."
   },
-  description: {
-    en: "Track and manage inventory levels",
-    ar: "تتبع وإدارة مستويات المخزون"
-  },
-  accuracy: {
-    en: "accuracy",
-    ar: "دقة"
-  },
-  planAndTrack: {
-    en: "Plan and track sales activities",
-    ar: "تخطيط وتتبع أنشطة المبيعات"
-  },
-  manageInitiatives: {
-    en: "Manage marketing initiatives",
-    ar: "إدارة المبادرات التسويقية"
-  },
-  optimizeDelivery: {
-    en: "Optimize delivery operations",
-    ar: "تحسين عمليات التسليم"
-  },
-  accessInsights: {
-    en: "Access business insights",
-    ar: "الوصول إلى رؤى الأعمال"
-  },
-  demandforecasting: {
-    en: "Demand Forecasting",
-    ar: "التنبؤ بالطلب"
-  },
-  accuracyLabel: {
-    en: "accuracy",
-    ar: "دقة التنبؤ"
-  },
-  salesplanning: {
-    en: "Sales Planning",
-    ar: "تخطيط المبيعات"
-  },
-  pipelineValue: {
-    en: "pipeline",
-    ar: "في خط الأنابيب"
-  },
-  logistics: {
-    en: "Logistics",
-    ar: "الخدمات اللوجستية"
-  },
-  onTimeDelivery: {
-    en: "on-time delivery",
-    ar: "التسليم في الوقت المحدد"
-  },
-  marketingcampaigns: {
-    en: "Marketing Campaigns",
-    ar: "الحملات التسويقية"
-  },
-  activeCampaigns: {
-    en: "active campaigns",
-    ar: "حملات نشطة"
-  },
-  reportsAnalytics: {
-    en: "Reports & Analytics",
-    ar: "التقارير والتحليلات"
-  },
-  reportCount: {
-    en: "reports",
-    ar: "تقرير"
+  reportsDescription: {
+    en: "Generate custom reports, analyze KPIs, and gain actionable insights into your entire supply chain.",
+    ar: "إنشاء تقارير مخصصة، وتحليل مؤشرات الأداء الرئيسية، والحصول على رؤى قابلة للتنفيذ في سلسلة التوريد بأكملها."
   }
 };

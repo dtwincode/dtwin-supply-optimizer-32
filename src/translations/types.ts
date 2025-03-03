@@ -1,50 +1,34 @@
 
-import { UITranslations } from './common/ui';
-import { InventoryTranslations } from './common/inventory';
-import { ModuleTranslations } from './common/modules';
-import { ChartTranslations } from './common/charts';
-import { PaginationTranslations } from './common/pagination';
-
-export type TranslationValue = {
+export interface TranslationValue {
   en: string;
   ar: string;
-};
+}
 
-export type NavigationItems = {
-  dashboard: TranslationValue;
-  forecasting: TranslationValue;
-  inventory: TranslationValue;
-  salesPlanning: TranslationValue;
-  marketing: TranslationValue;
-  logistics: TranslationValue;
-  reports: TranslationValue;
-  askAI: TranslationValue;
-  data: TranslationValue;
-  guidelines: TranslationValue;
-};
-
-export type DashboardMetrics = {
+export interface DashboardMetrics {
   totalSKUs: TranslationValue;
   bufferPenetration: TranslationValue;
   orderStatus: TranslationValue;
   flowIndex: TranslationValue;
-};
+}
 
-export type FinancialMetrics = {
+export interface FinancialMetrics {
+  title: TranslationValue;
   revenue: TranslationValue;
   operatingCosts: TranslationValue;
   profitMargin: TranslationValue;
-  title: TranslationValue;
-};
+}
 
-export type SustainabilityMetrics = {
+export interface SustainabilityMetrics {
+  title: TranslationValue;
   carbonFootprint: TranslationValue;
   wasteReduction: TranslationValue;
   greenSuppliers: TranslationValue;
-  title: TranslationValue;
-};
+  yearlyReduction: TranslationValue;
+  wasteEfficiency: TranslationValue;
+  sustainableSourcing: TranslationValue;
+}
 
-export type ModulesSummary = {
+export interface ModulesSummary {
   inventoryManagement: TranslationValue;
   demandForecasting: TranslationValue;
   salesPlanning: TranslationValue;
@@ -52,98 +36,70 @@ export type ModulesSummary = {
   logistics: TranslationValue;
   reportsAnalytics: TranslationValue;
   viewDetails: TranslationValue;
-};
+}
 
-export type CommonTranslations = {
-  viewAll: TranslationValue;
-  search: TranslationValue;
-  filter: TranslationValue;
-  status: TranslationValue;
-  loading: TranslationValue;
-  noData: TranslationValue;
-  submit: TranslationValue;
+export interface UITranslations {
+  settings: TranslationValue;
+  logout: TranslationValue;
   cancel: TranslationValue;
   save: TranslationValue;
-  edit: TranslationValue;
   delete: TranslationValue;
+  edit: TranslationValue;
   create: TranslationValue;
-  back: TranslationValue;
-  next: TranslationValue;
-  inventory: TranslationValue;
-  bufferZones: TranslationValue;
-  netFlowPosition: TranslationValue;
-  unitsLabel: TranslationValue;
-  actions: TranslationValue;
-  createPO: TranslationValue;
-  configure: TranslationValue;
-  adjust: TranslationValue;
-  review: TranslationValue;
-  decouplingPoint: TranslationValue;
-  netFlow: TranslationValue;
-  buffers: TranslationValue;
-  adu: TranslationValue;
-  alerts: TranslationValue;
-  demandforecasting: TranslationValue;
-  accuracyLabel: TranslationValue;
-  inventorymanagement: TranslationValue;
-  skuCount: TranslationValue;
-  salesplanning: TranslationValue;
-  pipelineValue: TranslationValue;
-  logistics: TranslationValue;
-  onTimeDelivery: TranslationValue;
-  marketingcampaigns: TranslationValue;
-  activeCampaigns: TranslationValue;
-  reportsAnalytics: TranslationValue;
-  reportCount: TranslationValue;
+  search: TranslationValue;
+  filter: TranslationValue;
+  apply: TranslationValue;
+  reset: TranslationValue;
   viewDetails: TranslationValue;
-  items: TranslationValue;
-  showing: TranslationValue;
-  to: TranslationValue;
-  of: TranslationValue;
-  previous: TranslationValue;
-  success: TranslationValue;
-  purchaseOrderCreated: TranslationValue;
-  skus: TranslationValue;
-  active: TranslationValue;
-  pipeline: TranslationValue;
-  onTime: TranslationValue;
-  reports: TranslationValue;
-  description: TranslationValue;
-  accuracy: TranslationValue;
-  planAndTrack: TranslationValue;
-  manageInitiatives: TranslationValue;
-  optimizeDelivery: TranslationValue;
-  accessInsights: TranslationValue;
+  skuCount: TranslationValue;
+  accuracyLabel: TranslationValue;
+  pipelineValue: TranslationValue;
+  activeCampaigns: TranslationValue;
+  onTimeDelivery: TranslationValue;
+  reportCount: TranslationValue;
+  fromLastMonth: TranslationValue;
+  fromLastWeek: TranslationValue;
+  thisQuarter: TranslationValue;
+  modules: TranslationValue;
+}
+
+export interface InventoryTranslations {
+  inventoryTitle: TranslationValue;
+  bufferZones: TranslationValue;
+  skuClassification: TranslationValue;
+  leadTime: TranslationValue;
+  replenishmentOrders: TranslationValue;
+}
+
+export interface ChartTranslations {
   chartTitles: {
     bufferProfile: TranslationValue;
     demandVariability: TranslationValue;
+    inventoryTrends: TranslationValue;
+    forecastAccuracy: TranslationValue;
   };
   zones: {
     green: TranslationValue;
     yellow: TranslationValue;
     red: TranslationValue;
   };
-} & UITranslations & InventoryTranslations & ModuleTranslations & ChartTranslations & PaginationTranslations;
+}
 
-export type SalesTranslations = {
-  title: TranslationValue;
-  newPlan: TranslationValue;
-  topDown: TranslationValue;
-  bottomUp: TranslationValue;
-  filters: {
-    category: TranslationValue;
-    region: TranslationValue;
-    status: TranslationValue;
-  };
-};
+export interface PaginationTranslations {
+  next: TranslationValue;
+  previous: TranslationValue;
+  page: TranslationValue;
+  of: TranslationValue;
+  perPage: TranslationValue;
+}
 
-export type Translations = {
-  dashboard: TranslationValue;
-  navigationItems: NavigationItems;
-  dashboardMetrics: DashboardMetrics;
-  financialMetrics: FinancialMetrics;
-  sustainabilityMetrics: SustainabilityMetrics;
-  modulesSummary: ModulesSummary;
-  common: CommonTranslations;
-  sales: SalesTranslations;
-};
+export interface ModuleTranslations {
+  inventoryDescription: TranslationValue;
+  forecastingDescription: TranslationValue;
+  salesDescription: TranslationValue;
+  marketingDescription: TranslationValue;
+  logisticsDescription: TranslationValue;
+  reportsDescription: TranslationValue;
+}
+
+export interface CommonTranslations extends UITranslations, InventoryTranslations, ChartTranslations, PaginationTranslations, ModuleTranslations {}

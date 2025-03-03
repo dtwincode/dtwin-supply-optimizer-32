@@ -60,6 +60,18 @@ export const sustainabilityMetricsTranslations: SustainabilityMetrics = {
   greenSuppliers: {
     en: "Green Suppliers",
     ar: "الموردون الخضر"
+  },
+  yearlyReduction: {
+    en: "Annual reduction in CO2 emissions",
+    ar: "تخفيض سنوي في انبعاثات ثاني أكسيد الكربون"
+  },
+  wasteEfficiency: {
+    en: "Improvement in waste management efficiency",
+    ar: "تحسين كفاءة إدارة النفايات"
+  },
+  sustainableSourcing: {
+    en: "Suppliers meeting sustainability standards",
+    ar: "الموردون الذين يلبون معايير الاستدامة"
   }
 };
 

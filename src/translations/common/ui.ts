@@ -1,59 +1,14 @@
 
-import { TranslationValue } from '../types';
-
-export type UITranslations = {
-  viewAll: TranslationValue;
-  search: TranslationValue;
-  filter: TranslationValue;
-  status: TranslationValue;
-  loading: TranslationValue;
-  noData: TranslationValue;
-  submit: TranslationValue;
-  cancel: TranslationValue;
-  save: TranslationValue;
-  edit: TranslationValue;
-  delete: TranslationValue;
-  create: TranslationValue;
-  back: TranslationValue;
-  next: TranslationValue;
-  actions: TranslationValue;
-  configure: TranslationValue;
-  adjust: TranslationValue;
-  review: TranslationValue;
-  success: TranslationValue;
-  signIn: TranslationValue;
-  signUp: TranslationValue;
-  signOut: TranslationValue;
-};
+import { UITranslations } from '../types';
 
 export const uiTranslations: UITranslations = {
-  viewAll: {
-    en: "View All",
-    ar: "عرض الكل"
+  settings: {
+    en: "Settings",
+    ar: "الإعدادات"
   },
-  search: {
-    en: "Search",
-    ar: "بحث"
-  },
-  filter: {
-    en: "Filter",
-    ar: "تصفية"
-  },
-  status: {
-    en: "Status",
-    ar: "الحالة"
-  },
-  loading: {
-    en: "Loading...",
-    ar: "جاري التحميل..."
-  },
-  noData: {
-    en: "No data available",
-    ar: "لا توجد بيانات متاحة"
-  },
-  submit: {
-    en: "Submit",
-    ar: "إرسال"
+  logout: {
+    en: "Logout",
+    ar: "تسجيل الخروج"
   },
   cancel: {
     en: "Cancel",
@@ -63,56 +18,76 @@ export const uiTranslations: UITranslations = {
     en: "Save",
     ar: "حفظ"
   },
-  edit: {
-    en: "Edit",
-    ar: "تعديل"
-  },
   delete: {
     en: "Delete",
     ar: "حذف"
+  },
+  edit: {
+    en: "Edit",
+    ar: "تعديل"
   },
   create: {
     en: "Create",
     ar: "إنشاء"
   },
-  back: {
-    en: "Back",
-    ar: "رجوع"
+  search: {
+    en: "Search",
+    ar: "بحث"
   },
-  next: {
-    en: "Next",
-    ar: "التالي"
+  filter: {
+    en: "Filter",
+    ar: "تصفية"
   },
-  actions: {
-    en: "Actions",
-    ar: "إجراءات"
+  apply: {
+    en: "Apply",
+    ar: "تطبيق"
   },
-  configure: {
-    en: "Configure",
-    ar: "تكوين"
+  reset: {
+    en: "Reset",
+    ar: "إعادة تعيين"
   },
-  adjust: {
-    en: "Adjust",
-    ar: "تعديل"
+  viewDetails: {
+    en: "View Details",
+    ar: "عرض التفاصيل"
   },
-  review: {
-    en: "Review",
-    ar: "مراجعة"
+  skuCount: {
+    en: "SKU Count",
+    ar: "عدد وحدات التخزين"
   },
-  success: {
-    en: "Success",
-    ar: "نجاح"
+  accuracyLabel: {
+    en: "Forecast Accuracy",
+    ar: "دقة التنبؤ"
   },
-  signIn: {
-    en: "Sign In",
-    ar: "تسجيل الدخول"
+  pipelineValue: {
+    en: "Pipeline Value",
+    ar: "قيمة خط الأنابيب"
   },
-  signUp: {
-    en: "Sign Up",
-    ar: "إنشاء حساب"
+  activeCampaigns: {
+    en: "Active Campaigns",
+    ar: "الحملات النشطة"
   },
-  signOut: {
-    en: "Sign Out",
-    ar: "تسجيل الخروج"
+  onTimeDelivery: {
+    en: "On-Time Delivery",
+    ar: "التسليم في الوقت المحدد"
+  },
+  reportCount: {
+    en: "Available Reports",
+    ar: "التقارير المتاحة"
+  },
+  fromLastMonth: {
+    en: "from last month",
+    ar: "من الشهر الماضي"
+  },
+  fromLastWeek: {
+    en: "from last week",
+    ar: "من الأسبوع الماضي"
+  },
+  thisQuarter: {
+    en: "this quarter",
+    ar: "هذا الربع"
+  },
+  modules: {
+    en: "Key Supply Chain Modules",
+    ar: "وحدات سلسلة التوريد الرئيسية"
   }
 };
