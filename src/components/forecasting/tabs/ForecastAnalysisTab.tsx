@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { ModelSelectionCard } from "@/components/forecasting/ModelSelectionCard";
 import { ForecastMetricsCards } from "@/components/forecasting/ForecastMetricsCards";
@@ -33,6 +32,8 @@ import {
   ReferenceLine
 } from "recharts";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { FileCheck, BarChart2, Activity, ChevronDown, ChevronUp } from "lucide-react";
 
 interface SavedModelConfig {
   id: string;
@@ -151,6 +152,7 @@ const ForecastAnalysisTab = () => {
     lastUpdated: '2024-03-20',
     trend: 'improving'
   });
+  const [showValidation, setShowValidation] = useState(false);
   const [validationSelectedTab, setValidationSelectedTab] = useState("overview");
   const [crossValidationResults, setCrossValidationResults] = useState<CrossValidationResult>(
     performCrossValidation(sampleData.map(d => d.actual as number).filter(Boolean))
@@ -259,9 +261,13 @@ const ForecastAnalysisTab = () => {
     toast.success('Model configuration deleted successfully');
   };
 
+  const validateSelectedModel = () => {
+    setShowValidation(true);
+    toast.success("Model validation started");
+  };
+
   const metrics = calculateMetrics(sampleData);
 
-  // Generate sample actual vs predicted data for validation visualization
   const sampleValidationData = Array.from({ length: 24 }, (_, i) => {
     const actual = 100 + Math.random() * 30 + (i % 12) * 8;
     const predicted = actual * (1 + (Math.random() * 0.2 - 0.1));
@@ -274,21 +280,18 @@ const ForecastAnalysisTab = () => {
     };
   });
 
-  // Generate residual analysis data
   const residualData = sampleValidationData.map(item => ({
     period: item.period,
     residual: item.predicted - item.actual,
     percentError: item.error
   }));
 
-  // Summary metrics for different time horizons
   const horizonMetrics = [
     { horizon: "Short-term (1-4 weeks)", mape: 5.2, mae: 8.4, rmse: 10.2, bias: -1.2 },
     { horizon: "Medium-term (5-12 weeks)", mape: 8.7, mae: 12.3, rmse: 14.8, bias: 2.1 },
     { horizon: "Long-term (13+ weeks)", mape: 15.3, mae: 18.9, rmse: 22.5, bias: 3.8 }
   ];
 
-  // Statistical test details
   const statisticalTests = [
     {
       name: "Bias Test",
@@ -322,36 +325,46 @@ const ForecastAnalysisTab = () => {
 
   return (
     <div className="space-y-6">
-      <Card className="p-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Model Selection & Comparison</h3>
-            <ModelSearch
-              searchTerm={searchTerm}
-              selectedSku={selectedSku}
-              selectedLocation={selectedLocation}
-              onSearchChange={setSearchTerm}
-              onSkuChange={setSelectedSku}
-              onLocationChange={setSelectedLocation}
-              skus={skus}
-              locations={locations}
-            />
-          </div>
-
-          <div className="space-y-4">
-            <ModelSelectionCard
-              selectedModel={selectedModels[0] || ""}
-              onModelChange={handleModelChange}
-              onParametersChange={handleParametersChange}
-            />
-
-            <SelectedModelsList
-              selectedModels={selectedModels}
-              models={savedModels}
-              onRemoveModel={(modelId) => setSelectedModels(prev => prev.filter(id => id !== modelId))}
-              onClearAll={() => setSelectedModels([])}
-            />
-          </div>
+          <Card className="p-6">
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Model Selection</h3>
+              <ModelSearch
+                searchTerm={searchTerm}
+                selectedSku={selectedSku}
+                selectedLocation={selectedLocation}
+                onSearchChange={setSearchTerm}
+                onSkuChange={setSelectedSku}
+                onLocationChange={setSelectedLocation}
+                skus={skus}
+                locations={locations}
+              />
+              
+              <ModelSelectionCard
+                selectedModel={selectedModels[0] || ""}
+                onModelChange={handleModelChange}
+                onParametersChange={handleParametersChange}
+              />
+              
+              <SelectedModelsList
+                selectedModels={selectedModels}
+                models={savedModels}
+                onRemoveModel={(modelId) => setSelectedModels(prev => prev.filter(id => id !== modelId))}
+                onClearAll={() => setSelectedModels([])}
+              />
+              
+              {selectedModels.length > 0 && (
+                <Button 
+                  onClick={validateSelectedModel}
+                  className="w-full"
+                >
+                  <FileCheck className="mr-2 h-4 w-4" />
+                  Validate Model
+                </Button>
+              )}
+            </div>
+          </Card>
           
           <ModelList
             models={filteredModels}
@@ -362,246 +375,267 @@ const ForecastAnalysisTab = () => {
             onDeleteModel={handleDeleteModel}
           />
         </div>
-      </Card>
+        
+        <div className="space-y-6 md:col-span-2">
+          {showValidation ? (
+            <Card className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Model Validation Results</h3>
+                <Button variant="outline" size="sm" onClick={() => setShowValidation(false)}>
+                  Back to Forecast
+                </Button>
+              </div>
+              
+              <Tabs defaultValue={validationSelectedTab} onValueChange={setValidationSelectedTab} className="w-full">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="overview" className="flex items-center">
+                    <BarChart2 className="mr-2 h-4 w-4" />
+                    Validation Overview
+                  </TabsTrigger>
+                  <TabsTrigger value="detailed" className="flex items-center">
+                    <Activity className="mr-2 h-4 w-4" />
+                    Detailed Analysis
+                  </TabsTrigger>
+                  <TabsTrigger value="statistical" className="flex items-center">
+                    <FileCheck className="mr-2 h-4 w-4" />
+                    Statistical Tests
+                  </TabsTrigger>
+                </TabsList>
 
-      <Card className="p-6">
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <div className="space-y-1">
-              <h3 className="text-lg font-semibold">Forecast Analysis</h3>
-              <p className="text-sm text-muted-foreground">
-                Visual analysis of forecasted values with confidence intervals
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Confidence Level:</span>
-              <Select
-                value={confidenceLevel}
-                onValueChange={setConfidenceLevel}
-              >
-                <SelectTrigger className="w-[100px]">
-                  <SelectValue placeholder="95%" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="90">90%</SelectItem>
-                  <SelectItem value="95">95%</SelectItem>
-                  <SelectItem value="99">99%</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <div className="h-[400px]">
-            <ForecastChart 
-              data={sampleData} 
-              confidenceIntervals={sampleConfidenceIntervals}
-              confidenceLevel={Number(confidenceLevel)}
-            />
-          </div>
+                <TabsContent value="overview" className="space-y-4">
+                  <Card className="p-6">
+                    <h3 className="text-lg font-semibold mb-4">Forecast vs Actual</h3>
+                    <div className="h-[350px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={sampleValidationData}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="period" />
+                          <YAxis />
+                          <Tooltip />
+                          <Legend />
+                          <Line 
+                            type="monotone" 
+                            dataKey="actual" 
+                            stroke="#0ea5e9" 
+                            name="Actual" 
+                            strokeWidth={2} 
+                          />
+                          <Line 
+                            type="monotone" 
+                            dataKey="predicted" 
+                            stroke="#8b5cf6" 
+                            name="Forecast" 
+                            strokeWidth={2} 
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </Card>
+
+                  <Card className="p-6">
+                    <h3 className="text-lg font-semibold mb-4">Cross Validation Results</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="space-y-2">
+                        <h4 className="font-medium">Training Set</h4>
+                        <p className="text-3xl font-bold">{(100 - crossValidationResults.trainMetrics.mape).toFixed(1)}%</p>
+                        <p className="text-sm text-muted-foreground">Accuracy</p>
+                        <div className="text-sm space-y-1">
+                          <p>MAPE: {crossValidationResults.trainMetrics.mape.toFixed(2)}%</p>
+                          <p>MAE: {crossValidationResults.trainMetrics.mae.toFixed(2)}</p>
+                          <p>RMSE: {crossValidationResults.trainMetrics.rmse.toFixed(2)}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <h4 className="font-medium">Test Set</h4>
+                        <p className="text-3xl font-bold">{(100 - crossValidationResults.testMetrics.mape).toFixed(1)}%</p>
+                        <p className="text-sm text-muted-foreground">Accuracy</p>
+                        <div className="text-sm space-y-1">
+                          <p>MAPE: {crossValidationResults.testMetrics.mape.toFixed(2)}%</p>
+                          <p>MAE: {crossValidationResults.testMetrics.mae.toFixed(2)}</p>
+                          <p>RMSE: {crossValidationResults.testMetrics.rmse.toFixed(2)}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <h4 className="font-medium">Validation Set</h4>
+                        <p className="text-3xl font-bold">{(100 - crossValidationResults.validationMetrics.mape).toFixed(1)}%</p>
+                        <p className="text-sm text-muted-foreground">Accuracy</p>
+                        <div className="text-sm space-y-1">
+                          <p>MAPE: {crossValidationResults.validationMetrics.mape.toFixed(2)}%</p>
+                          <p>MAE: {crossValidationResults.validationMetrics.mae.toFixed(2)}</p>
+                          <p>RMSE: {crossValidationResults.validationMetrics.rmse.toFixed(2)}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="detailed" className="space-y-4">
+                  <Card className="p-6">
+                    <h3 className="text-lg font-semibold mb-4">Forecast Accuracy By Time Horizon</h3>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Time Horizon</TableHead>
+                          <TableHead>MAPE (%)</TableHead>
+                          <TableHead>MAE</TableHead>
+                          <TableHead>RMSE</TableHead>
+                          <TableHead>Bias</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {horizonMetrics.map((metric) => (
+                          <TableRow key={metric.horizon}>
+                            <TableCell className="font-medium">{metric.horizon}</TableCell>
+                            <TableCell>{metric.mape.toFixed(1)}</TableCell>
+                            <TableCell>{metric.mae.toFixed(1)}</TableCell>
+                            <TableCell>{metric.rmse.toFixed(1)}</TableCell>
+                            <TableCell>{metric.bias.toFixed(1)}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </Card>
+
+                  <Card className="p-6">
+                    <h3 className="text-lg font-semibold mb-4">Forecast Error Analysis</h3>
+                    <div className="h-[350px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={residualData}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="period" />
+                          <YAxis />
+                          <Tooltip />
+                          <Legend />
+                          <ReferenceLine y={0} stroke="#000" />
+                          <Bar dataKey="percentError" name="Error (%)" fill="#ef4444" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="statistical" className="space-y-4">
+                  <Card className="p-6">
+                    <h3 className="text-lg font-semibold mb-4">Statistical Tests</h3>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Test</TableHead>
+                            <TableHead>Result</TableHead>
+                            <TableHead>Statistic</TableHead>
+                            <TableHead>p-Value</TableHead>
+                            <TableHead>Description</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {statisticalTests.map((test) => (
+                            <TableRow key={test.name}>
+                              <TableCell className="font-medium">{test.name}</TableCell>
+                              <TableCell>
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                  test.result === 'Pass' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                }`}>
+                                  {test.result}
+                                </span>
+                              </TableCell>
+                              <TableCell>{test.statistic}</TableCell>
+                              <TableCell>{test.pValue}</TableCell>
+                              <TableCell className="text-sm text-muted-foreground">{test.description}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </Card>
+
+                  <Card className="p-6">
+                    <h3 className="text-lg font-semibold mb-4">Residual Analysis</h3>
+                    <div className="h-[350px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={residualData}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="period" />
+                          <YAxis />
+                          <Tooltip />
+                          <Legend />
+                          <ReferenceLine y={0} stroke="#000" />
+                          <Line 
+                            type="monotone" 
+                            dataKey="residual" 
+                            stroke="#10b981" 
+                            name="Residual" 
+                            dot={{ r: 4 }} 
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div className="mt-4 text-sm text-muted-foreground">
+                      <p>Residual analysis examines how well the model fits the data. Ideally, residuals should:</p>
+                      <ul className="list-disc list-inside mt-2">
+                        <li>Be randomly distributed around zero</li>
+                        <li>Show no pattern or trend over time</li>
+                        <li>Have consistent variance across all values</li>
+                        <li>Follow normal distribution</li>
+                      </ul>
+                    </div>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </Card>
+          ) : (
+            <>
+              <Card className="p-6">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <div className="space-y-1">
+                      <h3 className="text-lg font-semibold">Forecast Analysis</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Visual analysis of forecasted values with confidence intervals
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">Confidence Level:</span>
+                      <Select
+                        value={confidenceLevel}
+                        onValueChange={setConfidenceLevel}
+                      >
+                        <SelectTrigger className="w-[100px]">
+                          <SelectValue placeholder="95%" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="90">90%</SelectItem>
+                          <SelectItem value="95">95%</SelectItem>
+                          <SelectItem value="99">99%</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="h-[400px]">
+                    <ForecastChart 
+                      data={sampleData} 
+                      confidenceIntervals={sampleConfidenceIntervals}
+                      confidenceLevel={Number(confidenceLevel)}
+                    />
+                  </div>
+                </div>
+              </Card>
+
+              <ForecastMetricsCards metrics={metrics} />
+              
+              <AnomalyDetection data={sampleData} />
+              
+              <ErrorDistribution data={sampleData} />
+            </>
+          )}
+
+          <PatternAnalysisCard data={sampleData} />
+
+          <TeamCollaboration />
         </div>
-      </Card>
-
-      <ForecastMetricsCards metrics={metrics} />
-      
-      <AnomalyDetection data={sampleData} />
-      
-      <ErrorDistribution data={sampleData} />
-
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Model Validation</h3>
-        <Tabs defaultValue={validationSelectedTab} onValueChange={setValidationSelectedTab} className="w-full">
-          <TabsList className="grid w-full md:w-auto md:inline-flex grid-cols-3 h-auto">
-            <TabsTrigger value="overview">Validation Overview</TabsTrigger>
-            <TabsTrigger value="detailed">Detailed Analysis</TabsTrigger>
-            <TabsTrigger value="statistical">Statistical Tests</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-4 mt-4">
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Forecast vs Actual</h3>
-              <div className="h-[350px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={sampleValidationData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="period" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line 
-                      type="monotone" 
-                      dataKey="actual" 
-                      stroke="#0ea5e9" 
-                      name="Actual" 
-                      strokeWidth={2} 
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="predicted" 
-                      stroke="#8b5cf6" 
-                      name="Forecast" 
-                      strokeWidth={2} 
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
-
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Cross Validation Results</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <h4 className="font-medium">Training Set</h4>
-                  <p className="text-3xl font-bold">{(100 - crossValidationResults.trainMetrics.mape).toFixed(1)}%</p>
-                  <p className="text-sm text-muted-foreground">Accuracy</p>
-                  <div className="text-sm space-y-1">
-                    <p>MAPE: {crossValidationResults.trainMetrics.mape.toFixed(2)}%</p>
-                    <p>MAE: {crossValidationResults.trainMetrics.mae.toFixed(2)}</p>
-                    <p>RMSE: {crossValidationResults.trainMetrics.rmse.toFixed(2)}</p>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <h4 className="font-medium">Test Set</h4>
-                  <p className="text-3xl font-bold">{(100 - crossValidationResults.testMetrics.mape).toFixed(1)}%</p>
-                  <p className="text-sm text-muted-foreground">Accuracy</p>
-                  <div className="text-sm space-y-1">
-                    <p>MAPE: {crossValidationResults.testMetrics.mape.toFixed(2)}%</p>
-                    <p>MAE: {crossValidationResults.testMetrics.mae.toFixed(2)}</p>
-                    <p>RMSE: {crossValidationResults.testMetrics.rmse.toFixed(2)}</p>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <h4 className="font-medium">Validation Set</h4>
-                  <p className="text-3xl font-bold">{(100 - crossValidationResults.validationMetrics.mape).toFixed(1)}%</p>
-                  <p className="text-sm text-muted-foreground">Accuracy</p>
-                  <div className="text-sm space-y-1">
-                    <p>MAPE: {crossValidationResults.validationMetrics.mape.toFixed(2)}%</p>
-                    <p>MAE: {crossValidationResults.validationMetrics.mae.toFixed(2)}</p>
-                    <p>RMSE: {crossValidationResults.validationMetrics.rmse.toFixed(2)}</p>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="detailed" className="space-y-4 mt-4">
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Forecast Accuracy By Time Horizon</h3>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Time Horizon</TableHead>
-                    <TableHead>MAPE (%)</TableHead>
-                    <TableHead>MAE</TableHead>
-                    <TableHead>RMSE</TableHead>
-                    <TableHead>Bias</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {horizonMetrics.map((metric) => (
-                    <TableRow key={metric.horizon}>
-                      <TableCell className="font-medium">{metric.horizon}</TableCell>
-                      <TableCell>{metric.mape.toFixed(1)}</TableCell>
-                      <TableCell>{metric.mae.toFixed(1)}</TableCell>
-                      <TableCell>{metric.rmse.toFixed(1)}</TableCell>
-                      <TableCell>{metric.bias.toFixed(1)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
-
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Forecast Error Analysis</h3>
-              <div className="h-[350px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={residualData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="period" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <ReferenceLine y={0} stroke="#000" />
-                    <Bar dataKey="percentError" name="Error (%)" fill="#ef4444" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="statistical" className="space-y-4 mt-4">
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Statistical Tests</h3>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Test</TableHead>
-                      <TableHead>Result</TableHead>
-                      <TableHead>Statistic</TableHead>
-                      <TableHead>p-Value</TableHead>
-                      <TableHead>Description</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {statisticalTests.map((test) => (
-                      <TableRow key={test.name}>
-                        <TableCell className="font-medium">{test.name}</TableCell>
-                        <TableCell>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            test.result === 'Pass' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                          }`}>
-                            {test.result}
-                          </span>
-                        </TableCell>
-                        <TableCell>{test.statistic}</TableCell>
-                        <TableCell>{test.pValue}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground">{test.description}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </Card>
-
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Residual Analysis</h3>
-              <div className="h-[350px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={residualData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="period" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <ReferenceLine y={0} stroke="#000" />
-                    <Line 
-                      type="monotone" 
-                      dataKey="residual" 
-                      stroke="#10b981" 
-                      name="Residual" 
-                      dot={{ r: 4 }} 
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="mt-4 text-sm text-muted-foreground">
-                <p>Residual analysis is used to examine how well a model fits the data. Ideally, residuals should:</p>
-                <ul className="list-disc list-inside mt-2">
-                  <li>Be randomly distributed around zero</li>
-                  <li>Show no pattern or trend over time</li>
-                  <li>Have consistent variance (spread) across all values</li>
-                  <li>Follow normal distribution</li>
-                </ul>
-              </div>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </Card>
-
-      <PatternAnalysisCard data={sampleData} />
-
-      <TeamCollaboration />
+      </div>
     </div>
   );
 };
