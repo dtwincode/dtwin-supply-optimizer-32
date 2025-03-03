@@ -8,13 +8,13 @@ import { toArabicNumerals } from "@/translations";
 const financialMetrics = [
   {
     title: "Revenue",
-    value: "₪12.4M",
+    value: "ر.س 12.4M",
     change: "+8.2%",
     trend: "up",
   },
   {
     title: "Operating Costs",
-    value: "₪4.2M",
+    value: "ر.س 4.2M",
     change: "-3.1%",
     trend: "down",
   },
