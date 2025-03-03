@@ -7,19 +7,19 @@ import Image from "../ui/image";
 
 const financialMetrics = [
   {
-    title: "Revenue",
+    title: "revenue",
     value: "12.4M",
     change: "+8.2%",
     trend: "up",
   },
   {
-    title: "Operating Costs",
+    title: "operatingCosts",
     value: "4.2M",
     change: "-3.1%",
     trend: "down",
   },
   {
-    title: "Profit Margin",
+    title: "profitMargin",
     value: "24.5%",
     change: "+2.1%",
     trend: "up",
@@ -40,7 +40,7 @@ const FinancialMetrics = () => {
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm text-gray-500">
-                  {getTranslation(`financialMetrics.${metric.title.toLowerCase().replace(/\s+/g, '')}`, language)}
+                  {getTranslation(`financialMetrics.${metric.title}`, language)}
                 </p>
                 <div className="text-2xl font-semibold mt-1 flex items-center">
                   <Image 

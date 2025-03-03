@@ -17,7 +17,7 @@ import {
 
 const modulesSummary = [
   {
-    title: "inventorymanagement",
+    title: "inventoryManagement",
     icon: Boxes,
     stats: "1,234",
     statsKey: "skuCount",
@@ -26,7 +26,7 @@ const modulesSummary = [
     bgColor: "bg-blue-50"
   },
   {
-    title: "demandforecasting",
+    title: "demandForecasting",
     icon: LineChart,
     stats: "92",
     statsKey: "accuracyLabel",
@@ -36,7 +36,7 @@ const modulesSummary = [
     bgColor: "bg-green-50"
   },
   {
-    title: "salesplanning",
+    title: "salesPlanning",
     icon: ShoppingBag,
     stats: "2.1M",
     statsKey: "pipelineValue",
@@ -46,7 +46,7 @@ const modulesSummary = [
     bgColor: "bg-purple-50"
   },
   {
-    title: "marketingcampaigns",
+    title: "marketingCampaigns",
     icon: Megaphone,
     stats: "12",
     statsKey: "activeCampaigns",
@@ -110,19 +110,19 @@ const ModuleSummaryCards = () => {
             </div>
             <div className="flex-1">
               <h4 className="font-semibold text-lg mb-1">
-                {getTranslation(module.title, language)}
+                {getTranslation(`modulesSummary.${module.title}`, language)}
               </h4>
               <div className="text-2xl font-semibold mb-2">
                 {formatStats(module.stats, module.showCurrency, module.suffix)}
               </div>
               <p className="text-sm text-gray-500">
-                {getTranslation(module.statsKey, language)}
+                {getTranslation(`common.${module.statsKey}`, language)}
               </p>
             </div>
           </div>
           <div className="mt-4 flex justify-end">
             <Button variant="ghost" size="sm">
-              {getTranslation('viewDetails', language)} {language === 'ar' ? '←' : '→'}
+              {getTranslation('common.viewDetails', language)} {language === 'ar' ? '←' : '→'}
             </Button>
           </div>
         </Card>

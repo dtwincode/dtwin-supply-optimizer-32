@@ -7,21 +7,21 @@ import { toArabicNumerals } from "@/translations";
 
 const sustainabilityMetrics = [
   {
-    title: "Carbon Footprint",
+    title: "carbonFootprint",
     value: "-18.5%",
     change: "-2.3%",
     trend: "down",
     icon: Leaf,
   },
   {
-    title: "Waste Reduction",
+    title: "wasteReduction",
     value: "24.8%",
     change: "+4.2%",
     trend: "up",
     icon: Wind,
   },
   {
-    title: "Green Suppliers",
+    title: "greenSuppliers",
     value: "72.4%",
     change: "+5.7%",
     trend: "up",
@@ -43,7 +43,7 @@ const SustainabilityMetrics = () => {
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm text-gray-500">
-                  {getTranslation(`sustainabilityMetrics.${metric.title.toLowerCase().replace(/\s+/g, '')}`, language)}
+                  {getTranslation(`sustainabilityMetrics.${metric.title}`, language)}
                 </p>
                 <div className="text-2xl font-semibold mt-1">
                   <span>{language === 'ar' ? toArabicNumerals(metric.value) : metric.value}</span>
