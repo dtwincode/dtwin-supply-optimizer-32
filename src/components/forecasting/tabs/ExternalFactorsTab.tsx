@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -71,13 +70,30 @@ export const ExternalFactorsTab = ({
   // Handle slider change
   const handleSliderChange = (value: number[]) => {
     handleEventUpdate('impact', sliderToImpact(value[0]));
+    
+    // Add feedback toast when sliding
+    const impactValue = sliderToImpact(value[0]);
+    const formattedImpact = formatImpactAsPercentage(impactValue);
+    
+    // Only show toast for significant changes to avoid toast spam
+    if (Math.abs(impactValue) % 0.1 < 0.02) {
+      toast({
+        title: "Impact Updated",
+        description: impactValue < 0 
+          ? `Decrease demand by ${formattedImpact}` 
+          : impactValue > 0 
+            ? `Increase demand by ${formattedImpact}` 
+            : "No impact on demand",
+        duration: 1500,
+      });
+    }
   };
 
   // Format impact as percentage
   const formatImpactAsPercentage = (impact: number | undefined): string => {
     if (impact === undefined) return "0%";
     const percentage = Math.abs(impact * 100);
-    return `${percentage}%`;
+    return `${percentage.toFixed(0)}%`;
   };
 
   return (
@@ -222,14 +238,17 @@ export const ExternalFactorsTab = ({
                     <span>No Impact</span>
                     <span className="text-green-500">+100%</span>
                   </div>
-                  <Slider
-                    value={[impactToSlider(newEvent.impact || 0)]}
-                    min={0}
-                    max={100}
-                    step={1}
-                    onValueChange={handleSliderChange}
-                    className="mt-1"
-                  />
+                  <div className="py-2"> {/* Added padding for larger touch target */}
+                    <Slider
+                      value={[impactToSlider(newEvent.impact || 0)]}
+                      min={0}
+                      max={100}
+                      step={1}
+                      onValueChange={handleSliderChange}
+                      className="mt-1"
+                      aria-label="Impact on demand percentage"
+                    />
+                  </div>
                 </div>
               </div>
               
