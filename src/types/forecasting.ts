@@ -1,3 +1,4 @@
+
 import { Json } from '@/integrations/supabase/types';
 import { ModelParameter } from '@/types/models/commonTypes';
 
@@ -17,9 +18,12 @@ export interface MarketEvent {
 }
 
 export interface PriceData {
-  date: string;
-  price: number;
-  volume: number;
+  date?: string;
+  basePrice: number;
+  elasticity: number;
+  historicalPrices: { date: string; price: number }[];
+  promotionalPrice?: number;
+  skuCode?: string;
 }
 
 export interface PriceAnalysis {
@@ -33,6 +37,7 @@ export interface SavedScenario {
   name: string;
   model: string;
   horizon: string;
+  sku?: string;
   parameters?: Json;
   forecast_data?: Json;
   created_at?: string;

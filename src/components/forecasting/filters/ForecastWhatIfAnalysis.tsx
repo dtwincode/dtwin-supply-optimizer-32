@@ -4,9 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, Save } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { useState, useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
 import {
   LineChart,
   Line,
@@ -18,10 +20,11 @@ import {
   ResponsiveContainer
 } from "recharts";
 import { type PriceData } from "@/utils/forecasting";
-import { useState } from "react";
+import { generateScenario } from "@/utils/forecasting/scenarios";
+import { ForecastDataPoint } from "@/types/forecasting";
 
 interface ForecastWhatIfAnalysisProps {
-  filteredData: any[];
+  filteredData: ForecastDataPoint[];
   whatIfParams: {
     growthRate: number;
     seasonality: number;
@@ -31,6 +34,7 @@ interface ForecastWhatIfAnalysisProps {
   priceData: PriceData;
   setPriceData: React.Dispatch<React.SetStateAction<PriceData>>;
   whatIfScenario: number[];
+  selectedSKU: string;
 }
 
 export const ForecastWhatIfAnalysis = ({
@@ -39,20 +43,78 @@ export const ForecastWhatIfAnalysis = ({
   setWhatIfParams,
   priceData,
   setPriceData,
-  whatIfScenario
+  whatIfScenario,
+  selectedSKU
 }: ForecastWhatIfAnalysisProps) => {
+  const { toast } = useToast();
   const [fromDate, setFromDate] = useState<Date>(new Date());
   const [toDate, setToDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() + 30)));
+  const [generatedScenario, setGeneratedScenario] = useState<number[]>([]);
+  const [scenarioName, setScenarioName] = useState<string>("");
+  
+  // Generate a new scenario when parameters change
+  useEffect(() => {
+    if (filteredData.length > 0) {
+      const baseForecast = filteredData.map(item => item.forecast || 0);
+      const timeData = filteredData.map(item => ({ 
+        week: item.week,
+        date: new Date(item.week)
+      }));
+      
+      const newScenario = generateScenario(baseForecast, {
+        ...whatIfParams,
+        priceData: {
+          ...priceData,
+          skuCode: selectedSKU
+        }
+      }, timeData);
+      
+      setGeneratedScenario(newScenario);
+    }
+  }, [filteredData, whatIfParams, priceData, selectedSKU]);
+
+  const handleSaveScenario = () => {
+    if (!scenarioName.trim()) {
+      toast({
+        title: "Error",
+        description: "Please provide a name for your scenario",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Here you would typically save the scenario to your backend
+    toast({
+      title: "Success",
+      description: `Scenario "${scenarioName}" for SKU ${selectedSKU} saved successfully`
+    });
+  };
 
   return (
     <Card className="p-6">
       <div className="flex flex-col gap-6">
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-medium">What-If Scenario for SKU: {selectedSKU}</h3>
+          <div className="flex gap-2 items-center">
+            <Input
+              placeholder="Scenario name"
+              value={scenarioName}
+              onChange={(e) => setScenarioName(e.target.value)}
+              className="w-48"
+            />
+            <Button onClick={handleSaveScenario} className="flex items-center gap-1">
+              <Save className="h-4 w-4" />
+              Save Scenario
+            </Button>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium mb-2">Growth Rate (%)</label>
             <Input
               type="number"
-              value={whatIfParams.growthRate}
+              value={whatIfParams.growthRate * 100}
               onChange={(e) => setWhatIfParams({
                 ...whatIfParams,
                 growthRate: parseFloat(e.target.value) / 100
@@ -170,7 +232,8 @@ export const ForecastWhatIfAnalysis = ({
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={filteredData.map((d, i) => ({
               week: d.week,
-              scenario: whatIfScenario[i]
+              forecast: d.forecast,
+              scenario: generatedScenario[i] || 0
             }))}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="week" />

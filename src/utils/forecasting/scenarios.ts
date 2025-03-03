@@ -1,16 +1,17 @@
 
 import { PriceData } from './pricing';
-import { ForecastDataPoint } from './productFilters';
+import { ForecastDataPoint } from '@/types/forecasting';
 import { calculatePriceImpact } from './pricing';
 
 export interface Scenario {
   name: string;
+  sku?: string;
   forecast: number[];
   assumptions: {
     growthRate: number;
     seasonality: number;
     events: { week: string; impact: number }[];
-    priceData?: PriceData;
+    priceData?: PriceData & { skuCode?: string };
   };
 }
 
@@ -20,9 +21,9 @@ export const generateScenario = (
     growthRate: number;
     seasonality: number;
     events: { week: string; impact: number }[];
-    priceData?: PriceData;
+    priceData?: PriceData & { skuCode?: string };
   },
-  timeData: ForecastDataPoint[]
+  timeData: { week: string; date?: Date }[]
 ): number[] => {
   return baseline.map((value, index) => {
     const growth = value * (1 + assumptions.growthRate);
@@ -37,4 +38,32 @@ export const generateScenario = (
     
     return withEvents;
   });
+};
+
+export const saveScenario = async (
+  scenario: Scenario
+): Promise<boolean> => {
+  // Placeholder for saving to backend
+  try {
+    // Here you would typically make an API call to save the scenario
+    console.log('Saving scenario:', scenario);
+    return true;
+  } catch (error) {
+    console.error('Error saving scenario:', error);
+    return false;
+  }
+};
+
+export const getScenariosBySku = async (
+  skuCode: string
+): Promise<Scenario[]> => {
+  // Placeholder for fetching from backend
+  try {
+    // Here you would typically make an API call to fetch scenarios for a specific SKU
+    console.log('Fetching scenarios for SKU:', skuCode);
+    return [];
+  } catch (error) {
+    console.error('Error fetching scenarios:', error);
+    return [];
+  }
 };
