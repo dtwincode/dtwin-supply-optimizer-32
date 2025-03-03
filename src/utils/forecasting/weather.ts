@@ -6,7 +6,7 @@ export interface WeatherData {
   humidity: number;
   windSpeed: number;
   weatherCondition: string;
-  alert?: string;
+  alert?: string | null;
   location?: string;
   timestamp?: string;
 }

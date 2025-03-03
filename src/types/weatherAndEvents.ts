@@ -6,6 +6,8 @@ export interface WeatherData {
   windSpeed: number;
   weatherCondition: string;
   alert?: string | null;
+  location?: string;
+  timestamp?: string;
 }
 
 export interface MarketEvent {
