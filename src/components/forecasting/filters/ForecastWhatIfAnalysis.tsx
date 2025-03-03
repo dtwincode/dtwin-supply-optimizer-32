@@ -14,18 +14,102 @@ import { WeatherData } from "@/types/weatherAndEvents";
 
 // Dummy data for when real data is not available
 const DUMMY_FORECAST_DATA: ForecastDataPoint[] = [
-  { id: "1", week: "2024-01-01", forecast: 120, actual: 118, sku: "SKU001", variance: -2 },
-  { id: "2", week: "2024-01-08", forecast: 130, actual: 135, sku: "SKU001", variance: 5 },
-  { id: "3", week: "2024-01-15", forecast: 125, actual: 122, sku: "SKU001", variance: -3 },
-  { id: "4", week: "2024-01-22", forecast: 135, actual: 140, sku: "SKU001", variance: 5 },
-  { id: "5", week: "2024-01-29", forecast: 145, actual: 142, sku: "SKU001", variance: -3 },
-  { id: "6", week: "2024-02-05", forecast: 150, actual: 155, sku: "SKU001", variance: 5 },
-  { id: "7", week: "2024-02-12", forecast: 160, actual: 158, sku: "SKU001", variance: -2 },
-  { id: "8", week: "2024-02-19", forecast: 170, actual: 175, sku: "SKU001", variance: 5 },
-  { id: "9", week: "2024-02-26", forecast: 165, actual: 160, sku: "SKU001", variance: -5 },
-  { id: "10", week: "2024-03-04", forecast: 175, actual: 180, sku: "SKU001", variance: 5 },
-  { id: "11", week: "2024-03-11", forecast: 185, actual: 182, sku: "SKU001", variance: -3 },
-  { id: "12", week: "2024-03-18", forecast: 195, actual: 198, sku: "SKU001", variance: 3 }
+  { 
+    id: "1", week: "2024-01-01", forecast: 120, actual: 118, sku: "SKU001", variance: -2,
+    region: "Global", city: "N/A", channel: "All", warehouse: "All",
+    category: "Electronics", subcategory: "Devices", 
+    l1_main_prod: "Electronics", l2_prod_line: "Devices", l3_prod_category: "Gadgets",
+    l4_device_make: "Brand X", l5_prod_sub_category: "Premium", l6_device_model: "Model A",
+    l7_device_color: "Various", l8_device_storage: "All"
+  },
+  { 
+    id: "2", week: "2024-01-08", forecast: 130, actual: 135, sku: "SKU001", variance: 5,
+    region: "Global", city: "N/A", channel: "All", warehouse: "All",
+    category: "Electronics", subcategory: "Devices", 
+    l1_main_prod: "Electronics", l2_prod_line: "Devices", l3_prod_category: "Gadgets",
+    l4_device_make: "Brand X", l5_prod_sub_category: "Premium", l6_device_model: "Model A",
+    l7_device_color: "Various", l8_device_storage: "All"
+  },
+  { 
+    id: "3", week: "2024-01-15", forecast: 125, actual: 122, sku: "SKU001", variance: -3,
+    region: "Global", city: "N/A", channel: "All", warehouse: "All",
+    category: "Electronics", subcategory: "Devices", 
+    l1_main_prod: "Electronics", l2_prod_line: "Devices", l3_prod_category: "Gadgets",
+    l4_device_make: "Brand X", l5_prod_sub_category: "Premium", l6_device_model: "Model A",
+    l7_device_color: "Various", l8_device_storage: "All"
+  },
+  { 
+    id: "4", week: "2024-01-22", forecast: 135, actual: 140, sku: "SKU001", variance: 5,
+    region: "Global", city: "N/A", channel: "All", warehouse: "All",
+    category: "Electronics", subcategory: "Devices", 
+    l1_main_prod: "Electronics", l2_prod_line: "Devices", l3_prod_category: "Gadgets",
+    l4_device_make: "Brand X", l5_prod_sub_category: "Premium", l6_device_model: "Model A",
+    l7_device_color: "Various", l8_device_storage: "All"
+  },
+  { 
+    id: "5", week: "2024-01-29", forecast: 145, actual: 142, sku: "SKU001", variance: -3,
+    region: "Global", city: "N/A", channel: "All", warehouse: "All",
+    category: "Electronics", subcategory: "Devices", 
+    l1_main_prod: "Electronics", l2_prod_line: "Devices", l3_prod_category: "Gadgets",
+    l4_device_make: "Brand X", l5_prod_sub_category: "Premium", l6_device_model: "Model A",
+    l7_device_color: "Various", l8_device_storage: "All"
+  },
+  { 
+    id: "6", week: "2024-02-05", forecast: 150, actual: 155, sku: "SKU001", variance: 5,
+    region: "Global", city: "N/A", channel: "All", warehouse: "All",
+    category: "Electronics", subcategory: "Devices", 
+    l1_main_prod: "Electronics", l2_prod_line: "Devices", l3_prod_category: "Gadgets",
+    l4_device_make: "Brand X", l5_prod_sub_category: "Premium", l6_device_model: "Model A",
+    l7_device_color: "Various", l8_device_storage: "All"
+  },
+  { 
+    id: "7", week: "2024-02-12", forecast: 160, actual: 158, sku: "SKU001", variance: -2,
+    region: "Global", city: "N/A", channel: "All", warehouse: "All",
+    category: "Electronics", subcategory: "Devices", 
+    l1_main_prod: "Electronics", l2_prod_line: "Devices", l3_prod_category: "Gadgets",
+    l4_device_make: "Brand X", l5_prod_sub_category: "Premium", l6_device_model: "Model A",
+    l7_device_color: "Various", l8_device_storage: "All"
+  },
+  { 
+    id: "8", week: "2024-02-19", forecast: 170, actual: 175, sku: "SKU001", variance: 5,
+    region: "Global", city: "N/A", channel: "All", warehouse: "All",
+    category: "Electronics", subcategory: "Devices", 
+    l1_main_prod: "Electronics", l2_prod_line: "Devices", l3_prod_category: "Gadgets",
+    l4_device_make: "Brand X", l5_prod_sub_category: "Premium", l6_device_model: "Model A",
+    l7_device_color: "Various", l8_device_storage: "All"
+  },
+  { 
+    id: "9", week: "2024-02-26", forecast: 165, actual: 160, sku: "SKU001", variance: -5,
+    region: "Global", city: "N/A", channel: "All", warehouse: "All",
+    category: "Electronics", subcategory: "Devices", 
+    l1_main_prod: "Electronics", l2_prod_line: "Devices", l3_prod_category: "Gadgets",
+    l4_device_make: "Brand X", l5_prod_sub_category: "Premium", l6_device_model: "Model A",
+    l7_device_color: "Various", l8_device_storage: "All"
+  },
+  { 
+    id: "10", week: "2024-03-04", forecast: 175, actual: 180, sku: "SKU001", variance: 5,
+    region: "Global", city: "N/A", channel: "All", warehouse: "All",
+    category: "Electronics", subcategory: "Devices", 
+    l1_main_prod: "Electronics", l2_prod_line: "Devices", l3_prod_category: "Gadgets",
+    l4_device_make: "Brand X", l5_prod_sub_category: "Premium", l6_device_model: "Model A",
+    l7_device_color: "Various", l8_device_storage: "All"
+  },
+  { 
+    id: "11", week: "2024-03-11", forecast: 185, actual: 182, sku: "SKU001", variance: -3,
+    region: "Global", city: "N/A", channel: "All", warehouse: "All",
+    category: "Electronics", subcategory: "Devices", 
+    l1_main_prod: "Electronics", l2_prod_line: "Devices", l3_prod_category: "Gadgets",
+    l4_device_make: "Brand X", l5_prod_sub_category: "Premium", l6_device_model: "Model A",
+    l7_device_color: "Various", l8_device_storage: "All"
+  },
+  { 
+    id: "12", week: "2024-03-18", forecast: 195, actual: 198, sku: "SKU001", variance: 3,
+    region: "Global", city: "N/A", channel: "All", warehouse: "All",
+    category: "Electronics", subcategory: "Devices", 
+    l1_main_prod: "Electronics", l2_prod_line: "Devices", l3_prod_category: "Gadgets",
+    l4_device_make: "Brand X", l5_prod_sub_category: "Premium", l6_device_model: "Model A",
+    l7_device_color: "Various", l8_device_storage: "All"
+  }
 ];
 
 // Sample scenario data with more dramatic changes
@@ -163,13 +247,20 @@ export const ForecastWhatIfAnalysis = ({
   
   // Get data for the chart - use actual data if available, otherwise use dummy data
   const getChartData = () => {
-    const dataSource = filteredData.length > 0 ? filteredData : DUMMY_FORECAST_DATA;
-    
-    return dataSource.map((d, i) => ({
-      week: d.week,
-      forecast: d.forecast,
-      scenario: generatedScenario[i] || 0
-    }));
+    if (filteredData.length > 0) {
+      return filteredData.map((d, i) => ({
+        week: d.week,
+        forecast: d.forecast,
+        scenario: generatedScenario[i] || 0
+      }));
+    } else {
+      // Use dummy data
+      return DUMMY_FORECAST_DATA.map((d, i) => ({
+        week: d.week,
+        forecast: d.forecast,
+        scenario: DUMMY_SCENARIO[i] || 0
+      }));
+    }
   };
   
   return <Card className="p-6">

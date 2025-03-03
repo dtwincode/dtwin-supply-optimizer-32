@@ -1,25 +1,28 @@
+
 import { useState, useEffect } from "react";
 import { ForecastWhatIfAnalysis } from "../filters/ForecastWhatIfAnalysis";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { type PriceData } from "@/utils/forecasting";
 import { ForecastDataPoint } from "@/types/forecasting";
+
 interface WhatIfAnalysisTabProps {
   filteredData: ForecastDataPoint[];
   whatIfScenario: number[];
 }
+
 export const WhatIfAnalysisTab = ({
   filteredData,
   whatIfScenario
 }: WhatIfAnalysisTabProps) => {
   const [whatIfParams, setWhatIfParams] = useState({
-    growthRate: 0,
-    seasonality: 0,
+    growthRate: 0.05,  // Initialize with 5% growth rate
+    seasonality: 0.1,  // Initialize with 10% seasonality impact
     events: []
   });
   const [priceData, setPriceData] = useState<PriceData>({
-    basePrice: 0,
-    elasticity: -1,
+    basePrice: 100,     // Initialize with a base price of 100
+    elasticity: -1.5,   // Initialize with price elasticity of -1.5
     historicalPrices: []
   });
   const [selectedSKU, setSelectedSKU] = useState<string>("");
@@ -36,6 +39,9 @@ export const WhatIfAnalysisTab = ({
       if (uniqueSkus.length > 0 && !selectedSKU) {
         setSelectedSKU(uniqueSkus[0] as string);
       }
+    } else {
+      // Set a default SKU when using dummy data
+      setSelectedSKU("SKU001");
     }
   }, [filteredData, selectedSKU]);
 
@@ -48,13 +54,48 @@ export const WhatIfAnalysisTab = ({
       setSkuFilteredData([]);
     }
   }, [selectedSKU, filteredData]);
-  return <div className="space-y-6">
-      
 
-      {selectedSKU ? <ForecastWhatIfAnalysis filteredData={skuFilteredData} whatIfParams={whatIfParams} setWhatIfParams={setWhatIfParams} priceData={priceData} setPriceData={setPriceData} whatIfScenario={whatIfScenario} selectedSKU={selectedSKU} /> : <Card className="p-6">
+  return (
+    <div className="space-y-6">
+      <div className="mb-4">
+        <label className="block text-sm font-medium mb-2">Select SKU</label>
+        <Select value={selectedSKU} onValueChange={setSelectedSKU}>
+          <SelectTrigger className="w-full md:w-[300px]">
+            <SelectValue placeholder="Select a SKU" />
+          </SelectTrigger>
+          <SelectContent>
+            {skuOptions.length > 0 ? (
+              skuOptions.map(sku => (
+                <SelectItem key={sku} value={sku}>
+                  {sku}
+                </SelectItem>
+              ))
+            ) : (
+              <SelectItem key="SKU001" value="SKU001">
+                SKU001
+              </SelectItem>
+            )}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {selectedSKU ? (
+        <ForecastWhatIfAnalysis 
+          filteredData={skuFilteredData} 
+          whatIfParams={whatIfParams} 
+          setWhatIfParams={setWhatIfParams} 
+          priceData={priceData} 
+          setPriceData={setPriceData} 
+          whatIfScenario={whatIfScenario} 
+          selectedSKU={selectedSKU} 
+        />
+      ) : (
+        <Card className="p-6">
           <div className="flex items-center justify-center h-32">
             <p className="text-muted-foreground">Please select a SKU to generate what-if scenarios</p>
           </div>
-        </Card>}
-    </div>;
+        </Card>
+      )}
+    </div>
+  );
 };
