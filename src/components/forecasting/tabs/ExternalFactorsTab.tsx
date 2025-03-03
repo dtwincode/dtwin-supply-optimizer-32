@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X, Info, CloudSun } from "lucide-react";
+import { X, Info, CloudSun, Loader2 } from "lucide-react";
 import { 
   Select,
   SelectContent,
@@ -21,9 +21,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { type MarketEvent, type WeatherData, type PriceAnalysis } from '@/types/weatherAndEvents';
 import { marketEventTypes, marketEventCategories } from '@/constants/forecasting';
 import { useToast } from "@/hooks/use-toast";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { fetchWeatherForecast } from "@/utils/forecasting/weather";
 
-// Declare utility functions early to avoid hoisting issues
 const sliderToImpact = (sliderValue: number): number => {
   return parseFloat(((sliderValue - 50) / 50).toFixed(2));
 };
@@ -57,7 +57,6 @@ export const ExternalFactorsTab = ({
   weatherLocation,
   setWeatherLocation,
   weatherData,
-  fetchWeatherForecast,
   marketEvents,
   setMarketEvents,
   newEvent,
@@ -69,17 +68,17 @@ export const ExternalFactorsTab = ({
 }: ExternalFactorsTabProps) => {
   const { toast } = useToast();
   
-  const [sliderValue, setSliderValue] = React.useState<number[]>([newEvent.impact ? impactToSlider(newEvent.impact) : 50]);
-  const [localWeatherLocation, setLocalWeatherLocation] = React.useState<string>(weatherLocation || '');
-  const [localWeatherData, setLocalWeatherData] = React.useState<WeatherData | null>(weatherData);
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const [lastUpdated, setLastUpdated] = React.useState<string>('');
+  const [sliderValue, setSliderValue] = useState<number[]>([newEvent.impact ? impactToSlider(newEvent.impact) : 50]);
+  const [localWeatherLocation, setLocalWeatherLocation] = useState<string>(weatherLocation || '');
+  const [localWeatherData, setLocalWeatherData] = useState<WeatherData | null>(weatherData);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [lastUpdated, setLastUpdated] = useState<string>('');
 
   const handleEventUpdate = (field: keyof MarketEvent, value: any) => {
     setNewEvent({ ...newEvent, [field]: value });
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (newEvent.impact !== undefined) {
       setSliderValue([impactToSlider(newEvent.impact)]);
     } else {
@@ -87,11 +86,11 @@ export const ExternalFactorsTab = ({
     }
   }, [newEvent.impact]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setLocalWeatherLocation(weatherLocation);
   }, [weatherLocation]);
   
-  React.useEffect(() => {
+  useEffect(() => {
     setLocalWeatherData(weatherData);
   }, [weatherData]);
 
@@ -127,9 +126,11 @@ export const ExternalFactorsTab = ({
 
     setIsLoading(true);
     try {
-      setWeatherLocation(localWeatherLocation);
+      console.log("Fetching weather for:", localWeatherLocation);
       const data = await fetchWeatherForecast(localWeatherLocation);
+      
       setLocalWeatherData(data);
+      setWeatherLocation(localWeatherLocation);
       setLastUpdated(new Date().toLocaleTimeString());
       
       toast({
@@ -167,7 +168,12 @@ export const ExternalFactorsTab = ({
                   onClick={handleFetchWeather}
                   disabled={isLoading}
                 >
-                  {isLoading ? "Loading..." : "Fetch Weather"}
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Loading...
+                    </>
+                  ) : "Fetch Weather"}
                 </Button>
               </div>
             </div>

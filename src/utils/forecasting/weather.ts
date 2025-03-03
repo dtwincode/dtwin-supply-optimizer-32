@@ -42,6 +42,8 @@ export const calculateWeatherImpact = (weatherData: WeatherData, productCategory
 
 export const fetchWeatherForecast = async (location: string): Promise<WeatherData> => {
   try {
+    console.log(`Fetching weather data for location: ${location}`);
+    
     // Using OpenWeatherMap API which has generous free tier
     const apiKey = "ad8e39f50f0c5a59747c8d1a3a242f25"; // Free API key for demo purposes
     const response = await fetch(
@@ -50,27 +52,33 @@ export const fetchWeatherForecast = async (location: string): Promise<WeatherDat
         headers: {
           'Content-Type': 'application/json',
         },
+        cache: 'no-store', // Ensure we're not getting cached responses
       }
     );
     
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Weather API error: ${response.status} ${response.statusText}`, errorText);
       throw new Error(`Weather API error: ${response.status} ${response.statusText}`);
     }
     
     const data = await response.json();
-    console.log("Weather API response:", data);
+    console.log("Weather API response for", location, ":", data);
     
     // Map the OpenWeatherMap response to our WeatherData interface
-    return {
+    const weatherData: WeatherData = {
       temperature: data.main.temp,
       precipitation: data.rain ? data.rain["1h"] || 0 : 0,
       humidity: data.main.humidity,
       windSpeed: data.wind.speed,
       weatherCondition: data.weather[0].description,
       alert: data.alerts ? data.alerts[0]?.description : null,
-      location: data.name,
+      location: data.name, // Ensure we use the normalized location name returned by the API
       timestamp: new Date().toISOString()
     };
+    
+    console.log("Processed weather data:", weatherData);
+    return weatherData;
   } catch (error) {
     console.error('Error fetching weather data:', error);
     throw error;
