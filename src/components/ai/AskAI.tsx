@@ -58,26 +58,27 @@ export const AskAI = () => {
     try {
       console.log('Calling Supabase function with query:', query);
       
-      const { data, error } = await supabase.functions.invoke('process-ai-query', {
-        body: JSON.stringify({ prompt: query }),
+      // Use a direct fetch to the edge function to bypass any client issues
+      const functionUrl = 'https://mttzjxktvbsixjaqiuxq.supabase.co/functions/v1/process-ai-query';
+      const response = await fetch(functionUrl, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabase.auth.getSession() ? 'authenticated' : 'anon'}`,
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im10dHpqeGt0dmJzaXhqYXFpdXhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkxNjk4NDEsImV4cCI6MjA1NDc0NTg0MX0.-6wiezDQfeFz3ecyuHP4A6QkcRRxBG4j8pxyAp7hkx8'
         },
+        body: JSON.stringify({ prompt: query }),
       });
 
-      console.log('Response received:', { data, error });
-
-      if (error) {
-        console.error('Supabase function error:', error);
-        throw new Error(`Function error: ${error.message || 'Unknown error'}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to process query');
       }
 
-      if (data?.error) {
-        console.error('Error in AI response:', data.error);
-        throw new Error(data.error);
-      }
+      const data = await response.json();
+      console.log('Response received:', data);
 
-      if (!data?.generatedText) {
+      if (!data.generatedText) {
         throw new Error('No response received from AI');
       }
 
