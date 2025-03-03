@@ -19,13 +19,13 @@ serve(async (req) => {
   }
 
   try {
-    // No need to check for authorization - we're allowing anonymous access with the API key
     console.log('Processing request...');
 
     // Parse the request body
     let body;
     try {
       body = await req.json();
+      console.log('Request body parsed successfully');
     } catch (e) {
       console.error('Error parsing request body:', e);
       return new Response(
@@ -83,56 +83,80 @@ Output format: ${format === 'chart' ? 'Describe what the chart should show and w
 Current timestamp: ${timestamp || new Date().toISOString()}
 `;
 
-    // Make the API call to OpenAI
-    console.log('Calling OpenAI API...');
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini', // Using the fast and efficient model
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: prompt }
-        ],
-        temperature: 0.7,
-        max_tokens: 1000,
-      }),
-    });
+    try {
+      // Make the API call to OpenAI
+      console.log('Calling OpenAI API...');
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openAIApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini', // Using the fast and efficient model
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: prompt }
+          ],
+          temperature: 0.7,
+          max_tokens: 1000,
+        }),
+      });
 
-    // Process the OpenAI response
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('OpenAI API error:', errorData);
+      console.log('OpenAI API response status:', response.status);
+
+      // Process the OpenAI response
+      if (!response.ok) {
+        console.error('OpenAI API error status:', response.status);
+        const errorText = await response.text();
+        console.error('OpenAI API error response:', errorText);
+        
+        let errorMessage;
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error?.message || `API error: ${response.status}`;
+        } catch (e) {
+          errorMessage = `API error: ${response.status} - ${errorText.slice(0, 100)}`;
+        }
+        
+        console.error('Parsed error message:', errorMessage);
+        
+        return new Response(
+          JSON.stringify({ error: `OpenAI API error: ${errorMessage}` }),
+          { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const data = await response.json();
+      console.log('OpenAI response received');
+      
+      if (!data.choices || data.choices.length === 0) {
+        console.error('Unexpected OpenAI response format:', JSON.stringify(data).slice(0, 200));
+        return new Response(
+          JSON.stringify({ error: 'Invalid response from OpenAI' }),
+          { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const generatedText = data.choices[0].message.content;
+      console.log('Generated text length:', generatedText.length);
+      
+      // Return the successful response
+      console.log('Returning successful response');
       return new Response(
-        JSON.stringify({ error: `OpenAI API error: ${errorData.error?.message || 'Unknown error'}` }),
-        { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ generatedText }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    } catch (error) {
+      console.error('Error calling OpenAI API:', error.message);
+      return new Response(
+        JSON.stringify({ error: `Error calling OpenAI API: ${error.message}` }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    const data = await response.json();
-    console.log('OpenAI response received');
-    
-    if (!data.choices || data.choices.length === 0) {
-      console.error('Unexpected OpenAI response format:', data);
-      return new Response(
-        JSON.stringify({ error: 'Invalid response from OpenAI' }),
-        { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const generatedText = data.choices[0].message.content;
-    
-    // Return the successful response
-    return new Response(
-      JSON.stringify({ generatedText }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
   } catch (error) {
     // Catch and log any unexpected errors
-    console.error('Unexpected error in process-ai-query:', error);
+    console.error('Unexpected error in process-ai-query:', error.message, error.stack);
     return new Response(
       JSON.stringify({ error: `Unexpected error: ${error.message}` }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

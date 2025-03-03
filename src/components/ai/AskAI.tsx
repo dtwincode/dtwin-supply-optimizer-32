@@ -92,10 +92,13 @@ export const AskAI = () => {
     setIsLoading(true);
 
     try {
-      console.log('Calling Supabase function with query:', query);
+      console.log('Preparing to call Supabase function with query:', query);
       
       // Use a direct fetch to the edge function with no authorization header
       const functionUrl = 'https://mttzjxktvbsixjaqiuxq.supabase.co/functions/v1/process-ai-query';
+      
+      console.log('Making request to:', functionUrl);
+      
       const response = await fetch(functionUrl, {
         method: 'POST',
         headers: {
@@ -111,8 +114,12 @@ export const AskAI = () => {
         }),
       });
 
+      console.log('Response status:', response.status);
+
       if (!response.ok) {
         const errorText = await response.text();
+        console.error('Error response:', errorText);
+        
         let errorMessage;
         try {
           const errorData = JSON.parse(errorText);
@@ -120,6 +127,8 @@ export const AskAI = () => {
         } catch (e) {
           errorMessage = `Error ${response.status}: ${errorText || response.statusText}`;
         }
+        
+        console.error('Parsed error message:', errorMessage);
         throw new Error(errorMessage);
       }
 
