@@ -22,9 +22,13 @@ export const BaseMap = ({
 }: BaseMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
+  const tokenRef = useRef<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  
+  // Initialize map only once
+  const mapInitialized = useRef(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -35,46 +39,76 @@ export const BaseMap = ({
           throw new Error('Map container not found');
         }
 
+        // Prevent multiple initialization
+        if (mapInitialized.current) {
+          console.log("Map already initialized, skipping");
+          return;
+        }
+
         console.log("Starting map initialization...");
         
-        const { data: secret, error: secretError } = await supabase
-          .from('secrets')
-          .select('value')
-          .eq('name', 'MAPBOX_PUBLIC_TOKEN')
-          .maybeSingle();
+        // Only fetch the token once
+        if (!tokenRef.current) {
+          const { data: secret, error: secretError } = await supabase
+            .from('secrets')
+            .select('value')
+            .eq('name', 'MAPBOX_PUBLIC_TOKEN')
+            .maybeSingle();
 
-        if (secretError) {
-          throw new Error(`Failed to fetch token: ${secretError.message}`);
+          if (secretError) {
+            throw new Error(`Failed to fetch token: ${secretError.message}`);
+          }
+
+          if (!secret) {
+            throw new Error('Mapbox token not found. Please ensure it is set in Supabase.');
+          }
+
+          tokenRef.current = secret.value;
+          
+          if (!tokenRef.current.startsWith('pk.')) {
+            throw new Error('Invalid Mapbox public token format.');
+          }
         }
 
-        if (!secret) {
-          throw new Error('Mapbox token not found. Please ensure it is set in Supabase.');
+        mapboxgl.accessToken = tokenRef.current;
+
+        if (map.current) {
+          console.log("Reusing existing map instance");
+          
+          // Update existing map settings
+          map.current.setCenter(center);
+          map.current.setZoom(zoom);
+          
+          if (onMapLoad && isMounted) {
+            onMapLoad(map.current);
+          }
+          
+          setIsLoading(false);
+          return;
         }
 
-        const token = secret.value;
-        
-        if (!token.startsWith('pk.')) {
-          throw new Error('Invalid Mapbox public token format.');
-        }
-
-        mapboxgl.accessToken = token;
-
+        console.log("Creating new map instance");
         const newMap = new mapboxgl.Map({
           container: mapContainer.current,
           style: 'mapbox://styles/mapbox/light-v11',
           center: center,
           zoom: zoom,
-          attributionControl: false
+          attributionControl: false,
+          failIfMajorPerformanceCaveat: true, // Prevent using low-performance renderers
+          preserveDrawingBuffer: true // Maintain the buffer even when not visible
         });
 
-        newMap.addControl(new mapboxgl.NavigationControl(), 'top-right');
-        newMap.addControl(new mapboxgl.AttributionControl(), 'bottom-right');
-
-        // Wait for map to load before setting up event handlers
-        newMap.on('load', () => {
+        // Wait for the map to initialize before making any changes
+        newMap.once('load', () => {
           if (!isMounted) return;
           
+          console.log("Map instance loaded");
           map.current = newMap;
+          mapInitialized.current = true;
+          
+          // Add controls after the map is fully loaded
+          newMap.addControl(new mapboxgl.NavigationControl(), 'top-right');
+          newMap.addControl(new mapboxgl.AttributionControl(), 'bottom-right');
           
           if (onMapLoad) {
             onMapLoad(newMap);
@@ -86,13 +120,18 @@ export const BaseMap = ({
         newMap.on('error', (e) => {
           console.error('Map error:', e);
           if (isMounted) {
-            setError(`Map error: ${e.error.message}`);
+            setError(`Map error: ${e.error?.message || 'Unknown error'}`);
             toast({
               title: "Map Error",
-              description: e.error.message,
+              description: e.error?.message || 'Unknown error',
               variant: "destructive",
             });
           }
+        });
+
+        // Debug event for style loading
+        newMap.on('style.load', () => {
+          console.log('Map style fully loaded');
         });
 
       } catch (err) {
@@ -114,12 +153,25 @@ export const BaseMap = ({
 
     return () => {
       isMounted = false;
+      // Don't remove the map on unmount - just clean up event handlers
+      // This prevents flashing when component remounts
       if (map.current) {
-        map.current.remove();
-        map.current = null;
+        // Remove only event handlers to prevent memory leaks
+        map.current.off();
       }
     };
   }, [center, zoom, onMapLoad, toast]);
+
+  // Cleanup on component unmount to avoid memory leaks
+  useEffect(() => {
+    return () => {
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+        mapInitialized.current = false;
+      }
+    };
+  }, []);
 
   return (
     <div className="relative rounded-lg overflow-hidden bg-gray-50">
