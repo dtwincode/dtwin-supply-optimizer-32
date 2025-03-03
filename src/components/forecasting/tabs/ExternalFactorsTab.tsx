@@ -21,6 +21,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { type MarketEvent, type WeatherData, type PriceAnalysis } from '@/types/weatherAndEvents';
 import { marketEventTypes, marketEventCategories } from '@/constants/forecasting';
 import { useToast } from "@/hooks/use-toast";
+import React from "react";
 
 interface ExternalFactorsTabProps {
   weatherLocation: string;
@@ -52,6 +53,7 @@ export const ExternalFactorsTab = ({
   historicalPriceData
 }: ExternalFactorsTabProps) => {
   const { toast } = useToast();
+  const [sliderValue, setSliderValue] = React.useState<number[]>([newEvent.impact ? impactToSlider(newEvent.impact) : 50]);
 
   const handleEventUpdate = (field: keyof MarketEvent, value: any) => {
     setNewEvent({ ...newEvent, [field]: value });
@@ -65,10 +67,19 @@ export const ExternalFactorsTab = ({
     return (impactValue * 50) + 50;
   };
 
+  React.useEffect(() => {
+    if (newEvent.impact !== undefined) {
+      setSliderValue([impactToSlider(newEvent.impact)]);
+    } else {
+      setSliderValue([50]);
+    }
+  }, [newEvent.impact]);
+
   const handleSliderChange = (value: number[]) => {
-    handleEventUpdate('impact', sliderToImpact(value[0]));
-    
+    setSliderValue(value);
     const impactValue = sliderToImpact(value[0]);
+    handleEventUpdate('impact', impactValue);
+    
     const formattedImpact = formatImpactAsPercentage(impactValue);
     
     if (Math.abs(impactValue) % 0.1 < 0.02) {
@@ -196,10 +207,10 @@ export const ExternalFactorsTab = ({
                 className="bg-background"
               />
               
-              <div className="space-y-1 mt-4">
+              <div className="space-y-1 mt-6">
                 <div className="flex justify-between items-center">
                   <div className="flex items-center">
-                    <Label className="mr-2">Expected Impact on Demand</Label>
+                    <Label className="mr-2 font-medium text-base">Expected Impact on Demand</Label>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -216,34 +227,35 @@ export const ExternalFactorsTab = ({
                       </Tooltip>
                     </TooltipProvider>
                   </div>
-                  <span className="font-medium">
-                    {newEvent.impact === undefined || newEvent.impact === 0 
+                  <span className="font-medium text-base">
+                    {sliderValue[0] === 50
                       ? "No impact" 
-                      : newEvent.impact < 0 
-                        ? `${formatImpactAsPercentage(newEvent.impact)} decrease`
-                        : `${formatImpactAsPercentage(newEvent.impact)} increase`
+                      : sliderValue[0] < 50
+                        ? `${formatImpactAsPercentage(sliderToImpact(sliderValue[0]))} decrease`
+                        : `${formatImpactAsPercentage(sliderToImpact(sliderValue[0]))} increase`
                     }
                   </span>
                 </div>
                 
-                <div className="pt-2 px-1">
-                  <div className="flex justify-between text-xs mb-1">
-                    <span className="text-red-500">-100%</span>
-                    <span>No Impact</span>
-                    <span className="text-green-500">+100%</span>
+                <div className="pt-6 px-1 pb-4">
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-red-500 font-medium">-100%</span>
+                    <span className="font-medium">No Impact</span>
+                    <span className="text-green-500 font-medium">+100%</span>
                   </div>
                   
-                  <div className="py-4">
-                    <div className="relative">
-                      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-red-500 via-gray-200 to-green-500 opacity-30 h-3 -z-10"></div>
+                  <div className="py-6">
+                    <div className="relative group">
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-red-500 via-gray-200 to-green-500 opacity-40 h-4"></div>
                       
                       <Slider
-                        value={[impactToSlider(newEvent.impact || 0)]}
+                        value={sliderValue}
                         min={0}
                         max={100}
                         step={1}
                         onValueChange={handleSliderChange}
                         aria-label="Impact on demand percentage"
+                        className="my-4"
                       />
                     </div>
                   </div>
@@ -251,7 +263,7 @@ export const ExternalFactorsTab = ({
               </div>
               
               <Textarea
-                className="w-full p-2 border rounded bg-background mt-2"
+                className="w-full p-2 border rounded bg-background mt-4"
                 placeholder="Description"
                 value={newEvent.description || ''}
                 onChange={(e) => handleEventUpdate('description', e.target.value)}
