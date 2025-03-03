@@ -25,5 +25,9 @@ export const moduleTranslations: ModuleTranslations = {
   reportsDescription: {
     en: "Generate custom reports, analyze KPIs, and gain actionable insights into your entire supply chain.",
     ar: "إنشاء تقارير مخصصة، وتحليل مؤشرات الأداء الرئيسية، والحصول على رؤى قابلة للتنفيذ في سلسلة التوريد بأكملها."
+  },
+  moduleDescriptions: {
+    en: "Module Descriptions",
+    ar: "وصف الوحدات"
   }
 };

@@ -106,6 +106,7 @@ export interface ModuleTranslations {
   marketingDescription: TranslationValue;
   logisticsDescription: TranslationValue;
   reportsDescription: TranslationValue;
+  moduleDescriptions: TranslationValue;
 }
 
 export interface NavigationItems {

@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -139,7 +138,7 @@ const ModuleSummaryCards = () => {
                     {getTranslation(`common.${module.statsKey}`, language)}
                   </p>
                   <p className="text-xs text-gray-500 line-clamp-2">
-                    {getTranslation(`modulesSummary.${module.description}`, language)}
+                    {getTranslation(`common.${module.description}`, language)}
                   </p>
                 </div>
               </div>
