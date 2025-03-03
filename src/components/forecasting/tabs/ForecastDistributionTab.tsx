@@ -5,17 +5,10 @@ import { DistributionCharts } from "../components/distribution/DistributionChart
 import { DistributionCalendar } from "../components/distribution/DistributionCalendar";
 import { DisaggregationRulesDialog } from "../components/distribution/DisaggregationRulesDialog";
 import { Card } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Info } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-
 interface DisaggregationRule {
   id: string;
   name: string;
@@ -23,7 +16,7 @@ interface DisaggregationRule {
   weightingFactor?: number;
   customPattern?: number[];
   daysOfWeek?: {
-    [key: string]: number;  // Monday: 1.2, Tuesday: 0.8, etc.
+    [key: string]: number; // Monday: 1.2, Tuesday: 0.8, etc.
   };
   constraints?: {
     minDaily?: number;
@@ -32,7 +25,6 @@ interface DisaggregationRule {
     maxWeekly?: number;
   };
 }
-
 interface DistributionData {
   id: string;
   sku: string;
@@ -51,103 +43,105 @@ interface DistributionData {
     [date: string]: number;
   };
 }
-
-const StepHeader = ({ number, title, description }: { number: number; title: string; description: string }) => (
-  <div className="flex items-start gap-4 mb-4">
-    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-semibold">
-      {number}
-    </div>
+const StepHeader = ({
+  number,
+  title,
+  description
+}: {
+  number: number;
+  title: string;
+  description: string;
+}) => <div className="flex items-start gap-4 mb-4">
+    
     <div>
       <h3 className="text-lg font-semibold">{title}</h3>
       <p className="text-sm text-muted-foreground">{description}</p>
     </div>
-  </div>
-);
-
-export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableData: any[] }) => {
+  </div>;
+export const ForecastDistributionTab = ({
+  forecastTableData
+}: {
+  forecastTableData: any[];
+}) => {
   const [selectedSKU, setSelectedSKU] = useState<string>("SKU001");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [forecastPeriod, setForecastPeriod] = useState<string>("weekly");
-  const [disaggregationRules, setDisaggregationRules] = useState<DisaggregationRule[]>([
-    {
-      id: "rule1",
-      name: "Even Distribution",
-      type: "even"
-    },
-    {
-      id: "rule2",
-      name: "Weekday Weighted",
-      type: "weighted",
-      daysOfWeek: {
-        Monday: 1.2,
-        Tuesday: 1.1,
-        Wednesday: 1.0,
-        Thursday: 1.1,
-        Friday: 1.3,
-        Saturday: 0.7,
-        Sunday: 0.6
-      }
-    },
-    {
-      id: "rule3",
-      name: "Custom Pattern",
-      type: "custom",
-      customPattern: [1, 1.2, 0.8, 1.1, 0.9, 0.7, 0.6]
+  const [disaggregationRules, setDisaggregationRules] = useState<DisaggregationRule[]>([{
+    id: "rule1",
+    name: "Even Distribution",
+    type: "even"
+  }, {
+    id: "rule2",
+    name: "Weekday Weighted",
+    type: "weighted",
+    daysOfWeek: {
+      Monday: 1.2,
+      Tuesday: 1.1,
+      Wednesday: 1.0,
+      Thursday: 1.1,
+      Friday: 1.3,
+      Saturday: 0.7,
+      Sunday: 0.6
     }
-  ]);
-
-  const [distributionData, setDistributionData] = useState<DistributionData[]>([
-    {
-      id: "1",
-      sku: "SKU001",
-      category: "Electronics",
-      currentStock: 120,
-      minQuantity: 100,
-      optimalQuantity: 150,
-      maxQuantity: 200,
-      leadTime: 14,
-      safetyStock: 50,
-      forecastAccuracy: 85,
-      serviceLevel: 95,
-      lastUpdated: "2024-03-25"
-    },
-    {
-      id: "2",
-      sku: "SKU002",
-      category: "Appliances",
-      currentStock: 60,
-      minQuantity: 50,
-      optimalQuantity: 75,
-      maxQuantity: 100,
-      leadTime: 21,
-      safetyStock: 25,
-      forecastAccuracy: 78,
-      serviceLevel: 92,
-      lastUpdated: "2024-03-25"
-    },
-    {
-      id: "3",
-      sku: "SKU003",
-      category: "Furniture",
-      currentStock: 35,
-      minQuantity: 25,
-      optimalQuantity: 40,
-      maxQuantity: 60,
-      leadTime: 30,
-      safetyStock: 15,
-      forecastAccuracy: 92,
-      serviceLevel: 98,
-      lastUpdated: "2024-03-25"
-    }
-  ]);
-
-  const periodOptions = [
-    { value: "weekly", label: "Weekly" },
-    { value: "monthly", label: "Monthly" },
-    { value: "quarterly", label: "Quarterly" },
-    { value: "annually", label: "Annually" },
-  ];
-
+  }, {
+    id: "rule3",
+    name: "Custom Pattern",
+    type: "custom",
+    customPattern: [1, 1.2, 0.8, 1.1, 0.9, 0.7, 0.6]
+  }]);
+  const [distributionData, setDistributionData] = useState<DistributionData[]>([{
+    id: "1",
+    sku: "SKU001",
+    category: "Electronics",
+    currentStock: 120,
+    minQuantity: 100,
+    optimalQuantity: 150,
+    maxQuantity: 200,
+    leadTime: 14,
+    safetyStock: 50,
+    forecastAccuracy: 85,
+    serviceLevel: 95,
+    lastUpdated: "2024-03-25"
+  }, {
+    id: "2",
+    sku: "SKU002",
+    category: "Appliances",
+    currentStock: 60,
+    minQuantity: 50,
+    optimalQuantity: 75,
+    maxQuantity: 100,
+    leadTime: 21,
+    safetyStock: 25,
+    forecastAccuracy: 78,
+    serviceLevel: 92,
+    lastUpdated: "2024-03-25"
+  }, {
+    id: "3",
+    sku: "SKU003",
+    category: "Furniture",
+    currentStock: 35,
+    minQuantity: 25,
+    optimalQuantity: 40,
+    maxQuantity: 60,
+    leadTime: 30,
+    safetyStock: 15,
+    forecastAccuracy: 92,
+    serviceLevel: 98,
+    lastUpdated: "2024-03-25"
+  }]);
+  const periodOptions = [{
+    value: "weekly",
+    label: "Weekly"
+  }, {
+    value: "monthly",
+    label: "Monthly"
+  }, {
+    value: "quarterly",
+    label: "Quarterly"
+  }, {
+    value: "annually",
+    label: "Annually"
+  }];
   const getForecastPeriodInDays = (): string => {
     switch (forecastPeriod) {
       case "weekly":
@@ -162,13 +156,10 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
         return "7";
     }
   };
-
   const applyDisaggregationRule = (sku: string, ruleId: string) => {
     const rule = disaggregationRules.find(r => r.id === ruleId);
     const skuData = distributionData.find(d => d.sku === sku);
-    
     if (!rule || !skuData) return;
-
     const newData = distributionData.map(item => {
       if (item.sku === sku) {
         return {
@@ -178,11 +169,9 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
       }
       return item;
     });
-
     setDistributionData(newData);
     toast.success(`Applied ${rule.name} to ${sku}`);
   };
-
   const handleManualOverride = (sku: string, date: string, quantity: number) => {
     const newData = distributionData.map(item => {
       if (item.sku === sku) {
@@ -196,30 +185,28 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
       }
       return item;
     });
-
     setDistributionData(newData);
     toast.success(`Manual override set for ${sku} on ${date}`);
   };
-
   const generateWeeklyDistribution = (sku: string) => {
     const skuData = distributionData.find(d => d.sku === sku);
     if (!skuData) return [];
-
     const rule = disaggregationRules.find(r => r.id === skuData.disaggregationRuleId);
     const baseQuantity = skuData.optimalQuantity / 4;
-
     if (!rule) {
-      return Array.from({ length: 4 }).map((_, i) => ({
+      return Array.from({
+        length: 4
+      }).map((_, i) => ({
         week: `Week ${i + 1}`,
         planned: baseQuantity,
         minimum: skuData.minQuantity / 4,
         maximum: skuData.maxQuantity / 4
       }));
     }
-
-    return Array.from({ length: 4 }).map((_, i) => {
+    return Array.from({
+      length: 4
+    }).map((_, i) => {
       let planned = baseQuantity;
-
       if (rule.type === 'weighted' && rule.weightingFactor) {
         planned *= rule.weightingFactor;
       } else if (rule.type === 'custom' && rule.customPattern) {
@@ -230,11 +217,9 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
       const weekStart = new Date(selectedDate);
       weekStart.setDate(weekStart.getDate() + i * 7);
       const dateKey = weekStart.toISOString().split('T')[0];
-      
       if (skuData.manualOverrides?.[dateKey]) {
         planned = skuData.manualOverrides[dateKey];
       }
-
       return {
         week: `Week ${i + 1}`,
         planned,
@@ -243,21 +228,14 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
       };
     });
   };
-
   const handleUpdateRules = (newRules: DisaggregationRule[]) => {
     setDisaggregationRules(newRules);
     toast.success("Disaggregation rules updated successfully");
   };
-
-  return (
-    <div className="container mx-auto p-4 space-y-8">
+  return <div className="container mx-auto p-4 space-y-8">
       <div className="bg-card rounded-lg border shadow-sm p-6">
         <div className="flex justify-between items-start mb-6">
-          <StepHeader 
-            number={1}
-            title="Configure Distribution Parameters"
-            description="Set the forecast timeline for distribution planning"
-          />
+          <StepHeader number={1} title="Configure Distribution Parameters" description="Set the forecast timeline for distribution planning" />
         </div>
         
         <div className="space-y-6">
@@ -268,11 +246,9 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
                 <SelectValue placeholder="Select period" />
               </SelectTrigger>
               <SelectContent>
-                {periodOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
+                {periodOptions.map(option => <SelectItem key={option.value} value={option.value}>
                     {option.label}
-                  </SelectItem>
-                ))}
+                  </SelectItem>)}
               </SelectContent>
             </Select>
           </Card>
@@ -280,58 +256,26 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
       </div>
 
       <div className="bg-card rounded-lg border shadow-sm p-6">
-        <StepHeader 
-          number={2}
-          title="Review Distribution Quantities"
-          description="Analyze and adjust distribution quantities across your network"
-        />
+        <StepHeader number={2} title="Review Distribution Quantities" description="Analyze and adjust distribution quantities across your network" />
         
-        <DistributionQuantitiesTable
-          distributionData={distributionData}
-          onUpdateDistributionData={setDistributionData}
-          forecastPeriod={getForecastPeriodInDays()}
-        />
+        <DistributionQuantitiesTable distributionData={distributionData} onUpdateDistributionData={setDistributionData} forecastPeriod={getForecastPeriodInDays()} />
       </div>
 
       <div className="bg-card rounded-lg border shadow-sm p-6">
-        <StepHeader 
-          number={3}
-          title="Analyze Distribution Impact"
-          description="Review and reconcile distribution changes across hierarchy levels"
-        />
+        <StepHeader number={3} title="Analyze Distribution Impact" description="Review and reconcile distribution changes across hierarchy levels" />
         
-        <ImpactAnalysis
-          onReconciliationComplete={() => {
-            // Handle reconciliation completion
-          }}
-          forecastPeriod={getForecastPeriodInDays()}
-        />
+        <ImpactAnalysis onReconciliationComplete={() => {
+        // Handle reconciliation completion
+      }} forecastPeriod={getForecastPeriodInDays()} />
       </div>
 
       <div className="bg-card rounded-lg border shadow-sm p-6">
-        <StepHeader 
-          number={4}
-          title="Visualize Distribution Plan"
-          description="View distribution patterns and trends across your timeline"
-        />
+        <StepHeader number={4} title="Visualize Distribution Plan" description="View distribution patterns and trends across your timeline" />
         
         <div className="space-y-6">
-          <DistributionCharts
-            selectedSKU={selectedSKU}
-            distributionData={distributionData}
-            weeklyDistribution={generateWeeklyDistribution(selectedSKU)}
-            onSelectSKU={setSelectedSKU}
-            forecastPeriod={getForecastPeriodInDays()}
-          />
+          <DistributionCharts selectedSKU={selectedSKU} distributionData={distributionData} weeklyDistribution={generateWeeklyDistribution(selectedSKU)} onSelectSKU={setSelectedSKU} forecastPeriod={getForecastPeriodInDays()} />
           
-          <DistributionCalendar
-            selectedDate={selectedDate}
-            selectedSKU={selectedSKU}
-            distributionData={distributionData}
-            onSelectDate={setSelectedDate}
-            disaggregationRules={disaggregationRules}
-            onUpdateRules={handleUpdateRules}
-          />
+          <DistributionCalendar selectedDate={selectedDate} selectedSKU={selectedSKU} distributionData={distributionData} onSelectDate={setSelectedDate} disaggregationRules={disaggregationRules} onUpdateRules={handleUpdateRules} />
         </div>
       </div>
 
@@ -339,6 +283,5 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
         <Info className="h-4 w-4" />
         <span>Changes are automatically saved as you make them</span>
       </div>
-    </div>
-  );
+    </div>;
 };
