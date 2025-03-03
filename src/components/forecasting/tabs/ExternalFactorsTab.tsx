@@ -72,6 +72,8 @@ export const ExternalFactorsTab = ({
   
   const [sliderValue, setSliderValue] = React.useState<number[]>([newEvent.impact ? impactToSlider(newEvent.impact) : 50]);
   const [localWeatherLocation, setLocalWeatherLocation] = React.useState<string>(weatherLocation || '');
+  const [localWeatherData, setLocalWeatherData] = React.useState<WeatherData | null>(weatherData);
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
   const handleEventUpdate = (field: keyof MarketEvent, value: any) => {
     setNewEvent({ ...newEvent, [field]: value });
@@ -88,6 +90,10 @@ export const ExternalFactorsTab = ({
   React.useEffect(() => {
     setLocalWeatherLocation(weatherLocation);
   }, [weatherLocation]);
+  
+  React.useEffect(() => {
+    setLocalWeatherData(weatherData);
+  }, [weatherData]);
 
   const handleSliderChange = (value: number[]) => {
     setSliderValue(value);
@@ -109,6 +115,37 @@ export const ExternalFactorsTab = ({
     }
   };
 
+  const handleFetchWeather = async () => {
+    if (!localWeatherLocation.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a location",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      setWeatherLocation(localWeatherLocation);
+      const data = await fetchWeatherForecast(localWeatherLocation);
+      setLocalWeatherData(data);
+      toast({
+        title: "Success",
+        description: `Weather data for ${localWeatherLocation} fetched successfully`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch weather data. Please check the location and try again.",
+        variant: "destructive",
+      });
+      console.error("Weather fetch error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Card className="p-6 bg-background">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -125,36 +162,23 @@ export const ExternalFactorsTab = ({
                   className="bg-background"
                 />
                 <Button 
-                  onClick={async () => {
-                    try {
-                      setWeatherLocation(localWeatherLocation);
-                      await fetchWeatherForecast(localWeatherLocation);
-                      toast({
-                        title: "Success",
-                        description: "Weather data fetched successfully",
-                      });
-                    } catch (error) {
-                      toast({
-                        title: "Error",
-                        description: "Failed to fetch weather data",
-                        variant: "destructive",
-                      });
-                    }
-                  }}
+                  onClick={handleFetchWeather}
+                  disabled={isLoading}
                 >
-                  Fetch Weather
+                  {isLoading ? "Loading..." : "Fetch Weather"}
                 </Button>
               </div>
             </div>
             
-            {weatherData && (
-              <div className="space-y-2">
-                <p>Temperature: {weatherData.temperature}°C</p>
-                <p>Humidity: {weatherData.humidity}%</p>
-                <p>Wind Speed: {weatherData.windSpeed} km/h</p>
-                <p>Condition: {weatherData.weatherCondition}</p>
-                {weatherData.alert && (
-                  <p className="text-red-500">Alert: {weatherData.alert}</p>
+            {localWeatherData && (
+              <div className="space-y-2 mt-4 p-3 border rounded-md border-border">
+                <h4 className="font-medium">Weather for {localWeatherLocation}</h4>
+                <p>Temperature: {localWeatherData.temperature}°C</p>
+                <p>Humidity: {localWeatherData.humidity}%</p>
+                <p>Wind Speed: {localWeatherData.windSpeed} km/h</p>
+                <p>Condition: {localWeatherData.weatherCondition}</p>
+                {localWeatherData.alert && (
+                  <p className="text-red-500 mt-2 font-medium">Alert: {localWeatherData.alert}</p>
                 )}
               </div>
             )}
