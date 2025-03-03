@@ -1,16 +1,27 @@
 
-import { TranslationValue } from '../types';
-
-export type PaginationTranslations = {
-  items: TranslationValue;
-  showing: TranslationValue;
-  to: TranslationValue;
-  of: TranslationValue;
-  previous: TranslationValue;
-  viewDetails: TranslationValue;
-};
+import { PaginationTranslations } from '../types';
 
 export const paginationTranslations: PaginationTranslations = {
+  next: {
+    en: "Next",
+    ar: "التالي"
+  },
+  previous: {
+    en: "Previous",
+    ar: "السابق"
+  },
+  page: {
+    en: "Page",
+    ar: "صفحة"
+  },
+  of: {
+    en: "of",
+    ar: "من"
+  },
+  perPage: {
+    en: "per page",
+    ar: "في الصفحة"
+  },
   items: {
     en: "items",
     ar: "العناصر"
@@ -22,14 +33,6 @@ export const paginationTranslations: PaginationTranslations = {
   to: {
     en: "to",
     ar: "إلى"
-  },
-  of: {
-    en: "of",
-    ar: "من"
-  },
-  previous: {
-    en: "Previous",
-    ar: "السابق"
   },
   viewDetails: {
     en: "View Details",

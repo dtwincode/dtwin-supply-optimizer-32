@@ -7,9 +7,30 @@ import { chartTranslations } from './common/charts';
 import { paginationTranslations } from './common/pagination';
 
 export const commonTranslations: CommonTranslations = {
+  // UI translations
   ...uiTranslations,
-  ...inventoryTranslations,
-  ...moduleTranslations,
-  ...chartTranslations,
-  ...paginationTranslations
+  
+  // Inventory translations
+  inventoryTitle: inventoryTranslations.inventoryTitle,
+  bufferZones: inventoryTranslations.bufferZones,
+  skuClassification: inventoryTranslations.skuClassification,
+  leadTime: inventoryTranslations.leadTime,
+  replenishmentOrders: inventoryTranslations.replenishmentOrders,
+  
+  // Chart translations
+  chartTitles: chartTranslations.chartTitles,
+  zones: chartTranslations.zones,
+  
+  // Pagination translations
+  next: paginationTranslations.next,
+  previous: paginationTranslations.previous,
+  page: paginationTranslations.page,
+  of: paginationTranslations.of,
+  perPage: paginationTranslations.perPage,
+  items: paginationTranslations.items,
+  showing: paginationTranslations.showing,
+  to: paginationTranslations.to,
+  
+  // Module translations
+  ...moduleTranslations
 };

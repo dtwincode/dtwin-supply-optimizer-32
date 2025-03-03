@@ -91,6 +91,10 @@ export interface PaginationTranslations {
   page: TranslationValue;
   of: TranslationValue;
   perPage: TranslationValue;
+  items: TranslationValue;
+  showing: TranslationValue;
+  to: TranslationValue;
+  viewDetails: TranslationValue;
 }
 
 export interface ModuleTranslations {
@@ -102,4 +106,85 @@ export interface ModuleTranslations {
   reportsDescription: TranslationValue;
 }
 
-export interface CommonTranslations extends UITranslations, InventoryTranslations, ChartTranslations, PaginationTranslations, ModuleTranslations {}
+export interface NavigationItems {
+  dashboard: TranslationValue;
+  forecasting: TranslationValue;
+  inventory: TranslationValue;
+  salesPlanning: TranslationValue;
+  marketing: TranslationValue;
+  logistics: TranslationValue;
+  reports: TranslationValue;
+  askAI: TranslationValue;
+  data: TranslationValue;
+  guidelines: TranslationValue;
+}
+
+export interface CommonTranslations {
+  settings: TranslationValue;
+  logout: TranslationValue;
+  cancel: TranslationValue;
+  save: TranslationValue;
+  delete: TranslationValue;
+  edit: TranslationValue;
+  create: TranslationValue;
+  search: TranslationValue;
+  filter: TranslationValue;
+  apply: TranslationValue;
+  reset: TranslationValue;
+  viewDetails: TranslationValue;
+  skuCount: TranslationValue;
+  accuracyLabel: TranslationValue;
+  pipelineValue: TranslationValue;
+  activeCampaigns: TranslationValue;
+  onTimeDelivery: TranslationValue;
+  reportCount: TranslationValue;
+  fromLastMonth: TranslationValue;
+  fromLastWeek: TranslationValue;
+  thisQuarter: TranslationValue;
+  modules: TranslationValue;
+  
+  inventoryTitle: TranslationValue;
+  bufferZones: TranslationValue;
+  skuClassification: TranslationValue;
+  leadTime: TranslationValue;
+  replenishmentOrders: TranslationValue;
+  
+  chartTitles: {
+    bufferProfile: TranslationValue;
+    demandVariability: TranslationValue;
+    inventoryTrends: TranslationValue;
+    forecastAccuracy: TranslationValue;
+  };
+  zones: {
+    green: TranslationValue;
+    yellow: TranslationValue;
+    red: TranslationValue;
+  };
+  
+  next: TranslationValue;
+  previous: TranslationValue;
+  page: TranslationValue;
+  of: TranslationValue;
+  perPage: TranslationValue;
+  items: TranslationValue;
+  showing: TranslationValue;
+  to: TranslationValue;
+  
+  inventoryDescription: TranslationValue;
+  forecastingDescription: TranslationValue;
+  salesDescription: TranslationValue;
+  marketingDescription: TranslationValue;
+  logisticsDescription: TranslationValue;
+  reportsDescription: TranslationValue;
+}
+
+export interface Translations {
+  dashboard: TranslationValue;
+  navigationItems: NavigationItems;
+  dashboardMetrics: DashboardMetrics;
+  financialMetrics: FinancialMetrics;
+  sustainabilityMetrics: SustainabilityMetrics;
+  modulesSummary: ModulesSummary;
+  common: CommonTranslations;
+  sales: any; // This should be properly typed based on your sales translations
+}

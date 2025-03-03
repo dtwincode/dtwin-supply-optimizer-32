@@ -1,17 +1,5 @@
 
-import { TranslationValue } from '../types';
-
-export type ChartTranslations = {
-  chartTitles: {
-    bufferProfile: TranslationValue;
-    demandVariability: TranslationValue;
-  };
-  zones: {
-    green: TranslationValue;
-    yellow: TranslationValue;
-    red: TranslationValue;
-  };
-};
+import { ChartTranslations } from '../types';
 
 export const chartTranslations: ChartTranslations = {
   chartTitles: {
@@ -20,8 +8,16 @@ export const chartTranslations: ChartTranslations = {
       ar: "توزيع نسب المخزون"
     },
     demandVariability: {
-      en: "Demand Variability Analysis",
-      ar: "تحليل تغير الطلب"
+      en: "Demand Variability",
+      ar: "تغير الطلب"
+    },
+    inventoryTrends: {
+      en: "Inventory Trends",
+      ar: "اتجاهات المخزون"
+    },
+    forecastAccuracy: {
+      en: "Forecast Accuracy",
+      ar: "دقة التنبؤ"
     }
   },
   zones: {
