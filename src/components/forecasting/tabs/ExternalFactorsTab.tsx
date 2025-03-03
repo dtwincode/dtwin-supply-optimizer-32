@@ -24,6 +24,21 @@ import { marketEventTypes, marketEventCategories } from '@/constants/forecasting
 import { useToast } from "@/hooks/use-toast";
 import React from "react";
 
+// Declare utility functions early to avoid hoisting issues
+const sliderToImpact = (sliderValue: number): number => {
+  return parseFloat(((sliderValue - 50) / 50).toFixed(2));
+};
+
+const impactToSlider = (impactValue: number): number => {
+  return (impactValue * 50) + 50;
+};
+
+const formatImpactAsPercentage = (impact: number | undefined): string => {
+  if (impact === undefined) return "0%";
+  const percentage = Math.abs(impact * 100);
+  return `${percentage.toFixed(0)}%`;
+};
+
 interface ExternalFactorsTabProps {
   weatherLocation: string;
   setWeatherLocation: (location: string) => void;
@@ -55,21 +70,8 @@ export const ExternalFactorsTab = ({
 }: ExternalFactorsTabProps) => {
   const { toast } = useToast();
   
-  const sliderToImpact = (sliderValue: number): number => {
-    return parseFloat(((sliderValue - 50) / 50).toFixed(2));
-  };
-
-  const impactToSlider = (impactValue: number): number => {
-    return (impactValue * 50) + 50;
-  };
-  
-  const formatImpactAsPercentage = (impact: number | undefined): string => {
-    if (impact === undefined) return "0%";
-    const percentage = Math.abs(impact * 100);
-    return `${percentage.toFixed(0)}%`;
-  };
-  
   const [sliderValue, setSliderValue] = React.useState<number[]>([newEvent.impact ? impactToSlider(newEvent.impact) : 50]);
+  const [localWeatherLocation, setLocalWeatherLocation] = React.useState<string>(weatherLocation || '');
 
   const handleEventUpdate = (field: keyof MarketEvent, value: any) => {
     setNewEvent({ ...newEvent, [field]: value });
@@ -82,6 +84,10 @@ export const ExternalFactorsTab = ({
       setSliderValue([50]);
     }
   }, [newEvent.impact]);
+
+  React.useEffect(() => {
+    setLocalWeatherLocation(weatherLocation);
+  }, [weatherLocation]);
 
   const handleSliderChange = (value: number[]) => {
     setSliderValue(value);
@@ -113,15 +119,16 @@ export const ExternalFactorsTab = ({
               <label className="block text-sm mb-1">Location</label>
               <div className="flex gap-2">
                 <Input 
-                  value={weatherLocation}
-                  onChange={(e) => setWeatherLocation(e.target.value)}
+                  value={localWeatherLocation}
+                  onChange={(e) => setLocalWeatherLocation(e.target.value)}
                   placeholder="Enter location"
                   className="bg-background"
                 />
                 <Button 
                   onClick={async () => {
                     try {
-                      await fetchWeatherForecast(weatherLocation);
+                      setWeatherLocation(localWeatherLocation);
+                      await fetchWeatherForecast(localWeatherLocation);
                       toast({
                         title: "Success",
                         description: "Weather data fetched successfully",
