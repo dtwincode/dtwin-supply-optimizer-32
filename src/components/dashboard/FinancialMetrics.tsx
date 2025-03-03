@@ -4,7 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
 import { toArabicNumerals } from "@/translations";
 import Image from "../ui/image";
-import { TrendingUp, TrendingDown, Wallet, CreditCard, CircleDollarSign } from "lucide-react";
+import { TrendingUp, TrendingDown, Wallet, CreditCard, Coins } from "lucide-react";
 
 const financialMetrics = [
   {
@@ -30,7 +30,7 @@ const financialMetrics = [
     value: "24.5%",
     change: "+2.1%",
     trend: "up",
-    icon: CircleDollarSign,
+    icon: Coins,
     color: "text-blue-500",
     bgColor: "bg-blue-50",
   }
