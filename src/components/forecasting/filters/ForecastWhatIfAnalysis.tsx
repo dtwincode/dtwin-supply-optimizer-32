@@ -11,6 +11,7 @@ import { generateScenario, saveScenario } from "@/utils/forecasting/scenarios";
 import { ForecastDataPoint } from "@/types/forecasting";
 import { fetchWeatherForecast } from "@/utils/forecasting/weather";
 import { WeatherData } from "@/types/weatherAndEvents";
+
 interface ForecastWhatIfAnalysisProps {
   filteredData: ForecastDataPoint[];
   whatIfParams: {
@@ -27,6 +28,7 @@ interface ForecastWhatIfAnalysisProps {
   whatIfScenario: number[];
   selectedSKU: string;
 }
+
 export const ForecastWhatIfAnalysis = ({
   filteredData,
   whatIfParams,
@@ -44,7 +46,6 @@ export const ForecastWhatIfAnalysis = ({
   const [weatherLocation, setWeatherLocation] = useState<string>("Riyadh");
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [weatherImpactScenario, setWeatherImpactScenario] = useState<number[]>([]);
 
   // Generate a new scenario when parameters change
   useEffect(() => {
@@ -62,17 +63,6 @@ export const ForecastWhatIfAnalysis = ({
         }
       }, timeData);
       setGeneratedScenario(newScenario);
-      
-      // Generate a dummy weather impact scenario
-      // This adds a fluctuation based on weather patterns
-      const weatherImpact = baseForecast.map((value, index) => {
-        // Create a seasonal pattern with different amplitude
-        const seasonalFactor = Math.sin((index / 4) * Math.PI) * 0.15;
-        // Apply the weather impact to the original forecast
-        return Math.max(0, Math.round(value * (1 + seasonalFactor)));
-      });
-      
-      setWeatherImpactScenario(weatherImpact);
     }
   }, [filteredData, whatIfParams, priceData, selectedSKU]);
 
@@ -80,6 +70,7 @@ export const ForecastWhatIfAnalysis = ({
   useEffect(() => {
     fetchWeatherData();
   }, []);
+  
   const fetchWeatherData = async () => {
     if (!weatherLocation.trim()) {
       toast({
@@ -108,6 +99,7 @@ export const ForecastWhatIfAnalysis = ({
       setIsLoading(false);
     }
   };
+  
   const handleSaveScenario = async () => {
     if (!scenarioName.trim()) {
       toast({
@@ -146,6 +138,7 @@ export const ForecastWhatIfAnalysis = ({
       });
     }
   };
+  
   return <Card className="p-6">
       <div className="flex flex-col gap-6">
         <div className="flex justify-between items-center">
@@ -203,25 +196,12 @@ export const ForecastWhatIfAnalysis = ({
           </div>
         </div>
 
-        <div className="border border-border rounded-md p-4 bg-card">
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex items-center gap-2">
-              <CloudSun className="h-5 w-5 text-blue-500" />
-              <h3 className="font-medium text-lg">Weather Impact</h3>
-            </div>
-            <div className="text-sm text-muted-foreground">
-              The chart below includes a line that shows the potential impact of seasonal weather patterns on demand.
-            </div>
-          </div>
-        </div>
-
         <div className="h-[400px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={filteredData.map((d, i) => ({
             week: d.week,
             forecast: d.forecast,
-            scenario: generatedScenario[i] || 0,
-            weatherImpact: weatherImpactScenario[i] || 0
+            scenario: generatedScenario[i] || 0
           }))}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="week" />
@@ -230,7 +210,6 @@ export const ForecastWhatIfAnalysis = ({
               <Legend />
               <Line type="monotone" dataKey="forecast" stroke="#F59E0B" name="Base Forecast" strokeWidth={2} />
               <Line type="monotone" dataKey="scenario" stroke="#10B981" name="Scenario Forecast" strokeWidth={2} />
-              <Line type="monotone" dataKey="weatherImpact" stroke="#3B82F6" name="Weather Impact" strokeWidth={2} strokeDasharray="5 5" />
             </LineChart>
           </ResponsiveContainer>
         </div>
