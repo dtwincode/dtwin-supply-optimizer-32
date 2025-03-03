@@ -2,11 +2,7 @@
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar as CalendarIcon, Save } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { Save } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -20,7 +16,7 @@ import {
   ResponsiveContainer
 } from "recharts";
 import { type PriceData } from "@/utils/forecasting";
-import { generateScenario } from "@/utils/forecasting/scenarios";
+import { generateScenario, saveScenario } from "@/utils/forecasting/scenarios";
 import { ForecastDataPoint } from "@/types/forecasting";
 
 interface ForecastWhatIfAnalysisProps {
@@ -47,8 +43,6 @@ export const ForecastWhatIfAnalysis = ({
   selectedSKU
 }: ForecastWhatIfAnalysisProps) => {
   const { toast } = useToast();
-  const [fromDate, setFromDate] = useState<Date>(new Date());
-  const [toDate, setToDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() + 30)));
   const [generatedScenario, setGeneratedScenario] = useState<number[]>([]);
   const [scenarioName, setScenarioName] = useState<string>("");
   
@@ -73,7 +67,7 @@ export const ForecastWhatIfAnalysis = ({
     }
   }, [filteredData, whatIfParams, priceData, selectedSKU]);
 
-  const handleSaveScenario = () => {
+  const handleSaveScenario = async () => {
     if (!scenarioName.trim()) {
       toast({
         title: "Error",
@@ -83,11 +77,36 @@ export const ForecastWhatIfAnalysis = ({
       return;
     }
     
-    // Here you would typically save the scenario to your backend
-    toast({
-      title: "Success",
-      description: `Scenario "${scenarioName}" for SKU ${selectedSKU} saved successfully`
-    });
+    const scenarioData = {
+      name: scenarioName,
+      sku: selectedSKU,
+      forecast: generatedScenario,
+      assumptions: {
+        growthRate: whatIfParams.growthRate,
+        seasonality: whatIfParams.seasonality,
+        events: whatIfParams.events,
+        priceData: {
+          ...priceData,
+          skuCode: selectedSKU
+        }
+      }
+    };
+    
+    const saved = await saveScenario(scenarioData);
+    
+    if (saved) {
+      toast({
+        title: "Success",
+        description: `Scenario "${scenarioName}" for SKU ${selectedSKU} saved successfully`
+      });
+      setScenarioName("");
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to save scenario",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -132,58 +151,14 @@ export const ForecastWhatIfAnalysis = ({
               })}
             />
           </div>
-          <div className="flex gap-2">
-            <div className="flex-1">
-              <label className="block text-sm font-medium mb-2">From Date</label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !fromDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {fromDate ? format(fromDate, "LLL dd, y") : "Select date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={fromDate}
-                    onSelect={(date) => date && setFromDate(date)}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-            <div className="flex-1">
-              <label className="block text-sm font-medium mb-2">To Date</label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !toDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {toDate ? format(toDate, "LLL dd, y") : "Select date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={toDate}
-                    onSelect={(date) => date && setToDate(date)}
-                    initialFocus
-                    fromDate={fromDate}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">Market Events</label>
+            <Input
+              type="text"
+              placeholder="Not configured"
+              disabled
+              className="text-muted-foreground"
+            />
           </div>
         </div>
 
