@@ -1,13 +1,16 @@
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Save } from "lucide-react";
+import { Save, CloudSun } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { type PriceData } from "@/utils/forecasting";
 import { generateScenario, saveScenario } from "@/utils/forecasting/scenarios";
 import { ForecastDataPoint } from "@/types/forecasting";
+import { fetchWeatherForecast } from "@/utils/forecasting/weather";
+import { WeatherData } from "@/types/weatherAndEvents";
+
 interface ForecastWhatIfAnalysisProps {
   filteredData: ForecastDataPoint[];
   whatIfParams: {
@@ -24,6 +27,7 @@ interface ForecastWhatIfAnalysisProps {
   whatIfScenario: number[];
   selectedSKU: string;
 }
+
 export const ForecastWhatIfAnalysis = ({
   filteredData,
   whatIfParams,
@@ -33,11 +37,12 @@ export const ForecastWhatIfAnalysis = ({
   whatIfScenario,
   selectedSKU
 }: ForecastWhatIfAnalysisProps) => {
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const [generatedScenario, setGeneratedScenario] = useState<number[]>([]);
   const [scenarioName, setScenarioName] = useState<string>("");
+  const [weatherLocation, setWeatherLocation] = useState<string>("Riyadh");
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Generate a new scenario when parameters change
   useEffect(() => {
@@ -57,6 +62,42 @@ export const ForecastWhatIfAnalysis = ({
       setGeneratedScenario(newScenario);
     }
   }, [filteredData, whatIfParams, priceData, selectedSKU]);
+
+  // Fetch weather data on initial load
+  useEffect(() => {
+    fetchWeatherData();
+  }, []);
+
+  const fetchWeatherData = async () => {
+    if (!weatherLocation.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a location",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const data = await fetchWeatherForecast(weatherLocation);
+      setWeatherData(data);
+      toast({
+        title: "Success",
+        description: `Weather data for ${data.location || weatherLocation} fetched successfully`
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch weather data",
+        variant: "destructive"
+      });
+      console.error("Weather fetch error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSaveScenario = async () => {
     if (!scenarioName.trim()) {
       toast({
@@ -95,10 +136,10 @@ export const ForecastWhatIfAnalysis = ({
       });
     }
   };
+
   return <Card className="p-6">
       <div className="flex flex-col gap-6">
         <div className="flex justify-between items-center">
-          
           <div className="flex gap-2 items-center">
             <Input placeholder="Scenario name" value={scenarioName} onChange={e => setScenarioName(e.target.value)} className="w-48" />
             <Button onClick={handleSaveScenario} className="flex items-center gap-1">
@@ -151,6 +192,51 @@ export const ForecastWhatIfAnalysis = ({
             promotionalPrice: e.target.value ? parseFloat(e.target.value) : undefined
           }))} min="0" step="0.01" />
           </div>
+        </div>
+
+        <div className="border border-border rounded-md p-4 bg-card">
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center gap-2">
+              <CloudSun className="h-5 w-5 text-blue-500" />
+              <h3 className="font-medium text-lg">Weather Impact Data</h3>
+            </div>
+            <div className="flex gap-2">
+              <Input 
+                value={weatherLocation} 
+                onChange={(e) => setWeatherLocation(e.target.value)}
+                placeholder="Enter city"
+                className="w-40"
+              />
+              <Button onClick={fetchWeatherData} disabled={isLoading} size="sm">
+                {isLoading ? "Loading..." : "Fetch Weather"}
+              </Button>
+            </div>
+          </div>
+          
+          {weatherData ? (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">Location</p>
+                <p className="font-medium">{weatherData.location || weatherLocation}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">Temperature</p>
+                <p className="font-medium">{weatherData.temperature}°C</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">Weather</p>
+                <p className="font-medium capitalize">{weatherData.weatherCondition}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">Humidity</p>
+                <p className="font-medium">{weatherData.humidity}%</p>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-4 text-muted-foreground">
+              Weather data will appear here. Enter a location and click "Fetch Weather".
+            </div>
+          )}
         </div>
 
         <div className="h-[400px]">
