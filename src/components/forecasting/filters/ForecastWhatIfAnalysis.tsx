@@ -2,15 +2,13 @@
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Save, CloudSun } from "lucide-react";
+import { Save } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { type PriceData } from "@/utils/forecasting";
 import { generateScenario, saveScenario } from "@/utils/forecasting/scenarios";
 import { ForecastDataPoint } from "@/types/forecasting";
-import { fetchWeatherForecast } from "@/utils/forecasting/weather";
-import { WeatherData } from "@/types/weatherAndEvents";
 
 // Dummy data for when real data is not available
 const DUMMY_FORECAST_DATA: ForecastDataPoint[] = [
@@ -112,8 +110,83 @@ const DUMMY_FORECAST_DATA: ForecastDataPoint[] = [
   }
 ];
 
+// Generate more dummy data for longer time periods
+const generateExtendedDummyData = (days: number): ForecastDataPoint[] => {
+  if (days <= DUMMY_FORECAST_DATA.length * 7) {
+    return DUMMY_FORECAST_DATA.slice(0, Math.ceil(days / 7));
+  }
+  
+  const result = [...DUMMY_FORECAST_DATA];
+  let lastDate = new Date(DUMMY_FORECAST_DATA[DUMMY_FORECAST_DATA.length - 1].week);
+  let lastForecast = DUMMY_FORECAST_DATA[DUMMY_FORECAST_DATA.length - 1].forecast || 0;
+  let id = DUMMY_FORECAST_DATA.length + 1;
+  
+  const weeksNeeded = Math.ceil(days / 7) - DUMMY_FORECAST_DATA.length;
+  
+  for (let i = 0; i < weeksNeeded; i++) {
+    lastDate = new Date(lastDate);
+    lastDate.setDate(lastDate.getDate() + 7);
+    
+    // Add some randomness to the forecast
+    const randomVariance = Math.floor(Math.random() * 20) - 10; // -10 to +10
+    lastForecast = lastForecast + randomVariance;
+    if (lastForecast < 50) lastForecast = 50; // Minimum value
+    
+    result.push({
+      id: id.toString(),
+      week: lastDate.toISOString().split('T')[0],
+      forecast: lastForecast,
+      actual: lastForecast + Math.floor(Math.random() * 10) - 5, // Random actual
+      sku: "SKU001",
+      variance: Math.floor(Math.random() * 10) - 5,
+      region: "Global", 
+      city: "N/A", 
+      channel: "All", 
+      warehouse: "All",
+      category: "Electronics", 
+      subcategory: "Devices", 
+      l1_main_prod: "Electronics", 
+      l2_prod_line: "Devices", 
+      l3_prod_category: "Gadgets",
+      l4_device_make: "Brand X", 
+      l5_prod_sub_category: "Premium", 
+      l6_device_model: "Model A",
+      l7_device_color: "Various", 
+      l8_device_storage: "All"
+    });
+    
+    id++;
+  }
+  
+  return result;
+};
+
 // Sample scenario data with more dramatic changes
 const DUMMY_SCENARIO: number[] = [123, 142, 135, 152, 160, 175, 180, 195, 185, 205, 215, 230];
+
+// Generate extended scenario data based on days
+const generateExtendedScenario = (days: number): number[] => {
+  if (days <= DUMMY_SCENARIO.length * 7) {
+    return DUMMY_SCENARIO.slice(0, Math.ceil(days / 7));
+  }
+  
+  const result = [...DUMMY_SCENARIO];
+  let lastValue = DUMMY_SCENARIO[DUMMY_SCENARIO.length - 1];
+  
+  const weeksNeeded = Math.ceil(days / 7) - DUMMY_SCENARIO.length;
+  
+  for (let i = 0; i < weeksNeeded; i++) {
+    // Add trend with some randomness
+    const trend = 5; // Upward trend
+    const randomVariance = Math.floor(Math.random() * 30) - 10; // -10 to +20
+    lastValue = lastValue + trend + randomVariance;
+    if (lastValue < 100) lastValue = 100; // Minimum value
+    
+    result.push(lastValue);
+  }
+  
+  return result;
+};
 
 interface ForecastWhatIfAnalysisProps {
   filteredData: ForecastDataPoint[];
@@ -130,6 +203,7 @@ interface ForecastWhatIfAnalysisProps {
   setPriceData: React.Dispatch<React.SetStateAction<PriceData>>;
   whatIfScenario: number[];
   selectedSKU: string;
+  forecastPeriod: string;
 }
 
 export const ForecastWhatIfAnalysis = ({
@@ -139,16 +213,30 @@ export const ForecastWhatIfAnalysis = ({
   priceData,
   setPriceData,
   whatIfScenario,
-  selectedSKU
+  selectedSKU,
+  forecastPeriod
 }: ForecastWhatIfAnalysisProps) => {
   const {
     toast
   } = useToast();
   const [generatedScenario, setGeneratedScenario] = useState<number[]>([]);
   const [scenarioName, setScenarioName] = useState<string>("");
-  const [weatherLocation, setWeatherLocation] = useState<string>("Riyadh");
-  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [forecastPeriodLabel, setForecastPeriodLabel] = useState<string>("30 days");
+
+  // Update the period label when the period changes
+  useEffect(() => {
+    const days = parseInt(forecastPeriod);
+    if (days <= 30) {
+      setForecastPeriodLabel(`${days} days`);
+    } else if (days <= 90) {
+      setForecastPeriodLabel(`${Math.round(days / 30)} months`);
+    } else if (days <= 180) {
+      setForecastPeriodLabel(`${Math.round(days / 90)} quarters`);
+    } else {
+      setForecastPeriodLabel(`${Math.round(days / 365)} year${days > 365 ? 's' : ''}`);
+    }
+  }, [forecastPeriod]);
 
   // Generate a new scenario when parameters change
   useEffect(() => {
@@ -168,43 +256,10 @@ export const ForecastWhatIfAnalysis = ({
       setGeneratedScenario(newScenario);
     } else {
       // Use dummy data when no real data is available
-      setGeneratedScenario(DUMMY_SCENARIO);
+      const days = parseInt(forecastPeriod);
+      setGeneratedScenario(generateExtendedScenario(days));
     }
-  }, [filteredData, whatIfParams, priceData, selectedSKU]);
-
-  // Fetch weather data on initial load
-  useEffect(() => {
-    fetchWeatherData();
-  }, []);
-  
-  const fetchWeatherData = async () => {
-    if (!weatherLocation.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a location",
-        variant: "destructive"
-      });
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const data = await fetchWeatherForecast(weatherLocation);
-      setWeatherData(data);
-      toast({
-        title: "Success",
-        description: `Weather data for ${data.location || weatherLocation} fetched successfully`
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to fetch weather data",
-        variant: "destructive"
-      });
-      console.error("Weather fetch error:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [filteredData, whatIfParams, priceData, selectedSKU, forecastPeriod]);
   
   const handleSaveScenario = async () => {
     if (!scenarioName.trim()) {
@@ -219,6 +274,7 @@ export const ForecastWhatIfAnalysis = ({
       name: scenarioName,
       sku: selectedSKU,
       forecast: generatedScenario,
+      period: forecastPeriod,
       assumptions: {
         growthRate: whatIfParams.growthRate,
         seasonality: whatIfParams.seasonality,
@@ -247,6 +303,8 @@ export const ForecastWhatIfAnalysis = ({
   
   // Get data for the chart - use actual data if available, otherwise use dummy data
   const getChartData = () => {
+    const days = parseInt(forecastPeriod);
+    
     if (filteredData.length > 0) {
       return filteredData.map((d, i) => ({
         week: d.week,
@@ -254,12 +312,37 @@ export const ForecastWhatIfAnalysis = ({
         scenario: generatedScenario[i] || 0
       }));
     } else {
-      // Use dummy data
-      return DUMMY_FORECAST_DATA.map((d, i) => ({
+      // Use dummy data with the appropriate period
+      const dummyData = generateExtendedDummyData(days);
+      return dummyData.map((d, i) => ({
         week: d.week,
         forecast: d.forecast,
-        scenario: DUMMY_SCENARIO[i] || 0
+        scenario: generatedScenario[i] || 0
       }));
+    }
+  };
+
+  // Format X-axis labels based on forecast period
+  const formatXAxis = (value: string) => {
+    const days = parseInt(forecastPeriod);
+    const date = new Date(value);
+    
+    if (days <= 60) {
+      // For shorter periods, show detailed dates
+      return new Date(value).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    } else if (days <= 180) {
+      // For medium periods, show month only
+      return new Date(value).toLocaleDateString(undefined, { month: 'short' });
+    } else {
+      // For longer periods, show quarter or month/year
+      const month = date.getMonth();
+      const year = date.getFullYear();
+      
+      if (month % 3 === 0) {
+        return `Q${Math.floor(month / 3) + 1} ${year}`;
+      } else {
+        return '';  // Only show quarter markers for clarity
+      }
     }
   };
   
@@ -272,6 +355,9 @@ export const ForecastWhatIfAnalysis = ({
               <Save className="h-4 w-4" />
               Save Scenario
             </Button>
+          </div>
+          <div className="text-sm text-muted-foreground">
+            Forecasting period: <span className="font-medium">{forecastPeriodLabel}</span>
           </div>
         </div>
 
@@ -324,9 +410,13 @@ export const ForecastWhatIfAnalysis = ({
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={getChartData()}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="week" />
+              <XAxis 
+                dataKey="week" 
+                tickFormatter={formatXAxis}
+                interval={parseInt(forecastPeriod) > 90 ? 4 : parseInt(forecastPeriod) > 30 ? 2 : 0}
+              />
               <YAxis />
-              <Tooltip formatter={(value) => [`${value} units`, '']} />
+              <Tooltip formatter={(value) => [`${value} units`, '']} labelFormatter={(label) => `Week of ${new Date(label).toLocaleDateString()}`} />
               <Legend />
               <Line type="monotone" dataKey="forecast" stroke="#F59E0B" name="Base Forecast" strokeWidth={2} />
               <Line type="monotone" dataKey="scenario" stroke="#10B981" name="Scenario Forecast" strokeWidth={2} />
