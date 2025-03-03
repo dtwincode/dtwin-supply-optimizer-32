@@ -10,7 +10,6 @@ import { generateScenario, saveScenario } from "@/utils/forecasting/scenarios";
 import { ForecastDataPoint } from "@/types/forecasting";
 import { fetchWeatherForecast } from "@/utils/forecasting/weather";
 import { WeatherData } from "@/types/weatherAndEvents";
-
 interface ForecastWhatIfAnalysisProps {
   filteredData: ForecastDataPoint[];
   whatIfParams: {
@@ -27,7 +26,6 @@ interface ForecastWhatIfAnalysisProps {
   whatIfScenario: number[];
   selectedSKU: string;
 }
-
 export const ForecastWhatIfAnalysis = ({
   filteredData,
   whatIfParams,
@@ -37,7 +35,9 @@ export const ForecastWhatIfAnalysis = ({
   whatIfScenario,
   selectedSKU
 }: ForecastWhatIfAnalysisProps) => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [generatedScenario, setGeneratedScenario] = useState<number[]>([]);
   const [scenarioName, setScenarioName] = useState<string>("");
   const [weatherLocation, setWeatherLocation] = useState<string>("Riyadh");
@@ -67,7 +67,6 @@ export const ForecastWhatIfAnalysis = ({
   useEffect(() => {
     fetchWeatherData();
   }, []);
-
   const fetchWeatherData = async () => {
     if (!weatherLocation.trim()) {
       toast({
@@ -77,7 +76,6 @@ export const ForecastWhatIfAnalysis = ({
       });
       return;
     }
-
     setIsLoading(true);
     try {
       const data = await fetchWeatherForecast(weatherLocation);
@@ -97,7 +95,6 @@ export const ForecastWhatIfAnalysis = ({
       setIsLoading(false);
     }
   };
-
   const handleSaveScenario = async () => {
     if (!scenarioName.trim()) {
       toast({
@@ -136,7 +133,6 @@ export const ForecastWhatIfAnalysis = ({
       });
     }
   };
-
   return <Card className="p-6">
       <div className="flex flex-col gap-6">
         <div className="flex justify-between items-center">
@@ -194,50 +190,7 @@ export const ForecastWhatIfAnalysis = ({
           </div>
         </div>
 
-        <div className="border border-border rounded-md p-4 bg-card">
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex items-center gap-2">
-              <CloudSun className="h-5 w-5 text-blue-500" />
-              <h3 className="font-medium text-lg">Weather Impact Data</h3>
-            </div>
-            <div className="flex gap-2">
-              <Input 
-                value={weatherLocation} 
-                onChange={(e) => setWeatherLocation(e.target.value)}
-                placeholder="Enter city"
-                className="w-40"
-              />
-              <Button onClick={fetchWeatherData} disabled={isLoading} size="sm">
-                {isLoading ? "Loading..." : "Fetch Weather"}
-              </Button>
-            </div>
-          </div>
-          
-          {weatherData ? (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Location</p>
-                <p className="font-medium">{weatherData.location || weatherLocation}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Temperature</p>
-                <p className="font-medium">{weatherData.temperature}°C</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Weather</p>
-                <p className="font-medium capitalize">{weatherData.weatherCondition}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Humidity</p>
-                <p className="font-medium">{weatherData.humidity}%</p>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-4 text-muted-foreground">
-              Weather data will appear here. Enter a location and click "Fetch Weather".
-            </div>
-          )}
-        </div>
+        
 
         <div className="h-[400px]">
           <ResponsiveContainer width="100%" height="100%">
