@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -27,7 +26,6 @@ export const BaseMap = ({
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   
-  // Initialize map only once
   const mapInitialized = useRef(false);
 
   useEffect(() => {
@@ -39,7 +37,6 @@ export const BaseMap = ({
           throw new Error('Map container not found');
         }
 
-        // Prevent multiple initialization
         if (mapInitialized.current) {
           console.log("Map already initialized, skipping");
           return;
@@ -47,7 +44,6 @@ export const BaseMap = ({
 
         console.log("Starting map initialization...");
         
-        // Only fetch the token once
         if (!tokenRef.current) {
           const { data: secret, error: secretError } = await supabase
             .from('secrets')
@@ -75,7 +71,6 @@ export const BaseMap = ({
         if (map.current) {
           console.log("Reusing existing map instance");
           
-          // Update existing map settings
           map.current.setCenter(center);
           map.current.setZoom(zoom);
           
@@ -94,11 +89,10 @@ export const BaseMap = ({
           center: center,
           zoom: zoom,
           attributionControl: false,
-          failIfMajorPerformanceCaveat: true, // Prevent using low-performance renderers
-          preserveDrawingBuffer: true // Maintain the buffer even when not visible
+          failIfMajorPerformanceCaveat: true,
+          preserveDrawingBuffer: true
         });
 
-        // Wait for the map to initialize before making any changes
         newMap.once('load', () => {
           if (!isMounted) return;
           
@@ -106,9 +100,10 @@ export const BaseMap = ({
           map.current = newMap;
           mapInitialized.current = true;
           
-          // Add controls after the map is fully loaded
           newMap.addControl(new mapboxgl.NavigationControl(), 'top-right');
-          newMap.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-right');
+          
+          const attributionOptions = { compact: true };
+          newMap.addControl(new mapboxgl.AttributionControl(attributionOptions), 'bottom-right');
           
           if (onMapLoad) {
             onMapLoad(newMap);
@@ -129,7 +124,6 @@ export const BaseMap = ({
           }
         });
 
-        // Debug event for style loading
         newMap.on('style.load', () => {
           console.log('Map style fully loaded');
         });
@@ -153,16 +147,12 @@ export const BaseMap = ({
 
     return () => {
       isMounted = false;
-      // Don't remove the map on unmount - just clean up event handlers
-      // This prevents flashing when component remounts
       if (map.current) {
-        // Remove only event handlers to prevent memory leaks
         map.current.off();
       }
     };
   }, [center, zoom, onMapLoad, toast]);
 
-  // Cleanup on component unmount to avoid memory leaks
   useEffect(() => {
     return () => {
       if (map.current) {
