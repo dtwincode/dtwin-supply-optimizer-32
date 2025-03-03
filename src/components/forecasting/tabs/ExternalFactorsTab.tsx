@@ -53,18 +53,25 @@ export const ExternalFactorsTab = ({
   historicalPriceData
 }: ExternalFactorsTabProps) => {
   const { toast } = useToast();
-  const [sliderValue, setSliderValue] = React.useState<number[]>([newEvent.impact ? impactToSlider(newEvent.impact) : 50]);
-
-  const handleEventUpdate = (field: keyof MarketEvent, value: any) => {
-    setNewEvent({ ...newEvent, [field]: value });
-  };
-
+  
   const sliderToImpact = (sliderValue: number): number => {
     return parseFloat(((sliderValue - 50) / 50).toFixed(2));
   };
 
   const impactToSlider = (impactValue: number): number => {
     return (impactValue * 50) + 50;
+  };
+  
+  const formatImpactAsPercentage = (impact: number | undefined): string => {
+    if (impact === undefined) return "0%";
+    const percentage = Math.abs(impact * 100);
+    return `${percentage.toFixed(0)}%`;
+  };
+  
+  const [sliderValue, setSliderValue] = React.useState<number[]>([newEvent.impact ? impactToSlider(newEvent.impact) : 50]);
+
+  const handleEventUpdate = (field: keyof MarketEvent, value: any) => {
+    setNewEvent({ ...newEvent, [field]: value });
   };
 
   React.useEffect(() => {
@@ -93,12 +100,6 @@ export const ExternalFactorsTab = ({
         duration: 1500,
       });
     }
-  };
-
-  const formatImpactAsPercentage = (impact: number | undefined): string => {
-    if (impact === undefined) return "0%";
-    const percentage = Math.abs(impact * 100);
-    return `${percentage.toFixed(0)}%`;
   };
 
   return (
