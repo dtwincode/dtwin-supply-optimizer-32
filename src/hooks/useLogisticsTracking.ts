@@ -46,11 +46,11 @@ export const useLogisticsTracking = (orderId?: string) => {
 
       if (error) throw error;
       
-      // If no data, return sample data for development
+      // If no data, return comprehensive sample data for development
       if (!data || data.length === 0) {
         return [{
           id: 'sample-1',
-          order_id: 'order-123',
+          order_id: 'ORD-20240315-001',
           latitude: 26.3892, // Dammam coordinates
           longitude: 50.1872,
           status: 'in_transit',

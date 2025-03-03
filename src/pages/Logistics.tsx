@@ -13,39 +13,63 @@ import { DocumentList } from "@/components/logistics/documents/DocumentList";
 const poPipelineData = [
   {
     id: "PO-2024-001",
-    supplier: "Supplier A",
+    supplier: "Supplier A Plastics",
     stage: "documentation",
     status: "pending",
-    startDate: "2024-02-15",
-    eta: "2024-02-20",
+    startDate: "2024-03-15",
+    eta: "2024-03-21",
     completionRate: 25,
     blockers: "Awaiting customs clearance",
-    lastUpdated: "2024-02-16 09:30",
+    lastUpdated: "2024-03-17 09:30",
     priority: "high"
   },
   {
     id: "PO-2024-002",
-    supplier: "Supplier B",
+    supplier: "Supplier B Electronics",
     stage: "shipping",
     status: "in-progress",
-    startDate: "2024-02-14",
-    eta: "2024-02-19",
+    startDate: "2024-03-14",
+    eta: "2024-03-20",
     completionRate: 60,
     blockers: null,
-    lastUpdated: "2024-02-16 10:15",
+    lastUpdated: "2024-03-17 10:15",
     priority: "medium"
   },
   {
     id: "PO-2024-003",
-    supplier: "Supplier C",
+    supplier: "Supplier C Manufacturing",
     stage: "quality-check",
     status: "delayed",
-    startDate: "2024-02-13",
-    eta: "2024-02-18",
+    startDate: "2024-03-10",
+    eta: "2024-03-16",
     completionRate: 80,
     blockers: "Failed quality inspection",
-    lastUpdated: "2024-02-16 11:00",
+    lastUpdated: "2024-03-17 11:00",
     priority: "high"
+  },
+  {
+    id: "PO-2024-004",
+    supplier: "Supplier D Components",
+    stage: "customs-clearance",
+    status: "pending",
+    startDate: "2024-03-12",
+    eta: "2024-03-19",
+    completionRate: 45,
+    blockers: "Missing documentation",
+    lastUpdated: "2024-03-17 12:30",
+    priority: "medium"
+  },
+  {
+    id: "PO-2024-005",
+    supplier: "Supplier E Materials",
+    stage: "receiving",
+    status: "in-progress",
+    startDate: "2024-03-08",
+    eta: "2024-03-18",
+    completionRate: 90,
+    blockers: null,
+    lastUpdated: "2024-03-17 14:45",
+    priority: "low"
   }
 ];
 
@@ -105,12 +129,12 @@ const Logistics = () => {
                 </div>
                 <div className="space-y-8">
                   <DocumentUpload 
-                    orderId="sample-order-id" 
+                    orderId="ORD-20240315-001" 
                     onUploadComplete={() => window.location.reload()}
                   />
                   <div className="pt-4 border-t">
                     <h4 className="text-sm font-medium mb-4">Uploaded Documents</h4>
-                    <DocumentList orderId="sample-order-id" />
+                    <DocumentList orderId="ORD-20240315-001" />
                   </div>
                 </div>
               </div>
