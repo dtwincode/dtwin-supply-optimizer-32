@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -135,12 +136,12 @@ export const ExternalFactorsTab = ({
       
       toast({
         title: "Success",
-        description: `Real-time weather data for ${data.location || localWeatherLocation} fetched successfully`,
+        description: `Weather data for ${data.location || localWeatherLocation} fetched successfully`,
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to fetch weather data. Please check the location name and try again.",
+        description: "Failed to fetch weather data. Using simulated data instead.",
         variant: "destructive",
       });
       console.error("Weather fetch error:", error);
