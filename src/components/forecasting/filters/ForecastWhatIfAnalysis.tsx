@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,6 @@ import { type PriceData } from "@/utils/forecasting";
 import { generateScenario, saveScenario } from "@/utils/forecasting/scenarios";
 import { ForecastDataPoint } from "@/types/forecasting";
 
-// Dummy data for when real data is not available
 const DUMMY_FORECAST_DATA: ForecastDataPoint[] = [
   { 
     id: "1", week: "2024-01-01", forecast: 120, actual: 118, sku: "SKU001", variance: -2,
@@ -110,7 +108,6 @@ const DUMMY_FORECAST_DATA: ForecastDataPoint[] = [
   }
 ];
 
-// Generate more dummy data for longer time periods
 const generateExtendedDummyData = (days: number): ForecastDataPoint[] => {
   if (days <= DUMMY_FORECAST_DATA.length * 7) {
     return DUMMY_FORECAST_DATA.slice(0, Math.ceil(days / 7));
@@ -127,16 +124,15 @@ const generateExtendedDummyData = (days: number): ForecastDataPoint[] => {
     lastDate = new Date(lastDate);
     lastDate.setDate(lastDate.getDate() + 7);
     
-    // Add some randomness to the forecast
-    const randomVariance = Math.floor(Math.random() * 20) - 10; // -10 to +10
+    const randomVariance = Math.floor(Math.random() * 20) - 10;
     lastForecast = lastForecast + randomVariance;
-    if (lastForecast < 50) lastForecast = 50; // Minimum value
+    if (lastForecast < 50) lastForecast = 50;
     
     result.push({
       id: id.toString(),
       week: lastDate.toISOString().split('T')[0],
       forecast: lastForecast,
-      actual: lastForecast + Math.floor(Math.random() * 10) - 5, // Random actual
+      actual: lastForecast + Math.floor(Math.random() * 10) - 5,
       sku: "SKU001",
       variance: Math.floor(Math.random() * 10) - 5,
       region: "Global", 
@@ -161,10 +157,8 @@ const generateExtendedDummyData = (days: number): ForecastDataPoint[] => {
   return result;
 };
 
-// Sample scenario data with more dramatic changes
 const DUMMY_SCENARIO: number[] = [123, 142, 135, 152, 160, 175, 180, 195, 185, 205, 215, 230];
 
-// Generate extended scenario data based on days
 const generateExtendedScenario = (days: number): number[] => {
   if (days <= DUMMY_SCENARIO.length * 7) {
     return DUMMY_SCENARIO.slice(0, Math.ceil(days / 7));
@@ -176,11 +170,10 @@ const generateExtendedScenario = (days: number): number[] => {
   const weeksNeeded = Math.ceil(days / 7) - DUMMY_SCENARIO.length;
   
   for (let i = 0; i < weeksNeeded; i++) {
-    // Add trend with some randomness
-    const trend = 5; // Upward trend
-    const randomVariance = Math.floor(Math.random() * 30) - 10; // -10 to +20
+    const trend = 5;
+    const randomVariance = Math.floor(Math.random() * 30) - 10;
     lastValue = lastValue + trend + randomVariance;
-    if (lastValue < 100) lastValue = 100; // Minimum value
+    if (lastValue < 100) lastValue = 100;
     
     result.push(lastValue);
   }
@@ -222,23 +215,21 @@ export const ForecastWhatIfAnalysis = ({
   const [generatedScenario, setGeneratedScenario] = useState<number[]>([]);
   const [scenarioName, setScenarioName] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [forecastPeriodLabel, setForecastPeriodLabel] = useState<string>("30 days");
+  const [forecastPeriodLabel, setForecastPeriodLabel] = useState<string>("Weekly");
 
-  // Update the period label when the period changes
   useEffect(() => {
     const days = parseInt(forecastPeriod);
-    if (days <= 30) {
-      setForecastPeriodLabel(`${days} days`);
+    if (days <= 7) {
+      setForecastPeriodLabel("Weekly");
+    } else if (days <= 30) {
+      setForecastPeriodLabel("Monthly");
     } else if (days <= 90) {
-      setForecastPeriodLabel(`${Math.round(days / 30)} months`);
-    } else if (days <= 180) {
-      setForecastPeriodLabel(`${Math.round(days / 90)} quarters`);
+      setForecastPeriodLabel("Quarterly");
     } else {
-      setForecastPeriodLabel(`${Math.round(days / 365)} year${days > 365 ? 's' : ''}`);
+      setForecastPeriodLabel("Annually");
     }
   }, [forecastPeriod]);
 
-  // Generate a new scenario when parameters change
   useEffect(() => {
     if (filteredData.length > 0) {
       const baseForecast = filteredData.map(item => item.forecast || 0);
@@ -255,7 +246,6 @@ export const ForecastWhatIfAnalysis = ({
       }, timeData);
       setGeneratedScenario(newScenario);
     } else {
-      // Use dummy data when no real data is available
       const days = parseInt(forecastPeriod);
       setGeneratedScenario(generateExtendedScenario(days));
     }
@@ -301,7 +291,6 @@ export const ForecastWhatIfAnalysis = ({
     }
   };
   
-  // Get data for the chart - use actual data if available, otherwise use dummy data
   const getChartData = () => {
     const days = parseInt(forecastPeriod);
     
@@ -312,7 +301,6 @@ export const ForecastWhatIfAnalysis = ({
         scenario: generatedScenario[i] || 0
       }));
     } else {
-      // Use dummy data with the appropriate period
       const dummyData = generateExtendedDummyData(days);
       return dummyData.map((d, i) => ({
         week: d.week,
@@ -322,31 +310,30 @@ export const ForecastWhatIfAnalysis = ({
     }
   };
 
-  // Format X-axis labels based on forecast period
   const formatXAxis = (value: string) => {
     const days = parseInt(forecastPeriod);
     const date = new Date(value);
     
-    if (days <= 60) {
-      // For shorter periods, show detailed dates
+    if (days <= 7) {
+      return new Date(value).toLocaleDateString(undefined, { weekday: 'short' });
+    } else if (days <= 30) {
       return new Date(value).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-    } else if (days <= 180) {
-      // For medium periods, show month only
+    } else if (days <= 90) {
       return new Date(value).toLocaleDateString(undefined, { month: 'short' });
     } else {
-      // For longer periods, show quarter or month/year
       const month = date.getMonth();
       const year = date.getFullYear();
       
       if (month % 3 === 0) {
         return `Q${Math.floor(month / 3) + 1} ${year}`;
       } else {
-        return '';  // Only show quarter markers for clarity
+        return '';
       }
     }
   };
   
-  return <Card className="p-6">
+  return (
+    <Card className="p-6">
       <div className="flex flex-col gap-6">
         <div className="flex justify-between items-center">
           <div className="flex gap-2 items-center">
@@ -424,5 +411,6 @@ export const ForecastWhatIfAnalysis = ({
           </ResponsiveContainer>
         </div>
       </div>
-    </Card>;
+    </Card>
+  );
 };

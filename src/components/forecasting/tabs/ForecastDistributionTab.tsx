@@ -67,7 +67,7 @@ const StepHeader = ({ number, title, description }: { number: number; title: str
 export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableData: any[] }) => {
   const [selectedSKU, setSelectedSKU] = useState<string>("SKU001");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [forecastPeriod, setForecastPeriod] = useState<string>("7");
+  const [forecastPeriod, setForecastPeriod] = useState<string>("weekly");
   const [disaggregationRules, setDisaggregationRules] = useState<DisaggregationRule[]>([
     {
       id: "rule1",
@@ -142,14 +142,26 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
   ]);
 
   const periodOptions = [
-    { value: "7", label: "7 days" },
-    { value: "14", label: "14 days" },
-    { value: "30", label: "30 days" },
-    { value: "60", label: "60 days" },
-    { value: "90", label: "90 days" },
-    { value: "180", label: "180 days" },
-    { value: "365", label: "365 days" },
+    { value: "weekly", label: "Weekly" },
+    { value: "monthly", label: "Monthly" },
+    { value: "quarterly", label: "Quarterly" },
+    { value: "annually", label: "Annually" },
   ];
+
+  const getForecastPeriodInDays = (): string => {
+    switch (forecastPeriod) {
+      case "weekly":
+        return "7";
+      case "monthly":
+        return "30";
+      case "quarterly":
+        return "90";
+      case "annually":
+        return "365";
+      default:
+        return "7";
+    }
+  };
 
   const applyDisaggregationRule = (sku: string, ruleId: string) => {
     const rule = disaggregationRules.find(r => r.id === ruleId);
@@ -244,7 +256,7 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
           <StepHeader 
             number={1}
             title="Configure Distribution Parameters"
-            description="Set the forecast timeline and select products for distribution planning"
+            description="Set the forecast timeline for distribution planning"
           />
         </div>
         
@@ -264,22 +276,6 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
               </SelectContent>
             </Select>
           </Card>
-
-          <Card className="p-6">
-            <h4 className="text-base font-medium mb-4">Product Selection</h4>
-            <Select value={selectedSKU} onValueChange={setSelectedSKU}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select SKU" />
-              </SelectTrigger>
-              <SelectContent>
-                {distributionData.map((item) => (
-                  <SelectItem key={item.sku} value={item.sku}>
-                    {item.sku}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Card>
         </div>
       </div>
 
@@ -293,7 +289,7 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
         <DistributionQuantitiesTable
           distributionData={distributionData}
           onUpdateDistributionData={setDistributionData}
-          forecastPeriod={forecastPeriod}
+          forecastPeriod={getForecastPeriodInDays()}
         />
       </div>
 
@@ -308,7 +304,7 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
           onReconciliationComplete={() => {
             // Handle reconciliation completion
           }}
-          forecastPeriod={forecastPeriod}
+          forecastPeriod={getForecastPeriodInDays()}
         />
       </div>
 
@@ -325,7 +321,7 @@ export const ForecastDistributionTab = ({ forecastTableData }: { forecastTableDa
             distributionData={distributionData}
             weeklyDistribution={generateWeeklyDistribution(selectedSKU)}
             onSelectSKU={setSelectedSKU}
-            forecastPeriod={forecastPeriod}
+            forecastPeriod={getForecastPeriodInDays()}
           />
           
           <DistributionCalendar

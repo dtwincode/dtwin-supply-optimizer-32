@@ -1,35 +1,36 @@
+
 import { useState, useEffect } from "react";
 import { ForecastWhatIfAnalysis } from "../filters/ForecastWhatIfAnalysis";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { type PriceData } from "@/utils/forecasting";
 import { ForecastDataPoint } from "@/types/forecasting";
+
 interface WhatIfAnalysisTabProps {
   filteredData: ForecastDataPoint[];
   whatIfScenario: number[];
 }
+
 export const WhatIfAnalysisTab = ({
   filteredData,
   whatIfScenario
 }: WhatIfAnalysisTabProps) => {
   const [whatIfParams, setWhatIfParams] = useState({
     growthRate: 0.05,
-    // Initialize with 5% growth rate
     seasonality: 0.1,
-    // Initialize with 10% seasonality impact
     events: []
   });
+  
   const [priceData, setPriceData] = useState<PriceData>({
     basePrice: 100,
-    // Initialize with a base price of 100
     elasticity: -1.5,
-    // Initialize with price elasticity of -1.5
     historicalPrices: []
   });
+  
   const [selectedSKU, setSelectedSKU] = useState<string>("");
   const [skuOptions, setSkuOptions] = useState<string[]>([]);
   const [skuFilteredData, setSkuFilteredData] = useState<ForecastDataPoint[]>([]);
-  const [forecastPeriod, setForecastPeriod] = useState<string>("30");
+  const [forecastPeriod, setForecastPeriod] = useState<string>("weekly");
 
   // Extract unique SKUs from filteredData
   useEffect(() => {
@@ -56,39 +57,68 @@ export const WhatIfAnalysisTab = ({
       setSkuFilteredData([]);
     }
   }, [selectedSKU, filteredData]);
-  const periodOptions = [{
-    value: "7",
-    label: "7 days"
-  }, {
-    value: "14",
-    label: "14 days"
-  }, {
-    value: "30",
-    label: "30 days"
-  }, {
-    value: "60",
-    label: "60 days"
-  }, {
-    value: "90",
-    label: "90 days"
-  }, {
-    value: "180",
-    label: "180 days"
-  }, {
-    value: "365",
-    label: "365 days"
-  }];
-  return <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        
-        
-        
+  
+  const periodOptions = [
+    { value: "weekly", label: "Weekly" },
+    { value: "monthly", label: "Monthly" },
+    { value: "quarterly", label: "Quarterly" },
+    { value: "annually", label: "Annually" },
+  ];
+
+  // Convert forecastPeriod to days for internal calculations
+  const getForecastPeriodInDays = (): string => {
+    switch (forecastPeriod) {
+      case "weekly":
+        return "7";
+      case "monthly":
+        return "30";
+      case "quarterly":
+        return "90";
+      case "annually":
+        return "365";
+      default:
+        return "7";
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+        <Card className="p-6">
+          <h4 className="text-base font-medium mb-4">Forecast Timeline</h4>
+          <Select value={forecastPeriod} onValueChange={setForecastPeriod}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select period" />
+            </SelectTrigger>
+            <SelectContent>
+              {periodOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Card>
       </div>
 
-      {selectedSKU ? <ForecastWhatIfAnalysis filteredData={skuFilteredData} whatIfParams={whatIfParams} setWhatIfParams={setWhatIfParams} priceData={priceData} setPriceData={setPriceData} whatIfScenario={whatIfScenario} selectedSKU={selectedSKU} forecastPeriod={forecastPeriod} /> : <Card className="p-6">
+      {selectedSKU ? (
+        <ForecastWhatIfAnalysis 
+          filteredData={skuFilteredData} 
+          whatIfParams={whatIfParams} 
+          setWhatIfParams={setWhatIfParams} 
+          priceData={priceData} 
+          setPriceData={setPriceData} 
+          whatIfScenario={whatIfScenario} 
+          selectedSKU={selectedSKU} 
+          forecastPeriod={getForecastPeriodInDays()} 
+        />
+      ) : (
+        <Card className="p-6">
           <div className="flex items-center justify-center h-32">
             <p className="text-muted-foreground">Please select a SKU to generate what-if scenarios</p>
           </div>
-        </Card>}
-    </div>;
+        </Card>
+      )}
+    </div>
+  );
 };
