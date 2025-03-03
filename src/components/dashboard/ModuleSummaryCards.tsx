@@ -39,7 +39,7 @@ const modulesSummary = [
     icon: ShoppingBag,
     stats: "2.1M",
     statsKey: "pipelineValue",
-    prefix: "﷼",
+    prefix: "₸",
     route: "/sales-planning",
     color: "text-purple-500",
     bgColor: "bg-purple-50"

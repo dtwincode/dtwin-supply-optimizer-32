@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
 import { TabsContent } from "@/components/ui/tabs";
@@ -16,9 +17,10 @@ import { DecouplingPointDialog } from "@/components/inventory/DecouplingPointDia
 import { inventoryData } from "@/data/inventoryData";
 import { InventoryItem } from "@/types/inventory";
 import { SKUClassifications } from "@/components/inventory/SKUClassifications";
+import { SKUClassification } from "@/components/inventory/types";
 
 // Mock classification data for the showcase
-const mockClassifications = [
+const mockClassifications: SKUClassification[] = [
   {
     sku: "SKU001",
     classification: {
