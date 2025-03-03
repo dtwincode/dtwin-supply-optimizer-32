@@ -1,11 +1,2 @@
 
 project_id = "mttzjxktvbsixjaqiuxq"
-
-[api]
-enabled = true
-port = 54321
-schemas = ["public", "storage"]
-
-[functions]
-[functions.process-ai-query]
-verify_jwt = false

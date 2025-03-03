@@ -27,6 +27,25 @@ const outputFormats = [
   { id: "report", name: "Detailed Report" },
 ];
 
+// Context about the application to provide to the AI
+const appContext = `
+This is dtwin, a cloud-based demand-driven supply chain planning platform. It helps optimize inventory, 
+improve forecasting accuracy, and enhance supply chain resilience using Demand-Driven Material 
+Requirements Planning (DDMRP) principles. The platform integrates real-time data, AI analytics, 
+and automation for efficient supply chain execution.
+
+Key features:
+- Inventory optimization and management
+- Demand forecasting with accuracy metrics
+- Supply chain visibility and resilience tools
+- Distribution planning and analysis
+- Lead time tracking and optimization
+- Buffer management based on DDMRP principles
+- What-if scenario planning
+
+The user is a demand planner looking to analyze and optimize their supply chain.
+`;
+
 export const AskAI = () => {
   const [query, setQuery] = useState("");
   const [selectedFormat, setSelectedFormat] = useState("text");
@@ -67,7 +86,12 @@ export const AskAI = () => {
           'Authorization': `Bearer ${supabase.auth.getSession() ? 'authenticated' : 'anon'}`,
           'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im10dHpqeGt0dmJzaXhqYXFpdXhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkxNjk4NDEsImV4cCI6MjA1NDc0NTg0MX0.-6wiezDQfeFz3ecyuHP4A6QkcRRxBG4j8pxyAp7hkx8'
         },
-        body: JSON.stringify({ prompt: query }),
+        body: JSON.stringify({ 
+          prompt: query,
+          context: appContext,
+          format: selectedFormat,
+          timestamp: new Date().toISOString()
+        }),
       });
 
       if (!response.ok) {

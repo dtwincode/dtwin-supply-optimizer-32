@@ -1,55 +1,87 @@
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
+// Define CORS headers
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-  'Access-Control-Max-Age': '86400',
 };
 
 serve(async (req) => {
-  console.log('Function invoked:', req.method);
-
+  console.log('Process AI Query function called');
+  
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 204,
-      headers: corsHeaders,
-    });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Validate the OpenAI API key
     if (!openAIApiKey) {
-      console.error('OpenAI API key not found');
-      throw new Error('OpenAI API key not configured');
+      console.error('OpenAI API key not configured');
+      return new Response(
+        JSON.stringify({ error: 'OpenAI API key not configured in the environment variables' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    // Parse the request body safely
-    let prompt;
+    // Parse the request body
+    let body;
     try {
-      const body = await req.text();
-      console.log('Raw request body:', body);
-      
-      if (!body) {
-        throw new Error('Empty request body');
-      }
-      
-      const parsedBody = JSON.parse(body);
-      prompt = parsedBody.prompt;
-      
-      console.log('Parsed prompt:', prompt?.substring(0, 100));
-    } catch (parseError) {
-      console.error('Error parsing request body:', parseError);
-      throw new Error(`Invalid request format: ${parseError.message}`);
+      body = await req.json();
+    } catch (e) {
+      console.error('Error parsing request body:', e);
+      return new Response(
+        JSON.stringify({ error: 'Invalid request body' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
+    const { prompt, context, format = 'text', timestamp } = body;
+    
     if (!prompt) {
-      throw new Error('No prompt provided');
+      console.error('Missing prompt in request');
+      return new Response(
+        JSON.stringify({ error: 'Missing prompt in request' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
+    console.log(`Processing query: "${prompt}"`);
+    console.log(`Requested format: ${format}`);
+    console.log(`Timestamp: ${timestamp}`);
+
+    // Build the system message with enhanced context for supply chain domain
+    const systemPrompt = `
+You are an AI assistant for dtwin, a cloud-based demand-driven supply chain planning platform.
+Your role is to help demand planners analyze and optimize their supply chain.
+
+${context || ''}
+
+Current capabilities:
+- You can answer questions about supply chain management concepts
+- You can explain DDMRP principles and methodologies
+- You can provide insights and best practices for demand planning
+- You can suggest ways to improve forecast accuracy and inventory management
+
+When responding:
+- Be precise and concise in your explanations
+- Provide actionable insights when possible
+- Format your response in a way that's easy to understand
+- When you don't know something specific to the user's data, acknowledge it but provide general best practices
+
+Output format: ${format === 'chart' ? 'Describe what the chart should show and what insights it would reveal' : 
+               format === 'report' ? 'Provide a structured report with sections and insights' : 
+               'Clear and concise textual response'}
+
+Current timestamp: ${timestamp || new Date().toISOString()}
+`;
+
+    // Make the API call to OpenAI
+    console.log('Calling OpenAI API...');
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -57,54 +89,50 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o-mini', // Using the fast and efficient model
         messages: [
-          {
-            role: 'system',
-            content: 'You are a DDMRP and Supply Chain expert that helps analyze supply chain data and provide detailed, actionable insights.'
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: prompt }
         ],
+        temperature: 0.7,
+        max_tokens: 1000,
       }),
     });
 
+    // Process the OpenAI response
     if (!response.ok) {
       const errorData = await response.json();
       console.error('OpenAI API error:', errorData);
-      throw new Error(`OpenAI API error: ${errorData.error?.message || 'Unknown error'}`);
+      return new Response(
+        JSON.stringify({ error: `OpenAI API error: ${errorData.error?.message || 'Unknown error'}` }),
+        { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const data = await response.json();
     console.log('OpenAI response received');
+    
+    if (!data.choices || data.choices.length === 0) {
+      console.error('Unexpected OpenAI response format:', data);
+      return new Response(
+        JSON.stringify({ error: 'Invalid response from OpenAI' }),
+        { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
+    const generatedText = data.choices[0].message.content;
+    
+    // Return the successful response
     return new Response(
-      JSON.stringify({ generatedText: data.choices[0].message.content }), 
-      { 
-        status: 200,
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json',
-        },
-      }
+      JSON.stringify({ generatedText }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Error in process-ai-query:', error);
-    
+    // Catch and log any unexpected errors
+    console.error('Unexpected error in process-ai-query:', error);
     return new Response(
-      JSON.stringify({ 
-        error: error.message || 'Unknown error occurred',
-        details: error.toString(),
-      }), 
-      { 
-        status: 500,
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json',
-        },
-      }
+      JSON.stringify({ error: `Unexpected error: ${error.message}` }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
