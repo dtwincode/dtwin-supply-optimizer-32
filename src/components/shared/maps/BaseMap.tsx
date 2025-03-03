@@ -108,7 +108,7 @@ export const BaseMap = ({
           
           // Add controls after the map is fully loaded
           newMap.addControl(new mapboxgl.NavigationControl(), 'top-right');
-          newMap.addControl(new mapboxgl.AttributionControl(), 'bottom-right');
+          newMap.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-right');
           
           if (onMapLoad) {
             onMapLoad(newMap);
