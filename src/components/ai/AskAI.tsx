@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Download, ChartBar, FileText, Send } from "lucide-react";
+import { Search, Download, ChartBar, FileText, Send, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
@@ -138,6 +139,18 @@ export const AskAI = () => {
                 </div>
               </div>
             ))}
+            {messages.length === 0 && (
+              <div className="flex items-center justify-center h-64 text-muted-foreground">
+                <div className="text-center">
+                  <Search className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p className="text-lg">Ask anything about your supply chain data</p>
+                  <p className="text-sm mt-2">
+                    Examples: "What products have the highest demand variability?", 
+                    "Analyze my forecast accuracy trends"
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </ScrollArea>
 
@@ -187,7 +200,10 @@ export const AskAI = () => {
                 className="px-4"
               >
                 {isLoading ? (
-                  "Processing..."
+                  <div className="flex items-center">
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    <span>Processing</span>
+                  </div>
                 ) : (
                   <Send className="h-4 w-4" />
                 )}
