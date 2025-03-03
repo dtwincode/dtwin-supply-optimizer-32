@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -238,16 +239,16 @@ export const ExternalFactorsTab = ({
                   </span>
                 </div>
                 
-                <div className="pt-6 px-1 pb-4">
-                  <div className="flex justify-between text-sm mb-2">
+                <div className="pt-4 px-1 pb-2">
+                  <div className="flex justify-between text-sm mb-1">
                     <span className="text-red-500 font-medium">-100%</span>
                     <span className="font-medium">No Impact</span>
                     <span className="text-green-500 font-medium">+100%</span>
                   </div>
                   
-                  <div className="py-6">
+                  <div className="py-4">
                     <div className="relative group">
-                      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-red-500 via-gray-200 to-green-500 opacity-40 h-4"></div>
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-red-500 via-gray-200 to-green-500 opacity-30 h-2"></div>
                       
                       <Slider
                         value={sliderValue}
@@ -256,7 +257,7 @@ export const ExternalFactorsTab = ({
                         step={1}
                         onValueChange={handleSliderChange}
                         aria-label="Impact on demand percentage"
-                        className="my-4"
+                        className="my-2"
                       />
                     </div>
                   </div>
