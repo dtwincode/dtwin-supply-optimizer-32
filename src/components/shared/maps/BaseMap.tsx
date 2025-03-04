@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -102,6 +103,7 @@ export const BaseMap = ({
           
           newMap.addControl(new mapboxgl.NavigationControl(), 'top-right');
           
+          // Fixed: Added proper options object to AttributionControl constructor
           const attributionOptions = { compact: true };
           newMap.addControl(new mapboxgl.AttributionControl(attributionOptions), 'bottom-right');
           

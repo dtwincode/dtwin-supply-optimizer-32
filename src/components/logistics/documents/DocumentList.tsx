@@ -30,7 +30,7 @@ export const DocumentList = ({ orderId }: DocumentListProps) => {
             created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
             updated_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
             status: 'approved',
-            version: '1.0',
+            version: 1.0, // Changed from string to number
             metadata: {}
           },
           {
@@ -41,7 +41,7 @@ export const DocumentList = ({ orderId }: DocumentListProps) => {
             created_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
             updated_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
             status: 'approved',
-            version: '1.0',
+            version: 1.0, // Changed from string to number
             metadata: {}
           },
           {
@@ -52,7 +52,7 @@ export const DocumentList = ({ orderId }: DocumentListProps) => {
             created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
             updated_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
             status: 'approved',
-            version: '1.0',
+            version: 1.0, // Changed from string to number
             metadata: {}
           },
           {
@@ -63,7 +63,7 @@ export const DocumentList = ({ orderId }: DocumentListProps) => {
             created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
             updated_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
             status: 'pending',
-            version: '1.0',
+            version: 1.0, // Changed from string to number
             metadata: {}
           }
         ]);
