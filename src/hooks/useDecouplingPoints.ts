@@ -1,170 +1,207 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { DecouplingPoint, DecouplingNetwork } from '@/types/inventory/decouplingTypes';
+import { DecouplingPoint, DecouplingNode, DecouplingLink, DecouplingNetwork } from '@/types/inventory/decouplingTypes';
+import { useToast } from '@/hooks/use-toast';
+import { getDecouplingPoints, createDecouplingPoint, updateDecouplingPoint, deleteDecouplingPoint } from '@/services/inventoryService';
 
-export const useDecouplingPoints = () => {
-  const [network, setNetwork] = useState<DecouplingNetwork>({ nodes: [], links: [] });
+export function useDecouplingPoints() {
   const [points, setPoints] = useState<DecouplingPoint[]>([]);
+  const [network, setNetwork] = useState<DecouplingNetwork>({ nodes: [], links: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const { toast } = useToast();
+
+  const fetchDecouplingPoints = useCallback(async () => {
+    setLoading(true);
+    try {
+      const fetchedPoints = await getDecouplingPoints();
+      setPoints(fetchedPoints);
+      
+      // Build the network based on fetched points
+      await buildNetwork(fetchedPoints);
+      
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching decoupling points:', err);
+      setError(err instanceof Error ? err : new Error('Failed to fetch decoupling points'));
+      toast({
+        title: "Error",
+        description: "Failed to load decoupling points",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
+
+  const buildNetwork = useCallback(async (decouplingPoints: DecouplingPoint[]) => {
+    try {
+      // Fetch locations
+      const { data: locations } = await supabase
+        .from('locations')
+        .select('*');
+
+      // Create nodes and links
+      const nodes: DecouplingNode[] = [];
+      const links: DecouplingLink[] = [];
+
+      // Add location nodes
+      if (locations) {
+        locations.forEach((location) => {
+          nodes.push({
+            id: location.id,
+            type: 'location',
+            label: location.name,
+            level: location.level || 0,
+            metadata: { 
+              address: location.address,
+              city: location.city,
+              country: location.country
+            }
+          });
+        });
+      }
+
+      // Add decoupling point nodes
+      decouplingPoints.forEach(point => {
+        const decouplingNode: DecouplingNode = {
+          id: `dp-${point.id}`,
+          type: 'decoupling',
+          label: point.description || `${point.type} point`,
+          parentId: point.locationId,
+          level: 1, // Child of location
+          metadata: { type: point.type },
+          decouplingType: point.type
+        };
+        
+        nodes.push(decouplingNode);
+        
+        // Add link from location to decoupling point
+        links.push({
+          source: point.locationId,
+          target: `dp-${point.id}`
+        });
+      });
+
+      // Look for supply chain connections to create links
+      const { data: connections } = await supabase
+        .from('supply_chain_connections')
+        .select('*');
+
+      if (connections) {
+        connections.forEach(conn => {
+          links.push({
+            source: conn.source_id,
+            target: conn.target_id,
+            label: conn.connection_type
+          });
+        });
+      }
+
+      setNetwork({ nodes, links });
+    } catch (err) {
+      console.error('Error building network:', err);
+      setError(err instanceof Error ? err : new Error('Failed to build network'));
+    }
+  }, []);
 
   useEffect(() => {
     fetchDecouplingPoints();
-  }, []);
+  }, [fetchDecouplingPoints]);
 
-  const fetchDecouplingPoints = async () => {
+  const createPoint = useCallback(async (point: Omit<DecouplingPoint, 'id'>) => {
     try {
-      setLoading(true);
+      const newPoint = await createDecouplingPoint(point);
       
-      // Fetch decoupling points
-      const { data: pointsData, error: pointsError } = await supabase
-        .from('decoupling_points')
-        .select('*');
+      setPoints(prev => [...prev, newPoint]);
       
-      if (pointsError) throw new Error(pointsError.message);
+      // Update network
+      await buildNetwork([...points, newPoint]);
       
-      // If no data is returned, provide mock data for demonstration
-      const finalPoints: DecouplingPoint[] = pointsData?.length 
-        ? pointsData 
-        : [
-            {
-              id: 'dp-001',
-              locationId: 'loc-001',
-              type: 'strategic',
-              description: 'Main distribution center',
-              bufferProfileId: 'bp-001'
-            },
-            {
-              id: 'dp-002',
-              locationId: 'loc-002',
-              type: 'customer_order',
-              description: 'Regional fulfillment center',
-              bufferProfileId: 'bp-002'
-            }
-          ];
+      toast({
+        title: "Success",
+        description: "Decoupling point created successfully",
+      });
       
-      setPoints(finalPoints);
+      return { success: true, point: newPoint };
+    } catch (err) {
+      console.error('Error creating decoupling point:', err);
+      toast({
+        title: "Error",
+        description: "Failed to create decoupling point",
+        variant: "destructive",
+      });
+      return { success: false };
+    }
+  }, [points, buildNetwork, toast]);
+
+  const updatePoint = useCallback(async (pointData: Partial<DecouplingPoint> & { id: string }) => {
+    try {
+      const updatedPoint = await updateDecouplingPoint(pointData);
       
-      // Generate network visualization data
-      const nodes = finalPoints.map(point => ({
-        id: point.id,
-        type: 'decoupling',
-        label: point.locationId,
-        level: 1,
-        metadata: { type: point.type },
-        decouplingType: point.type
-      }));
-      
-      // Add some location nodes
-      nodes.push(
-        {
-          id: 'supplier-1',
-          type: 'location',
-          label: 'Supplier A',
-          level: 0,
-          metadata: {}
-        },
-        {
-          id: 'supplier-2',
-          type: 'location',
-          label: 'Supplier B',
-          level: 0,
-          metadata: {}
-        },
-        {
-          id: 'customer-1',
-          type: 'location',
-          label: 'Customer X',
-          level: 2,
-          metadata: {}
-        }
+      setPoints(prev => 
+        prev.map(p => p.id === updatedPoint.id ? updatedPoint : p)
       );
       
-      // Create links
-      const links = [
-        { source: 'supplier-1', target: 'dp-001' },
-        { source: 'supplier-2', target: 'dp-001' },
-        { source: 'supplier-2', target: 'dp-002' },
-        { source: 'dp-001', target: 'dp-002' },
-        { source: 'dp-002', target: 'customer-1' }
-      ];
+      // Update network
+      const updatedPoints = points.map(p => 
+        p.id === updatedPoint.id ? updatedPoint : p
+      );
+      await buildNetwork(updatedPoints);
       
-      setNetwork({ nodes, links });
-      setLoading(false);
+      toast({
+        title: "Success",
+        description: "Decoupling point updated successfully",
+      });
+      
+      return { success: true, point: updatedPoint };
     } catch (err) {
-      console.error("Error fetching decoupling points:", err);
-      setError(err instanceof Error ? err : new Error('Unknown error'));
-      setLoading(false);
+      console.error('Error updating decoupling point:', err);
+      toast({
+        title: "Error",
+        description: "Failed to update decoupling point",
+        variant: "destructive",
+      });
+      return { success: false };
     }
-  };
+  }, [points, buildNetwork, toast]);
 
-  const addDecouplingPoint = async (point: Omit<DecouplingPoint, 'id'>) => {
+  const deletePoint = useCallback(async (id: string) => {
     try {
-      const { data, error } = await supabase
-        .from('decoupling_points')
-        .insert(point)
-        .select()
-        .single();
+      await deleteDecouplingPoint(id);
       
-      if (error) throw new Error(error.message);
+      const updatedPoints = points.filter(p => p.id !== id);
+      setPoints(updatedPoints);
       
-      setPoints(prev => [...prev, data as DecouplingPoint]);
-      return data;
+      // Update network
+      await buildNetwork(updatedPoints);
+      
+      toast({
+        title: "Success",
+        description: "Decoupling point deleted successfully",
+      });
+      
+      return { success: true };
     } catch (err) {
-      console.error("Error adding decoupling point:", err);
-      throw err;
+      console.error('Error deleting decoupling point:', err);
+      toast({
+        title: "Error",
+        description: "Failed to delete decoupling point",
+        variant: "destructive",
+      });
+      return { success: false };
     }
-  };
-
-  const updateDecouplingPoint = async (point: DecouplingPoint) => {
-    try {
-      const { data, error } = await supabase
-        .from('decoupling_points')
-        .update({
-          locationId: point.locationId,
-          type: point.type,
-          description: point.description,
-          bufferProfileId: point.bufferProfileId
-        })
-        .eq('id', point.id)
-        .select()
-        .single();
-      
-      if (error) throw new Error(error.message);
-      
-      setPoints(prev => prev.map(p => p.id === point.id ? (data as DecouplingPoint) : p));
-      return data;
-    } catch (err) {
-      console.error("Error updating decoupling point:", err);
-      throw err;
-    }
-  };
-
-  const deleteDecouplingPoint = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from('decoupling_points')
-        .delete()
-        .eq('id', id);
-      
-      if (error) throw new Error(error.message);
-      
-      setPoints(prev => prev.filter(p => p.id !== id));
-    } catch (err) {
-      console.error("Error deleting decoupling point:", err);
-      throw err;
-    }
-  };
+  }, [points, buildNetwork, toast]);
 
   return {
-    network,
     points,
+    network,
     loading,
     error,
-    addDecouplingPoint,
-    updateDecouplingPoint,
-    deleteDecouplingPoint,
-    refresh: fetchDecouplingPoints
+    fetchDecouplingPoints,
+    createPoint,
+    updatePoint,
+    deletePoint
   };
-};
+}

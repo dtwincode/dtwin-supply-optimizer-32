@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { BufferProfile } from '@/types/inventory';
-import { getBufferProfiles, saveBufferProfile } from '@/services/inventoryService';
+import { getBufferProfiles, createBufferProfile, updateBufferProfile } from '@/services/inventoryService';
 import { useToast } from '@/hooks/use-toast';
 
 export function useBufferProfiles() {
@@ -32,7 +32,16 @@ export function useBufferProfiles() {
 
   const createOrUpdateProfile = useCallback(async (profile: BufferProfile) => {
     try {
-      const savedProfile = await saveBufferProfile(profile);
+      let savedProfile: BufferProfile;
+      
+      if (profile.id) {
+        savedProfile = await updateBufferProfile(profile);
+      } else {
+        // Remove id property for creation
+        const { id, ...profileWithoutId } = profile;
+        savedProfile = await createBufferProfile(profileWithoutId);
+      }
+      
       setProfiles(prev => {
         const index = prev.findIndex(p => p.id === savedProfile.id);
         if (index >= 0) {
@@ -41,10 +50,12 @@ export function useBufferProfiles() {
           return [...prev, savedProfile];
         }
       });
+      
       toast({
         title: "Success",
         description: `Buffer profile ${profile.id ? 'updated' : 'created'} successfully`,
       });
+      
       return { success: true, profile: savedProfile };
     } catch (error) {
       console.error('Error saving buffer profile:', error);

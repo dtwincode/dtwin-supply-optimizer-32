@@ -1,17 +1,13 @@
 
-import { useState, useEffect } from "react";
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
+import { useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { NetworkDecouplingMap } from "./NetworkDecouplingMap";
-import { DecouplingPointDialog } from "./DecouplingPointDialog";
 import { useDecouplingPoints } from "@/hooks/useDecouplingPoints";
-import { PlusCircle, Edit, Trash2 } from "lucide-react"; // Using Lucide icons instead of Radix
+import { DecouplingPointDialog } from "./DecouplingPointDialog";
+import { DecouplingNetworkBoard } from "./DecouplingNetworkBoard";
+import { Loader2, Plus, PlusCircle, RefreshCw } from "lucide-react";
 import { 
   Table, 
   TableBody, 
@@ -20,198 +16,157 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { 
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
-import { DecouplingNetwork, DecouplingPoint } from "@/types/inventory/decouplingTypes";
+import { DecouplingPoint } from "@/types/inventory/decouplingTypes";
 
 export const DecouplingTab = () => {
-  const [selectedLocationId, setSelectedLocationId] = useState<string>("");
-  const [selectedPoint, setSelectedPoint] = useState<DecouplingPoint | null>(null);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const { points, network, loading, fetchDecouplingPoints, deletePoint } = useDecouplingPoints();
   const { toast } = useToast();
-  const { 
-    network, 
-    points, 
-    loading, 
-    error, 
-    addDecouplingPoint, 
-    updateDecouplingPoint, 
-    deleteDecouplingPoint 
-  } = useDecouplingPoints();
+  const [selectedLocation, setSelectedLocation] = useState<string>("");
+  const [selectedPoint, setSelectedPoint] = useState<DecouplingPoint | undefined>(undefined);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  useEffect(() => {
-    if (error) {
+  const handleCreateDecouplingPoint = (locationId: string) => {
+    setSelectedLocation(locationId);
+    setSelectedPoint(undefined);
+    setDialogOpen(true);
+  };
+
+  const handleEditDecouplingPoint = (point: DecouplingPoint) => {
+    setSelectedPoint(point);
+    setSelectedLocation(point.locationId);
+    setDialogOpen(true);
+  };
+
+  const handleDeleteDecouplingPoint = async (point: DecouplingPoint) => {
+    const confirmed = window.confirm("Are you sure you want to delete this decoupling point?");
+    if (!confirmed) return;
+
+    const result = await deletePoint(point.id);
+    if (result.success) {
       toast({
-        title: "Error",
-        description: "Failed to load decoupling points",
-        variant: "destructive",
+        title: "Success",
+        description: "Decoupling point deleted successfully",
       });
     }
-  }, [error, toast]);
+  };
 
-  const handleAddSuccess = () => {
+  const handleSuccess = () => {
+    fetchDecouplingPoints();
     toast({
       title: "Success",
-      description: "Decoupling point added successfully",
+      description: "Decoupling point saved successfully",
     });
   };
-
-  const handleUpdateSuccess = () => {
-    toast({
-      title: "Success",
-      description: "Decoupling point updated successfully",
-    });
-    setSelectedPoint(null);
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (selectedPoint) {
-      try {
-        await deleteDecouplingPoint(selectedPoint.id);
-        toast({
-          title: "Success",
-          description: "Decoupling point deleted successfully",
-        });
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "Failed to delete decoupling point",
-          variant: "destructive",
-        });
-      }
-      setIsDeleteDialogOpen(false);
-      setSelectedPoint(null);
-    }
-  };
-
-  if (loading) {
-    return <div className="flex justify-center p-8">Loading decoupling points...</div>;
-  }
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Network Visualization</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <NetworkDecouplingMap network={network} />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+    <Card className="col-span-2">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
           <CardTitle>Decoupling Points</CardTitle>
-          <Button onClick={() => setSelectedLocationId("new")} className="flex items-center gap-2">
-            <PlusCircle className="h-4 w-4" />
+          <CardDescription>
+            Configure and visualize decoupling points across your supply network
+          </CardDescription>
+        </div>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => fetchDecouplingPoints()}
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+          <Button 
+            size="sm" 
+            onClick={() => handleCreateDecouplingPoint("loc-main-warehouse")}
+          >
+            <PlusCircle className="h-4 w-4 mr-2" />
             Add Decoupling Point
           </Button>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Location</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Buffer Profile</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {points.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center">
-                    No decoupling points configured
-                  </TableCell>
-                </TableRow>
-              ) : (
-                points.map((point) => (
-                  <TableRow key={point.id}>
-                    <TableCell>{point.locationId}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">
-                        {point.type.replace("-", " ")}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{point.bufferProfileId}</TableCell>
-                    <TableCell className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setSelectedPoint(point)}
-                      >
-                        <Edit className="h-4 w-4" />
-                        <span className="sr-only">Edit</span>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedPoint(point);
-                          setIsDeleteDialogOpen(true);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                        <span className="sr-only">Delete</span>
-                      </Button>
-                    </TableCell>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <Tabs defaultValue="network" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="network">Network View</TabsTrigger>
+            <TabsTrigger value="list">List View</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="network" className="space-y-4">
+            {loading ? (
+              <div className="flex h-[400px] items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <DecouplingNetworkBoard network={network} />
+            )}
+          </TabsContent>
+          
+          <TabsContent value="list">
+            {loading ? (
+              <div className="flex h-[400px] items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Location ID</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      {selectedLocationId && (
+                </TableHeader>
+                <TableBody>
+                  {points.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                        No decoupling points found. Add one to get started.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    points.map((point) => (
+                      <TableRow key={point.id}>
+                        <TableCell>{point.locationId}</TableCell>
+                        <TableCell className="capitalize">
+                          {point.type.replace('_', ' ')}
+                        </TableCell>
+                        <TableCell>{point.description || "-"}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => handleEditDecouplingPoint(point)}
+                            >
+                              Edit
+                            </Button>
+                            <Button 
+                              variant="destructive" 
+                              size="sm" 
+                              onClick={() => handleDeleteDecouplingPoint(point)}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            )}
+          </TabsContent>
+        </Tabs>
+        
         <DecouplingPointDialog
-          locationId={selectedLocationId}
-          onSuccess={handleAddSuccess}
-          open={!!selectedLocationId}
-          onOpenChange={(open) => {
-            if (!open) setSelectedLocationId("");
-          }}
-        />
-      )}
-
-      {selectedPoint && (
-        <DecouplingPointDialog
-          locationId={selectedPoint.locationId}
+          locationId={selectedLocation}
           existingPoint={selectedPoint}
-          onSuccess={handleUpdateSuccess}
-          open={!!selectedPoint}
-          onOpenChange={(open) => {
-            if (!open) setSelectedPoint(null);
-          }}
+          onSuccess={handleSuccess}
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
         />
-      )}
-
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              decoupling point.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm}>
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+      </CardContent>
+    </Card>
   );
 };

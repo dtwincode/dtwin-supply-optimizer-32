@@ -21,6 +21,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useBufferProfiles } from "@/hooks/useBufferProfiles";
 import { DecouplingPoint } from "@/types/inventory/decouplingTypes";
+import { createDecouplingPoint, updateDecouplingPoint } from "@/services/inventoryService";
 
 export interface DecouplingPointDialogProps {
   locationId: string;
@@ -59,38 +60,46 @@ export const DecouplingPointDialog = ({
   }, [existingPoint, open]);
 
   const handleSubmit = async () => {
+    if (!bufferProfileId) {
+      toast({
+        title: "Validation Error",
+        description: "Please select a buffer profile",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      // Here you would call your API to save or update the decoupling point
-      // For example:
-      // if (existingPoint) {
-      //   await updateDecouplingPoint({
-      //     id: existingPoint.id,
-      //     locationId,
-      //     type,
-      //     description,
-      //     bufferProfileId
-      //   });
-      // } else {
-      //   await createDecouplingPoint({
-      //     locationId,
-      //     type,
-      //     description,
-      //     bufferProfileId
-      //   });
-      // }
-      
-      // Success handling
-      toast({
-        title: "Success",
-        description: existingPoint 
-          ? "Decoupling point updated successfully" 
-          : "Decoupling point created successfully",
-      });
+      if (existingPoint) {
+        await updateDecouplingPoint({
+          id: existingPoint.id,
+          locationId,
+          type,
+          description,
+          bufferProfileId
+        });
+        toast({
+          title: "Success",
+          description: "Decoupling point updated successfully"
+        });
+      } else {
+        await createDecouplingPoint({
+          locationId,
+          type,
+          description,
+          bufferProfileId
+        });
+        toast({
+          title: "Success",
+          description: "Decoupling point created successfully"
+        });
+      }
       
       if (onSuccess) onSuccess();
       onOpenChange(false);
     } catch (error) {
+      console.error("Error saving decoupling point:", error);
       toast({
         title: "Error",
         description: "Failed to save decoupling point",

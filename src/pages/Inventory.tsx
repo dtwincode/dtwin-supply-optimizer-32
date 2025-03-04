@@ -13,11 +13,11 @@ import { InventoryTabs } from "@/components/inventory/InventoryTabs";
 import { InventoryTab } from "@/components/inventory/InventoryTab";
 import { InventoryChart } from "@/components/inventory/InventoryChart";
 import { NetworkDecouplingMap } from "@/components/inventory/NetworkDecouplingMap";
-import { DecouplingPointDialog } from "@/components/inventory/DecouplingPointDialog";
 import { inventoryData } from "@/data/inventoryData";
 import { InventoryItem } from "@/types/inventory";
 import { SKUClassifications } from "@/components/inventory/SKUClassifications";
 import { SKUClassification } from "@/components/inventory/types";
+import { DecouplingPointDialog } from "@/components/inventory/DecouplingPointDialog";
 
 // Mock classification data for the showcase
 const mockClassifications: SKUClassification[] = [
@@ -59,6 +59,7 @@ const Inventory = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLocationId, setSelectedLocationId] = useState<string>("");
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const handleCreatePurchaseOrder = (item: InventoryItem) => {
     toast({
@@ -72,6 +73,7 @@ const Inventory = () => {
       title: "Success",
       description: "Decoupling point configuration updated successfully",
     });
+    setDialogOpen(false);
   };
 
   const filteredData = inventoryData.filter(item => {
@@ -107,10 +109,15 @@ const Inventory = () => {
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
               />
-              <DecouplingPointDialog 
-                locationId={selectedLocationId}
-                onSuccess={handleDecouplingPointSuccess}
-              />
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setSelectedLocationId("loc-main-warehouse");
+                  setDialogOpen(true);
+                }}
+              >
+                Add Decoupling Point
+              </Button>
             </div>
           </div>
         </div>
@@ -159,6 +166,13 @@ const Inventory = () => {
             </TabsContent>
           </InventoryTabs>
         </Card>
+        
+        <DecouplingPointDialog
+          locationId={selectedLocationId}
+          onSuccess={handleDecouplingPointSuccess}
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+        />
       </div>
     </DashboardLayout>
   );

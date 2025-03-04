@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -18,51 +18,75 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { BufferProfile } from '@/types/inventory';
 import { Textarea } from "@/components/ui/textarea";
+import { createBufferProfile, updateBufferProfile } from '@/services/inventoryService';
 
-interface BufferProfileDialogProps {
+export interface BufferProfileDialogProps {
+  existingProfile?: BufferProfile;
   onSuccess?: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export const BufferProfileDialog = ({ onSuccess }: BufferProfileDialogProps) => {
+export const BufferProfileDialog = ({ 
+  existingProfile, 
+  onSuccess, 
+  open, 
+  onOpenChange 
+}: BufferProfileDialogProps) => {
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [formData, setFormData] = React.useState<Partial<BufferProfile>>({
-    variabilityFactor: 'medium_variability',
-    leadTimeFactor: 'medium',
-  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState<Partial<BufferProfile>>(
+    existingProfile || {
+      name: '',
+      description: '',
+      variabilityFactor: 'medium_variability',
+      leadTimeFactor: 'medium',
+      moq: undefined,
+      lotSizeFactor: undefined
+    }
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.name) {
+      toast({
+        title: "Validation Error",
+        description: "Profile name is required",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase
-        .from('buffer_profiles')
-        .insert({
-          name: formData.name,
-          description: formData.description,
-          variability_factor: formData.variabilityFactor,
-          lead_time_factor: formData.leadTimeFactor,
-          moq: formData.moq,
-          lot_size_factor: formData.lotSizeFactor,
+      if (existingProfile?.id) {
+        await updateBufferProfile({
+          ...formData,
+          id: existingProfile.id
+        } as BufferProfile);
+        toast({
+          title: "Success",
+          description: "Buffer profile updated successfully",
         });
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Buffer profile created successfully",
-      });
+      } else {
+        await createBufferProfile(formData as Omit<BufferProfile, 'id'>);
+        toast({
+          title: "Success",
+          description: "Buffer profile created successfully",
+        });
+      }
 
       onSuccess?.();
+      onOpenChange(false);
     } catch (error) {
-      console.error('Error creating buffer profile:', error);
+      console.error('Error saving buffer profile:', error);
       toast({
         title: "Error",
-        description: "Failed to create buffer profile",
+        description: "Failed to save buffer profile",
         variant: "destructive",
       });
     } finally {
@@ -71,13 +95,12 @@ export const BufferProfileDialog = ({ onSuccess }: BufferProfileDialogProps) => 
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline">Create Buffer Profile</Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Create Buffer Profile</DialogTitle>
+          <DialogTitle>
+            {existingProfile ? "Edit Buffer Profile" : "Create Buffer Profile"}
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
@@ -162,7 +185,7 @@ export const BufferProfileDialog = ({ onSuccess }: BufferProfileDialogProps) => 
           </div>
 
           <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? "Creating..." : "Create Buffer Profile"}
+            {isSubmitting ? "Saving..." : existingProfile ? "Update Profile" : "Create Profile"}
           </Button>
         </form>
       </DialogContent>

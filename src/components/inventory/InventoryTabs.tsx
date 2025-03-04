@@ -1,116 +1,79 @@
 
+import { ReactNode, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslation } from "@/translations";
-import { BufferProfileDialog } from "./BufferProfileDialog";
-import { DecouplingPointDialog } from "./DecouplingPointDialog";
-import { ADUVisualization } from "./ADUVisualization";
-import { Brain } from "lucide-react";
-import { inventoryData } from "@/data/inventoryData";
-import { AILeadLink } from "./AILeadLink";
-import { DecouplingNetworkBoard } from "./DecouplingNetworkBoard";
+import { BufferManagementTab } from "./BufferManagementTab";
+import { DecouplingTab } from "./DecouplingTab";
+import { NetFlowTab } from "./NetFlowTab";
+import { ADUTab } from "./ADUTab";
+import { AIInsightsTab } from "./AIInsightsTab";
+import { Card, CardContent } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 
 interface InventoryTabsProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export const InventoryTabs = ({ children }: InventoryTabsProps) => {
-  const { language } = useLanguage();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const { toast } = useToast();
+
+  const handleSuccess = () => {
+    toast({
+      title: "Success",
+      description: "Operation completed successfully",
+    });
+  };
 
   return (
-    <Tabs defaultValue="decoupling" className="w-full">
-      <TabsList className="grid w-full grid-cols-7 lg:w-[1000px] p-4">
-        <TabsTrigger value="inventory">
-          Inventory
-        </TabsTrigger>
-        <TabsTrigger value="netflow">
-          Net Flow
-        </TabsTrigger>
-        <TabsTrigger value="decoupling">
-          Decoupling
-        </TabsTrigger>
-        <TabsTrigger value="buffers">
-          Buffers
-        </TabsTrigger>
-        <TabsTrigger value="adu">
-          ADU
-        </TabsTrigger>
-        <TabsTrigger value="alerts">
-          Alerts
-        </TabsTrigger>
-        <TabsTrigger value="ai-leadlink" className="flex items-center gap-2">
-          <Brain className="w-4 h-4" />
-          AI Lead
-        </TabsTrigger>
-      </TabsList>
-
-      <TabsContent value="inventory">
+    <div className="space-y-4">
+      <Tabs defaultValue="inventory" className="w-full">
+        <TabsList className="grid grid-cols-6 mb-4">
+          <TabsTrigger value="inventory">Inventory</TabsTrigger>
+          <TabsTrigger value="buffer">Buffer Management</TabsTrigger>
+          <TabsTrigger value="decoupling">Decoupling Points</TabsTrigger>
+          <TabsTrigger value="netflow">Net Flow</TabsTrigger>
+          <TabsTrigger value="adu">ADU Analysis</TabsTrigger>
+          <TabsTrigger value="ai">AI Insights</TabsTrigger>
+        </TabsList>
+        
+        {/* Inventory Tab (main inventory table) */}
         {children}
-      </TabsContent>
-
-      <TabsContent value="decoupling" className="p-6">
-        <div className="space-y-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold">Decoupling Points Management</h3>
-            <DecouplingPointDialog locationId="default" onSuccess={() => {
-              // Refresh data if needed
-            }} />
+        
+        {/* Buffer Management Tab */}
+        <TabsContent value="buffer">
+          <div className="grid grid-cols-1 gap-4">
+            <BufferManagementTab />
           </div>
-          
-          <div className="bg-white rounded-lg shadow-sm border">
-            <div className="p-4 border-b">
-              <div className="text-sm text-muted-foreground">
-                Configure and visualize your supply chain network decoupling points. Drag nodes to reposition them and click on nodes to configure decoupling points.
-              </div>
-            </div>
-            <div className="p-4">
-              <DecouplingNetworkBoard />
-            </div>
+        </TabsContent>
+        
+        {/* Decoupling Points Tab */}
+        <TabsContent value="decoupling">
+          <div className="grid grid-cols-1 gap-4">
+            <DecouplingTab />
           </div>
-        </div>
-      </TabsContent>
-
-      <TabsContent value="buffers" className="p-6">
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Buffer Profiles Management</h3>
-            <BufferProfileDialog onSuccess={() => {
-              // Refresh data if needed
-            }} />
+        </TabsContent>
+        
+        {/* Net Flow Analysis Tab */}
+        <TabsContent value="netflow">
+          <div className="grid grid-cols-1 gap-4">
+            <NetFlowTab />
           </div>
-        </div>
-      </TabsContent>
-
-      <TabsContent value="netflow">
-        <div className="p-6">
-          <h3 className="text-lg font-semibold">Net Flow Position</h3>
-          {/* Net flow content will go here */}
-        </div>
-      </TabsContent>
-
-      <TabsContent value="adu">
-        <div className="p-6">
-          <h3 className="text-lg font-semibold">Average Daily Usage Analysis</h3>
-          <div className="grid grid-cols-1 gap-6 mt-4">
-            {inventoryData.map((item) => (
-              <ADUVisualization key={item.id} item={item} />
-            ))}
+        </TabsContent>
+        
+        {/* ADU Analysis Tab */}
+        <TabsContent value="adu">
+          <div className="grid grid-cols-1 gap-4">
+            <ADUTab />
           </div>
-        </div>
-      </TabsContent>
-
-      <TabsContent value="alerts">
-        <div className="p-6">
-          <h3 className="text-lg font-semibold">Inventory Alerts</h3>
-          {/* Alerts content will go here */}
-        </div>
-      </TabsContent>
-
-      <TabsContent value="ai-leadlink">
-        <div className="p-6">
-          <AILeadLink />
-        </div>
-      </TabsContent>
-    </Tabs>
+        </TabsContent>
+        
+        {/* AI Insights Tab */}
+        <TabsContent value="ai">
+          <div className="grid grid-cols-1 gap-4">
+            <AIInsightsTab />
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
