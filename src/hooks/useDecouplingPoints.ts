@@ -1,123 +1,170 @@
 
-import { useState, useEffect, useCallback } from 'react';
-import { DecouplingPoint, DecouplingNetwork } from '@/types/inventory';
-import { getDecouplingPoints, saveDecouplingPoint } from '@/services/inventoryService';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { DecouplingPoint, DecouplingNetwork } from '@/types/inventory/decouplingTypes';
 
-export function useDecouplingPoints() {
+export const useDecouplingPoints = () => {
+  const [network, setNetwork] = useState<DecouplingNetwork>({ nodes: [], links: [] });
   const [points, setPoints] = useState<DecouplingPoint[]>([]);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
-
-  const fetchDecouplingPoints = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await getDecouplingPoints();
-      setPoints(data);
-    } catch (error) {
-      console.error('Error fetching decoupling points:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load decoupling points",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [toast]);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     fetchDecouplingPoints();
-  }, [fetchDecouplingPoints]);
+  }, []);
 
-  const createOrUpdateDecouplingPoint = useCallback(async (point: DecouplingPoint) => {
+  const fetchDecouplingPoints = async () => {
     try {
-      const savedPoint = await saveDecouplingPoint(point);
-      setPoints(prev => {
-        const index = prev.findIndex(p => p.id === savedPoint.id);
-        if (index >= 0) {
-          return [...prev.slice(0, index), savedPoint, ...prev.slice(index + 1)];
-        } else {
-          return [...prev, savedPoint];
-        }
-      });
-      toast({
-        title: "Success",
-        description: `Decoupling point ${point.id ? 'updated' : 'created'} successfully`,
-      });
-      return { success: true, point: savedPoint };
-    } catch (error) {
-      console.error('Error saving decoupling point:', error);
-      toast({
-        title: "Error",
-        description: `Failed to save decoupling point: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        variant: "destructive",
-      });
-      return { success: false };
-    }
-  }, [toast]);
-
-  // Generate network structure for visualization
-  const getNetwork = useCallback((): DecouplingNetwork => {
-    const nodes: DecouplingNetwork['nodes'] = [];
-    const links: DecouplingNetwork['links'] = [];
-    
-    // Process locations and decoupling points to create a network
-    // This is a simplified example - in a real implementation, 
-    // you would fetch and process actual location hierarchy data
-    
-    if (points.length === 0) {
-      return { nodes, links };
-    }
-    
-    const mockLocations = [
-      { id: 'loc-001', name: 'Main DC', level: 1, parentId: null },
-      { id: 'loc-002', name: 'Regional Center', level: 2, parentId: 'loc-001' },
-      { id: 'loc-003', name: 'Store A', level: 3, parentId: 'loc-002' },
-      { id: 'loc-004', name: 'Store B', level: 3, parentId: 'loc-002' },
-    ];
-    
-    // Add location nodes
-    mockLocations.forEach(loc => {
-      nodes.push({
-        id: loc.id,
-        type: 'location',
-        label: loc.name,
-        level: loc.level,
-        parentId: loc.parentId,
-        metadata: { locationLevel: loc.level }
-      });
+      setLoading(true);
       
-      if (loc.parentId) {
-        links.push({
-          source: loc.parentId,
-          target: loc.id
-        });
-      }
-    });
-    
-    // Add decoupling point information
-    points.forEach(point => {
-      const locationNode = nodes.find(node => node.id === point.locationId);
-      if (locationNode) {
-        locationNode.type = 'decoupling';
-        locationNode.decouplingType = point.type;
-        locationNode.metadata = {
-          ...locationNode.metadata,
-          decouplingPointId: point.id,
+      // Fetch decoupling points
+      const { data: pointsData, error: pointsError } = await supabase
+        .from('decoupling_points')
+        .select('*');
+      
+      if (pointsError) throw new Error(pointsError.message);
+      
+      // If no data is returned, provide mock data for demonstration
+      const finalPoints: DecouplingPoint[] = pointsData?.length 
+        ? pointsData 
+        : [
+            {
+              id: 'dp-001',
+              locationId: 'loc-001',
+              type: 'strategic',
+              description: 'Main distribution center',
+              bufferProfileId: 'bp-001'
+            },
+            {
+              id: 'dp-002',
+              locationId: 'loc-002',
+              type: 'customer_order',
+              description: 'Regional fulfillment center',
+              bufferProfileId: 'bp-002'
+            }
+          ];
+      
+      setPoints(finalPoints);
+      
+      // Generate network visualization data
+      const nodes = finalPoints.map(point => ({
+        id: point.id,
+        type: 'decoupling',
+        label: point.locationId,
+        level: 1,
+        metadata: { type: point.type },
+        decouplingType: point.type
+      }));
+      
+      // Add some location nodes
+      nodes.push(
+        {
+          id: 'supplier-1',
+          type: 'location',
+          label: 'Supplier A',
+          level: 0,
+          metadata: {}
+        },
+        {
+          id: 'supplier-2',
+          type: 'location',
+          label: 'Supplier B',
+          level: 0,
+          metadata: {}
+        },
+        {
+          id: 'customer-1',
+          type: 'location',
+          label: 'Customer X',
+          level: 2,
+          metadata: {}
+        }
+      );
+      
+      // Create links
+      const links = [
+        { source: 'supplier-1', target: 'dp-001' },
+        { source: 'supplier-2', target: 'dp-001' },
+        { source: 'supplier-2', target: 'dp-002' },
+        { source: 'dp-001', target: 'dp-002' },
+        { source: 'dp-002', target: 'customer-1' }
+      ];
+      
+      setNetwork({ nodes, links });
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching decoupling points:", err);
+      setError(err instanceof Error ? err : new Error('Unknown error'));
+      setLoading(false);
+    }
+  };
+
+  const addDecouplingPoint = async (point: Omit<DecouplingPoint, 'id'>) => {
+    try {
+      const { data, error } = await supabase
+        .from('decoupling_points')
+        .insert(point)
+        .select()
+        .single();
+      
+      if (error) throw new Error(error.message);
+      
+      setPoints(prev => [...prev, data as DecouplingPoint]);
+      return data;
+    } catch (err) {
+      console.error("Error adding decoupling point:", err);
+      throw err;
+    }
+  };
+
+  const updateDecouplingPoint = async (point: DecouplingPoint) => {
+    try {
+      const { data, error } = await supabase
+        .from('decoupling_points')
+        .update({
+          locationId: point.locationId,
+          type: point.type,
+          description: point.description,
           bufferProfileId: point.bufferProfileId
-        };
-      }
-    });
-    
-    return { nodes, links };
-  }, [points]);
+        })
+        .eq('id', point.id)
+        .select()
+        .single();
+      
+      if (error) throw new Error(error.message);
+      
+      setPoints(prev => prev.map(p => p.id === point.id ? (data as DecouplingPoint) : p));
+      return data;
+    } catch (err) {
+      console.error("Error updating decoupling point:", err);
+      throw err;
+    }
+  };
+
+  const deleteDecouplingPoint = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('decoupling_points')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw new Error(error.message);
+      
+      setPoints(prev => prev.filter(p => p.id !== id));
+    } catch (err) {
+      console.error("Error deleting decoupling point:", err);
+      throw err;
+    }
+  };
 
   return {
+    network,
     points,
     loading,
-    fetchDecouplingPoints,
-    createOrUpdateDecouplingPoint,
-    getNetwork
+    error,
+    addDecouplingPoint,
+    updateDecouplingPoint,
+    deleteDecouplingPoint,
+    refresh: fetchDecouplingPoints
   };
-}
+};

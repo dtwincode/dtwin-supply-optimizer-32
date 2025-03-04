@@ -8,7 +8,12 @@ import { ReplenishmentTimes } from "./ReplenishmentTimes";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, Brain, Sparkles, Clock, TrendingUp } from "lucide-react";
-import { LeadTimeData, LeadTimeAnomaly, SKUClassification, ReplenishmentData } from "@/types/inventory";
+import { 
+  LeadTimeData, 
+  LeadTimeAnomaly, 
+  SKUClassification, 
+  ReplenishmentData 
+} from "@/types/inventory/classificationTypes";
 
 // Mock data for demonstration
 const mockLeadTimeData: LeadTimeData[] = [

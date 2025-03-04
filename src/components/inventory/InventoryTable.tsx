@@ -1,179 +1,106 @@
 
-import { useEffect, useState } from "react";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import { useMemo } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
+import { InventoryItem } from "@/types/inventory";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  InventoryItem, 
-  PaginationState, 
-  BufferZones, 
-  NetFlowPosition 
-} from "@/types/inventory";
-import { BufferStatusBadge } from "./BufferStatusBadge";
-import { BufferVisualizer } from "./BufferVisualizer";
-import { CreatePODialog } from "./CreatePODialog";
-import { 
-  calculateBufferZones,
-  calculateNetFlowPosition,
-  calculateBufferPenetration,
-  getBufferStatus 
-} from "@/utils/bufferCalculations";
-import { Loader2 } from "lucide-react";
+import { PaginationState } from "@/types/inventory/index";
 
 interface InventoryTableProps {
-  items: InventoryItem[];
-  loading: boolean;
+  data: InventoryItem[];
   pagination: PaginationState;
-  onPageChange: (page: number) => void;
   onCreatePO: (item: InventoryItem) => void;
 }
 
-export const InventoryTable = ({ 
-  items, 
-  loading, 
-  pagination, 
-  onPageChange, 
-  onCreatePO 
-}: InventoryTableProps) => {
-  const [itemBuffers, setItemBuffers] = useState<Record<string, {
-    bufferZones: BufferZones;
-    netFlow: NetFlowPosition;
-    bufferPenetration: number;
-    status: 'green' | 'yellow' | 'red';
-  }>>({});
-
-  useEffect(() => {
-    const loadBufferData = async () => {
-      const bufferData: Record<string, any> = {};
-      
-      for (const item of items) {
-        const bufferZones = await calculateBufferZones(item);
-        const netFlow = calculateNetFlowPosition(item);
-        const bufferPenetration = calculateBufferPenetration(netFlow.netFlowPosition, bufferZones);
-        const status = getBufferStatus(bufferPenetration);
-        
-        bufferData[item.id] = {
-          bufferZones,
-          netFlow,
-          bufferPenetration,
-          status
-        };
-      }
-      
-      setItemBuffers(bufferData);
-    };
-
-    if (items.length > 0) {
-      loadBufferData();
+export const InventoryTable = ({ data, pagination, onCreatePO }: InventoryTableProps) => {
+  const getBadgeVariant = (priority: string) => {
+    if (!priority) return "outline";
+    
+    switch (priority.toLowerCase()) {
+      case "critical":
+      case "very high":
+        return "destructive";
+      case "high":
+        return "destructive";
+      case "medium":
+        return "secondary";
+      case "low":
+        return "outline";
+      default:
+        return "outline";
     }
-  }, [items]);
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center py-8">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
+  };
 
   return (
-    <div className="space-y-4">
+    <div className="border rounded-md">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>SKU</TableHead>
             <TableHead>Name</TableHead>
-            <TableHead>Stock</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Buffer</TableHead>
             <TableHead>Location</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Actions</TableHead>
+            <TableHead>Current Stock</TableHead>
+            <TableHead>Net Flow</TableHead>
+            <TableHead>Priority</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {items.length === 0 ? (
+          {data.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={8} className="text-center h-24">
+              <TableCell colSpan={8} className="h-24 text-center">
                 No inventory items found
               </TableCell>
             </TableRow>
           ) : (
-            items.map((item) => {
-              const bufferData = itemBuffers[item.id];
-              
-              return (
-                <TableRow key={item.id}>
-                  <TableCell className="font-medium">{item.sku}</TableCell>
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell>{item.onHand}</TableCell>
-                  <TableCell>
-                    {bufferData ? (
-                      <BufferStatusBadge status={bufferData.status} />
-                    ) : (
-                      <span className="text-muted-foreground">Loading...</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {bufferData ? (
-                      <BufferVisualizer 
-                        netFlowPosition={bufferData.netFlow.netFlowPosition}
-                        bufferZones={bufferData.bufferZones}
-                        adu={item.adu}
-                      />
-                    ) : (
-                      <div className="h-4 w-24 bg-gray-200 rounded"></div>
-                    )}
-                  </TableCell>
-                  <TableCell>{item.location}</TableCell>
-                  <TableCell>{item.category}</TableCell>
-                  <TableCell>
-                    {bufferData ? (
-                      <CreatePODialog 
-                        item={item}
-                        bufferZones={bufferData.bufferZones}
-                        onSuccess={() => onCreatePO(item)}
-                      />
-                    ) : (
-                      <Button variant="outline" size="sm" disabled>
-                        Create PO
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              );
-            })
+            data.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell className="font-medium">{item.sku}</TableCell>
+                <TableCell>{item.name}</TableCell>
+                <TableCell>{item.location}</TableCell>
+                <TableCell>{item.currentStock}</TableCell>
+                <TableCell>{item.netFlowPosition}</TableCell>
+                <TableCell>
+                  {item.planningPriority && (
+                    <Badge variant={getBadgeVariant(item.planningPriority)}>
+                      {item.planningPriority}
+                    </Badge>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <div className={`h-2 w-2 rounded-full ${item.bufferPenetration && item.bufferPenetration > 80 ? 'bg-red-500' : item.bufferPenetration && item.bufferPenetration > 40 ? 'bg-yellow-500' : 'bg-green-500'}`}></div>
+                    <span>
+                      {item.bufferPenetration && item.bufferPenetration > 80 
+                        ? 'Red' 
+                        : item.bufferPenetration && item.bufferPenetration > 40 
+                        ? 'Yellow' 
+                        : 'Green'}
+                    </span>
+                  </div>
+                </TableCell>
+                <TableCell className="text-right">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onCreatePO(item)}
+                  >
+                    Create PO
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))
           )}
         </TableBody>
       </Table>
-      
-      <div className="mt-4 flex justify-between items-center p-6">
-        <div className="text-sm text-gray-500">
-          Showing {(pagination.currentPage - 1) * pagination.itemsPerPage + 1} to {Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems)} of {pagination.totalItems} items
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => onPageChange(pagination.currentPage - 1)}
-            disabled={pagination.currentPage === 1}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => onPageChange(pagination.currentPage + 1)}
-            disabled={pagination.currentPage === Math.ceil(pagination.totalItems / pagination.itemsPerPage)}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
     </div>
   );
 };

@@ -1,251 +1,164 @@
-
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BufferLevelManagement } from './BufferLevelManagement';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/components/ui/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { BufferFactorConfig } from '@/types/inventory';
-import { bufferZoneFormulas } from '@/utils/inventoryUtils';
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { BufferVisualizer } from "./BufferVisualizer";
+import { BufferLevelManagement } from "./BufferLevelManagement";
+import { BufferStatusBadge } from "./BufferStatusBadge";
+import { BufferConfigManager } from "./BufferConfigManager";
+import { BufferProfileDialog } from "./BufferProfileDialog";
+import { BufferProfile } from "@/types/inventory";
+import { useBufferProfiles } from "@/hooks/useBufferProfiles";
+import { useToast } from "@/hooks/use-toast";
+import { PlusCircle, RefreshCw } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export const BufferManagementTab = () => {
-  const [activeTab, setActiveTab] = useState('buffer-levels');
-  const [configDialogOpen, setConfigDialogOpen] = useState(false);
-  const [bufferConfig, setBufferConfig] = useState<BufferFactorConfig | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("profiles");
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const { profiles, loading, refresh } = useBufferProfiles();
   const { toast } = useToast();
 
-  useEffect(() => {
-    const fetchBufferConfig = async () => {
-      setIsLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('buffer_factor_configs')
-          .select('*')
-          .eq('is_active', true)
-          .single();
+  const handleCreateSuccess = () => {
+    refresh();
+    toast({
+      title: "Success",
+      description: "Buffer profile created successfully",
+    });
+    setIsCreateDialogOpen(false);
+  };
 
-        if (error) throw error;
-
-        if (data) {
-          setBufferConfig({
-            id: data.id,
-            shortLeadTimeFactor: data.short_lead_time_factor,
-            mediumLeadTimeFactor: data.medium_lead_time_factor,
-            longLeadTimeFactor: data.long_lead_time_factor,
-            shortLeadTimeThreshold: data.short_lead_time_threshold,
-            mediumLeadTimeThreshold: data.medium_lead_time_threshold,
-            replenishmentTimeFactor: data.replenishment_time_factor,
-            greenZoneFactor: data.green_zone_factor,
-            description: data.description,
-            isActive: data.is_active,
-            metadata: data.metadata || {}
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching buffer config:', error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to load buffer configuration",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchBufferConfig();
-  }, [toast]);
-
-  const handleSaveConfig = async (config: BufferFactorConfig) => {
-    try {
-      // First deactivate all configs
-      await supabase
-        .from('buffer_factor_configs')
-        .update({ is_active: false })
-        .neq('id', config.id);
-
-      // Then update or insert the new one
-      if (config.id !== 'new') {
-        await supabase
-          .from('buffer_factor_configs')
-          .update({
-            short_lead_time_factor: config.shortLeadTimeFactor,
-            medium_lead_time_factor: config.mediumLeadTimeFactor,
-            long_lead_time_factor: config.longLeadTimeFactor,
-            short_lead_time_threshold: config.shortLeadTimeThreshold,
-            medium_lead_time_threshold: config.mediumLeadTimeThreshold,
-            replenishment_time_factor: config.replenishmentTimeFactor,
-            green_zone_factor: config.greenZoneFactor,
-            description: config.description,
-            is_active: true
-          })
-          .eq('id', config.id);
-      } else {
-        await supabase
-          .from('buffer_factor_configs')
-          .insert({
-            short_lead_time_factor: config.shortLeadTimeFactor,
-            medium_lead_time_factor: config.mediumLeadTimeFactor,
-            long_lead_time_factor: config.longLeadTimeFactor,
-            short_lead_time_threshold: config.shortLeadTimeThreshold,
-            medium_lead_time_threshold: config.mediumLeadTimeThreshold,
-            replenishment_time_factor: config.replenishmentTimeFactor,
-            green_zone_factor: config.greenZoneFactor,
-            description: config.description,
-            is_active: true
-          });
-      }
-
-      toast({
-        title: "Success",
-        description: "Buffer configuration saved successfully",
-      });
-      setConfigDialogOpen(false);
-    } catch (error) {
-      console.error('Error saving buffer config:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to save buffer configuration",
-      });
+  const getBadgeStatus = (variability: BufferProfile["variabilityFactor"], leadTime: BufferProfile["leadTimeFactor"]) => {
+    // High variability or long lead time means higher risk
+    if (variability === "high_variability" || leadTime === "long") {
+      return "red";
     }
+    
+    // Medium variability or medium lead time means medium risk
+    if (variability === "medium_variability" || leadTime === "medium") {
+      return "yellow";
+    }
+    
+    // Otherwise low risk
+    return "green";
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Buffer Management</h3>
-        <Button onClick={() => setConfigDialogOpen(true)}>Configure Buffer Factors</Button>
-      </div>
-
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="buffer-levels">Buffer Levels</TabsTrigger>
-          <TabsTrigger value="formulas">Buffer Formulas</TabsTrigger>
-          <TabsTrigger value="history">Buffer History</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="buffer-levels">
-          <BufferLevelManagement />
-        </TabsContent>
-
-        <TabsContent value="formulas">
-          <Card>
-            <CardHeader>
-              <CardTitle>Buffer Zone Calculation Formulas</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-medium">Red Zone</h4>
-                  <p className="text-muted-foreground">{bufferZoneFormulas.redZone}</p>
-                </div>
-                <div>
-                  <h4 className="font-medium">Yellow Zone</h4>
-                  <p className="text-muted-foreground">{bufferZoneFormulas.yellowZone}</p>
-                </div>
-                <div>
-                  <h4 className="font-medium">Green Zone</h4>
-                  <p className="text-muted-foreground">{bufferZoneFormulas.greenZone}</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-md">
-                  <pre className="text-xs whitespace-pre-wrap">
-                    {bufferZoneFormulas.notes}
-                  </pre>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="history">
-          <Card>
-            <CardHeader>
-              <CardTitle>Buffer Adjustment History</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Buffer adjustment history will be displayed here.
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      <Dialog open={configDialogOpen} onOpenChange={setConfigDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Buffer Configuration</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="short-lead-time-factor">Short Lead Time Factor</Label>
-              <Input
-                id="short-lead-time-factor"
-                defaultValue={bufferConfig?.shortLeadTimeFactor || 0.7}
-                type="number"
-                step="0.1"
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="medium-lead-time-factor">Medium Lead Time Factor</Label>
-              <Input
-                id="medium-lead-time-factor"
-                defaultValue={bufferConfig?.mediumLeadTimeFactor || 1.0}
-                type="number"
-                step="0.1"
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="long-lead-time-factor">Long Lead Time Factor</Label>
-              <Input
-                id="long-lead-time-factor"
-                defaultValue={bufferConfig?.longLeadTimeFactor || 1.3}
-                type="number"
-                step="0.1"
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="green-zone-factor">Green Zone Factor</Label>
-              <Input
-                id="green-zone-factor"
-                defaultValue={bufferConfig?.greenZoneFactor || 0.7}
-                type="number"
-                step="0.1"
-              />
-            </div>
-            <div className="flex justify-end">
-              <Button onClick={() => handleSaveConfig({
-                id: bufferConfig?.id || 'new',
-                shortLeadTimeFactor: parseFloat(
-                  (document.getElementById('short-lead-time-factor') as HTMLInputElement).value
-                ),
-                mediumLeadTimeFactor: parseFloat(
-                  (document.getElementById('medium-lead-time-factor') as HTMLInputElement).value
-                ),
-                longLeadTimeFactor: parseFloat(
-                  (document.getElementById('long-lead-time-factor') as HTMLInputElement).value
-                ),
-                shortLeadTimeThreshold: bufferConfig?.shortLeadTimeThreshold || 7,
-                mediumLeadTimeThreshold: bufferConfig?.mediumLeadTimeThreshold || 14,
-                replenishmentTimeFactor: bufferConfig?.replenishmentTimeFactor || 1.0,
-                greenZoneFactor: parseFloat(
-                  (document.getElementById('green-zone-factor') as HTMLInputElement).value
-                ),
-                isActive: true,
-                metadata: bufferConfig?.metadata || {}
-              })}>
-                Save Configuration
-              </Button>
-            </div>
+    <Card>
+      <CardHeader>
+        <div className="flex justify-between items-center">
+          <CardTitle>Buffer Management</CardTitle>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={refresh}
+              disabled={loading}
+              className="gap-1"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Refresh
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => setIsCreateDialogOpen(true)}
+              className="gap-1"
+            >
+              <PlusCircle className="h-4 w-4" />
+              New Profile
+            </Button>
           </div>
-        </DialogContent>
-      </Dialog>
-    </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="profiles">Buffer Profiles</TabsTrigger>
+            <TabsTrigger value="levels">Buffer Levels</TabsTrigger>
+            <TabsTrigger value="visualize">Visualization</TabsTrigger>
+            <TabsTrigger value="config">Configuration</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="profiles" className="mt-4">
+            <div className="border rounded-md">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Lead Time</TableHead>
+                    <TableHead>Variability</TableHead>
+                    <TableHead>MOQ</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="h-24 text-center">
+                        Loading profiles...
+                      </TableCell>
+                    </TableRow>
+                  ) : profiles.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="h-24 text-center">
+                        No buffer profiles defined
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    profiles.map((profile) => (
+                      <TableRow key={profile.id}>
+                        <TableCell className="font-medium">
+                          {profile.name}
+                        </TableCell>
+                        <TableCell>
+                          {profile.leadTimeFactor.replace("_", " ")}
+                        </TableCell>
+                        <TableCell>
+                          {profile.variabilityFactor.replace("_", " ")}
+                        </TableCell>
+                        <TableCell>{profile.moq || "N/A"}</TableCell>
+                        <TableCell>
+                          <BufferStatusBadge 
+                            status={getBadgeStatus(
+                              profile.variabilityFactor,
+                              profile.leadTimeFactor
+                            )} 
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="levels" className="mt-4">
+            <BufferLevelManagement />
+          </TabsContent>
+
+          <TabsContent value="visualize" className="mt-4">
+            <BufferVisualizer />
+          </TabsContent>
+
+          <TabsContent value="config" className="mt-4">
+            <BufferConfigManager />
+          </TabsContent>
+        </Tabs>
+
+        <BufferProfileDialog
+          open={isCreateDialogOpen}
+          onOpenChange={setIsCreateDialogOpen}
+          onSuccess={handleCreateSuccess}
+        />
+      </CardContent>
+    </Card>
   );
 };

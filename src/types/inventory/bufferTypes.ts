@@ -22,6 +22,8 @@ export interface BufferProfile {
   lotSizeFactor?: number;
 }
 
+export type IndustryType = 'manufacturing' | 'retail' | 'distribution' | 'electronics' | 'automotive' | 'consumer_goods' | 'pharmaceuticals';
+
 export interface BufferFactorConfig {
   id: string;
   shortLeadTimeFactor: number;
@@ -37,5 +39,3 @@ export interface BufferFactorConfig {
   isBenchmarkBased?: boolean;
   metadata?: Record<string, any>;
 }
-
-export type IndustryType = 'manufacturing' | 'retail' | 'distribution' | 'electronics' | 'automotive' | 'consumer_goods' | 'pharmaceuticals';

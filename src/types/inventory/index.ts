@@ -1,6 +1,5 @@
 
-// Re-export all inventory types
-export * from '../inventory';
+// Export all specialized type modules
 export * from './bufferTypes';
 export * from './inventoryFilters';
 export * from './decouplingTypes';

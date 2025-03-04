@@ -1,275 +1,270 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { InventoryItem, BufferProfile, DecouplingPoint, BufferFactorConfig } from '@/types/inventory';
-import { inventoryData } from '@/data/inventoryData';
+import { 
+  InventoryItem, 
+  BufferProfile, 
+  BufferFactorConfig, 
+  DecouplingPoint, 
+  PurchaseOrder 
+} from '@/types/inventory';
 
-// Fetch inventory items with pagination and filtering
-export const getInventoryItems = async (
-  filters?: Partial<Record<string, string>>,
-  page = 1,
-  pageSize = 10
-): Promise<{ data: InventoryItem[]; count: number }> => {
-  try {
-    // In a real application, this would query the database
-    // For now, use mock data and simulate filtering and pagination
-    let filteredData = [...inventoryData];
-    
-    if (filters) {
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value && value !== 'all') {
-          filteredData = filteredData.filter(item => 
-            String(item[key as keyof InventoryItem])
-              .toLowerCase()
-              .includes(value.toLowerCase())
-          );
-        }
-      });
-    }
-    
-    const start = (page - 1) * pageSize;
-    const end = start + pageSize;
-    const paginatedData = filteredData.slice(start, end);
-    
-    return {
-      data: paginatedData,
-      count: filteredData.length
-    };
-  } catch (error) {
-    console.error('Error fetching inventory items:', error);
-    return { data: [], count: 0 };
-  }
+// Get inventory items
+export const getInventoryItems = async (): Promise<InventoryItem[]> => {
+  const { data, error } = await supabase
+    .from('inventory_items')
+    .select('*');
+
+  if (error) throw error;
+  return data || [];
 };
 
-// Fetch buffer profiles
+// Get inventory item by ID
+export const getInventoryItemById = async (id: string): Promise<InventoryItem> => {
+  const { data, error } = await supabase
+    .from('inventory_items')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+// Update inventory item
+export const updateInventoryItem = async (item: Partial<InventoryItem> & { id: string }): Promise<InventoryItem> => {
+  const { data, error } = await supabase
+    .from('inventory_items')
+    .update(item)
+    .eq('id', item.id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+// Create inventory item
+export const createInventoryItem = async (item: Omit<InventoryItem, 'id'>): Promise<InventoryItem> => {
+  const { data, error } = await supabase
+    .from('inventory_items')
+    .insert(item)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+// Delete inventory item
+export const deleteInventoryItem = async (id: string): Promise<void> => {
+  const { error } = await supabase
+    .from('inventory_items')
+    .delete()
+    .eq('id', id);
+
+  if (error) throw error;
+};
+
+// Buffer Profiles
+
+// Get buffer profiles
 export const getBufferProfiles = async (): Promise<BufferProfile[]> => {
-  try {
-    const { data, error } = await supabase
-      .from('buffer_profiles')
-      .select('*');
-      
-    if (error) throw error;
-    
-    return data.map(profile => ({
-      id: profile.id,
-      name: profile.name,
-      description: profile.description,
-      variabilityFactor: profile.variability_factor,
-      leadTimeFactor: profile.lead_time_factor,
-      moq: profile.moq,
-      lotSizeFactor: profile.lot_size_factor
-    }));
-  } catch (error) {
-    console.error('Error fetching buffer profiles:', error);
-    
-    // Return mock data if API call fails
-    return [
-      {
-        id: 'profile-1',
-        name: 'High Variability Profile',
-        description: 'For items with unstable demand patterns',
-        variabilityFactor: 'high_variability',
-        leadTimeFactor: 'medium'
-      },
-      {
-        id: 'profile-2',
-        name: 'Standard Profile',
-        description: 'For regular items with predictable demand',
-        variabilityFactor: 'medium_variability',
-        leadTimeFactor: 'medium'
-      },
-      {
-        id: 'profile-3',
-        name: 'Low Variability Profile',
-        description: 'For stable items with consistent demand',
-        variabilityFactor: 'low_variability',
-        leadTimeFactor: 'short'
-      }
-    ];
-  }
+  const { data, error } = await supabase
+    .from('buffer_profiles')
+    .select('*');
+
+  if (error) throw error;
+  return data || [];
 };
 
-// Fetch decoupling points
+// Create buffer profile
+export const createBufferProfile = async (profile: Omit<BufferProfile, 'id'>): Promise<BufferProfile> => {
+  const { data, error } = await supabase
+    .from('buffer_profiles')
+    .insert(profile)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+// Update buffer profile
+export const updateBufferProfile = async (profile: Partial<BufferProfile> & { id: string }): Promise<BufferProfile> => {
+  const { data, error } = await supabase
+    .from('buffer_profiles')
+    .update(profile)
+    .eq('id', profile.id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+// Delete buffer profile
+export const deleteBufferProfile = async (id: string): Promise<void> => {
+  const { error } = await supabase
+    .from('buffer_profiles')
+    .delete()
+    .eq('id', id);
+
+  if (error) throw error;
+};
+
+// Decoupling Points
+
+// Get decoupling points
 export const getDecouplingPoints = async (): Promise<DecouplingPoint[]> => {
-  try {
-    const { data, error } = await supabase
-      .from('decoupling_points')
-      .select('*');
-      
-    if (error) throw error;
-    
-    return data.map(point => ({
-      id: point.id,
-      locationId: point.location_id,
-      type: point.type,
-      description: point.description,
-      bufferProfileId: point.buffer_profile_id
-    }));
-  } catch (error) {
-    console.error('Error fetching decoupling points:', error);
-    
-    // Return mock data if API call fails
-    return [
-      {
-        id: 'dp-001',
-        locationId: 'loc-001',
-        type: 'strategic',
-        description: 'Main distribution center',
-        bufferProfileId: 'profile-1'
-      },
-      {
-        id: 'dp-002',
-        locationId: 'loc-002',
-        type: 'customer_order',
-        description: 'Regional fulfillment center',
-        bufferProfileId: 'profile-2'
-      }
-    ];
-  }
+  const { data, error } = await supabase
+    .from('decoupling_points')
+    .select('*');
+
+  if (error) throw error;
+  return data || [];
 };
 
-// Create/update buffer profile
-export const saveBufferProfile = async (profile: BufferProfile): Promise<BufferProfile> => {
-  try {
-    const { data, error } = await supabase
-      .from('buffer_profiles')
-      .upsert({
-        id: profile.id,
-        name: profile.name,
-        description: profile.description,
-        variability_factor: profile.variabilityFactor,
-        lead_time_factor: profile.leadTimeFactor,
-        moq: profile.moq,
-        lot_size_factor: profile.lotSizeFactor
-      })
-      .select()
-      .single();
-      
-    if (error) throw error;
-    
-    return {
-      id: data.id,
-      name: data.name,
-      description: data.description,
-      variabilityFactor: data.variability_factor,
-      leadTimeFactor: data.lead_time_factor,
-      moq: data.moq,
-      lotSizeFactor: data.lot_size_factor
-    };
-  } catch (error) {
-    console.error('Error saving buffer profile:', error);
-    throw error;
-  }
+// Create decoupling point
+export const createDecouplingPoint = async (point: Omit<DecouplingPoint, 'id'>): Promise<DecouplingPoint> => {
+  const { data, error } = await supabase
+    .from('decoupling_points')
+    .insert(point)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
 };
 
-// Create/update decoupling point
-export const saveDecouplingPoint = async (point: DecouplingPoint): Promise<DecouplingPoint> => {
-  try {
-    const { data, error } = await supabase
-      .from('decoupling_points')
-      .upsert({
-        id: point.id,
-        location_id: point.locationId,
-        type: point.type,
-        description: point.description,
-        buffer_profile_id: point.bufferProfileId
-      })
-      .select()
-      .single();
-      
-    if (error) throw error;
-    
-    return {
-      id: data.id,
-      locationId: data.location_id,
-      type: data.type,
-      description: data.description,
-      bufferProfileId: data.buffer_profile_id
-    };
-  } catch (error) {
-    console.error('Error saving decoupling point:', error);
-    throw error;
-  }
+// Update decoupling point
+export const updateDecouplingPoint = async (point: Partial<DecouplingPoint> & { id: string }): Promise<DecouplingPoint> => {
+  const { data, error } = await supabase
+    .from('decoupling_points')
+    .update(point)
+    .eq('id', point.id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
 };
 
-// Get active buffer configuration
-export const getActiveBufferConfig = async (): Promise<BufferFactorConfig> => {
-  try {
-    const { data, error } = await supabase
-      .from('buffer_factor_configs')
-      .select('*')
-      .eq('is_active', true)
-      .single();
-      
-    if (error) throw error;
-    
-    return {
-      id: data.id,
-      shortLeadTimeFactor: data.short_lead_time_factor,
-      mediumLeadTimeFactor: data.medium_lead_time_factor,
-      longLeadTimeFactor: data.long_lead_time_factor,
-      shortLeadTimeThreshold: data.short_lead_time_threshold,
-      mediumLeadTimeThreshold: data.medium_lead_time_threshold,
-      replenishmentTimeFactor: data.replenishment_time_factor,
-      greenZoneFactor: data.green_zone_factor,
-      description: data.description,
-      isActive: data.is_active,
-      industry: data.industry,
-      isBenchmarkBased: data.is_benchmark_based,
-      metadata: data.metadata
-    };
-  } catch (error) {
-    console.error('Error fetching buffer config:', error);
-    
-    // Return default config if API call fails
-    return {
-      id: 'default',
-      shortLeadTimeFactor: 0.7,
-      mediumLeadTimeFactor: 1.0,
-      longLeadTimeFactor: 1.3,
-      shortLeadTimeThreshold: 7,
-      mediumLeadTimeThreshold: 14,
-      replenishmentTimeFactor: 1.0,
-      greenZoneFactor: 0.7,
-      isActive: true,
-      metadata: {}
-    };
-  }
+// Delete decoupling point
+export const deleteDecouplingPoint = async (id: string): Promise<void> => {
+  const { error } = await supabase
+    .from('decoupling_points')
+    .delete()
+    .eq('id', id);
+
+  if (error) throw error;
 };
+
+// Purchase Orders
 
 // Create purchase order
-export const createPurchaseOrder = async (
-  sku: string,
-  quantity: number,
-  supplier?: string
-): Promise<{ success: boolean; message: string; id?: string }> => {
+export const createPurchaseOrder = async (order: Omit<PurchaseOrder, 'id'>): Promise<PurchaseOrder> => {
+  const { data, error } = await supabase
+    .from('purchase_orders')
+    .insert(order)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+// Get purchase orders
+export const getPurchaseOrders = async (): Promise<PurchaseOrder[]> => {
+  const { data, error } = await supabase
+    .from('purchase_orders')
+    .select('*');
+
+  if (error) throw error;
+  return data || [];
+};
+
+// Buffer Configuration
+
+// Get buffer configuration
+export const getBufferFactorConfig = async (): Promise<BufferFactorConfig[]> => {
+  const { data, error } = await supabase
+    .from('buffer_factor_configs')
+    .select('*')
+    .eq('isActive', true);
+
+  if (error) throw error;
+  return data || [];
+};
+
+// Save buffer configuration
+export const saveBufferFactorConfig = async (config: Omit<BufferFactorConfig, 'id'>): Promise<BufferFactorConfig> => {
+  // First, deactivate all existing config
+  await supabase
+    .from('buffer_factor_configs')
+    .update({ isActive: false })
+    .eq('isActive', true);
+
+  // Then create new active config
+  const { data, error } = await supabase
+    .from('buffer_factor_configs')
+    .insert({ ...config, isActive: true })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+// Calculate buffer zones for an item
+export const calculateBufferZones = async (itemId: string): Promise<{ red: number, yellow: number, green: number }> => {
+  // In a real application, this would call a server function or API endpoint
+  // that applies the DDMRP calculation logic
+  
   try {
-    const poNumber = `PO-${Date.now().toString().slice(-6)}`;
+    const { data, error } = await supabase.rpc('calculate_buffer_zones', { item_id: itemId });
     
-    const { data, error } = await supabase
-      .from('purchase_orders')
-      .insert({
-        po_number: poNumber,
-        sku,
-        quantity,
-        supplier,
-        status: 'draft',
-        order_date: new Date().toISOString()
-      })
-      .select()
-      .single();
-      
     if (error) throw error;
     
-    return {
-      success: true,
-      message: `Purchase order ${poNumber} created successfully`,
-      id: data.id
-    };
-  } catch (error) {
-    console.error('Error creating purchase order:', error);
-    return {
-      success: false,
-      message: `Failed to create purchase order: ${error instanceof Error ? error.message : 'Unknown error'}`
-    };
+    if (data && typeof data === 'object') {
+      // Ensure data is correctly typed
+      const typedData = data as Record<string, any>;
+      return {
+        red: typedData.red_zone || 0,
+        yellow: typedData.yellow_zone || 0,
+        green: typedData.green_zone || 0
+      };
+    }
+    
+    // Fallback to mock calculation if no data
+    throw new Error('No data returned from calculation function');
+  } catch (err) {
+    console.error('Error calculating buffer zones:', err);
+    
+    // Simulate calculation for demo purposes
+    const item = await getInventoryItemById(itemId);
+    
+    const redZone = item.redZoneSize || Math.round(item.adu! * (item.leadTimeDays! * 0.33));
+    const yellowZone = item.yellowZoneSize || Math.round(item.adu! * item.leadTimeDays!);
+    const greenZone = item.greenZoneSize || Math.round(item.adu! * (item.leadTimeDays! * 0.5));
+    
+    return { red: redZone, yellow: yellowZone, green: greenZone };
+  }
+};
+
+// Calculate net flow position for an item
+export const calculateNetFlowPosition = async (itemId: string): Promise<{ onHand: number, onOrder: number, qualifiedDemand: number, netFlowPosition: number }> => {
+  try {
+    const item = await getInventoryItemById(itemId);
+    
+    // In a real app, you would do a more sophisticated calculation
+    const onHand = item.onHand;
+    const onOrder = item.onOrder;
+    const qualifiedDemand = item.qualifiedDemand;
+    const netFlowPosition = onHand + onOrder - qualifiedDemand;
+    
+    return { onHand, onOrder, qualifiedDemand, netFlowPosition };
+  } catch (err) {
+    console.error('Error calculating net flow position:', err);
+    return { onHand: 0, onOrder: 0, qualifiedDemand: 0, netFlowPosition: 0 };
   }
 };
