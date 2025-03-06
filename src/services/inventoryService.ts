@@ -361,7 +361,7 @@ export const createPurchaseOrder = async (order: Omit<PurchaseOrder, 'id'>): Pro
     quantity: order.quantity,
     created_by: order.createdBy || 'system', // Provide default value
     status: order.status,
-    supplier: order.supplier,
+    supplier: order.supplier || undefined, // Provide undefined as fallback if supplier doesn't exist
     expected_delivery_date: order.expectedDeliveryDate,
     order_date: order.orderDate
   };
@@ -398,8 +398,8 @@ export const getPurchaseOrders = async (): Promise<PurchaseOrder[]> => {
     quantity: order.quantity,
     createdBy: 'system', // Default value since it might be missing in the database
     status: order.status,
-    supplier: order.supplier,
-    expectedDeliveryDate: order.expected_delivery_date,
+    supplier: order.supplier || undefined, // Provide undefined as fallback if supplier doesn't exist
+    expectedDeliveryDate: order.expected_delivery_date || undefined, // Provide undefined as fallback
     orderDate: order.order_date
   }));
 };
