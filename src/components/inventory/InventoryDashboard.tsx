@@ -1,93 +1,126 @@
 
-import { useCallback } from "react";
-import { Card } from "@/components/ui/card";
-import { useInventory } from "@/hooks/useInventory";
-import { InventoryItem } from "@/types/inventory";
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import InventoryFilters from "./InventoryFilters";
-import InventorySummaryCards from "./InventorySummaryCards";
-import { InventoryTable } from "./InventoryTable";
-import { InventoryChart } from "./InventoryChart";
-import { NetworkDecouplingMap } from "./NetworkDecouplingMap";
-import { SKUClassifications } from "./SKUClassifications";
+import { InventoryItem, PurchaseOrder } from "@/types/inventory";
 import { createPurchaseOrder } from "@/services/inventoryService";
+import { DataTable } from "@/components/ui/data-table";
+import { PaginationState } from "@/types/inventory/databaseTypes";
 
-export const InventoryDashboard = () => {
-  const { 
-    items, 
-    loading, 
-    filters, 
-    pagination, 
-    updateFilters, 
-    changePage, 
-    refreshData 
-  } = useInventory();
-  
+interface InventoryDashboardProps {
+  items: InventoryItem[];
+  pagination: {
+    currentPage: number;
+    itemsPerPage: number;
+    totalItems: number;
+  };
+  onPageChange: (page: number) => void;
+}
+
+export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
+  items,
+  pagination,
+  onPageChange
+}) => {
   const { toast } = useToast();
+  const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({});
 
-  const handleCreatePurchaseOrder = useCallback(async (item: InventoryItem) => {
+  const handleCreatePO = async (item: InventoryItem) => {
+    setLoadingItems(prev => ({ ...prev, [item.id]: true }));
+    
     try {
-      const result = await createPurchaseOrder(item.sku, 100);
+      const order: Omit<PurchaseOrder, 'id'> = {
+        poNumber: `PO-${Date.now().toString().slice(-6)}`,
+        sku: item.sku,
+        quantity: Math.max(item.redZoneSize || 100, 10),
+        createdBy: 'system',
+        status: 'pending',
+        orderDate: new Date().toISOString()
+      };
       
-      if (result.success) {
-        toast({
-          title: "Success",
-          description: result.message,
-        });
-        refreshData();
-      } else {
-        toast({
-          title: "Error",
-          description: result.message,
-          variant: "destructive",
-        });
-      }
+      const result = await createPurchaseOrder(order);
+      
+      toast({
+        title: "Success",
+        description: `Purchase order ${result.poNumber} created successfully`,
+      });
     } catch (error) {
+      console.error('Error creating purchase order:', error);
       toast({
         title: "Error",
         description: "Failed to create purchase order",
         variant: "destructive",
       });
+    } finally {
+      setLoadingItems(prev => ({ ...prev, [item.id]: false }));
     }
-  }, [toast, refreshData]);
+  };
+
+  const columns = [
+    {
+      accessorKey: 'sku',
+      header: 'SKU',
+    },
+    {
+      accessorKey: 'name',
+      header: 'Name',
+    },
+    {
+      accessorKey: 'currentStock',
+      header: 'Current Stock',
+    },
+    {
+      accessorKey: 'bufferPenetration',
+      header: 'Buffer Penetration',
+      cell: ({ row }: any) => {
+        const value = row.original.bufferPenetration;
+        if (value === undefined) return '-';
+        return `${(value * 100).toFixed(1)}%`;
+      }
+    },
+    {
+      accessorKey: 'netFlowPosition',
+      header: 'Net Flow Position',
+    },
+    {
+      id: 'actions',
+      cell: ({ row }: any) => {
+        const item = row.original;
+        const isLoading = loadingItems[item.id] || false;
+        
+        return (
+          <Button 
+            variant="outline" 
+            size="sm"
+            disabled={isLoading}
+            onClick={() => handleCreatePO(item)}
+          >
+            {isLoading ? 'Creating...' : 'Create PO'}
+          </Button>
+        );
+      }
+    },
+  ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4">
-        <div className="flex justify-between items-center">
-          <p className="text-muted-foreground">
-            Manage and track inventory levels
-          </p>
-          <div className="flex gap-2">
-            <InventoryFilters
-              searchQuery={filters.searchQuery || ""}
-              setSearchQuery={query => updateFilters({ searchQuery: query })}
-            />
-          </div>
-        </div>
-      </div>
-
-      <InventorySummaryCards />
-      
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">SKU Classifications</h3>
-        <SKUClassifications classifications={[]} />
-      </Card>
-      
-      <NetworkDecouplingMap />
-      
-      <InventoryChart data={items} />
-
-      <Card>
-        <InventoryTable 
-          items={items}
-          loading={loading}
-          pagination={pagination}
-          onPageChange={changePage}
-          onCreatePO={handleCreatePurchaseOrder}
+    <Card>
+      <CardHeader>
+        <CardTitle>Inventory Dashboard</CardTitle>
+        <CardDescription>Monitor and manage your inventory items</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <DataTable 
+          columns={columns} 
+          data={items} 
+          pagination={{
+            pageSize: pagination.itemsPerPage,
+            pageIndex: pagination.currentPage - 1,
+            pageCount: Math.ceil(pagination.totalItems / pagination.itemsPerPage),
+            onPageChange: (page) => onPageChange(page + 1)
+          }}
         />
-      </Card>
-    </div>
+      </CardContent>
+    </Card>
   );
 };

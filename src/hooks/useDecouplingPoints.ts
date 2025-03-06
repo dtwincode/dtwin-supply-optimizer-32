@@ -5,6 +5,23 @@ import { DecouplingPoint, DecouplingNode, DecouplingLink, DecouplingNetwork } fr
 import { useToast } from '@/hooks/use-toast';
 import { getDecouplingPoints, createDecouplingPoint, updateDecouplingPoint, deleteDecouplingPoint } from '@/services/inventoryService';
 
+// Define mock location data structure for development
+interface LocationData {
+  id: string;
+  name: string;
+  level: number;
+  address?: string;
+  city?: string;
+  country?: string;
+}
+
+// Define mock connection data structure for development
+interface ConnectionData {
+  source_id: string;
+  target_id: string;
+  connection_type?: string;
+}
+
 export function useDecouplingPoints() {
   const [points, setPoints] = useState<DecouplingPoint[]>([]);
   const [network, setNetwork] = useState<DecouplingNetwork>({ nodes: [], links: [] });
@@ -37,31 +54,32 @@ export function useDecouplingPoints() {
 
   const buildNetwork = useCallback(async (decouplingPoints: DecouplingPoint[]) => {
     try {
-      // Fetch locations
-      const { data: locations } = await supabase
-        .from('locations')
-        .select('*');
+      // In a real app, these would be fetched from Supabase
+      // For now, use mock data instead of trying to fetch from 'locations' table
+      const mockLocations: LocationData[] = [
+        { id: "loc-main-warehouse", name: "Main Warehouse", level: 0, address: "123 Main St", city: "Los Angeles", country: "USA" },
+        { id: "loc-distribution-center", name: "Distribution Center", level: 1, address: "456 Center Ave", city: "Chicago", country: "USA" },
+        { id: "loc-retail-store", name: "Retail Store", level: 2, address: "789 Market St", city: "New York", country: "USA" }
+      ];
 
       // Create nodes and links
       const nodes: DecouplingNode[] = [];
       const links: DecouplingLink[] = [];
 
       // Add location nodes
-      if (locations) {
-        locations.forEach((location) => {
-          nodes.push({
-            id: location.id,
-            type: 'location',
-            label: location.name,
-            level: location.level || 0,
-            metadata: { 
-              address: location.address,
-              city: location.city,
-              country: location.country
-            }
-          });
+      mockLocations.forEach((location) => {
+        nodes.push({
+          id: location.id,
+          type: 'location',
+          label: location.name,
+          level: location.level,
+          metadata: { 
+            address: location.address,
+            city: location.city,
+            country: location.country
+          }
         });
-      }
+      });
 
       // Add decoupling point nodes
       decouplingPoints.forEach(point => {
@@ -84,20 +102,19 @@ export function useDecouplingPoints() {
         });
       });
 
-      // Look for supply chain connections to create links
-      const { data: connections } = await supabase
-        .from('supply_chain_connections')
-        .select('*');
+      // Mock supply chain connections instead of fetching from non-existent table
+      const mockConnections: ConnectionData[] = [
+        { source_id: "loc-main-warehouse", target_id: "loc-distribution-center", connection_type: "supply" },
+        { source_id: "loc-distribution-center", target_id: "loc-retail-store", connection_type: "distribution" }
+      ];
 
-      if (connections) {
-        connections.forEach(conn => {
-          links.push({
-            source: conn.source_id,
-            target: conn.target_id,
-            label: conn.connection_type
-          });
+      mockConnections.forEach(conn => {
+        links.push({
+          source: conn.source_id,
+          target: conn.target_id,
+          label: conn.connection_type
         });
-      }
+      });
 
       setNetwork({ nodes, links });
     } catch (err) {

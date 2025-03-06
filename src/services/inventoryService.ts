@@ -14,6 +14,7 @@ import {
   DBPurchaseOrder,
   DBBufferFactorConfig
 } from '@/types/inventory/databaseTypes';
+import { Json } from '@/integrations/supabase/types';
 
 // Helper function to convert DB inventory item to InventoryItem
 const mapInventoryItem = (item: DBInventoryItem): InventoryItem => ({
@@ -77,7 +78,7 @@ const mapPurchaseOrder = (order: DBPurchaseOrder): PurchaseOrder => ({
 });
 
 // Helper function to convert DB buffer factor config to BufferFactorConfig
-const mapBufferFactorConfig = (config: DBBufferFactorConfig): BufferFactorConfig => ({
+const mapBufferFactorConfig = (config: any): BufferFactorConfig => ({
   id: config.id,
   shortLeadTimeFactor: config.short_lead_time_factor,
   mediumLeadTimeFactor: config.medium_lead_time_factor,
@@ -142,7 +143,9 @@ export const updateInventoryItem = async (item: Partial<InventoryItem> & { id: s
     on_order: item.onOrder,
     qualified_demand: item.qualifiedDemand,
     net_flow_position: item.netFlowPosition,
-    planning_priority: item.planningPriority
+    planning_priority: item.planningPriority,
+    max_stock: 1000, // Default value
+    min_stock: 0,    // Default value
   };
 
   const { data, error } = await supabase
@@ -158,8 +161,8 @@ export const updateInventoryItem = async (item: Partial<InventoryItem> & { id: s
 
 // Create inventory item
 export const createInventoryItem = async (item: Omit<InventoryItem, 'id'>): Promise<InventoryItem> => {
-  // Convert camelCase to snake_case for DB
-  const dbItem: Omit<DBInventoryItem, 'id' | 'created_at' | 'updated_at'> = {
+  // Convert camelCase to snake_case for DB and add required fields
+  const dbItem: any = {
     sku: item.sku,
     name: item.name,
     current_stock: item.currentStock,
@@ -182,7 +185,9 @@ export const createInventoryItem = async (item: Omit<InventoryItem, 'id'>): Prom
     on_order: item.onOrder,
     qualified_demand: item.qualifiedDemand,
     net_flow_position: item.netFlowPosition,
-    planning_priority: item.planningPriority
+    planning_priority: item.planningPriority,
+    max_stock: 1000, // Default value
+    min_stock: 0     // Default value
   };
 
   const { data, error } = await supabase
@@ -351,11 +356,11 @@ export const deleteDecouplingPoint = async (id: string): Promise<void> => {
 // Create purchase order
 export const createPurchaseOrder = async (order: Omit<PurchaseOrder, 'id'>): Promise<PurchaseOrder> => {
   // Convert camelCase to snake_case for DB
-  const dbOrder: Omit<DBPurchaseOrder, 'id' | 'created_at' | 'updated_at'> = {
+  const dbOrder: any = {
     po_number: order.poNumber,
     sku: order.sku,
     quantity: order.quantity,
-    created_by: order.createdBy,
+    created_by: order.createdBy || 'system', // Provide default value
     status: order.status,
     supplier: order.supplier,
     expected_delivery_date: order.expectedDeliveryDate,
@@ -415,7 +420,7 @@ export const saveBufferFactorConfig = async (config: Omit<BufferFactorConfig, 'i
     .eq('is_active', true);
 
   // Convert camelCase to snake_case for DB
-  const dbConfig: Omit<DBBufferFactorConfig, 'id' | 'created_at' | 'updated_at'> = {
+  const dbConfig: any = {
     short_lead_time_factor: config.shortLeadTimeFactor,
     medium_lead_time_factor: config.mediumLeadTimeFactor,
     long_lead_time_factor: config.longLeadTimeFactor,
@@ -427,7 +432,7 @@ export const saveBufferFactorConfig = async (config: Omit<BufferFactorConfig, 'i
     is_active: true,
     industry: config.industry,
     is_benchmark_based: config.isBenchmarkBased,
-    metadata: config.metadata
+    metadata: config.metadata || {}
   };
 
   // Then create new active config

@@ -1,12 +1,13 @@
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { LeadTimeData } from "./types";
+import { LeadTimeData, LeadTimeAnomaly } from "./types";
 
 interface LeadTimePredictionsProps {
   data: LeadTimeData[];
+  anomalies?: LeadTimeAnomaly[];
 }
 
-export function LeadTimePredictions({ data }: LeadTimePredictionsProps) {
+export function LeadTimePredictions({ data, anomalies }: LeadTimePredictionsProps) {
   return (
     <div className="h-[400px] mt-4">
       <ResponsiveContainer width="100%" height="100%">

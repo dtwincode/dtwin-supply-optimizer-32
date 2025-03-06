@@ -28,6 +28,8 @@ export interface DBInventoryItem {
   planning_priority?: string;
   created_at: string;
   updated_at: string;
+  max_stock: number;
+  min_stock: number;
 }
 
 export interface DBBufferProfile {
@@ -88,4 +90,7 @@ export interface PaginationState {
   page: number;
   limit: number;
   total: number;
+  currentPage: number;
+  itemsPerPage: number;
+  totalItems: number;
 }
