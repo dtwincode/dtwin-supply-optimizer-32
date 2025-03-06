@@ -382,7 +382,7 @@ export const getPurchaseOrders = async (): Promise<PurchaseOrder[]> => {
     poNumber: order.po_number,
     sku: order.sku,
     quantity: order.quantity,
-    createdBy: order.created_by || 'system',
+    createdBy: order.created_by !== undefined ? order.created_by : 'system',
     status: order.status,
     supplier: order.supplier !== undefined ? order.supplier : undefined,
     expectedDeliveryDate: order.expected_delivery_date !== undefined ? order.expected_delivery_date : undefined,
