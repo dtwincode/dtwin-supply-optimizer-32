@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { 
   InventoryItem, 
@@ -145,7 +144,7 @@ export const updateInventoryItem = async (item: Partial<InventoryItem> & { id: s
     net_flow_position: item.netFlowPosition,
     planning_priority: item.planningPriority,
     max_stock: 1000, // Default value
-    min_stock: 0,    // Default value
+    min_stock: 0    // Default value
   };
 
   const { data, error } = await supabase
@@ -384,7 +383,14 @@ export const getPurchaseOrders = async (): Promise<PurchaseOrder[]> => {
     .select('*');
 
   if (error) throw error;
-  return (data || []).map(mapPurchaseOrder);
+  
+  // Ensure each record has all required fields or set defaults
+  const validData = data?.map(item => ({
+    ...item,
+    created_by: item.created_by || 'system' // Ensure created_by has a default value
+  }));
+  
+  return (validData || []).map(mapPurchaseOrder);
 };
 
 // Buffer Configuration

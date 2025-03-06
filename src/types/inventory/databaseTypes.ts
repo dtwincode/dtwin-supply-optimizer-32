@@ -59,7 +59,7 @@ export interface DBPurchaseOrder {
   po_number: string;
   sku: string;
   quantity: number;
-  created_by: string;
+  created_by?: string; // Made optional to fix the type error
   status: string;
   supplier?: string;
   expected_delivery_date?: string;
