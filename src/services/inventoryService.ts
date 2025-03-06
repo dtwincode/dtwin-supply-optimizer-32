@@ -15,8 +15,8 @@ import {
 } from '@/types/inventory/databaseTypes';
 import { Json } from '@/integrations/supabase/types';
 import {
-  calculateBufferZones,
-  calculateNetFlowPosition,
+  calculateBufferZones as calculateBufferZonesUtil,
+  calculateNetFlowPosition as calculateNetFlowPositionUtil,
   calculateBufferPenetration,
   calculatePlanningPriority,
   shouldCreatePurchaseOrder,

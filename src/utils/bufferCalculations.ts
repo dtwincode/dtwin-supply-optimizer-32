@@ -64,7 +64,7 @@ export const calculateNetFlowPosition = (item: InventoryItem): NetFlowPosition =
   };
 };
 
-// New function: Calculate qualified demand with spike adjustment
+// Calculate qualified demand with spike adjustment
 export const calculateQualifiedDemand = (item: InventoryItem): number => {
   const baseQualifiedDemand = item.qualifiedDemand || 0;
   
@@ -104,7 +104,7 @@ export const calculatePlanningPriority = (bufferPenetration: number): string => 
   return 'Very Low';
 };
 
-// New function: Calculate decoupled lead time
+// Calculate decoupled lead time
 export const calculateDecoupledLeadTime = (
   item: InventoryItem,
   bufferProfile?: { variabilityFactor: string; leadTimeFactor: string }
@@ -128,7 +128,7 @@ export const calculateDecoupledLeadTime = (
   return Number((item.leadTimeDays * compressionFactor).toFixed(1));
 };
 
-// New function: Calculate inventory health metrics
+// Calculate inventory health metrics
 export const calculateInventoryHealthMetrics = (
   item: InventoryItem,
   bufferZones: BufferZones,
@@ -178,7 +178,7 @@ export const calculateInventoryHealthMetrics = (
   };
 };
 
-// New function: Determine optimal buffer levels
+// Determine optimal buffer levels
 export const calculateOptimalBufferLevels = (
   item: InventoryItem,
   config: BufferFactorConfig
