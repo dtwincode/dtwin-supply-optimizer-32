@@ -238,7 +238,7 @@ export const BufferManagementTab = () => {
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-muted-foreground">Long</span>
-                          <span className="font-medium">> {activeConfig?.mediumLeadTimeThreshold || "-"}</span>
+                          <span className="font-medium">&gt; {activeConfig?.mediumLeadTimeThreshold || "-"}</span>
                         </div>
                       </div>
                     </CardContent>
