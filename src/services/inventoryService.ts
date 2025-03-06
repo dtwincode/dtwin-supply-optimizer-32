@@ -14,6 +14,18 @@ import {
   DBBufferFactorConfig
 } from '@/types/inventory/databaseTypes';
 import { Json } from '@/integrations/supabase/types';
+import {
+  calculateBufferZones,
+  calculateNetFlowPosition,
+  calculateBufferPenetration,
+  calculatePlanningPriority,
+  shouldCreatePurchaseOrder,
+  calculateOrderQuantity,
+  calculateQualifiedDemand,
+  calculateDecoupledLeadTime,
+  calculateInventoryHealthMetrics,
+  calculateOptimalBufferLevels
+} from '@/utils/bufferCalculations';
 
 // Helper function to convert DB inventory item to InventoryItem
 const mapInventoryItem = (item: DBInventoryItem): InventoryItem => ({
@@ -452,6 +464,15 @@ export const calculateBufferZones = async (itemId: string): Promise<{ red: numbe
     const item = await getInventoryItemById(itemId);
     const config = await getActiveBufferConfig();
     
+    // Get buffer profile if available
+    let bufferProfile: BufferProfile | undefined;
+    if (item.decouplingPointId) {
+      const decouplingPoint = await getDecouplingPointById(item.decouplingPointId);
+      if (decouplingPoint?.bufferProfileId) {
+        bufferProfile = await getBufferProfileById(decouplingPoint.bufferProfileId);
+      }
+    }
+    
     let leadTimeFactor = config.mediumLeadTimeFactor;
     if (item.leadTimeDays && item.leadTimeDays <= config.shortLeadTimeThreshold) {
       leadTimeFactor = config.shortLeadTimeFactor;
@@ -459,7 +480,18 @@ export const calculateBufferZones = async (itemId: string): Promise<{ red: numbe
       leadTimeFactor = config.longLeadTimeFactor;
     }
     
-    const redZone = item.adu ? Math.round(item.adu * leadTimeFactor * (item.variabilityFactor || 1)) : 0;
+    // Apply variability factor from profile or default
+    const variabilityFactor = getVariabilityFactorValue(bufferProfile?.variabilityFactor) || item.variabilityFactor || 1.0;
+    
+    // Apply dynamic adjustments if available
+    const seasonalityFactor = item.dynamicAdjustments?.seasonality || 1.0;
+    const trendFactor = item.dynamicAdjustments?.trend || 1.0;
+    const marketStrategyFactor = item.dynamicAdjustments?.marketStrategy || 1.0;
+    
+    // Calculate combined adjustment factor
+    const combinedAdjustmentFactor = seasonalityFactor * trendFactor * marketStrategyFactor;
+    
+    const redZone = item.adu ? Math.round(item.adu * leadTimeFactor * variabilityFactor * combinedAdjustmentFactor) : 0;
     const yellowZone = item.adu && item.leadTimeDays ? Math.round(item.adu * item.leadTimeDays * config.replenishmentTimeFactor) : 0;
     const greenZone = Math.round(yellowZone * config.greenZoneFactor);
     
@@ -477,6 +509,60 @@ export const calculateBufferZones = async (itemId: string): Promise<{ red: numbe
   }
 };
 
+// Helper function to convert variability type to numeric value
+function getVariabilityFactorValue(variabilityType?: string): number | undefined {
+  if (!variabilityType) return undefined;
+  
+  switch (variabilityType) {
+    case 'high_variability':
+      return 1.3;
+    case 'medium_variability':
+      return 1.0;
+    case 'low_variability':
+      return 0.7;
+    default:
+      return undefined;
+  }
+}
+
+// New function: Get decoupling point by ID
+export const getDecouplingPointById = async (id: string): Promise<DecouplingPoint | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('decoupling_points')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+    if (!data) return null;
+    
+    return mapDecouplingPoint(data);
+  } catch (err) {
+    console.error('Error getting decoupling point:', err);
+    return null;
+  }
+};
+
+// New function: Get buffer profile by ID
+export const getBufferProfileById = async (id: string): Promise<BufferProfile | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('buffer_profiles')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+    if (!data) return null;
+    
+    return mapBufferProfile(data);
+  } catch (err) {
+    console.error('Error getting buffer profile:', err);
+    return null;
+  }
+};
+
 // Calculate net flow position for an item
 export const calculateNetFlowPosition = async (itemId: string): Promise<{ onHand: number, onOrder: number, qualifiedDemand: number, netFlowPosition: number }> => {
   try {
@@ -484,12 +570,309 @@ export const calculateNetFlowPosition = async (itemId: string): Promise<{ onHand
     
     const onHand = item.onHand;
     const onOrder = item.onOrder;
-    const qualifiedDemand = item.qualifiedDemand;
+    
+    // Apply qualified demand calculation that respects spike thresholds
+    const qualifiedDemand = calculateQualifiedDemand(item);
+    
     const netFlowPosition = onHand + onOrder - qualifiedDemand;
     
     return { onHand, onOrder, qualifiedDemand, netFlowPosition };
   } catch (err) {
     console.error('Error calculating net flow position:', err);
     return { onHand: 0, onOrder: 0, qualifiedDemand: 0, netFlowPosition: 0 };
+  }
+};
+
+// New function: Calculate advanced DDMRP metrics for an item
+export const calculateAdvancedDDMRPMetrics = async (itemId: string): Promise<{
+  bufferZones: { red: number, yellow: number, green: number };
+  netFlow: { onHand: number, onOrder: number, qualifiedDemand: number, netFlowPosition: number };
+  bufferPenetration: number;
+  planningPriority: string;
+  inventoryHealth: {
+    inventoryTurnsRatio: number;
+    bufferHealthAssessment: number;
+    leadTimeCompressionIndex: number;
+    demandDrivenFillRate: number;
+  };
+  replenishmentRecommendation: {
+    shouldOrder: boolean;
+    urgencyLevel: 'normal' | 'expedite' | 'emergency';
+    orderQuantity: number;
+  };
+}> => {
+  try {
+    const item = await getInventoryItemById(itemId);
+    const config = await getActiveBufferConfig();
+    
+    // Get buffer profile if item has a decoupling point
+    let bufferProfile: BufferProfile | undefined;
+    if (item.decouplingPointId) {
+      const decouplingPoint = await getDecouplingPointById(item.decouplingPointId);
+      if (decouplingPoint?.bufferProfileId) {
+        bufferProfile = await getBufferProfileById(decouplingPoint.bufferProfileId);
+      }
+    }
+    
+    // Calculate buffer zones
+    const bufferZones = await calculateBufferZones(itemId);
+    
+    // Calculate net flow position
+    const netFlow = await calculateNetFlowPosition(itemId);
+    
+    // Calculate buffer penetration
+    const bufferPenetration = calculateBufferPenetration(netFlow.netFlowPosition, bufferZones);
+    
+    // Determine planning priority
+    const planningPriority = calculatePlanningPriority(bufferPenetration);
+    
+    // Calculate inventory health metrics
+    const inventoryHealth = calculateInventoryHealthMetrics(item, bufferZones, netFlow.netFlowPosition);
+    
+    // Calculate replenishment recommendation
+    const { shouldOrder, urgencyLevel } = shouldCreatePurchaseOrder(
+      netFlow.netFlowPosition, 
+      bufferZones,
+      item.supplySignals
+    );
+    
+    const orderQuantity = calculateOrderQuantity(
+      netFlow.netFlowPosition,
+      bufferZones,
+      bufferProfile?.moq,
+      item.economicOrderQty,
+      bufferProfile?.lotSizeFactor
+    );
+    
+    return {
+      bufferZones,
+      netFlow,
+      bufferPenetration,
+      planningPriority,
+      inventoryHealth,
+      replenishmentRecommendation: {
+        shouldOrder,
+        urgencyLevel,
+        orderQuantity
+      }
+    };
+  } catch (err) {
+    console.error('Error calculating advanced DDMRP metrics:', err);
+    throw err;
+  }
+};
+
+// New function: Apply buffer recommendations to an item
+export const applyBufferRecommendations = async (itemId: string): Promise<InventoryItem> => {
+  try {
+    const item = await getInventoryItemById(itemId);
+    const config = await getActiveBufferConfig();
+    
+    // Calculate optimal buffer levels
+    const optimalBuffers = calculateOptimalBufferLevels(item, config);
+    
+    // Calculate decoupled lead time
+    let bufferProfile;
+    if (item.decouplingPointId) {
+      const decouplingPoint = await getDecouplingPointById(item.decouplingPointId);
+      if (decouplingPoint?.bufferProfileId) {
+        bufferProfile = await getBufferProfileById(decouplingPoint.bufferProfileId);
+      }
+    }
+    const decoupledLeadTime = calculateDecoupledLeadTime(item, bufferProfile || undefined);
+    
+    // Calculate net flow position
+    const netFlow = await calculateNetFlowPosition(itemId);
+    
+    // Calculate buffer zones
+    const bufferZones = await calculateBufferZones(itemId);
+    
+    // Calculate buffer penetration
+    const bufferPenetration = calculateBufferPenetration(netFlow.netFlowPosition, bufferZones);
+    
+    // Determine planning priority
+    const planningPriority = calculatePlanningPriority(bufferPenetration);
+    
+    // Calculate inventory health metrics
+    const healthMetrics = calculateInventoryHealthMetrics(item, bufferZones, netFlow.netFlowPosition);
+    
+    // Apply all calculated values to the item
+    const updatedItem: Partial<InventoryItem> & { id: string } = {
+      id: item.id,
+      redZoneSize: optimalBuffers.optimalRedZone,
+      yellowZoneSize: optimalBuffers.optimalYellowZone,
+      greenZoneSize: optimalBuffers.optimalGreenZone,
+      decoupledLeadTime,
+      onHand: item.onHand,
+      onOrder: item.onOrder,
+      qualifiedDemand: netFlow.qualifiedDemand,
+      netFlowPosition: netFlow.netFlowPosition,
+      bufferPenetration,
+      planningPriority,
+      inventoryTurnsRatio: healthMetrics.inventoryTurnsRatio,
+      bufferHealthAssessment: healthMetrics.bufferHealthAssessment,
+      leadTimeCompressionIndex: healthMetrics.leadTimeCompressionIndex,
+      demandDrivenFillRate: healthMetrics.demandDrivenFillRate
+    };
+    
+    // Update the item in the database
+    return await updateInventoryItem(updatedItem);
+  } catch (err) {
+    console.error('Error applying buffer recommendations:', err);
+    throw err;
+  }
+};
+
+// New function: Generate replenishment recommendations for all inventory items
+export const generateReplenishmentRecommendations = async (): Promise<{
+  itemId: string;
+  sku: string;
+  name: string;
+  bufferPenetration: number;
+  planningPriority: string;
+  shouldOrder: boolean;
+  urgencyLevel: string;
+  orderQuantity: number;
+}[]> => {
+  try {
+    const items = await getInventoryItems();
+    const recommendations = [];
+    
+    for (const item of items) {
+      const metrics = await calculateAdvancedDDMRPMetrics(item.id);
+      
+      if (metrics.replenishmentRecommendation.shouldOrder) {
+        recommendations.push({
+          itemId: item.id,
+          sku: item.sku,
+          name: item.name,
+          bufferPenetration: metrics.bufferPenetration,
+          planningPriority: metrics.planningPriority,
+          shouldOrder: metrics.replenishmentRecommendation.shouldOrder,
+          urgencyLevel: metrics.replenishmentRecommendation.urgencyLevel,
+          orderQuantity: metrics.replenishmentRecommendation.orderQuantity
+        });
+      }
+    }
+    
+    // Sort by urgency level and buffer penetration
+    return recommendations.sort((a, b) => {
+      // First sort by urgency level
+      const urgencyOrder = { 'emergency': 0, 'expedite': 1, 'normal': 2 };
+      const urgencyDiff = urgencyOrder[a.urgencyLevel as keyof typeof urgencyOrder] - 
+                         urgencyOrder[b.urgencyLevel as keyof typeof urgencyOrder];
+      
+      if (urgencyDiff !== 0) return urgencyDiff;
+      
+      // Then sort by buffer penetration (descending)
+      return b.bufferPenetration - a.bufferPenetration;
+    });
+  } catch (err) {
+    console.error('Error generating replenishment recommendations:', err);
+    throw err;
+  }
+};
+
+// New function: Generate purchase orders based on recommendations
+export const generatePurchaseOrders = async (
+  recommendations: {
+    itemId: string;
+    orderQuantity: number;
+  }[]
+): Promise<PurchaseOrder[]> => {
+  try {
+    const createdOrders: PurchaseOrder[] = [];
+    
+    for (const rec of recommendations) {
+      const item = await getInventoryItemById(rec.itemId);
+      
+      const now = new Date();
+      const poNumber = `PO-${item.sku}-${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
+      
+      const order = await createPurchaseOrder({
+        poNumber,
+        sku: item.sku,
+        quantity: rec.orderQuantity,
+        status: 'draft',
+        createdBy: 'system',
+        orderDate: now.toISOString()
+      });
+      
+      createdOrders.push(order);
+    }
+    
+    return createdOrders;
+  } catch (err) {
+    console.error('Error generating purchase orders:', err);
+    throw err;
+  }
+};
+
+// New function: Historical buffer metrics for trending analysis
+export const getHistoricalBufferMetrics = async (itemId: string, startDate?: string, endDate?: string): Promise<any[]> => {
+  try {
+    let query = supabase
+      .from('ddmrp_metrics_history')
+      .select('*')
+      .eq('inventory_item_id', itemId)
+      .order('recorded_at', { ascending: false });
+    
+    if (startDate) {
+      query = query.gte('recorded_at', startDate);
+    }
+    
+    if (endDate) {
+      query = query.lte('recorded_at', endDate);
+    }
+    
+    const { data, error } = await query;
+    
+    if (error) throw error;
+    return data || [];
+  } catch (err) {
+    console.error('Error getting historical buffer metrics:', err);
+    return [];
+  }
+};
+
+// New function: Record buffer metrics history
+export const recordBufferMetricsHistory = async (itemId: string, metrics: Record<string, number>): Promise<void> => {
+  try {
+    const entries = Object.entries(metrics).map(([metricType, metricValue]) => ({
+      inventory_item_id: itemId,
+      metric_type: metricType,
+      metric_value: metricValue,
+      recorded_at: new Date().toISOString()
+    }));
+    
+    const { error } = await supabase
+      .from('ddmrp_metrics_history')
+      .insert(entries);
+    
+    if (error) throw error;
+  } catch (err) {
+    console.error('Error recording buffer metrics history:', err);
+  }
+};
+
+// New function: Update all inventory items with calculated DDMRP metrics
+export const updateAllInventoryWithDDMRPMetrics = async (): Promise<number> => {
+  try {
+    const items = await getInventoryItems();
+    let updatedCount = 0;
+    
+    for (const item of items) {
+      try {
+        await applyBufferRecommendations(item.id);
+        updatedCount++;
+      } catch (itemErr) {
+        console.error(`Error updating DDMRP metrics for item ${item.id}:`, itemErr);
+      }
+    }
+    
+    return updatedCount;
+  } catch (err) {
+    console.error('Error updating all inventory with DDMRP metrics:', err);
+    throw err;
   }
 };
