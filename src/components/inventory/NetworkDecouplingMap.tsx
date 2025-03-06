@@ -10,12 +10,12 @@ export const NetworkDecouplingMap = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check if Mapbox token is available
-    const mapboxToken = process.env.REACT_APP_MAPBOX_TOKEN || 
-                        import.meta.env.VITE_MAPBOX_TOKEN;
+    // Check if Mapbox token is available - use only import.meta.env for Vite
+    const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
     
     if (!mapboxToken) {
       setMapError(true);
+      console.log("Mapbox token is missing. Network visualization is disabled.");
       toast({
         title: "Map configuration error",
         description: "Mapbox API token is missing. Network visualization is disabled.",

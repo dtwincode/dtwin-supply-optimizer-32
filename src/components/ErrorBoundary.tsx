@@ -20,11 +20,15 @@ export class ErrorBoundary extends Component<Props, State> {
   };
 
   public static getDerivedStateFromError(error: Error): State {
+    // Update state so the next render will show the fallback UI
     return { hasError: true, error };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // Log the error to the console
     console.error("Error caught by ErrorBoundary:", error, errorInfo);
+    
+    // Call the onError callback if provided
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
     }
@@ -32,10 +36,12 @@ export class ErrorBoundary extends Component<Props, State> {
 
   public render() {
     if (this.state.hasError) {
+      // If a custom fallback is provided, use it
       if (this.props.fallback) {
         return this.props.fallback;
       }
       
+      // Default error UI
       return (
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
@@ -47,6 +53,7 @@ export class ErrorBoundary extends Component<Props, State> {
       );
     }
 
+    // When there's no error, render children normally
     return this.props.children;
   }
 }
