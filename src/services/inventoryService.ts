@@ -117,7 +117,6 @@ export const getInventoryItemById = async (id: string): Promise<InventoryItem> =
 
 // Update inventory item
 export const updateInventoryItem = async (item: Partial<InventoryItem> & { id: string }): Promise<InventoryItem> => {
-  // Convert camelCase to snake_case for DB
   const dbItem: Partial<DBInventoryItem> = {
     id: item.id,
     sku: item.sku,
@@ -143,8 +142,8 @@ export const updateInventoryItem = async (item: Partial<InventoryItem> & { id: s
     qualified_demand: item.qualifiedDemand,
     net_flow_position: item.netFlowPosition,
     planning_priority: item.planningPriority,
-    max_stock: 1000, // Default value
-    min_stock: 0    // Default value
+    max_stock: 1000,
+    min_stock: 0
   };
 
   const { data, error } = await supabase
@@ -160,7 +159,6 @@ export const updateInventoryItem = async (item: Partial<InventoryItem> & { id: s
 
 // Create inventory item
 export const createInventoryItem = async (item: Omit<InventoryItem, 'id'>): Promise<InventoryItem> => {
-  // Convert camelCase to snake_case for DB and add required fields
   const dbItem: any = {
     sku: item.sku,
     name: item.name,
@@ -185,8 +183,8 @@ export const createInventoryItem = async (item: Omit<InventoryItem, 'id'>): Prom
     qualified_demand: item.qualifiedDemand,
     net_flow_position: item.netFlowPosition,
     planning_priority: item.planningPriority,
-    max_stock: 1000, // Default value
-    min_stock: 0     // Default value
+    max_stock: 1000,
+    min_stock: 0
   };
 
   const { data, error } = await supabase
@@ -223,7 +221,6 @@ export const getBufferProfiles = async (): Promise<BufferProfile[]> => {
 
 // Create buffer profile
 export const createBufferProfile = async (profile: Omit<BufferProfile, 'id'>): Promise<BufferProfile> => {
-  // Convert camelCase to snake_case for DB
   const dbProfile: Omit<DBBufferProfile, 'id' | 'created_at' | 'updated_at'> = {
     name: profile.name,
     description: profile.description,
@@ -245,7 +242,6 @@ export const createBufferProfile = async (profile: Omit<BufferProfile, 'id'>): P
 
 // Update buffer profile
 export const updateBufferProfile = async (profile: Partial<BufferProfile> & { id: string }): Promise<BufferProfile> => {
-  // Convert camelCase to snake_case for DB
   const dbProfile: Partial<DBBufferProfile> = {
     id: profile.id,
     name: profile.name,
@@ -300,7 +296,6 @@ export const getDecouplingPoints = async (): Promise<DecouplingPoint[]> => {
 
 // Create decoupling point
 export const createDecouplingPoint = async (point: Omit<DecouplingPoint, 'id'>): Promise<DecouplingPoint> => {
-  // Convert camelCase to snake_case for DB
   const dbPoint: Omit<DBDecouplingPoint, 'id' | 'created_at' | 'updated_at'> = {
     location_id: point.locationId,
     buffer_profile_id: point.bufferProfileId,
@@ -320,7 +315,6 @@ export const createDecouplingPoint = async (point: Omit<DecouplingPoint, 'id'>):
 
 // Update decoupling point
 export const updateDecouplingPoint = async (point: Partial<DecouplingPoint> & { id: string }): Promise<DecouplingPoint> => {
-  // Convert camelCase to snake_case for DB
   const dbPoint: Partial<DBDecouplingPoint> = {
     id: point.id,
     location_id: point.locationId,
@@ -354,14 +348,13 @@ export const deleteDecouplingPoint = async (id: string): Promise<void> => {
 
 // Create purchase order
 export const createPurchaseOrder = async (order: Omit<PurchaseOrder, 'id'>): Promise<PurchaseOrder> => {
-  // Convert camelCase to snake_case for DB
   const dbOrder: any = {
     po_number: order.poNumber,
     sku: order.sku,
     quantity: order.quantity,
-    created_by: order.createdBy || 'system', // Provide default value
+    created_by: order.createdBy || 'system',
     status: order.status,
-    supplier: order.supplier || undefined, // Provide undefined as fallback if supplier doesn't exist
+    supplier: order.supplier || undefined,
     expected_delivery_date: order.expectedDeliveryDate,
     order_date: order.orderDate
   };
@@ -384,22 +377,15 @@ export const getPurchaseOrders = async (): Promise<PurchaseOrder[]> => {
 
   if (error) throw error;
   
-  // Handle the case where the data from the database might not have all required fields
-  // by providing default values where needed
-  const validData = data?.map(item => ({
-    ...item,
-    // If needed add other defaults here, but don't use created_by directly since it might not exist
-  })) || [];
-  
-  return validData.map(order => ({
+  return (data || []).map(order => ({
     id: order.id,
     poNumber: order.po_number,
     sku: order.sku,
     quantity: order.quantity,
-    createdBy: 'system', // Default value since it might be missing in the database
+    createdBy: order.created_by || 'system',
     status: order.status,
-    supplier: order.supplier || undefined, // Provide undefined as fallback if supplier doesn't exist
-    expectedDeliveryDate: order.expected_delivery_date || undefined, // Provide undefined as fallback
+    supplier: order.supplier !== undefined ? order.supplier : undefined,
+    expectedDeliveryDate: order.expected_delivery_date !== undefined ? order.expected_delivery_date : undefined,
     orderDate: order.order_date
   }));
 };
@@ -430,13 +416,11 @@ export const getBufferFactorConfig = async (): Promise<BufferFactorConfig[]> => 
 
 // Save buffer configuration
 export const saveBufferFactorConfig = async (config: Omit<BufferFactorConfig, 'id'>): Promise<BufferFactorConfig> => {
-  // First, deactivate all existing config
   await supabase
     .from('buffer_factor_configs')
     .update({ is_active: false })
     .eq('is_active', true);
 
-  // Convert camelCase to snake_case for DB
   const dbConfig: any = {
     short_lead_time_factor: config.shortLeadTimeFactor,
     medium_lead_time_factor: config.mediumLeadTimeFactor,
@@ -452,7 +436,6 @@ export const saveBufferFactorConfig = async (config: Omit<BufferFactorConfig, 'i
     metadata: config.metadata || {}
   };
 
-  // Then create new active config
   const { data, error } = await supabase
     .from('buffer_factor_configs')
     .insert(dbConfig)
@@ -465,14 +448,10 @@ export const saveBufferFactorConfig = async (config: Omit<BufferFactorConfig, 'i
 
 // Calculate buffer zones for an item
 export const calculateBufferZones = async (itemId: string): Promise<{ red: number, yellow: number, green: number }> => {
-  // In a real application, this would use a stored procedure or remote function
-  // For now, we'll use the utility function directly
   try {
-    // Manual calculation since we can't call RPC functions directly in this example
     const item = await getInventoryItemById(itemId);
     const config = await getActiveBufferConfig();
     
-    // Basic calculations
     let leadTimeFactor = config.mediumLeadTimeFactor;
     if (item.leadTimeDays && item.leadTimeDays <= config.shortLeadTimeThreshold) {
       leadTimeFactor = config.shortLeadTimeFactor;
@@ -488,7 +467,6 @@ export const calculateBufferZones = async (itemId: string): Promise<{ red: numbe
   } catch (err) {
     console.error('Error calculating buffer zones:', err);
     
-    // Fallback calculation
     const item = await getInventoryItemById(itemId);
     
     const redZone = item.redZoneSize || (item.adu && item.leadTimeDays ? Math.round(item.adu * (item.leadTimeDays * 0.33)) : 0);
