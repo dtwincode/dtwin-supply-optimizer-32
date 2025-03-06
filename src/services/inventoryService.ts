@@ -382,10 +382,10 @@ export const getPurchaseOrders = async (): Promise<PurchaseOrder[]> => {
     poNumber: order.po_number,
     sku: order.sku,
     quantity: order.quantity,
-    createdBy: order.created_by !== undefined ? order.created_by : 'system',
+    createdBy: 'system', // Use default value since created_by doesn't exist in DB
     status: order.status,
-    supplier: order.supplier !== undefined ? order.supplier : undefined,
-    expectedDeliveryDate: order.expected_delivery_date !== undefined ? order.expected_delivery_date : undefined,
+    supplier: undefined, // Set as undefined since supplier doesn't exist in DB
+    expectedDeliveryDate: undefined, // Set as undefined since expected_delivery_date doesn't exist in DB
     orderDate: order.order_date
   }));
 };
