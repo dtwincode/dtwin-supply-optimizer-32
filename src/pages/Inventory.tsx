@@ -2,7 +2,7 @@
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
 import { TabsContent } from "@/components/ui/tabs";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
@@ -18,6 +18,7 @@ import { InventoryItem } from "@/types/inventory";
 import { SKUClassifications } from "@/components/inventory/SKUClassifications";
 import { SKUClassification } from "@/components/inventory/types";
 import { DecouplingPointDialog } from "@/components/inventory/DecouplingPointDialog";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 // Mock classification data for the showcase
 const mockClassifications: SKUClassification[] = [
@@ -60,6 +61,40 @@ const Inventory = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLocationId, setSelectedLocationId] = useState<string>("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    // Simulate loading data
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+      
+      // Log that the page has loaded
+      console.log("Inventory page loaded successfully");
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    // Check if there are any console errors related to MapBox
+    const originalConsoleError = console.error;
+    console.error = (...args) => {
+      // Check if error is related to MapBox
+      if (args[0] && typeof args[0] === 'string' && args[0].includes('Mapbox')) {
+        // Don't set error state for MapBox issues
+        console.log("MapBox error suppressed:", args[0]);
+      } else if (args[0] && args[0]._type === 'Error') {
+        // Handle other errors
+        setHasError(true);
+      }
+      originalConsoleError.apply(console, args);
+    };
+    
+    return () => {
+      console.error = originalConsoleError;
+    };
+  }, []);
 
   const handleCreatePurchaseOrder = (item: InventoryItem) => {
     toast({
@@ -74,6 +109,16 @@ const Inventory = () => {
       description: "Decoupling point configuration updated successfully",
     });
     setDialogOpen(false);
+  };
+
+  const handleError = (error: Error, info: { componentStack: string }) => {
+    console.error("Inventory component error:", error, info);
+    setHasError(true);
+    toast({
+      title: "Error",
+      description: "An error occurred while loading the inventory page. Please try again later.",
+      variant: "destructive",
+    });
   };
 
   const filteredData = inventoryData.filter(item => {
@@ -93,6 +138,37 @@ const Inventory = () => {
     (currentPage - 1) * 10,
     currentPage * 10
   );
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-[80vh]">
+          <div className="text-center">
+            <p className="text-muted-foreground">Loading inventory data...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (hasError) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-[80vh]">
+          <div className="text-center">
+            <h3 className="text-xl font-semibold text-red-600 mb-2">Something went wrong</h3>
+            <p className="text-muted-foreground mb-4">We encountered an error while loading the inventory page.</p>
+            <Button 
+              onClick={() => window.location.reload()} 
+              variant="default"
+            >
+              Reload Page
+            </Button>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -122,49 +198,59 @@ const Inventory = () => {
           </div>
         </div>
 
-        <InventorySummaryCards />
+        <ErrorBoundary fallback={<div>Error loading inventory summary</div>} onError={handleError}>
+          <InventorySummaryCards />
+        </ErrorBoundary>
         
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">
-            {language === 'ar' ? 'تصنيفات SKU' : 'SKU Classifications'}
-          </h3>
-          <SKUClassifications classifications={mockClassifications} />
-        </Card>
+        <ErrorBoundary fallback={<div>Error loading SKU classifications</div>} onError={handleError}>
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold mb-4">
+              {language === 'ar' ? 'تصنيفات SKU' : 'SKU Classifications'}
+            </h3>
+            <SKUClassifications classifications={mockClassifications} />
+          </Card>
+        </ErrorBoundary>
         
-        <NetworkDecouplingMap />
+        <ErrorBoundary fallback={<div>Map visualization currently unavailable</div>} onError={handleError}>
+          <NetworkDecouplingMap />
+        </ErrorBoundary>
         
-        <InventoryChart data={filteredData} />
+        <ErrorBoundary fallback={<div>Error loading inventory chart</div>} onError={handleError}>
+          <InventoryChart data={filteredData} />
+        </ErrorBoundary>
 
         <Card>
-          <InventoryTabs>
-            <TabsContent value="inventory">
-              <InventoryTab 
-                paginatedData={paginatedData}
-                onCreatePO={handleCreatePurchaseOrder}
-              />
-              <div className="mt-4 flex justify-between items-center p-6">
-                <div className="text-sm text-gray-500">
-                  {getTranslation("common.showing", language)} {(currentPage - 1) * 10 + 1} {getTranslation("common.to", language)} {Math.min(currentPage * 10, filteredData.length)} {getTranslation("common.of", language)} {filteredData.length} {getTranslation("common.items", language)}
+          <ErrorBoundary fallback={<div className="p-6">Error loading inventory data table</div>} onError={handleError}>
+            <InventoryTabs>
+              <TabsContent value="inventory">
+                <InventoryTab 
+                  paginatedData={paginatedData}
+                  onCreatePO={handleCreatePurchaseOrder}
+                />
+                <div className="mt-4 flex justify-between items-center p-6">
+                  <div className="text-sm text-gray-500">
+                    {getTranslation("common.showing", language)} {(currentPage - 1) * 10 + 1} {getTranslation("common.to", language)} {Math.min(currentPage * 10, filteredData.length)} {getTranslation("common.of", language)} {filteredData.length} {getTranslation("common.items", language)}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                    >
+                      {getTranslation("common.previous", language)}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredData.length / 10), p + 1))}
+                      disabled={currentPage === Math.ceil(filteredData.length / 10)}
+                    >
+                      {getTranslation("common.next", language)}
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
-                  >
-                    {getTranslation("common.previous", language)}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredData.length / 10), p + 1))}
-                    disabled={currentPage === Math.ceil(filteredData.length / 10)}
-                  >
-                    {getTranslation("common.next", language)}
-                  </Button>
-                </div>
-              </div>
-            </TabsContent>
-          </InventoryTabs>
+              </TabsContent>
+            </InventoryTabs>
+          </ErrorBoundary>
         </Card>
         
         <DecouplingPointDialog
