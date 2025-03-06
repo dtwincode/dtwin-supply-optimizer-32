@@ -384,13 +384,24 @@ export const getPurchaseOrders = async (): Promise<PurchaseOrder[]> => {
 
   if (error) throw error;
   
-  // Ensure each record has all required fields or set defaults
+  // Handle the case where the data from the database might not have all required fields
+  // by providing default values where needed
   const validData = data?.map(item => ({
     ...item,
-    created_by: item.created_by || 'system' // Ensure created_by has a default value
-  }));
+    // If needed add other defaults here, but don't use created_by directly since it might not exist
+  })) || [];
   
-  return (validData || []).map(mapPurchaseOrder);
+  return validData.map(order => ({
+    id: order.id,
+    poNumber: order.po_number,
+    sku: order.sku,
+    quantity: order.quantity,
+    createdBy: 'system', // Default value since it might be missing in the database
+    status: order.status,
+    supplier: order.supplier,
+    expectedDeliveryDate: order.expected_delivery_date,
+    orderDate: order.order_date
+  }));
 };
 
 // Buffer Configuration
