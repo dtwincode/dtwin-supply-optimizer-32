@@ -10,11 +10,7 @@ import { PaginationState } from "@/types/inventory/databaseTypes";
 
 interface InventoryDashboardProps {
   items: InventoryItem[];
-  pagination: {
-    currentPage: number;
-    itemsPerPage: number;
-    totalItems: number;
-  };
+  pagination: PaginationState;
   onPageChange: (page: number) => void;
 }
 
@@ -39,11 +35,11 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
         orderDate: new Date().toISOString()
       };
       
-      const result = await createPurchaseOrder(order);
+      await createPurchaseOrder(order);
       
       toast({
         title: "Success",
-        description: `Purchase order ${result.poNumber} created successfully`,
+        description: `Purchase order created successfully`,
       });
     } catch (error) {
       console.error('Error creating purchase order:', error);
@@ -71,20 +67,12 @@ export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
       header: 'Current Stock',
     },
     {
-      accessorKey: 'bufferPenetration',
-      header: 'Buffer Penetration',
-      cell: ({ row }: any) => {
-        const value = row.original.bufferPenetration;
-        if (value === undefined) return '-';
-        return `${(value * 100).toFixed(1)}%`;
-      }
-    },
-    {
       accessorKey: 'netFlowPosition',
       header: 'Net Flow Position',
     },
     {
       id: 'actions',
+      header: 'Actions',
       cell: ({ row }: any) => {
         const item = row.original;
         const isLoading = loadingItems[item.id] || false;

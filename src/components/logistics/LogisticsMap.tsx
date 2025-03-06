@@ -6,16 +6,17 @@ import { Loader2 } from 'lucide-react';
 import BaseMap from '@/components/shared/maps/BaseMap';
 
 export const LogisticsMap: React.FC = () => {
-  const { trackingData, loading } = useLogisticsTracking();
+  const { trackingData } = useLogisticsTracking();
   const [centerCoords, setCenterCoords] = useState({ lat: 34.0522, lng: -118.2437 });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (trackingData && trackingData.length > 0) {
-      const firstPoint = trackingData[0];
-      if (firstPoint.latitude && firstPoint.longitude) {
+    if (trackingData) {
+      setIsLoading(false);
+      if (trackingData.latitude && trackingData.longitude) {
         setCenterCoords({
-          lat: firstPoint.latitude,
-          lng: firstPoint.longitude
+          lat: trackingData.latitude,
+          lng: trackingData.longitude
         });
       }
     }
@@ -27,7 +28,7 @@ export const LogisticsMap: React.FC = () => {
         <CardTitle>Logistics Tracking Map</CardTitle>
       </CardHeader>
       <CardContent>
-        {loading ? (
+        {isLoading ? (
           <div className="flex h-80 items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
