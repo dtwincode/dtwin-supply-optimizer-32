@@ -182,6 +182,21 @@ export interface SavedModelConfig {
   location_id?: string;
   parameters: ModelParameter[];
   created_at: string;
+  updated_at?: string;
+  created_by?: string;
+  metadata?: {
+    description?: string;
+    tags?: string[];
+    version?: string;
+    is_benchmark?: boolean;
+    computation_type: 'client' | 'edge' | 'service';
+    resource_requirements?: {
+      memory_mb?: number;
+      cpu_cores?: number;
+      gpu_required?: boolean;
+      estimated_inference_time_ms?: number;
+    };
+  };
   performance_metrics?: {
     accuracy: number;
     trend: 'improving' | 'stable' | 'declining';
@@ -189,5 +204,72 @@ export interface SavedModelConfig {
     mape?: number;
     mae?: number;
     rmse?: number;
+    aic?: number;
+    bic?: number;
+    training_time_ms?: number;
+    last_evaluation_date?: string;
+  };
+  training_config?: {
+    training_data_range?: {
+      start_date: string;
+      end_date: string;
+    };
+    validation_data_range?: {
+      start_date: string;
+      end_date: string;
+    };
+    cross_validation_folds?: number;
+    hyperparameters?: Record<string, any>;
+    features_used?: string[];
+  };
+  deployment_status?: 'draft' | 'testing' | 'deployed' | 'archived';
+  computation_location?: 'client' | 'edge' | 'cloud';
+  service_endpoint?: string;
+}
+
+// Model tracking for computation distribution
+export interface ModelExecutionRecord {
+  id: string;
+  model_config_id: string;
+  execution_time_ms: number;
+  execution_date: string;
+  computation_location: 'client' | 'edge' | 'cloud';
+  status: 'success' | 'failed';
+  error_message?: string;
+  resource_usage?: {
+    memory_mb?: number;
+    cpu_percentage?: number;
+    gpu_percentage?: number;
+  };
+  input_data_size_kb?: number;
+  output_data_size_kb?: number;
+  user_device_info?: {
+    browser?: string;
+    os?: string;
+    device_type?: string;
+    available_memory_mb?: number;
+    connection_type?: string;
+  };
+}
+
+// Deep computation fallback configuration
+export interface ComputationDistributionConfig {
+  client_capability_threshold: {
+    memory_mb: number;
+    cpu_cores: number;
+    has_gpu: boolean;
+    connection_speed_mbps: number;
+  };
+  model_routing_rules: Array<{
+    model_type: string;
+    min_data_points: number;
+    max_data_points: number;
+    preferred_location: 'client' | 'edge' | 'cloud';
+    fallback_location: 'edge' | 'cloud';
+  }>;
+  auto_scaling_triggers: {
+    edge_functions_max_concurrent: number;
+    cloud_service_latency_threshold_ms: number;
+    batch_size_threshold: number;
   };
 }
