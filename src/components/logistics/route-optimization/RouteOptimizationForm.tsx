@@ -6,12 +6,15 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader } from 'lucide-react';
 import { RoutePoint, TransportMode, generateOptimizedRoute, getTransportModes } from '@/services/routeOptimizationService';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { getTranslation } from '@/translations';
 
 interface RouteOptimizationFormProps {
   onRouteGenerated: (route: any) => void;
 }
 
 export const RouteOptimizationForm = ({ onRouteGenerated }: RouteOptimizationFormProps) => {
+  const { language } = useLanguage();
   const [origin, setOrigin] = useState<string>('');
   const [destination, setDestination] = useState<string>('');
   const [transportMode, setTransportMode] = useState<string>('');
@@ -108,18 +111,18 @@ export const RouteOptimizationForm = ({ onRouteGenerated }: RouteOptimizationFor
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Route Optimization</CardTitle>
+        <CardTitle>{getTranslation('common.logistics.routeOptimization', language)}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="origin">Origin</Label>
+            <Label htmlFor="origin">{getTranslation('common.logistics.origin', language)}</Label>
             <Select
               value={origin}
               onValueChange={setOrigin}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select origin location" />
+                <SelectValue placeholder={getTranslation('common.logistics.selectOriginLocation', language)} />
               </SelectTrigger>
               <SelectContent>
                 {locations.map((location) => (
@@ -132,13 +135,13 @@ export const RouteOptimizationForm = ({ onRouteGenerated }: RouteOptimizationFor
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="destination">Destination</Label>
+            <Label htmlFor="destination">{getTranslation('common.logistics.destination', language)}</Label>
             <Select
               value={destination}
               onValueChange={setDestination}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select destination location" />
+                <SelectValue placeholder={getTranslation('common.logistics.selectDestinationLocation', language)} />
               </SelectTrigger>
               <SelectContent>
                 {locations.map((location) => (
@@ -151,13 +154,13 @@ export const RouteOptimizationForm = ({ onRouteGenerated }: RouteOptimizationFor
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="transportMode">Transport Mode</Label>
+            <Label htmlFor="transportMode">{getTranslation('common.logistics.transportMode', language)}</Label>
             <Select
               value={transportMode}
               onValueChange={setTransportMode}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select transport mode" />
+                <SelectValue placeholder={getTranslation('common.logistics.selectTransportMode', language)} />
               </SelectTrigger>
               <SelectContent>
                 {transportModes.map((mode) => (
@@ -170,18 +173,18 @@ export const RouteOptimizationForm = ({ onRouteGenerated }: RouteOptimizationFor
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="optimizationCriteria">Optimize For</Label>
+            <Label htmlFor="optimizationCriteria">{getTranslation('common.logistics.optimizationCriteria', language)}</Label>
             <Select
               value={optimizationCriteria}
               onValueChange={(value) => setOptimizationCriteria(value as 'time' | 'cost' | 'emissions')}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select optimization criteria" />
+                <SelectValue placeholder={getTranslation('common.logistics.selectOptimizationCriteria', language)} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="time">Fastest Time</SelectItem>
-                <SelectItem value="cost">Lowest Cost</SelectItem>
-                <SelectItem value="emissions">Lowest Emissions</SelectItem>
+                <SelectItem value="time">{getTranslation('common.logistics.fastestTime', language)}</SelectItem>
+                <SelectItem value="cost">{getTranslation('common.logistics.lowestCost', language)}</SelectItem>
+                <SelectItem value="emissions">{getTranslation('common.logistics.lowestEmissions', language)}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -194,10 +197,10 @@ export const RouteOptimizationForm = ({ onRouteGenerated }: RouteOptimizationFor
             {loading ? (
               <>
                 <Loader className="mr-2 h-4 w-4 animate-spin" />
-                Calculating optimal route...
+                {getTranslation('common.logistics.calculatingOptimalRoute', language)}
               </>
             ) : (
-              'Calculate Optimal Route'
+              getTranslation('common.logistics.calculateOptimalRoute', language)
             )}
           </Button>
         </form>

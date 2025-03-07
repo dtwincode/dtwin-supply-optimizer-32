@@ -13,8 +13,11 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle, Loader2 } from 'lucide-react';
 import { OptimizedRoute, getSavedRoutes } from '@/services/routeOptimizationService';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { getTranslation } from '@/translations';
 
 export const RoutesList = () => {
+  const { language } = useLanguage();
   const [routes, setRoutes] = useState<OptimizedRoute[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -57,18 +60,18 @@ export const RoutesList = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Saved Routes</CardTitle>
+        <CardTitle>{getTranslation('common.logistics.savedRoutes', language)}</CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Route Name</TableHead>
-              <TableHead>Transport Mode</TableHead>
-              <TableHead>Distance</TableHead>
-              <TableHead>Time</TableHead>
-              <TableHead>Cost</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>{getTranslation('common.logistics.routeName', language)}</TableHead>
+              <TableHead>{getTranslation('common.logistics.transportMode', language)}</TableHead>
+              <TableHead>{getTranslation('common.logistics.totalDistance', language)}</TableHead>
+              <TableHead>{getTranslation('common.logistics.totalTime', language)}</TableHead>
+              <TableHead>{getTranslation('common.logistics.totalCost', language)}</TableHead>
+              <TableHead>{getTranslation('common.logistics.statusLabel', language)}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -89,7 +92,9 @@ export const RoutesList = () => {
                     }
                     className="capitalize"
                   >
-                    {route.status}
+                    {route.status === 'planned' ? getTranslation('common.logistics.status.planned', language) :
+                     route.status === 'in-progress' ? getTranslation('common.logistics.status.inProgress', language) :
+                     getTranslation('common.logistics.status.completed', language)}
                   </Badge>
                 </TableCell>
               </TableRow>
@@ -97,7 +102,7 @@ export const RoutesList = () => {
             {routes.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-4 text-muted-foreground">
-                  No routes found. Create a new route using the optimization tool.
+                  {getTranslation('common.logistics.noRoutesFound', language)}
                 </TableCell>
               </TableRow>
             )}

@@ -6,6 +6,8 @@ import { Check, Clock, DollarSign, Fuel, MapPin, RotateCcw, Save, TrendingDown, 
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { getTranslation } from '@/translations';
 
 interface OptimizedRouteDetailsProps {
   route: OptimizedRoute | null;
@@ -13,6 +15,7 @@ interface OptimizedRouteDetailsProps {
 }
 
 export const OptimizedRouteDetails = ({ route, onReset }: OptimizedRouteDetailsProps) => {
+  const { language } = useLanguage();
   const [saving, setSaving] = useState(false);
 
   if (!route) {
@@ -23,10 +26,10 @@ export const OptimizedRouteDetails = ({ route, onReset }: OptimizedRouteDetailsP
     setSaving(true);
     try {
       await saveOptimizedRoute(route);
-      toast.success('Route saved successfully');
+      toast.success(getTranslation('common.logistics.routeSaved', language));
     } catch (error) {
       console.error('Error saving route:', error);
-      toast.error('Failed to save route');
+      toast.error(getTranslation('common.logistics.failedToSaveRoute', language));
     } finally {
       setSaving(false);
     }
@@ -45,19 +48,21 @@ export const OptimizedRouteDetails = ({ route, onReset }: OptimizedRouteDetailsP
           }
           className="capitalize"
         >
-          {route.status}
+          {route.status === 'planned' ? getTranslation('common.logistics.status.planned', language) :
+           route.status === 'in-progress' ? getTranslation('common.logistics.status.inProgress', language) :
+           getTranslation('common.logistics.status.completed', language)}
         </Badge>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-4">
             <div>
-              <h3 className="text-sm font-medium text-muted-foreground">Transport Mode</h3>
+              <h3 className="text-sm font-medium text-muted-foreground">{getTranslation('common.logistics.transportMode', language)}</h3>
               <p className="text-base font-semibold">{route.transport_mode}</p>
             </div>
             
             <div className="space-y-2">
-              <h3 className="text-sm font-medium text-muted-foreground">Route Details</h3>
+              <h3 className="text-sm font-medium text-muted-foreground">{getTranslation('common.logistics.routeDetails', language)}</h3>
               <div className="flex items-center space-x-2">
                 <MapPin className="h-4 w-4 text-primary/70" />
                 <p className="text-sm">{route.origin.name}</p>
@@ -84,8 +89,8 @@ export const OptimizedRouteDetails = ({ route, onReset }: OptimizedRouteDetailsP
               <div className="flex items-center space-x-2">
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-sm font-medium">{route.total_time_hours} hours</p>
-                  <p className="text-xs text-muted-foreground">Transit Time</p>
+                  <p className="text-sm font-medium">{route.total_time_hours} {getTranslation('common.logistics.totalTime', language).toLowerCase()}</p>
+                  <p className="text-xs text-muted-foreground">{getTranslation('common.logistics.transitTime', language)}</p>
                 </div>
               </div>
               
@@ -93,7 +98,7 @@ export const OptimizedRouteDetails = ({ route, onReset }: OptimizedRouteDetailsP
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">${route.total_cost.toFixed(2)}</p>
-                  <p className="text-xs text-muted-foreground">Total Cost</p>
+                  <p className="text-xs text-muted-foreground">{getTranslation('common.logistics.totalCost', language)}</p>
                 </div>
               </div>
             </div>
@@ -103,7 +108,7 @@ export const OptimizedRouteDetails = ({ route, onReset }: OptimizedRouteDetailsP
                 <TrendingDown className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">{route.emissions_kg} kg</p>
-                  <p className="text-xs text-muted-foreground">CO₂ Emissions</p>
+                  <p className="text-xs text-muted-foreground">{getTranslation('common.logistics.co2Emissions', language)}</p>
                 </div>
               </div>
               
@@ -111,14 +116,14 @@ export const OptimizedRouteDetails = ({ route, onReset }: OptimizedRouteDetailsP
                 <Fuel className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">{route.fuel_consumption_liters} L</p>
-                  <p className="text-xs text-muted-foreground">Fuel Consumption</p>
+                  <p className="text-xs text-muted-foreground">{getTranslation('common.logistics.fuelConsumption', language)}</p>
                 </div>
               </div>
             </div>
             
             <div>
               <p className="text-sm font-medium">{route.total_distance_km} km</p>
-              <p className="text-xs text-muted-foreground">Total Distance</p>
+              <p className="text-xs text-muted-foreground">{getTranslation('common.logistics.totalDistance', language)}</p>
             </div>
             
             <div className="pt-4 flex space-x-2">
@@ -126,18 +131,18 @@ export const OptimizedRouteDetails = ({ route, onReset }: OptimizedRouteDetailsP
                 {saving ? (
                   <>
                     <Loader className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
+                    {getTranslation('common.logistics.saving', language)}
                   </>
                 ) : (
                   <>
                     <Save className="mr-2 h-4 w-4" />
-                    Save Route
+                    {getTranslation('common.logistics.saveRoute', language)}
                   </>
                 )}
               </Button>
               <Button variant="outline" onClick={onReset} className="flex-1">
                 <RotateCcw className="mr-2 h-4 w-4" />
-                Reset
+                {getTranslation('common.logistics.reset', language)}
               </Button>
             </div>
           </div>

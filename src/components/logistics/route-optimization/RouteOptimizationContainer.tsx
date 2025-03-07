@@ -7,8 +7,11 @@ import { OptimizedRoute } from '@/services/routeOptimizationService';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { getTranslation } from '@/translations';
 
 export const RouteOptimizationContainer = () => {
+  const { language } = useLanguage();
   const [generatedRoute, setGeneratedRoute] = useState<OptimizedRoute | null>(null);
 
   const handleRouteGenerated = (route: OptimizedRoute) => {
@@ -60,9 +63,9 @@ export const RouteOptimizationContainer = () => {
             ) : (
               <div className="h-full flex items-center justify-center p-6 border border-dashed rounded-lg">
                 <div className="text-center">
-                  <h3 className="font-medium">No Route Generated</h3>
+                  <h3 className="font-medium">{getTranslation('common.logistics.noRouteGenerated', language)}</h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Select origin, destination, and transport mode to calculate an optimal route
+                    {getTranslation('common.logistics.routeSelectionInstruction', language)}
                   </p>
                 </div>
               </div>

@@ -1,4 +1,3 @@
-
 export const logisticsTranslations = {
   optimizeSupplyChain: {
     en: "Optimize your supply chain and logistics operations",
@@ -68,7 +67,6 @@ export const logisticsTranslations = {
     en: "Compare different transport modes for your logistics operations",
     ar: "قارن بين وسائط النقل المختلفة لعمليات الخدمات اللوجستية الخاصة بك"
   },
-  // Add the missing properties from LogisticsTranslations interface
   optimizeRoute: {
     en: "Optimize Route",
     ar: "تحسين المسار"
@@ -260,5 +258,89 @@ export const logisticsTranslations = {
   lowPriority: {
     en: "Low Priority",
     ar: "أولوية منخفضة"
+  },
+  calculateOptimalRoute: {
+    en: "Calculate Optimal Route",
+    ar: "حساب المسار الأمثل"
+  },
+  selectOriginLocation: {
+    en: "Select origin location",
+    ar: "اختر موقع المنشأ"
+  },
+  selectDestinationLocation: {
+    en: "Select destination location",
+    ar: "اختر موقع الوجهة"
+  },
+  selectTransportMode: {
+    en: "Select transport mode",
+    ar: "اختر وسيلة النقل"
+  },
+  selectOptimizationCriteria: {
+    en: "Select optimization criteria",
+    ar: "اختر معايير التحسين"
+  },
+  fastestTime: {
+    en: "Fastest Time",
+    ar: "أسرع وقت"
+  },
+  lowestCost: {
+    en: "Lowest Cost",
+    ar: "أقل تكلفة"
+  },
+  lowestEmissions: {
+    en: "Lowest Emissions",
+    ar: "أقل انبعاثات"
+  },
+  calculatingOptimalRoute: {
+    en: "Calculating optimal route...",
+    ar: "جاري حساب المسار الأمثل..."
+  },
+  noRouteGenerated: {
+    en: "No Route Generated",
+    ar: "لم يتم إنشاء مسار"
+  },
+  routeSelectionInstruction: {
+    en: "Select origin, destination, and transport mode to calculate an optimal route",
+    ar: "اختر المنشأ والوجهة ووسيلة النقل لحساب المسار الأمثل"
+  },
+  saveRoute: {
+    en: "Save Route",
+    ar: "حفظ المسار"
+  },
+  saving: {
+    en: "Saving...",
+    ar: "جاري الحفظ..."
+  },
+  reset: {
+    en: "Reset",
+    ar: "إعادة تعيين"
+  },
+  transitTime: {
+    en: "Transit Time",
+    ar: "وقت العبور"
+  },
+  co2Emissions: {
+    en: "CO₂ Emissions",
+    ar: "انبعاثات ثاني أكسيد الكربون"
+  },
+  routeDetails: {
+    en: "Route Details",
+    ar: "تفاصيل المسار"
+  },
+  routeName: {
+    en: "Route Name",
+    ar: "اسم المسار"
+  },
+  routeSaved: {
+    en: "Route saved successfully",
+    ar: "تم حفظ المسار بنجاح"
+  },
+  failedToSaveRoute: {
+    en: "Failed to save route",
+    ar: "فشل في حفظ المسار"
+  },
+  noRoutesFound: {
+    en: "No routes found. Create a new route using the optimization tool.",
+    ar: "لم يتم العثور على مسارات. قم بإنشاء مسار جديد باستخدام أداة التحسين."
   }
 };
