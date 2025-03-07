@@ -8,11 +8,11 @@ import { uploadDocument } from '@/services/logisticsDocumentService';
 import { useToast } from '@/hooks/use-toast';
 
 interface DocumentUploadProps {
-  orderId: string;
+  orderId?: string;
   onUploadComplete?: () => void;
 }
 
-export const DocumentUpload = ({ orderId, onUploadComplete }: DocumentUploadProps) => {
+export const DocumentUpload = ({ orderId = '', onUploadComplete }: DocumentUploadProps) => {
   const [documentType, setDocumentType] = useState('');
   const { toast } = useToast();
 

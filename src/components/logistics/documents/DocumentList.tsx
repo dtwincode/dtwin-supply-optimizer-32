@@ -6,10 +6,10 @@ import { ExternalLink, File, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface DocumentListProps {
-  orderId: string;
+  orderId?: string;
 }
 
-export const DocumentList = ({ orderId }: DocumentListProps) => {
+export const DocumentList = ({ orderId = '' }: DocumentListProps) => {
   const [documents, setDocuments] = useState<LogisticsDocument[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -24,7 +24,7 @@ export const DocumentList = ({ orderId }: DocumentListProps) => {
         setDocuments([
           {
             id: 'doc-001',
-            order_id: orderId,
+            order_id: orderId || 'all-documents',
             document_type: 'Bill of Lading',
             file_url: '#',
             created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
@@ -34,7 +34,7 @@ export const DocumentList = ({ orderId }: DocumentListProps) => {
           },
           {
             id: 'doc-002',
-            order_id: orderId,
+            order_id: orderId || 'all-documents',
             document_type: 'Commercial Invoice',
             file_url: '#',
             created_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
@@ -44,7 +44,7 @@ export const DocumentList = ({ orderId }: DocumentListProps) => {
           },
           {
             id: 'doc-003',
-            order_id: orderId,
+            order_id: orderId || 'all-documents',
             document_type: 'Packing List',
             file_url: '#',
             created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
@@ -54,7 +54,7 @@ export const DocumentList = ({ orderId }: DocumentListProps) => {
           },
           {
             id: 'doc-004',
-            order_id: orderId,
+            order_id: orderId || 'all-documents',
             document_type: 'Customs Declaration',
             file_url: '#',
             created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
