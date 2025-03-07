@@ -5,6 +5,8 @@ import { dashboardTitle, dashboardMetricsTranslations, financialMetricsTranslati
 import { commonTranslations } from './common';
 import { salesTranslations } from './sales';
 import { logisticsTranslations } from './common/logistics';
+import { chartTranslations } from './common/charts';
+import { inventoryTranslations } from './common/inventory';
 export { toArabicNumerals } from './utils';
 
 export const translations: Translations = {
@@ -16,7 +18,9 @@ export const translations: Translations = {
   modulesSummary: modulesSummaryTranslations,
   common: {
     ...commonTranslations,
-    logistics: logisticsTranslations
+    logistics: logisticsTranslations,
+    inventory: inventoryTranslations,
+    zones: chartTranslations.zones
   },
   sales: salesTranslations
 };

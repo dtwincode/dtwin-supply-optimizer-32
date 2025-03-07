@@ -1,5 +1,4 @@
 
-import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
 
@@ -23,7 +22,9 @@ export const BufferStatusBadge = ({ status }: BufferStatusBadgeProps) => {
     }
   };
 
+  // Make sure we're using the correct translation path
   const getStatusText = () => {
+    // Using zones from common.zones
     return getTranslation(`common.zones.${status}`, language);
   };
 
