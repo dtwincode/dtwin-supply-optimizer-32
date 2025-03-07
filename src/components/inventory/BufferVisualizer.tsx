@@ -24,6 +24,14 @@ export const BufferVisualizer = ({ netFlowPosition, bufferZones, adu }: BufferVi
   // Calculate net flow position as a percentage of total buffer
   const netFlowPercent = Math.min(100, Math.max(0, (netFlowPosition / totalBuffer) * 100));
   
+  // Add console logs to debug translations
+  console.log('Translation keys:', {
+    red: `common.zones.red`,
+    yellow: `common.zones.yellow`,
+    green: `common.zones.green`,
+    netFlow: `common.inventory.netFlowPosition`
+  });
+  
   return (
     <div className="w-full">
       <div className="flex mb-1">

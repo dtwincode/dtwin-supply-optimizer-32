@@ -16,12 +16,7 @@ export const translations: Translations = {
   financialMetrics: financialMetricsTranslations,
   sustainabilityMetrics: sustainabilityMetricsTranslations,
   modulesSummary: modulesSummaryTranslations,
-  common: {
-    ...commonTranslations,
-    logistics: logisticsTranslations,
-    inventory: inventoryTranslations,
-    zones: chartTranslations.zones
-  },
+  common: commonTranslations,
   sales: salesTranslations
 };
 
