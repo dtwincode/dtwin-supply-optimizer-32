@@ -1,4 +1,3 @@
-
 import { BarChart, Bar, LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Card } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -42,6 +41,13 @@ export const InventoryChart = ({ data }: InventoryChartProps) => {
     margin: { top: 20, right: 30, left: 20, bottom: 5 }
   };
 
+  console.log("Chart translation keys:", {
+    green: getTranslation('common.zones.green', language),
+    yellow: getTranslation('common.zones.yellow', language),
+    red: getTranslation('common.zones.red', language),
+    currentStock: getTranslation('common.inventory.currentStock', language),
+  });
+
   const renderChart = () => {
     switch (chartType) {
       case 'line':
@@ -55,7 +61,7 @@ export const InventoryChart = ({ data }: InventoryChartProps) => {
             <Line type="monotone" dataKey="green" stroke="#10B981" name={getTranslation('common.zones.green', language)} />
             <Line type="monotone" dataKey="yellow" stroke="#F59E0B" name={getTranslation('common.zones.yellow', language)} />
             <Line type="monotone" dataKey="red" stroke="#EF4444" name={getTranslation('common.zones.red', language)} />
-            <Line type="monotone" dataKey="currentStock" stroke="#6B7280" name={getTranslation('common.inventory', language)} />
+            <Line type="monotone" dataKey="currentStock" stroke="#6B7280" name={getTranslation('common.inventory.currentStock', language)} />
           </LineChart>
         );
       case 'area':
@@ -69,7 +75,7 @@ export const InventoryChart = ({ data }: InventoryChartProps) => {
             <Area type="monotone" dataKey="green" stackId="1" fill="#10B981" name={getTranslation('common.zones.green', language)} />
             <Area type="monotone" dataKey="yellow" stackId="1" fill="#F59E0B" name={getTranslation('common.zones.yellow', language)} />
             <Area type="monotone" dataKey="red" stackId="1" fill="#EF4444" name={getTranslation('common.zones.red', language)} />
-            <Area type="monotone" dataKey="currentStock" fill="#6B7280" name={getTranslation('common.inventory', language)} />
+            <Area type="monotone" dataKey="currentStock" fill="#6B7280" name={getTranslation('common.inventory.currentStock', language)} />
           </AreaChart>
         );
       default:
@@ -83,7 +89,7 @@ export const InventoryChart = ({ data }: InventoryChartProps) => {
             <Bar dataKey="green" stackId="buffer" fill="#10B981" name={getTranslation('common.zones.green', language)} />
             <Bar dataKey="yellow" stackId="buffer" fill="#F59E0B" name={getTranslation('common.zones.yellow', language)} />
             <Bar dataKey="red" stackId="buffer" fill="#EF4444" name={getTranslation('common.zones.red', language)} />
-            <Bar dataKey="currentStock" fill="#6B7280" name={getTranslation('common.inventory', language)} />
+            <Bar dataKey="currentStock" fill="#6B7280" name={getTranslation('common.inventory.currentStock', language)} />
           </BarChart>
         );
     }

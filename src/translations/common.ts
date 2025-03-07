@@ -38,7 +38,7 @@ export const commonTranslations: CommonTranslations = {
   // Module translations
   ...moduleTranslations,
   
-  // Include full sections
+  // Include full sections as nested objects
   logistics: logisticsTranslations,
   inventory: inventoryTranslations
 };

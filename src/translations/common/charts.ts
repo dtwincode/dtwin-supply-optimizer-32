@@ -32,6 +32,11 @@ export const chartTranslations: ChartTranslations = {
     red: {
       en: "Red Zone",
       ar: "المنطقة الحمراء"
+    },
+    // Add inventory label for the chart
+    inventory: {
+      en: "Current Inventory",
+      ar: "المخزون الحالي"
     }
   }
 };
