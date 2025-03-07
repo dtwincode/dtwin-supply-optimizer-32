@@ -9,6 +9,8 @@ import { POPipelineTable } from "@/components/logistics/pipeline/POPipelineTable
 import { LogisticsFilters } from "@/components/logistics/filters/LogisticsFilters";
 import { DocumentUpload } from "@/components/logistics/documents/DocumentUpload";
 import { DocumentList } from "@/components/logistics/documents/DocumentList";
+import { RouteOptimizationContainer } from "@/components/logistics/route-optimization/RouteOptimizationContainer";
+import { TransportModeList } from "@/components/logistics/route-optimization/TransportModeList";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -142,6 +144,8 @@ const Logistics = () => {
           <TabsList>
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="po-pipeline">PO Pipeline</TabsTrigger>
+            <TabsTrigger value="route-optimization">Route Optimization</TabsTrigger>
+            <TabsTrigger value="transport-modes">Transport Modes</TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
           </TabsList>
 
@@ -189,6 +193,58 @@ const Logistics = () => {
                   }
                 >
                   <POPipelineTable data={poPipelineData} />
+                </ErrorBoundary>
+              </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="route-optimization">
+            <Card>
+              <div className="p-6">
+                <div className="space-y-1 mb-6">
+                  <h3 className="text-lg font-medium">Route Optimization</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Calculate optimal routes based on time, cost, or emissions
+                  </p>
+                </div>
+                <ErrorBoundary
+                  fallback={
+                    <Alert variant="destructive">
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertTitle>Error Loading Route Optimization</AlertTitle>
+                      <AlertDescription>
+                        There was a problem loading the route optimization tools.
+                      </AlertDescription>
+                    </Alert>
+                  }
+                >
+                  <RouteOptimizationContainer />
+                </ErrorBoundary>
+              </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="transport-modes">
+            <Card>
+              <div className="p-6">
+                <div className="space-y-1 mb-6">
+                  <h3 className="text-lg font-medium">Transport Modes</h3>
+                  <p className="text-sm text-muted-foreground">
+                    View and compare different transportation options
+                  </p>
+                </div>
+                <ErrorBoundary
+                  fallback={
+                    <Alert variant="destructive">
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertTitle>Error Loading Transport Modes</AlertTitle>
+                      <AlertDescription>
+                        There was a problem loading the transport modes data.
+                      </AlertDescription>
+                    </Alert>
+                  }
+                >
+                  <TransportModeList />
                 </ErrorBoundary>
               </div>
             </Card>
