@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
 import { TabsContent } from "@/components/ui/tabs";
@@ -20,7 +19,6 @@ import { SKUClassification } from "@/components/inventory/types";
 import { DecouplingPointDialog } from "@/components/inventory/DecouplingPointDialog";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
-// Mock classification data for the showcase
 const mockClassifications: SKUClassification[] = [
   {
     sku: "SKU001",
@@ -65,11 +63,8 @@ const Inventory = () => {
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
-    // Simulate loading data
     const timer = setTimeout(() => {
       setIsLoading(false);
-      
-      // Log that the page has loaded
       console.log("Inventory page loaded successfully");
     }, 500);
     
@@ -77,15 +72,11 @@ const Inventory = () => {
   }, []);
 
   useEffect(() => {
-    // Check if there are any console errors related to MapBox
     const originalConsoleError = console.error;
     console.error = (...args) => {
-      // Check if error is related to MapBox
       if (args[0] && typeof args[0] === 'string' && args[0].includes('Mapbox')) {
-        // Don't set error state for MapBox issues
         console.log("MapBox error suppressed:", args[0]);
       } else if (args[0] && args[0]._type === 'Error') {
-        // Handle other errors
         setHasError(true);
       }
       originalConsoleError.apply(console, args);
@@ -144,7 +135,7 @@ const Inventory = () => {
       <DashboardLayout>
         <div className="flex items-center justify-center h-[80vh]">
           <div className="text-center">
-            <p className="text-muted-foreground">{language === 'ar' ? "جاري تحميل بيانات المخزون..." : "Loading inventory data..."}</p>
+            <p className="text-muted-foreground">{getTranslation("common.inventory.loadingData", language)}</p>
           </div>
         </div>
       </DashboardLayout>
@@ -176,9 +167,7 @@ const Inventory = () => {
         <div className="flex flex-col gap-4">
           <div className="flex justify-between items-center">
             <p className="text-muted-foreground">
-              {language === 'ar' 
-                ? 'إدارة المخزون والتتبع'
-                : 'Manage and track inventory levels'}
+              {getTranslation("common.inventory.manageAndTrack", language)}
             </p>
             <div className="flex gap-2">
               <InventoryFilters
@@ -192,20 +181,20 @@ const Inventory = () => {
                   setDialogOpen(true);
                 }}
               >
-                {language === 'ar' ? "إضافة نقطة فصل" : "Add Decoupling Point"}
+                {getTranslation("common.inventory.addDecouplingPoint", language)}
               </Button>
             </div>
           </div>
         </div>
 
-        <ErrorBoundary fallback={<div>{language === 'ar' ? "خطأ في تحميل ملخص المخزون" : "Error loading inventory summary"}</div>} onError={handleError}>
+        <ErrorBoundary fallback={<div>{getTranslation("common.inventory.errorLoading", language)}</div>} onError={handleError}>
           <InventorySummaryCards />
         </ErrorBoundary>
         
         <ErrorBoundary fallback={<div>{language === 'ar' ? "خطأ في تحميل تصنيفات وحدات التخزين" : "Error loading SKU classifications"}</div>} onError={handleError}>
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">
-              {language === 'ar' ? 'تصنيفات وحدات التخزين' : 'SKU Classifications'}
+              {getTranslation("common.inventory.skuClassifications", language)}
             </h3>
             <SKUClassifications classifications={mockClassifications} />
           </Card>
@@ -220,7 +209,7 @@ const Inventory = () => {
         </ErrorBoundary>
 
         <Card>
-          <ErrorBoundary fallback={<div className="p-6">{language === 'ar' ? "خطأ في تحميل جدول بيانات المخزون" : "Error loading inventory data table"}</div>} onError={handleError}>
+          <ErrorBoundary fallback={<div className="p-6">{getTranslation("common.inventory.errorLoading", language)}</div>} onError={handleError}>
             <InventoryTabs>
               <TabsContent value="inventory">
                 <InventoryTab 
