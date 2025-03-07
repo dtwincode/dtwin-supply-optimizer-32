@@ -16,8 +16,10 @@ export const MetricsCard = ({ title, metricType }: MetricsCardProps) => {
   const { data: metrics, isLoading, isError } = useQuery({
     queryKey: ['logistics-metrics', metricType],
     queryFn: () => getLogisticsMetrics(metricType),
-    onError: () => {
-      setHasError(true);
+    onSettled: (data, error) => {
+      if (error) {
+        setHasError(true);
+      }
     },
     // Fallback to dummy data if the query fails
     placeholderData: [

@@ -34,7 +34,7 @@ export const LogisticsMap: React.FC = () => {
   }, [trackingData]);
 
   const MapErrorFallback = () => (
-    <Alert variant="warning" className="mt-4">
+    <Alert variant="destructive" className="mt-4">
       <AlertTriangle className="h-4 w-4" />
       <AlertTitle>Map Unavailable</AlertTitle>
       <AlertDescription>
