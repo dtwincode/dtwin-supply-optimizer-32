@@ -8,8 +8,8 @@ export const chartTranslations: ChartTranslations = {
       ar: "توزيع نسب المخزون"
     },
     demandVariability: {
-      en: "Demand Variability",
-      ar: "تغير الطلب"
+      en: "Demand Variability Analysis",
+      ar: "تحليل تغير الطلب"
     },
     inventoryTrends: {
       en: "Inventory Trends",

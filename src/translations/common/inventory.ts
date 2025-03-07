@@ -10,6 +10,10 @@ export const inventoryTranslations: InventoryTranslations = {
     en: "Buffer Zones",
     ar: "مناطق المخزون"
   },
+  bufferStatus: {
+    en: "Buffer Status",
+    ar: "حالة المخزون"
+  },
   skuClassification: {
     en: "SKU Classification",
     ar: "تصنيف وحدات التخزين"
@@ -21,10 +25,6 @@ export const inventoryTranslations: InventoryTranslations = {
   replenishmentOrders: {
     en: "Replenishment Orders",
     ar: "طلبات إعادة التزويد"
-  },
-  bufferStatus: {
-    en: "Buffer Status",
-    ar: "حالة المخزون"
   },
   netFlowPosition: {
     en: "Net Flow Position",

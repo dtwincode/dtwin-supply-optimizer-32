@@ -12,6 +12,7 @@ export const InventoryTableHeader = () => {
         <TableHead>{getTranslation("common.inventory.sku", language)}</TableHead>
         <TableHead>{getTranslation("common.inventory.name", language)}</TableHead>
         <TableHead>{getTranslation("common.inventory.currentStock", language)}</TableHead>
+        <TableHead>{getTranslation("common.inventory.bufferStatus", language)}</TableHead>
         <TableHead>{getTranslation("common.inventory.bufferZones", language)}</TableHead>
         <TableHead>{getTranslation("common.inventory.location", language)}</TableHead>
         <TableHead>{getTranslation("common.inventory.productFamily", language)}</TableHead>

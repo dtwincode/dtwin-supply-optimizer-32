@@ -1,11 +1,15 @@
 
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslation } from "@/translations";
 
 interface BufferStatusBadgeProps {
   status: "green" | "yellow" | "red";
 }
 
 export const BufferStatusBadge = ({ status }: BufferStatusBadgeProps) => {
+  const { language } = useLanguage();
+  
   const getStatusClasses = () => {
     switch (status) {
       case "green":
@@ -19,9 +23,13 @@ export const BufferStatusBadge = ({ status }: BufferStatusBadgeProps) => {
     }
   };
 
+  const getStatusText = () => {
+    return getTranslation(`common.zones.${status}`, language);
+  };
+
   return (
     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClasses()}`}>
-      {status.toUpperCase()}
+      {getStatusText()}
     </span>
   );
 };
