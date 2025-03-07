@@ -22,9 +22,8 @@ export const BufferStatusBadge = ({ status }: BufferStatusBadgeProps) => {
     }
   };
 
-  // Make sure we're using the correct translation path
+  // Using the correct translation path for zones
   const getStatusText = () => {
-    // Using zones from common.zones
     return getTranslation(`common.zones.${status}`, language);
   };
 

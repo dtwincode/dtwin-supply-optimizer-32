@@ -271,6 +271,7 @@ export interface CommonTranslations {
   reportsDescription: TranslationValue;
   
   logistics?: LogisticsTranslations;
+  inventory?: InventoryTranslations;
 }
 
 export interface Translations {

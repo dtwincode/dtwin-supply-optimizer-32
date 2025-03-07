@@ -38,6 +38,7 @@ export const commonTranslations: CommonTranslations = {
   // Module translations
   ...moduleTranslations,
   
-  // Logistics translations
-  logistics: logisticsTranslations
+  // Include full sections
+  logistics: logisticsTranslations,
+  inventory: inventoryTranslations
 };
