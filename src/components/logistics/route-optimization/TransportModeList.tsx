@@ -9,7 +9,7 @@ import {
   TableHeader, 
   TableRow 
 } from '@/components/ui/table';
-import { Loader2 } from 'lucide-react';
+import { Loader } from 'lucide-react';
 import { TransportMode, getTransportModes } from '@/services/routeOptimizationService';
 
 export const TransportModeList = () => {
@@ -39,7 +39,7 @@ export const TransportModeList = () => {
           <CardTitle>Transport Modes</CardTitle>
         </CardHeader>
         <CardContent className="flex justify-center py-8">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <Loader className="h-8 w-8 animate-spin text-primary" />
         </CardContent>
       </Card>
     );

@@ -3,14 +3,13 @@ import { useState } from 'react';
 import { RouteOptimizationForm } from './RouteOptimizationForm';
 import { OptimizedRouteDetails } from './OptimizedRouteDetails';
 import { RoutesList } from './RoutesList';
-import { OptimizedRoute, getSampleLocations } from '@/services/routeOptimizationService';
+import { OptimizedRoute } from '@/services/routeOptimizationService';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
 
 export const RouteOptimizationContainer = () => {
   const [generatedRoute, setGeneratedRoute] = useState<OptimizedRoute | null>(null);
-  const locations = getSampleLocations();
 
   const handleRouteGenerated = (route: OptimizedRoute) => {
     setGeneratedRoute(route);
@@ -37,7 +36,6 @@ export const RouteOptimizationContainer = () => {
           >
             <RouteOptimizationForm 
               onRouteGenerated={handleRouteGenerated}
-              locations={locations}
             />
           </ErrorBoundary>
         </div>

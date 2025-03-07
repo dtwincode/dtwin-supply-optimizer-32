@@ -49,64 +49,54 @@ export interface RouteOptimizationParams {
 // List available transport modes
 export const getTransportModes = async (): Promise<TransportMode[]> => {
   try {
-    const { data, error } = await supabase
-      .from('logistics_transport_modes')
-      .select('*');
-
-    if (error) throw error;
-    
-    // If no data is returned, provide sample data
-    if (!data || data.length === 0) {
-      return [
-        {
-          id: 'tm-001',
-          name: 'Truck (Standard)',
-          speed_kmh: 70,
-          cost_per_km: 1.2,
-          capacity_kg: 15000,
-          capacity_cbm: 40,
-          emissions_kg_per_km: 0.8
-        },
-        {
-          id: 'tm-002',
-          name: 'Train (Container)',
-          speed_kmh: 60,
-          cost_per_km: 0.8,
-          capacity_kg: 70000,
-          capacity_cbm: 150,
-          emissions_kg_per_km: 0.4
-        },
-        {
-          id: 'tm-003',
-          name: 'Ship (Container)',
-          speed_kmh: 35,
-          cost_per_km: 0.5,
-          capacity_kg: 150000,
-          capacity_cbm: 300,
-          emissions_kg_per_km: 0.3
-        },
-        {
-          id: 'tm-004',
-          name: 'Air Freight',
-          speed_kmh: 800,
-          cost_per_km: 4.5,
-          capacity_kg: 20000,
-          capacity_cbm: 80,
-          emissions_kg_per_km: 2.0
-        },
-        {
-          id: 'tm-005',
-          name: 'Last Mile Delivery',
-          speed_kmh: 30,
-          cost_per_km: 1.8,
-          capacity_kg: 1500,
-          capacity_cbm: 12,
-          emissions_kg_per_km: 0.6
-        }
-      ];
-    }
-    
-    return data as TransportMode[];
+    // Since there's no logistics_transport_modes table yet, we'll return mock data
+    return [
+      {
+        id: 'tm-001',
+        name: 'Truck (Standard)',
+        speed_kmh: 70,
+        cost_per_km: 1.2,
+        capacity_kg: 15000,
+        capacity_cbm: 40,
+        emissions_kg_per_km: 0.8
+      },
+      {
+        id: 'tm-002',
+        name: 'Train (Container)',
+        speed_kmh: 60,
+        cost_per_km: 0.8,
+        capacity_kg: 70000,
+        capacity_cbm: 150,
+        emissions_kg_per_km: 0.4
+      },
+      {
+        id: 'tm-003',
+        name: 'Ship (Container)',
+        speed_kmh: 35,
+        cost_per_km: 0.5,
+        capacity_kg: 150000,
+        capacity_cbm: 300,
+        emissions_kg_per_km: 0.3
+      },
+      {
+        id: 'tm-004',
+        name: 'Air Freight',
+        speed_kmh: 800,
+        cost_per_km: 4.5,
+        capacity_kg: 20000,
+        capacity_cbm: 80,
+        emissions_kg_per_km: 2.0
+      },
+      {
+        id: 'tm-005',
+        name: 'Last Mile Delivery',
+        speed_kmh: 30,
+        cost_per_km: 1.8,
+        capacity_kg: 1500,
+        capacity_cbm: 12,
+        emissions_kg_per_km: 0.6
+      }
+    ];
   } catch (error) {
     console.error('Error fetching transport modes:', error);
     throw error;
@@ -116,19 +106,8 @@ export const getTransportModes = async (): Promise<TransportMode[]> => {
 // Get saved routes
 export const getSavedRoutes = async (): Promise<OptimizedRoute[]> => {
   try {
-    const { data, error } = await supabase
-      .from('logistics_optimized_routes')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    
-    // If no data is returned, provide sample data
-    if (!data || data.length === 0) {
-      return generateSampleRoutes();
-    }
-    
-    return data as OptimizedRoute[];
+    // Since there's no logistics_optimized_routes table yet, we'll return mock data
+    return generateSampleRoutes();
   } catch (error) {
     console.error('Error fetching saved routes:', error);
     return generateSampleRoutes();
@@ -144,7 +123,49 @@ export const generateOptimizedRoute = async (params: RouteOptimizationParams): P
     // Wait for a simulated API call duration
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    const sampleLocations = getSampleLocations();
+    const sampleLocations = [
+      {
+        id: 'loc-001',
+        name: 'Riyadh Warehouse',
+        latitude: 24.7136,
+        longitude: 46.6753,
+        address: 'Industrial Area, Riyadh 12345, Saudi Arabia',
+        type: 'origin' as const
+      },
+      {
+        id: 'loc-002',
+        name: 'Jeddah Distribution Center',
+        latitude: 21.5412,
+        longitude: 39.1721,
+        address: 'Port Area, Jeddah 54321, Saudi Arabia',
+        type: 'waypoint' as const
+      },
+      {
+        id: 'loc-003',
+        name: 'Dammam Port',
+        latitude: 26.4207,
+        longitude: 50.0887,
+        address: 'Port Area, Dammam 31411, Saudi Arabia',
+        type: 'waypoint' as const
+      },
+      {
+        id: 'loc-004',
+        name: 'Mecca Fulfillment Center',
+        latitude: 21.3891,
+        longitude: 39.8579,
+        address: 'Industrial Zone, Mecca 24231, Saudi Arabia',
+        type: 'waypoint' as const
+      },
+      {
+        id: 'loc-005',
+        name: 'Medina Regional Hub',
+        latitude: 24.5247,
+        longitude: 39.5692,
+        address: 'Logistics Park, Medina 42351, Saudi Arabia',
+        type: 'destination' as const
+      }
+    ];
+    
     const originLocation = sampleLocations.find(loc => loc.name === params.origin) || sampleLocations[0];
     const destinationLocation = sampleLocations.find(loc => loc.name === params.destination) || sampleLocations[4];
     
@@ -189,11 +210,14 @@ export const generateOptimizedRoute = async (params: RouteOptimizationParams): P
 // Save a generated route
 export const saveOptimizedRoute = async (route: OptimizedRoute): Promise<void> => {
   try {
-    const { error } = await supabase
-      .from('logistics_optimized_routes')
-      .insert(route);
-
-    if (error) throw error;
+    // Mock implementation - since there's no actual table yet
+    // In a real implementation, we would save to Supabase
+    console.log('Route saved (mock):', route);
+    
+    // Simulate a network delay
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    return Promise.resolve();
   } catch (error) {
     console.error('Error saving optimized route:', error);
     throw error;
@@ -214,15 +238,15 @@ const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: numbe
 };
 
 // Sample data generation
-const getSampleLocations = (): RoutePoint[] => {
-  return [
+const generateSampleRoutes = (): OptimizedRoute[] => {
+  const locations = [
     {
       id: 'loc-001',
       name: 'Riyadh Warehouse',
       latitude: 24.7136,
       longitude: 46.6753,
       address: 'Industrial Area, Riyadh 12345, Saudi Arabia',
-      type: 'origin'
+      type: 'origin' as const
     },
     {
       id: 'loc-002',
@@ -230,7 +254,7 @@ const getSampleLocations = (): RoutePoint[] => {
       latitude: 21.5412,
       longitude: 39.1721,
       address: 'Port Area, Jeddah 54321, Saudi Arabia',
-      type: 'waypoint'
+      type: 'waypoint' as const
     },
     {
       id: 'loc-003',
@@ -238,7 +262,7 @@ const getSampleLocations = (): RoutePoint[] => {
       latitude: 26.4207,
       longitude: 50.0887,
       address: 'Port Area, Dammam 31411, Saudi Arabia',
-      type: 'waypoint'
+      type: 'waypoint' as const
     },
     {
       id: 'loc-004',
@@ -246,7 +270,7 @@ const getSampleLocations = (): RoutePoint[] => {
       latitude: 21.3891,
       longitude: 39.8579,
       address: 'Industrial Zone, Mecca 24231, Saudi Arabia',
-      type: 'waypoint'
+      type: 'waypoint' as const
     },
     {
       id: 'loc-005',
@@ -254,13 +278,9 @@ const getSampleLocations = (): RoutePoint[] => {
       latitude: 24.5247,
       longitude: 39.5692,
       address: 'Logistics Park, Medina 42351, Saudi Arabia',
-      type: 'destination'
+      type: 'destination' as const
     }
   ];
-};
-
-const generateSampleRoutes = (): OptimizedRoute[] => {
-  const locations = getSampleLocations();
   
   return [
     {

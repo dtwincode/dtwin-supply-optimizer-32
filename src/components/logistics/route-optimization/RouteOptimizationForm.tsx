@@ -2,24 +2,23 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2 } from 'lucide-react';
+import { Loader } from 'lucide-react';
 import { RoutePoint, TransportMode, generateOptimizedRoute, getTransportModes } from '@/services/routeOptimizationService';
 
 interface RouteOptimizationFormProps {
   onRouteGenerated: (route: any) => void;
-  locations: RoutePoint[];
 }
 
-export const RouteOptimizationForm = ({ onRouteGenerated, locations }: RouteOptimizationFormProps) => {
+export const RouteOptimizationForm = ({ onRouteGenerated }: RouteOptimizationFormProps) => {
   const [origin, setOrigin] = useState<string>('');
   const [destination, setDestination] = useState<string>('');
   const [transportMode, setTransportMode] = useState<string>('');
   const [optimizationCriteria, setOptimizationCriteria] = useState<'time' | 'cost' | 'emissions'>('time');
   const [loading, setLoading] = useState<boolean>(false);
   const [transportModes, setTransportModes] = useState<TransportMode[]>([]);
+  const [locations, setLocations] = useState<RoutePoint[]>([]);
 
   useEffect(() => {
     const fetchTransportModes = async () => {
@@ -35,6 +34,50 @@ export const RouteOptimizationForm = ({ onRouteGenerated, locations }: RouteOpti
     };
 
     fetchTransportModes();
+    
+    // Sample locations
+    setLocations([
+      {
+        id: 'loc-001',
+        name: 'Riyadh Warehouse',
+        latitude: 24.7136,
+        longitude: 46.6753,
+        address: 'Industrial Area, Riyadh 12345, Saudi Arabia',
+        type: 'origin'
+      },
+      {
+        id: 'loc-002',
+        name: 'Jeddah Distribution Center',
+        latitude: 21.5412,
+        longitude: 39.1721,
+        address: 'Port Area, Jeddah 54321, Saudi Arabia',
+        type: 'waypoint'
+      },
+      {
+        id: 'loc-003',
+        name: 'Dammam Port',
+        latitude: 26.4207,
+        longitude: 50.0887,
+        address: 'Port Area, Dammam 31411, Saudi Arabia',
+        type: 'waypoint'
+      },
+      {
+        id: 'loc-004',
+        name: 'Mecca Fulfillment Center',
+        latitude: 21.3891,
+        longitude: 39.8579,
+        address: 'Industrial Zone, Mecca 24231, Saudi Arabia',
+        type: 'waypoint'
+      },
+      {
+        id: 'loc-005',
+        name: 'Medina Regional Hub',
+        latitude: 24.5247,
+        longitude: 39.5692,
+        address: 'Logistics Park, Medina 42351, Saudi Arabia',
+        type: 'destination'
+      }
+    ]);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -150,7 +193,7 @@ export const RouteOptimizationForm = ({ onRouteGenerated, locations }: RouteOpti
           >
             {loading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader className="mr-2 h-4 w-4 animate-spin" />
                 Calculating optimal route...
               </>
             ) : (

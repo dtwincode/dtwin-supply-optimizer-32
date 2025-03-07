@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { OptimizedRoute, saveOptimizedRoute } from '@/services/routeOptimizationService';
-import { Check, Clock, DollarSign, Fuel, MapPin, RotateCcw, Save, TrendingDown } from 'lucide-react';
+import { Check, Clock, DollarSign, Fuel, MapPin, RotateCcw, Save, TrendingDown, Loader } from 'lucide-react';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
@@ -125,7 +125,7 @@ export const OptimizedRouteDetails = ({ route, onReset }: OptimizedRouteDetailsP
               <Button onClick={handleSaveRoute} disabled={saving} className="flex-1">
                 {saving ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader className="mr-2 h-4 w-4 animate-spin" />
                     Saving...
                   </>
                 ) : (
