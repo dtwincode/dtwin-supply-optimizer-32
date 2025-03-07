@@ -6,12 +6,15 @@ import { Loader2, AlertTriangle } from 'lucide-react';
 import BaseMap from '@/components/shared/maps/BaseMap';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ErrorBoundary } from '../ErrorBoundary';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { getTranslation } from '@/translations';
 
 export const LogisticsMap: React.FC = () => {
   const { trackingData } = useLogisticsTracking();
   const [centerCoords, setCenterCoords] = useState({ lat: 34.0522, lng: -118.2437 });
   const [isLoading, setIsLoading] = useState(true);
   const [hasMapError, setHasMapError] = useState(false);
+  const { language } = useLanguage();
 
   useEffect(() => {
     // Check if Mapbox token is available
@@ -36,9 +39,9 @@ export const LogisticsMap: React.FC = () => {
   const MapErrorFallback = () => (
     <Alert variant="destructive" className="mt-4">
       <AlertTriangle className="h-4 w-4" />
-      <AlertTitle>Map Unavailable</AlertTitle>
+      <AlertTitle>{getTranslation("logistics.mapUnavailable", language)}</AlertTitle>
       <AlertDescription>
-        The logistics tracking map is currently unavailable. Please check your Mapbox API configuration.
+        {getTranslation("logistics.mapError", language)}
       </AlertDescription>
     </Alert>
   );
@@ -46,7 +49,7 @@ export const LogisticsMap: React.FC = () => {
   return (
     <Card className="col-span-2">
       <CardHeader>
-        <CardTitle>Logistics Tracking Map</CardTitle>
+        <CardTitle>{getTranslation("logistics.logisticsTrackingMap", language)}</CardTitle>
       </CardHeader>
       <CardContent>
         {isLoading ? (

@@ -15,6 +15,8 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useState, useEffect } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslation } from "@/translations";
 
 const poPipelineData = [
   {
@@ -81,6 +83,7 @@ const poPipelineData = [
 
 const Logistics = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const { language } = useLanguage();
   
   useEffect(() => {
     // Simulate loading to ensure all components have time to initialize
@@ -109,7 +112,7 @@ const Logistics = () => {
       <div className="space-y-6">
         <div className="flex flex-col gap-4">
           <p className="text-muted-foreground">
-            Optimize and track supply chain operations
+            {getTranslation("logistics.optimizeSupplyChain", language)}
           </p>
         </div>
 
@@ -117,9 +120,13 @@ const Logistics = () => {
           fallback={
             <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>Error Loading Metrics</AlertTitle>
+              <AlertTitle>
+                {language === 'en' ? 'Error Loading Metrics' : 'خطأ في تحميل المقاييس'}
+              </AlertTitle>
               <AlertDescription>
-                There was a problem loading the logistics metrics. Please try refreshing the page.
+                {language === 'en' 
+                  ? 'There was a problem loading the logistics metrics. Please try refreshing the page.'
+                  : 'حدثت مشكلة في تحميل مقاييس الخدمات اللوجستية. يرجى تحديث الصفحة.'}
               </AlertDescription>
             </Alert>
           }
@@ -130,9 +137,11 @@ const Logistics = () => {
         <ErrorBoundary
           fallback={
             <Card className="col-span-2 p-6">
-              <AlertTitle className="text-lg font-semibold">Logistics Tracking Map</AlertTitle>
+              <AlertTitle className="text-lg font-semibold">
+                {getTranslation("logistics.logisticsTrackingMap", language)}
+              </AlertTitle>
               <AlertDescription className="mt-4">
-                Unable to load the logistics map. Please check your configuration.
+                {getTranslation("logistics.mapUnavailable", language)}
               </AlertDescription>
             </Card>
           }
@@ -142,11 +151,21 @@ const Logistics = () => {
 
         <Tabs defaultValue="orders" className="w-full">
           <TabsList>
-            <TabsTrigger value="orders">Orders</TabsTrigger>
-            <TabsTrigger value="po-pipeline">PO Pipeline</TabsTrigger>
-            <TabsTrigger value="route-optimization">Route Optimization</TabsTrigger>
-            <TabsTrigger value="transport-modes">Transport Modes</TabsTrigger>
-            <TabsTrigger value="documents">Documents</TabsTrigger>
+            <TabsTrigger value="orders">
+              {getTranslation("logistics.orders", language)}
+            </TabsTrigger>
+            <TabsTrigger value="po-pipeline">
+              {getTranslation("logistics.poPipeline", language)}
+            </TabsTrigger>
+            <TabsTrigger value="route-optimization">
+              {getTranslation("logistics.routeOptimization", language)}
+            </TabsTrigger>
+            <TabsTrigger value="transport-modes">
+              {getTranslation("logistics.transportModes", language)}
+            </TabsTrigger>
+            <TabsTrigger value="documents">
+              {getTranslation("logistics.documents", language)}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="orders">
@@ -156,9 +175,13 @@ const Logistics = () => {
                   fallback={
                     <Alert variant="destructive">
                       <AlertTriangle className="h-4 w-4" />
-                      <AlertTitle>Error Loading Orders</AlertTitle>
+                      <AlertTitle>
+                        {language === 'en' ? 'Error Loading Orders' : 'خطأ في تحميل الطلبات'}
+                      </AlertTitle>
                       <AlertDescription>
-                        There was a problem loading the logistics orders data.
+                        {language === 'en'
+                          ? 'There was a problem loading the logistics orders data.'
+                          : 'حدثت مشكلة في تحميل بيانات طلبات الخدمات اللوجستية.'}
                       </AlertDescription>
                     </Alert>
                   }
@@ -174,9 +197,11 @@ const Logistics = () => {
               <div className="p-6">
                 <div className="flex justify-between items-center mb-6">
                   <div className="space-y-1">
-                    <h3 className="text-lg font-medium">Purchase Order Pipeline</h3>
+                    <h3 className="text-lg font-medium">
+                      {getTranslation("logistics.purchaseOrderPipeline", language)}
+                    </h3>
                     <p className="text-sm text-muted-foreground">
-                      Monitor and track purchase orders through different stages
+                      {getTranslation("logistics.monitorAndTrack", language)}
                     </p>
                   </div>
                   <LogisticsFilters />
@@ -185,9 +210,13 @@ const Logistics = () => {
                   fallback={
                     <Alert variant="destructive">
                       <AlertTriangle className="h-4 w-4" />
-                      <AlertTitle>Error Loading PO Pipeline</AlertTitle>
+                      <AlertTitle>
+                        {language === 'en' ? 'Error Loading PO Pipeline' : 'خطأ في تحميل مسار أوامر الشراء'}
+                      </AlertTitle>
                       <AlertDescription>
-                        There was a problem loading the purchase order pipeline data.
+                        {language === 'en'
+                          ? 'There was a problem loading the purchase order pipeline data.'
+                          : 'حدثت مشكلة في تحميل بيانات مسار أوامر الشراء.'}
                       </AlertDescription>
                     </Alert>
                   }
@@ -202,18 +231,24 @@ const Logistics = () => {
             <Card>
               <div className="p-6">
                 <div className="space-y-1 mb-6">
-                  <h3 className="text-lg font-medium">Route Optimization</h3>
+                  <h3 className="text-lg font-medium">
+                    {getTranslation("logistics.routeOptimization", language)}
+                  </h3>
                   <p className="text-sm text-muted-foreground">
-                    Calculate optimal routes based on time, cost, or emissions
+                    {getTranslation("logistics.routeOptimizationDesc", language)}
                   </p>
                 </div>
                 <ErrorBoundary
                   fallback={
                     <Alert variant="destructive">
                       <AlertTriangle className="h-4 w-4" />
-                      <AlertTitle>Error Loading Route Optimization</AlertTitle>
+                      <AlertTitle>
+                        {language === 'en' ? 'Error Loading Route Optimization' : 'خطأ في تحميل تحسين المسار'}
+                      </AlertTitle>
                       <AlertDescription>
-                        There was a problem loading the route optimization tools.
+                        {language === 'en'
+                          ? 'There was a problem loading the route optimization tools.'
+                          : 'حدثت مشكلة في تحميل أدوات تحسين المسار.'}
                       </AlertDescription>
                     </Alert>
                   }
@@ -228,18 +263,24 @@ const Logistics = () => {
             <Card>
               <div className="p-6">
                 <div className="space-y-1 mb-6">
-                  <h3 className="text-lg font-medium">Transport Modes</h3>
+                  <h3 className="text-lg font-medium">
+                    {getTranslation("logistics.transportModes", language)}
+                  </h3>
                   <p className="text-sm text-muted-foreground">
-                    View and compare different transportation options
+                    {getTranslation("logistics.transportModesDesc", language)}
                   </p>
                 </div>
                 <ErrorBoundary
                   fallback={
                     <Alert variant="destructive">
                       <AlertTriangle className="h-4 w-4" />
-                      <AlertTitle>Error Loading Transport Modes</AlertTitle>
+                      <AlertTitle>
+                        {language === 'en' ? 'Error Loading Transport Modes' : 'خطأ في تحميل وسائل النقل'}
+                      </AlertTitle>
                       <AlertDescription>
-                        There was a problem loading the transport modes data.
+                        {language === 'en'
+                          ? 'There was a problem loading the transport modes data.'
+                          : 'حدثت مشكلة في تحميل بيانات وسائل النقل.'}
                       </AlertDescription>
                     </Alert>
                   }
@@ -254,9 +295,11 @@ const Logistics = () => {
             <Card>
               <div className="p-6">
                 <div className="space-y-1 mb-6">
-                  <h3 className="text-lg font-medium">Document Management</h3>
+                  <h3 className="text-lg font-medium">
+                    {getTranslation("logistics.documentManagement", language)}
+                  </h3>
                   <p className="text-sm text-muted-foreground">
-                    Upload and manage logistics documents
+                    {getTranslation("logistics.uploadAndManage", language)}
                   </p>
                 </div>
                 <div className="space-y-8">
@@ -266,7 +309,9 @@ const Logistics = () => {
                       onUploadComplete={() => window.location.reload()}
                     />
                     <div className="pt-4 border-t">
-                      <h4 className="text-sm font-medium mb-4">Uploaded Documents</h4>
+                      <h4 className="text-sm font-medium mb-4">
+                        {getTranslation("logistics.uploadedDocuments", language)}
+                      </h4>
                       <DocumentList orderId="ORD-20240315-001" />
                     </div>
                   </ErrorBoundary>

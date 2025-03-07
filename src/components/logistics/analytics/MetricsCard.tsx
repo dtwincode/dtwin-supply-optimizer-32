@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { getLogisticsMetrics } from '@/services/logisticsAnalyticsService';
 import { AlertTriangle, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { getTranslation } from '@/translations';
 
 interface MetricsCardProps {
   title: string;
@@ -12,6 +14,7 @@ interface MetricsCardProps {
 
 export const MetricsCard = ({ title, metricType }: MetricsCardProps) => {
   const [hasError, setHasError] = useState(false);
+  const { language } = useLanguage();
   
   const { data: metrics, isLoading, isError } = useQuery({
     queryKey: ['logistics-metrics', metricType],
@@ -41,6 +44,12 @@ export const MetricsCard = ({ title, metricType }: MetricsCardProps) => {
 
   const latestMetric = metrics?.[0];
 
+  const formatDate = (dateString: string) => {
+    if (!dateString) return getTranslation("logistics.notAvailable", language);
+    const date = new Date(dateString);
+    return date.toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US');
+  };
+
   if (isLoading) {
     return (
       <Card>
@@ -65,7 +74,9 @@ export const MetricsCard = ({ title, metricType }: MetricsCardProps) => {
         <CardContent>
           <div className="flex items-center space-x-2 text-destructive">
             <AlertTriangle className="h-4 w-4" />
-            <span className="text-sm">Metrics unavailable</span>
+            <span className="text-sm">
+              {language === 'en' ? 'Metrics unavailable' : 'المقاييس غير متوفرة'}
+            </span>
           </div>
           <div className="text-2xl font-bold text-muted-foreground">--</div>
         </CardContent>
@@ -83,7 +94,7 @@ export const MetricsCard = ({ title, metricType }: MetricsCardProps) => {
           {latestMetric?.metric_value !== undefined ? latestMetric.metric_value.toFixed(2) : '--'}
         </div>
         <p className="text-xs text-muted-foreground">
-          Last updated: {latestMetric?.timestamp ? new Date(latestMetric.timestamp).toLocaleString() : 'N/A'}
+          {getTranslation("logistics.lastUpdated", language)}: {latestMetric?.timestamp ? formatDate(latestMetric.timestamp) : getTranslation("logistics.notAvailable", language)}
         </p>
       </CardContent>
     </Card>
