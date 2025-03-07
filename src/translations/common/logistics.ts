@@ -90,7 +90,6 @@ export const logisticsTranslations: LogisticsTranslations = {
       ar: "مكتمل"
     }
   },
-  // Additional translations for Logistics page
   orders: {
     en: "Orders",
     ar: "الطلبات"
@@ -202,5 +201,38 @@ export const logisticsTranslations: LogisticsTranslations = {
   notAvailable: {
     en: "N/A",
     ar: "غير متوفر"
+  },
+  // Adding missing translations needed by POPipelineTable
+  supplier: {
+    en: "Supplier",
+    ar: "المورد"
+  },
+  stage: {
+    en: "Stage",
+    ar: "المرحلة"
+  },
+  startDate: {
+    en: "Start Date",
+    ar: "تاريخ البدء"
+  },
+  eta: {
+    en: "ETA",
+    ar: "الوقت المتوقع للوصول"
+  },
+  completion: {
+    en: "Completion",
+    ar: "نسبة الإكمال"
+  },
+  blockers: {
+    en: "Blockers",
+    ar: "العوائق"
+  },
+  priority: {
+    en: "Priority",
+    ar: "الأولوية"
+  },
+  none: {
+    en: "None",
+    ar: "لا يوجد"
   }
 };

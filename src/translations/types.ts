@@ -149,6 +149,34 @@ export interface LogisticsTranslations {
     inProgress: TranslationValue;
     completed: TranslationValue;
   };
+  orders: TranslationValue;
+  poPipeline: TranslationValue;
+  documents: TranslationValue;
+  orderRef: TranslationValue;
+  carrier: TranslationValue;
+  trackingNumber: TranslationValue;
+  statusLabel: TranslationValue;
+  inTransit: TranslationValue;
+  processing: TranslationValue;
+  outForDelivery: TranslationValue;
+  delivered: TranslationValue;
+  purchaseOrderPipeline: TranslationValue;
+  monitorAndTrack: TranslationValue;
+  routeOptimizationDesc: TranslationValue;
+  transportModesDesc: TranslationValue;
+  documentManagement: TranslationValue;
+  uploadAndManage: TranslationValue;
+  uploadedDocuments: TranslationValue;
+  optimizeSupplyChain: TranslationValue;
+  logisticsTrackingMap: TranslationValue;
+  mapUnavailable: TranslationValue;
+  mapError: TranslationValue;
+  onTimeDeliveryRate: TranslationValue;
+  averageTransitTime: TranslationValue;
+  deliverySuccessRate: TranslationValue;
+  costPerShipment: TranslationValue;
+  lastUpdated: TranslationValue;
+  notAvailable: TranslationValue;
 }
 
 export interface CommonTranslations {

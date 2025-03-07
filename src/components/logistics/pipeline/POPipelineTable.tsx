@@ -8,6 +8,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslation } from "@/translations";
 
 interface POPipeline {
   id: string;
@@ -27,20 +29,22 @@ interface POPipelineTableProps {
 }
 
 export const POPipelineTable = ({ data }: POPipelineTableProps) => {
+  const { language } = useLanguage();
+  
   return (
-    <Table>
+    <Table dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <TableHeader>
         <TableRow>
-          <TableHead>PO ID</TableHead>
-          <TableHead>Supplier</TableHead>
-          <TableHead>Stage</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Start Date</TableHead>
-          <TableHead>ETA</TableHead>
-          <TableHead>Completion</TableHead>
-          <TableHead>Blockers</TableHead>
-          <TableHead>Last Updated</TableHead>
-          <TableHead>Priority</TableHead>
+          <TableHead>{getTranslation("common.id", language) || "PO ID"}</TableHead>
+          <TableHead>{getTranslation("logistics.supplier", language) || "Supplier"}</TableHead>
+          <TableHead>{getTranslation("logistics.stage", language) || "Stage"}</TableHead>
+          <TableHead>{getTranslation("logistics.statusLabel", language) || "Status"}</TableHead>
+          <TableHead>{getTranslation("logistics.startDate", language) || "Start Date"}</TableHead>
+          <TableHead>{getTranslation("logistics.eta", language) || "ETA"}</TableHead>
+          <TableHead>{getTranslation("logistics.completion", language) || "Completion"}</TableHead>
+          <TableHead>{getTranslation("logistics.blockers", language) || "Blockers"}</TableHead>
+          <TableHead>{getTranslation("logistics.lastUpdated", language) || "Last Updated"}</TableHead>
+          <TableHead>{getTranslation("logistics.priority", language) || "Priority"}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -92,7 +96,9 @@ export const POPipelineTable = ({ data }: POPipelineTableProps) => {
               {po.blockers ? (
                 <span className="text-destructive">{po.blockers}</span>
               ) : (
-                <span className="text-muted-foreground">None</span>
+                <span className="text-muted-foreground">
+                  {getTranslation("logistics.none", language) || "None"}
+                </span>
               )}
             </TableCell>
             <TableCell>{po.lastUpdated}</TableCell>
