@@ -1,3 +1,4 @@
+
 export interface TranslationValue {
   en: string;
   ar: string;
@@ -104,6 +105,7 @@ export interface ChartTranslations {
     green: TranslationValue;
     yellow: TranslationValue;
     red: TranslationValue;
+    inventory: TranslationValue;
   };
 }
 
