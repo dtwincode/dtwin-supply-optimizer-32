@@ -122,6 +122,34 @@ export interface NavigationItems {
   guidelines: TranslationValue;
 }
 
+export interface LogisticsTranslations {
+  routeOptimization: TranslationItem;
+  transportModes: TranslationItem;
+  optimizeRoute: TranslationItem;
+  origin: TranslationItem;
+  destination: TranslationItem;
+  waypoints: TranslationItem;
+  optimizationCriteria: TranslationItem;
+  transportMode: TranslationItem;
+  departureTime: TranslationItem;
+  totalDistance: TranslationItem;
+  totalTime: TranslationItem;
+  totalCost: TranslationItem;
+  emissions: TranslationItem;
+  fuelConsumption: TranslationItem;
+  savedRoutes: TranslationItem;
+  criteria: {
+    time: TranslationItem;
+    cost: TranslationItem;
+    emissions: TranslationItem;
+  };
+  status: {
+    planned: TranslationItem;
+    inProgress: TranslationItem;
+    completed: TranslationItem;
+  };
+}
+
 export interface CommonTranslations {
   settings: TranslationValue;
   logout: TranslationValue;
@@ -182,6 +210,8 @@ export interface CommonTranslations {
   marketingDescription: TranslationValue;
   logisticsDescription: TranslationValue;
   reportsDescription: TranslationValue;
+  
+  logistics?: LogisticsTranslations;
 }
 
 export interface Translations {

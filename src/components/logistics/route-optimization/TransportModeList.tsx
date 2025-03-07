@@ -14,10 +14,13 @@ import { TransportMode, getTransportModes } from '@/services/routeOptimizationSe
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { toArabicNumerals } from '@/translations';
 
 export const TransportModeList = () => {
   const [transportModes, setTransportModes] = useState<TransportMode[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const { language, isRTL } = useLanguage();
 
   useEffect(() => {
     const fetchTransportModes = async () => {
@@ -35,11 +38,116 @@ export const TransportModeList = () => {
     fetchTransportModes();
   }, []);
 
+  const translations = {
+    transportModes: {
+      en: "Transport Modes",
+      ar: "وسائل النقل"
+    },
+    capacityCost: {
+      en: "Capacity & Cost",
+      ar: "السعة والتكلفة"
+    },
+    performanceMetrics: {
+      en: "Performance Metrics",
+      ar: "مؤشرات الأداء"
+    },
+    mode: {
+      en: "Mode",
+      ar: "وسيلة النقل"
+    },
+    speed: {
+      en: "Speed (km/h)",
+      ar: "السرعة (كم/س)"
+    },
+    costPerKm: {
+      en: "Cost per km",
+      ar: "التكلفة لكل كم"
+    },
+    capacity: {
+      en: "Capacity (kg)",
+      ar: "السعة (كغم)"
+    },
+    volume: {
+      en: "Volume (m³)",
+      ar: "الحجم (م³)"
+    },
+    moq: {
+      en: "MOQ",
+      ar: "الحد الأدنى للطلب"
+    },
+    maxShipments: {
+      en: "Max Shipments",
+      ar: "الحد الأقصى للشحنات"
+    },
+    emissions: {
+      en: "Emissions (kg/km)",
+      ar: "الانبعاثات (كغم/كم)"
+    },
+    reliabilityScore: {
+      en: "Reliability Score",
+      ar: "مؤشر الموثوقية"
+    },
+    avgLeadTime: {
+      en: "Avg Lead Time",
+      ar: "متوسط وقت التسليم"
+    },
+    leadTimeVariability: {
+      en: "Lead Time Variability",
+      ar: "تفاوت وقت التسليم"
+    },
+    trackingQuality: {
+      en: "Tracking Quality",
+      ar: "جودة التتبع"
+    },
+    damageRate: {
+      en: "Damage Rate (%)",
+      ar: "نسبة التلف (%)"
+    },
+    tons: {
+      en: "tons",
+      ar: "طن"
+    },
+    minimumOrderQuantity: {
+      en: "Minimum Order Quantity",
+      ar: "الحد الأدنى لكمية الطلب"
+    },
+    maxShipmentsTooltip: {
+      en: "Maximum shipments per transport",
+      ar: "الحد الأقصى للشحنات لكل وسيلة نقل"
+    },
+    reliabilityTooltip: {
+      en: "Reliability score based on on-time delivery performance and carrier reputation. Higher is better.",
+      ar: "مؤشر الموثوقية بناءً على أداء التسليم في الوقت المحدد وسمعة الناقل. الأعلى هو الأفضل."
+    },
+    leadTimeTooltip: {
+      en: "Average lead time from order placement to delivery for standard routes.",
+      ar: "متوسط الوقت المستغرق من تقديم الطلب إلى التسليم للمسارات القياسية."
+    },
+    variabilityTooltip: {
+      en: "Standard deviation in lead time - lower values indicate more consistent delivery times.",
+      ar: "الانحراف المعياري في وقت التسليم - القيم الأدنى تشير إلى أوقات تسليم أكثر اتساقاً."
+    }
+  };
+
+  const getLocalizedText = (key: string): string => {
+    return translations[key as keyof typeof translations]?.[language] || key;
+  };
+
+  const formatValue = (value: string | number): string => {
+    if (language === 'ar' && typeof value === 'number') {
+      return toArabicNumerals(value.toString());
+    }
+    if (language === 'ar' && typeof value === 'string' && /^[\d.]+$/.test(value)) {
+      return toArabicNumerals(value);
+    }
+    return value.toString();
+  };
+
   if (loading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Transport Modes</CardTitle>
+          <CardTitle>{getLocalizedText('transportModes')}</CardTitle>
         </CardHeader>
         <CardContent className="flex justify-center py-8">
           <Loader className="h-8 w-8 animate-spin text-primary" />
@@ -51,48 +159,52 @@ export const TransportModeList = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Transport Modes</CardTitle>
+        <CardTitle>{getLocalizedText('transportModes')}</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent dir={isRTL ? 'rtl' : 'ltr'}>
         <Tabs defaultValue="capacity">
           <TabsList className="mb-4">
-            <TabsTrigger value="capacity">Capacity & Cost</TabsTrigger>
-            <TabsTrigger value="performance">Performance Metrics</TabsTrigger>
+            <TabsTrigger value="capacity">{getLocalizedText('capacityCost')}</TabsTrigger>
+            <TabsTrigger value="performance">{getLocalizedText('performanceMetrics')}</TabsTrigger>
           </TabsList>
           
           <TabsContent value="capacity">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Mode</TableHead>
-                  <TableHead>Speed (km/h)</TableHead>
-                  <TableHead>Cost per km</TableHead>
-                  <TableHead>Capacity (kg)</TableHead>
-                  <TableHead>Volume (m³)</TableHead>
-                  <TableHead>MOQ</TableHead>
-                  <TableHead>Max Shipments</TableHead>
-                  <TableHead>Emissions (kg/km)</TableHead>
+                  <TableHead>{getLocalizedText('mode')}</TableHead>
+                  <TableHead>{getLocalizedText('speed')}</TableHead>
+                  <TableHead>{getLocalizedText('costPerKm')}</TableHead>
+                  <TableHead>{getLocalizedText('capacity')}</TableHead>
+                  <TableHead>{getLocalizedText('volume')}</TableHead>
+                  <TableHead>{getLocalizedText('moq')}</TableHead>
+                  <TableHead>{getLocalizedText('maxShipments')}</TableHead>
+                  <TableHead>{getLocalizedText('emissions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {transportModes.map((mode) => (
                   <TableRow key={mode.id}>
                     <TableCell className="font-medium">{mode.name}</TableCell>
-                    <TableCell>{mode.speed_kmh}</TableCell>
-                    <TableCell>${mode.cost_per_km.toFixed(2)}</TableCell>
-                    <TableCell>{(mode.capacity_kg / 1000).toFixed(1)} tons</TableCell>
-                    <TableCell>{mode.capacity_cbm} m³</TableCell>
+                    <TableCell>{formatValue(mode.speed_kmh)}</TableCell>
+                    <TableCell>
+                      {language === 'ar' ? `$${formatValue(mode.cost_per_km.toFixed(2))}` : `$${mode.cost_per_km.toFixed(2)}`}
+                    </TableCell>
+                    <TableCell>
+                      {formatValue((mode.capacity_kg / 1000).toFixed(1))} {getLocalizedText('tons')}
+                    </TableCell>
+                    <TableCell>{formatValue(mode.capacity_cbm)} m³</TableCell>
                     <TableCell>
                       {mode.moq ? (
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Badge variant="outline">
-                                {mode.moq} {mode.moq_units}
+                                {formatValue(mode.moq)} {mode.moq_units}
                               </Badge>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>Minimum Order Quantity</p>
+                              <p>{getLocalizedText('minimumOrderQuantity')}</p>
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
@@ -106,11 +218,11 @@ export const TransportModeList = () => {
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Badge variant="secondary">
-                                {mode.max_shipments}
+                                {formatValue(mode.max_shipments)}
                               </Badge>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>Maximum shipments per transport</p>
+                              <p>{getLocalizedText('maxShipmentsTooltip')}</p>
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
@@ -118,7 +230,7 @@ export const TransportModeList = () => {
                         'N/A'
                       )}
                     </TableCell>
-                    <TableCell>{mode.emissions_kg_per_km.toFixed(1)} kg</TableCell>
+                    <TableCell>{formatValue(mode.emissions_kg_per_km.toFixed(1))} kg</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -129,15 +241,15 @@ export const TransportModeList = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Mode</TableHead>
+                  <TableHead>{getLocalizedText('mode')}</TableHead>
                   <TableHead>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger className="flex items-center gap-1">
-                          Reliability Score <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                          {getLocalizedText('reliabilityScore')} <Info className="h-3.5 w-3.5 text-muted-foreground" />
                         </TooltipTrigger>
                         <TooltipContent className="w-80">
-                          <p>Reliability score based on on-time delivery performance and carrier reputation. Higher is better.</p>
+                          <p>{getLocalizedText('reliabilityTooltip')}</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -146,10 +258,10 @@ export const TransportModeList = () => {
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger className="flex items-center gap-1">
-                          Avg Lead Time <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                          {getLocalizedText('avgLeadTime')} <Info className="h-3.5 w-3.5 text-muted-foreground" />
                         </TooltipTrigger>
                         <TooltipContent className="w-80">
-                          <p>Average lead time from order placement to delivery for standard routes.</p>
+                          <p>{getLocalizedText('leadTimeTooltip')}</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -158,16 +270,16 @@ export const TransportModeList = () => {
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger className="flex items-center gap-1">
-                          Lead Time Variability <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                          {getLocalizedText('leadTimeVariability')} <Info className="h-3.5 w-3.5 text-muted-foreground" />
                         </TooltipTrigger>
                         <TooltipContent className="w-80">
-                          <p>Standard deviation in lead time - lower values indicate more consistent delivery times.</p>
+                          <p>{getLocalizedText('variabilityTooltip')}</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
                   </TableHead>
-                  <TableHead>Tracking Quality</TableHead>
-                  <TableHead>Damage Rate (%)</TableHead>
+                  <TableHead>{getLocalizedText('trackingQuality')}</TableHead>
+                  <TableHead>{getLocalizedText('damageRate')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -188,19 +300,21 @@ export const TransportModeList = () => {
                             style={{ width: `${getReliabilityScore(mode.name)}%` }}
                           />
                         </div>
-                        <span className="text-sm">{getReliabilityScore(mode.name)}%</span>
+                        <span className="text-sm">{formatValue(getReliabilityScore(mode.name))}%</span>
                       </div>
                     </TableCell>
                     <TableCell>{getAverageLeadTime(mode.name)}</TableCell>
                     <TableCell>
                       <Badge variant={getLeadTimeVariabilityVariant(mode.name)}>
-                        {getLeadTimeVariability(mode.name)}
+                        {language === 'ar' 
+                          ? getLocalizedLeadTimeVariability(mode.name) 
+                          : getLeadTimeVariability(mode.name)}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <TrackingQualityBadge mode={mode.name} />
+                      <TrackingQualityBadge mode={mode.name} language={language} />
                     </TableCell>
-                    <TableCell>{getDamageRate(mode.name)}%</TableCell>
+                    <TableCell>{formatValue(getDamageRate(mode.name))}%</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -246,6 +360,17 @@ const getLeadTimeVariability = (mode: string): string => {
   return variability[mode] || 'Unknown';
 };
 
+const getLocalizedLeadTimeVariability = (mode: string): string => {
+  const variability = getLeadTimeVariability(mode);
+  const variabilityInArabic: Record<string, string> = {
+    'Low': 'منخفض',
+    'Medium': 'متوسط',
+    'High': 'مرتفع',
+    'Unknown': 'غير معروف'
+  };
+  return variabilityInArabic[variability] || variability;
+};
+
 const getLeadTimeVariabilityVariant = (mode: string): "default" | "secondary" | "outline" | "destructive" => {
   const variabilityMap: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
     'Low': 'default',
@@ -267,20 +392,25 @@ const getDamageRate = (mode: string): number => {
   return rates[mode] || 1.5; // Default fallback
 };
 
-const TrackingQualityBadge = ({ mode }: { mode: string }) => {
-  const qualityMap: Record<string, { label: string, variant: "default" | "secondary" | "outline" | "destructive" }> = {
-    'Truck (Standard)': { label: 'Good', variant: 'default' },
-    'Train (Container)': { label: 'Basic', variant: 'secondary' },
-    'Ship (Container)': { label: 'Limited', variant: 'outline' },
-    'Air Freight': { label: 'Excellent', variant: 'default' },
-    'Last Mile Delivery': { label: 'Good', variant: 'default' }
+interface TrackingQualityBadgeProps {
+  mode: string;
+  language: 'en' | 'ar';
+}
+
+const TrackingQualityBadge = ({ mode, language }: TrackingQualityBadgeProps) => {
+  const qualityMap: Record<string, { label: string, labelAr: string, variant: "default" | "secondary" | "outline" | "destructive" }> = {
+    'Truck (Standard)': { label: 'Good', labelAr: 'جيد', variant: 'default' },
+    'Train (Container)': { label: 'Basic', labelAr: 'أساسي', variant: 'secondary' },
+    'Ship (Container)': { label: 'Limited', labelAr: 'محدود', variant: 'outline' },
+    'Air Freight': { label: 'Excellent', labelAr: 'ممتاز', variant: 'default' },
+    'Last Mile Delivery': { label: 'Good', labelAr: 'جيد', variant: 'default' }
   };
   
-  const quality = qualityMap[mode] || { label: 'Unknown', variant: 'outline' };
+  const quality = qualityMap[mode] || { label: 'Unknown', labelAr: 'غير معروف', variant: 'outline' };
   
   return (
     <Badge variant={quality.variant}>
-      {quality.label}
+      {language === 'ar' ? quality.labelAr : quality.label}
     </Badge>
   );
 };

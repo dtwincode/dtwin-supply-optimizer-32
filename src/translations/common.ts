@@ -5,6 +5,7 @@ import { inventoryTranslations } from './common/inventory';
 import { moduleTranslations } from './common/modules';
 import { chartTranslations } from './common/charts';
 import { paginationTranslations } from './common/pagination';
+import { logisticsTranslations } from './common/logistics';
 
 export const commonTranslations: CommonTranslations = {
   // UI translations
@@ -35,5 +36,8 @@ export const commonTranslations: CommonTranslations = {
   to: paginationTranslations.to,
   
   // Module translations
-  ...moduleTranslations
+  ...moduleTranslations,
+  
+  // Logistics translations
+  logistics: logisticsTranslations
 };
