@@ -11,6 +11,8 @@ import {
 } from '@/components/ui/table';
 import { Loader } from 'lucide-react';
 import { TransportMode, getTransportModes } from '@/services/routeOptimizationService';
+import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export const TransportModeList = () => {
   const [transportModes, setTransportModes] = useState<TransportMode[]>([]);
@@ -59,6 +61,8 @@ export const TransportModeList = () => {
               <TableHead>Cost per km</TableHead>
               <TableHead>Capacity (kg)</TableHead>
               <TableHead>Volume (m³)</TableHead>
+              <TableHead>MOQ</TableHead>
+              <TableHead>Max Shipments</TableHead>
               <TableHead>Emissions (kg/km)</TableHead>
             </TableRow>
           </TableHeader>
@@ -70,6 +74,42 @@ export const TransportModeList = () => {
                 <TableCell>${mode.cost_per_km.toFixed(2)}</TableCell>
                 <TableCell>{(mode.capacity_kg / 1000).toFixed(1)} tons</TableCell>
                 <TableCell>{mode.capacity_cbm} m³</TableCell>
+                <TableCell>
+                  {mode.moq ? (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Badge variant="outline">
+                            {mode.moq} {mode.moq_units}
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Minimum Order Quantity</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  ) : (
+                    'N/A'
+                  )}
+                </TableCell>
+                <TableCell>
+                  {mode.max_shipments ? (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Badge variant="secondary">
+                            {mode.max_shipments}
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Maximum shipments per transport</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  ) : (
+                    'N/A'
+                  )}
+                </TableCell>
                 <TableCell>{mode.emissions_kg_per_km.toFixed(1)} kg</TableCell>
               </TableRow>
             ))}

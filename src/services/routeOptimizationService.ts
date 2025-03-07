@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface RoutePoint {
@@ -18,6 +17,9 @@ export interface TransportMode {
   capacity_kg: number;
   capacity_cbm: number; // cubic meters
   emissions_kg_per_km: number;
+  moq?: number; // Minimum Order Quantity
+  moq_units?: string; // Units for MOQ (pallets, containers, etc.)
+  max_shipments?: number; // Maximum number of shipments per transport
 }
 
 export interface OptimizedRoute {
@@ -58,7 +60,10 @@ export const getTransportModes = async (): Promise<TransportMode[]> => {
         cost_per_km: 1.2,
         capacity_kg: 15000,
         capacity_cbm: 40,
-        emissions_kg_per_km: 0.8
+        emissions_kg_per_km: 0.8,
+        moq: 5,
+        moq_units: 'pallets',
+        max_shipments: 20
       },
       {
         id: 'tm-002',
@@ -67,7 +72,10 @@ export const getTransportModes = async (): Promise<TransportMode[]> => {
         cost_per_km: 0.8,
         capacity_kg: 70000,
         capacity_cbm: 150,
-        emissions_kg_per_km: 0.4
+        emissions_kg_per_km: 0.4,
+        moq: 10,
+        moq_units: 'containers',
+        max_shipments: 50
       },
       {
         id: 'tm-003',
@@ -76,7 +84,10 @@ export const getTransportModes = async (): Promise<TransportMode[]> => {
         cost_per_km: 0.5,
         capacity_kg: 150000,
         capacity_cbm: 300,
-        emissions_kg_per_km: 0.3
+        emissions_kg_per_km: 0.3,
+        moq: 50,
+        moq_units: 'containers',
+        max_shipments: 200
       },
       {
         id: 'tm-004',
@@ -85,7 +96,10 @@ export const getTransportModes = async (): Promise<TransportMode[]> => {
         cost_per_km: 4.5,
         capacity_kg: 20000,
         capacity_cbm: 80,
-        emissions_kg_per_km: 2.0
+        emissions_kg_per_km: 2.0,
+        moq: 1,
+        moq_units: 'pallets',
+        max_shipments: 10
       },
       {
         id: 'tm-005',
@@ -94,7 +108,10 @@ export const getTransportModes = async (): Promise<TransportMode[]> => {
         cost_per_km: 1.8,
         capacity_kg: 1500,
         capacity_cbm: 12,
-        emissions_kg_per_km: 0.6
+        emissions_kg_per_km: 0.6,
+        moq: 1,
+        moq_units: 'packages',
+        max_shipments: 50
       }
     ];
   } catch (error) {
@@ -345,3 +362,4 @@ const generateSampleRoutes = (): OptimizedRoute[] => {
     }
   ];
 };
+
