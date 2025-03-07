@@ -79,8 +79,8 @@ export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) =
       } catch (error) {
         console.error("Error calculating buffer data:", error);
         toast({
-          title: "Calculation Error",
-          description: "There was an error calculating buffer data.",
+          title: getTranslation("common.error", language),
+          description: getTranslation("common.inventory.errorLoading", language),
           variant: "destructive",
         });
       } finally {
@@ -89,7 +89,7 @@ export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) =
     };
 
     loadBufferData();
-  }, [paginatedData, toast]);
+  }, [paginatedData, toast, language]);
 
   if (loading) {
     return <div className="p-6 text-center">{getTranslation("common.inventory.loadingData", language)}</div>;
