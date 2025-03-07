@@ -9,6 +9,10 @@ import { POPipelineTable } from "@/components/logistics/pipeline/POPipelineTable
 import { LogisticsFilters } from "@/components/logistics/filters/LogisticsFilters";
 import { DocumentUpload } from "@/components/logistics/documents/DocumentUpload";
 import { DocumentList } from "@/components/logistics/documents/DocumentList";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { AlertTriangle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useState, useEffect } from "react";
 
 const poPipelineData = [
   {
@@ -74,6 +78,30 @@ const poPipelineData = [
 ];
 
 const Logistics = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    // Simulate loading to ensure all components have time to initialize
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 w-48 bg-gray-200 rounded"></div>
+            <div className="h-32 w-96 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -83,8 +111,32 @@ const Logistics = () => {
           </p>
         </div>
 
-        <LogisticsMetricsGrid />
-        <LogisticsMap />
+        <ErrorBoundary
+          fallback={
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Error Loading Metrics</AlertTitle>
+              <AlertDescription>
+                There was a problem loading the logistics metrics. Please try refreshing the page.
+              </AlertDescription>
+            </Alert>
+          }
+        >
+          <LogisticsMetricsGrid />
+        </ErrorBoundary>
+        
+        <ErrorBoundary
+          fallback={
+            <Card className="col-span-2 p-6">
+              <AlertTitle className="text-lg font-semibold">Logistics Tracking Map</AlertTitle>
+              <AlertDescription className="mt-4">
+                Unable to load the logistics map. Please check your configuration.
+              </AlertDescription>
+            </Card>
+          }
+        >
+          <LogisticsMap />
+        </ErrorBoundary>
 
         <Tabs defaultValue="orders" className="w-full">
           <TabsList>
@@ -96,7 +148,19 @@ const Logistics = () => {
           <TabsContent value="orders">
             <Card>
               <div className="p-6">
-                <LogisticsOrdersTable />
+                <ErrorBoundary
+                  fallback={
+                    <Alert variant="destructive">
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertTitle>Error Loading Orders</AlertTitle>
+                      <AlertDescription>
+                        There was a problem loading the logistics orders data.
+                      </AlertDescription>
+                    </Alert>
+                  }
+                >
+                  <LogisticsOrdersTable />
+                </ErrorBoundary>
               </div>
             </Card>
           </TabsContent>
@@ -113,7 +177,19 @@ const Logistics = () => {
                   </div>
                   <LogisticsFilters />
                 </div>
-                <POPipelineTable data={poPipelineData} />
+                <ErrorBoundary
+                  fallback={
+                    <Alert variant="destructive">
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertTitle>Error Loading PO Pipeline</AlertTitle>
+                      <AlertDescription>
+                        There was a problem loading the purchase order pipeline data.
+                      </AlertDescription>
+                    </Alert>
+                  }
+                >
+                  <POPipelineTable data={poPipelineData} />
+                </ErrorBoundary>
               </div>
             </Card>
           </TabsContent>
@@ -128,14 +204,16 @@ const Logistics = () => {
                   </p>
                 </div>
                 <div className="space-y-8">
-                  <DocumentUpload 
-                    orderId="ORD-20240315-001" 
-                    onUploadComplete={() => window.location.reload()}
-                  />
-                  <div className="pt-4 border-t">
-                    <h4 className="text-sm font-medium mb-4">Uploaded Documents</h4>
-                    <DocumentList orderId="ORD-20240315-001" />
-                  </div>
+                  <ErrorBoundary>
+                    <DocumentUpload 
+                      orderId="ORD-20240315-001" 
+                      onUploadComplete={() => window.location.reload()}
+                    />
+                    <div className="pt-4 border-t">
+                      <h4 className="text-sm font-medium mb-4">Uploaded Documents</h4>
+                      <DocumentList orderId="ORD-20240315-001" />
+                    </div>
+                  </ErrorBoundary>
                 </div>
               </div>
             </Card>
