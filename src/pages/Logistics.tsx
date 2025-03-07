@@ -38,10 +38,12 @@ const Logistics = () => {
           <LogisticsMap />
           <div className="lg:col-span-1">
             <Tabs defaultValue="orders" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="orders">{getTranslation('common.logistics.orders', language)}</TabsTrigger>
                 <TabsTrigger value="pipeline">{getTranslation('common.logistics.poPipeline', language)}</TabsTrigger>
                 <TabsTrigger value="documents">{getTranslation('common.logistics.documents', language)}</TabsTrigger>
+                <TabsTrigger value="routes">{getTranslation('common.logistics.routes', language)}</TabsTrigger>
+                <TabsTrigger value="transport">{getTranslation('common.logistics.transport', language)}</TabsTrigger>
               </TabsList>
               <TabsContent value="orders" className="space-y-4 pt-4">
                 <LogisticsOrdersTable />
@@ -53,28 +55,14 @@ const Logistics = () => {
                 <DocumentUpload />
                 <DocumentList />
               </TabsContent>
+              <TabsContent value="routes" className="space-y-4 pt-4">
+                <RouteOptimizationContainer />
+              </TabsContent>
+              <TabsContent value="transport" className="space-y-4 pt-4">
+                <TransportModeList />
+              </TabsContent>
             </Tabs>
           </div>
-        </div>
-
-        <div className="mt-8 space-y-6">
-          <h2 className="text-xl font-semibold tracking-tight">
-            {getTranslation('common.logistics.routeOptimization', language)}
-          </h2>
-          <p className="text-muted-foreground">
-            {getTranslation('common.logistics.routeOptimizationDesc', language)}
-          </p>
-          <RouteOptimizationContainer />
-        </div>
-
-        <div className="mt-8 space-y-6">
-          <h2 className="text-xl font-semibold tracking-tight">
-            {getTranslation('common.logistics.transportModes', language)}
-          </h2>
-          <p className="text-muted-foreground">
-            {getTranslation('common.logistics.transportModesDesc', language)}
-          </p>
-          <TransportModeList />
         </div>
       </div>
     </DashboardLayout>
