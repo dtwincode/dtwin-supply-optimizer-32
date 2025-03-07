@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useQuery } from '@tanstack/react-query';
 import { getLogisticsMetrics } from '@/services/logisticsAnalyticsService';
 import { AlertTriangle, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface MetricsCardProps {
   title: string;
@@ -16,11 +16,6 @@ export const MetricsCard = ({ title, metricType }: MetricsCardProps) => {
   const { data: metrics, isLoading, isError } = useQuery({
     queryKey: ['logistics-metrics', metricType],
     queryFn: () => getLogisticsMetrics(metricType),
-    onSettled: (data, error) => {
-      if (error) {
-        setHasError(true);
-      }
-    },
     // Fallback to dummy data if the query fails
     placeholderData: [
       {
@@ -36,6 +31,13 @@ export const MetricsCard = ({ title, metricType }: MetricsCardProps) => {
       }
     ],
   });
+
+  // Use an effect to set the error state based on isError
+  useEffect(() => {
+    if (isError) {
+      setHasError(true);
+    }
+  }, [isError]);
 
   const latestMetric = metrics?.[0];
 
