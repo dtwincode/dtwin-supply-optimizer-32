@@ -71,6 +71,26 @@ export interface InventoryTranslations {
   bufferStatus: TranslationValue;
   netFlowPosition: TranslationValue;
   inventorySummary: TranslationValue;
+  inventoryLevels: TranslationValue;
+  skuClassifications: TranslationValue;
+  decouplingPoint: TranslationValue;
+  addDecouplingPoint: TranslationValue;
+  manageAndTrack: TranslationValue;
+  currentStock: TranslationValue;
+  productFamily: TranslationValue;
+  location: TranslationValue;
+  name: TranslationValue;
+  sku: TranslationValue;
+  actions: TranslationValue;
+  noItems: TranslationValue;
+  loadingData: TranslationValue;
+  loadingItem: TranslationValue;
+  errorLoading: TranslationValue;
+  leadTimeCategory: TranslationValue;
+  variabilityLevel: TranslationValue;
+  criticality: TranslationValue;
+  score: TranslationValue;
+  lastUpdated: TranslationValue;
 }
 
 export interface ChartTranslations {
