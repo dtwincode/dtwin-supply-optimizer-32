@@ -1,4 +1,3 @@
-
 export interface TranslationValue {
   en: string;
   ar: string;
@@ -177,6 +176,14 @@ export interface LogisticsTranslations {
   costPerShipment: TranslationValue;
   lastUpdated: TranslationValue;
   notAvailable: TranslationValue;
+  supplier: TranslationValue;
+  stage: TranslationValue;
+  startDate: TranslationValue;
+  eta: TranslationValue;
+  completion: TranslationValue;
+  blockers: TranslationValue;
+  priority: TranslationValue;
+  none: TranslationValue;
 }
 
 export interface CommonTranslations {

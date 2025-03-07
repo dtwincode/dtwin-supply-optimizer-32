@@ -202,7 +202,7 @@ export const logisticsTranslations: LogisticsTranslations = {
     en: "N/A",
     ar: "غير متوفر"
   },
-  // Adding missing translations needed by POPipelineTable
+  // Properties needed by POPipelineTable
   supplier: {
     en: "Supplier",
     ar: "المورد"
