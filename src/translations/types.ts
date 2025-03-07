@@ -184,6 +184,9 @@ export interface LogisticsTranslations {
   blockers: TranslationValue;
   priority: TranslationValue;
   none: TranslationValue;
+  highPriority: TranslationValue;
+  mediumPriority: TranslationValue;
+  lowPriority: TranslationValue;
 }
 
 export interface CommonTranslations {

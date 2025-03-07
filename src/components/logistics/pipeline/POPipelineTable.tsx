@@ -1,124 +1,131 @@
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslation } from "@/translations";
+import React from 'react';
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { getTranslation } from '@/translations';
 
-interface POPipeline {
-  id: string;
-  supplier: string;
-  stage: string;
-  status: string;
-  startDate: string;
-  eta: string;
-  completionRate: number;
-  blockers: string | null;
-  lastUpdated: string;
-  priority: string;
-}
+// Sample data for the purchase order pipeline
+const pipelineData = [
+  {
+    id: 'PO-2024-001',
+    supplier: 'Global Supplies Inc.',
+    stage: 'manufacturing',
+    startDate: '2024-03-01',
+    eta: '2024-04-15',
+    completion: 65,
+    blockers: null,
+    priority: 'high'
+  },
+  {
+    id: 'PO-2024-002',
+    supplier: 'Tech Components Ltd.',
+    stage: 'shipping',
+    startDate: '2024-02-15',
+    eta: '2024-03-30',
+    completion: 80,
+    blockers: null,
+    priority: 'medium'
+  },
+  {
+    id: 'PO-2024-003',
+    supplier: 'Precision Parts Co.',
+    stage: 'customs',
+    startDate: '2024-03-10',
+    eta: '2024-04-05',
+    completion: 45,
+    blockers: 'Documentation issues',
+    priority: 'high'
+  },
+  {
+    id: 'PO-2024-004',
+    supplier: 'Quality Materials Corp.',
+    stage: 'delivery',
+    startDate: '2024-02-28',
+    eta: '2024-03-25',
+    completion: 90,
+    blockers: null,
+    priority: 'low'
+  }
+];
 
-interface POPipelineTableProps {
-  data: POPipeline[];
-}
-
-export const POPipelineTable = ({ data }: POPipelineTableProps) => {
+export const POPipelineTable = () => {
   const { language } = useLanguage();
   
+  const getStageTranslation = (stage: string) => {
+    const stageMap: Record<string, string> = {
+      'manufacturing': language === 'en' ? 'Manufacturing' : 'التصنيع',
+      'shipping': language === 'en' ? 'Shipping' : 'الشحن',
+      'customs': language === 'en' ? 'Customs' : 'الجمارك',
+      'delivery': language === 'en' ? 'Delivery' : 'التسليم'
+    };
+    
+    return stageMap[stage] || stage;
+  };
+
+  const getPriorityVariant = (priority: string) => {
+    const priorityMap: Record<string, string> = {
+      'high': 'destructive',
+      'medium': 'default',
+      'low': 'secondary'
+    };
+    
+    return priorityMap[priority] || 'default';
+  };
+
+  const getPriorityTranslation = (priority: string) => {
+    const priorityMap: Record<string, string> = {
+      'high': getTranslation('common.logistics.highPriority', language) || (language === 'en' ? 'High' : 'عالي'),
+      'medium': getTranslation('common.logistics.mediumPriority', language) || (language === 'en' ? 'Medium' : 'متوسط'),
+      'low': getTranslation('common.logistics.lowPriority', language) || (language === 'en' ? 'Low' : 'منخفض')
+    };
+    
+    return priorityMap[priority] || priority;
+  };
+
   return (
-    <Table dir={language === 'ar' ? 'rtl' : 'ltr'}>
-      <TableHeader>
-        <TableRow>
-          <TableHead>{getTranslation("common.id", language) || "PO ID"}</TableHead>
-          <TableHead>{getTranslation("logistics.supplier", language) || "Supplier"}</TableHead>
-          <TableHead>{getTranslation("logistics.stage", language) || "Stage"}</TableHead>
-          <TableHead>{getTranslation("logistics.statusLabel", language) || "Status"}</TableHead>
-          <TableHead>{getTranslation("logistics.startDate", language) || "Start Date"}</TableHead>
-          <TableHead>{getTranslation("logistics.eta", language) || "ETA"}</TableHead>
-          <TableHead>{getTranslation("logistics.completion", language) || "Completion"}</TableHead>
-          <TableHead>{getTranslation("logistics.blockers", language) || "Blockers"}</TableHead>
-          <TableHead>{getTranslation("logistics.lastUpdated", language) || "Last Updated"}</TableHead>
-          <TableHead>{getTranslation("logistics.priority", language) || "Priority"}</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {data.map((po) => (
-          <TableRow key={po.id}>
-            <TableCell className="font-medium">{po.id}</TableCell>
-            <TableCell>{po.supplier}</TableCell>
-            <TableCell>
-              <Badge variant="outline" className="capitalize">
-                {po.stage}
-              </Badge>
-            </TableCell>
-            <TableCell>
-              <Badge
-                variant={
-                  po.status === "in-progress"
-                    ? "default"
-                    : po.status === "delayed"
-                    ? "destructive"
-                    : "secondary"
-                }
-                className="capitalize"
-              >
-                {po.status}
-              </Badge>
-            </TableCell>
-            <TableCell>{po.startDate}</TableCell>
-            <TableCell>{po.eta}</TableCell>
-            <TableCell>
-              <div className="flex items-center gap-2">
-                <div className="w-24 h-2 bg-secondary rounded-full overflow-hidden">
-                  <div
-                    className={`h-full ${
-                      po.completionRate >= 80
-                        ? "bg-success"
-                        : po.completionRate >= 40
-                        ? "bg-warning"
-                        : "bg-primary"
-                    }`}
-                    style={{ width: `${po.completionRate}%` }}
-                  />
-                </div>
-                <span className="text-sm text-muted-foreground">
-                  {po.completionRate}%
-                </span>
-              </div>
-            </TableCell>
-            <TableCell>
-              {po.blockers ? (
-                <span className="text-destructive">{po.blockers}</span>
-              ) : (
-                <span className="text-muted-foreground">
-                  {getTranslation("logistics.none", language) || "None"}
-                </span>
-              )}
-            </TableCell>
-            <TableCell>{po.lastUpdated}</TableCell>
-            <TableCell>
-              <Badge
-                variant={
-                  po.priority === "high"
-                    ? "destructive"
-                    : po.priority === "medium"
-                    ? "secondary"
-                    : "default"
-                }
-                className="capitalize"
-              >
-                {po.priority}
-              </Badge>
-            </TableCell>
+    <div dir={language === 'ar' ? 'rtl' : 'ltr'}>
+      <h3 className="text-lg font-medium mb-4">
+        {getTranslation("common.logistics.purchaseOrderPipeline", language)}
+      </h3>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>{getTranslation("common.logistics.supplier", language)}</TableHead>
+            <TableHead>{getTranslation("common.logistics.stage", language)}</TableHead>
+            <TableHead>{getTranslation("common.logistics.startDate", language)}</TableHead>
+            <TableHead>{getTranslation("common.logistics.eta", language)}</TableHead>
+            <TableHead>{getTranslation("common.logistics.completion", language)}</TableHead>
+            <TableHead>{getTranslation("common.logistics.blockers", language)}</TableHead>
+            <TableHead>{getTranslation("common.logistics.priority", language)}</TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {pipelineData.map((po) => (
+            <TableRow key={po.id}>
+              <TableCell className="font-medium">{po.supplier}</TableCell>
+              <TableCell>{getStageTranslation(po.stage)}</TableCell>
+              <TableCell>{po.startDate}</TableCell>
+              <TableCell>{po.eta}</TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  <Progress value={po.completion} className="w-[60px]" />
+                  <span>{po.completion}%</span>
+                </div>
+              </TableCell>
+              <TableCell>
+                {po.blockers || getTranslation("common.logistics.none", language)}
+              </TableCell>
+              <TableCell>
+                <Badge variant={getPriorityVariant(po.priority) as any}>
+                  {getPriorityTranslation(po.priority)}
+                </Badge>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 };

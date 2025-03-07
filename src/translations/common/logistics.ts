@@ -4,7 +4,7 @@ import { LogisticsTranslations } from '../types';
 export const logisticsTranslations: LogisticsTranslations = {
   routeOptimization: {
     en: "Route Optimization",
-    ar: "تحسين المسارات"
+    ar: "تحسين المسار"
   },
   transportModes: {
     en: "Transport Modes",
@@ -16,7 +16,7 @@ export const logisticsTranslations: LogisticsTranslations = {
   },
   origin: {
     en: "Origin",
-    ar: "نقطة الأصل"
+    ar: "المنشأ"
   },
   destination: {
     en: "Destination",
@@ -24,7 +24,7 @@ export const logisticsTranslations: LogisticsTranslations = {
   },
   waypoints: {
     en: "Waypoints",
-    ar: "نقاط العبور"
+    ar: "نقاط الطريق"
   },
   optimizationCriteria: {
     en: "Optimization Criteria",
@@ -96,7 +96,7 @@ export const logisticsTranslations: LogisticsTranslations = {
   },
   poPipeline: {
     en: "PO Pipeline",
-    ar: "مسار أوامر الشراء"
+    ar: "خط أنابيب أوامر الشراء"
   },
   documents: {
     en: "Documents",
@@ -108,7 +108,7 @@ export const logisticsTranslations: LogisticsTranslations = {
   },
   carrier: {
     en: "Carrier",
-    ar: "شركة النقل"
+    ar: "الناقل"
   },
   trackingNumber: {
     en: "Tracking Number",
@@ -122,49 +122,49 @@ export const logisticsTranslations: LogisticsTranslations = {
     en: "In Transit",
     ar: "قيد النقل"
   },
+  delivered: {
+    en: "Delivered",
+    ar: "تم التسليم"
+  },
   processing: {
     en: "Processing",
     ar: "قيد المعالجة"
   },
   outForDelivery: {
-    en: "Out For Delivery",
-    ar: "خارج للتوصيل"
-  },
-  delivered: {
-    en: "Delivered",
-    ar: "تم التوصيل"
+    en: "Out for Delivery",
+    ar: "خارج للتسليم"
   },
   purchaseOrderPipeline: {
     en: "Purchase Order Pipeline",
-    ar: "مسار أوامر الشراء"
+    ar: "خط أنابيب أوامر الشراء"
   },
   monitorAndTrack: {
-    en: "Monitor and track purchase orders through different stages",
-    ar: "مراقبة وتتبع أوامر الشراء عبر المراحل المختلفة"
+    en: "Monitor and Track Shipments",
+    ar: "مراقبة وتتبع الشحنات"
   },
   routeOptimizationDesc: {
-    en: "Calculate optimal routes based on time, cost, or emissions",
-    ar: "حساب المسارات المثلى بناءً على الوقت أو التكلفة أو الانبعاثات"
+    en: "Optimize delivery routes to save time, reduce costs, and minimize emissions",
+    ar: "تحسين مسارات التسليم لتوفير الوقت وتقليل التكاليف وتقليل الانبعاثات"
   },
   transportModesDesc: {
-    en: "View and compare different transportation options",
-    ar: "عرض ومقارنة خيارات النقل المختلفة"
+    en: "Configure and manage different transportation modes and carriers",
+    ar: "تكوين وإدارة وسائل النقل المختلفة والناقلين"
   },
   documentManagement: {
     en: "Document Management",
     ar: "إدارة المستندات"
   },
   uploadAndManage: {
-    en: "Upload and manage logistics documents",
-    ar: "تحميل وإدارة مستندات الخدمات اللوجستية"
+    en: "Upload and manage shipping documents",
+    ar: "تحميل وإدارة مستندات الشحن"
   },
   uploadedDocuments: {
     en: "Uploaded Documents",
     ar: "المستندات المحملة"
   },
   optimizeSupplyChain: {
-    en: "Optimize and track supply chain operations",
-    ar: "تحسين وتتبع عمليات سلسلة التوريد"
+    en: "Optimize your supply chain with route planning and shipment tracking",
+    ar: "تحسين سلسلة التوريد الخاصة بك من خلال تخطيط المسارات وتتبع الشحنات"
   },
   logisticsTrackingMap: {
     en: "Logistics Tracking Map",
@@ -175,34 +175,33 @@ export const logisticsTranslations: LogisticsTranslations = {
     ar: "الخريطة غير متوفرة"
   },
   mapError: {
-    en: "The logistics tracking map is currently unavailable. Please check your Mapbox API configuration.",
-    ar: "خريطة تتبع الخدمات اللوجستية غير متوفرة حاليًا. يرجى التحقق من تكوين Mapbox API الخاص بك."
+    en: "Unable to load the tracking map. Please check your connection and try again.",
+    ar: "تعذر تحميل خريطة التتبع. يرجى التحقق من اتصالك والمحاولة مرة أخرى."
   },
   onTimeDeliveryRate: {
     en: "On-Time Delivery Rate",
     ar: "معدل التسليم في الوقت المحدد"
   },
   averageTransitTime: {
-    en: "Average Transit Time",
-    ar: "متوسط وقت العبور"
+    en: "Average Transit Time (days)",
+    ar: "متوسط وقت العبور (أيام)"
   },
   deliverySuccessRate: {
     en: "Delivery Success Rate",
     ar: "معدل نجاح التسليم"
   },
   costPerShipment: {
-    en: "Cost per Shipment",
-    ar: "تكلفة كل شحنة"
+    en: "Cost Per Shipment ($)",
+    ar: "تكلفة الشحنة الواحدة ($)"
   },
   lastUpdated: {
-    en: "Last updated",
+    en: "Last Updated",
     ar: "آخر تحديث"
   },
   notAvailable: {
-    en: "N/A",
+    en: "Not Available",
     ar: "غير متوفر"
   },
-  // Properties needed by POPipelineTable
   supplier: {
     en: "Supplier",
     ar: "المورد"
@@ -217,11 +216,11 @@ export const logisticsTranslations: LogisticsTranslations = {
   },
   eta: {
     en: "ETA",
-    ar: "الوقت المتوقع للوصول"
+    ar: "الوقت المقدر للوصول"
   },
   completion: {
     en: "Completion",
-    ar: "نسبة الإكمال"
+    ar: "الإنجاز"
   },
   blockers: {
     en: "Blockers",
@@ -234,5 +233,17 @@ export const logisticsTranslations: LogisticsTranslations = {
   none: {
     en: "None",
     ar: "لا يوجد"
+  },
+  highPriority: {
+    en: "High",
+    ar: "عالي"
+  },
+  mediumPriority: {
+    en: "Medium",
+    ar: "متوسط"
+  },
+  lowPriority: {
+    en: "Low",
+    ar: "منخفض"
   }
 };

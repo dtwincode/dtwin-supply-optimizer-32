@@ -39,9 +39,9 @@ export const LogisticsMap: React.FC = () => {
   const MapErrorFallback = () => (
     <Alert variant="destructive" className="mt-4" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <AlertTriangle className="h-4 w-4" />
-      <AlertTitle>{getTranslation("logistics.mapUnavailable", language)}</AlertTitle>
+      <AlertTitle>{getTranslation("common.logistics.mapUnavailable", language)}</AlertTitle>
       <AlertDescription>
-        {getTranslation("logistics.mapError", language)}
+        {getTranslation("common.logistics.mapError", language)}
       </AlertDescription>
     </Alert>
   );
@@ -50,7 +50,7 @@ export const LogisticsMap: React.FC = () => {
     <Card className="col-span-2">
       <CardHeader>
         <CardTitle dir={language === 'ar' ? 'rtl' : 'ltr'}>
-          {getTranslation("logistics.logisticsTrackingMap", language)}
+          {getTranslation("common.logistics.logisticsTrackingMap", language)}
         </CardTitle>
       </CardHeader>
       <CardContent>
