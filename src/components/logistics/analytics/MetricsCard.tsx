@@ -93,7 +93,7 @@ export const MetricsCard = ({ title, metricType }: MetricsCardProps) => {
         <div className="text-2xl font-bold">
           {latestMetric?.metric_value !== undefined ? latestMetric.metric_value.toFixed(2) : '--'}
         </div>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-muted-foreground" dir={language === 'ar' ? 'rtl' : 'ltr'}>
           {getTranslation("logistics.lastUpdated", language)}: {latestMetric?.timestamp ? formatDate(latestMetric.timestamp) : getTranslation("logistics.notAvailable", language)}
         </p>
       </CardContent>

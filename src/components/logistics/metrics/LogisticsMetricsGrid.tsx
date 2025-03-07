@@ -7,7 +7,7 @@ export const LogisticsMetricsGrid = () => {
   const { language } = useLanguage();
   
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <MetricsCard
         title={getTranslation("logistics.onTimeDeliveryRate", language)}
         metricType="on_time_delivery"

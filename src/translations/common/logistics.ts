@@ -115,7 +115,7 @@ export const logisticsTranslations: LogisticsTranslations = {
     en: "Tracking Number",
     ar: "رقم التتبع"
   },
-  status: {
+  statusLabel: {
     en: "Status",
     ar: "الحالة"
   },
