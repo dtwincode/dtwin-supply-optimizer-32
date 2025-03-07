@@ -112,7 +112,7 @@ const Logistics = () => {
       <div className="space-y-6">
         <div className="flex flex-col gap-4">
           <p className="text-muted-foreground">
-            {getTranslation("logistics.optimizeSupplyChain", language)}
+            {getTranslation("common.logistics.optimizeSupplyChain", language)}
           </p>
         </div>
 
@@ -138,10 +138,10 @@ const Logistics = () => {
           fallback={
             <Card className="col-span-2 p-6">
               <AlertTitle className="text-lg font-semibold">
-                {getTranslation("logistics.logisticsTrackingMap", language)}
+                {getTranslation("common.logistics.logisticsTrackingMap", language)}
               </AlertTitle>
               <AlertDescription className="mt-4">
-                {getTranslation("logistics.mapUnavailable", language)}
+                {getTranslation("common.logistics.mapUnavailable", language)}
               </AlertDescription>
             </Card>
           }
@@ -152,19 +152,19 @@ const Logistics = () => {
         <Tabs defaultValue="orders" className="w-full">
           <TabsList>
             <TabsTrigger value="orders">
-              {getTranslation("logistics.orders", language)}
+              {getTranslation("common.logistics.orders", language)}
             </TabsTrigger>
             <TabsTrigger value="po-pipeline">
-              {getTranslation("logistics.poPipeline", language)}
+              {getTranslation("common.logistics.poPipeline", language)}
             </TabsTrigger>
             <TabsTrigger value="route-optimization">
-              {getTranslation("logistics.routeOptimization", language)}
+              {getTranslation("common.logistics.routeOptimization", language)}
             </TabsTrigger>
             <TabsTrigger value="transport-modes">
-              {getTranslation("logistics.transportModes", language)}
+              {getTranslation("common.logistics.transportModes", language)}
             </TabsTrigger>
             <TabsTrigger value="documents">
-              {getTranslation("logistics.documents", language)}
+              {getTranslation("common.logistics.documents", language)}
             </TabsTrigger>
           </TabsList>
 
@@ -198,10 +198,10 @@ const Logistics = () => {
                 <div className="flex justify-between items-center mb-6">
                   <div className="space-y-1">
                     <h3 className="text-lg font-medium">
-                      {getTranslation("logistics.purchaseOrderPipeline", language)}
+                      {getTranslation("common.logistics.purchaseOrderPipeline", language)}
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      {getTranslation("logistics.monitorAndTrack", language)}
+                      {getTranslation("common.logistics.monitorAndTrack", language)}
                     </p>
                   </div>
                   <LogisticsFilters />
@@ -232,10 +232,10 @@ const Logistics = () => {
               <div className="p-6">
                 <div className="space-y-1 mb-6">
                   <h3 className="text-lg font-medium">
-                    {getTranslation("logistics.routeOptimization", language)}
+                    {getTranslation("common.logistics.routeOptimization", language)}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    {getTranslation("logistics.routeOptimizationDesc", language)}
+                    {getTranslation("common.logistics.routeOptimizationDesc", language)}
                   </p>
                 </div>
                 <ErrorBoundary
@@ -264,10 +264,10 @@ const Logistics = () => {
               <div className="p-6">
                 <div className="space-y-1 mb-6">
                   <h3 className="text-lg font-medium">
-                    {getTranslation("logistics.transportModes", language)}
+                    {getTranslation("common.logistics.transportModes", language)}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    {getTranslation("logistics.transportModesDesc", language)}
+                    {getTranslation("common.logistics.transportModesDesc", language)}
                   </p>
                 </div>
                 <ErrorBoundary
@@ -296,10 +296,10 @@ const Logistics = () => {
               <div className="p-6">
                 <div className="space-y-1 mb-6">
                   <h3 className="text-lg font-medium">
-                    {getTranslation("logistics.documentManagement", language)}
+                    {getTranslation("common.logistics.documentManagement", language)}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    {getTranslation("logistics.uploadAndManage", language)}
+                    {getTranslation("common.logistics.uploadAndManage", language)}
                   </p>
                 </div>
                 <div className="space-y-8">
@@ -310,7 +310,7 @@ const Logistics = () => {
                     />
                     <div className="pt-4 border-t">
                       <h4 className="text-sm font-medium mb-4">
-                        {getTranslation("logistics.uploadedDocuments", language)}
+                        {getTranslation("common.logistics.uploadedDocuments", language)}
                       </h4>
                       <DocumentList orderId="ORD-20240315-001" />
                     </div>

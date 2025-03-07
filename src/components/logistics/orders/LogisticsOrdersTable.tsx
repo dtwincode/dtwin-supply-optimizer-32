@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -45,10 +46,10 @@ export const LogisticsOrdersTable = () => {
   
   const getStatusTranslation = (status: string) => {
     const statusMap: Record<string, string> = {
-      'in-transit': getTranslation('logistics.inTransit', language),
-      'delivered': getTranslation('logistics.delivered', language),
-      'processing': getTranslation('logistics.processing', language),
-      'out-for-delivery': getTranslation('logistics.outForDelivery', language)
+      'in-transit': getTranslation('common.logistics.inTransit', language),
+      'delivered': getTranslation('common.logistics.delivered', language),
+      'processing': getTranslation('common.logistics.processing', language),
+      'out-for-delivery': getTranslation('common.logistics.outForDelivery', language)
     };
     
     return statusMap[status] || status;
@@ -70,11 +71,11 @@ export const LogisticsOrdersTable = () => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>{getTranslation('logistics.orderRef', language)}</TableHead>
-            <TableHead>{getTranslation('logistics.carrier', language)}</TableHead>
-            <TableHead>{getTranslation('logistics.trackingNumber', language)}</TableHead>
-            <TableHead>{getTranslation('logistics.statusLabel', language)}</TableHead>
-            <TableHead>{getTranslation('logistics.lastUpdated', language)}</TableHead>
+            <TableHead>{getTranslation('common.logistics.orderRef', language)}</TableHead>
+            <TableHead>{getTranslation('common.logistics.carrier', language)}</TableHead>
+            <TableHead>{getTranslation('common.logistics.trackingNumber', language)}</TableHead>
+            <TableHead>{getTranslation('common.logistics.statusLabel', language)}</TableHead>
+            <TableHead>{getTranslation('common.logistics.lastUpdated', language)}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

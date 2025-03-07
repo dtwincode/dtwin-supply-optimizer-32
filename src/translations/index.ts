@@ -4,6 +4,7 @@ import { navigationTranslations } from './navigation';
 import { dashboardTitle, dashboardMetricsTranslations, financialMetricsTranslations, sustainabilityMetricsTranslations, modulesSummaryTranslations } from './dashboard';
 import { commonTranslations } from './common';
 import { salesTranslations } from './sales';
+import { logisticsTranslations } from './common/logistics';
 export { toArabicNumerals } from './utils';
 
 export const translations: Translations = {
@@ -13,7 +14,10 @@ export const translations: Translations = {
   financialMetrics: financialMetricsTranslations,
   sustainabilityMetrics: sustainabilityMetricsTranslations,
   modulesSummary: modulesSummaryTranslations,
-  common: commonTranslations,
+  common: {
+    ...commonTranslations,
+    logistics: logisticsTranslations
+  },
   sales: salesTranslations
 };
 
@@ -25,6 +29,7 @@ export const getTranslation = (key: string, language: 'en' | 'ar'): string => {
     if (current[k]) {
       current = current[k];
     } else {
+      console.warn(`Translation key not found: ${key}`);
       return key;
     }
   }

@@ -45,7 +45,7 @@ export const MetricsCard = ({ title, metricType }: MetricsCardProps) => {
   const latestMetric = metrics?.[0];
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return getTranslation("logistics.notAvailable", language);
+    if (!dateString) return getTranslation("common.logistics.notAvailable", language);
     const date = new Date(dateString);
     return date.toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US');
   };
@@ -94,7 +94,7 @@ export const MetricsCard = ({ title, metricType }: MetricsCardProps) => {
           {latestMetric?.metric_value !== undefined ? latestMetric.metric_value.toFixed(2) : '--'}
         </div>
         <p className="text-xs text-muted-foreground" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-          {getTranslation("logistics.lastUpdated", language)}: {latestMetric?.timestamp ? formatDate(latestMetric.timestamp) : getTranslation("logistics.notAvailable", language)}
+          {getTranslation("common.logistics.lastUpdated", language)}: {latestMetric?.timestamp ? formatDate(latestMetric.timestamp) : getTranslation("common.logistics.notAvailable", language)}
         </p>
       </CardContent>
     </Card>
