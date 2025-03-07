@@ -30,9 +30,9 @@ export const RouteOptimizationContainer = () => {
             fallback={
               <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
+                <AlertTitle>{getTranslation("common.error", language)}</AlertTitle>
                 <AlertDescription>
-                  An error occurred while loading the route optimization form.
+                  {getTranslation("common.logistics.errorLoadingForm", language)}
                 </AlertDescription>
               </Alert>
             }
@@ -48,9 +48,9 @@ export const RouteOptimizationContainer = () => {
             fallback={
               <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
+                <AlertTitle>{getTranslation("common.error", language)}</AlertTitle>
                 <AlertDescription>
-                  An error occurred while displaying route details.
+                  {getTranslation("common.logistics.errorDisplayingRouteDetails", language)}
                 </AlertDescription>
               </Alert>
             }
@@ -78,9 +78,9 @@ export const RouteOptimizationContainer = () => {
         fallback={
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
+            <AlertTitle>{getTranslation("common.error", language)}</AlertTitle>
             <AlertDescription>
-              An error occurred while loading the saved routes.
+              {getTranslation("common.logistics.errorLoadingSavedRoutes", language)}
             </AlertDescription>
           </Alert>
         }

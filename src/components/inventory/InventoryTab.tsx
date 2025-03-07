@@ -92,21 +92,21 @@ export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) =
   }, [paginatedData, toast]);
 
   if (loading) {
-    return <div className="p-6 text-center">Loading inventory data...</div>;
+    return <div className="p-6 text-center">{getTranslation("common.inventory.loadingData", language)}</div>;
   }
 
   return (
     <div className="space-y-6 p-6">
       {paginatedData.length === 0 ? (
         <div className="text-center py-10">
-          <p className="text-muted-foreground">No inventory items available.</p>
+          <p className="text-muted-foreground">{getTranslation("common.inventory.noItems", language)}</p>
         </div>
       ) : (
         paginatedData.map((item) => {
           const bufferData = itemBuffers[item.id];
           
           if (!bufferData) {
-            return <div key={item.id} className="text-muted-foreground">Loading item data...</div>;
+            return <div key={item.id} className="text-muted-foreground">{getTranslation("common.inventory.loadingItem", language)}</div>;
           }
 
           return (

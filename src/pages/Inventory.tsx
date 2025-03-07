@@ -105,8 +105,8 @@ const Inventory = () => {
 
   const handleDecouplingPointSuccess = () => {
     toast({
-      title: "Success",
-      description: "Decoupling point configuration updated successfully",
+      title: getTranslation("common.success", language),
+      description: language === 'ar' ? "تم تحديث إعدادات نقطة الفصل بنجاح" : "Decoupling point configuration updated successfully",
     });
     setDialogOpen(false);
   };
@@ -115,8 +115,8 @@ const Inventory = () => {
     console.error("Inventory component error:", error, info);
     setHasError(true);
     toast({
-      title: "Error",
-      description: "An error occurred while loading the inventory page. Please try again later.",
+      title: getTranslation("common.error", language),
+      description: language === 'ar' ? "حدث خطأ أثناء تحميل صفحة المخزون. يرجى المحاولة مرة أخرى لاحقًا." : "An error occurred while loading the inventory page. Please try again later.",
       variant: "destructive",
     });
   };
@@ -144,7 +144,7 @@ const Inventory = () => {
       <DashboardLayout>
         <div className="flex items-center justify-center h-[80vh]">
           <div className="text-center">
-            <p className="text-muted-foreground">Loading inventory data...</p>
+            <p className="text-muted-foreground">{language === 'ar' ? "جاري تحميل بيانات المخزون..." : "Loading inventory data..."}</p>
           </div>
         </div>
       </DashboardLayout>
@@ -156,13 +156,13 @@ const Inventory = () => {
       <DashboardLayout>
         <div className="flex items-center justify-center h-[80vh]">
           <div className="text-center">
-            <h3 className="text-xl font-semibold text-red-600 mb-2">Something went wrong</h3>
-            <p className="text-muted-foreground mb-4">We encountered an error while loading the inventory page.</p>
+            <h3 className="text-xl font-semibold text-red-600 mb-2">{language === 'ar' ? "حدث خطأ ما" : "Something went wrong"}</h3>
+            <p className="text-muted-foreground mb-4">{language === 'ar' ? "واجهنا خطأً أثناء تحميل صفحة المخزون." : "We encountered an error while loading the inventory page."}</p>
             <Button 
               onClick={() => window.location.reload()} 
               variant="default"
             >
-              Reload Page
+              {language === 'ar' ? "إعادة تحميل الصفحة" : "Reload Page"}
             </Button>
           </div>
         </div>
@@ -192,35 +192,35 @@ const Inventory = () => {
                   setDialogOpen(true);
                 }}
               >
-                Add Decoupling Point
+                {language === 'ar' ? "إضافة نقطة فصل" : "Add Decoupling Point"}
               </Button>
             </div>
           </div>
         </div>
 
-        <ErrorBoundary fallback={<div>Error loading inventory summary</div>} onError={handleError}>
+        <ErrorBoundary fallback={<div>{language === 'ar' ? "خطأ في تحميل ملخص المخزون" : "Error loading inventory summary"}</div>} onError={handleError}>
           <InventorySummaryCards />
         </ErrorBoundary>
         
-        <ErrorBoundary fallback={<div>Error loading SKU classifications</div>} onError={handleError}>
+        <ErrorBoundary fallback={<div>{language === 'ar' ? "خطأ في تحميل تصنيفات وحدات التخزين" : "Error loading SKU classifications"}</div>} onError={handleError}>
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">
-              {language === 'ar' ? 'تصنيفات SKU' : 'SKU Classifications'}
+              {language === 'ar' ? 'تصنيفات وحدات التخزين' : 'SKU Classifications'}
             </h3>
             <SKUClassifications classifications={mockClassifications} />
           </Card>
         </ErrorBoundary>
         
-        <ErrorBoundary fallback={<div>Map visualization currently unavailable</div>} onError={handleError}>
+        <ErrorBoundary fallback={<div>{language === 'ar' ? "عرض الخريطة غير متوفر حاليًا" : "Map visualization currently unavailable"}</div>} onError={handleError}>
           <NetworkDecouplingMap />
         </ErrorBoundary>
         
-        <ErrorBoundary fallback={<div>Error loading inventory chart</div>} onError={handleError}>
+        <ErrorBoundary fallback={<div>{language === 'ar' ? "خطأ في تحميل رسم بياني للمخزون" : "Error loading inventory chart"}</div>} onError={handleError}>
           <InventoryChart data={filteredData} />
         </ErrorBoundary>
 
         <Card>
-          <ErrorBoundary fallback={<div className="p-6">Error loading inventory data table</div>} onError={handleError}>
+          <ErrorBoundary fallback={<div className="p-6">{language === 'ar' ? "خطأ في تحميل جدول بيانات المخزون" : "Error loading inventory data table"}</div>} onError={handleError}>
             <InventoryTabs>
               <TabsContent value="inventory">
                 <InventoryTab 
