@@ -1,3 +1,4 @@
+
 export interface TranslationValue {
   en: string;
   ar: string;
@@ -123,30 +124,30 @@ export interface NavigationItems {
 }
 
 export interface LogisticsTranslations {
-  routeOptimization: TranslationItem;
-  transportModes: TranslationItem;
-  optimizeRoute: TranslationItem;
-  origin: TranslationItem;
-  destination: TranslationItem;
-  waypoints: TranslationItem;
-  optimizationCriteria: TranslationItem;
-  transportMode: TranslationItem;
-  departureTime: TranslationItem;
-  totalDistance: TranslationItem;
-  totalTime: TranslationItem;
-  totalCost: TranslationItem;
-  emissions: TranslationItem;
-  fuelConsumption: TranslationItem;
-  savedRoutes: TranslationItem;
+  routeOptimization: TranslationValue;
+  transportModes: TranslationValue;
+  optimizeRoute: TranslationValue;
+  origin: TranslationValue;
+  destination: TranslationValue;
+  waypoints: TranslationValue;
+  optimizationCriteria: TranslationValue;
+  transportMode: TranslationValue;
+  departureTime: TranslationValue;
+  totalDistance: TranslationValue;
+  totalTime: TranslationValue;
+  totalCost: TranslationValue;
+  emissions: TranslationValue;
+  fuelConsumption: TranslationValue;
+  savedRoutes: TranslationValue;
   criteria: {
-    time: TranslationItem;
-    cost: TranslationItem;
-    emissions: TranslationItem;
+    time: TranslationValue;
+    cost: TranslationValue;
+    emissions: TranslationValue;
   };
   status: {
-    planned: TranslationItem;
-    inProgress: TranslationItem;
-    completed: TranslationItem;
+    planned: TranslationValue;
+    inProgress: TranslationValue;
+    completed: TranslationValue;
   };
 }
 
