@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { IntegratedData } from "./types";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { 
   Select,
   SelectContent,
@@ -27,15 +27,44 @@ export function IntegratedDataPreviewTable({
   const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set());
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [isStabilized, setIsStabilized] = useState<boolean>(false);
+  const [isInitialRender, setIsInitialRender] = useState<boolean>(true);
+  const previousDataLength = useRef<number>(0);
+  const stabilityTimer = useRef<NodeJS.Timeout | null>(null);
 
-  // Stabilize rendering after initial load
+  // More robust stabilization for initial rendering and data changes
   useEffect(() => {
-    if (data.length && !isStabilized) {
-      setIsStabilized(true);
+    // Clear any existing timers to prevent multiple timers
+    if (stabilityTimer.current) {
+      clearTimeout(stabilityTimer.current);
     }
-  }, [data, isStabilized]);
 
-  // Extract historical sales dates from metadata
+    const currentDataLength = data.length;
+    
+    // Only set stabilized to true if we have data and the length hasn't changed
+    if (currentDataLength > 0 && currentDataLength === previousDataLength.current) {
+      stabilityTimer.current = setTimeout(() => {
+        setIsStabilized(true);
+        setIsInitialRender(false);
+      }, 500); // Half second delay for stability
+    } else if (currentDataLength > 0) {
+      // Data length changed, update reference but wait before stabilizing
+      previousDataLength.current = currentDataLength;
+      setIsStabilized(false);
+      
+      stabilityTimer.current = setTimeout(() => {
+        setIsStabilized(true);
+        setIsInitialRender(false);
+      }, 500);
+    }
+
+    return () => {
+      if (stabilityTimer.current) {
+        clearTimeout(stabilityTimer.current);
+      }
+    };
+  }, [data]);
+
+  // Extract historical sales dates from metadata - memoized for performance
   const extractDateFromMetadata = useCallback((row: IntegratedData): string => {
     if (row.metadata && typeof row.metadata === 'object') {
       const metadataObj = row.metadata as Record<string, any>;
@@ -50,7 +79,7 @@ export function IntegratedDataPreviewTable({
     return row.date || '';
   }, []);
 
-  // Get all possible columns from the data, excluding system columns
+  // Get all possible columns from the data, excluding system columns - stable memoization
   const availableColumns = useMemo(() => {
     if (!data.length) return [];
     
@@ -68,7 +97,11 @@ export function IntegratedDataPreviewTable({
     // Add date column first
     columns.add('date');
 
-    data.forEach(row => {
+    // Sample only the first 100 rows for column detection to improve performance
+    const sampleSize = Math.min(100, data.length);
+    const sampleData = data.slice(0, sampleSize);
+
+    sampleData.forEach(row => {
       if (row.metadata && typeof row.metadata === 'object') {
         Object.keys(row.metadata).forEach(key => {
           if (!excludedColumns.includes(key)) {
@@ -83,13 +116,13 @@ export function IntegratedDataPreviewTable({
       });
     });
     return Array.from(columns);
-  }, [data]);
+  }, [data.length]); // Only depend on length for stability
 
-  // Get unique values for each column - stabilized to prevent recalculation on each render
+  // Get unique values for each column - with improved performance
   const uniqueValues = useMemo(() => {
     const values: Record<string, Set<string>> = {};
     
-    if (!data.length || !availableColumns.length) {
+    if (!data.length || !availableColumns.length || isLoading) {
       return values;
     }
     
@@ -97,7 +130,7 @@ export function IntegratedDataPreviewTable({
       values[column] = new Set();
       
       // Only process a reasonable number of rows for better performance
-      const maxRowsToProcess = 1000;
+      const maxRowsToProcess = 100; // Reduced from 1000
       const rowsToProcess = data.slice(0, maxRowsToProcess);
       
       rowsToProcess.forEach(row => {
@@ -115,7 +148,7 @@ export function IntegratedDataPreviewTable({
       });
     });
     return values;
-  }, [data, availableColumns, extractDateFromMetadata]);
+  }, [data, availableColumns, extractDateFromMetadata, isLoading]);
 
   const toggleColumn = useCallback((column: string) => {
     setSelectedColumns(prev => {
@@ -137,28 +170,33 @@ export function IntegratedDataPreviewTable({
   }, []);
 
   const filteredData = useMemo(() => {
-    if (!data.length) return [];
+    if (!data.length || isLoading || !isStabilized) return [];
     
-    // If there are no active filters, return the data directly
+    // If there are no active filters, return a slice of the data directly
     if (Object.keys(filters).every(key => !filters[key])) {
-      return data;
+      return data.slice(0, 200); // Always limit to 200 rows to improve performance
     }
     
-    return data.filter(row => {
-      return Object.entries(filters).every(([column, filterValue]) => {
-        if (!filterValue) return true;
-        
-        if (column === 'date') {
-          const dateValue = extractDateFromMetadata(row);
-          return dateValue === filterValue;
-        }
-        
-        const value = row.metadata?.[column] ?? row[column];
-        return String(value) === filterValue;
-      });
-    });
-  }, [data, filters, extractDateFromMetadata]);
+    // Apply filters to a limited dataset
+    return data
+      .slice(0, 1000) // Only filter through the first 1000 rows for performance
+      .filter(row => {
+        return Object.entries(filters).every(([column, filterValue]) => {
+          if (!filterValue) return true;
+          
+          if (column === 'date') {
+            const dateValue = extractDateFromMetadata(row);
+            return dateValue === filterValue;
+          }
+          
+          const value = row.metadata?.[column] ?? row[column];
+          return String(value) === filterValue;
+        });
+      })
+      .slice(0, 200); // Then limit results to 200 rows
+  }, [data, filters, extractDateFromMetadata, isLoading, isStabilized]);
 
+  // Show loading indicator while data is being prepared
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -167,10 +205,23 @@ export function IntegratedDataPreviewTable({
     );
   }
 
-  if (!isStabilized || !data.length) {
+  // Show a stable message during initial render or when data is being processed
+  if (isInitialRender || (!isStabilized && data.length > 0)) {
+    return (
+      <div className="text-center py-8 bg-background border rounded-lg">
+        <div className="animate-pulse flex flex-col items-center justify-center space-y-2">
+          <div className="h-4 w-32 bg-muted rounded"></div>
+          <div className="text-sm text-muted-foreground">Processing data...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show empty state when there's no data
+  if (!data.length) {
     return (
       <div className="text-center py-4 text-muted-foreground">
-        {!data.length ? "No integrated data available" : "Preparing data..."}
+        No integrated data available
       </div>
     );
   }
@@ -239,7 +290,7 @@ export function IntegratedDataPreviewTable({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredData.slice(0, 200).map((row, index) => (
+                {filteredData.map((row, index) => (
                   <TableRow key={row.id || index}>
                     {displayColumns.map((column) => (
                       <TableCell 

@@ -1,9 +1,8 @@
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { IntegratedData, ForecastMappingConfig } from "./types";
-import { useLocation } from "react-router-dom";
 
 type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 
@@ -22,18 +21,20 @@ export function useIntegratedData() {
   const [validationStatus, setValidationStatus] = useState<'valid' | 'needs_review' | null>(null);
   const [hasIntegrated, setHasIntegrated] = useState(false);
   
-  const location = useLocation();
+  // Add refs to track fetch operations and prevent concurrent fetches
+  const isFetchingRef = useRef(false);
+  const isFetchingSavedMappingsRef = useRef(false);
 
   const fetchData = useCallback(async (showLoading = true) => {
-    if (isLoading) {
+    // Prevent concurrent fetches
+    if (isFetchingRef.current || !selectedMapping) {
+      if (!selectedMapping) {
+        setData([]);
+      }
       return;
     }
     
-    if (!selectedMapping) {
-      setData([]);
-      setIsLoading(false);
-      return;
-    }
+    isFetchingRef.current = true;
     
     if (showLoading) {
       setIsLoading(true);
@@ -50,51 +51,57 @@ export function useIntegratedData() {
 
       if (!integratedData || integratedData.length === 0) {
         setData([]);
-        setIsLoading(false);
         return;
       }
 
-      const transformedData: IntegratedData[] = integratedData.map(item => {
-        const parsedMetadata = typeof item.metadata === 'object' && item.metadata !== null
-          ? item.metadata as Record<string, any>
-          : {};
+      // Process data in batches to avoid UI freezing with large datasets
+      const processData = () => {
+        const transformedData: IntegratedData[] = integratedData.map(item => {
+          const parsedMetadata = typeof item.metadata === 'object' && item.metadata !== null
+            ? item.metadata as Record<string, any>
+            : {};
 
-        const parsedSourceFiles = Array.isArray(item.source_files) 
-          ? item.source_files 
-          : (item.source_files ? JSON.parse(item.source_files as string) : []);
+          const parsedSourceFiles = Array.isArray(item.source_files) 
+            ? item.source_files 
+            : (item.source_files ? JSON.parse(item.source_files as string) : []);
 
-        let typedValidationStatus: 'valid' | 'needs_review' | 'pending' = 'pending';
-        if (item.validation_status === 'valid' || 
-            item.validation_status === 'needs_review' || 
-            item.validation_status === 'pending') {
-          typedValidationStatus = item.validation_status;
+          let typedValidationStatus: 'valid' | 'needs_review' | 'pending' = 'pending';
+          if (item.validation_status === 'valid' || 
+              item.validation_status === 'needs_review' || 
+              item.validation_status === 'pending') {
+            typedValidationStatus = item.validation_status;
+          }
+
+          return {
+            id: item.id,
+            date: item.date,
+            actual_value: item.actual_value,
+            sku: item.sku,
+            created_at: item.created_at,
+            updated_at: item.updated_at,
+            validation_status: typedValidationStatus,
+            source_files: parsedSourceFiles,
+            metadata: parsedMetadata,
+            ...parsedMetadata
+          };
+        });
+
+        setData(transformedData);
+        
+        if (transformedData.length > 0) {
+          setValidationStatus(
+            transformedData[0].validation_status === 'valid' || 
+            transformedData[0].validation_status === 'needs_review' 
+              ? transformedData[0].validation_status 
+              : null
+          );
+          setHasIntegrated(true);
         }
+      };
 
-        return {
-          id: item.id,
-          date: item.date,
-          actual_value: item.actual_value,
-          sku: item.sku,
-          created_at: item.created_at,
-          updated_at: item.updated_at,
-          validation_status: typedValidationStatus,
-          source_files: parsedSourceFiles,
-          metadata: parsedMetadata,
-          ...parsedMetadata
-        };
-      });
-
-      setData(transformedData);
-      
-      if (transformedData.length > 0) {
-        setValidationStatus(
-          transformedData[0].validation_status === 'valid' || 
-          transformedData[0].validation_status === 'needs_review' 
-            ? transformedData[0].validation_status 
-            : null
-        );
-        setHasIntegrated(true);
-      }
+      // Use requestAnimationFrame to process data in the next frame
+      // This gives the browser time to finish other UI updates
+      requestAnimationFrame(processData);
     } catch (error: any) {
       console.error('Error fetching integrated data:', error);
       setError('Failed to fetch integrated data. Please try again.');
@@ -107,11 +114,14 @@ export function useIntegratedData() {
       if (showLoading) {
         setIsLoading(false);
       }
+      isFetchingRef.current = false;
     }
-  }, [selectedMapping, isLoading]);
+  }, [selectedMapping]);
 
   useEffect(() => {
-    fetchData();
+    if (selectedMapping) {
+      fetchData();
+    }
   }, [fetchData, selectedMapping]);
 
   const checkRequiredFiles = useCallback(async () => {
@@ -136,7 +146,14 @@ export function useIntegratedData() {
   }, []);
 
   const fetchSavedMappings = useCallback(async () => {
+    // Prevent concurrent fetches
+    if (isFetchingSavedMappingsRef.current) {
+      return;
+    }
+    
+    isFetchingSavedMappingsRef.current = true;
     console.log("Fetching saved mappings...");
+    
     try {
       const { data: mappings, error } = await supabase
         .from('forecast_integration_mappings')
@@ -185,14 +202,15 @@ export function useIntegratedData() {
       setSavedMappings(validMappings);
 
       const activeMapping = validMappings.find(m => m.is_active);
-      setSelectedMapping(activeMapping || null);
+      
+      // Only update selectedMapping if it's different to prevent unnecessary rerenders
+      if (!selectedMapping || (activeMapping && selectedMapping.id !== activeMapping.id)) {
+        setSelectedMapping(activeMapping || null);
+      }
       
       if (!activeMapping) {
         setData([]);
         setHasIntegrated(false);
-      } else {
-        // If we have an active mapping, make sure to fetch data
-        await fetchData(false);
       }
     } catch (error: any) {
       console.error('Error fetching mappings:', error);
@@ -204,8 +222,10 @@ export function useIntegratedData() {
       setSavedMappings([]);
       setSelectedMapping(null);
       setData([]);
+    } finally {
+      isFetchingSavedMappingsRef.current = false;
     }
-  }, [fetchData]);
+  }, [selectedMapping]);
 
   useEffect(() => {
     console.log("Initial fetch of saved mappings");
