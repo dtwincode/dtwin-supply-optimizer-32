@@ -5,7 +5,7 @@ import { useIntegratedData } from "./useIntegratedData";
 import { MappingConfigDialog } from "./MappingConfigDialog";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { AlertCircle, Info } from "lucide-react";
+import { AlertCircle, Info, Database } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useState, useEffect } from "react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -84,8 +84,9 @@ export function IntegratedDataPreview() {
                 <h4 className="font-medium text-blue-800">How to integrate your data</h4>
                 <ol className="text-sm text-blue-700 space-y-1 list-decimal pl-4">
                   <li>Start by clicking "Configure Integration" to set up a mapping configuration</li>
+                  <li>Review available data sources (product hierarchy, location hierarchy, and historical sales)</li>
+                  <li>Define mapping relationships between product and location identifiers</li>
                   <li>Select which columns from your historical data to include</li>
-                  <li>Define how product and location data should be mapped</li>
                   <li>Save your configuration and activate it</li>
                   <li>Click "Run Integration" to process your data</li>
                 </ol>
@@ -132,9 +133,11 @@ export function IntegratedDataPreview() {
         {/* Table with clearer initial state - Only show when we have a configuration */}
         {!selectedMapping ? (
           <Card className="p-6 text-center border-dashed">
+            <Database className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
             <h4 className="text-lg font-medium text-muted-foreground mb-2">No Active Configuration</h4>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto">
               You need to select or create a mapping configuration before you can integrate and view data.
+              This step helps connect your product, location, and sales data together.
             </p>
             <Button 
               variant="outline" 
@@ -146,17 +149,26 @@ export function IntegratedDataPreview() {
           </Card>
         ) : !data.length && !isLoading && !isIntegrating ? (
           <Card className="p-6 text-center border-dashed">
+            <Database className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
             <h4 className="text-lg font-medium text-muted-foreground mb-2">No Integrated Data Available</h4>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto">
               Data integration needs to be configured and run before any data will appear here.
+              Your configuration "{selectedMapping.mapping_name}" is ready but hasn't been run yet.
             </p>
-            <Button 
-              variant="outline" 
-              onClick={() => setMappingDialogOpen(true)}
-              className="mx-auto"
-            >
-              View Mapping Configuration
-            </Button>
+            <div className="flex justify-center gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => setMappingDialogOpen(true)}
+              >
+                View Configuration
+              </Button>
+              <Button
+                variant="default"
+                onClick={handleIntegration}
+              >
+                Run Integration
+              </Button>
+            </div>
           </Card>
         ) : (
           <IntegratedDataPreviewTable

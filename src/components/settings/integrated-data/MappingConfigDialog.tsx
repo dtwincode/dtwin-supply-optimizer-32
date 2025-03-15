@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
@@ -18,10 +19,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ForecastMappingConfig } from "./types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
-import { Info, X, Check, Save, Trash2 } from "lucide-react";
+import { Info, X, Check, Save, Trash2, Database, ArrowRight, File } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 interface MappingConfigDialogProps {
   open: boolean;
@@ -30,6 +34,11 @@ interface MappingConfigDialogProps {
   selectedMapping?: ForecastMappingConfig | null;
   onDelete?: () => void;
   savedMappings: ForecastMappingConfig[];
+}
+
+interface DataPreview {
+  data: any[];
+  columns: string[];
 }
 
 export function MappingConfigDialog({ 
@@ -53,6 +62,16 @@ export function MappingConfigDialog({
   const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
   const [availableColumns, setAvailableColumns] = useState<string[]>([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [configStep, setConfigStep] = useState<'sources' | 'mapping' | 'columns'>('sources');
+  const [dataPreviews, setDataPreviews] = useState<{
+    historical: DataPreview | null;
+    product: DataPreview | null;
+    location: DataPreview | null;
+  }>({
+    historical: null,
+    product: null,
+    location: null
+  });
 
   // Reset form when dialog opens/closes
   useEffect(() => {
@@ -68,43 +87,76 @@ export function MappingConfigDialog({
         setSelectedHistoricalLocationKey(selectedMapping.historical_location_key_column || "");
         setSelectedColumns(selectedMapping.selected_columns || []);
         setCurrentMapping(selectedMapping);
+        setConfigStep('columns');
       } else {
         resetForm();
+        setConfigStep('sources');
       }
+      fetchDataPreviews();
     }
   }, [open, selectedMapping]);
 
-  // Fetch available columns
-  useEffect(() => {
-    const fetchColumns = async () => {
-      try {
-        const { data: historicalData } = await supabase
-          .from('permanent_hierarchy_files')
-          .select('data')
-          .eq('hierarchy_type', 'historical_sales')
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .single();
+  // Fetch previews of all data sources
+  const fetchDataPreviews = async () => {
+    setIsLoading(true);
+    try {
+      // Fetch historical sales preview
+      const { data: historicalData } = await supabase
+        .from('permanent_hierarchy_files')
+        .select('data')
+        .eq('hierarchy_type', 'historical_sales')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
 
-        if (historicalData?.data && Array.isArray(historicalData.data) && historicalData.data.length > 0) {
-          const firstRow = historicalData.data[0];
-          const columns = Object.keys(firstRow);
-          setAvailableColumns(columns);
-        }
-      } catch (error) {
-        console.error('Error fetching columns:', error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch available columns",
-          variant: "destructive",
-        });
+      // Fetch product hierarchy preview
+      const { data: productData } = await supabase
+        .from('permanent_hierarchy_files')
+        .select('data')
+        .eq('hierarchy_type', 'product_hierarchy')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      // Fetch location hierarchy preview
+      const { data: locationData } = await supabase
+        .from('permanent_hierarchy_files')
+        .select('data')
+        .eq('hierarchy_type', 'location_hierarchy')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      const previews = {
+        historical: historicalData?.data && Array.isArray(historicalData.data) && historicalData.data.length > 0 
+          ? { data: historicalData.data.slice(0, 5), columns: Object.keys(historicalData.data[0]) } 
+          : null,
+        product: productData?.data && Array.isArray(productData.data) && productData.data.length > 0 
+          ? { data: productData.data.slice(0, 5), columns: Object.keys(productData.data[0]) } 
+          : null,
+        location: locationData?.data && Array.isArray(locationData.data) && locationData.data.length > 0 
+          ? { data: locationData.data.slice(0, 5), columns: Object.keys(locationData.data[0]) } 
+          : null
+      };
+
+      setDataPreviews(previews);
+
+      // Set available columns for selection
+      if (historicalData?.data && Array.isArray(historicalData.data) && historicalData.data.length > 0) {
+        const columns = Object.keys(historicalData.data[0]);
+        setAvailableColumns(columns);
       }
-    };
-
-    if (open) {
-      fetchColumns();
+    } catch (error) {
+      console.error('Error fetching data previews:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch data previews",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
-  }, [open]);
+  };
 
   const resetForm = useCallback(() => {
     setMappingName("");
@@ -117,6 +169,7 @@ export function MappingConfigDialog({
     setSelectedHistoricalLocationKey("");
     setSelectedColumns([]);
     setCurrentMapping(null);
+    setConfigStep('sources');
   }, []);
 
   const handleSelectMapping = useCallback((config: ForecastMappingConfig) => {
@@ -130,6 +183,7 @@ export function MappingConfigDialog({
     setSelectedHistoricalProductKey(config.historical_product_key_column || "");
     setSelectedHistoricalLocationKey(config.historical_location_key_column || "");
     setSelectedColumns(config.selected_columns || []);
+    setConfigStep('columns');
   }, []);
 
   const handleActivate = useCallback((config: ForecastMappingConfig, e: React.MouseEvent) => {
@@ -175,6 +229,25 @@ export function MappingConfigDialog({
       toast({
         title: "Error",
         description: "Please select at least one column",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate mapping configuration
+    if (useProductMapping && (!selectedProductKey || !selectedHistoricalProductKey)) {
+      toast({
+        title: "Error",
+        description: "Please select both product key columns for mapping",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (useLocationMapping && (!selectedLocationKey || !selectedHistoricalLocationKey)) {
+      toast({
+        title: "Error",
+        description: "Please select both location key columns for mapping",
         variant: "destructive",
       });
       return;
@@ -241,10 +314,58 @@ export function MappingConfigDialog({
     }
   }, [onDelete]);
 
+  const handleNextStep = () => {
+    if (configStep === 'sources') {
+      setConfigStep('mapping');
+    } else if (configStep === 'mapping') {
+      setConfigStep('columns');
+    }
+  };
+
+  const handlePrevStep = () => {
+    if (configStep === 'columns') {
+      setConfigStep('mapping');
+    } else if (configStep === 'mapping') {
+      setConfigStep('sources');
+    }
+  };
+
+  // Render table for data preview
+  const renderDataPreviewTable = (data: any[] | null, columns: string[] | null) => {
+    if (!data || !columns || data.length === 0) {
+      return <div className="text-center p-4 text-muted-foreground">No data available</div>;
+    }
+
+    return (
+      <div className="border rounded-md overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              {columns.map(column => (
+                <TableHead key={column} className="whitespace-nowrap">{column}</TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.map((row, index) => (
+              <TableRow key={index}>
+                {columns.map(column => (
+                  <TableCell key={column} className="truncate max-w-[200px]">
+                    {row[column]?.toString() || ''}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    );
+  };
+
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[800px] max-h-[80vh] overflow-y-auto">
           <DialogHeader className="sticky top-0 bg-background z-10 pb-4">
             <DialogTitle>Integration Mapping Configuration</DialogTitle>
             <DialogDescription>
@@ -253,9 +374,10 @@ export function MappingConfigDialog({
           </DialogHeader>
 
           <div className="space-y-4">
+            {/* Saved Configurations Section */}
             <div className="space-y-2">
               <Label>Saved Configurations</Label>
-              <ScrollArea className="h-[200px] rounded-md border">
+              <ScrollArea className="h-[150px] rounded-md border">
                 <div className="p-4 space-y-2">
                   {savedMappings.map((config) => (
                     <Card
@@ -315,10 +437,11 @@ export function MappingConfigDialog({
                               size="icon"
                               onClick={(e) => {
                                 e.stopPropagation();
+                                setShowDeleteConfirm(true);
                               }}
                               className="h-8 w-8 hover:bg-destructive hover:text-destructive-foreground"
                             >
-                              <X className="h-4 w-4" />
+                              <Trash2 className="h-4 w-4" />
                             </Button>
                           )}
                         </div>
@@ -334,170 +457,363 @@ export function MappingConfigDialog({
 
             <Separator />
 
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Configuration Name</Label>
-                <Input
-                  id="name"
-                  value={mappingName}
-                  onChange={(e) => setMappingName(e.target.value)}
-                  placeholder="Enter configuration name"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Enter configuration description"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Column Selection</Label>
-                <ScrollArea className="h-[200px] rounded-md border">
-                  <div className="p-4 space-y-2">
-                    {availableColumns.map((column) => (
-                      <div key={column} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`column-${column}`}
-                          checked={selectedColumns.includes(column)}
-                          onCheckedChange={() => handleToggleColumn(column)}
-                        />
-                        <label
-                          htmlFor={`column-${column}`}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          {column}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Mapping Options</Label>
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="useProductMapping"
-                      checked={useProductMapping}
-                      onCheckedChange={(checked) => setUseProductMapping(checked as boolean)}
-                    />
-                    <label
-                      htmlFor="useProductMapping"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      Use Product Mapping
-                    </label>
-                  </div>
-
-                  {useProductMapping && (
-                    <div className="space-y-2 pl-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="productKey">Product Key Column</Label>
-                        <Select
-                          value={selectedProductKey}
-                          onValueChange={setSelectedProductKey}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select product key column" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {selectedColumns.map((column) => (
-                              <SelectItem key={column} value={column}>
-                                {column}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="historicalProductKey">Historical Product Key Column</Label>
-                        <Select
-                          value={selectedHistoricalProductKey}
-                          onValueChange={setSelectedHistoricalProductKey}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select historical product key column" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {selectedColumns.map((column) => (
-                              <SelectItem key={column} value={column}>
-                                {column}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="useLocationMapping"
-                      checked={useLocationMapping}
-                      onCheckedChange={(checked) => setUseLocationMapping(checked as boolean)}
-                    />
-                    <label
-                      htmlFor="useLocationMapping"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      Use Location Mapping
-                    </label>
-                  </div>
-
-                  {useLocationMapping && (
-                    <div className="space-y-2 pl-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="locationKey">Location Key Column</Label>
-                        <Select
-                          value={selectedLocationKey}
-                          onValueChange={setSelectedLocationKey}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select location key column" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {selectedColumns.map((column) => (
-                              <SelectItem key={column} value={column}>
-                                {column}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="historicalLocationKey">Historical Location Key Column</Label>
-                        <Select
-                          value={selectedHistoricalLocationKey}
-                          onValueChange={setSelectedHistoricalLocationKey}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select historical location key column" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {selectedColumns.map((column) => (
-                              <SelectItem key={column} value={column}>
-                                {column}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  )}
+            {/* Configuration Progress Indicator */}
+            <div className="flex items-center justify-between mb-4">
+              <div 
+                className={`flex flex-col items-center ${configStep === 'sources' ? 'text-primary' : 'text-muted-foreground'}`}
+              >
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${configStep === 'sources' ? 'border-primary bg-primary/10' : 'border-muted-foreground bg-muted-foreground/10'}`}>
+                  1
                 </div>
+                <span className="text-xs mt-1">Data Sources</span>
+              </div>
+              <div className={`w-12 h-0.5 ${configStep === 'sources' ? 'bg-muted-foreground/30' : 'bg-primary'}`} />
+              <div 
+                className={`flex flex-col items-center ${configStep === 'mapping' ? 'text-primary' : 'text-muted-foreground'}`}
+              >
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${configStep === 'mapping' ? 'border-primary bg-primary/10' : 'border-muted-foreground bg-muted-foreground/10'}`}>
+                  2
+                </div>
+                <span className="text-xs mt-1">Mapping</span>
+              </div>
+              <div className={`w-12 h-0.5 ${configStep === 'columns' ? 'bg-primary' : 'bg-muted-foreground/30'}`} />
+              <div 
+                className={`flex flex-col items-center ${configStep === 'columns' ? 'text-primary' : 'text-muted-foreground'}`}
+              >
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${configStep === 'columns' ? 'border-primary bg-primary/10' : 'border-muted-foreground bg-muted-foreground/10'}`}>
+                  3
+                </div>
+                <span className="text-xs mt-1">Columns</span>
               </div>
             </div>
+
+            {/* Step 1: Data Sources Preview */}
+            {configStep === 'sources' && (
+              <>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Label>Available Data Sources</Label>
+                    {isLoading && <span className="text-sm text-muted-foreground">Loading previews...</span>}
+                  </div>
+                  
+                  <Tabs defaultValue="historical" className="w-full">
+                    <TabsList className="grid w-full grid-cols-3">
+                      <TabsTrigger value="historical" className="flex items-center gap-2">
+                        <File className="h-4 w-4" />
+                        <span>Historical Sales</span>
+                        {dataPreviews.historical ? 
+                          <Badge variant="outline" className="ml-1 bg-green-50 text-green-700 border-green-200">Available</Badge> : 
+                          <Badge variant="outline" className="ml-1 bg-red-50 text-red-700 border-red-200">Missing</Badge>
+                        }
+                      </TabsTrigger>
+                      <TabsTrigger value="product" className="flex items-center gap-2">
+                        <Database className="h-4 w-4" />
+                        <span>Product Hierarchy</span>
+                        {dataPreviews.product ? 
+                          <Badge variant="outline" className="ml-1 bg-green-50 text-green-700 border-green-200">Available</Badge> : 
+                          <Badge variant="outline" className="ml-1 bg-red-50 text-red-700 border-red-200">Missing</Badge>
+                        }
+                      </TabsTrigger>
+                      <TabsTrigger value="location" className="flex items-center gap-2">
+                        <Database className="h-4 w-4" />
+                        <span>Location Hierarchy</span>
+                        {dataPreviews.location ? 
+                          <Badge variant="outline" className="ml-1 bg-green-50 text-green-700 border-green-200">Available</Badge> : 
+                          <Badge variant="outline" className="ml-1 bg-red-50 text-red-700 border-red-200">Missing</Badge>
+                        }
+                      </TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="historical" className="mt-4">
+                      <Card className="p-2">
+                        <h3 className="text-sm font-medium mb-2 px-2">Historical Sales Preview</h3>
+                        <ScrollArea className="h-[300px]">
+                          {renderDataPreviewTable(
+                            dataPreviews.historical?.data || null, 
+                            dataPreviews.historical?.columns || null
+                          )}
+                        </ScrollArea>
+                      </Card>
+                    </TabsContent>
+                    
+                    <TabsContent value="product" className="mt-4">
+                      <Card className="p-2">
+                        <h3 className="text-sm font-medium mb-2 px-2">Product Hierarchy Preview</h3>
+                        <ScrollArea className="h-[300px]">
+                          {renderDataPreviewTable(
+                            dataPreviews.product?.data || null, 
+                            dataPreviews.product?.columns || null
+                          )}
+                        </ScrollArea>
+                      </Card>
+                    </TabsContent>
+                    
+                    <TabsContent value="location" className="mt-4">
+                      <Card className="p-2">
+                        <h3 className="text-sm font-medium mb-2 px-2">Location Hierarchy Preview</h3>
+                        <ScrollArea className="h-[300px]">
+                          {renderDataPreviewTable(
+                            dataPreviews.location?.data || null, 
+                            dataPreviews.location?.columns || null
+                          )}
+                        </ScrollArea>
+                      </Card>
+                    </TabsContent>
+                  </Tabs>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="name">Configuration Name</Label>
+                  <Input
+                    id="name"
+                    value={mappingName}
+                    onChange={(e) => setMappingName(e.target.value)}
+                    placeholder="Enter configuration name"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Enter configuration description"
+                  />
+                </div>
+              </>
+            )}
+
+            {/* Step 2: Mapping Configuration */}
+            {configStep === 'mapping' && (
+              <div className="space-y-6">
+                <div className="rounded-md border p-4 bg-blue-50">
+                  <div className="flex items-start gap-3">
+                    <Info className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-blue-800">Mapping Data Hierarchies</h4>
+                      <p className="text-sm text-blue-700 mt-1">
+                        Define how product and location data should be mapped between historical sales and your
+                        hierarchies. This helps the system link sales data with the correct products and locations.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Product Mapping Section */}
+                  <Card className="p-4">
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="useProductMapping"
+                          checked={useProductMapping}
+                          onCheckedChange={(checked) => setUseProductMapping(checked as boolean)}
+                        />
+                        <label
+                          htmlFor="useProductMapping"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          Use Product Mapping
+                        </label>
+                      </div>
+
+                      {useProductMapping && (
+                        <div className="space-y-4 mt-2">
+                          <div className="grid grid-cols-3 gap-4 items-center">
+                            <div className="space-y-2 col-span-1">
+                              <Label htmlFor="historicalProductKey">Historical Product Key</Label>
+                              <Select
+                                value={selectedHistoricalProductKey}
+                                onValueChange={setSelectedHistoricalProductKey}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select column" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {dataPreviews.historical?.columns.map((column) => (
+                                    <SelectItem key={column} value={column}>
+                                      {column}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            
+                            <div className="flex justify-center items-center">
+                              <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                            
+                            <div className="space-y-2 col-span-1">
+                              <Label htmlFor="productKey">Product Hierarchy Key</Label>
+                              <Select
+                                value={selectedProductKey}
+                                onValueChange={setSelectedProductKey}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select column" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {dataPreviews.product?.columns.map((column) => (
+                                    <SelectItem key={column} value={column}>
+                                      {column}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                          
+                          {selectedHistoricalProductKey && selectedProductKey && (
+                            <div className="rounded-md border p-3 bg-green-50">
+                              <div className="flex items-start gap-2">
+                                <Check className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
+                                <p className="text-sm text-green-700">
+                                  Products in historical sales will be matched with product hierarchy using these keys
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+
+                  {/* Location Mapping Section */}
+                  <Card className="p-4">
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="useLocationMapping"
+                          checked={useLocationMapping}
+                          onCheckedChange={(checked) => setUseLocationMapping(checked as boolean)}
+                        />
+                        <label
+                          htmlFor="useLocationMapping"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          Use Location Mapping
+                        </label>
+                      </div>
+
+                      {useLocationMapping && (
+                        <div className="space-y-4 mt-2">
+                          <div className="grid grid-cols-3 gap-4 items-center">
+                            <div className="space-y-2 col-span-1">
+                              <Label htmlFor="historicalLocationKey">Historical Location Key</Label>
+                              <Select
+                                value={selectedHistoricalLocationKey}
+                                onValueChange={setSelectedHistoricalLocationKey}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select column" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {dataPreviews.historical?.columns.map((column) => (
+                                    <SelectItem key={column} value={column}>
+                                      {column}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            
+                            <div className="flex justify-center items-center">
+                              <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                            
+                            <div className="space-y-2 col-span-1">
+                              <Label htmlFor="locationKey">Location Hierarchy Key</Label>
+                              <Select
+                                value={selectedLocationKey}
+                                onValueChange={setSelectedLocationKey}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select column" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {dataPreviews.location?.columns.map((column) => (
+                                    <SelectItem key={column} value={column}>
+                                      {column}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                          
+                          {selectedHistoricalLocationKey && selectedLocationKey && (
+                            <div className="rounded-md border p-3 bg-green-50">
+                              <div className="flex items-start gap-2">
+                                <Check className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
+                                <p className="text-sm text-green-700">
+                                  Locations in historical sales will be matched with location hierarchy using these keys
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Column Selection */}
+            {configStep === 'columns' && (
+              <div className="space-y-4">
+                <div className="rounded-md border p-4 bg-blue-50">
+                  <div className="flex items-start gap-3">
+                    <Info className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-blue-800">Select Columns to Include</h4>
+                      <p className="text-sm text-blue-700 mt-1">
+                        Choose which columns from your historical sales data to include in the integrated dataset.
+                        These columns will be available for forecasting and analysis.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Column Selection</Label>
+                  <ScrollArea className="h-[300px] rounded-md border">
+                    <div className="p-4 space-y-2">
+                      {availableColumns.map((column) => (
+                        <div key={column} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`column-${column}`}
+                            checked={selectedColumns.includes(column)}
+                            onCheckedChange={() => handleToggleColumn(column)}
+                          />
+                          <label
+                            htmlFor={`column-${column}`}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            {column}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </div>
+
+                <div className="rounded-md border p-3 bg-amber-50">
+                  <div className="flex items-start gap-2">
+                    <Info className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-amber-700">
+                      Selected columns: {selectedColumns.length}/{availableColumns.length}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <DialogFooter className="sticky bottom-0 bg-background pt-4">
             <div className="flex justify-between w-full">
-              {currentMapping && onDelete && (
+              {currentMapping && onDelete && configStep === 'columns' && (
                 <Button
                   variant="destructive"
                   onClick={() => setShowDeleteConfirm(true)}
@@ -507,14 +823,23 @@ export function MappingConfigDialog({
                   Delete
                 </Button>
               )}
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={() => onOpenChange(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleSave} disabled={isLoading}>
-                  <Save className="h-4 w-4 mr-2" />
-                  {isLoading ? "Saving..." : "Save New Configuration"}
-                </Button>
+              <div className="flex gap-2 ml-auto">
+                {configStep !== 'sources' && (
+                  <Button variant="outline" onClick={handlePrevStep}>
+                    Back
+                  </Button>
+                )}
+                
+                {configStep !== 'columns' ? (
+                  <Button onClick={handleNextStep}>
+                    Next
+                  </Button>
+                ) : (
+                  <Button onClick={handleSave} disabled={isLoading}>
+                    <Save className="h-4 w-4 mr-2" />
+                    {isLoading ? "Saving..." : "Save Configuration"}
+                  </Button>
+                )}
               </div>
             </div>
           </DialogFooter>
