@@ -1,4 +1,3 @@
-
 export interface IntegratedData {
   id: string;
   date: string;
@@ -28,4 +27,8 @@ export interface ForecastMappingConfig {
   is_active?: boolean;
   created_at?: string;
   created_by?: string;
+  historical_key_column?: string;
+  historical_sales_mapping?: any;
+  location_hierarchy_mapping?: any;
+  product_hierarchy_mapping?: any;
 }

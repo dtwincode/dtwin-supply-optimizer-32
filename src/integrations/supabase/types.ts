@@ -623,6 +623,7 @@ export type Database = {
       }
       forecast_integration_mappings: {
         Row: {
+          columns_config: string | null
           created_at: string
           created_by: string | null
           description: string | null
@@ -637,11 +638,13 @@ export type Database = {
           mapping_name: string
           product_hierarchy_mapping: Json
           product_key_column: string | null
+          selected_columns_array: string[] | null
           updated_at: string
           use_location_mapping: boolean | null
           use_product_mapping: boolean | null
         }
         Insert: {
+          columns_config?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -656,11 +659,13 @@ export type Database = {
           mapping_name: string
           product_hierarchy_mapping?: Json
           product_key_column?: string | null
+          selected_columns_array?: string[] | null
           updated_at?: string
           use_location_mapping?: boolean | null
           use_product_mapping?: boolean | null
         }
         Update: {
+          columns_config?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -675,6 +680,7 @@ export type Database = {
           mapping_name?: string
           product_hierarchy_mapping?: Json
           product_key_column?: string | null
+          selected_columns_array?: string[] | null
           updated_at?: string
           use_location_mapping?: boolean | null
           use_product_mapping?: boolean | null
