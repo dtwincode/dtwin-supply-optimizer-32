@@ -1,3 +1,4 @@
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { IntegratedData } from "./types";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -30,19 +31,23 @@ export function IntegratedDataPreviewTable({
   const previousDataLength = useRef<number>(0);
   const stabilityTimer = useRef<NodeJS.Timeout | null>(null);
 
+  // More robust stabilization for initial rendering and data changes
   useEffect(() => {
+    // Clear any existing timers to prevent multiple timers
     if (stabilityTimer.current) {
       clearTimeout(stabilityTimer.current);
     }
 
     const currentDataLength = data.length;
     
+    // Only set stabilized to true if we have data and the length hasn't changed
     if (currentDataLength > 0 && currentDataLength === previousDataLength.current) {
       stabilityTimer.current = setTimeout(() => {
         setIsStabilized(true);
         setIsInitialRender(false);
-      }, 800);
+      }, 800); // Increased delay for better stability
     } else if (currentDataLength > 0) {
+      // Data length changed, update reference but wait before stabilizing
       previousDataLength.current = currentDataLength;
       setIsStabilized(false);
       
@@ -59,131 +64,108 @@ export function IntegratedDataPreviewTable({
     };
   }, [data]);
 
-  const extractDateColumns = useCallback((data: IntegratedData[]): Record<string, Set<string>> => {
-    const dateColumns: Record<string, Set<string>> = {};
-    
-    if (data.length === 0) return dateColumns;
-    
-    const sampleRow = data[0];
-    const potentialDateColumns: string[] = [];
-    
-    Object.keys(sampleRow).forEach(key => {
-      if (key.toLowerCase().includes('date')) {
-        potentialDateColumns.push(key);
+  // Extract historical sales dates from metadata - memoized for performance
+  const extractDateFromMetadata = useCallback((row: IntegratedData): string => {
+    if (row.metadata && typeof row.metadata === 'object') {
+      const metadataObj = row.metadata as Record<string, any>;
+      // Look for date fields in metadata
+      const dateFields = ['Date', 'date', 'sales_date', 'transaction_date'];
+      for (const field of dateFields) {
+        if (metadataObj[field]) {
+          return String(metadataObj[field]);
+        }
       }
-    });
-    
-    if (sampleRow.metadata && typeof sampleRow.metadata === 'object') {
-      Object.keys(sampleRow.metadata).forEach(key => {
-        if (key.toLowerCase().includes('date')) {
-          potentialDateColumns.push(key);
-        }
-      });
     }
-    
-    if (!potentialDateColumns.includes('date')) {
-      potentialDateColumns.push('date');
-    }
-    
-    potentialDateColumns.forEach(col => {
-      dateColumns[col] = new Set<string>();
-    });
-    
-    data.forEach(row => {
-      potentialDateColumns.forEach(col => {
-        let dateValue: string | null = null;
-        
-        if (row[col] !== undefined) {
-          dateValue = String(row[col]);
-        } 
-        else if (row.metadata && row.metadata[col] !== undefined) {
-          dateValue = String(row.metadata[col]);
-        }
-        
-        if (dateValue && dateValue.trim() !== '') {
-          try {
-            if (dateValue.match(/^\d{4}-\d{2}-\d{2}/)) {
-              dateColumns[col].add(dateValue.split('T')[0]);
-            } 
-            else if (!isNaN(Number(dateValue))) {
-              const date = new Date(Number(dateValue));
-              if (!isNaN(date.getTime())) {
-                dateColumns[col].add(date.toISOString().split('T')[0]);
-              } else {
-                dateColumns[col].add(dateValue);
-              }
-            } 
-            else {
-              dateColumns[col].add(dateValue);
-            }
-          } catch (e) {
-            dateColumns[col].add(dateValue);
-          }
-        }
-      });
-    });
-    
-    return dateColumns;
+    return row.date || '';
   }, []);
 
-  const uniqueValues = useMemo(() => {
-    const values: Record<string, Set<string>> = {};
+  // Get all possible columns from the data, excluding system columns - stable memoization
+  const availableColumns = useMemo(() => {
+    if (!data.length) return [];
     
-    if (!data.length || isLoading) {
-      return values;
-    }
-    
-    const allColumns = new Set<string>();
-    const excludedColumns = ['id', 'source_files', 'created_at', 'updated_at', 'validation_status'];
-    
-    data.slice(0, 100).forEach(row => {
-      Object.keys(row).forEach(key => {
-        if (!excludedColumns.includes(key)) {
-          allColumns.add(key);
+    const columns = new Set<string>();
+    const excludedColumns = [
+      'id', 
+      'metadata', 
+      'source_files',
+      'created_at',
+      'updated_at',
+      'validation_status',
+      'actual_value',
+      'sku' // Exclude sku if it's not explicitly part of the selected mapping
+    ];
+
+    // Include columns based on the selected mapping configuration
+    if (selectedMapping && selectedMapping.selected_columns_array && selectedMapping.selected_columns_array.length > 0) {
+      // First prioritize mapping-defined columns
+      selectedMapping.selected_columns_array.forEach((column: string) => {
+        if (!excludedColumns.includes(column)) {
+          columns.add(column);
         }
       });
-      
+    }
+    
+    // Process all rows to find unique column names
+    const sampleSize = Math.min(100, data.length);
+    const sampleData = data.slice(0, sampleSize);
+
+    sampleData.forEach(row => {
       if (row.metadata && typeof row.metadata === 'object') {
         Object.keys(row.metadata).forEach(key => {
           if (!excludedColumns.includes(key)) {
-            allColumns.add(key);
+            columns.add(key);
           }
         });
       }
-    });
-    
-    allColumns.forEach(column => {
-      values[column] = new Set<string>();
-    });
-    
-    data.forEach(row => {
-      allColumns.forEach(column => {
-        let value;
-        
-        if (row[column] !== undefined) {
-          value = row[column];
-        } 
-        else if (row.metadata && row.metadata[column] !== undefined) {
-          value = row.metadata[column];
-        }
-        
-        if (value !== undefined && value !== null && value !== '') {
-          values[column].add(String(value));
+      
+      // Add direct row properties excluding system properties
+      Object.keys(row).forEach(key => {
+        if (!excludedColumns.includes(key) && key !== 'metadata' && key !== 'source_files') {
+          columns.add(key);
         }
       });
     });
     
-    const dateColumns = extractDateColumns(data);
-    Object.entries(dateColumns).forEach(([column, dateValues]) => {
-      if (values[column]) {
-        dateValues.forEach(value => values[column].add(value));
-      } else {
-        values[column] = dateValues;
-      }
-    });
+    // Make sure we don't have duplicates, and add 'date' if it doesn't exist
+    if (!columns.has('date') && !columns.has('Date')) {
+      columns.add('date');
+    }
     
+    return Array.from(columns);
+  }, [data.length, selectedMapping]);
+
+  // Get unique values for each column - with improved performance
+  const uniqueValues = useMemo(() => {
+    const values: Record<string, Set<string>> = {};
+    
+    if (!data.length || !availableColumns.length || isLoading) {
+      return values;
+    }
+    
+    availableColumns.forEach(column => {
+      values[column] = new Set();
+      
+      // Only process a reasonable number of rows for better performance
+      const maxRowsToProcess = 100;
+      const rowsToProcess = data.slice(0, maxRowsToProcess);
+      
+      rowsToProcess.forEach(row => {
+        if (column === 'date' || column === 'Date') {
+          const dateValue = extractDateFromMetadata(row);
+          if (dateValue) {
+            values[column].add(dateValue);
+          }
+        } else {
+          // Try to get value from metadata first, then from row directly
+          const value = row.metadata?.[column] ?? row[column];
+          if (value !== undefined && value !== null && value !== '') {
+            values[column].add(String(value));
+          }
+        }
+      });
+    });
     return values;
-  }, [data, isLoading, extractDateColumns]);
+  }, [data, availableColumns, extractDateFromMetadata, isLoading]);
 
   const handleFilterChange = useCallback((column: string, value: string) => {
     setFilters(prev => ({
@@ -195,64 +177,31 @@ export function IntegratedDataPreviewTable({
   const filteredData = useMemo(() => {
     if (!data.length || isLoading || !isStabilized) return [];
     
+    // If there are no active filters, return a slice of the data directly
     if (Object.keys(filters).every(key => !filters[key])) {
-      return data.slice(0, 100);
+      return data.slice(0, 100); // Limit to 100 rows to improve performance
     }
     
+    // Apply filters to a limited dataset
     return data
-      .slice(0, 1000)
+      .slice(0, 1000) // Only filter through the first 1000 rows for performance
       .filter(row => {
         return Object.entries(filters).every(([column, filterValue]) => {
           if (!filterValue) return true;
           
-          if (row[column] !== undefined) {
-            return String(row[column]) === filterValue;
+          if (column === 'date' || column === 'Date') {
+            const dateValue = extractDateFromMetadata(row);
+            return dateValue === filterValue;
           }
           
-          if (row.metadata && row.metadata[column] !== undefined) {
-            return String(row.metadata[column]) === filterValue;
-          }
-          
-          return false;
+          const value = row.metadata?.[column] ?? row[column];
+          return String(value) === filterValue;
         });
       })
-      .slice(0, 100);
-  }, [data, filters, isLoading, isStabilized]);
+      .slice(0, 100); // Limit results to 100 rows
+  }, [data, filters, extractDateFromMetadata, isLoading, isStabilized]);
 
-  const displayColumns = useMemo(() => {
-    if (!data.length) return [];
-    
-    const columns = new Set<string>();
-    const priorityColumns = ['date', 'sku', 'actual_value'];
-    const excludedColumns = ['id', 'source_files', 'created_at', 'updated_at', 'validation_status'];
-    
-    priorityColumns.forEach(col => {
-      columns.add(col);
-    });
-    
-    Object.keys(uniqueValues).forEach(key => {
-      if (key.toLowerCase().includes('date') && !columns.has(key)) {
-        columns.add(key);
-      }
-    });
-    
-    if (selectedMapping && selectedMapping.selected_columns_array) {
-      selectedMapping.selected_columns_array.forEach((col: string) => {
-        if (!excludedColumns.includes(col) && !columns.has(col)) {
-          columns.add(col);
-        }
-      });
-    }
-    
-    Object.keys(uniqueValues).forEach(key => {
-      if (!excludedColumns.includes(key) && !columns.has(key)) {
-        columns.add(key);
-      }
-    });
-    
-    return Array.from(columns);
-  }, [data, uniqueValues, selectedMapping]);
-
+  // Show loading indicator while data is being prepared
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -261,6 +210,7 @@ export function IntegratedDataPreviewTable({
     );
   }
 
+  // Show a stable message during initial render or when data is being processed
   if (isInitialRender || (!isStabilized && data.length > 0)) {
     return (
       <div className="text-center py-8 bg-background border rounded-lg">
@@ -272,6 +222,7 @@ export function IntegratedDataPreviewTable({
     );
   }
 
+  // Show empty state when there's no data
   if (!data.length) {
     return (
       <div className="text-center py-4 text-muted-foreground">
@@ -279,6 +230,15 @@ export function IntegratedDataPreviewTable({
       </div>
     );
   }
+
+  // De-duplicate displayed columns
+  const dedupedColumns = availableColumns.reduce((acc, col) => {
+    const lowerCol = col.toLowerCase();
+    if (!acc.some(c => c.toLowerCase() === lowerCol)) {
+      acc.push(col);
+    }
+    return acc;
+  }, [] as string[]);
 
   return (
     <div className="space-y-4">
@@ -288,7 +248,7 @@ export function IntegratedDataPreviewTable({
             <Table>
               <TableHeader>
                 <TableRow>
-                  {displayColumns.map((column) => (
+                  {dedupedColumns.map((column) => (
                     <TableHead key={column} className="min-w-[150px]">
                       <div className="flex items-center justify-between">
                         <span>{column}</span>
@@ -301,25 +261,16 @@ export function IntegratedDataPreviewTable({
                               <Filter className="h-4 w-4" />
                             </SelectValue>
                           </SelectTrigger>
-                          <SelectContent className="max-h-60">
+                          <SelectContent>
                             <SelectItem value="all">All</SelectItem>
                             {Array.from(uniqueValues[column] || [])
                               .filter(value => value !== '')
-                              .sort((a, b) => {
-                                if (column.toLowerCase().includes('date')) {
-                                  const dateA = new Date(a);
-                                  const dateB = new Date(b);
-                                  if (!isNaN(dateA.getTime()) && !isNaN(dateB.getTime())) {
-                                    return dateB.getTime() - dateA.getTime();
-                                  }
-                                }
-                                return a.localeCompare(b);
-                              })
+                              .sort((a, b) => column.toLowerCase().includes('date') ? b.localeCompare(a) : a.localeCompare(b))
                               .map((value) => (
                                 <SelectItem key={value} value={value}>
                                   {value}
                                 </SelectItem>
-                              ))}
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
@@ -330,28 +281,19 @@ export function IntegratedDataPreviewTable({
               <TableBody>
                 {filteredData.map((row, index) => (
                   <TableRow key={row.id || index}>
-                    {displayColumns.map((column) => (
+                    {dedupedColumns.map((column) => (
                       <TableCell 
                         key={`${row.id || index}-${column}`} 
                         className="min-w-[150px]"
                       >
-                        {(() => {
-                          if (row[column] !== undefined) {
-                            const value = row[column];
+                        {column.toLowerCase() === 'date' || column === 'Date' ? extractDateFromMetadata(row) : (
+                          (() => {
+                            const value = row.metadata?.[column] ?? row[column];
                             return typeof value === 'object'
                               ? JSON.stringify(value)
-                              : String(value);
-                          }
-                          
-                          if (row.metadata && row.metadata[column] !== undefined) {
-                            const value = row.metadata[column];
-                            return typeof value === 'object'
-                              ? JSON.stringify(value)
-                              : String(value);
-                          }
-                          
-                          return '';
-                        })()}
+                              : String(value ?? '');
+                          })()
+                        )}
                       </TableCell>
                     ))}
                   </TableRow>
