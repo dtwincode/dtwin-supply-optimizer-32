@@ -120,19 +120,20 @@ export function IntegratedDataPreview() {
         </Alert>
       )}
 
-      {/* Table with contextual information */}
+      {/* Table with clearer initial state */}
       {!data.length && !isLoading && !isIntegrating ? (
         <Card className="p-6 text-center border-dashed">
           <h4 className="text-lg font-medium text-muted-foreground mb-2">No Integrated Data Available</h4>
           <p className="text-sm text-muted-foreground mb-4">
-            Run the integration process to view your forecast data here.
+            Data integration needs to be configured and run before any data will appear here.
+            {!selectedMapping && " Please start by selecting or creating a mapping configuration."}
           </p>
           <Button 
             variant="outline" 
             onClick={() => setMappingDialogOpen(true)}
             className="mx-auto"
           >
-            Get Started with Integration
+            {selectedMapping ? "View Mapping Configuration" : "Get Started with Integration"}
           </Button>
         </Card>
       ) : (
@@ -143,8 +144,16 @@ export function IntegratedDataPreview() {
         />
       )}
 
-      {/* Action buttons with clearer states */}
-      <div className="flex justify-end">
+      {/* Action buttons with clearer states and additional guidance */}
+      <div className="flex justify-between items-center">
+        <div className="text-sm text-muted-foreground">
+          {data.length > 0 ? 
+            `Displaying ${data.length} integrated records` : 
+            selectedMapping ? 
+              "No data has been integrated yet. Click 'Run Integration' to process your data." : 
+              "Select a configuration before running integration."
+          }
+        </div>
         <Button 
           variant="default" 
           onClick={handleIntegration} 
