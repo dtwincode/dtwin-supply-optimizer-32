@@ -29,9 +29,12 @@ function App() {
                   <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
                     <Routes>
                       <Route path="/" element={<Dashboard />} />
+                      <Route path="/dashboard" element={<Dashboard />} />
                       <Route path="/inventory" element={<Inventory />} />
                       <Route path="/settings" element={<Settings />} />
                       <Route path="/auth" element={<Auth />} />
+                      <Route path="/data" element={<Settings />} /> {/* Redirecting /data to Settings temporarily */}
+                      <Route path="*" element={<Dashboard />} /> {/* Catch-all route to prevent blank pages */}
                     </Routes>
                     <Toaster />
                   </ThemeProvider>
