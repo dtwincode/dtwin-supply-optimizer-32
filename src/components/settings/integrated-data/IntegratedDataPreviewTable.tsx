@@ -2,7 +2,6 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { IntegratedData } from "./types";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { 
   Select,
@@ -17,14 +16,15 @@ interface IntegratedDataPreviewTableProps {
   data: IntegratedData[];
   isLoading: boolean;
   validationStatus: 'valid' | 'needs_review' | null;
+  selectedMapping?: any;
 }
 
 export function IntegratedDataPreviewTable({ 
   data, 
   isLoading, 
-  validationStatus 
+  validationStatus,
+  selectedMapping
 }: IntegratedDataPreviewTableProps) {
-  const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set());
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [isStabilized, setIsStabilized] = useState<boolean>(false);
   const [isInitialRender, setIsInitialRender] = useState<boolean>(true);
@@ -91,9 +91,20 @@ export function IntegratedDataPreviewTable({
       'created_at',
       'updated_at',
       'validation_status',
-      'actual_value'
+      'actual_value',
+      'sku' // Exclude sku if it's not explicitly part of the selected mapping
     ];
 
+    // Include columns based on the selected mapping configuration
+    if (selectedMapping && selectedMapping.selected_columns_array && selectedMapping.selected_columns_array.length > 0) {
+      // First prioritize mapping-defined columns
+      selectedMapping.selected_columns_array.forEach((column: string) => {
+        if (!excludedColumns.includes(column)) {
+          columns.add(column);
+        }
+      });
+    }
+    
     // Process all rows to find unique column names
     const sampleSize = Math.min(100, data.length);
     const sampleData = data.slice(0, sampleSize);
@@ -121,7 +132,7 @@ export function IntegratedDataPreviewTable({
     }
     
     return Array.from(columns);
-  }, [data.length]); // Only depend on length for stability
+  }, [data.length, selectedMapping]);
 
   // Get unique values for each column - with improved performance
   const uniqueValues = useMemo(() => {
@@ -155,18 +166,6 @@ export function IntegratedDataPreviewTable({
     });
     return values;
   }, [data, availableColumns, extractDateFromMetadata, isLoading]);
-
-  const toggleColumn = useCallback((column: string) => {
-    setSelectedColumns(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(column)) {
-        newSet.delete(column);
-      } else {
-        newSet.add(column);
-      }
-      return newSet;
-    });
-  }, []);
 
   const handleFilterChange = useCallback((column: string, value: string) => {
     setFilters(prev => ({
@@ -241,41 +240,15 @@ export function IntegratedDataPreviewTable({
     return acc;
   }, [] as string[]);
 
-  // If no columns are selected, show all available columns
-  const displayColumns = selectedColumns.size > 0 
-    ? Array.from(selectedColumns)
-    : dedupedColumns;
-
   return (
     <div className="space-y-4">
-      <div className="p-4 border rounded-lg bg-background">
-        <h4 className="text-sm font-medium mb-3">Select Columns to Display</h4>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {dedupedColumns.map(column => (
-            <div key={column} className="flex items-center space-x-2">
-              <Checkbox
-                id={`column-${column}`}
-                checked={selectedColumns.has(column)}
-                onCheckedChange={() => toggleColumn(column)}
-              />
-              <label
-                htmlFor={`column-${column}`}
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                {column}
-              </label>
-            </div>
-          ))}
-        </div>
-      </div>
-
       <div className="rounded-md border">
         <ScrollArea className="h-[600px] w-full">
           <div className="w-[max-content] min-w-full">
             <Table>
               <TableHeader>
                 <TableRow>
-                  {displayColumns.map((column) => (
+                  {dedupedColumns.map((column) => (
                     <TableHead key={column} className="min-w-[150px]">
                       <div className="flex items-center justify-between">
                         <span>{column}</span>
@@ -308,7 +281,7 @@ export function IntegratedDataPreviewTable({
               <TableBody>
                 {filteredData.map((row, index) => (
                   <TableRow key={row.id || index}>
-                    {displayColumns.map((column) => (
+                    {dedupedColumns.map((column) => (
                       <TableCell 
                         key={`${row.id || index}-${column}`} 
                         className="min-w-[150px]"
