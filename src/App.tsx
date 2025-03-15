@@ -26,7 +26,8 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      retry: false,
+      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutes
     },
   },
 });
@@ -48,6 +49,7 @@ function App() {
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/logistics" element={<Logistics />} />
                 <Route path="/data" element={<Settings />} />
+                <Route path="/settings" element={<Settings />} /> {/* Adding a fallback route for /settings */}
                 <Route path="/guidelines" element={<Guidelines />} />
                 <Route path="/guidelines/getting-started" element={<GettingStarted />} />
                 <Route path="/guidelines/forecasting-basics" element={<ForecastingBasics />} />

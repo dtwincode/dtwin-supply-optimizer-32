@@ -1,5 +1,5 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,10 +12,12 @@ import { IntegratedDataPreview } from "@/components/settings/integrated-data/Int
 import { Separator } from "@/components/ui/separator";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { Loader2 } from "lucide-react";
 
 const Settings = () => {
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
+  const [activeTab, setActiveTab] = useState("integrated-data");
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -23,11 +25,21 @@ const Settings = () => {
     }
   }, [user, isLoading, navigate]);
 
+  // Add a handler for tab changes
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+  };
+
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p>Loading...</p>
-      </div>
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[calc(100vh-150px)]">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">Loading data management...</p>
+          </div>
+        </div>
+      </DashboardLayout>
     );
   }
 
@@ -37,7 +49,7 @@ const Settings = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 max-w-[1200px] mx-auto">
+      <div className="space-y-6 max-w-[1200px] mx-auto p-4 sm:p-6">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Data Management & Configuration</h2>
           <p className="text-muted-foreground mt-2">
@@ -47,9 +59,14 @@ const Settings = () => {
 
         <Separator className="my-6" />
         
-        <Card className="p-6">
-          <Tabs defaultValue="integrated-data" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6 gap-2">
+        <Card className="p-4 sm:p-6">
+          <Tabs 
+            defaultValue={activeTab} 
+            value={activeTab}
+            onValueChange={handleTabChange} 
+            className="space-y-6"
+          >
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
               <TabsTrigger value="location">Location Hierarchy</TabsTrigger>
               <TabsTrigger value="product">Product Hierarchy</TabsTrigger>
               <TabsTrigger value="historical-sales">Historical Sales</TabsTrigger>

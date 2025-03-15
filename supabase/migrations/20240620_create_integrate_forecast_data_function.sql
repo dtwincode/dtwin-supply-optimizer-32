@@ -28,15 +28,15 @@ DECLARE
   v_sku text;
   v_metadata jsonb;
   count_inserted integer := 0;
-  batch_size integer := 500;
+  batch_size integer := 1000;
   total_rows integer := 0;
   column_name text;
   batch_rows jsonb[];
   i integer;
   transaction_started boolean := false;
-  max_batch_size integer := 1000; -- Increased batch size for better performance
+  max_batch_size integer := 2000; -- Increased batch size for better performance
   rows_to_process integer;
-  processing_limit integer := 100000; -- Limit the total number of rows to process for large datasets
+  processing_limit integer := 200000; -- Increased limit for large datasets
 BEGIN
   -- Get mapping ID from parameters
   mapping_id := (p_mapping_config->>'id')::uuid;
@@ -58,11 +58,17 @@ BEGIN
   historical_product_key_column := p_mapping_config->>'historical_product_key_column';
   historical_location_key_column := p_mapping_config->>'historical_location_key_column';
   
-  -- Get selected columns
+  -- Get selected columns - handle both array and string formats for compatibility
   IF mapping_record.selected_columns_array IS NOT NULL THEN
     selected_columns := mapping_record.selected_columns_array;
   ELSIF mapping_record.columns_config IS NOT NULL THEN
-    selected_columns := ARRAY(SELECT jsonb_array_elements_text(mapping_record.columns_config::jsonb));
+    -- Try to parse JSON string
+    BEGIN
+      selected_columns := ARRAY(SELECT jsonb_array_elements_text(mapping_record.columns_config::jsonb));
+    EXCEPTION WHEN OTHERS THEN
+      -- Fallback if parsing fails
+      selected_columns := string_to_array(trim(both '[]"' from mapping_record.columns_config), '","');
+    END;
   ELSE
     RETURN 'Error: No columns selected for integration';
   END IF;
@@ -78,7 +84,20 @@ BEGIN
     RETURN 'Error: No historical sales data found';
   END IF;
   
-  historical_data := historical_file.data;
+  -- Make sure data is properly parsed as JSONB
+  BEGIN
+    IF historical_file.data IS NULL THEN
+      RETURN 'Error: Historical sales data is empty';
+    END IF;
+    
+    IF jsonb_typeof(historical_file.data) != 'array' THEN
+      historical_data := jsonb_build_array(historical_file.data);
+    ELSE
+      historical_data := historical_file.data;
+    END IF;
+  EXCEPTION WHEN OTHERS THEN
+    RETURN 'Error: Invalid JSON format in historical sales data';
+  END;
   
   -- If using product mapping, get product hierarchy
   IF use_product_mapping THEN
@@ -110,10 +129,52 @@ BEGIN
     location_data := location_file.data;
   END IF;
   
+  -- Make sure we have a table ready with proper indexes
+  BEGIN
+    -- Create the table if it doesn't exist
+    CREATE TABLE IF NOT EXISTS integrated_forecast_data (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      date DATE NOT NULL,
+      sku TEXT,
+      actual_value NUMERIC,
+      metadata JSONB,
+      source_files JSONB,
+      validation_status TEXT,
+      mapping_config JSONB,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+      updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+    );
+    
+    -- Create indexes if they don't exist
+    IF NOT EXISTS (
+      SELECT 1 
+      FROM pg_indexes 
+      WHERE tablename = 'integrated_forecast_data' 
+      AND indexname = 'idx_integrated_forecast_data_date_sku'
+    ) THEN
+      CREATE INDEX idx_integrated_forecast_data_date_sku 
+      ON integrated_forecast_data(date, sku);
+    END IF;
+
+    IF NOT EXISTS (
+      SELECT 1 
+      FROM pg_indexes 
+      WHERE tablename = 'integrated_forecast_data' 
+      AND indexname = 'idx_integrated_forecast_data_validation_status'
+    ) THEN
+      CREATE INDEX idx_integrated_forecast_data_validation_status
+      ON integrated_forecast_data(validation_status);
+    END IF;
+  EXCEPTION WHEN OTHERS THEN
+    -- Ignore errors if table/indexes already exist
+  END;
+  
   -- Clear existing integrated data within a transaction for better performance
   BEGIN
     transaction_started := true;
-    DELETE FROM integrated_forecast_data;
+    
+    -- Use TRUNCATE for faster deletion
+    TRUNCATE TABLE integrated_forecast_data;
     
     -- Count total rows for progress reporting
     total_rows := jsonb_array_length(historical_data);
@@ -127,9 +188,10 @@ BEGIN
     
     -- Process each row of historical data
     FOR historical_row IN 
-    SELECT * FROM jsonb_array_elements(historical_data)
-    LIMIT rows_to_process -- Apply limit for very large datasets
+    SELECT value FROM jsonb_array_elements(historical_data) WITH ORDINALITY AS t(value, idx)
+    WHERE idx <= rows_to_process -- Apply limit for very large datasets
     LOOP
+      -- Get the product/SKU identifier
       v_sku := historical_row->>historical_product_key_column;
       
       -- Skip rows without a product key if product mapping is enabled
@@ -137,16 +199,49 @@ BEGIN
         CONTINUE;
       END IF;
       
-      -- Try to parse date
+      -- Try to parse date - look for various date formats
       BEGIN
-        v_date := (historical_row->>'date')::date;
+        v_date := NULL;
+        
+        -- Try standard date format
+        IF historical_row ? 'date' AND historical_row->>'date' IS NOT NULL THEN
+          v_date := (historical_row->>'date')::date;
+        ELSIF historical_row ? 'Date' AND historical_row->>'Date' IS NOT NULL THEN
+          v_date := (historical_row->>'Date')::date;
+        ELSIF historical_row ? 'transaction_date' AND historical_row->>'transaction_date' IS NOT NULL THEN
+          v_date := (historical_row->>'transaction_date')::date;
+        ELSIF historical_row ? 'sales_date' AND historical_row->>'sales_date' IS NOT NULL THEN
+          v_date := (historical_row->>'sales_date')::date;
+        END IF;
+        
+        -- Skip rows with missing date
+        IF v_date IS NULL THEN
+          CONTINUE;
+        END IF;
       EXCEPTION WHEN OTHERS THEN
         CONTINUE; -- Skip rows with invalid dates
       END;
       
-      -- Try to parse actual value
+      -- Try to parse actual value - look for various value fields
       BEGIN
-        v_actual_value := (historical_row->>'actual_value')::numeric;
+        v_actual_value := NULL;
+        
+        -- Try different field names for value
+        IF historical_row ? 'actual_value' AND historical_row->>'actual_value' IS NOT NULL THEN
+          v_actual_value := (historical_row->>'actual_value')::numeric;
+        ELSIF historical_row ? 'value' AND historical_row->>'value' IS NOT NULL THEN
+          v_actual_value := (historical_row->>'value')::numeric;
+        ELSIF historical_row ? 'sales' AND historical_row->>'sales' IS NOT NULL THEN
+          v_actual_value := (historical_row->>'sales')::numeric;
+        ELSIF historical_row ? 'units' AND historical_row->>'units' IS NOT NULL THEN
+          v_actual_value := (historical_row->>'units')::numeric;
+        ELSIF historical_row ? 'quantity' AND historical_row->>'quantity' IS NOT NULL THEN
+          v_actual_value := (historical_row->>'quantity')::numeric;
+        ELSIF historical_row ? 'Units_Sold' AND historical_row->>'Units_Sold' IS NOT NULL THEN
+          v_actual_value := (historical_row->>'Units_Sold')::numeric;
+        ELSIF historical_row ? 'Revenue' AND historical_row->>'Revenue' IS NOT NULL THEN
+          v_actual_value := (historical_row->>'Revenue')::numeric;
+        END IF;
       EXCEPTION WHEN OTHERS THEN
         v_actual_value := NULL;
       END;
@@ -247,20 +342,12 @@ BEGIN
       count_inserted := count_inserted + i;
     END IF;
     
+    -- Analyze the table to update statistics for query planner
+    ANALYZE integrated_forecast_data;
+    
     -- Final commit
     COMMIT;
     transaction_started := false;
-    
-    -- Add an index on the date and sku fields for faster filtering
-    IF NOT EXISTS (
-      SELECT 1 
-      FROM pg_indexes 
-      WHERE tablename = 'integrated_forecast_data' 
-      AND indexname = 'idx_integrated_forecast_data_date_sku'
-    ) THEN
-      CREATE INDEX idx_integrated_forecast_data_date_sku 
-      ON integrated_forecast_data(date, sku);
-    END IF;
     
   EXCEPTION WHEN OTHERS THEN
     -- Rollback on error

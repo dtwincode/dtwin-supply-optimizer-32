@@ -27,8 +27,13 @@ export function IntegratedDataPreview() {
     handleDeleteMapping
   } = useIntegratedData();
 
-  // Move the useState hook outside of any conditional logic
-  const [showHelp, setShowHelp] = useState(!hasIntegrated);
+  // Always initialize state regardless of conditions
+  const [showHelp, setShowHelp] = useState(false);
+  
+  // Update the showHelp state based on conditions
+  useEffect(() => {
+    setShowHelp(!hasIntegrated);
+  }, [hasIntegrated]);
 
   // Clear the help prompt after successful deletion of a mapping
   useEffect(() => {
