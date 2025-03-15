@@ -170,7 +170,7 @@ export function IntegratedDataPreview() {
         ) : (
           <>
             {selectedMapping && (
-              <Alert variant="outline" className="bg-background border-blue-200">
+              <Alert variant="default" className="bg-background border-blue-200">
                 <Info className="h-4 w-4 text-blue-600" />
                 <AlertDescription className="text-sm text-blue-700">
                   Showing data integrated using the <span className="font-medium">{selectedMapping.mapping_name}</span> configuration.
