@@ -1,3 +1,4 @@
+
 export interface IntegratedData {
   id: string;
   date: string;

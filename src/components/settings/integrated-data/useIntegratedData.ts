@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
@@ -147,31 +148,38 @@ export function useIntegratedData() {
         throw error;
       }
 
-      if (!mappings) {
+      if (!mappings || mappings.length === 0) {
         console.log("No mappings found");
         setSavedMappings([]);
         setSelectedMapping(null);
         return;
       }
 
-      const validMappings = mappings.filter(m => m && m.id).map(mapping => {
-        let selectedCols = [];
-        
-        if (Array.isArray(mapping.selected_columns_array)) {
-          selectedCols = mapping.selected_columns_array;
-        } else if (mapping.columns_config && typeof mapping.columns_config === 'string') {
-          try {
-            selectedCols = JSON.parse(mapping.columns_config);
-          } catch (e) {
-            console.warn('Failed to parse columns_config', e);
+      console.log("Raw mappings data:", mappings);
+
+      const validMappings = mappings
+        .filter(m => m && m.id)
+        .map(mapping => {
+          let selectedCols: string[] = [];
+          
+          // Try to get columns from selected_columns_array first
+          if (Array.isArray(mapping.selected_columns_array)) {
+            selectedCols = mapping.selected_columns_array;
+          } 
+          // Then try to parse from columns_config if it exists
+          else if (mapping.columns_config && typeof mapping.columns_config === 'string') {
+            try {
+              selectedCols = JSON.parse(mapping.columns_config);
+            } catch (e) {
+              console.warn('Failed to parse columns_config', e);
+            }
           }
-        }
-        
-        return {
-          ...mapping,
-          selected_columns: selectedCols
-        };
-      });
+          
+          return {
+            ...mapping,
+            selected_columns: selectedCols
+          };
+        });
       
       console.log("Valid mappings:", validMappings);
       setSavedMappings(validMappings);
@@ -182,6 +190,9 @@ export function useIntegratedData() {
       if (!activeMapping) {
         setData([]);
         setHasIntegrated(false);
+      } else {
+        // If we have an active mapping, make sure to fetch data
+        await fetchData(false);
       }
     } catch (error: any) {
       console.error('Error fetching mappings:', error);
@@ -194,7 +205,7 @@ export function useIntegratedData() {
       setSelectedMapping(null);
       setData([]);
     }
-  }, []);
+  }, [fetchData]);
 
   useEffect(() => {
     console.log("Initial fetch of saved mappings");
@@ -298,11 +309,13 @@ export function useIntegratedData() {
 
   const handleSaveMapping = useCallback(async (mapping: ForecastMappingConfig) => {
     try {
+      // First, set all mappings to inactive
       await supabase
         .from('forecast_integration_mappings')
         .update({ is_active: false })
         .neq('id', mapping.id);
 
+      // Then activate the selected one
       await supabase
         .from('forecast_integration_mappings')
         .update({ is_active: true })

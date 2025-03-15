@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
@@ -73,7 +72,6 @@ export function MappingConfigDialog({
     location: null
   });
 
-  // Reset form when dialog opens/closes
   useEffect(() => {
     if (open) {
       if (selectedMapping) {
@@ -96,11 +94,9 @@ export function MappingConfigDialog({
     }
   }, [open, selectedMapping]);
 
-  // Fetch previews of all data sources
   const fetchDataPreviews = async () => {
     setIsLoading(true);
     try {
-      // Fetch historical sales preview
       const { data: historicalData } = await supabase
         .from('permanent_hierarchy_files')
         .select('data')
@@ -109,7 +105,6 @@ export function MappingConfigDialog({
         .limit(1)
         .single();
 
-      // Fetch product hierarchy preview
       const { data: productData } = await supabase
         .from('permanent_hierarchy_files')
         .select('data')
@@ -118,7 +113,6 @@ export function MappingConfigDialog({
         .limit(1)
         .single();
 
-      // Fetch location hierarchy preview
       const { data: locationData } = await supabase
         .from('permanent_hierarchy_files')
         .select('data')
@@ -141,7 +135,6 @@ export function MappingConfigDialog({
 
       setDataPreviews(previews);
 
-      // Set available columns for selection
       if (historicalData?.data && Array.isArray(historicalData.data) && historicalData.data.length > 0) {
         const columns = Object.keys(historicalData.data[0]);
         setAvailableColumns(columns);
@@ -234,7 +227,6 @@ export function MappingConfigDialog({
       return;
     }
 
-    // Validate mapping configuration
     if (useProductMapping && (!selectedProductKey || !selectedHistoricalProductKey)) {
       toast({
         title: "Error",
@@ -264,9 +256,12 @@ export function MappingConfigDialog({
         location_key_column: selectedLocationKey,
         historical_product_key_column: selectedHistoricalProductKey,
         historical_location_key_column: selectedHistoricalLocationKey,
-        selected_columns_array: selectedColumns, // Store as array instead of using selected_columns
-        columns_config: JSON.stringify(selectedColumns), // Store as JSON string for backward compatibility
+        selected_columns_array: selectedColumns,
+        columns_config: JSON.stringify(selectedColumns),
+        is_active: true,
       };
+
+      console.log("Saving new mapping:", newMapping);
 
       const { data, error } = await supabase
         .from("forecast_integration_mappings")
@@ -276,10 +271,16 @@ export function MappingConfigDialog({
 
       if (error) throw error;
 
+      console.log("Saved mapping response:", data);
+
       toast({
         title: "Success",
         description: "Configuration saved successfully",
       });
+
+      if (data && onSave) {
+        onSave(data);
+      }
 
       resetForm();
       onOpenChange(false);
@@ -305,6 +306,7 @@ export function MappingConfigDialog({
     selectedColumns,
     onOpenChange,
     resetForm,
+    onSave,
   ]);
 
   const handleConfirmDelete = useCallback(() => {
@@ -331,7 +333,6 @@ export function MappingConfigDialog({
     }
   };
 
-  // Render table for data preview
   const renderDataPreviewTable = (data: any[] | null, columns: string[] | null) => {
     if (!data || !columns || data.length === 0) {
       return <div className="text-center p-4 text-muted-foreground">No data available</div>;
@@ -375,7 +376,6 @@ export function MappingConfigDialog({
           </DialogHeader>
 
           <div className="space-y-4">
-            {/* Saved Configurations Section */}
             <div className="space-y-2">
               <Label>Saved Configurations</Label>
               <ScrollArea className="h-[150px] rounded-md border">
@@ -458,7 +458,6 @@ export function MappingConfigDialog({
 
             <Separator />
 
-            {/* Configuration Progress Indicator */}
             <div className="flex items-center justify-between mb-4">
               <div 
                 className={`flex flex-col items-center ${configStep === 'sources' ? 'text-primary' : 'text-muted-foreground'}`}
@@ -488,7 +487,6 @@ export function MappingConfigDialog({
               </div>
             </div>
 
-            {/* Step 1: Data Sources Preview */}
             {configStep === 'sources' && (
               <>
                 <div className="space-y-2">
@@ -585,7 +583,6 @@ export function MappingConfigDialog({
               </>
             )}
 
-            {/* Step 2: Mapping Configuration */}
             {configStep === 'mapping' && (
               <div className="space-y-6">
                 <div className="rounded-md border p-4 bg-blue-50">
@@ -602,7 +599,6 @@ export function MappingConfigDialog({
                 </div>
 
                 <div className="space-y-4">
-                  {/* Product Mapping Section */}
                   <Card className="p-4">
                     <div className="space-y-4">
                       <div className="flex items-center space-x-2">
@@ -680,7 +676,6 @@ export function MappingConfigDialog({
                     </div>
                   </Card>
 
-                  {/* Location Mapping Section */}
                   <Card className="p-4">
                     <div className="space-y-4">
                       <div className="flex items-center space-x-2">
@@ -761,7 +756,6 @@ export function MappingConfigDialog({
               </div>
             )}
 
-            {/* Step 3: Column Selection */}
             {configStep === 'columns' && (
               <div className="space-y-4">
                 <div className="rounded-md border p-4 bg-blue-50">
