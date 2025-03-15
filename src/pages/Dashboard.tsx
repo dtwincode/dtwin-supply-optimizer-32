@@ -1,11 +1,11 @@
 
 import React from 'react';
 import DashboardLayout from "@/components/DashboardLayout";
-import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
-import { DashboardMetrics } from "@/components/dashboard/DashboardMetrics";
-import { ModuleSummaryCards } from "@/components/dashboard/ModuleSummaryCards";
-import { FinancialMetrics } from "@/components/dashboard/FinancialMetrics";
-import { SustainabilityMetrics } from "@/components/dashboard/SustainabilityMetrics";
+import DashboardCharts from "@/components/dashboard/DashboardCharts";
+import DashboardMetrics from "@/components/dashboard/DashboardMetrics";
+import ModuleSummaryCards from "@/components/dashboard/ModuleSummaryCards";
+import FinancialMetrics from "@/components/dashboard/FinancialMetrics";
+import SustainabilityMetrics from "@/components/dashboard/SustainabilityMetrics";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";

@@ -56,7 +56,8 @@ export const DataSourceSwitcher = () => {
       toast({
         title: "Connection Test",
         description: "Successfully connected to AWS RDS.",
-        variant: "success",
+        // Changed from 'success' to 'default' to match allowed variant types
+        variant: "default",
       });
     }, 1500);
   };
