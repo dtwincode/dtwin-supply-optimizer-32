@@ -199,27 +199,75 @@ BEGIN
         CONTINUE;
       END IF;
       
-      -- Try to parse date - prioritize fields with "Date" in the name
+      -- Try to parse date - improved date extraction from multiple possible fields
       BEGIN
         v_date := NULL;
         
-        -- Look for case-insensitive date fields
+        -- First try date-specific fields
         IF historical_row ? 'Date' AND historical_row->>'Date' IS NOT NULL THEN
-          v_date := (historical_row->>'Date')::date;
-        ELSIF historical_row ? 'date' AND historical_row->>'date' IS NOT NULL THEN
-          v_date := (historical_row->>'date')::date;
-        ELSIF historical_row ? 'transaction_date' AND historical_row->>'transaction_date' IS NOT NULL THEN
-          v_date := (historical_row->>'transaction_date')::date;
-        ELSIF historical_row ? 'sales_date' AND historical_row->>'sales_date' IS NOT NULL THEN
-          v_date := (historical_row->>'sales_date')::date;
+          -- Check if the Date field has a valid date format
+          BEGIN
+            v_date := (historical_row->>'Date')::date;
+          EXCEPTION WHEN OTHERS THEN
+            -- Try different date formats if the default parsing fails
+            BEGIN
+              -- Try different date formats (MM/DD/YYYY, DD/MM/YYYY, etc.)
+              IF historical_row->>'Date' ~ '^[0-9]{1,2}/[0-9]{1,2}/[0-9]{4}$' THEN
+                v_date := to_date(historical_row->>'Date', 'MM/DD/YYYY');
+              ELSIF historical_row->>'Date' ~ '^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}$' THEN
+                v_date := to_date(historical_row->>'Date', 'YYYY-MM-DD');
+              END IF;
+            EXCEPTION WHEN OTHERS THEN
+              -- If all parsing attempts fail, v_date remains NULL
+            END;
+          END;
         END IF;
         
-        -- Use current date as fallback to avoid NULL date values
+        -- Try lowercase date field if uppercase Date field didn't work
+        IF v_date IS NULL AND historical_row ? 'date' AND historical_row->>'date' IS NOT NULL THEN
+          BEGIN
+            v_date := (historical_row->>'date')::date;
+          EXCEPTION WHEN OTHERS THEN
+            -- Try different date formats if the default parsing fails
+            BEGIN
+              IF historical_row->>'date' ~ '^[0-9]{1,2}/[0-9]{1,2}/[0-9]{4}$' THEN
+                v_date := to_date(historical_row->>'date', 'MM/DD/YYYY');
+              ELSIF historical_row->>'date' ~ '^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}$' THEN
+                v_date := to_date(historical_row->>'date', 'YYYY-MM-DD');
+              END IF;
+            EXCEPTION WHEN OTHERS THEN
+              -- If all parsing attempts fail, v_date remains NULL
+            END;
+          END;
+        END IF;
+        
+        -- Try other possible date fields
+        IF v_date IS NULL THEN
+          -- Check other common date field names
+          DECLARE
+            possible_date_fields text[] := ARRAY['transaction_date', 'sales_date', 'invoice_date', 'order_date'];
+            field text;
+          BEGIN
+            FOREACH field IN ARRAY possible_date_fields
+            LOOP
+              IF historical_row ? field AND historical_row->>field IS NOT NULL THEN
+                BEGIN
+                  v_date := (historical_row->>field)::date;
+                  EXIT; -- Exit the loop once we successfully parse a date
+                EXCEPTION WHEN OTHERS THEN
+                  -- Continue to the next field if parsing fails
+                END;
+              END IF;
+            END LOOP;
+          END;
+        END IF;
+        
+        -- If no date field was found or parsed successfully, use current date as fallback
         IF v_date IS NULL THEN
           v_date := CURRENT_DATE;
         END IF;
       EXCEPTION WHEN OTHERS THEN
-        -- If date parsing fails, use current date
+        -- Final fallback: use current date if all date parsing attempts fail
         v_date := CURRENT_DATE;
       END;
       
@@ -260,6 +308,9 @@ BEGIN
           v_metadata := v_metadata || jsonb_build_object(column_name, historical_row->column_name);
         END IF;
       END LOOP;
+      
+      -- Also include the date field in metadata for better handling in UI
+      v_metadata := v_metadata || jsonb_build_object('Date', v_date);
       
       -- Add row to batch
       batch_rows := array_append(batch_rows, jsonb_build_object(

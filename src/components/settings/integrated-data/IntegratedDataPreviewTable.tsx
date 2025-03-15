@@ -64,11 +64,17 @@ export function IntegratedDataPreviewTable({
     };
   }, [data]);
 
-  // Extract historical sales dates from metadata - memoized for performance
-  const extractDateFromMetadata = useCallback((row: IntegratedData): string => {
+  // Improved function to extract date from various possible locations in the data
+  const extractDateFromData = useCallback((row: IntegratedData): string => {
+    // Try to get date directly from the row
+    if (row.date) {
+      return String(row.date);
+    }
+    
+    // Look in metadata for date fields
     if (row.metadata && typeof row.metadata === 'object') {
       const metadataObj = row.metadata as Record<string, any>;
-      // Look for date fields in metadata
+      // Check common date field names
       const dateFields = ['Date', 'date', 'sales_date', 'transaction_date'];
       for (const field of dateFields) {
         if (metadataObj[field]) {
@@ -76,7 +82,8 @@ export function IntegratedDataPreviewTable({
         }
       }
     }
-    return row.date || '';
+    
+    return '';
   }, []);
 
   // Get all possible columns from the data, excluding system columns - stable memoization
@@ -91,8 +98,7 @@ export function IntegratedDataPreviewTable({
       'created_at',
       'updated_at',
       'validation_status',
-      'actual_value',
-      'sku' // Exclude sku if it's not explicitly part of the selected mapping
+      'actual_value'
     ];
 
     // Include columns based on the selected mapping configuration
@@ -105,7 +111,10 @@ export function IntegratedDataPreviewTable({
       });
     }
     
-    // Process all rows to find unique column names
+    // Make sure we add the date column
+    columns.add('date');
+    
+    // Process all rows to find unique column names in metadata
     const sampleSize = Math.min(100, data.length);
     const sampleData = data.slice(0, sampleSize);
 
@@ -126,11 +135,6 @@ export function IntegratedDataPreviewTable({
       });
     });
     
-    // Make sure we don't have duplicates, and add 'date' if it doesn't exist
-    if (!columns.has('date') && !columns.has('Date')) {
-      columns.add('date');
-    }
-    
     return Array.from(columns);
   }, [data.length, selectedMapping]);
 
@@ -144,28 +148,39 @@ export function IntegratedDataPreviewTable({
     
     availableColumns.forEach(column => {
       values[column] = new Set();
-      
-      // Only process a reasonable number of rows for better performance
-      const maxRowsToProcess = 100;
-      const rowsToProcess = data.slice(0, maxRowsToProcess);
-      
-      rowsToProcess.forEach(row => {
-        if (column === 'date' || column === 'Date') {
-          const dateValue = extractDateFromMetadata(row);
-          if (dateValue) {
-            values[column].add(dateValue);
-          }
-        } else {
-          // Try to get value from metadata first, then from row directly
-          const value = row.metadata?.[column] ?? row[column];
-          if (value !== undefined && value !== null && value !== '') {
-            values[column].add(String(value));
-          }
+    });
+    
+    // Process the entire dataset for dates to ensure we capture all unique dates
+    if (data.length > 0) {
+      data.forEach(row => {
+        // Special handling for dates
+        const dateValue = extractDateFromData(row);
+        if (dateValue) {
+          values['date']?.add(dateValue);
+        }
+        
+        // Process other columns only for a subset of rows
+        const processRow = (row: IntegratedData) => {
+          availableColumns.forEach(column => {
+            if (column !== 'date') {
+              // Try to get value from metadata first, then from row directly
+              const value = row.metadata?.[column] ?? row[column];
+              if (value !== undefined && value !== null && value !== '') {
+                values[column]?.add(String(value));
+              }
+            }
+          });
+        };
+        
+        // Only process a subset of rows for non-date columns
+        if (data.indexOf(row) < 200) { // Limit to first 200 rows for performance
+          processRow(row);
         }
       });
-    });
+    }
+    
     return values;
-  }, [data, availableColumns, extractDateFromMetadata, isLoading]);
+  }, [data, availableColumns, extractDateFromData, isLoading]);
 
   const handleFilterChange = useCallback((column: string, value: string) => {
     setFilters(prev => ({
@@ -189,8 +204,8 @@ export function IntegratedDataPreviewTable({
         return Object.entries(filters).every(([column, filterValue]) => {
           if (!filterValue) return true;
           
-          if (column === 'date' || column === 'Date') {
-            const dateValue = extractDateFromMetadata(row);
+          if (column === 'date') {
+            const dateValue = extractDateFromData(row);
             return dateValue === filterValue;
           }
           
@@ -199,7 +214,7 @@ export function IntegratedDataPreviewTable({
         });
       })
       .slice(0, 100); // Limit results to 100 rows
-  }, [data, filters, extractDateFromMetadata, isLoading, isStabilized]);
+  }, [data, filters, extractDateFromData, isLoading, isStabilized]);
 
   // Show loading indicator while data is being prepared
   if (isLoading) {
@@ -261,11 +276,17 @@ export function IntegratedDataPreviewTable({
                               <Filter className="h-4 w-4" />
                             </SelectValue>
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="max-h-60">
                             <SelectItem value="all">All</SelectItem>
                             {Array.from(uniqueValues[column] || [])
                               .filter(value => value !== '')
-                              .sort((a, b) => column.toLowerCase().includes('date') ? b.localeCompare(a) : a.localeCompare(b))
+                              .sort((a, b) => {
+                                // Sort dates in descending order, other values alphabetically
+                                if (column.toLowerCase() === 'date') {
+                                  return new Date(b).getTime() - new Date(a).getTime();
+                                }
+                                return a.localeCompare(b);
+                              })
                               .map((value) => (
                                 <SelectItem key={value} value={value}>
                                   {value}
@@ -286,7 +307,7 @@ export function IntegratedDataPreviewTable({
                         key={`${row.id || index}-${column}`} 
                         className="min-w-[150px]"
                       >
-                        {column.toLowerCase() === 'date' || column === 'Date' ? extractDateFromMetadata(row) : (
+                        {column.toLowerCase() === 'date' ? extractDateFromData(row) : (
                           (() => {
                             const value = row.metadata?.[column] ?? row[column];
                             return typeof value === 'object'
