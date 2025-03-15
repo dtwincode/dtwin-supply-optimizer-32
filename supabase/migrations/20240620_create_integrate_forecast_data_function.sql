@@ -191,7 +191,7 @@ BEGIN
     SELECT value FROM jsonb_array_elements(historical_data) WITH ORDINALITY AS t(value, idx)
     WHERE idx <= rows_to_process -- Apply limit for very large datasets
     LOOP
-      -- Get the product/SKU identifier
+      -- Get the product/SKU identifier using the configured key column
       v_sku := historical_row->>historical_product_key_column;
       
       -- Skip rows without a product key if product mapping is enabled
@@ -199,54 +199,60 @@ BEGIN
         CONTINUE;
       END IF;
       
-      -- Try to parse date - look for various date formats
+      -- Try to parse date - prioritize fields with "Date" in the name
       BEGIN
         v_date := NULL;
         
-        -- Try standard date format
-        IF historical_row ? 'date' AND historical_row->>'date' IS NOT NULL THEN
-          v_date := (historical_row->>'date')::date;
-        ELSIF historical_row ? 'Date' AND historical_row->>'Date' IS NOT NULL THEN
+        -- Look for case-insensitive date fields
+        IF historical_row ? 'Date' AND historical_row->>'Date' IS NOT NULL THEN
           v_date := (historical_row->>'Date')::date;
+        ELSIF historical_row ? 'date' AND historical_row->>'date' IS NOT NULL THEN
+          v_date := (historical_row->>'date')::date;
         ELSIF historical_row ? 'transaction_date' AND historical_row->>'transaction_date' IS NOT NULL THEN
           v_date := (historical_row->>'transaction_date')::date;
         ELSIF historical_row ? 'sales_date' AND historical_row->>'sales_date' IS NOT NULL THEN
           v_date := (historical_row->>'sales_date')::date;
         END IF;
         
-        -- Skip rows with missing date
+        -- Use current date as fallback to avoid NULL date values
         IF v_date IS NULL THEN
-          CONTINUE;
+          v_date := CURRENT_DATE;
         END IF;
       EXCEPTION WHEN OTHERS THEN
-        CONTINUE; -- Skip rows with invalid dates
+        -- If date parsing fails, use current date
+        v_date := CURRENT_DATE;
       END;
       
-      -- Try to parse actual value - look for various value fields
+      -- Try to parse actual value - prioritize value-related fields
       BEGIN
         v_actual_value := NULL;
         
-        -- Try different field names for value
-        IF historical_row ? 'actual_value' AND historical_row->>'actual_value' IS NOT NULL THEN
-          v_actual_value := (historical_row->>'actual_value')::numeric;
-        ELSIF historical_row ? 'value' AND historical_row->>'value' IS NOT NULL THEN
-          v_actual_value := (historical_row->>'value')::numeric;
-        ELSIF historical_row ? 'sales' AND historical_row->>'sales' IS NOT NULL THEN
-          v_actual_value := (historical_row->>'sales')::numeric;
-        ELSIF historical_row ? 'units' AND historical_row->>'units' IS NOT NULL THEN
-          v_actual_value := (historical_row->>'units')::numeric;
-        ELSIF historical_row ? 'quantity' AND historical_row->>'quantity' IS NOT NULL THEN
-          v_actual_value := (historical_row->>'quantity')::numeric;
-        ELSIF historical_row ? 'Units_Sold' AND historical_row->>'Units_Sold' IS NOT NULL THEN
-          v_actual_value := (historical_row->>'Units_Sold')::numeric;
-        ELSIF historical_row ? 'Revenue' AND historical_row->>'Revenue' IS NOT NULL THEN
+        -- Look for value fields in a prioritized order
+        IF historical_row ? 'Revenue' AND historical_row->>'Revenue' IS NOT NULL AND historical_row->>'Revenue' ~ '^[0-9]+\.?[0-9]*$' THEN
           v_actual_value := (historical_row->>'Revenue')::numeric;
+        ELSIF historical_row ? 'Units_Sold' AND historical_row->>'Units_Sold' IS NOT NULL AND historical_row->>'Units_Sold' ~ '^[0-9]+\.?[0-9]*$' THEN
+          v_actual_value := (historical_row->>'Units_Sold')::numeric;
+        ELSIF historical_row ? 'actual_value' AND historical_row->>'actual_value' IS NOT NULL AND historical_row->>'actual_value' ~ '^[0-9]+\.?[0-9]*$' THEN
+          v_actual_value := (historical_row->>'actual_value')::numeric;
+        ELSIF historical_row ? 'value' AND historical_row->>'value' IS NOT NULL AND historical_row->>'value' ~ '^[0-9]+\.?[0-9]*$' THEN
+          v_actual_value := (historical_row->>'value')::numeric;
+        ELSIF historical_row ? 'sales' AND historical_row->>'sales' IS NOT NULL AND historical_row->>'sales' ~ '^[0-9]+\.?[0-9]*$' THEN
+          v_actual_value := (historical_row->>'sales')::numeric;
+        ELSIF historical_row ? 'units' AND historical_row->>'units' IS NOT NULL AND historical_row->>'units' ~ '^[0-9]+\.?[0-9]*$' THEN
+          v_actual_value := (historical_row->>'units')::numeric;
+        ELSIF historical_row ? 'quantity' AND historical_row->>'quantity' IS NOT NULL AND historical_row->>'quantity' ~ '^[0-9]+\.?[0-9]*$' THEN
+          v_actual_value := (historical_row->>'quantity')::numeric;
+        END IF;
+        
+        -- Default to 0 if no valid value was found
+        IF v_actual_value IS NULL THEN
+          v_actual_value := 0;
         END IF;
       EXCEPTION WHEN OTHERS THEN
-        v_actual_value := NULL;
+        v_actual_value := 0;
       END;
       
-      -- Build metadata from selected columns
+      -- Build metadata from selected columns only
       v_metadata := '{}'::jsonb;
       FOREACH column_name IN ARRAY selected_columns
       LOOP

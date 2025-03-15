@@ -51,20 +51,34 @@ export function useIntegratedData() {
 
       if (!integratedData || integratedData.length === 0) {
         setData([]);
+        setIsLoading(false);
+        isFetchingRef.current = false;
         return;
       }
 
-      // Process data in batches to avoid UI freezing with large datasets
-      const processData = () => {
-        const transformedData: IntegratedData[] = integratedData.map(item => {
+      // Process data in smaller batches to avoid UI freezing
+      const batchSize = 500;
+      const totalBatches = Math.ceil(integratedData.length / batchSize);
+      let processedItems: IntegratedData[] = [];
+      
+      // Function to process a single batch
+      const processBatch = (batchIndex: number) => {
+        const startIdx = batchIndex * batchSize;
+        const endIdx = Math.min(startIdx + batchSize, integratedData.length);
+        const currentBatch = integratedData.slice(startIdx, endIdx);
+        
+        const transformedBatch = currentBatch.map(item => {
+          // Normalize metadata to be a proper object
           const parsedMetadata = typeof item.metadata === 'object' && item.metadata !== null
             ? item.metadata as Record<string, any>
             : {};
 
+          // Normalize source files
           const parsedSourceFiles = Array.isArray(item.source_files) 
             ? item.source_files 
             : (item.source_files ? JSON.parse(item.source_files as string) : []);
 
+          // Normalize validation status
           let typedValidationStatus: 'valid' | 'needs_review' | 'pending' = 'pending';
           if (item.validation_status === 'valid' || 
               item.validation_status === 'needs_review' || 
@@ -72,6 +86,7 @@ export function useIntegratedData() {
             typedValidationStatus = item.validation_status;
           }
 
+          // Create clean record with consistent structure
           return {
             id: item.id,
             date: item.date,
@@ -82,26 +97,36 @@ export function useIntegratedData() {
             validation_status: typedValidationStatus,
             source_files: parsedSourceFiles,
             metadata: parsedMetadata,
-            ...parsedMetadata
+            ...parsedMetadata // Spread for direct property access
           };
         });
-
-        setData(transformedData);
         
-        if (transformedData.length > 0) {
-          setValidationStatus(
-            transformedData[0].validation_status === 'valid' || 
-            transformedData[0].validation_status === 'needs_review' 
-              ? transformedData[0].validation_status 
-              : null
-          );
-          setHasIntegrated(true);
+        processedItems = [...processedItems, ...transformedBatch];
+        
+        // If this is the last batch, update state
+        if (batchIndex === totalBatches - 1) {
+          setData(processedItems);
+          setIsLoading(false);
+          isFetchingRef.current = false;
+          
+          if (processedItems.length > 0) {
+            setValidationStatus(
+              processedItems[0].validation_status === 'valid' || 
+              processedItems[0].validation_status === 'needs_review' 
+                ? processedItems[0].validation_status 
+                : null
+            );
+            setHasIntegrated(true);
+          }
+        } else {
+          // Process next batch in next animation frame
+          requestAnimationFrame(() => processBatch(batchIndex + 1));
         }
       };
-
-      // Use requestAnimationFrame to process data in the next frame
-      // This gives the browser time to finish other UI updates
-      requestAnimationFrame(processData);
+      
+      // Start processing with first batch
+      requestAnimationFrame(() => processBatch(0));
+      
     } catch (error: any) {
       console.error('Error fetching integrated data:', error);
       setError('Failed to fetch integrated data. Please try again.');
@@ -110,10 +135,7 @@ export function useIntegratedData() {
         description: "Failed to fetch integrated data. Please try again.",
         variant: "destructive",
       });
-    } finally {
-      if (showLoading) {
-        setIsLoading(false);
-      }
+      setIsLoading(false);
       isFetchingRef.current = false;
     }
   }, [selectedMapping]);
@@ -152,7 +174,6 @@ export function useIntegratedData() {
     }
     
     isFetchingSavedMappingsRef.current = true;
-    console.log("Fetching saved mappings...");
     
     try {
       const { data: mappings, error } = await supabase
@@ -166,13 +187,10 @@ export function useIntegratedData() {
       }
 
       if (!mappings || mappings.length === 0) {
-        console.log("No mappings found");
         setSavedMappings([]);
         setSelectedMapping(null);
         return;
       }
-
-      console.log("Raw mappings data:", mappings);
 
       const validMappings = mappings
         .filter(m => m && m.id)
@@ -198,7 +216,6 @@ export function useIntegratedData() {
           };
         });
       
-      console.log("Valid mappings:", validMappings);
       setSavedMappings(validMappings);
 
       const activeMapping = validMappings.find(m => m.is_active);
@@ -228,7 +245,6 @@ export function useIntegratedData() {
   }, [selectedMapping]);
 
   useEffect(() => {
-    console.log("Initial fetch of saved mappings");
     fetchSavedMappings();
   }, [fetchSavedMappings]);
 
@@ -251,9 +267,10 @@ export function useIntegratedData() {
       toast({
         title: "Integration Started",
         description: "Starting data integration process. This may take several minutes...",
-        duration: null,
+        duration: 5000,
       });
       
+      // Prepare mapping configuration based on selected mapping
       const mappingConfig: MappingConfigType = {
         use_product_mapping: selectedMapping.use_product_mapping,
         use_location_mapping: selectedMapping.use_location_mapping,
@@ -264,20 +281,20 @@ export function useIntegratedData() {
         id: selectedMapping.id
       };
 
-      console.log("Sending mapping config:", mappingConfig);
-
+      // Call the database function to integrate data
       const { data: result, error } = await supabase.rpc('integrate_forecast_data', {
         p_mapping_config: mappingConfig
       });
       
       if (error) {
-        if (error.code === '57014') {
+        if (error.code === '57014') { // Query timeout
           toast({
             title: "Integration Status",
             description: "Integration is taking longer than expected. The process will continue in the background.",
             duration: 5000,
           });
           
+          // Set up polling to check for completion
           backgroundCheckInterval = setInterval(async () => {
             const { data: checkData } = await supabase
               .from('integrated_forecast_data')
@@ -322,6 +339,7 @@ export function useIntegratedData() {
       toast({
         title: "Integration Status",
         description: "Integration process has completed.",
+        duration: 3000,
       });
       setIsIntegrating(false);
     }
@@ -369,7 +387,6 @@ export function useIntegratedData() {
     }
 
     try {
-      console.log("Deleting mapping:", selectedMapping.id);
       const { error } = await supabase
         .from('forecast_integration_mappings')
         .delete()

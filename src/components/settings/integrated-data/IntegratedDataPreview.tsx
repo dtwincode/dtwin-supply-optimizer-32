@@ -27,20 +27,12 @@ export function IntegratedDataPreview() {
     handleDeleteMapping
   } = useIntegratedData();
 
-  // Always initialize state regardless of conditions
   const [showHelp, setShowHelp] = useState(false);
   
   // Update the showHelp state based on conditions
   useEffect(() => {
-    setShowHelp(!hasIntegrated);
-  }, [hasIntegrated]);
-
-  // Clear the help prompt after successful deletion of a mapping
-  useEffect(() => {
-    if (!selectedMapping && savedMappings.length === 0) {
-      setShowHelp(true);
-    }
-  }, [selectedMapping, savedMappings]);
+    setShowHelp(!hasIntegrated && !selectedMapping);
+  }, [hasIntegrated, selectedMapping]);
 
   return (
     <ErrorBoundary>
@@ -187,7 +179,7 @@ export function IntegratedDataPreview() {
         <div className="flex justify-between items-center">
           <div className="text-sm text-muted-foreground">
             {data.length > 0 ? 
-              `Displaying ${data.length} integrated records` : 
+              `Displaying ${Math.min(data.length, 100)} integrated records` : 
               selectedMapping ? 
                 "No data has been integrated yet. Click 'Run Integration' to process your data." : 
                 "Select a configuration before running integration."

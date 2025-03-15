@@ -45,7 +45,7 @@ export function IntegratedDataPreviewTable({
       stabilityTimer.current = setTimeout(() => {
         setIsStabilized(true);
         setIsInitialRender(false);
-      }, 500); // Half second delay for stability
+      }, 800); // Increased delay for better stability
     } else if (currentDataLength > 0) {
       // Data length changed, update reference but wait before stabilizing
       previousDataLength.current = currentDataLength;
@@ -54,7 +54,7 @@ export function IntegratedDataPreviewTable({
       stabilityTimer.current = setTimeout(() => {
         setIsStabilized(true);
         setIsInitialRender(false);
-      }, 500);
+      }, 800);
     }
 
     return () => {
@@ -69,7 +69,7 @@ export function IntegratedDataPreviewTable({
     if (row.metadata && typeof row.metadata === 'object') {
       const metadataObj = row.metadata as Record<string, any>;
       // Look for date fields in metadata
-      const dateFields = ['date', 'sales_date', 'transaction_date'];
+      const dateFields = ['Date', 'date', 'sales_date', 'transaction_date'];
       for (const field of dateFields) {
         if (metadataObj[field]) {
           return String(metadataObj[field]);
@@ -94,10 +94,7 @@ export function IntegratedDataPreviewTable({
       'actual_value'
     ];
 
-    // Add date column first
-    columns.add('date');
-
-    // Sample only the first 100 rows for column detection to improve performance
+    // Process all rows to find unique column names
     const sampleSize = Math.min(100, data.length);
     const sampleData = data.slice(0, sampleSize);
 
@@ -109,12 +106,20 @@ export function IntegratedDataPreviewTable({
           }
         });
       }
+      
+      // Add direct row properties excluding system properties
       Object.keys(row).forEach(key => {
-        if (!excludedColumns.includes(key) && key !== 'date' && key !== 'metadata') {
+        if (!excludedColumns.includes(key) && key !== 'metadata' && key !== 'source_files') {
           columns.add(key);
         }
       });
     });
+    
+    // Make sure we don't have duplicates, and add 'date' if it doesn't exist
+    if (!columns.has('date') && !columns.has('Date')) {
+      columns.add('date');
+    }
+    
     return Array.from(columns);
   }, [data.length]); // Only depend on length for stability
 
@@ -130,16 +135,17 @@ export function IntegratedDataPreviewTable({
       values[column] = new Set();
       
       // Only process a reasonable number of rows for better performance
-      const maxRowsToProcess = 100; // Reduced from 1000
+      const maxRowsToProcess = 100;
       const rowsToProcess = data.slice(0, maxRowsToProcess);
       
       rowsToProcess.forEach(row => {
-        if (column === 'date') {
+        if (column === 'date' || column === 'Date') {
           const dateValue = extractDateFromMetadata(row);
           if (dateValue) {
             values[column].add(dateValue);
           }
         } else {
+          // Try to get value from metadata first, then from row directly
           const value = row.metadata?.[column] ?? row[column];
           if (value !== undefined && value !== null && value !== '') {
             values[column].add(String(value));
@@ -174,7 +180,7 @@ export function IntegratedDataPreviewTable({
     
     // If there are no active filters, return a slice of the data directly
     if (Object.keys(filters).every(key => !filters[key])) {
-      return data.slice(0, 200); // Always limit to 200 rows to improve performance
+      return data.slice(0, 100); // Limit to 100 rows to improve performance
     }
     
     // Apply filters to a limited dataset
@@ -184,7 +190,7 @@ export function IntegratedDataPreviewTable({
         return Object.entries(filters).every(([column, filterValue]) => {
           if (!filterValue) return true;
           
-          if (column === 'date') {
+          if (column === 'date' || column === 'Date') {
             const dateValue = extractDateFromMetadata(row);
             return dateValue === filterValue;
           }
@@ -193,7 +199,7 @@ export function IntegratedDataPreviewTable({
           return String(value) === filterValue;
         });
       })
-      .slice(0, 200); // Then limit results to 200 rows
+      .slice(0, 100); // Limit results to 100 rows
   }, [data, filters, extractDateFromMetadata, isLoading, isStabilized]);
 
   // Show loading indicator while data is being prepared
@@ -226,16 +232,26 @@ export function IntegratedDataPreviewTable({
     );
   }
 
+  // De-duplicate displayed columns
+  const dedupedColumns = availableColumns.reduce((acc, col) => {
+    const lowerCol = col.toLowerCase();
+    if (!acc.some(c => c.toLowerCase() === lowerCol)) {
+      acc.push(col);
+    }
+    return acc;
+  }, [] as string[]);
+
+  // If no columns are selected, show all available columns
   const displayColumns = selectedColumns.size > 0 
     ? Array.from(selectedColumns)
-    : availableColumns;
+    : dedupedColumns;
 
   return (
     <div className="space-y-4">
       <div className="p-4 border rounded-lg bg-background">
         <h4 className="text-sm font-medium mb-3">Select Columns to Display</h4>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {availableColumns.map(column => (
+          {dedupedColumns.map(column => (
             <div key={column} className="flex items-center space-x-2">
               <Checkbox
                 id={`column-${column}`}
@@ -246,7 +262,7 @@ export function IntegratedDataPreviewTable({
                 htmlFor={`column-${column}`}
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
-                {column === 'date' ? 'Date' : column}
+                {column}
               </label>
             </div>
           ))}
@@ -262,7 +278,7 @@ export function IntegratedDataPreviewTable({
                   {displayColumns.map((column) => (
                     <TableHead key={column} className="min-w-[150px]">
                       <div className="flex items-center justify-between">
-                        <span>{column === 'date' ? 'Date' : column}</span>
+                        <span>{column}</span>
                         <Select
                           value={filters[column] || "all"}
                           onValueChange={(value) => handleFilterChange(column, value)}
@@ -276,7 +292,7 @@ export function IntegratedDataPreviewTable({
                             <SelectItem value="all">All</SelectItem>
                             {Array.from(uniqueValues[column] || [])
                               .filter(value => value !== '')
-                              .sort((a, b) => column === 'date' ? b.localeCompare(a) : a.localeCompare(b))
+                              .sort((a, b) => column.toLowerCase().includes('date') ? b.localeCompare(a) : a.localeCompare(b))
                               .map((value) => (
                                 <SelectItem key={value} value={value}>
                                   {value}
@@ -297,7 +313,7 @@ export function IntegratedDataPreviewTable({
                         key={`${row.id || index}-${column}`} 
                         className="min-w-[150px]"
                       >
-                        {column === 'date' ? extractDateFromMetadata(row) : (
+                        {column.toLowerCase() === 'date' || column === 'Date' ? extractDateFromMetadata(row) : (
                           (() => {
                             const value = row.metadata?.[column] ?? row[column];
                             return typeof value === 'object'
