@@ -5,51 +5,72 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
 import { InventoryItem } from "@/types/inventory";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { toast } from "@/components/ui/use-toast";
 
 interface InventoryChartProps {
   data: InventoryItem[];
+  dataSource?: 'supabase' | 'aws';
 }
 
 type ChartType = 'bar' | 'line' | 'area';
 
-export const InventoryChart = ({ data }: InventoryChartProps) => {
+export const InventoryChart = ({ data, dataSource = 'supabase' }: InventoryChartProps) => {
   const { language } = useLanguage();
   const [chartType, setChartType] = useState<ChartType>('bar');
   const [fromDate, setFromDate] = useState<Date>(new Date());
   const [toDate, setToDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() + 30)));
+  const [filteredData, setFilteredData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const getFilteredData = () => {
-    return data.map(item => ({
-      name: item.name,
-      red: item.redZoneSize || 0,
-      yellow: item.yellowZoneSize || 0,
-      green: item.greenZoneSize || 0,
-      currentStock: item.currentStock
-    }));
-  };
+  useEffect(() => {
+    // Apply date filtering to the data
+    setIsLoading(true);
+    
+    try {
+      const filtered = data.map(item => ({
+        name: item.name,
+        red: item.redZoneSize || 0,
+        yellow: item.yellowZoneSize || 0,
+        green: item.greenZoneSize || 0,
+        currentStock: item.currentStock
+      }));
+      
+      setFilteredData(filtered);
+    } catch (error) {
+      console.error("Error filtering inventory data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to process inventory data. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [data, fromDate, toDate]);
 
-  const chartData = getFilteredData();
+  const chartData = filteredData;
 
   const commonProps = {
     data: chartData,
     margin: { top: 20, right: 30, left: 20, bottom: 5 }
   };
 
-  console.log("Chart translation keys:", {
-    green: getTranslation('common.zones.green', language),
-    yellow: getTranslation('common.zones.yellow', language),
-    red: getTranslation('common.zones.red', language),
-    currentStock: getTranslation('common.zones.inventory', language),
-  });
-
   const renderChart = () => {
+    if (isLoading) {
+      return <div className="flex justify-center items-center h-full">Loading chart data...</div>;
+    }
+
+    if (chartData.length === 0) {
+      return <div className="flex justify-center items-center h-full">No data available for the selected date range</div>;
+    }
+
     switch (chartType) {
       case 'line':
         return (
@@ -101,6 +122,7 @@ export const InventoryChart = ({ data }: InventoryChartProps) => {
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-lg font-semibold">
           {getTranslation('common.chartTitles.bufferProfile', language)}
+          {dataSource === 'aws' && <span className="ml-2 text-sm text-blue-500">(AWS)</span>}
         </h3>
         <div className="flex gap-4">
           <Select value={chartType} onValueChange={(value: ChartType) => setChartType(value)}>
