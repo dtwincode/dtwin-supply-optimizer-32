@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
@@ -19,9 +18,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ForecastMappingConfig } from "./types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
-import { Info, X, Check, Save } from "lucide-react";
+import { Info, X, Check, Save, Trash2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 interface MappingConfigDialogProps {
   open: boolean;
@@ -52,6 +52,7 @@ export function MappingConfigDialog({
   const [selectedHistoricalLocationKey, setSelectedHistoricalLocationKey] = useState("");
   const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
   const [availableColumns, setAvailableColumns] = useState<string[]>([]);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Reset form when dialog opens/closes
   useEffect(() => {
@@ -232,283 +233,311 @@ export function MappingConfigDialog({
     resetForm,
   ]);
 
+  const handleConfirmDelete = useCallback(() => {
+    if (onDelete) {
+      onDelete();
+      setShowDeleteConfirm(false);
+      // Dialog will be closed by the useIntegratedData hook after deletion
+    }
+  }, [onDelete]);
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-y-auto">
-        <DialogHeader className="sticky top-0 bg-background z-10 pb-4">
-          <DialogTitle>Integration Mapping Configuration</DialogTitle>
-          <DialogDescription>
-            Configure how different data hierarchies should be mapped together
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label>Saved Configurations</Label>
-            <ScrollArea className="h-[200px] rounded-md border">
-              <div className="p-4 space-y-2">
-                {savedMappings.map((config) => (
-                  <Card
-                    key={config.id}
-                    onClick={() => handleSelectMapping(config)}
-                    className={`p-4 cursor-pointer hover:border-primary transition-colors ${
-                      currentMapping?.id === config.id ? "border-primary bg-primary/5" : ""
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-medium">{config.mapping_name}</h4>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-8 w-8"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <Info className="h-4 w-4" />
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-80">
-                              <div className="space-y-2">
-                                <h5 className="font-medium">Configuration Details</h5>
-                                <div className="text-sm">
-                                  <p><span className="font-medium">Product Mapping:</span> {config.use_product_mapping ? "Yes" : "No"}</p>
-                                  <p><span className="font-medium">Location Mapping:</span> {config.use_location_mapping ? "Yes" : "No"}</p>
-                                  {config.description && (
-                                    <p><span className="font-medium">Description:</span> {config.description}</p>
-                                  )}
-                                </div>
-                              </div>
-                            </PopoverContent>
-                          </Popover>
-                        </div>
-                        {config.description && (
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {config.description}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={(e) => handleActivate(config, e)}
-                          className="h-8 w-8 hover:bg-primary hover:text-primary-foreground"
-                        >
-                          <Check className="h-4 w-4" />
-                        </Button>
-                        {currentMapping?.id === config.id && onDelete && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onDelete();
-                            }}
-                            className="h-8 w-8 hover:bg-destructive hover:text-destructive-foreground"
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-                {savedMappings.length === 0 && (
-                  <p className="text-muted-foreground text-sm p-2">No saved configurations</p>
-                )}
-              </div>
-            </ScrollArea>
-          </div>
-
-          <Separator />
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-y-auto">
+          <DialogHeader className="sticky top-0 bg-background z-10 pb-4">
+            <DialogTitle>Integration Mapping Configuration</DialogTitle>
+            <DialogDescription>
+              Configure how different data hierarchies should be mapped together
+            </DialogDescription>
+          </DialogHeader>
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Configuration Name</Label>
-              <Input
-                id="name"
-                value={mappingName}
-                onChange={(e) => setMappingName(e.target.value)}
-                placeholder="Enter configuration name"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Enter configuration description"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Column Selection</Label>
+              <Label>Saved Configurations</Label>
               <ScrollArea className="h-[200px] rounded-md border">
                 <div className="p-4 space-y-2">
-                  {availableColumns.map((column) => (
-                    <div key={column} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`column-${column}`}
-                        checked={selectedColumns.includes(column)}
-                        onCheckedChange={() => handleToggleColumn(column)}
-                      />
-                      <label
-                        htmlFor={`column-${column}`}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        {column}
-                      </label>
-                    </div>
+                  {savedMappings.map((config) => (
+                    <Card
+                      key={config.id}
+                      onClick={() => handleSelectMapping(config)}
+                      className={`p-4 cursor-pointer hover:border-primary transition-colors ${
+                        currentMapping?.id === config.id ? "border-primary bg-primary/5" : ""
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-medium">{config.mapping_name}</h4>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-8 w-8"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <Info className="h-4 w-4" />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-80">
+                                <div className="space-y-2">
+                                  <h5 className="font-medium">Configuration Details</h5>
+                                  <div className="text-sm">
+                                    <p><span className="font-medium">Product Mapping:</span> {config.use_product_mapping ? "Yes" : "No"}</p>
+                                    <p><span className="font-medium">Location Mapping:</span> {config.use_location_mapping ? "Yes" : "No"}</p>
+                                    {config.description && (
+                                      <p><span className="font-medium">Description:</span> {config.description}</p>
+                                    )}
+                                  </div>
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                          {config.description && (
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {config.description}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => handleActivate(config, e)}
+                            className="h-8 w-8 hover:bg-primary hover:text-primary-foreground"
+                          >
+                            <Check className="h-4 w-4" />
+                          </Button>
+                          {currentMapping?.id === config.id && onDelete && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                              }}
+                              className="h-8 w-8 hover:bg-destructive hover:text-destructive-foreground"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </Card>
                   ))}
+                  {savedMappings.length === 0 && (
+                    <p className="text-muted-foreground text-sm p-2">No saved configurations</p>
+                  )}
                 </div>
               </ScrollArea>
             </div>
 
-            <div className="space-y-2">
-              <Label>Mapping Options</Label>
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="useProductMapping"
-                    checked={useProductMapping}
-                    onCheckedChange={(checked) => setUseProductMapping(checked as boolean)}
-                  />
-                  <label
-                    htmlFor="useProductMapping"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Use Product Mapping
-                  </label>
-                </div>
+            <Separator />
 
-                {useProductMapping && (
-                  <div className="space-y-2 pl-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="productKey">Product Key Column</Label>
-                      <Select
-                        value={selectedProductKey}
-                        onValueChange={setSelectedProductKey}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select product key column" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {selectedColumns.map((column) => (
-                            <SelectItem key={column} value={column}>
-                              {column}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="historicalProductKey">Historical Product Key Column</Label>
-                      <Select
-                        value={selectedHistoricalProductKey}
-                        onValueChange={setSelectedHistoricalProductKey}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select historical product key column" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {selectedColumns.map((column) => (
-                            <SelectItem key={column} value={column}>
-                              {column}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Configuration Name</Label>
+                <Input
+                  id="name"
+                  value={mappingName}
+                  onChange={(e) => setMappingName(e.target.value)}
+                  placeholder="Enter configuration name"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Enter configuration description"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Column Selection</Label>
+                <ScrollArea className="h-[200px] rounded-md border">
+                  <div className="p-4 space-y-2">
+                    {availableColumns.map((column) => (
+                      <div key={column} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`column-${column}`}
+                          checked={selectedColumns.includes(column)}
+                          onCheckedChange={() => handleToggleColumn(column)}
+                        />
+                        <label
+                          htmlFor={`column-${column}`}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          {column}
+                        </label>
+                      </div>
+                    ))}
                   </div>
-                )}
+                </ScrollArea>
+              </div>
 
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="useLocationMapping"
-                    checked={useLocationMapping}
-                    onCheckedChange={(checked) => setUseLocationMapping(checked as boolean)}
-                  />
-                  <label
-                    htmlFor="useLocationMapping"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Use Location Mapping
-                  </label>
-                </div>
-
-                {useLocationMapping && (
-                  <div className="space-y-2 pl-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="locationKey">Location Key Column</Label>
-                      <Select
-                        value={selectedLocationKey}
-                        onValueChange={setSelectedLocationKey}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select location key column" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {selectedColumns.map((column) => (
-                            <SelectItem key={column} value={column}>
-                              {column}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="historicalLocationKey">Historical Location Key Column</Label>
-                      <Select
-                        value={selectedHistoricalLocationKey}
-                        onValueChange={setSelectedHistoricalLocationKey}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select historical location key column" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {selectedColumns.map((column) => (
-                            <SelectItem key={column} value={column}>
-                              {column}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+              <div className="space-y-2">
+                <Label>Mapping Options</Label>
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="useProductMapping"
+                      checked={useProductMapping}
+                      onCheckedChange={(checked) => setUseProductMapping(checked as boolean)}
+                    />
+                    <label
+                      htmlFor="useProductMapping"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      Use Product Mapping
+                    </label>
                   </div>
-                )}
+
+                  {useProductMapping && (
+                    <div className="space-y-2 pl-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="productKey">Product Key Column</Label>
+                        <Select
+                          value={selectedProductKey}
+                          onValueChange={setSelectedProductKey}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select product key column" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {selectedColumns.map((column) => (
+                              <SelectItem key={column} value={column}>
+                                {column}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="historicalProductKey">Historical Product Key Column</Label>
+                        <Select
+                          value={selectedHistoricalProductKey}
+                          onValueChange={setSelectedHistoricalProductKey}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select historical product key column" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {selectedColumns.map((column) => (
+                              <SelectItem key={column} value={column}>
+                                {column}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="useLocationMapping"
+                      checked={useLocationMapping}
+                      onCheckedChange={(checked) => setUseLocationMapping(checked as boolean)}
+                    />
+                    <label
+                      htmlFor="useLocationMapping"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      Use Location Mapping
+                    </label>
+                  </div>
+
+                  {useLocationMapping && (
+                    <div className="space-y-2 pl-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="locationKey">Location Key Column</Label>
+                        <Select
+                          value={selectedLocationKey}
+                          onValueChange={setSelectedLocationKey}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select location key column" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {selectedColumns.map((column) => (
+                              <SelectItem key={column} value={column}>
+                                {column}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="historicalLocationKey">Historical Location Key Column</Label>
+                        <Select
+                          value={selectedHistoricalLocationKey}
+                          onValueChange={setSelectedHistoricalLocationKey}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select historical location key column" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {selectedColumns.map((column) => (
+                              <SelectItem key={column} value={column}>
+                                {column}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <DialogFooter className="sticky bottom-0 bg-background pt-4">
-          <div className="flex justify-between w-full">
-            {currentMapping && onDelete && (
-              <Button
-                variant="destructive"
-                onClick={onDelete}
-                type="button"
-              >
-                Delete
-              </Button>
-            )}
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleSave} disabled={isLoading}>
-                <Save className="h-4 w-4 mr-2" />
-                {isLoading ? "Saving..." : "Save New Configuration"}
-              </Button>
+          <DialogFooter className="sticky bottom-0 bg-background pt-4">
+            <div className="flex justify-between w-full">
+              {currentMapping && onDelete && (
+                <Button
+                  variant="destructive"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  type="button"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </Button>
+              )}
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => onOpenChange(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSave} disabled={isLoading}>
+                  <Save className="h-4 w-4 mr-2" />
+                  {isLoading ? "Saving..." : "Save New Configuration"}
+                </Button>
+              </div>
             </div>
-          </div>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Mapping Configuration</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete the "{currentMapping?.mapping_name}" configuration?
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive text-destructive-foreground">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

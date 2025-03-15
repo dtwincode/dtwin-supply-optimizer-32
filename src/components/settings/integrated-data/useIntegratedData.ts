@@ -294,6 +294,46 @@ export function useIntegratedData() {
     }
   }, [fetchSavedMappings]);
 
+  const handleDeleteMapping = useCallback(async () => {
+    if (!selectedMapping) {
+      toast({
+        title: "Error",
+        description: "No mapping selected to delete",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      console.log("Deleting mapping:", selectedMapping.id);
+      const { error } = await supabase
+        .from('forecast_integration_mappings')
+        .delete()
+        .eq('id', selectedMapping.id);
+
+      if (error) {
+        console.error('Error deleting mapping:', error);
+        throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: `Deleted mapping: ${selectedMapping.mapping_name}`,
+      });
+
+      setSelectedMapping(null);
+      setMappingDialogOpen(false);
+      fetchSavedMappings();
+    } catch (error: any) {
+      console.error('Error deleting mapping:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete mapping configuration",
+        variant: "destructive",
+      });
+    }
+  }, [selectedMapping, fetchSavedMappings]);
+
   return {
     data,
     isLoading,
@@ -309,10 +349,7 @@ export function useIntegratedData() {
     fetchData,
     handleIntegration,
     handleSaveMapping,
-    handleDeleteMapping: () => {
-      setSelectedMapping(null);
-      fetchSavedMappings();
-    },
+    handleDeleteMapping,
     fetchSavedMappings
   };
 }
