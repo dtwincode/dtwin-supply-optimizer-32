@@ -154,7 +154,25 @@ export function useIntegratedData() {
         return;
       }
 
-      const validMappings = mappings.filter(m => m && m.id);
+      const validMappings = mappings.filter(m => m && m.id).map(mapping => {
+        let selectedCols = [];
+        
+        if (Array.isArray(mapping.selected_columns_array)) {
+          selectedCols = mapping.selected_columns_array;
+        } else if (mapping.columns_config && typeof mapping.columns_config === 'string') {
+          try {
+            selectedCols = JSON.parse(mapping.columns_config);
+          } catch (e) {
+            console.warn('Failed to parse columns_config', e);
+          }
+        }
+        
+        return {
+          ...mapping,
+          selected_columns: selectedCols
+        };
+      });
+      
       console.log("Valid mappings:", validMappings);
       setSavedMappings(validMappings);
 

@@ -264,7 +264,8 @@ export function MappingConfigDialog({
         location_key_column: selectedLocationKey,
         historical_product_key_column: selectedHistoricalProductKey,
         historical_location_key_column: selectedHistoricalLocationKey,
-        selected_columns: selectedColumns,
+        selected_columns_array: selectedColumns, // Store as array instead of using selected_columns
+        columns_config: JSON.stringify(selectedColumns), // Store as JSON string for backward compatibility
       };
 
       const { data, error } = await supabase
