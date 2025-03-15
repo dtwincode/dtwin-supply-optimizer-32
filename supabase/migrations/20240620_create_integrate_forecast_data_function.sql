@@ -28,7 +28,11 @@ DECLARE
   v_sku text;
   v_metadata jsonb;
   count_inserted integer := 0;
+  batch_size integer := 500;
+  total_rows integer := 0;
   column_name text;
+  batch_rows jsonb[];
+  i integer;
 BEGIN
   -- Get mapping ID from parameters
   mapping_id := (p_mapping_config->>'id')::uuid;
@@ -105,6 +109,13 @@ BEGIN
   -- Clear existing integrated data
   DELETE FROM integrated_forecast_data;
   
+  -- Count total rows for progress reporting
+  total_rows := jsonb_array_length(historical_data);
+  
+  -- Initialize empty batch array
+  batch_rows := ARRAY[]::jsonb[];
+  i := 0;
+  
   -- Process each row of historical data
   FOR historical_row IN SELECT * FROM jsonb_array_elements(historical_data)
   LOOP
@@ -138,7 +149,62 @@ BEGIN
       END IF;
     END LOOP;
     
-    -- Insert integrated data
+    -- Add row to batch
+    batch_rows := array_append(batch_rows, jsonb_build_object(
+      'date', v_date,
+      'sku', v_sku,
+      'actual_value', v_actual_value,
+      'metadata', v_metadata,
+      'source_files', jsonb_build_array(
+        jsonb_build_object(
+          'id', historical_file.id,
+          'name', historical_file.original_name,
+          'type', 'historical_sales'
+        )
+      ),
+      'validation_status', 'valid',
+      'mapping_config', jsonb_build_object(
+        'mapping_id', mapping_id,
+        'mapping_name', mapping_record.mapping_name,
+        'product_mapping', use_product_mapping,
+        'location_mapping', use_location_mapping
+      )
+    ));
+    
+    i := i + 1;
+    
+    -- Process batch when it reaches the batch size
+    IF i >= batch_size THEN
+      -- Insert batch
+      INSERT INTO integrated_forecast_data(
+        date,
+        sku,
+        actual_value,
+        metadata,
+        source_files,
+        validation_status,
+        mapping_config
+      )
+      SELECT 
+        (row_data->>'date')::date,
+        row_data->>'sku',
+        (row_data->>'actual_value')::numeric,
+        row_data->'metadata',
+        row_data->'source_files',
+        row_data->>'validation_status',
+        row_data->'mapping_config'
+      FROM unnest(batch_rows) AS row_data;
+      
+      count_inserted := count_inserted + i;
+      
+      -- Reset batch
+      batch_rows := ARRAY[]::jsonb[];
+      i := 0;
+    END IF;
+  END LOOP;
+  
+  -- Insert any remaining rows in the batch
+  IF i > 0 THEN
     INSERT INTO integrated_forecast_data(
       date,
       sku,
@@ -148,29 +214,18 @@ BEGIN
       validation_status,
       mapping_config
     )
-    VALUES (
-      v_date,
-      v_sku,
-      v_actual_value,
-      v_metadata,
-      jsonb_build_array(
-        jsonb_build_object(
-          'id', historical_file.id,
-          'name', historical_file.original_name,
-          'type', 'historical_sales'
-        )
-      ),
-      'valid',
-      jsonb_build_object(
-        'mapping_id', mapping_id,
-        'mapping_name', mapping_record.mapping_name,
-        'product_mapping', use_product_mapping,
-        'location_mapping', use_location_mapping
-      )
-    );
+    SELECT 
+      (row_data->>'date')::date,
+      row_data->>'sku',
+      (row_data->>'actual_value')::numeric,
+      row_data->'metadata',
+      row_data->'source_files',
+      row_data->>'validation_status',
+      row_data->'mapping_config'
+    FROM unnest(batch_rows) AS row_data;
     
-    count_inserted := count_inserted + 1;
-  END LOOP;
+    count_inserted := count_inserted + i;
+  END IF;
   
   RETURN 'Successfully integrated ' || count_inserted || ' records';
 END;

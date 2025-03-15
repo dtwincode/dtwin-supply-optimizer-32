@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { IntegratedData } from "./types";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { 
   Select,
   SelectContent,
@@ -26,9 +26,17 @@ export function IntegratedDataPreviewTable({
 }: IntegratedDataPreviewTableProps) {
   const [selectedColumns, setSelectedColumns] = useState<Set<string>>(new Set());
   const [filters, setFilters] = useState<Record<string, string>>({});
+  const [isStabilized, setIsStabilized] = useState<boolean>(false);
+
+  // Stabilize rendering after initial load
+  useEffect(() => {
+    if (data.length && !isStabilized) {
+      setIsStabilized(true);
+    }
+  }, [data, isStabilized]);
 
   // Extract historical sales dates from metadata
-  const extractDateFromMetadata = (row: IntegratedData): string => {
+  const extractDateFromMetadata = useCallback((row: IntegratedData): string => {
     if (row.metadata && typeof row.metadata === 'object') {
       const metadataObj = row.metadata as Record<string, any>;
       // Look for date fields in metadata
@@ -40,10 +48,12 @@ export function IntegratedDataPreviewTable({
       }
     }
     return row.date || '';
-  };
+  }, []);
 
   // Get all possible columns from the data, excluding system columns
   const availableColumns = useMemo(() => {
+    if (!data.length) return [];
+    
     const columns = new Set<string>();
     const excludedColumns = [
       'id', 
@@ -75,12 +85,22 @@ export function IntegratedDataPreviewTable({
     return Array.from(columns);
   }, [data]);
 
-  // Get unique values for each column
+  // Get unique values for each column - stabilized to prevent recalculation on each render
   const uniqueValues = useMemo(() => {
     const values: Record<string, Set<string>> = {};
+    
+    if (!data.length || !availableColumns.length) {
+      return values;
+    }
+    
     availableColumns.forEach(column => {
       values[column] = new Set();
-      data.forEach(row => {
+      
+      // Only process a reasonable number of rows for better performance
+      const maxRowsToProcess = 1000;
+      const rowsToProcess = data.slice(0, maxRowsToProcess);
+      
+      rowsToProcess.forEach(row => {
         if (column === 'date') {
           const dateValue = extractDateFromMetadata(row);
           if (dateValue) {
@@ -95,9 +115,9 @@ export function IntegratedDataPreviewTable({
       });
     });
     return values;
-  }, [data, availableColumns]);
+  }, [data, availableColumns, extractDateFromMetadata]);
 
-  const toggleColumn = (column: string) => {
+  const toggleColumn = useCallback((column: string) => {
     setSelectedColumns(prev => {
       const newSet = new Set(prev);
       if (newSet.has(column)) {
@@ -107,16 +127,23 @@ export function IntegratedDataPreviewTable({
       }
       return newSet;
     });
-  };
+  }, []);
 
-  const handleFilterChange = (column: string, value: string) => {
+  const handleFilterChange = useCallback((column: string, value: string) => {
     setFilters(prev => ({
       ...prev,
       [column]: value === "all" ? "" : value
     }));
-  };
+  }, []);
 
   const filteredData = useMemo(() => {
+    if (!data.length) return [];
+    
+    // If there are no active filters, return the data directly
+    if (Object.keys(filters).every(key => !filters[key])) {
+      return data;
+    }
+    
     return data.filter(row => {
       return Object.entries(filters).every(([column, filterValue]) => {
         if (!filterValue) return true;
@@ -130,7 +157,7 @@ export function IntegratedDataPreviewTable({
         return String(value) === filterValue;
       });
     });
-  }, [data, filters]);
+  }, [data, filters, extractDateFromMetadata]);
 
   if (isLoading) {
     return (
@@ -140,10 +167,10 @@ export function IntegratedDataPreviewTable({
     );
   }
 
-  if (!data.length) {
+  if (!isStabilized || !data.length) {
     return (
       <div className="text-center py-4 text-muted-foreground">
-        No integrated data available
+        {!data.length ? "No integrated data available" : "Preparing data..."}
       </div>
     );
   }
@@ -212,7 +239,7 @@ export function IntegratedDataPreviewTable({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredData.map((row, index) => (
+                {filteredData.slice(0, 200).map((row, index) => (
                   <TableRow key={row.id || index}>
                     {displayColumns.map((column) => (
                       <TableCell 
