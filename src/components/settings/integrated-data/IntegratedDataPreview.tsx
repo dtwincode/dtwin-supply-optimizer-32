@@ -30,6 +30,13 @@ export function IntegratedDataPreview() {
   // Move the useState hook outside of any conditional logic
   const [showHelp, setShowHelp] = useState(!hasIntegrated);
 
+  // Clear the help prompt after successful deletion of a mapping
+  useEffect(() => {
+    if (!selectedMapping && savedMappings.length === 0) {
+      setShowHelp(true);
+    }
+  }, [selectedMapping, savedMappings]);
+
   return (
     <ErrorBoundary>
       <div className="space-y-4">
@@ -122,20 +129,33 @@ export function IntegratedDataPreview() {
           </Alert>
         )}
 
-        {/* Table with clearer initial state */}
-        {!data.length && !isLoading && !isIntegrating ? (
+        {/* Table with clearer initial state - Only show when we have a configuration */}
+        {!selectedMapping ? (
           <Card className="p-6 text-center border-dashed">
-            <h4 className="text-lg font-medium text-muted-foreground mb-2">No Integrated Data Available</h4>
+            <h4 className="text-lg font-medium text-muted-foreground mb-2">No Active Configuration</h4>
             <p className="text-sm text-muted-foreground mb-4">
-              Data integration needs to be configured and run before any data will appear here.
-              {!selectedMapping && " Please start by selecting or creating a mapping configuration."}
+              You need to select or create a mapping configuration before you can integrate and view data.
             </p>
             <Button 
               variant="outline" 
               onClick={() => setMappingDialogOpen(true)}
               className="mx-auto"
             >
-              {selectedMapping ? "View Mapping Configuration" : "Get Started with Integration"}
+              Get Started with Integration
+            </Button>
+          </Card>
+        ) : !data.length && !isLoading && !isIntegrating ? (
+          <Card className="p-6 text-center border-dashed">
+            <h4 className="text-lg font-medium text-muted-foreground mb-2">No Integrated Data Available</h4>
+            <p className="text-sm text-muted-foreground mb-4">
+              Data integration needs to be configured and run before any data will appear here.
+            </p>
+            <Button 
+              variant="outline" 
+              onClick={() => setMappingDialogOpen(true)}
+              className="mx-auto"
+            >
+              View Mapping Configuration
             </Button>
           </Card>
         ) : (

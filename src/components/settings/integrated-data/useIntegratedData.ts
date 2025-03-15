@@ -28,6 +28,12 @@ export function useIntegratedData() {
       return;
     }
     
+    if (!selectedMapping) {
+      setData([]);
+      setIsLoading(false);
+      return;
+    }
+    
     if (showLoading) {
       setIsLoading(true);
     }
@@ -43,6 +49,7 @@ export function useIntegratedData() {
 
       if (!integratedData || integratedData.length === 0) {
         setData([]);
+        setIsLoading(false);
         return;
       }
 
@@ -100,11 +107,11 @@ export function useIntegratedData() {
         setIsLoading(false);
       }
     }
-  }, []);
+  }, [selectedMapping, isLoading]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData, selectedMapping]);
 
   const checkRequiredFiles = useCallback(async () => {
     try {
@@ -143,6 +150,7 @@ export function useIntegratedData() {
       if (!mappings) {
         console.log("No mappings found");
         setSavedMappings([]);
+        setSelectedMapping(null);
         return;
       }
 
@@ -151,8 +159,11 @@ export function useIntegratedData() {
       setSavedMappings(validMappings);
 
       const activeMapping = validMappings.find(m => m.is_active);
-      if (activeMapping) {
-        setSelectedMapping(activeMapping);
+      setSelectedMapping(activeMapping || null);
+      
+      if (!activeMapping) {
+        setData([]);
+        setHasIntegrated(false);
       }
     } catch (error: any) {
       console.error('Error fetching mappings:', error);
@@ -162,6 +173,8 @@ export function useIntegratedData() {
         variant: "destructive",
       });
       setSavedMappings([]);
+      setSelectedMapping(null);
+      setData([]);
     }
   }, []);
 
@@ -321,8 +334,12 @@ export function useIntegratedData() {
         description: `Deleted mapping: ${selectedMapping.mapping_name}`,
       });
 
+      setData([]);
+      setHasIntegrated(false);
+      setValidationStatus(null);
       setSelectedMapping(null);
       setMappingDialogOpen(false);
+      
       fetchSavedMappings();
     } catch (error: any) {
       console.error('Error deleting mapping:', error);
