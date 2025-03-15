@@ -12,7 +12,6 @@ import { IntegratedDataPreview } from "@/components/settings/integrated-data/Int
 import { Separator } from "@/components/ui/separator";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { DataSourceSwitcher } from "@/components/settings/DataSourceSwitcher";
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -50,14 +49,13 @@ const Settings = () => {
         
         <Card className="p-6">
           <Tabs defaultValue="integrated-data" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-7 gap-2">
+            <TabsList className="grid w-full grid-cols-6 gap-2">
               <TabsTrigger value="location">Location Hierarchy</TabsTrigger>
               <TabsTrigger value="product">Product Hierarchy</TabsTrigger>
               <TabsTrigger value="historical-sales">Historical Sales</TabsTrigger>
               <TabsTrigger value="integrated-data">Integrated Data</TabsTrigger>
               <TabsTrigger value="lead-time">Lead Time</TabsTrigger>
               <TabsTrigger value="replenishment-time">Replenishment</TabsTrigger>
-              <TabsTrigger value="data-source">Data Source</TabsTrigger>
             </TabsList>
 
             <TabsContent value="location" className="space-y-4">
@@ -82,10 +80,6 @@ const Settings = () => {
 
             <TabsContent value="replenishment-time" className="space-y-4">
               <ReplenishmentUpload />
-            </TabsContent>
-            
-            <TabsContent value="data-source" className="space-y-4">
-              <DataSourceSwitcher />
             </TabsContent>
           </Tabs>
         </Card>

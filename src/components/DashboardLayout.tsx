@@ -11,7 +11,6 @@ import Navigation from "./layout/Navigation";
 import Header from "./layout/Header";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
-  console.log("DashboardLayout rendering");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [createTicketOpen, setCreateTicketOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,17 +21,14 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
   // Handle initial auth check and loading state with longer delays
   useEffect(() => {
-    console.log("DashboardLayout useEffect - auth check", { user });
     document.body.style.opacity = '0';
     const initialDelay = setTimeout(() => {
       document.body.style.opacity = '1';
       document.body.style.transition = 'opacity 0.5s ease-in-out';
       
       if (!user) {
-        console.log("No user, navigating to /auth");
         navigate('/auth');
       } else {
-        console.log("User found, continuing with dashboard", user);
         setTimeout(() => {
           setIsLoading(false);
         }, 500); // Increased delay for smoother transition
@@ -48,7 +44,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
   // Handle content visibility after loading completes
   useEffect(() => {
-    console.log("DashboardLayout useEffect - loading state", { isLoading });
     if (!isLoading) {
       const visibilityDelay = setTimeout(() => {
         setIsContentVisible(true);
@@ -59,7 +54,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   }, [isLoading]);
 
   if (isLoading) {
-    console.log("DashboardLayout - showing loading state");
     return (
       <div className="fixed inset-0 bg-background flex items-center justify-center transition-all duration-500">
         <div className="animate-pulse space-y-4">
@@ -71,12 +65,9 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!user) {
-    console.log("DashboardLayout - no user, returning null");
     return null;
   }
 
-  console.log("DashboardLayout - rendering full layout");
-  
   return (
     <div 
       className={cn(
