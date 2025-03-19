@@ -1,4 +1,3 @@
-
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/translations';
 import {
@@ -351,7 +350,7 @@ export const LeadTimeManagementTab = () => {
                   <ul className="list-disc list-inside text-sm space-y-1">
                     <li>Short: ≤ 7 days</li>
                     <li>Medium: 8-14 days</li>
-                    <li>Long: > 14 days</li>
+                    <li>Long: {'>'} 14 days</li>
                   </ul>
                 </div>
                 <div>
@@ -359,7 +358,7 @@ export const LeadTimeManagementTab = () => {
                   <ul className="list-disc list-inside text-sm space-y-1">
                     <li>Low: ≤ 10% deviation</li>
                     <li>Medium: 11-20% deviation</li>
-                    <li>High: > 20% deviation</li>
+                    <li>High: {'>'} 20% deviation</li>
                   </ul>
                 </div>
                 <div>
