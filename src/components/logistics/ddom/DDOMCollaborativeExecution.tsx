@@ -141,7 +141,7 @@ export const DDOMCollaborativeExecution: React.FC = () => {
               <TabsTrigger value="alerts">{t('alerts')}</TabsTrigger>
               <TabsTrigger value="decisions">{t('decisions')}</TabsTrigger>
               <TabsTrigger value="notes">{t('notes')}</TabsTrigger>
-              <TabsTrigger value="all">All</TabsTrigger>
+              <TabsTrigger value="all">{t('all')}</TabsTrigger>
             </TabsList>
           </div>
 

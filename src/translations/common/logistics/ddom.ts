@@ -172,6 +172,39 @@ export const ddomTranslations = {
     sandopIntegrationDescription: {
       en: "Full S&OP integration will connect strategic, tactical, and operational planning layers into a unified DDOM-compliant framework.",
       ar: "سيربط التكامل الكامل لتخطيط المبيعات والعمليات طبقات التخطيط الاستراتيجية والتكتيكية والتشغيلية في إطار موحد متوافق مع DDOM."
+    },
+    // Add missing status-related translations
+    completed: {
+      en: "Completed",
+      ar: "مكتمل"
+    },
+    inProgress: {
+      en: "In Progress",
+      ar: "قيد التنفيذ"
+    },
+    pending: {
+      en: "Pending",
+      ar: "معلق"
+    },
+    justNow: {
+      en: "Just now",
+      ar: "الآن"
+    },
+    highPriority: {
+      en: "High Priority",
+      ar: "أولوية عالية"
+    },
+    mediumPriority: {
+      en: "Medium Priority",
+      ar: "أولوية متوسطة"
+    },
+    lowPriority: {
+      en: "Low Priority",
+      ar: "أولوية منخفضة"
+    },
+    all: {
+      en: "All",
+      ar: "الكل"
     }
   }
 };
