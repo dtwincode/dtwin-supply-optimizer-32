@@ -1,3 +1,4 @@
+
 export interface TranslationValue {
   en: string;
   ar: string;
@@ -211,6 +212,11 @@ export interface LogisticsTranslations {
   highPriority: TranslationValue;
   mediumPriority: TranslationValue;
   lowPriority: TranslationValue;
+  carrierPerformance: TranslationValue;
+  carbonFootprint: TranslationValue;
+  delayRate: TranslationValue;
+  predictedVolume: TranslationValue;
+  weatherImpact: TranslationValue;
 }
 
 export interface SupplyPlanningTranslations {
@@ -337,6 +343,17 @@ export interface SalesTranslations {
   title: TranslationValue;
 }
 
+export interface ForecastingTranslations {
+  analysis: TranslationValue;
+  distribution: TranslationValue;
+  whatIf: TranslationValue;
+  external: TranslationValue;
+  forecastModel: TranslationValue;
+  modelAccuracy: TranslationValue;
+  selectPeriod: TranslationValue;
+  applyFilters: TranslationValue;
+}
+
 export interface CommonTranslations {
   settings: TranslationValue;
   logout: TranslationValue;
@@ -400,6 +417,7 @@ export interface CommonTranslations {
   
   logistics?: LogisticsTranslations;
   inventory?: InventoryTranslations;
+  forecasting?: ForecastingTranslations;
 }
 
 export interface Translations {
@@ -415,4 +433,5 @@ export interface Translations {
   common: CommonTranslations;
   sales: SalesTranslations;
   supplyPlanning: SupplyPlanningTranslations;
+  forecasting: ForecastingTranslations;
 }

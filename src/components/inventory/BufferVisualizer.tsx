@@ -53,7 +53,7 @@ export const BufferVisualizer = ({ netFlowPosition, bufferZones, adu }: BufferVi
       </div>
       
       <div className="flex text-xs mt-1 justify-between">
-        <span className="text-gray-500">{`0${adu ? ` (${adu}/day)` : ''}`}</span>
+        <span className="text-gray-500">{`0${adu ? ` (${adu}/${language === 'en' ? 'day' : 'يوم'})` : ''}`}</span>
         <span className="text-gray-500">{totalBuffer}</span>
       </div>
     </div>

@@ -20,7 +20,8 @@ export const translations: Translations = {
   modulesSummary: modulesSummaryTranslations,
   common: commonTranslations,
   sales: salesTranslations,
-  supplyPlanning: supplyPlanningTranslations
+  supplyPlanning: supplyPlanningTranslations,
+  forecasting: forecastingTranslations
 };
 
 export const getTranslation = (key: string, language: 'en' | 'ar'): string => {

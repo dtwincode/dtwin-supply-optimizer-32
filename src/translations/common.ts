@@ -6,6 +6,7 @@ import { moduleTranslations } from './common/modules';
 import { chartTranslations } from './common/charts';
 import { paginationTranslations } from './common/pagination';
 import { logisticsTranslations } from './common/logistics';
+import { forecastingTranslations } from './common/forecasting';
 
 export const commonTranslations: CommonTranslations = {
   // UI translations
@@ -40,5 +41,6 @@ export const commonTranslations: CommonTranslations = {
   
   // Include full sections as nested objects
   logistics: logisticsTranslations,
-  inventory: inventoryTranslations
+  inventory: inventoryTranslations,
+  forecasting: forecastingTranslations
 };

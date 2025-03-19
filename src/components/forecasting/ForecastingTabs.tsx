@@ -18,22 +18,22 @@ export const ForecastingTabs = () => {
 
   const tabs = [
     {
-      title: getTranslation("common.forecasting.analysis", language),
+      title: getTranslation("forecasting.analysis", language),
       href: "/forecasting",
       icon: LineChart,
     },
     {
-      title: getTranslation("common.forecasting.distribution", language),
+      title: getTranslation("forecasting.distribution", language),
       href: "/forecasting/distribution",
       icon: BarChart3,
     },
     {
-      title: getTranslation("common.forecasting.whatIf", language),
+      title: getTranslation("forecasting.whatIf", language),
       href: "/forecasting/what-if",
       icon: FlipHorizontal,
     },
     {
-      title: getTranslation("common.forecasting.external", language),
+      title: getTranslation("forecasting.external", language),
       href: "/forecasting/external",
       icon: CloudLightning,
     }
