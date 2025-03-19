@@ -66,11 +66,11 @@ export const PurchaseOrdersTab = () => {
       case 'ordered':
         return <Badge variant="secondary">{getTranslation("supplyPlanning.status.ordered", language)}</Badge>;
       case 'confirmed':
-        return <Badge variant="primary">{getTranslation("supplyPlanning.status.confirmed", language)}</Badge>;
+        return <Badge variant="default">{getTranslation("supplyPlanning.status.confirmed", language)}</Badge>;
       case 'shipped':
         return <Badge variant="default">{getTranslation("supplyPlanning.status.shipped", language)}</Badge>;
       case 'received':
-        return <Badge variant="success">{getTranslation("supplyPlanning.status.received", language)}</Badge>;
+        return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">{getTranslation("supplyPlanning.status.received", language)}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }

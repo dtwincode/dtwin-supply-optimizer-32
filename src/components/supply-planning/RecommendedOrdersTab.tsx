@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useInventory } from "@/hooks/useInventory";
 import { InventoryItem } from "@/types/inventory";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -18,27 +18,56 @@ export const RecommendedOrdersTab = () => {
   const { toast } = useToast();
   const createPurchaseOrder = useCreatePurchaseOrder();
   const [processingItem, setProcessingItem] = useState<string | null>(null);
+  const [filteredItems, setFilteredItems] = useState<InventoryItem[]>([]);
+  const [itemsWithOrderData, setItemsWithOrderData] = useState<(InventoryItem & { orderQuantity: number })[]>([]);
 
-  // Filter items that need replenishment
-  const filteredItems = items.filter(async (item) => {
-    const bufferZones = await calculateBufferZones(item);
-    const netFlow = calculateNetFlowPosition(item);
-    return shouldCreatePurchaseOrder(netFlow.netFlowPosition, bufferZones);
-  });
+  // Process items to determine which need replenishment
+  useEffect(() => {
+    const processItems = async () => {
+      const itemsNeedingReplenishment: InventoryItem[] = [];
+      const itemsWithData: (InventoryItem & { orderQuantity: number })[] = [];
 
-  const handleCreatePO = async (item: InventoryItem) => {
+      for (const item of items) {
+        try {
+          const bufferZones = await calculateBufferZones(item);
+          const netFlow = calculateNetFlowPosition(item);
+          const shouldOrder = shouldCreatePurchaseOrder(netFlow.netFlowPosition, bufferZones);
+          
+          if (shouldOrder) {
+            itemsNeedingReplenishment.push(item);
+            
+            const orderQuantity = calculateOrderQuantity(
+              netFlow.netFlowPosition,
+              bufferZones,
+              item.minimumOrderQuantity || 0
+            );
+            
+            itemsWithData.push({
+              ...item,
+              orderQuantity
+            });
+          }
+        } catch (err) {
+          console.error(`Error processing item ${item.sku}:`, err);
+        }
+      }
+      
+      setFilteredItems(itemsNeedingReplenishment);
+      setItemsWithOrderData(itemsWithData);
+    };
+    
+    if (items.length > 0 && !loading) {
+      processItems();
+    }
+  }, [items, loading]);
+
+  const handleCreatePO = async (item: InventoryItem & { orderQuantity: number }) => {
     try {
       setProcessingItem(item.sku);
-      const bufferZones = await calculateBufferZones(item);
-      const orderQuantity = calculateOrderQuantity(
-        calculateNetFlowPosition(item).netFlowPosition,
-        bufferZones,
-        item.minimumOrderQuantity
-      );
       
       await createPurchaseOrder({
         sku: item.sku,
-        quantity: orderQuantity,
+        quantity: item.orderQuantity,
         status: 'planned',
         supplier: item.preferredSupplier || '',
         expectedDeliveryDate: new Date(Date.now() + (item.leadTimeDays || 30) * 24 * 60 * 60 * 1000)
@@ -110,45 +139,35 @@ export const RecommendedOrdersTab = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredItems.length === 0 ? (
+          {itemsWithOrderData.length === 0 ? (
             <TableRow>
               <TableCell colSpan={7} className="text-center py-6">
                 {getTranslation("supplyPlanning.noRecommendedOrders", language)}
               </TableCell>
             </TableRow>
           ) : (
-            filteredItems.map(async (item) => {
-              const bufferZones = await calculateBufferZones(item);
-              const netFlow = calculateNetFlowPosition(item);
-              const orderQuantity = calculateOrderQuantity(
-                netFlow.netFlowPosition,
-                bufferZones,
-                item.minimumOrderQuantity
-              );
-              
-              return (
-                <TableRow key={item.sku}>
-                  <TableCell className="font-medium">{item.sku}</TableCell>
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell>{item.currentStock}</TableCell>
-                  <TableCell>{orderQuantity}</TableCell>
-                  <TableCell>{item.preferredSupplier || "-"}</TableCell>
-                  <TableCell>{item.leadTimeDays} {getTranslation("supplyPlanning.days", language)}</TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      size="sm"
-                      onClick={() => handleCreatePO(item)}
-                      disabled={processingItem === item.sku}
-                    >
-                      <PlusCircle className="mr-2 h-4 w-4" />
-                      {processingItem === item.sku
-                        ? getTranslation("supplyPlanning.creating", language)
-                        : getTranslation("supplyPlanning.createPO", language)}
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              );
-            })
+            itemsWithOrderData.map((item) => (
+              <TableRow key={item.sku}>
+                <TableCell className="font-medium">{item.sku}</TableCell>
+                <TableCell>{item.name}</TableCell>
+                <TableCell>{item.currentStock}</TableCell>
+                <TableCell>{item.orderQuantity}</TableCell>
+                <TableCell>{item.preferredSupplier || "-"}</TableCell>
+                <TableCell>{item.leadTimeDays} {getTranslation("supplyPlanning.days", language)}</TableCell>
+                <TableCell className="text-right">
+                  <Button
+                    size="sm"
+                    onClick={() => handleCreatePO(item)}
+                    disabled={processingItem === item.sku}
+                  >
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    {processingItem === item.sku
+                      ? getTranslation("supplyPlanning.creating", language)
+                      : getTranslation("supplyPlanning.createPO", language)}
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))
           )}
         </TableBody>
       </Table>

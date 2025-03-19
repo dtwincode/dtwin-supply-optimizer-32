@@ -91,6 +91,9 @@ export interface InventoryItem {
   inventoryCarryingCost?: number;
   demandSensingAccuracy?: number;
   originalLeadTime?: number;
+  // Adding missing properties
+  minimumOrderQuantity?: number;
+  preferredSupplier?: string;
 }
 
 export interface InventoryFilters {
