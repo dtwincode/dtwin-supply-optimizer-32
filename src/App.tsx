@@ -21,6 +21,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from './components/ui/toaster';
 import { FilterProvider } from "./contexts/FilterContext";
 import { Suspense } from "react";
+import PageLoading from "./components/PageLoading";
 
 const queryClient = new QueryClient({
   defaultOptions: {
