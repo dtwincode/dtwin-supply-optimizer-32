@@ -22,9 +22,16 @@ export const BufferStatusBadge = ({ status }: BufferStatusBadgeProps) => {
     }
   };
 
+  // Make sure to use the exact path that exists in the translations object
+  const getStatusText = () => {
+    // Adding console.log to debug
+    console.log(`Getting translation for key: common.zones.${status}, language: ${language}`);
+    return getTranslation(`common.zones.${status}`, language);
+  };
+
   return (
     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClasses()}`}>
-      {getTranslation(`common.zones.${status}`, language)}
+      {getStatusText()}
     </span>
   );
 };

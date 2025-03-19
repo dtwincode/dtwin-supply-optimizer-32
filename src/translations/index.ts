@@ -4,8 +4,10 @@ import { navigationTranslations } from './navigation';
 import { dashboardTitle, dashboardMetricsTranslations, financialMetricsTranslations, sustainabilityMetricsTranslations, modulesSummaryTranslations } from './dashboard';
 import { commonTranslations } from './common';
 import { salesTranslations } from './sales';
+import { logisticsTranslations } from './common/logistics';
+import { chartTranslations } from './common/charts';
+import { inventoryTranslations } from './common/inventory';
 import { supplyPlanningTranslations } from './common/supplyPlanning';
-import { forecastingTranslations } from './common/forecasting';
 export { toArabicNumerals } from './utils';
 
 export const translations: Translations = {
@@ -17,8 +19,7 @@ export const translations: Translations = {
   modulesSummary: modulesSummaryTranslations,
   common: commonTranslations,
   sales: salesTranslations,
-  supplyPlanning: supplyPlanningTranslations,
-  forecasting: forecastingTranslations
+  supplyPlanning: supplyPlanningTranslations
 };
 
 export const getTranslation = (key: string, language: 'en' | 'ar'): string => {
@@ -30,13 +31,9 @@ export const getTranslation = (key: string, language: 'en' | 'ar'): string => {
       current = current[k];
     } else {
       console.warn(`Translation key not found: ${key}`);
-      return key; // Return the key itself instead of adding dots
+      return key;
     }
   }
   
-  if (typeof current === 'object' && current[language]) {
-    return current[language];
-  }
-  
-  return key; // Return the key if translation not found
+  return current[language] || key;
 };

@@ -10,7 +10,7 @@ import { navigationItems } from "./Navigation";
 interface HeaderProps {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
-  language: 'en' | 'ar';
+  language: 'en' | 'ar';  // Updated type to be specific
   setLanguage: (lang: 'en' | 'ar') => void;
   setCreateTicketOpen: (open: boolean) => void;
   signOut: () => void;
@@ -109,7 +109,7 @@ const Header = ({
             </HoverCardTrigger>
             <HoverCardContent className="w-48">
               <p className="text-sm">
-                {getTranslation('common.logistics.signOut', language)}
+                {getTranslation('ui.signOut', language)}
               </p>
             </HoverCardContent>
           </HoverCard>

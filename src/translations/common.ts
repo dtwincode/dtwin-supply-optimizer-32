@@ -6,36 +6,39 @@ import { moduleTranslations } from './common/modules';
 import { chartTranslations } from './common/charts';
 import { paginationTranslations } from './common/pagination';
 import { logisticsTranslations } from './common/logistics';
-import { forecastingTranslations } from './common/forecasting';
-import { moduleDescriptionsTranslations } from './common/moduleDescriptions';
-import { moduleStatsTranslations } from './common/moduleStats';
 
 export const commonTranslations: CommonTranslations = {
   // UI translations
-  ui: uiTranslations,
+  ...uiTranslations,
+  
+  // Inventory translations
+  inventoryTitle: inventoryTranslations.inventoryTitle,
+  bufferZones: inventoryTranslations.bufferZones,
+  skuClassification: inventoryTranslations.skuClassification,
+  leadTime: inventoryTranslations.leadTime,
+  replenishmentOrders: inventoryTranslations.replenishmentOrders,
+  bufferStatus: inventoryTranslations.bufferStatus,
+  netFlowPosition: inventoryTranslations.netFlowPosition,
+  inventorySummary: inventoryTranslations.inventorySummary,
   
   // Chart translations
   chartTitles: chartTranslations.chartTitles,
   zones: chartTranslations.zones,
   
   // Pagination translations
-  pagination: paginationTranslations,
+  next: paginationTranslations.next,
+  previous: paginationTranslations.previous,
+  page: paginationTranslations.page,
+  of: paginationTranslations.of,
+  perPage: paginationTranslations.perPage,
+  items: paginationTranslations.items,
+  showing: paginationTranslations.showing,
+  to: paginationTranslations.to,
   
   // Module translations
-  modules: moduleTranslations,
-  
-  // Include module descriptions and stats as individual properties
-  ...moduleDescriptionsTranslations,
-  ...moduleStatsTranslations,
+  ...moduleTranslations,
   
   // Include full sections as nested objects
   logistics: logisticsTranslations,
-  inventory: inventoryTranslations,
-  forecasting: forecastingTranslations,
-  
-  // Add missing common translation items
-  viewDetails: {
-    en: "View Details",
-    ar: "عرض التفاصيل"
-  }
+  inventory: inventoryTranslations
 };

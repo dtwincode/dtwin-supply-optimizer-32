@@ -2,49 +2,77 @@
 import { UITranslations } from '../types';
 
 export const uiTranslations: UITranslations = {
-  save: {
-    en: "Save",
-    ar: "حفظ"
+  settings: {
+    en: "Settings",
+    ar: "الإعدادات"
+  },
+  logout: {
+    en: "Logout",
+    ar: "تسجيل الخروج"
   },
   cancel: {
     en: "Cancel",
     ar: "إلغاء"
   },
-  submit: {
-    en: "Submit",
-    ar: "إرسال"
-  },
-  create: {
-    en: "Create",
-    ar: "إنشاء"
-  },
-  edit: {
-    en: "Edit",
-    ar: "تعديل"
+  save: {
+    en: "Save",
+    ar: "حفظ"
   },
   delete: {
     en: "Delete",
     ar: "حذف"
   },
-  filter: {
-    en: "Filter",
-    ar: "تصفية"
+  edit: {
+    en: "Edit",
+    ar: "تعديل"
+  },
+  create: {
+    en: "Create",
+    ar: "إنشاء"
   },
   search: {
     en: "Search",
     ar: "بحث"
   },
-  loading: {
-    en: "Loading...",
-    ar: "جاري التحميل..."
+  filter: {
+    en: "Filter",
+    ar: "تصفية"
   },
-  noData: {
-    en: "No data available",
-    ar: "لا توجد بيانات متاحة"
+  apply: {
+    en: "Apply",
+    ar: "تطبيق"
   },
-  confirmDelete: {
-    en: "Are you sure you want to delete this item?",
-    ar: "هل أنت متأكد أنك تريد حذف هذا العنصر؟"
+  reset: {
+    en: "Reset",
+    ar: "إعادة تعيين"
+  },
+  viewDetails: {
+    en: "View Details",
+    ar: "عرض التفاصيل"
+  },
+  skuCount: {
+    en: "SKU Count",
+    ar: "عدد وحدات التخزين"
+  },
+  accuracyLabel: {
+    en: "Forecast Accuracy",
+    ar: "دقة التنبؤ"
+  },
+  pipelineValue: {
+    en: "Pipeline Value",
+    ar: "قيمة خط الأنابيب"
+  },
+  activeCampaigns: {
+    en: "Active Campaigns",
+    ar: "الحملات النشطة"
+  },
+  onTimeDelivery: {
+    en: "On-Time Delivery",
+    ar: "التسليم في الوقت المحدد"
+  },
+  reportCount: {
+    en: "Available Reports",
+    ar: "التقارير المتاحة"
   },
   fromLastMonth: {
     en: "from last month",
@@ -58,12 +86,8 @@ export const uiTranslations: UITranslations = {
     en: "this quarter",
     ar: "هذا الربع"
   },
-  thisMonth: {
-    en: "this month",
-    ar: "هذا الشهر"
-  },
-  thisYear: {
-    en: "this year",
-    ar: "هذا العام"
+  modules: {
+    en: "Key Supply Chain Modules",
+    ar: "وحدات سلسلة التوريد الرئيسية"
   }
 };

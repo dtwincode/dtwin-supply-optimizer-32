@@ -89,27 +89,27 @@ export const PredictiveETA: React.FC = () => {
     if (diff === 0) return '';
     
     return diff > 0 
-      ? `+${hours} ${getTranslation('common.logistics.hours', language)}`
-      : `-${hours} ${getTranslation('common.logistics.hours', language)}`;
+      ? `+${hours} ${getTranslation('common.logistics.hours', language) || 'hrs'}`
+      : `-${hours} ${getTranslation('common.logistics.hours', language) || 'hrs'}`;
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'on_time': 
         return <Badge className="bg-green-100 text-green-800">
-          {getTranslation('common.logistics.onTime', language)}
+          {getTranslation('common.logistics.onTime', language) || 'On Time'}
         </Badge>;
       case 'delayed': 
         return <Badge className="bg-red-100 text-red-800">
-          {getTranslation('common.logistics.delayed', language)}
+          {getTranslation('common.logistics.delayed', language) || 'Delayed'}
         </Badge>;
       case 'early': 
         return <Badge className="bg-blue-100 text-blue-800">
-          {getTranslation('common.logistics.early', language)}
+          {getTranslation('common.logistics.early', language) || 'Early'}
         </Badge>;
       case 'at_risk': 
         return <Badge className="bg-amber-100 text-amber-800">
-          {getTranslation('common.logistics.atRisk', language)}
+          {getTranslation('common.logistics.atRisk', language) || 'At Risk'}
         </Badge>;
       default: 
         return <Badge variant="outline">{status}</Badge>;
@@ -140,19 +140,19 @@ export const PredictiveETA: React.FC = () => {
       <CardHeader>
         <CardTitle className="text-xl flex items-center">
           <Clock className="mr-2 h-5 w-5 text-dtwin-medium" />
-          {getTranslation('common.logistics.predictiveETA', language)}
+          {getTranslation('common.logistics.predictiveETA', language) || "AI-Powered ETA Predictions"}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50">
-              <TableHead>{getTranslation('common.logistics.shipment', language)}</TableHead>
-              <TableHead>{getTranslation('common.logistics.route', language)}</TableHead>
-              <TableHead>{getTranslation('common.logistics.originalETA', language)}</TableHead>
-              <TableHead>{getTranslation('common.logistics.predictedETA', language)}</TableHead>
-              <TableHead>{getTranslation('common.logistics.confidence', language)}</TableHead>
-              <TableHead>{getTranslation('common.logistics.statusLabel', language)}</TableHead>
+              <TableHead>{getTranslation('common.logistics.shipment', language) || "Shipment"}</TableHead>
+              <TableHead>{getTranslation('common.logistics.route', language) || "Route"}</TableHead>
+              <TableHead>{getTranslation('common.logistics.originalETA', language) || "Original ETA"}</TableHead>
+              <TableHead>{getTranslation('common.logistics.predictedETA', language) || "Predicted ETA"}</TableHead>
+              <TableHead>{getTranslation('common.logistics.confidence', language) || "Confidence"}</TableHead>
+              <TableHead>{getTranslation('common.logistics.statusLabel', language) || "Status"}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -192,7 +192,7 @@ export const PredictiveETA: React.FC = () => {
                           <TooltipContent className="max-w-sm">
                             <div className="p-2">
                               <p className="font-medium mb-2">
-                                {getTranslation('common.logistics.impactFactors', language)}
+                                {getTranslation('common.logistics.impactFactors', language) || "Impact Factors"}:
                               </p>
                               <ul className="list-disc pl-5 space-y-1">
                                 {prediction.riskFactors.map((factor, idx) => (

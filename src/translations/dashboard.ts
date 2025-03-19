@@ -1,107 +1,81 @@
 
-import { 
-  DashboardMetricsTranslations, 
-  FinancialMetricsTranslations, 
-  SustainabilityMetricsTranslations, 
-  ModulesSummaryTranslations, 
-  TranslationItem 
-} from './types';
+import { DashboardMetrics, FinancialMetrics, SustainabilityMetrics, ModulesSummary, TranslationValue } from './types';
 
-export const dashboardTitle: TranslationItem = {
-  en: "Dashboard",
-  ar: "لوحة المعلومات"
+export const dashboardTitle: TranslationValue = {
+  en: "Supply Chain Dashboard",
+  ar: "لوحة تحكم سلسلة التوريد"
 };
 
-export const dashboardMetricsTranslations: DashboardMetricsTranslations = {
-  dashboardTitle: {
-    en: "Dashboard Metrics",
-    ar: "مقاييس لوحة المعلومات"
+export const dashboardMetricsTranslations: DashboardMetrics = {
+  totalSKUs: {
+    en: "Total SKUs",
+    ar: "إجمالي وحدات التخزين"
   },
-  inventoryValue: {
-    en: "Inventory Value",
-    ar: "قيمة المخزون"
+  bufferPenetration: {
+    en: "Buffer Penetration",
+    ar: "اختراق المخزون"
   },
-  forecastAccuracy: {
-    en: "Forecast Accuracy",
-    ar: "دقة التنبؤ"
+  orderStatus: {
+    en: "Order Status",
+    ar: "حالة الطلب"
   },
-  serviceLevel: {
-    en: "Service Level",
-    ar: "مستوى الخدمة"
-  },
-  stockoutsReduction: {
-    en: "Stockouts Reduction",
-    ar: "تقليل نفاد المخزون"
-  },
-  leadTimeVariance: {
-    en: "Lead Time Variance",
-    ar: "تباين وقت الانتظار"
-  },
-  inventoryTurnover: {
-    en: "Inventory Turnover",
-    ar: "دوران المخزون"
-  },
-  stockCoverageDays: {
-    en: "Stock Coverage Days",
-    ar: "أيام تغطية المخزون"
+  flowIndex: {
+    en: "Flow Index",
+    ar: "مؤشر التدفق"
   }
 };
 
-export const financialMetricsTranslations: FinancialMetricsTranslations = {
-  workingCapital: {
-    en: "Working Capital",
-    ar: "رأس المال العامل"
+export const financialMetricsTranslations: FinancialMetrics = {
+  title: {
+    en: "Financial Performance",
+    ar: "الأداء المالي"
   },
-  inventoryCost: {
-    en: "Inventory Cost",
-    ar: "تكلفة المخزون"
+  revenue: {
+    en: "Revenue",
+    ar: "الإيرادات"
   },
-  stockoutCost: {
-    en: "Stockout Cost",
-    ar: "تكلفة نفاد المخزون"
+  operatingCosts: {
+    en: "Operating Costs",
+    ar: "تكاليف التشغيل"
   },
-  carryingCost: {
-    en: "Carrying Cost",
-    ar: "تكلفة الاحتفاظ"
+  profitMargin: {
+    en: "Profit Margin",
+    ar: "هامش الربح"
   }
 };
 
-export const sustainabilityMetricsTranslations: SustainabilityMetricsTranslations = {
+export const sustainabilityMetricsTranslations: SustainabilityMetrics = {
+  title: {
+    en: "Sustainability",
+    ar: "الاستدامة"
+  },
+  carbonFootprint: {
+    en: "Carbon Footprint",
+    ar: "البصمة الكربونية"
+  },
   wasteReduction: {
     en: "Waste Reduction",
     ar: "تقليل النفايات"
   },
-  co2Emissions: {
-    en: "CO2 Emissions",
-    ar: "انبعاثات ثاني أكسيد الكربون"
+  greenSuppliers: {
+    en: "Green Suppliers",
+    ar: "الموردون الخضر"
   },
-  energyConsumption: {
-    en: "Energy Consumption",
-    ar: "استهلاك الطاقة"
+  yearlyReduction: {
+    en: "Annual reduction in CO2 emissions",
+    ar: "تخفيض سنوي في انبعاثات ثاني أكسيد الكربون"
+  },
+  wasteEfficiency: {
+    en: "Improvement in waste management efficiency",
+    ar: "تحسين كفاءة إدارة النفايات"
+  },
+  sustainableSourcing: {
+    en: "Suppliers meeting sustainability standards",
+    ar: "الموردون الذين يلبون معايير الاستدامة"
   }
 };
 
-export const modulesSummaryTranslations: ModulesSummaryTranslations = {
-  inventoryOptimization: {
-    en: "Inventory Optimization",
-    ar: "تحسين المخزون"
-  },
-  forecastingPerformance: {
-    en: "Forecasting Performance",
-    ar: "أداء التنبؤ"
-  },
-  salesPlanning: {
-    en: "Sales Planning",
-    ar: "تخطيط المبيعات"
-  },
-  supplyPlanning: {
-    en: "Supply Planning",
-    ar: "تخطيط التوريد"
-  },
-  reportsAnalytics: {
-    en: "Reports & Analytics",
-    ar: "التقارير والتحليلات"
-  },
+export const modulesSummaryTranslations: ModulesSummary = {
   inventoryManagement: {
     en: "Inventory Management",
     ar: "إدارة المخزون"
@@ -110,12 +84,24 @@ export const modulesSummaryTranslations: ModulesSummaryTranslations = {
     en: "Demand Forecasting",
     ar: "التنبؤ بالطلب"
   },
+  salesPlanning: {
+    en: "Sales Planning",
+    ar: "تخطيط المبيعات"
+  },
   marketingCampaigns: {
     en: "Marketing Campaigns",
-    ar: "حملات التسويق"
+    ar: "الحملات التسويقية"
   },
   logistics: {
     en: "Logistics",
     ar: "الخدمات اللوجستية"
+  },
+  reportsAnalytics: {
+    en: "Reports & Analytics",
+    ar: "التقارير والتحليلات"
+  },
+  viewDetails: {
+    en: "View Details",
+    ar: "عرض التفاصيل"
   }
 };

@@ -8,32 +8,29 @@ import {
   LineChart, 
   CloudLightning 
 } from "lucide-react";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslation } from "@/translations";
 
 export const ForecastingTabs = () => {
   const location = useLocation();
   const currentPath = location.pathname;
-  const { language } = useLanguage();
 
   const tabs = [
     {
-      title: getTranslation("forecasting.analysis", language),
+      title: "Analysis",
       href: "/forecasting",
       icon: LineChart,
     },
     {
-      title: getTranslation("forecasting.distribution", language),
+      title: "Distribution",
       href: "/forecasting/distribution",
       icon: BarChart3,
     },
     {
-      title: getTranslation("forecasting.whatIf", language),
+      title: "What-If",
       href: "/forecasting/what-if",
       icon: FlipHorizontal,
     },
     {
-      title: getTranslation("forecasting.external", language),
+      title: "External",
       href: "/forecasting/external",
       icon: CloudLightning,
     }

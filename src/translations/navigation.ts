@@ -1,49 +1,49 @@
 
-import { NavigationTranslations } from './types';
+import { NavigationItems } from './types';
 
-export const navigationTranslations: NavigationTranslations = {
+export const navigationTranslations: NavigationItems = {
   dashboard: {
     en: "Dashboard",
-    ar: "لوحة المعلومات"
-  },
-  inventory: {
-    en: "Inventory",
-    ar: "المخزون"
+    ar: "لوحة التحكم"
   },
   forecasting: {
     en: "Forecasting",
     ar: "التنبؤ"
   },
-  sales: {
-    en: "Sales",
-    ar: "المبيعات"
+  inventory: {
+    en: "Inventory",
+    ar: "المخزون"
   },
-  logistics: {
-    en: "Logistics",
-    ar: "الخدمات اللوجستية"
-  },
-  supplyPlanning: {
-    en: "Supply Planning",
-    ar: "تخطيط التوريد"
+  salesPlanning: {
+    en: "Sales Planning",
+    ar: "تخطيط المبيعات"
   },
   marketing: {
     en: "Marketing",
     ar: "التسويق"
   },
+  logistics: {
+    en: "Logistics",
+    ar: "الخدمات اللوجستية"
+  },
   reports: {
     en: "Reports",
     ar: "التقارير"
   },
-  settings: {
-    en: "Settings",
-    ar: "الإعدادات"
-  },
-  guidelines: {
-    en: "Guidelines",
-    ar: "الإرشادات"
-  },
   askAI: {
     en: "Ask AI",
     ar: "اسأل الذكاء الاصطناعي"
+  },
+  data: {
+    en: "Data",
+    ar: "البيانات"
+  },
+  guidelines: {
+    en: "Guidelines",
+    ar: "الدليل الإرشادي"
+  },
+  supplyPlanning: {
+    en: "Supply Planning",
+    ar: "تخطيط التوريد"
   }
 };

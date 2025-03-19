@@ -1,22 +1,20 @@
 
-import { SalesTranslations } from './types';
-
-export const salesTranslations: SalesTranslations = {
+export const salesTranslations = {
   title: {
     en: "Sales Planning",
     ar: "تخطيط المبيعات"
   },
   newPlan: {
-    en: "New Plan",
-    ar: "خطة جديدة"
+    en: "Create New Sales Plan",
+    ar: "إنشاء خطة مبيعات جديدة"
   },
   topDown: {
-    en: "Top-Down Planning",
-    ar: "التخطيط من الأعلى إلى الأسفل"
+    en: "Top-Down",
+    ar: "من الأعلى إلى الأسفل"
   },
   bottomUp: {
-    en: "Bottom-Up Planning",
-    ar: "التخطيط من الأسفل إلى الأعلى"
+    en: "Bottom-Up",
+    ar: "من الأسفل إلى الأعلى"
   },
   filters: {
     category: {
@@ -31,42 +29,5 @@ export const salesTranslations: SalesTranslations = {
       en: "Status",
       ar: "الحالة"
     }
-  },
-  // Adding missing properties to meet the interface requirements
-  salesPerformance: {
-    en: "Sales Performance",
-    ar: "أداء المبيعات"
-  },
-  revenue: {
-    en: "Revenue",
-    ar: "الإيرادات"
-  },
-  orders: {
-    en: "Orders",
-    ar: "الطلبات"
-  },
-  customers: {
-    en: "Customers",
-    ar: "العملاء"
-  },
-  categories: {
-    en: "Categories",
-    ar: "الفئات"
-  },
-  channels: {
-    en: "Channels",
-    ar: "القنوات"
-  },
-  growth: {
-    en: "Growth",
-    ar: "النمو"
-  },
-  conversion: {
-    en: "Conversion",
-    ar: "التحويل"
-  },
-  salesTarget: {
-    en: "Sales Target",
-    ar: "هدف المبيعات"
   }
 };

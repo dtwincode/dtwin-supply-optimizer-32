@@ -94,7 +94,8 @@ export const RealTimeNotifications: React.FC = () => {
 
   const markAllAsRead = () => {
     setNotifications(notifications.map(notif => ({ ...notif, read: true })));
-    toast.success(getTranslation('common.logistics.allNotificationsRead', language));
+    toast.success(getTranslation('common.logistics.allNotificationsRead', language) || 
+      'All notifications marked as read');
   };
 
   const deleteNotification = (id: string) => {
@@ -104,14 +105,14 @@ export const RealTimeNotifications: React.FC = () => {
   const getTimeAgo = (timestamp: string) => {
     const minutes = Math.floor((Date.now() - new Date(timestamp).getTime()) / 60000);
     
-    if (minutes < 1) return getTranslation('common.logistics.justNow', language);
-    if (minutes < 60) return `${minutes} ${getTranslation('common.logistics.minutesAgo', language)}`;
+    if (minutes < 1) return getTranslation('common.logistics.justNow', language) || 'Just now';
+    if (minutes < 60) return `${minutes} ${getTranslation('common.logistics.minutesAgo', language) || 'minutes ago'}`;
     
     const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours} ${getTranslation('common.logistics.hoursAgo', language)}`;
+    if (hours < 24) return `${hours} ${getTranslation('common.logistics.hoursAgo', language) || 'hours ago'}`;
     
     const days = Math.floor(hours / 24);
-    return `${days} ${getTranslation('common.logistics.daysAgo', language)}`;
+    return `${days} ${getTranslation('common.logistics.daysAgo', language) || 'days ago'}`;
   };
 
   const getNotificationIcon = (type: string) => {
@@ -126,10 +127,10 @@ export const RealTimeNotifications: React.FC = () => {
 
   const getNotificationTypeLabel = (type: string) => {
     switch (type) {
-      case 'alert': return getTranslation('common.logistics.alert', language);
-      case 'success': return getTranslation('common.logistics.success', language);
-      case 'info': return getTranslation('common.logistics.info', language);
-      case 'warning': return getTranslation('common.logistics.warning', language);
+      case 'alert': return getTranslation('common.logistics.alert', language) || 'Alert';
+      case 'success': return getTranslation('common.logistics.success', language) || 'Success';
+      case 'info': return getTranslation('common.logistics.info', language) || 'Info';
+      case 'warning': return getTranslation('common.logistics.warning', language) || 'Warning';
       default: return type;
     }
   };
@@ -142,17 +143,17 @@ export const RealTimeNotifications: React.FC = () => {
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <CardTitle className="text-xl">
-              {getTranslation('common.logistics.notifications', language)}
+              {getTranslation('common.logistics.notifications', language) || "Notifications"}
             </CardTitle>
             {unreadCount > 0 && (
               <Badge variant="destructive" className="ml-2">
-                {unreadCount} {getTranslation('common.logistics.new', language)}
+                {unreadCount} {getTranslation('common.logistics.new', language) || 'New'}
               </Badge>
             )}
           </div>
           {unreadCount > 0 && (
             <Button variant="outline" size="sm" onClick={markAllAsRead}>
-              {getTranslation('common.logistics.markAllRead', language)}
+              {getTranslation('common.logistics.markAllRead', language) || 'Mark All Read'}
             </Button>
           )}
         </div>
@@ -161,7 +162,7 @@ export const RealTimeNotifications: React.FC = () => {
         <div className="space-y-4 max-h-[400px] overflow-auto">
           {notifications.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              {getTranslation('common.logistics.noNotifications', language)}
+              {getTranslation('common.logistics.noNotifications', language) || 'No notifications yet'}
             </div>
           ) : (
             notifications.map((notification) => (
@@ -191,7 +192,7 @@ export const RealTimeNotifications: React.FC = () => {
                         className="text-xs h-7 px-2"
                       >
                         <Check className="h-3 w-3 mr-1" />
-                        {getTranslation('common.logistics.markRead', language)}
+                        {getTranslation('common.logistics.markRead', language) || 'Mark Read'}
                       </Button>
                     )}
                     <Button 
@@ -201,7 +202,7 @@ export const RealTimeNotifications: React.FC = () => {
                       className="text-xs h-7 px-2"
                     >
                       <X className="h-3 w-3 mr-1" />
-                      {getTranslation('common.logistics.dismiss', language)}
+                      {getTranslation('common.logistics.dismiss', language) || 'Dismiss'}
                     </Button>
                   </div>
                 </div>

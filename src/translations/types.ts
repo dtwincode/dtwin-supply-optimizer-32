@@ -1,200 +1,420 @@
 
-// Common translation types
-export interface TranslationItem {
+export interface TranslationValue {
   en: string;
   ar: string;
 }
 
-// Main translations container type
-export interface Translations {
-  dashboard: TranslationItem;
-  navigationItems: NavigationTranslations;
-  dashboardMetrics: DashboardMetricsTranslations;
-  financialMetrics: FinancialMetricsTranslations;
-  sustainabilityMetrics: SustainabilityMetricsTranslations;
-  modulesSummary: ModulesSummaryTranslations;
-  common: CommonTranslations;
-  sales: SalesTranslations;
-  supplyPlanning: SupplyPlanningTranslations;
-  forecasting: ForecastingTranslations;
+export interface DashboardMetrics {
+  totalSKUs: TranslationValue;
+  bufferPenetration: TranslationValue;
+  orderStatus: TranslationValue;
+  flowIndex: TranslationValue;
 }
 
-// Navigation translations
-export interface NavigationTranslations {
-  dashboard: TranslationItem;
-  inventory: TranslationItem;
-  forecasting: TranslationItem;
-  sales: TranslationItem;
-  logistics: TranslationItem;
-  supplyPlanning: TranslationItem;
-  marketing: TranslationItem;
-  reports: TranslationItem;
-  settings: TranslationItem;
-  guidelines: TranslationItem;
-  askAI: TranslationItem;
+export interface FinancialMetrics {
+  title: TranslationValue;
+  revenue: TranslationValue;
+  operatingCosts: TranslationValue;
+  profitMargin: TranslationValue;
 }
 
-// Dashboard translations
-export interface DashboardMetricsTranslations {
-  dashboardTitle: TranslationItem;
-  inventoryValue: TranslationItem;
-  forecastAccuracy: TranslationItem;
-  serviceLevel: TranslationItem;
-  stockoutsReduction: TranslationItem;
-  leadTimeVariance: TranslationItem;
-  inventoryTurnover: TranslationItem;
-  stockCoverageDays: TranslationItem;
-  [key: string]: TranslationItem;
+export interface SustainabilityMetrics {
+  title: TranslationValue;
+  carbonFootprint: TranslationValue;
+  wasteReduction: TranslationValue;
+  greenSuppliers: TranslationValue;
+  yearlyReduction: TranslationValue;
+  wasteEfficiency: TranslationValue;
+  sustainableSourcing: TranslationValue;
 }
 
-export interface FinancialMetricsTranslations {
-  workingCapital: TranslationItem;
-  inventoryCost: TranslationItem;
-  stockoutCost: TranslationItem;
-  carryingCost: TranslationItem;
-  [key: string]: TranslationItem;
-}
-
-export interface SustainabilityMetricsTranslations {
-  wasteReduction: TranslationItem;
-  co2Emissions: TranslationItem;
-  energyConsumption: TranslationItem;
-  [key: string]: TranslationItem;
-}
-
-export interface ModulesSummaryTranslations {
-  inventoryOptimization: TranslationItem;
-  forecastingPerformance: TranslationItem;
-  salesPlanning: TranslationItem;
-  supplyPlanning: TranslationItem;
-  reportsAnalytics: TranslationItem;
-  inventoryManagement: TranslationItem;
-  demandForecasting: TranslationItem;
-  marketingCampaigns: TranslationItem;
-  logistics: TranslationItem;
-  [key: string]: TranslationItem;
-}
-
-// Common translations sections
-export interface CommonTranslations {
-  ui: UITranslations;
-  chartTitles: Record<string, TranslationItem>;
-  zones: Record<string, TranslationItem>;
-  pagination: PaginationTranslations;
-  modules: ModuleTranslations;
-  logistics: Record<string, any>;
-  inventory: Record<string, any>;
-  forecasting: Record<string, any>;
-  inventoryDescription: TranslationItem;
-  forecastingDescription: TranslationItem;
-  salesDescription: TranslationItem;
-  marketingDescription: TranslationItem;
-  logisticsDescription: TranslationItem;
-  reportsDescription: TranslationItem;
-  viewDetails: TranslationItem;
-  skuCount: TranslationItem;
-  accuracyLabel: TranslationItem;
-  pipelineValue: TranslationItem;
-  activeCampaigns: TranslationItem;
-  onTimeDelivery: TranslationItem;
-  reportCount: TranslationItem;
-  // Removed duplicate 'modules' property here
+export interface ModulesSummary {
+  inventoryManagement: TranslationValue;
+  demandForecasting: TranslationValue;
+  salesPlanning: TranslationValue;
+  marketingCampaigns: TranslationValue;
+  logistics: TranslationValue;
+  reportsAnalytics: TranslationValue;
+  viewDetails: TranslationValue;
 }
 
 export interface UITranslations {
-  save: TranslationItem;
-  cancel: TranslationItem;
-  submit: TranslationItem;
-  create: TranslationItem;
-  edit: TranslationItem;
-  delete: TranslationItem;
-  filter: TranslationItem;
-  search: TranslationItem;
-  loading: TranslationItem;
-  noData: TranslationItem;
-  confirmDelete: TranslationItem;
-  [key: string]: TranslationItem;
+  settings: TranslationValue;
+  logout: TranslationValue;
+  cancel: TranslationValue;
+  save: TranslationValue;
+  delete: TranslationValue;
+  edit: TranslationValue;
+  create: TranslationValue;
+  search: TranslationValue;
+  filter: TranslationValue;
+  apply: TranslationValue;
+  reset: TranslationValue;
+  viewDetails: TranslationValue;
+  skuCount: TranslationValue;
+  accuracyLabel: TranslationValue;
+  pipelineValue: TranslationValue;
+  activeCampaigns: TranslationValue;
+  onTimeDelivery: TranslationValue;
+  reportCount: TranslationValue;
+  fromLastMonth: TranslationValue;
+  fromLastWeek: TranslationValue;
+  thisQuarter: TranslationValue;
+  modules: TranslationValue;
+}
+
+export interface InventoryTranslations {
+  inventoryTitle: TranslationValue;
+  bufferZones: TranslationValue;
+  skuClassification: TranslationValue;
+  leadTime: TranslationValue;
+  replenishmentOrders: TranslationValue;
+  bufferStatus: TranslationValue;
+  netFlowPosition: TranslationValue;
+  inventorySummary: TranslationValue;
+  inventoryLevels: TranslationValue;
+  skuClassifications: TranslationValue;
+  decouplingPoint: TranslationValue;
+  addDecouplingPoint: TranslationValue;
+  manageAndTrack: TranslationValue;
+  currentStock: TranslationValue;
+  productFamily: TranslationValue;
+  location: TranslationValue;
+  name: TranslationValue;
+  sku: TranslationValue;
+  actions: TranslationValue;
+  noItems: TranslationValue;
+  loadingData: TranslationValue;
+  loadingItem: TranslationValue;
+  errorLoading: TranslationValue;
+  leadTimeCategory: TranslationValue;
+  variabilityLevel: TranslationValue;
+  criticality: TranslationValue;
+  score: TranslationValue;
+  lastUpdated: TranslationValue;
+}
+
+export interface ChartTranslations {
+  chartTitles: {
+    bufferProfile: TranslationValue;
+    demandVariability: TranslationValue;
+    inventoryTrends: TranslationValue;
+    forecastAccuracy: TranslationValue;
+  };
+  zones: {
+    green: TranslationValue;
+    yellow: TranslationValue;
+    red: TranslationValue;
+    inventory: TranslationValue;
+  };
 }
 
 export interface PaginationTranslations {
-  next: TranslationItem;
-  previous: TranslationItem;
-  page: TranslationItem;
-  of: TranslationItem;
-  perPage: TranslationItem;
-  items: TranslationItem;
-  showing: TranslationItem;
-  to: TranslationItem;
-  [key: string]: TranslationItem;
+  next: TranslationValue;
+  previous: TranslationValue;
+  page: TranslationValue;
+  of: TranslationValue;
+  perPage: TranslationValue;
+  items: TranslationValue;
+  showing: TranslationValue;
+  to: TranslationValue;
+  viewDetails: TranslationValue;
 }
 
 export interface ModuleTranslations {
-  sales: TranslationItem;
-  inventory: TranslationItem;
-  forecasting: TranslationItem;
-  logistics: TranslationItem;
-  supplyPlanning: TranslationItem;
-  [key: string]: TranslationItem;
+  inventoryDescription: TranslationValue;
+  forecastingDescription: TranslationValue;
+  salesDescription: TranslationValue;
+  marketingDescription: TranslationValue;
+  logisticsDescription: TranslationValue;
+  reportsDescription: TranslationValue;
+  moduleDescriptions: TranslationValue;
 }
 
-// Sales translations
-export interface SalesTranslations {
-  title: TranslationItem;
-  newPlan: TranslationItem;
-  topDown: TranslationItem;
-  bottomUp: TranslationItem;
-  filters: {
-    category: TranslationItem;
-    region: TranslationItem;
-    status: TranslationItem;
+export interface NavigationItems {
+  dashboard: TranslationValue;
+  forecasting: TranslationValue;
+  inventory: TranslationValue;
+  salesPlanning: TranslationValue;
+  marketing: TranslationValue;
+  logistics: TranslationValue;
+  reports: TranslationValue;
+  askAI: TranslationValue;
+  data: TranslationValue;
+  guidelines: TranslationValue;
+  supplyPlanning: TranslationValue;
+}
+
+export interface LogisticsTranslations {
+  routeOptimization: TranslationValue;
+  transportModes: TranslationValue;
+  optimizeRoute: TranslationValue;
+  origin: TranslationValue;
+  destination: TranslationValue;
+  waypoints: TranslationValue;
+  optimizationCriteria: TranslationValue;
+  transportMode: TranslationValue;
+  departureTime: TranslationValue;
+  totalDistance: TranslationValue;
+  totalTime: TranslationValue;
+  totalCost: TranslationValue;
+  emissions: TranslationValue;
+  fuelConsumption: TranslationValue;
+  savedRoutes: TranslationValue;
+  criteria: {
+    time: TranslationValue;
+    cost: TranslationValue;
+    emissions: TranslationValue;
   };
-  salesPerformance: TranslationItem;
-  revenue: TranslationItem;
-  orders: TranslationItem;
-  customers: TranslationItem;
-  categories: TranslationItem;
-  channels: TranslationItem;
-  growth: TranslationItem;
-  conversion: TranslationItem;
-  salesTarget: TranslationItem;
-  [key: string]: any;
+  status: {
+    planned: TranslationValue;
+    inProgress: TranslationValue;
+    completed: TranslationValue;
+  };
+  orders: TranslationValue;
+  poPipeline: TranslationValue;
+  documents: TranslationValue;
+  orderRef: TranslationValue;
+  carrier: TranslationValue;
+  trackingNumber: TranslationValue;
+  statusLabel: TranslationValue;
+  inTransit: TranslationValue;
+  processing: TranslationValue;
+  outForDelivery: TranslationValue;
+  delivered: TranslationValue;
+  purchaseOrderPipeline: TranslationValue;
+  monitorAndTrack: TranslationValue;
+  routeOptimizationDesc: TranslationValue;
+  transportModesDesc: TranslationValue;
+  documentManagement: TranslationValue;
+  uploadAndManage: TranslationValue;
+  uploadedDocuments: TranslationValue;
+  optimizeSupplyChain: TranslationValue;
+  logisticsTrackingMap: TranslationValue;
+  mapUnavailable: TranslationValue;
+  mapError: TranslationValue;
+  onTimeDeliveryRate: TranslationValue;
+  averageTransitTime: TranslationValue;
+  deliverySuccessRate: TranslationValue;
+  costPerShipment: TranslationValue;
+  lastUpdated: TranslationValue;
+  notAvailable: TranslationValue;
+  supplier: TranslationValue;
+  stage: TranslationValue;
+  startDate: TranslationValue;
+  eta: TranslationValue;
+  completion: TranslationValue;
+  blockers: TranslationValue;
+  priority: TranslationValue;
+  none: TranslationValue;
+  highPriority: TranslationValue;
+  mediumPriority: TranslationValue;
+  lowPriority: TranslationValue;
 }
 
-// Supply Planning translations
 export interface SupplyPlanningTranslations {
-  title: TranslationItem;
-  overview: TranslationItem;
-  leadTimes: TranslationItem;
-  orders: TranslationItem;
-  supplierManagement: TranslationItem;
-  recommendations: TranslationItem;
-  purchaseOrders: TranslationItem;
-  [key: string]: TranslationItem | Record<string, any>;
+  tabs: {
+    recommendedOrders: TranslationValue;
+    purchaseOrders: TranslationValue;
+    supplierManagement: TranslationValue;
+    leadTimeManagement: TranslationValue;
+  };
+  searchItems: TranslationValue;
+  supplier: TranslationValue;
+  status: TranslationValue;
+  statusTypes: {
+    planned: TranslationValue;
+    ordered: TranslationValue;
+    confirmed: TranslationValue;
+    shipped: TranslationValue;
+    received: TranslationValue;
+  };
+  priority: TranslationValue;
+  priorityLevels: {
+    critical: TranslationValue;
+    high: TranslationValue;
+    medium: TranslationValue;
+    low: TranslationValue;
+  };
+  currentStock: TranslationValue;
+  recommendedQty: TranslationValue;
+  leadTime: TranslationValue;
+  days: TranslationValue;
+  creating: TranslationValue;
+  createPO: TranslationValue;
+  noRecommendedOrders: TranslationValue;
+  notifications: {
+    poCreated: TranslationValue;
+    poCreatedDesc: TranslationValue;
+    poError: TranslationValue;
+    poErrorDesc: TranslationValue;
+    poUpdated: TranslationValue;
+    poUpdatedDesc: TranslationValue;
+  };
+  avgLeadTime: TranslationValue;
+  leadTimeVariability: TranslationValue;
+  leadTimeReliability: TranslationValue;
+  acrossAllSuppliers: TranslationValue;
+  standardDeviation: TranslationValue;
+  ordersOnTime: TranslationValue;
+  fromLastMonth: TranslationValue;
+  generateRecommendations: TranslationValue;
+  leadTimeCalculations: TranslationValue;
+  leadTimeCalculationsDesc: TranslationValue;
+  leadTimeCategories: TranslationValue;
+  variabilityLevels: TranslationValue;
+  ddmrpImpact: TranslationValue;
+  moduleDescription: TranslationValue;
+  recommendedOrders: TranslationValue;
+  recommendedOrdersDesc: TranslationValue;
+  all: TranslationValue;
+  refresh: TranslationValue;
+  purchaseOrdersDesc: TranslationValue;
+  supplierManagementDesc: TranslationValue;
+  leadTimeManagementDesc: TranslationValue;
+  // Purchase order tab translations
+  poNumber: TranslationValue;
+  quantity: TranslationValue;
+  orderDate: TranslationValue;
+  deliveryDate: TranslationValue;
+  actions: TranslationValue;
+  noPurchaseOrders: TranslationValue;
+  viewDetails: TranslationValue;
+  trackShipment: TranslationValue;
+  markAsReceived: TranslationValue;
+  cancel: TranslationValue;
+  reportIssue: TranslationValue;
+  createPurchaseOrder: TranslationValue;
+  editPurchaseOrder: TranslationValue;
+  selectStatus: TranslationValue;
+  selectDate: TranslationValue;
+  notes: TranslationValue;
+  notesPlaceholder: TranslationValue;
+  update: TranslationValue;
+  // Supplier management tab translations
+  onTimeDelivery: TranslationValue;
+  supplierPerformance: TranslationValue;
+  qualityCompliance: TranslationValue;
+  supplierQuality: TranslationValue;
+  activeSuppliers: TranslationValue;
+  totalSuppliers: TranslationValue;
+  supplierPerformanceComparison: TranslationValue;
+  supplierPerformanceDesc: TranslationValue;
+  metrics: {
+    reliability: TranslationValue;
+    leadTime: TranslationValue;
+    quality: TranslationValue;
+    cost: TranslationValue;
+  };
+  supplierList: TranslationValue;
+  supplierListDesc: TranslationValue;
+  supplierName: TranslationValue;
+  reliability: TranslationValue;
+  leadTimeAdherence: TranslationValue;
+  qualityScore: TranslationValue;
+  costEfficiency: TranslationValue;
+  viewPerformance: TranslationValue;
+  contact: TranslationValue;
+  // Lead time management tab translations
+  leadTimeTrends: TranslationValue;
+  sixMonthTrend: TranslationValue;
+  minLeadTime: TranslationValue;
+  maxLeadTime: TranslationValue;
+  skuLeadTimes: TranslationValue;
+  skuLeadTimesDesc: TranslationValue;
+  leadTimeDays: TranslationValue;
+  variability: TranslationValue;
+  trend: TranslationValue;
+  viewHistory: TranslationValue;
+  leadTimeOptimization: TranslationValue;
+  leadTimeOptimizationDesc: TranslationValue;
+  riskAnalysis: TranslationValue;
+  riskAnalysisDesc: TranslationValue;
+  runAnalysis: TranslationValue;
+  leadTimeReduction: TranslationValue;
+  leadTimeReductionDesc: TranslationValue;
 }
 
-// Forecasting translations
-export interface ForecastingTranslations {
-  title: TranslationItem;
-  accuracy: TranslationItem;
-  models: TranslationItem;
-  parameters: TranslationItem;
-  historical: TranslationItem;
-  predicted: TranslationItem;
-  whatIf: TranslationItem;
-  validation: TranslationItem;
-  analysis: TranslationItem;
-  distribution: TranslationItem;
-  reconciliation: TranslationItem;
-  factors: TranslationItem;
-  external: TranslationItem;
-  forecastModel: TranslationItem;
-  modelAccuracy: TranslationItem;
-  selectPeriod: TranslationItem;
-  applyFilters: TranslationItem;
-  [key: string]: TranslationItem | Record<string, any>;
+export interface SalesTranslations {
+  title: TranslationValue;
 }
 
-// Helper to convert Arabic numerals
-export function toArabicNumerals(num: number): string {
-  return num.toString();
+export interface CommonTranslations {
+  settings: TranslationValue;
+  logout: TranslationValue;
+  cancel: TranslationValue;
+  save: TranslationValue;
+  delete: TranslationValue;
+  edit: TranslationValue;
+  create: TranslationValue;
+  search: TranslationValue;
+  filter: TranslationValue;
+  apply: TranslationValue;
+  reset: TranslationValue;
+  viewDetails: TranslationValue;
+  skuCount: TranslationValue;
+  accuracyLabel: TranslationValue;
+  pipelineValue: TranslationValue;
+  activeCampaigns: TranslationValue;
+  onTimeDelivery: TranslationValue;
+  reportCount: TranslationValue;
+  fromLastMonth: TranslationValue;
+  fromLastWeek: TranslationValue;
+  thisQuarter: TranslationValue;
+  modules: TranslationValue;
+  
+  inventoryTitle: TranslationValue;
+  bufferZones: TranslationValue;
+  skuClassification: TranslationValue;
+  leadTime: TranslationValue;
+  replenishmentOrders: TranslationValue;
+  netFlowPosition: TranslationValue;
+  bufferStatus: TranslationValue;
+  inventorySummary: TranslationValue;
+  
+  chartTitles: {
+    bufferProfile: TranslationValue;
+    demandVariability: TranslationValue;
+    inventoryTrends: TranslationValue;
+    forecastAccuracy: TranslationValue;
+  };
+  zones: {
+    green: TranslationValue;
+    yellow: TranslationValue;
+    red: TranslationValue;
+  };
+  
+  next: TranslationValue;
+  previous: TranslationValue;
+  page: TranslationValue;
+  of: TranslationValue;
+  perPage: TranslationValue;
+  items: TranslationValue;
+  showing: TranslationValue;
+  to: TranslationValue;
+  
+  inventoryDescription: TranslationValue;
+  forecastingDescription: TranslationValue;
+  salesDescription: TranslationValue;
+  marketingDescription: TranslationValue;
+  logisticsDescription: TranslationValue;
+  reportsDescription: TranslationValue;
+  
+  logistics?: LogisticsTranslations;
+  inventory?: InventoryTranslations;
+}
+
+export interface Translations {
+  dashboard: {
+    en: string;
+    ar: string;
+  };
+  navigationItems: NavigationItems;
+  dashboardMetrics: DashboardMetrics;
+  financialMetrics: FinancialMetrics;
+  sustainabilityMetrics: SustainabilityMetrics;
+  modulesSummary: ModulesSummary;
+  common: CommonTranslations;
+  sales: SalesTranslations;
+  supplyPlanning: SupplyPlanningTranslations;
 }

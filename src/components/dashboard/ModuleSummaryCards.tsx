@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -107,7 +106,7 @@ const ModuleSummaryCards = () => {
   return (
     <div>
       <h3 className="font-display text-xl font-semibold mb-4">
-        {getTranslation('common.modules.sales', language)}
+        {getTranslation('common.modules', language)}
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
         {modulesSummary.map((module) => (
