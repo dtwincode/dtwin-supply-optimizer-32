@@ -45,5 +45,25 @@ export const uiTranslations: UITranslations = {
   confirmDelete: {
     en: "Are you sure you want to delete this item?",
     ar: "هل أنت متأكد أنك تريد حذف هذا العنصر؟"
+  },
+  fromLastMonth: {
+    en: "from last month",
+    ar: "من الشهر الماضي"
+  },
+  fromLastWeek: {
+    en: "from last week",
+    ar: "من الأسبوع الماضي"
+  },
+  thisQuarter: {
+    en: "this quarter",
+    ar: "هذا الربع"
+  },
+  thisMonth: {
+    en: "this month",
+    ar: "هذا الشهر"
+  },
+  thisYear: {
+    en: "this year",
+    ar: "هذا العام"
   }
 };

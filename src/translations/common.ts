@@ -24,12 +24,18 @@ export const commonTranslations: CommonTranslations = {
   // Module translations
   modules: moduleTranslations,
   
-  // Module descriptions and stats
+  // Include module descriptions and stats as individual properties
   ...moduleDescriptionsTranslations,
   ...moduleStatsTranslations,
   
   // Include full sections as nested objects
   logistics: logisticsTranslations,
   inventory: inventoryTranslations,
-  forecasting: forecastingTranslations
+  forecasting: forecastingTranslations,
+  
+  // Add missing common translation items
+  viewDetails: {
+    en: "View Details",
+    ar: "عرض التفاصيل"
+  }
 };
