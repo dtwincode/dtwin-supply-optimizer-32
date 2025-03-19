@@ -79,16 +79,16 @@ export const inventoryTranslations: InventoryTranslations = {
     ar: "إجراءات"
   },
   noItems: {
-    en: "No inventory items available.",
-    ar: "لا توجد عناصر مخزون متاحة."
+    en: "No inventory items available",
+    ar: "لا توجد عناصر مخزون متاحة"
   },
   loadingData: {
-    en: "Loading inventory data...",
-    ar: "جاري تحميل بيانات المخزون..."
+    en: "Loading inventory data",
+    ar: "جاري تحميل بيانات المخزون"
   },
   loadingItem: {
-    en: "Loading item data...",
-    ar: "جاري تحميل بيانات العنصر..."
+    en: "Loading item data",
+    ar: "جاري تحميل بيانات العنصر"
   },
   errorLoading: {
     en: "Error loading inventory data table",
@@ -113,5 +113,13 @@ export const inventoryTranslations: InventoryTranslations = {
   lastUpdated: {
     en: "Last Updated",
     ar: "آخر تحديث"
+  },
+  aduAnalysis: {
+    en: "ADU Analysis",
+    ar: "تحليل ADU"
+  },
+  aiInsights: {
+    en: "AI Insights",
+    ar: "رؤى الذكاء الاصطناعي"
   }
 };

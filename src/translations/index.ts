@@ -8,6 +8,7 @@ import { logisticsTranslations } from './common/logistics';
 import { chartTranslations } from './common/charts';
 import { inventoryTranslations } from './common/inventory';
 import { supplyPlanningTranslations } from './common/supplyPlanning';
+import { forecastingTranslations } from './common/forecasting';
 export { toArabicNumerals } from './utils';
 
 export const translations: Translations = {

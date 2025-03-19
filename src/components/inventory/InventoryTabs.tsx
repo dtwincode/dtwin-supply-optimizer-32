@@ -33,10 +33,10 @@ export const InventoryTabs = ({ children, defaultValue = "inventory" }: Inventor
           {getTranslation("common.netFlowPosition", language)}
         </TabsTrigger>
         <TabsTrigger value="adu">
-          {language === 'en' ? "ADU Analysis" : "تحليل ADU"}
+          {getTranslation("common.inventory.aduAnalysis", language)}
         </TabsTrigger>
         <TabsTrigger value="ai">
-          {language === 'en' ? "AI Insights" : "رؤى الذكاء الاصطناعي"}
+          {getTranslation("common.inventory.aiInsights", language)}
         </TabsTrigger>
       </TabsList>
       

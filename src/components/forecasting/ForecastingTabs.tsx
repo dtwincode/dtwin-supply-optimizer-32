@@ -18,22 +18,22 @@ export const ForecastingTabs = () => {
 
   const tabs = [
     {
-      title: language === 'en' ? "Analysis" : "التحليل",
+      title: getTranslation("common.forecasting.analysis", language),
       href: "/forecasting",
       icon: LineChart,
     },
     {
-      title: language === 'en' ? "Distribution" : "التوزيع",
+      title: getTranslation("common.forecasting.distribution", language),
       href: "/forecasting/distribution",
       icon: BarChart3,
     },
     {
-      title: language === 'en' ? "What-If" : "ماذا لو",
+      title: getTranslation("common.forecasting.whatIf", language),
       href: "/forecasting/what-if",
       icon: FlipHorizontal,
     },
     {
-      title: language === 'en' ? "External" : "خارجي",
+      title: getTranslation("common.forecasting.external", language),
       href: "/forecasting/external",
       icon: CloudLightning,
     }
