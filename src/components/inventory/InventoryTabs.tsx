@@ -17,14 +17,6 @@ interface InventoryTabsProps {
 export const InventoryTabs = ({ children, defaultValue = "inventory" }: InventoryTabsProps) => {
   const { language } = useLanguage();
   
-  // Adding console log to check the path
-  console.log("Translation paths:", {
-    inventoryTitle: "common.inventoryTitle",
-    bufferZones: "common.bufferZones",
-    decouplingPoint: "common.inventory.decouplingPoint",
-    netFlowPosition: "common.netFlowPosition"
-  });
-  
   return (
     <Tabs defaultValue={defaultValue} className="w-full">
       <TabsList className="grid grid-cols-6 mb-4">
@@ -41,10 +33,10 @@ export const InventoryTabs = ({ children, defaultValue = "inventory" }: Inventor
           {getTranslation("common.netFlowPosition", language)}
         </TabsTrigger>
         <TabsTrigger value="adu">
-          ADU Analysis
+          {language === 'en' ? "ADU Analysis" : "تحليل ADU"}
         </TabsTrigger>
         <TabsTrigger value="ai">
-          AI Insights
+          {language === 'en' ? "AI Insights" : "رؤى الذكاء الاصطناعي"}
         </TabsTrigger>
       </TabsList>
       

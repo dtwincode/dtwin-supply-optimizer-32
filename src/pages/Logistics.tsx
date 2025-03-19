@@ -48,16 +48,16 @@ const Logistics = () => {
         <Tabs defaultValue="dashboard" className="w-full">
           <TabsList className="w-full justify-start mb-2 bg-transparent border-b rounded-none p-0 h-auto">
             <TabsTrigger value="dashboard" className="rounded-t-lg rounded-b-none data-[state=active]:bg-background data-[state=active]:border-b-transparent data-[state=active]:border data-[state=active]:border-b-0 data-[state=active]:shadow h-10">
-              {getTranslation('common.logistics.dashboard', language) || "Dashboard"}
+              {getTranslation('common.logistics.dashboard', language)}
             </TabsTrigger>
             <TabsTrigger value="tracking" className="rounded-t-lg rounded-b-none data-[state=active]:bg-background data-[state=active]:border-b-transparent data-[state=active]:border data-[state=active]:border-b-0 data-[state=active]:shadow h-10">
-              {getTranslation('common.logistics.tracking', language) || "Tracking"}
+              {getTranslation('common.logistics.tracking', language)}
             </TabsTrigger>
             <TabsTrigger value="analytics" className="rounded-t-lg rounded-b-none data-[state=active]:bg-background data-[state=active]:border-b-transparent data-[state=active]:border data-[state=active]:border-b-0 data-[state=active]:shadow h-10">
-              {getTranslation('common.logistics.analytics', language) || "Analytics"}
+              {getTranslation('common.logistics.analytics', language)}
             </TabsTrigger>
             <TabsTrigger value="sustainability" className="rounded-t-lg rounded-b-none data-[state=active]:bg-background data-[state=active]:border-b-transparent data-[state=active]:border data-[state=active]:border-b-0 data-[state=active]:shadow h-10">
-              {getTranslation('common.logistics.sustainability', language) || "Sustainability"}
+              {getTranslation('common.logistics.sustainability', language)}
             </TabsTrigger>
           </TabsList>
           
@@ -82,7 +82,7 @@ const Logistics = () => {
               <div className="space-y-2">
                 <h2 className="text-lg font-semibold flex items-center">
                   <Package className="h-5 w-5 mr-2 text-dtwin-medium" />
-                  {getTranslation('common.logistics.recentShipments', language) || "Recent Shipments"}
+                  {getTranslation('common.logistics.recentShipments', language)}
                 </h2>
                 <LogisticsOrdersTable />
               </div>
@@ -156,12 +156,12 @@ const Logistics = () => {
                   <CardContent className="p-4">
                     <h2 className="text-lg font-semibold mb-4 flex items-center">
                       <FileBarChart className="h-5 w-5 mr-2 text-dtwin-medium" />
-                      {getTranslation('common.logistics.deliveryPerformance', language) || "Delivery Performance Analysis"}
+                      {getTranslation('common.logistics.deliveryPerformance', language)}
                     </h2>
                     {/* This would be a dedicated analytics component in a real implementation */}
                     <div className="h-[300px] flex items-center justify-center border border-dashed rounded">
                       <span className="text-muted-foreground">
-                        {getTranslation('common.logistics.advancedAnalytics', language) || "Advanced delivery performance analytics"}
+                        {getTranslation('common.logistics.advancedAnalytics', language)}
                       </span>
                     </div>
                   </CardContent>
@@ -173,12 +173,12 @@ const Logistics = () => {
                   <CardContent className="p-4">
                     <h2 className="text-lg font-semibold mb-4 flex items-center">
                       <MapPin className="h-5 w-5 mr-2 text-dtwin-medium" />
-                      {getTranslation('common.logistics.geographicDistribution', language) || "Geographic Distribution"}
+                      {getTranslation('common.logistics.geographicDistribution', language)}
                     </h2>
                     {/* This would be a dedicated map analytics component */}
                     <div className="h-[300px] flex items-center justify-center border border-dashed rounded">
                       <span className="text-muted-foreground">
-                        {getTranslation('common.logistics.heatmapAnalytics', language) || "Delivery distribution heatmap"}
+                        {getTranslation('common.logistics.heatmapAnalytics', language)}
                       </span>
                     </div>
                   </CardContent>
@@ -188,12 +188,12 @@ const Logistics = () => {
                   <CardContent className="p-4">
                     <h2 className="text-lg font-semibold mb-4 flex items-center">
                       <AlertCircle className="h-5 w-5 mr-2 text-dtwin-medium" />
-                      {getTranslation('common.logistics.riskAnalysis', language) || "Risk Analysis"}
+                      {getTranslation('common.logistics.riskAnalysis', language)}
                     </h2>
                     {/* This would be a risk assessment component */}
                     <div className="h-[300px] flex items-center justify-center border border-dashed rounded">
                       <span className="text-muted-foreground">
-                        {getTranslation('common.logistics.deliveryRiskAssessment', language) || "Delivery risk assessment"}
+                        {getTranslation('common.logistics.deliveryRiskAssessment', language)}
                       </span>
                     </div>
                   </CardContent>
@@ -210,12 +210,12 @@ const Logistics = () => {
                 <Card className="shadow-md">
                   <CardContent className="p-4">
                     <h2 className="text-lg font-semibold mb-4">
-                      {getTranslation('common.logistics.sustainableRouting', language) || "Sustainable Routing"}
+                      {getTranslation('common.logistics.sustainableRouting', language)}
                     </h2>
                     {/* This would be a sustainable routing optimization component */}
                     <div className="h-[300px] flex items-center justify-center border border-dashed rounded">
                       <span className="text-muted-foreground">
-                        {getTranslation('common.logistics.ecoRoutingOptions', language) || "Eco-friendly routing options"}
+                        {getTranslation('common.logistics.ecoRoutingOptions', language)}
                       </span>
                     </div>
                   </CardContent>
@@ -224,12 +224,12 @@ const Logistics = () => {
                 <Card className="shadow-md">
                   <CardContent className="p-4">
                     <h2 className="text-lg font-semibold mb-4">
-                      {getTranslation('common.logistics.sustainabilityReporting', language) || "Sustainability Reporting"}
+                      {getTranslation('common.logistics.sustainabilityReporting', language)}
                     </h2>
                     {/* This would be a sustainability reporting component */}
                     <div className="h-[300px] flex items-center justify-center border border-dashed rounded">
                       <span className="text-muted-foreground">
-                        {getTranslation('common.logistics.environmentalReports', language) || "Environmental impact reports"}
+                        {getTranslation('common.logistics.environmentalReports', language)}
                       </span>
                     </div>
                   </CardContent>
