@@ -1,59 +1,139 @@
 
 import { Card } from "@/components/ui/card";
-import { CheckCircle, AlertTriangle, Package, Waves } from "lucide-react";
+import { CheckCircle, AlertTriangle, Package, Waves, BarChart4, ArrowUpCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
+import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 const InventorySummaryCards = () => {
   const { language, isRTL } = useLanguage();
 
+  // Animation variants for cards
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+  
+  const item = {
+    hidden: { y: 20, opacity: 0 },
+    show: { y: 0, opacity: 1 }
+  };
+
+  const cardStyles = [
+    "bg-gradient-to-r from-green-50 to-green-100 border-green-200",
+    "bg-gradient-to-r from-amber-50 to-amber-100 border-amber-200",
+    "bg-gradient-to-r from-red-50 to-red-100 border-red-200",
+    "bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200",
+    "bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200",
+    "bg-gradient-to-r from-indigo-50 to-indigo-100 border-indigo-200"
+  ];
+
+  const iconContainerStyles = [
+    "bg-green-100 text-green-600",
+    "bg-amber-100 text-amber-600", 
+    "bg-red-100 text-red-600",
+    "bg-blue-100 text-blue-600",
+    "bg-purple-100 text-purple-600",
+    "bg-indigo-100 text-indigo-600"
+  ];
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-      <Card className="p-6">
-        <div className="flex items-center space-x-4">
-          <div className="p-3 bg-success-50 rounded-full">
-            <CheckCircle className="h-6 w-6 text-success-500" />
+    <motion.div 
+      className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4"
+      variants={container}
+      initial="hidden"
+      animate="show"
+    >
+      <motion.div variants={item} className="md:col-span-1 lg:col-span-1">
+        <Card className={cn("p-6 h-full shadow-sm hover:shadow transition-all duration-300", cardStyles[0])}>
+          <div className="flex items-center space-x-4">
+            <div className={cn("p-3 rounded-full", iconContainerStyles[0])}>
+              <CheckCircle className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">{getTranslation('common.zones.green', language)}</p>
+              <p className="text-2xl font-bold">45 SKUs</p>
+            </div>
           </div>
-          <div>
-            <p className="text-sm text-gray-500">{getTranslation('common.zones.green', language)}</p>
-            <p className="text-2xl font-semibold">45 SKUs</p>
+        </Card>
+      </motion.div>
+
+      <motion.div variants={item} className="md:col-span-1 lg:col-span-1">
+        <Card className={cn("p-6 h-full shadow-sm hover:shadow transition-all duration-300", cardStyles[1])}>
+          <div className="flex items-center space-x-4">
+            <div className={cn("p-3 rounded-full", iconContainerStyles[1])}>
+              <AlertTriangle className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">{getTranslation('common.zones.yellow', language)}</p>
+              <p className="text-2xl font-bold">28 SKUs</p>
+            </div>
           </div>
-        </div>
-      </Card>
-      <Card className="p-6">
-        <div className="flex items-center space-x-4">
-          <div className="p-3 bg-warning-50 rounded-full">
-            <AlertTriangle className="h-6 w-6 text-warning-500" />
+        </Card>
+      </motion.div>
+
+      <motion.div variants={item} className="md:col-span-1 lg:col-span-1">
+        <Card className={cn("p-6 h-full shadow-sm hover:shadow transition-all duration-300", cardStyles[2])}>
+          <div className="flex items-center space-x-4">
+            <div className={cn("p-3 rounded-full", iconContainerStyles[2])}>
+              <Package className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">{getTranslation('common.zones.red', language)}</p>
+              <p className="text-2xl font-bold">12 SKUs</p>
+            </div>
           </div>
-          <div>
-            <p className="text-sm text-gray-500">{getTranslation('common.zones.yellow', language)}</p>
-            <p className="text-2xl font-semibold">28 SKUs</p>
+        </Card>
+      </motion.div>
+
+      <motion.div variants={item} className="md:col-span-1 lg:col-span-1">
+        <Card className={cn("p-6 h-full shadow-sm hover:shadow transition-all duration-300", cardStyles[3])}>
+          <div className="flex items-center space-x-4">
+            <div className={cn("p-3 rounded-full", iconContainerStyles[3])}>
+              <Waves className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">{getTranslation('common.netFlowPosition', language)}</p>
+              <p className="text-2xl font-bold">105 units</p>
+            </div>
           </div>
-        </div>
-      </Card>
-      <Card className="p-6">
-        <div className="flex items-center space-x-4">
-          <div className="p-3 bg-danger-50 rounded-full">
-            <Package className="h-6 w-6 text-danger-500" />
+        </Card>
+      </motion.div>
+
+      <motion.div variants={item} className="md:col-span-1 lg:col-span-1">
+        <Card className={cn("p-6 h-full shadow-sm hover:shadow transition-all duration-300", cardStyles[4])}>
+          <div className="flex items-center space-x-4">
+            <div className={cn("p-3 rounded-full", iconContainerStyles[4])}>
+              <BarChart4 className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">{getTranslation('common.inventory.adu', language) || 'ADU'}</p>
+              <p className="text-2xl font-bold">24.5 u/day</p>
+            </div>
           </div>
-          <div>
-            <p className="text-sm text-gray-500">{getTranslation('common.zones.red', language)}</p>
-            <p className="text-2xl font-semibold">12 SKUs</p>
+        </Card>
+      </motion.div>
+
+      <motion.div variants={item} className="md:col-span-1 lg:col-span-1">
+        <Card className={cn("p-6 h-full shadow-sm hover:shadow transition-all duration-300", cardStyles[5])}>
+          <div className="flex items-center space-x-4">
+            <div className={cn("p-3 rounded-full", iconContainerStyles[5])}>
+              <ArrowUpCircle className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">{getTranslation('common.inventory.turnover', language) || 'Turnover'}</p>
+              <p className="text-2xl font-bold">4.2x</p>
+            </div>
           </div>
-        </div>
-      </Card>
-      <Card className="p-6">
-        <div className="flex items-center space-x-4">
-          <div className="p-3 bg-primary-50 rounded-full">
-            <Waves className="h-6 w-6 text-primary-500" />
-          </div>
-          <div>
-            <p className="text-sm text-gray-500">{getTranslation('common.netFlowPosition', language)}</p>
-            <p className="text-2xl font-semibold">105 units</p>
-          </div>
-        </div>
-      </Card>
-    </div>
+        </Card>
+      </motion.div>
+    </motion.div>
   );
 };
 
