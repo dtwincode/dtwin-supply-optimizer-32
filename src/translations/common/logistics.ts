@@ -800,5 +800,47 @@ export const logisticsTranslations = {
       en: "Full S&OP integration will connect strategic, tactical, and operational planning layers into a unified DDOM-compliant framework.",
       ar: "سيربط التكامل الكامل لتخطيط المبيعات والعمليات طبقات التخطيط الاستراتيجية والتكتيكية والتشغيلية في إطار موحد متوافق مع DDOM."
     }
+  },
+  
+  // Adding missing properties from the type definition
+  purchaseOrderPipeline: {
+    en: "Purchase Order Pipeline",
+    ar: "خط أنابيب أوامر الشراء"
+  },
+  monitorAndTrack: {
+    en: "Monitor and Track",
+    ar: "مراقبة وتتبع"
+  },
+  routeOptimizationDesc: {
+    en: "Optimize routes for efficiency and cost",
+    ar: "تحسين المسارات للكفاءة والتكلفة"
+  },
+  transportModesDesc: {
+    en: "Manage different transport modes and carriers",
+    ar: "إدارة وسائل النقل المختلفة والناقلين"
+  },
+  documentManagement: {
+    en: "Document Management",
+    ar: "إدارة المستندات"
+  },
+  uploadAndManage: {
+    en: "Upload and Manage",
+    ar: "تحميل وإدارة"
+  },
+  uploadedDocuments: {
+    en: "Uploaded Documents",
+    ar: "المستندات المحملة"
+  },
+  logisticsTrackingMap: {
+    en: "Logistics Tracking Map",
+    ar: "خريطة تتبع الخدمات اللوجستية"
+  },
+  mapUnavailable: {
+    en: "Map Unavailable",
+    ar: "الخريطة غير متوفرة"
+  },
+  mapError: {
+    en: "Error Loading Map",
+    ar: "خطأ في تحميل الخريطة"
   }
 };
