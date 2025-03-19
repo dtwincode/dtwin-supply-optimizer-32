@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Edit, MoreHorizontal, FileText, Truck, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { Edit, MoreHorizontal, FileText, Truck, AlertTriangle, CheckCircle, XCircle, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { PurchaseOrderDialog } from './PurchaseOrderDialog';
 
@@ -81,6 +81,11 @@ export const PurchaseOrdersTab = () => {
     setDialogOpen(true);
   };
 
+  const handleCreatePO = () => {
+    setSelectedPO(null);
+    setDialogOpen(true);
+  };
+
   if (isLoading) {
     return (
       <Card className="p-6">
@@ -100,13 +105,19 @@ export const PurchaseOrdersTab = () => {
   return (
     <>
       <Card className="overflow-hidden">
-        <div className="p-6 border-b">
-          <h3 className="text-lg font-semibold">
-            {getTranslation("supplyPlanning.tabs.purchaseOrders", language)}
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            {getTranslation("supplyPlanning.purchaseOrdersDesc", language)}
-          </p>
+        <div className="p-6 border-b flex justify-between items-center">
+          <div>
+            <h3 className="text-lg font-semibold">
+              {getTranslation("supplyPlanning.tabs.purchaseOrders", language)}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {getTranslation("supplyPlanning.purchaseOrdersDesc", language)}
+            </p>
+          </div>
+          <Button onClick={handleCreatePO} className="bg-dtwin-medium hover:bg-dtwin-dark">
+            <Plus className="mr-2 h-4 w-4" />
+            {getTranslation("supplyPlanning.createPurchaseOrder", language)}
+          </Button>
         </div>
         
         <Table>
