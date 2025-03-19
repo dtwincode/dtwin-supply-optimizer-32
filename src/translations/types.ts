@@ -1,4 +1,3 @@
-
 export interface TranslationValue {
   en: string;
   ar: string;
@@ -240,7 +239,6 @@ export interface SupplyPlanningTranslations {
   };
   currentStock: TranslationValue;
   recommendedQty: TranslationValue;
-  supplier: TranslationValue;
   leadTime: TranslationValue;
   days: TranslationValue;
   creating: TranslationValue;
@@ -259,7 +257,6 @@ export interface SupplyPlanningTranslations {
   standardDeviation: TranslationValue;
   ordersOnTime: TranslationValue;
   fromLastMonth: TranslationValue;
-  days: TranslationValue;
   generateRecommendations: TranslationValue;
   leadTimeCalculations: TranslationValue;
   leadTimeCalculationsDesc: TranslationValue;
