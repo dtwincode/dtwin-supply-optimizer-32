@@ -1,108 +1,87 @@
 
-import { useState } from "react";
-import { Search, Filter, Calendar } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { 
-  Popover, 
-  PopoverContent, 
-  PopoverTrigger 
-} from "@/components/ui/popover";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslation } from "@/translations";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
+import React, { useState } from 'react';
+import { Card } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Search, Filter } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { getTranslation } from '@/translations';
 
 export const SupplyPlanningFilters = () => {
   const { language } = useLanguage();
-  const [date, setDate] = useState<Date>();
-  const [supplierFilter, setSupplierFilter] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<string>("");
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSupplier, setSelectedSupplier] = useState('all');
+  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [selectedPriority, setSelectedPriority] = useState('all');
 
   return (
-    <div className="flex flex-wrap gap-3 items-center">
-      <div className="relative flex-1 min-w-[200px]">
-        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-        <Input
-          type="search"
-          placeholder={getTranslation("common.search", language)}
-          className="pl-8"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
-
-      <Select value={supplierFilter} onValueChange={setSupplierFilter}>
-        <SelectTrigger className="w-[180px]">
-          <span className="flex items-center">
-            <Filter className="mr-2 h-4 w-4" />
-            {getTranslation("supplyPlanning.filters.supplier", language)}
-          </span>
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="">
-            {getTranslation("common.all", language)}
-          </SelectItem>
-          <SelectItem value="supplier1">Supplier 1</SelectItem>
-          <SelectItem value="supplier2">Supplier 2</SelectItem>
-          <SelectItem value="supplier3">Supplier 3</SelectItem>
-        </SelectContent>
-      </Select>
-
-      <Select value={statusFilter} onValueChange={setStatusFilter}>
-        <SelectTrigger className="w-[180px]">
-          <span className="flex items-center">
-            <Filter className="mr-2 h-4 w-4" />
-            {getTranslation("supplyPlanning.filters.status", language)}
-          </span>
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="">
-            {getTranslation("common.all", language)}
-          </SelectItem>
-          <SelectItem value="planned">
-            {getTranslation("supplyPlanning.status.planned", language)}
-          </SelectItem>
-          <SelectItem value="ordered">
-            {getTranslation("supplyPlanning.status.ordered", language)}
-          </SelectItem>
-          <SelectItem value="confirmed">
-            {getTranslation("supplyPlanning.status.confirmed", language)}
-          </SelectItem>
-          <SelectItem value="shipped">
-            {getTranslation("supplyPlanning.status.shipped", language)}
-          </SelectItem>
-          <SelectItem value="received">
-            {getTranslation("supplyPlanning.status.received", language)}
-          </SelectItem>
-        </SelectContent>
-      </Select>
-
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="outline" className="w-[180px] pl-3 text-left font-normal">
-            <Calendar className="mr-2 h-4 w-4" />
-            {date ? format(date, "PPP") : getTranslation("supplyPlanning.filters.deliveryDate", language)}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <CalendarComponent
-            mode="single"
-            selected={date}
-            onSelect={setDate}
-            initialFocus
+    <Card className="p-4 mb-6">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder={getTranslation("supplyPlanning.searchItems", language)}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
           />
-        </PopoverContent>
-      </Popover>
-    </div>
+        </div>
+        
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+            <Select value={selectedSupplier} onValueChange={setSelectedSupplier}>
+              <SelectTrigger className="w-full sm:w-[150px]">
+                <SelectValue placeholder={getTranslation("supplyPlanning.supplier", language)} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{getTranslation("common.all", language)}</SelectItem>
+                <SelectItem value="supplier1">Supplier A</SelectItem>
+                <SelectItem value="supplier2">Supplier B</SelectItem>
+                <SelectItem value="supplier3">Supplier C</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+              <SelectTrigger className="w-full sm:w-[150px]">
+                <SelectValue placeholder={getTranslation("supplyPlanning.status", language)} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{getTranslation("common.all", language)}</SelectItem>
+                <SelectItem value="planned">{getTranslation("supplyPlanning.status.planned", language)}</SelectItem>
+                <SelectItem value="ordered">{getTranslation("supplyPlanning.status.ordered", language)}</SelectItem>
+                <SelectItem value="confirmed">{getTranslation("supplyPlanning.status.confirmed", language)}</SelectItem>
+                <SelectItem value="shipped">{getTranslation("supplyPlanning.status.shipped", language)}</SelectItem>
+                <SelectItem value="received">{getTranslation("supplyPlanning.status.received", language)}</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <Select value={selectedPriority} onValueChange={setSelectedPriority}>
+              <SelectTrigger className="w-full sm:w-[150px]">
+                <SelectValue placeholder={getTranslation("supplyPlanning.priority", language)} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{getTranslation("common.all", language)}</SelectItem>
+                <SelectItem value="critical">{getTranslation("supplyPlanning.priority.critical", language)}</SelectItem>
+                <SelectItem value="high">{getTranslation("supplyPlanning.priority.high", language)}</SelectItem>
+                <SelectItem value="medium">{getTranslation("supplyPlanning.priority.medium", language)}</SelectItem>
+                <SelectItem value="low">{getTranslation("supplyPlanning.priority.low", language)}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <Button variant="outline" size="icon" className="h-9 w-9 shrink-0">
+            <Filter className="h-4 w-4" />
+            <span className="sr-only">{getTranslation("common.filter", language)}</span>
+          </Button>
+        </div>
+      </div>
+    </Card>
   );
 };

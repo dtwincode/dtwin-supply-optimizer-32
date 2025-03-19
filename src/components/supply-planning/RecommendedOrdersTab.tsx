@@ -24,6 +24,8 @@ export const RecommendedOrdersTab = () => {
   // Process items to determine which need replenishment
   useEffect(() => {
     const processItems = async () => {
+      if (!items.length || loading) return;
+      
       const itemsNeedingReplenishment: InventoryItem[] = [];
       const itemsWithData: (InventoryItem & { orderQuantity: number })[] = [];
 
@@ -56,9 +58,7 @@ export const RecommendedOrdersTab = () => {
       setItemsWithOrderData(itemsWithData);
     };
     
-    if (items.length > 0 && !loading) {
-      processItems();
-    }
+    processItems();
   }, [items, loading]);
 
   const handleCreatePO = async (item: InventoryItem & { orderQuantity: number }) => {
