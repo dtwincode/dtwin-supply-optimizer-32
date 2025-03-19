@@ -1,18 +1,12 @@
 
-import { InventoryTranslations } from '../types';
-
-export const inventoryTranslations: InventoryTranslations = {
+export const inventoryTranslations = {
   inventoryTitle: {
     en: "Inventory Management",
     ar: "إدارة المخزون"
   },
   bufferZones: {
     en: "Buffer Zones",
-    ar: "مناطق المخزون"
-  },
-  bufferStatus: {
-    en: "Buffer Status",
-    ar: "حالة المخزون"
+    ar: "مناطق المخزون الاحتياطي"
   },
   skuClassification: {
     en: "SKU Classification",
@@ -24,99 +18,167 @@ export const inventoryTranslations: InventoryTranslations = {
   },
   replenishmentOrders: {
     en: "Replenishment Orders",
-    ar: "طلبات إعادة التزويد"
+    ar: "طلبات إعادة التموين"
+  },
+  bufferStatus: {
+    en: "Buffer Status",
+    ar: "حالة المخزون الاحتياطي"
   },
   netFlowPosition: {
     en: "Net Flow Position",
-    ar: "موقف التدفق الصافي"
+    ar: "وضع التدفق الصافي"
   },
   inventorySummary: {
     en: "Inventory Summary",
     ar: "ملخص المخزون"
   },
-  inventoryLevels: {
-    en: "Inventory Levels",
-    ar: "مستويات المخزون"
+  adu: {
+    en: "ADU",
+    ar: "متوسط الاستخدام اليومي"
   },
-  skuClassifications: {
-    en: "SKU Classifications",
-    ar: "تصنيفات وحدات التخزين"
+  onHand: {
+    en: "On Hand",
+    ar: "متوفر حاليًا"
+  },
+  onOrder: {
+    en: "On Order",
+    ar: "قيد الطلب"
+  },
+  allocated: {
+    en: "Allocated",
+    ar: "مخصص"
+  },
+  available: {
+    en: "Available",
+    ar: "متاح"
+  },
+  bufferPenetration: {
+    en: "Buffer Penetration",
+    ar: "اختراق المخزون الاحتياطي"
+  },
+  avgDailyUsage: {
+    en: "Avg. Daily Usage",
+    ar: "متوسط الاستخدام اليومي"
+  },
+  orders: {
+    en: "Orders",
+    ar: "الطلبات"
+  },
+  status: {
+    en: "Status",
+    ar: "الحالة"
+  },
+  quantity: {
+    en: "Quantity",
+    ar: "الكمية"
+  },
+  expectedDelivery: {
+    en: "Expected Delivery",
+    ar: "التسليم المتوقع"
+  },
+  inventoryLevel: {
+    en: "Inventory Level",
+    ar: "مستوى المخزون"
+  },
+  reorderPoint: {
+    en: "Reorder Point",
+    ar: "نقطة إعادة الطلب"
+  },
+  safetyStock: {
+    en: "Safety Stock",
+    ar: "مخزون الأمان"
+  },
+  inventoryPolicy: {
+    en: "Inventory Policy",
+    ar: "سياسة المخزون"
+  },
+  green: {
+    en: "Green",
+    ar: "أخضر"
+  },
+  yellow: {
+    en: "Yellow",
+    ar: "أصفر"
+  },
+  red: {
+    en: "Red",
+    ar: "أحمر"
+  },
+  tooHigh: {
+    en: "Too High",
+    ar: "مرتفع جدًا"
+  },
+  optimal: {
+    en: "Optimal",
+    ar: "مثالي"
+  },
+  warning: {
+    en: "Warning",
+    ar: "تحذير"
+  },
+  tooLow: {
+    en: "Too Low",
+    ar: "منخفض جدًا"
+  },
+  bufferDetails: {
+    en: "Buffer Details",
+    ar: "تفاصيل المخزون الاحتياطي"
+  },
+  bufferZone: {
+    en: "Buffer Zone",
+    ar: "منطقة المخزون الاحتياطي"
+  },
+  bufferValue: {
+    en: "Buffer Value",
+    ar: "قيمة المخزون الاحتياطي"
+  },
+  yellowZone: {
+    en: "Yellow Zone",
+    ar: "المنطقة الصفراء"
+  },
+  redZone: {
+    en: "Red Zone",
+    ar: "المنطقة الحمراء"
+  },
+  greenZone: {
+    en: "Green Zone",
+    ar: "المنطقة الخضراء"
   },
   decouplingPoint: {
     en: "Decoupling Point",
     ar: "نقطة الفصل"
   },
-  addDecouplingPoint: {
-    en: "Add Decoupling Point",
-    ar: "إضافة نقطة فصل"
+  supplier: {
+    en: "Supplier",
+    ar: "المورد"
   },
-  manageAndTrack: {
-    en: "Manage and track inventory levels",
-    ar: "إدارة وتتبع مستويات المخزون"
+  manufacturer: {
+    en: "Manufacturer",
+    ar: "المصنع"
   },
-  currentStock: {
-    en: "Current Stock",
-    ar: "المخزون الحالي"
+  distributor: {
+    en: "Distributor",
+    ar: "الموزع"
   },
-  productFamily: {
-    en: "Product Family",
-    ar: "عائلة المنتج"
+  warehouse: {
+    en: "Warehouse",
+    ar: "المستودع"
   },
-  location: {
-    en: "Location",
-    ar: "الموقع"
+  retailer: {
+    en: "Retailer",
+    ar: "بائع التجزئة"
   },
-  name: {
-    en: "Name",
-    ar: "الاسم"
+  consumer: {
+    en: "Consumer",
+    ar: "المستهلك"
   },
-  sku: {
-    en: "SKU",
-    ar: "رمز المنتج"
-  },
-  actions: {
-    en: "Actions",
-    ar: "إجراءات"
-  },
-  noItems: {
-    en: "No inventory items available",
-    ar: "لا توجد عناصر مخزون متاحة"
-  },
-  loadingData: {
-    en: "Loading inventory data",
-    ar: "جاري تحميل بيانات المخزون"
-  },
-  loadingItem: {
-    en: "Loading item data",
-    ar: "جاري تحميل بيانات العنصر"
-  },
-  errorLoading: {
-    en: "Error loading inventory data table",
-    ar: "خطأ في تحميل جدول بيانات المخزون"
-  },
-  leadTimeCategory: {
-    en: "Lead Time Category",
-    ar: "فئة وقت التوريد"
-  },
-  variabilityLevel: {
-    en: "Variability Level",
-    ar: "مستوى التغير"
-  },
-  criticality: {
-    en: "Criticality",
-    ar: "الأهمية"
-  },
-  score: {
-    en: "Score",
-    ar: "النتيجة"
-  },
-  lastUpdated: {
-    en: "Last Updated",
-    ar: "آخر تحديث"
+  daysOfStock: {
+    en: "Days of Stock",
+    ar: "أيام المخزون"
   },
   aduAnalysis: {
     en: "ADU Analysis",
-    ar: "تحليل ADU"
+    ar: "تحليل متوسط الاستهلاك اليومي"
   },
   aiInsights: {
     en: "AI Insights",
