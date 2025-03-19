@@ -1,7 +1,8 @@
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, forwardRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { createMapMarker } from './MapMarker';
 
 interface BaseMapProps {
   latitude?: number;
