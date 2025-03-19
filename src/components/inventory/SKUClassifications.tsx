@@ -43,10 +43,10 @@ export function SKUClassifications({ classifications }: SKUClassificationsProps)
         low: 'Standard item'
       }
     };
-    return tooltips[type as keyof typeof tooltips]?.[level] || '';
+    return tooltips[type as keyof typeof tooltips]?.[level as keyof typeof tooltips[keyof typeof tooltips]] || '';
   };
 
-  // Animation variants for cards
+  // Animation variants for cards - properly typed for framer-motion
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -77,6 +77,16 @@ export function SKUClassifications({ classifications }: SKUClassificationsProps)
     "bg-gradient-to-r from-green-50 to-emerald-50"
   ];
 
+  // Helper function to map leadTimeCategory to high/medium/low for visual consistency
+  const mapLeadTimeCategoryToLevel = (category: 'short' | 'medium' | 'long'): 'low' | 'medium' | 'high' => {
+    switch (category) {
+      case 'short': return 'low';
+      case 'medium': return 'medium';
+      case 'long': return 'high';
+      default: return 'medium' as 'medium';
+    }
+  };
+
   return (
     <TooltipProvider>
       <motion.div 
@@ -85,8 +95,8 @@ export function SKUClassifications({ classifications }: SKUClassificationsProps)
         initial="hidden"
         animate="show"
       >
-        {classifications.map((item, index) => (
-          <motion.div key={item.sku} variants={item}>
+        {classifications.map((classItem, index) => (
+          <motion.div key={classItem.sku} variants={item}>
             <Card className={cn("overflow-hidden transition-all hover:shadow-lg", cardBackgrounds[index % cardBackgrounds.length])}>
               {/* Header with Score */}
               <div className="flex justify-between items-center p-4 border-b">
@@ -94,14 +104,14 @@ export function SKUClassifications({ classifications }: SKUClassificationsProps)
                   <div className="p-2 rounded-full bg-white shadow-sm">
                     <Tag className="w-4 h-4 text-gray-600" />
                   </div>
-                  <span className="font-medium">{item.sku}</span>
+                  <span className="font-medium">{classItem.sku}</span>
                 </div>
                 <div className="flex flex-col items-end">
                   <span className="text-xs text-gray-500">Score</span>
                   <div className="flex items-center gap-1">
                     <Award className="w-4 h-4 text-amber-500" />
-                    <span className={cn("text-lg font-bold", getScoreColor(item.classification.score || 0))}>
-                      {item.classification.score || 'N/A'}
+                    <span className={cn("text-lg font-bold", getScoreColor(classItem.classification.score || 0))}>
+                      {classItem.classification.score || 'N/A'}
                     </span>
                   </div>
                 </div>
@@ -112,14 +122,14 @@ export function SKUClassifications({ classifications }: SKUClassificationsProps)
                 {/* Lead Time */}
                 <div className="flex items-center gap-2 bg-white p-3 rounded-lg shadow-sm">
                   <div className={cn("h-8 w-1 rounded-full", 
-                    item.classification.leadTimeCategory === 'high' ? 'bg-red-400' : 
-                    item.classification.leadTimeCategory === 'medium' ? 'bg-yellow-400' : 
+                    mapLeadTimeCategoryToLevel(classItem.classification.leadTimeCategory) === 'high' ? 'bg-red-400' : 
+                    mapLeadTimeCategoryToLevel(classItem.classification.leadTimeCategory) === 'medium' ? 'bg-yellow-400' : 
                     'bg-green-400')} />
                   <div className="flex-1">
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Lead Time</span>
-                      <Badge className={getClassificationBadgeColor(item.classification.leadTimeCategory)}>
-                        {item.classification.leadTimeCategory}
+                      <Badge className={getClassificationBadgeColor(mapLeadTimeCategoryToLevel(classItem.classification.leadTimeCategory))}>
+                        {mapLeadTimeCategoryToLevel(classItem.classification.leadTimeCategory)}
                       </Badge>
                     </div>
                   </div>
@@ -128,7 +138,7 @@ export function SKUClassifications({ classifications }: SKUClassificationsProps)
                       <Info className="h-4 w-4 text-gray-400" />
                     </TooltipTrigger>
                     <TooltipContent>
-                      {getClassificationTooltip('leadTime', item.classification.leadTimeCategory)}
+                      {getClassificationTooltip('leadTime', mapLeadTimeCategoryToLevel(classItem.classification.leadTimeCategory))}
                     </TooltipContent>
                   </Tooltip>
                 </div>
@@ -136,14 +146,14 @@ export function SKUClassifications({ classifications }: SKUClassificationsProps)
                 {/* Variability */}
                 <div className="flex items-center gap-2 bg-white p-3 rounded-lg shadow-sm">
                   <div className={cn("h-8 w-1 rounded-full", 
-                    item.classification.variabilityLevel === 'high' ? 'bg-red-400' : 
-                    item.classification.variabilityLevel === 'medium' ? 'bg-yellow-400' : 
+                    classItem.classification.variabilityLevel === 'high' ? 'bg-red-400' : 
+                    classItem.classification.variabilityLevel === 'medium' ? 'bg-yellow-400' : 
                     'bg-green-400')} />
                   <div className="flex-1">
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Variability</span>
-                      <Badge className={getClassificationBadgeColor(item.classification.variabilityLevel)}>
-                        {item.classification.variabilityLevel}
+                      <Badge className={getClassificationBadgeColor(classItem.classification.variabilityLevel)}>
+                        {classItem.classification.variabilityLevel}
                       </Badge>
                     </div>
                   </div>
@@ -152,7 +162,7 @@ export function SKUClassifications({ classifications }: SKUClassificationsProps)
                       <TrendingUp className="h-4 w-4 text-gray-400" />
                     </TooltipTrigger>
                     <TooltipContent>
-                      {getClassificationTooltip('variability', item.classification.variabilityLevel)}
+                      {getClassificationTooltip('variability', classItem.classification.variabilityLevel)}
                     </TooltipContent>
                   </Tooltip>
                 </div>
@@ -160,14 +170,14 @@ export function SKUClassifications({ classifications }: SKUClassificationsProps)
                 {/* Criticality */}
                 <div className="flex items-center gap-2 bg-white p-3 rounded-lg shadow-sm">
                   <div className={cn("h-8 w-1 rounded-full", 
-                    item.classification.criticality === 'high' ? 'bg-red-400' : 
-                    item.classification.criticality === 'medium' ? 'bg-yellow-400' : 
+                    classItem.classification.criticality === 'high' ? 'bg-red-400' : 
+                    classItem.classification.criticality === 'medium' ? 'bg-yellow-400' : 
                     'bg-green-400')} />
                   <div className="flex-1">
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Criticality</span>
-                      <Badge className={getClassificationBadgeColor(item.classification.criticality)}>
-                        {item.classification.criticality}
+                      <Badge className={getClassificationBadgeColor(classItem.classification.criticality)}>
+                        {classItem.classification.criticality}
                       </Badge>
                     </div>
                   </div>
@@ -176,7 +186,7 @@ export function SKUClassifications({ classifications }: SKUClassificationsProps)
                       <Info className="h-4 w-4 text-gray-400" />
                     </TooltipTrigger>
                     <TooltipContent>
-                      {getClassificationTooltip('criticality', item.classification.criticality)}
+                      {getClassificationTooltip('criticality', classItem.classification.criticality)}
                     </TooltipContent>
                   </Tooltip>
                 </div>
@@ -184,7 +194,7 @@ export function SKUClassifications({ classifications }: SKUClassificationsProps)
               
               {/* Footer */}
               <div className="px-4 py-2 bg-white/50 text-xs text-gray-500 text-right">
-                Updated: {new Date(item.lastUpdated).toLocaleDateString()}
+                Updated: {new Date(classItem.lastUpdated).toLocaleDateString()}
               </div>
             </Card>
           </motion.div>
