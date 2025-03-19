@@ -174,7 +174,6 @@ export const supplyPlanningTranslations: SupplyPlanningTranslations = {
     en: "Optimize your supply chain with AI-powered planning, real-time visibility, and automated replenishment recommendations",
     ar: "تحسين سلسلة التوريد الخاصة بك باستخدام التخطيط المدعوم بالذكاء الاصطناعي والرؤية في الوقت الفعلي وتوصيات إعادة التزويد الآلية"
   },
-  // Adding the missing keys that are causing errors in the console
   recommendedOrders: {
     en: "Recommended Orders",
     ar: "الطلبات الموصى بها"

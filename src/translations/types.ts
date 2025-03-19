@@ -264,10 +264,11 @@ export interface SupplyPlanningTranslations {
   variabilityLevels: TranslationValue;
   ddmrpImpact: TranslationValue;
   moduleDescription: TranslationValue;
+  recommendedOrders: TranslationValue;
+  recommendedOrdersDesc: TranslationValue;
 }
 
 export interface SalesTranslations {
-  // Just adding a placeholder for the SalesTranslations interface
   title: TranslationValue;
 }
 
