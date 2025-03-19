@@ -14,7 +14,6 @@ import { ddomTranslations } from './ddom';
 // Combine all logistics translations
 export const logisticsTranslations = {
   ...generalLogisticsTranslations,
-  ...statusTranslations,
   ...notificationTranslations,
   ...metricsTranslations,
   ...mapTranslations,
@@ -24,6 +23,18 @@ export const logisticsTranslations = {
   ...analyticsTranslations,
   ...sustainabilityTranslations,
   ...ddomTranslations,
+  
+  // Import status translations properly - ensuring the nested structures are preserved
+  status: statusTranslations.status,  // Use the nested status object that matches the interface
+  statusLabel: statusTranslations.statusLabel,
+  inTransit: statusTranslations.inTransit,
+  delivered: statusTranslations.delivered,
+  processing: statusTranslations.processing,
+  outForDelivery: statusTranslations.outForDelivery,
+  exception: statusTranslations.exception,
+  delayedEta: statusTranslations.delayedEta,
+  pending: statusTranslations.pending,
+  
   // Ensure we have all the properties required by LogisticsTranslations interface
   purchaseOrderPipeline: {
     en: "Purchase Order Pipeline",
