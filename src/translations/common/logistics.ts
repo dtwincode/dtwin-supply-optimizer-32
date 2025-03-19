@@ -1,4 +1,3 @@
-
 export const logisticsTranslations = {
   // Common logistics translations
   optimizeSupplyChain: {
@@ -702,5 +701,51 @@ export const logisticsTranslations = {
   signOut: {
     en: "Sign Out",
     ar: "تسجيل الخروج"
+  },
+  
+  // ETA Predictions related translations
+  predictiveETA: {
+    en: "AI-Powered ETA Predictions",
+    ar: "توقعات الوصول المدعومة بالذكاء الاصطناعي"
+  },
+  route: {
+    en: "Route",
+    ar: "المسار"
+  },
+  originalETA: {
+    en: "Original ETA",
+    ar: "الوقت المتوقع الأصلي"
+  },
+  predictedETA: {
+    en: "Predicted ETA",
+    ar: "الوقت المتوقع المتنبأ به"
+  },
+  confidence: {
+    en: "Confidence",
+    ar: "الثقة"
+  },
+  shipment: {
+    en: "Shipment",
+    ar: "الشحنة"
+  },
+  impactFactors: {
+    en: "Impact Factors",
+    ar: "عوامل التأثير"
+  },
+  onTime: {
+    en: "On Time",
+    ar: "في الموعد"
+  },
+  early: {
+    en: "Early",
+    ar: "مبكر"
+  },
+  atRisk: {
+    en: "At Risk",
+    ar: "في خطر"
+  },
+  hours: {
+    en: "hrs",
+    ar: "ساعات"
   }
 };

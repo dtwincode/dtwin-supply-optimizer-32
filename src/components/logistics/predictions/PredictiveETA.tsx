@@ -135,24 +135,26 @@ export const PredictiveETA: React.FC = () => {
     }
   };
 
+  const t = (key: string) => getTranslation(key, language) || key;
+
   return (
     <Card className="shadow-md">
       <CardHeader>
         <CardTitle className="text-xl flex items-center">
           <Clock className="mr-2 h-5 w-5 text-dtwin-medium" />
-          {getTranslation('common.logistics.predictiveETA', language) || "AI-Powered ETA Predictions"}
+          {t('common.logistics.predictiveETA')}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50">
-              <TableHead>{getTranslation('common.logistics.shipment', language) || "Shipment"}</TableHead>
-              <TableHead>{getTranslation('common.logistics.route', language) || "Route"}</TableHead>
-              <TableHead>{getTranslation('common.logistics.originalETA', language) || "Original ETA"}</TableHead>
-              <TableHead>{getTranslation('common.logistics.predictedETA', language) || "Predicted ETA"}</TableHead>
-              <TableHead>{getTranslation('common.logistics.confidence', language) || "Confidence"}</TableHead>
-              <TableHead>{getTranslation('common.logistics.statusLabel', language) || "Status"}</TableHead>
+              <TableHead>{t('common.logistics.shipment')}</TableHead>
+              <TableHead>{t('common.logistics.route')}</TableHead>
+              <TableHead>{t('common.logistics.originalETA')}</TableHead>
+              <TableHead>{t('common.logistics.predictedETA')}</TableHead>
+              <TableHead>{t('common.logistics.confidence')}</TableHead>
+              <TableHead>{t('common.logistics.statusLabel')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -192,7 +194,7 @@ export const PredictiveETA: React.FC = () => {
                           <TooltipContent className="max-w-sm">
                             <div className="p-2">
                               <p className="font-medium mb-2">
-                                {getTranslation('common.logistics.impactFactors', language) || "Impact Factors"}:
+                                {t('common.logistics.impactFactors')}:
                               </p>
                               <ul className="list-disc pl-5 space-y-1">
                                 {prediction.riskFactors.map((factor, idx) => (
@@ -214,3 +216,4 @@ export const PredictiveETA: React.FC = () => {
     </Card>
   );
 };
+
