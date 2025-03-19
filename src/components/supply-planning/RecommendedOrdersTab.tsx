@@ -92,7 +92,7 @@ export const RecommendedOrdersTab = () => {
   if (loading) {
     return (
       <Card className="p-6">
-        <p>{getTranslation("inventory.loadingData", language)}</p>
+        <p>{getTranslation("common.inventory.loadingData", language)}</p>
       </Card>
     );
   }
@@ -100,7 +100,7 @@ export const RecommendedOrdersTab = () => {
   if (error) {
     return (
       <Card className="p-6">
-        <p>{getTranslation("inventory.errorLoading", language)}</p>
+        <p>{getTranslation("common.inventory.errorLoading", language)}</p>
       </Card>
     );
   }
@@ -119,8 +119,8 @@ export const RecommendedOrdersTab = () => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>{getTranslation("inventory.sku", language)}</TableHead>
-            <TableHead>{getTranslation("inventory.name", language)}</TableHead>
+            <TableHead>{getTranslation("common.inventory.sku", language)}</TableHead>
+            <TableHead>{getTranslation("common.inventory.name", language)}</TableHead>
             <TableHead>
               <div className="flex items-center">
                 {getTranslation("supplyPlanning.currentStock", language)}
@@ -135,7 +135,7 @@ export const RecommendedOrdersTab = () => {
             </TableHead>
             <TableHead>{getTranslation("supplyPlanning.supplier", language)}</TableHead>
             <TableHead>{getTranslation("supplyPlanning.leadTime", language)}</TableHead>
-            <TableHead className="text-right">{getTranslation("inventory.actions", language)}</TableHead>
+            <TableHead className="text-right">{getTranslation("common.inventory.actions", language)}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

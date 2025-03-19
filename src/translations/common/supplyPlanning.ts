@@ -173,5 +173,14 @@ export const supplyPlanningTranslations: SupplyPlanningTranslations = {
   moduleDescription: {
     en: "Optimize your supply chain with AI-powered planning, real-time visibility, and automated replenishment recommendations",
     ar: "تحسين سلسلة التوريد الخاصة بك باستخدام التخطيط المدعوم بالذكاء الاصطناعي والرؤية في الوقت الفعلي وتوصيات إعادة التزويد الآلية"
+  },
+  // Adding the missing keys that are causing errors in the console
+  recommendedOrders: {
+    en: "Recommended Orders",
+    ar: "الطلبات الموصى بها"
+  },
+  recommendedOrdersDesc: {
+    en: "AI-generated replenishment recommendations based on current inventory levels and demand patterns",
+    ar: "توصيات إعادة التزويد المولدة بالذكاء الاصطناعي بناءً على مستويات المخزون الحالية وأنماط الطلب"
   }
 };
