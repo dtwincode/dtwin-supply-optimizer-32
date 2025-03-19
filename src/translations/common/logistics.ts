@@ -748,6 +748,7 @@ export const logisticsTranslations = {
     en: "hrs",
     ar: "ساعات"
   },
+  
   // Carbon Footprint Tracker translations
   exportReport: {
     en: "Export Report",
@@ -820,5 +821,11 @@ export const logisticsTranslations = {
   ofTotal: {
     en: "of total",
     ar: "من الإجمالي"
+  },
+  
+  // Actions column translations
+  actions: {
+    en: "Actions",
+    ar: "إجراءات"
   }
 };

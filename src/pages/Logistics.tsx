@@ -1,3 +1,4 @@
+
 import React from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -132,10 +133,6 @@ const Logistics = () => {
                   <LogisticsMap />
                 </CardContent>
               </Card>
-              
-              <div className="grid grid-cols-1 gap-4">
-                <RealTimeNotifications />
-              </div>
             </div>
           </TabsContent>
           
@@ -151,11 +148,11 @@ const Logistics = () => {
                   <CardContent className="p-4">
                     <h2 className="text-lg font-semibold mb-4 flex items-center">
                       <FileBarChart className="h-5 w-5 mr-2 text-dtwin-medium" />
-                      {getTranslation('common.logistics.deliveryPerformance', language) || "Delivery Performance Analysis"}
+                      {t('deliveryPerformance')}
                     </h2>
                     <div className="h-[300px] flex items-center justify-center border border-dashed rounded">
                       <span className="text-muted-foreground">
-                        {getTranslation('common.logistics.advancedAnalytics', language) || "Advanced delivery performance analytics"}
+                        {t('advancedAnalytics')}
                       </span>
                     </div>
                   </CardContent>
@@ -167,11 +164,11 @@ const Logistics = () => {
                   <CardContent className="p-4">
                     <h2 className="text-lg font-semibold mb-4 flex items-center">
                       <MapPin className="h-5 w-5 mr-2 text-dtwin-medium" />
-                      {getTranslation('common.logistics.geographicDistribution', language) || "Geographic Distribution"}
+                      {t('geographicDistribution')}
                     </h2>
                     <div className="h-[300px] flex items-center justify-center border border-dashed rounded">
                       <span className="text-muted-foreground">
-                        {getTranslation('common.logistics.heatmapAnalytics', language) || "Delivery distribution heatmap"}
+                        {t('heatmapAnalytics')}
                       </span>
                     </div>
                   </CardContent>
@@ -181,11 +178,11 @@ const Logistics = () => {
                   <CardContent className="p-4">
                     <h2 className="text-lg font-semibold mb-4 flex items-center">
                       <AlertCircle className="h-5 w-5 mr-2 text-dtwin-medium" />
-                      {getTranslation('common.logistics.riskAnalysis', language) || "Risk Analysis"}
+                      {t('riskAnalysis')}
                     </h2>
                     <div className="h-[300px] flex items-center justify-center border border-dashed rounded">
                       <span className="text-muted-foreground">
-                        {getTranslation('common.logistics.deliveryRiskAssessment', language) || "Delivery risk assessment"}
+                        {t('deliveryRiskAssessment')}
                       </span>
                     </div>
                   </CardContent>
@@ -202,11 +199,11 @@ const Logistics = () => {
                 <Card className="shadow-md">
                   <CardContent className="p-4">
                     <h2 className="text-lg font-semibold mb-4">
-                      {getTranslation('common.logistics.sustainableRouting', language) || "Sustainable Routing"}
+                      {t('sustainableRouting')}
                     </h2>
                     <div className="h-[300px] flex items-center justify-center border border-dashed rounded">
                       <span className="text-muted-foreground">
-                        {getTranslation('common.logistics.ecoRoutingOptions', language) || "Eco-friendly routing options"}
+                        {t('ecoRoutingOptions')}
                       </span>
                     </div>
                   </CardContent>
@@ -215,11 +212,11 @@ const Logistics = () => {
                 <Card className="shadow-md">
                   <CardContent className="p-4">
                     <h2 className="text-lg font-semibold mb-4">
-                      {getTranslation('common.logistics.sustainabilityReporting', language) || "Sustainability Reporting"}
+                      {t('sustainabilityReporting')}
                     </h2>
                     <div className="h-[300px] flex items-center justify-center border border-dashed rounded">
                       <span className="text-muted-foreground">
-                        {getTranslation('common.logistics.environmentalReports', language) || "Environmental impact reports"}
+                        {t('environmentalReports')}
                       </span>
                     </div>
                   </CardContent>

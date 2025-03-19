@@ -53,13 +53,14 @@ const ordersData = [
 
 export const LogisticsOrdersTable = () => {
   const { language } = useLanguage();
+  const t = (key: string) => getTranslation(`common.logistics.${key}`, language) || key;
   
   const getStatusTranslation = (status: string) => {
     const statusMap: Record<string, string> = {
-      'in-transit': getTranslation('common.logistics.inTransit', language),
-      'delivered': getTranslation('common.logistics.delivered', language),
-      'processing': getTranslation('common.logistics.processing', language),
-      'out-for-delivery': getTranslation('common.logistics.outForDelivery', language)
+      'in-transit': t('inTransit'),
+      'delivered': t('delivered'),
+      'processing': t('processing'),
+      'out-for-delivery': t('outForDelivery')
     };
     
     return statusMap[status] || status;
@@ -95,12 +96,12 @@ export const LogisticsOrdersTable = () => {
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50">
-              <TableHead>{getTranslation('common.logistics.orderRef', language)}</TableHead>
-              <TableHead>{getTranslation('common.logistics.carrier', language)}</TableHead>
-              <TableHead>{getTranslation('common.logistics.trackingNumber', language)}</TableHead>
-              <TableHead>{getTranslation('common.logistics.statusLabel', language)}</TableHead>
-              <TableHead>{getTranslation('common.logistics.lastUpdated', language)}</TableHead>
-              <TableHead className="text-right">{getTranslation('common.actions', language) || "Actions"}</TableHead>
+              <TableHead>{t('orderRef')}</TableHead>
+              <TableHead>{t('carrier')}</TableHead>
+              <TableHead>{t('trackingNumber')}</TableHead>
+              <TableHead>{t('statusLabel')}</TableHead>
+              <TableHead>{t('lastUpdated')}</TableHead>
+              <TableHead className="text-right">{t('actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
