@@ -13,12 +13,15 @@ import { LogisticsFilters } from '@/components/logistics/filters/LogisticsFilter
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/translations';
 import { Card, CardContent } from '@/components/ui/card';
-import { Truck, Package, Route, FileBarChart, AlertCircle, MapPin } from 'lucide-react';
+import { Truck, Package, Route, FileBarChart, AlertCircle, MapPin, Layers } from 'lucide-react';
 import { CarrierPerformanceAnalytics } from '@/components/logistics/analytics/CarrierPerformanceAnalytics';
 import { WeatherImpactAnalysis } from '@/components/logistics/analytics/WeatherImpactAnalysis';
 import { RealTimeNotifications } from '@/components/logistics/notifications/RealTimeNotifications';
 import { PredictiveETA } from '@/components/logistics/predictions/PredictiveETA';
 import { CarbonFootprintTracker } from '@/components/logistics/sustainability/CarbonFootprintTracker';
+import { DDOMOperationalDashboard } from '@/components/logistics/ddom/DDOMOperationalDashboard';
+import { DDOMCollaborativeExecution } from '@/components/logistics/ddom/DDOMCollaborativeExecution';
+import { DDOMSandOPIntegration } from '@/components/logistics/ddom/DDOMSandOPIntegration';
 
 const Logistics = () => {
   const { language } = useLanguage();
@@ -56,6 +59,9 @@ const Logistics = () => {
             </TabsTrigger>
             <TabsTrigger value="analytics" className="rounded-t-lg rounded-b-none data-[state=active]:bg-background data-[state=active]:border-b-transparent data-[state=active]:border data-[state=active]:border-b-0 data-[state=active]:shadow h-10">
               {t('analytics')}
+            </TabsTrigger>
+            <TabsTrigger value="ddom" className="rounded-t-lg rounded-b-none data-[state=active]:bg-background data-[state=active]:border-b-transparent data-[state=active]:border data-[state=active]:border-b-0 data-[state=active]:shadow h-10">
+              {t('ddom')}
             </TabsTrigger>
             <TabsTrigger value="sustainability" className="rounded-t-lg rounded-b-none data-[state=active]:bg-background data-[state=active]:border-b-transparent data-[state=active]:border data-[state=active]:border-b-0 data-[state=active]:shadow h-10">
               {t('sustainability')}
@@ -187,6 +193,28 @@ const Logistics = () => {
                     </div>
                   </CardContent>
                 </Card>
+              </div>
+            </div>
+          </TabsContent>
+          
+          {/* New DDOM Tab */}
+          <TabsContent value="ddom" className="mt-0 border rounded-tl-none bg-background">
+            <div className="p-4 space-y-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-blue-100 rounded-full">
+                  <Layers className="h-5 w-5 text-blue-700" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold">{t('ddomCompliance')}</h2>
+                  <p className="text-sm text-muted-foreground">{t('ddomDescription')}</p>
+                </div>
+              </div>
+              
+              <DDOMOperationalDashboard />
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <DDOMCollaborativeExecution />
+                <DDOMSandOPIntegration />
               </div>
             </div>
           </TabsContent>
