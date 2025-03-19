@@ -1,5 +1,48 @@
 
-export const salesTranslations = {
+import { SalesTranslations } from './types';
+
+export const salesTranslations: SalesTranslations = {
+  salesPerformance: {
+    en: "Sales Performance",
+    ar: "أداء المبيعات"
+  },
+  revenue: {
+    en: "Revenue",
+    ar: "الإيرادات"
+  },
+  orders: {
+    en: "Orders",
+    ar: "الطلبات"
+  },
+  customers: {
+    en: "Customers",
+    ar: "العملاء"
+  },
+  averageOrderValue: {
+    en: "Average Order Value",
+    ar: "متوسط قيمة الطلب"
+  },
+  topSellingProducts: {
+    en: "Top Selling Products",
+    ar: "المنتجات الأكثر مبيعًا"
+  },
+  salesChannels: {
+    en: "Sales Channels",
+    ar: "قنوات المبيعات"
+  },
+  customerDemographics: {
+    en: "Customer Demographics",
+    ar: "التركيبة السكانية للعملاء"
+  },
+  salesTrends: {
+    en: "Sales Trends",
+    ar: "اتجاهات المبيعات"
+  },
+  regionalSales: {
+    en: "Regional Sales",
+    ar: "المبيعات الإقليمية"
+  },
+  // Additional properties
   title: {
     en: "Sales Planning",
     ar: "تخطيط المبيعات"
