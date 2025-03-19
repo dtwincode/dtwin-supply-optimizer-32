@@ -1,7 +1,5 @@
-
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
-import { TabsContent } from "@/components/ui/tabs";
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -19,6 +17,7 @@ import { SKUClassifications } from "@/components/inventory/SKUClassifications";
 import { SKUClassification } from "@/components/inventory/types";
 import { DecouplingPointDialog } from "@/components/inventory/DecouplingPointDialog";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { Routes, Route, useLocation } from "react-router-dom";
 
 const mockClassifications: SKUClassification[] = [
   {
@@ -62,6 +61,17 @@ const Inventory = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const location = useLocation();
+  
+  const getDefaultTabFromPath = () => {
+    const pathSegments = location.pathname.split('/');
+    const lastSegment = pathSegments[pathSegments.length - 1];
+    
+    const validTabs = ['inventory', 'buffer', 'decoupling', 'netflow', 'adu', 'ai'];
+    return validTabs.includes(lastSegment) ? lastSegment : 'inventory';
+  };
+  
+  const defaultTab = getDefaultTabFromPath();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -72,14 +82,12 @@ const Inventory = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Better error handling for console errors
   useEffect(() => {
     const originalConsoleError = console.error;
     console.error = (...args) => {
       if (args[0] && typeof args[0] === 'string' && args[0].includes('Mapbox')) {
         console.log("MapBox error suppressed:", args[0]);
       } else {
-        // More robust error detection
         const errorDetected = args.some(arg => 
           (arg && typeof arg === 'object' && arg._type === 'Error') ||
           (arg instanceof Error)
@@ -111,7 +119,7 @@ const Inventory = () => {
   const handleDecouplingPointSuccess = () => {
     toast({
       title: getTranslation("common.success", language),
-      description: language === 'ar' ? "تم تحديث إعدادات نقطة الفصل بنجاح" : "Decoupling point configuration updated successfully",
+      description: language === 'ar' ? "تم ت��ديث إعدادات نقطة الفصل بنجاح" : "Decoupling point configuration updated successfully",
     });
     setDialogOpen(false);
   };
@@ -126,7 +134,6 @@ const Inventory = () => {
     });
   };
 
-  // Safe filtering function
   const safeFilter = (item: InventoryItem, query: string): boolean => {
     try {
       if (!query) return true;
@@ -144,15 +151,12 @@ const Inventory = () => {
     }
   };
 
-  // Apply filters safely
   const filteredData = inventoryData.filter(item => safeFilter(item, searchQuery));
 
-  // Safe pagination
   const startIndex = Math.max(0, (currentPage - 1) * 10);
   const endIndex = Math.min(startIndex + 10, filteredData.length);
   const paginatedData = filteredData.slice(startIndex, endIndex);
 
-  // Loading state
   if (isLoading) {
     return (
       <DashboardLayout>
@@ -165,7 +169,6 @@ const Inventory = () => {
     );
   }
 
-  // Error state
   if (hasError) {
     return (
       <DashboardLayout>
@@ -234,13 +237,13 @@ const Inventory = () => {
 
         <Card>
           <ErrorBoundary fallback={<div className="p-6 text-center">{getTranslation("common.inventory.errorLoading", language)}</div>} onError={handleError}>
-            <InventoryTabs>
-              <TabsContent value="inventory">
+            <InventoryTabs defaultValue={defaultTab}>
+              <div className="space-y-6 p-6">
                 <InventoryTab 
                   paginatedData={paginatedData}
                   onCreatePO={handleCreatePurchaseOrder}
                 />
-                <div className="mt-4 flex justify-between items-center p-6">
+                <div className="mt-4 flex justify-between items-center">
                   <div className="text-sm text-gray-500">
                     {getTranslation("common.showing", language)} {filteredData.length > 0 ? startIndex + 1 : 0} {getTranslation("common.to", language)} {Math.min(endIndex, filteredData.length)} {getTranslation("common.of", language)} {filteredData.length} {getTranslation("common.items", language)}
                   </div>
@@ -261,7 +264,7 @@ const Inventory = () => {
                     </Button>
                   </div>
                 </div>
-              </TabsContent>
+              </div>
             </InventoryTabs>
           </ErrorBoundary>
         </Card>

@@ -1,4 +1,3 @@
-
 import { Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/index";
 import Auth from "./pages/Auth";
@@ -23,7 +22,6 @@ import { Toaster } from './components/ui/toaster';
 import { FilterProvider } from "./contexts/FilterContext";
 import { Suspense } from "react";
 
-// Create a client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -33,15 +31,6 @@ const queryClient = new QueryClient({
     },
   },
 });
-
-// Fallback loading component
-const PageLoading = () => (
-  <div className="flex items-center justify-center h-screen">
-    <div className="text-center">
-      <p className="text-muted-foreground">Loading...</p>
-    </div>
-  </div>
-);
 
 function App() {
   return (
@@ -56,7 +45,7 @@ function App() {
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/marketing" element={<Marketing />} />
                   <Route path="/forecasting/*" element={<Forecasting />} />
-                  <Route path="/inventory" element={<Inventory />} />
+                  <Route path="/inventory/*" element={<Inventory />} />
                   <Route path="/sales-planning" element={<SalesPlanning />} />
                   <Route path="/reports" element={<Reports />} />
                   <Route path="/logistics" element={<Logistics />} />
