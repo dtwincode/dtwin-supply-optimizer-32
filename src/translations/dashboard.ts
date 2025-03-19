@@ -98,9 +98,24 @@ export const modulesSummaryTranslations: ModulesSummaryTranslations = {
     en: "Supply Planning",
     ar: "تخطيط التوريد"
   },
-  // Adding missing translations from console logs
   reportsAnalytics: {
     en: "Reports & Analytics",
     ar: "التقارير والتحليلات"
+  },
+  inventoryManagement: {
+    en: "Inventory Management",
+    ar: "إدارة المخزون"
+  },
+  demandForecasting: {
+    en: "Demand Forecasting",
+    ar: "التنبؤ بالطلب"
+  },
+  marketingCampaigns: {
+    en: "Marketing Campaigns",
+    ar: "حملات التسويق"
+  },
+  logistics: {
+    en: "Logistics",
+    ar: "الخدمات اللوجستية"
   }
 };

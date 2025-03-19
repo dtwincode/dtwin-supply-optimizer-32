@@ -1,4 +1,3 @@
-
 // Common translation types
 export interface TranslationItem {
   en: string;
@@ -67,6 +66,11 @@ export interface ModulesSummaryTranslations {
   forecastingPerformance: TranslationItem;
   salesPlanning: TranslationItem;
   supplyPlanning: TranslationItem;
+  reportsAnalytics: TranslationItem;
+  inventoryManagement: TranslationItem;
+  demandForecasting: TranslationItem;
+  marketingCampaigns: TranslationItem;
+  logistics: TranslationItem;
   [key: string]: TranslationItem;
 }
 
@@ -80,6 +84,20 @@ export interface CommonTranslations {
   logistics: Record<string, any>;
   inventory: Record<string, any>;
   forecasting: Record<string, any>;
+  inventoryDescription: TranslationItem;
+  forecastingDescription: TranslationItem;
+  salesDescription: TranslationItem;
+  marketingDescription: TranslationItem;
+  logisticsDescription: TranslationItem;
+  reportsDescription: TranslationItem;
+  viewDetails: TranslationItem;
+  skuCount: TranslationItem;
+  accuracyLabel: TranslationItem;
+  pipelineValue: TranslationItem;
+  activeCampaigns: TranslationItem;
+  onTimeDelivery: TranslationItem;
+  reportCount: TranslationItem;
+  modules: TranslationItem;
 }
 
 export interface UITranslations {
