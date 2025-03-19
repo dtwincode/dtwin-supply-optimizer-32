@@ -446,7 +446,7 @@ export const logisticsTranslations = {
     ar: "تأثير الطقس"
   },
   
-  // Adding required translations to match LogisticsTranslations interface
+  // Required translations to match LogisticsTranslations interface
   routeOptimization: {
     en: "Route Optimization",
     ar: "تحسين المسار"
@@ -630,5 +630,10 @@ export const logisticsTranslations = {
   poPipeline: {
     en: "PO Pipeline",
     ar: "خط أنابيب أوامر الشراء"
+  },
+  // Adding UI translations that are missing and causing errors
+  signOut: {
+    en: "Sign Out",
+    ar: "تسجيل الخروج"
   }
 };
