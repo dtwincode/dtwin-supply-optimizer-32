@@ -141,12 +141,12 @@ export const LogisticsFilters = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{getTranslation('common.logistics.allCarriers', language) || "All Carriers"}</SelectItem>
-            <SelectItem value="saudi-post">Saudi Post</SelectItem>
-            <SelectItem value="smsa">SMSA Express</SelectItem>
-            <SelectItem value="aramex">Aramex</SelectItem>
-            <SelectItem value="dhl">DHL</SelectItem>
-            <SelectItem value="fedex">FedEx</SelectItem>
-            <SelectItem value="ups">UPS</SelectItem>
+            <SelectItem value="saudi-post">{getTranslation('common.logistics.carriers.saudiPost', language) || "Saudi Post"}</SelectItem>
+            <SelectItem value="smsa">{getTranslation('common.logistics.carriers.smsa', language) || "SMSA Express"}</SelectItem>
+            <SelectItem value="aramex">{getTranslation('common.logistics.carriers.aramex', language) || "Aramex"}</SelectItem>
+            <SelectItem value="dhl">{getTranslation('common.logistics.carriers.dhl', language) || "DHL"}</SelectItem>
+            <SelectItem value="fedex">{getTranslation('common.logistics.carriers.fedex', language) || "FedEx"}</SelectItem>
+            <SelectItem value="ups">{getTranslation('common.logistics.carriers.ups', language) || "UPS"}</SelectItem>
           </SelectContent>
         </Select>
         
@@ -193,7 +193,7 @@ export const LogisticsFilters = () => {
         <div className="ml-auto flex space-x-2">
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="icon" className="rounded-full bg-white" title="Map View">
+              <Button variant="outline" size="icon" className="rounded-full bg-white" title={getTranslation('common.logistics.mapView', language) || "Map View"}>
                 <Map className="h-4 w-4" />
               </Button>
             </PopoverTrigger>
@@ -231,11 +231,21 @@ export const LogisticsFilters = () => {
             </PopoverContent>
           </Popover>
           
-          <Button variant="ghost" size="icon" className="rounded-full" title={getTranslation('common.logistics.refreshData', language) || "Refresh Data"}>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="rounded-full" 
+            title={getTranslation('common.logistics.refreshData', language) || "Refresh Data"}
+          >
             <RefreshCw className="h-4 w-4" />
           </Button>
           
-          <Button variant="ghost" size="icon" className="rounded-full" title={getTranslation('common.logistics.analyticsView', language) || "Analytics View"}>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="rounded-full" 
+            title={getTranslation('common.logistics.analyticsView', language) || "Analytics View"}
+          >
             <TrendingUp className="h-4 w-4" />
           </Button>
         </div>
@@ -277,11 +287,11 @@ export const LogisticsFilters = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">{getTranslation('common.logistics.allRegions', language) || "All Regions"}</SelectItem>
-                  <SelectItem value="central">Central Region</SelectItem>
-                  <SelectItem value="eastern">Eastern Region</SelectItem>
-                  <SelectItem value="western">Western Region</SelectItem>
-                  <SelectItem value="northern">Northern Region</SelectItem>
-                  <SelectItem value="southern">Southern Region</SelectItem>
+                  <SelectItem value="central">{getTranslation('common.logistics.regions.central', language) || "Central Region"}</SelectItem>
+                  <SelectItem value="eastern">{getTranslation('common.logistics.regions.eastern', language) || "Eastern Region"}</SelectItem>
+                  <SelectItem value="western">{getTranslation('common.logistics.regions.western', language) || "Western Region"}</SelectItem>
+                  <SelectItem value="northern">{getTranslation('common.logistics.regions.northern', language) || "Northern Region"}</SelectItem>
+                  <SelectItem value="southern">{getTranslation('common.logistics.regions.southern', language) || "Southern Region"}</SelectItem>
                 </SelectContent>
               </Select>
             </div>

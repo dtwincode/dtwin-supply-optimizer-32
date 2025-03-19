@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { CardContent } from '@/components/ui/card';
 import { useLogisticsTracking } from '@/hooks/useLogisticsTracking';
@@ -43,18 +42,18 @@ export const LogisticsMap: React.FC = () => {
 
   // Sample warehouse data
   const warehouseLocations = [
-    { id: 'wh1', name: 'Riyadh Distribution Center', lat: 24.7136, lng: 46.6753, type: 'distribution_center', shipments: 24 },
-    { id: 'wh2', name: 'Jeddah Regional Warehouse', lat: 21.5412, lng: 39.1721, type: 'warehouse', shipments: 18 },
-    { id: 'wh3', name: 'Dammam Port Facility', lat: 26.4207, lng: 50.0887, type: 'port', shipments: 12 },
-    { id: 'wh4', name: 'Mecca Fulfillment Center', lat: 21.3891, lng: 39.8579, type: 'fulfillment_center', shipments: 9 },
+    { id: 'wh1', name: getTranslation('common.logistics.warehouses.riyadh', language) || 'Riyadh Distribution Center', lat: 24.7136, lng: 46.6753, type: 'distribution_center', shipments: 24 },
+    { id: 'wh2', name: getTranslation('common.logistics.warehouses.jeddah', language) || 'Jeddah Regional Warehouse', lat: 21.5412, lng: 39.1721, type: 'warehouse', shipments: 18 },
+    { id: 'wh3', name: getTranslation('common.logistics.warehouses.dammam', language) || 'Dammam Port Facility', lat: 26.4207, lng: 50.0887, type: 'port', shipments: 12 },
+    { id: 'wh4', name: getTranslation('common.logistics.warehouses.mecca', language) || 'Mecca Fulfillment Center', lat: 21.3891, lng: 39.8579, type: 'fulfillment_center', shipments: 9 },
   ];
 
   // Sample shipment data
   const shipmentLocations = [
     { id: 'ship1', reference: 'ORD-20240315-001', lat: 26.3892, lng: 50.1872, status: 'in_transit', delayed: false, eta: '2h 15m' },
-    { id: 'ship2', reference: 'ORD-20240314-002', lat: 25.1595, lng: 47.3091, status: 'delivered', delayed: false, eta: 'Delivered' },
+    { id: 'ship2', reference: 'ORD-20240314-002', lat: 25.1595, lng: 47.3091, status: 'delivered', delayed: false, eta: getTranslation('common.logistics.delivered', language) || 'Delivered' },
     { id: 'ship3', reference: 'ORD-20240313-003', lat: 23.8859, lng: 45.0792, status: 'out_for_delivery', delayed: false, eta: '45m' },
-    { id: 'ship4', reference: 'ORD-20240312-004', lat: 21.4225, lng: 39.8261, status: 'delayed', delayed: true, eta: 'Delayed (3h+)' },
+    { id: 'ship4', reference: 'ORD-20240312-004', lat: 21.4225, lng: 39.8261, status: 'delayed', delayed: true, eta: getTranslation('common.logistics.delayedEta', language) || 'Delayed (3h+)' },
   ];
 
   useEffect(() => {
@@ -305,7 +304,7 @@ export const LogisticsMap: React.FC = () => {
                     </div>
                     <div className="text-xs text-muted-foreground mt-1 flex items-center">
                       <Clock className="h-3 w-3 mr-1" />
-                      <span>ETA: {shipment.eta}</span>
+                      <span>{getTranslation('common.logistics.eta', language) || "ETA"}: {shipment.eta}</span>
                     </div>
                   </div>
                 ))}
@@ -358,3 +357,4 @@ export const LogisticsMap: React.FC = () => {
     </div>
   );
 };
+
