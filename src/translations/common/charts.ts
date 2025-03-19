@@ -16,6 +16,14 @@ export const chartTranslations = {
     bufferProfile: {
       en: "Buffer Profile Distribution",
       ar: "توزيع نسب المخزون"
+    },
+    demandVariability: {
+      en: "Demand Variability",
+      ar: "تقلب الطلب"
+    },
+    inventoryTrends: {
+      en: "Inventory Trends",
+      ar: "اتجاهات المخزون"
     }
   },
   zones: {
