@@ -405,7 +405,7 @@ export const logisticsTranslations = {
   },
   
   // Warehouse locations
-  warehouses: {
+  warehouseLocations: {
     riyadh: {
       en: "Riyadh Distribution Center",
       ar: "مركز توزيع الرياض"
@@ -422,5 +422,191 @@ export const logisticsTranslations = {
       en: "Mecca Fulfillment Center",
       ar: "مركز إتمام مكة"
     }
+  },
+  
+  // Adding required translations to match LogisticsTranslations interface
+  routeOptimization: {
+    en: "Route Optimization",
+    ar: "تحسين المسار"
+  },
+  transportModes: {
+    en: "Transport Modes",
+    ar: "وسائل النقل"
+  },
+  optimizeRoute: {
+    en: "Optimize Route",
+    ar: "تحسين المسار"
+  },
+  origin: {
+    en: "Origin",
+    ar: "المنشأ"
+  },
+  destination: {
+    en: "Destination",
+    ar: "الوجهة"
+  },
+  waypoints: {
+    en: "Waypoints",
+    ar: "نقاط الطريق"
+  },
+  optimizationCriteria: {
+    en: "Optimization Criteria",
+    ar: "معايير التحسين"
+  },
+  transportMode: {
+    en: "Transport Mode",
+    ar: "وسيلة النقل"
+  },
+  departureTime: {
+    en: "Departure Time",
+    ar: "وقت المغادرة"
+  },
+  totalDistance: {
+    en: "Total Distance",
+    ar: "المسافة الإجمالية"
+  },
+  totalTime: {
+    en: "Total Time",
+    ar: "الوقت الإجمالي"
+  },
+  totalCost: {
+    en: "Total Cost",
+    ar: "التكلفة الإجمالية"
+  },
+  emissions: {
+    en: "Emissions",
+    ar: "الانبعاثات"
+  },
+  fuelConsumption: {
+    en: "Fuel Consumption",
+    ar: "استهلاك الوقود"
+  },
+  savedRoutes: {
+    en: "Saved Routes",
+    ar: "المسارات المحفوظة"
+  },
+  criteria: {
+    time: {
+      en: "Time",
+      ar: "الوقت"
+    },
+    cost: {
+      en: "Cost",
+      ar: "التكلفة"
+    },
+    emissions: {
+      en: "Emissions",
+      ar: "الانبعاثات"
+    }
+  },
+  status: {
+    planned: {
+      en: "Planned",
+      ar: "مخطط"
+    },
+    inProgress: {
+      en: "In Progress",
+      ar: "قيد التنفيذ"
+    },
+    completed: {
+      en: "Completed",
+      ar: "مكتمل"
+    }
+  },
+  orderRef: {
+    en: "Order Reference",
+    ar: "مرجع الطلب"
+  },
+  carrier: {
+    en: "Carrier",
+    ar: "الناقل"
+  },
+  trackingNumber: {
+    en: "Tracking Number",
+    ar: "رقم التتبع"
+  },
+  statusLabel: {
+    en: "Status",
+    ar: "الحالة"
+  },
+  purchaseOrderPipeline: {
+    en: "Purchase Order Pipeline",
+    ar: "خط أنابيب أوامر الشراء"
+  },
+  monitorAndTrack: {
+    en: "Monitor and Track",
+    ar: "مراقبة وتتبع"
+  },
+  routeOptimizationDesc: {
+    en: "Find the most efficient delivery routes",
+    ar: "العثور على أكثر مسارات التسليم كفاءة"
+  },
+  transportModesDesc: {
+    en: "Select and compare different transport modes",
+    ar: "اختيار ومقارنة وسائل النقل المختلفة"
+  },
+  documentManagement: {
+    en: "Document Management",
+    ar: "إدارة المستندات"
+  },
+  uploadAndManage: {
+    en: "Upload and Manage",
+    ar: "تحميل وإدارة"
+  },
+  uploadedDocuments: {
+    en: "Uploaded Documents",
+    ar: "المستندات المحملة"
+  },
+  onTimeDeliveryRate: {
+    en: "On-Time Delivery Rate",
+    ar: "معدل التسليم في الوقت المحدد"
+  },
+  averageTransitTime: {
+    en: "Average Transit Time",
+    ar: "متوسط وقت العبور"
+  },
+  deliverySuccessRate: {
+    en: "Delivery Success Rate",
+    ar: "معدل نجاح التسليم"
+  },
+  costPerShipment: {
+    en: "Cost Per Shipment",
+    ar: "تكلفة الشحنة الواحدة"
+  },
+  lastUpdated: {
+    en: "Last Updated",
+    ar: "آخر تحديث"
+  },
+  notAvailable: {
+    en: "Not Available",
+    ar: "غير متوفر"
+  },
+  supplier: {
+    en: "Supplier",
+    ar: "المورد"
+  },
+  stage: {
+    en: "Stage",
+    ar: "المرحلة"
+  },
+  startDate: {
+    en: "Start Date",
+    ar: "تاريخ البدء"
+  },
+  completion: {
+    en: "Completion",
+    ar: "إكمال"
+  },
+  blockers: {
+    en: "Blockers",
+    ar: "عوائق"
+  },
+  none: {
+    en: "None",
+    ar: "لا شيء"
+  },
+  poPipeline: {
+    en: "PO Pipeline",
+    ar: "خط أنابيب أوامر الشراء"
   }
 };
