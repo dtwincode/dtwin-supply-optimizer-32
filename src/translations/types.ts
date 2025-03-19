@@ -1,4 +1,3 @@
-
 export interface TranslationValue {
   en: string;
   ar: string;
@@ -92,6 +91,8 @@ export interface InventoryTranslations {
   criticality: TranslationValue;
   score: TranslationValue;
   lastUpdated: TranslationValue;
+  aduAnalysis: TranslationValue;
+  aiInsights: TranslationValue;
 }
 
 export interface ChartTranslations {
@@ -272,7 +273,6 @@ export interface SupplyPlanningTranslations {
   purchaseOrdersDesc: TranslationValue;
   supplierManagementDesc: TranslationValue;
   leadTimeManagementDesc: TranslationValue;
-  // Purchase order tab translations
   poNumber: TranslationValue;
   quantity: TranslationValue;
   orderDate: TranslationValue;
@@ -291,7 +291,6 @@ export interface SupplyPlanningTranslations {
   notes: TranslationValue;
   notesPlaceholder: TranslationValue;
   update: TranslationValue;
-  // Supplier management tab translations
   onTimeDelivery: TranslationValue;
   supplierPerformance: TranslationValue;
   qualityCompliance: TranslationValue;
@@ -315,7 +314,6 @@ export interface SupplyPlanningTranslations {
   costEfficiency: TranslationValue;
   viewPerformance: TranslationValue;
   contact: TranslationValue;
-  // Lead time management tab translations
   leadTimeTrends: TranslationValue;
   sixMonthTrend: TranslationValue;
   minLeadTime: TranslationValue;

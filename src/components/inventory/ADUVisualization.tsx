@@ -33,7 +33,7 @@ export const ADUVisualization = ({ item }: ADUVisualizationProps) => {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <ChartLineIcon className="h-5 w-5 text-muted-foreground" />
-          <h3 className="font-semibold">ADU Analysis</h3>
+          <h3 className="font-semibold">{getTranslation("common.inventory.aduAnalysis", language)}</h3>
           <HoverCard>
             <HoverCardTrigger asChild>
               <InfoIcon className="h-4 w-4 text-muted-foreground cursor-help" />
