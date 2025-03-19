@@ -211,6 +211,181 @@ export interface LogisticsTranslations {
   lowPriority: TranslationValue;
 }
 
+export interface SupplyPlanningTranslations {
+  tabs: {
+    recommendedOrders: {
+      en: string;
+      ar: string;
+    };
+    purchaseOrders: {
+      en: string;
+      ar: string;
+    };
+    supplierManagement: {
+      en: string;
+      ar: string;
+    };
+    leadTimeManagement: {
+      en: string;
+      ar: string;
+    };
+  };
+  searchItems: {
+    en: string;
+    ar: string;
+  };
+  supplier: {
+    en: string;
+    ar: string;
+  };
+  status: {
+    en: string;
+    ar: string;
+    planned: {
+      en: string;
+      ar: string;
+    };
+    ordered: {
+      en: string;
+      ar: string;
+    };
+    confirmed: {
+      en: string;
+      ar: string;
+    };
+    shipped: {
+      en: string;
+      ar: string;
+    };
+    received: {
+      en: string;
+      ar: string;
+    };
+  };
+  priority: {
+    en: string;
+    ar: string;
+    critical: {
+      en: string;
+      ar: string;
+    };
+    high: {
+      en: string;
+      ar: string;
+    };
+    medium: {
+      en: string;
+      ar: string;
+    };
+    low: {
+      en: string;
+      ar: string;
+    };
+  };
+  currentStock: {
+    en: string;
+    ar: string;
+  };
+  recommendedQty: {
+    en: string;
+    ar: string;
+  };
+  leadTime: {
+    en: string;
+    ar: string;
+  };
+  days: {
+    en: string;
+    ar: string;
+  };
+  creating: {
+    en: string;
+    ar: string;
+  };
+  createPO: {
+    en: string;
+    ar: string;
+  };
+  noRecommendedOrders: {
+    en: string;
+    ar: string;
+  };
+  notifications: {
+    poCreated: {
+      en: string;
+      ar: string;
+    };
+    poCreatedDesc: {
+      en: string;
+      ar: string;
+    };
+    poError: {
+      en: string;
+      ar: string;
+    };
+    poErrorDesc: {
+      en: string;
+      ar: string;
+    };
+  };
+  avgLeadTime: {
+    en: string;
+    ar: string;
+  };
+  leadTimeVariability: {
+    en: string;
+    ar: string;
+  };
+  leadTimeReliability: {
+    en: string;
+    ar: string;
+  };
+  acrossAllSuppliers: {
+    en: string;
+    ar: string;
+  };
+  standardDeviation: {
+    en: string;
+    ar: string;
+  };
+  ordersOnTime: {
+    en: string;
+    ar: string;
+  };
+  fromLastMonth: {
+    en: string;
+    ar: string;
+  };
+  generateRecommendations: {
+    en: string;
+    ar: string;
+  };
+  leadTimeCalculations: {
+    en: string;
+    ar: string;
+  };
+  leadTimeCalculationsDesc: {
+    en: string;
+    ar: string;
+  };
+  leadTimeCategories: {
+    en: string;
+    ar: string;
+  };
+  variabilityLevels: {
+    en: string;
+    ar: string;
+  };
+  ddmrpImpact: {
+    en: string;
+    ar: string;
+  };
+  moduleDescription: {
+    en: string;
+    ar: string;
+  };
+}
+
 export interface CommonTranslations {
   settings: TranslationValue;
   logout: TranslationValue;
@@ -277,12 +452,16 @@ export interface CommonTranslations {
 }
 
 export interface Translations {
-  dashboard: TranslationValue;
+  dashboard: {
+    en: string;
+    ar: string;
+  };
   navigationItems: NavigationItems;
   dashboardMetrics: DashboardMetrics;
   financialMetrics: FinancialMetrics;
   sustainabilityMetrics: SustainabilityMetrics;
   modulesSummary: ModulesSummary;
   common: CommonTranslations;
-  sales: any; // This should be properly typed based on your sales translations
+  sales: SalesTranslations;
+  supplyPlanning: SupplyPlanningTranslations;
 }

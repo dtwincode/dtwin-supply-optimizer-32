@@ -10,9 +10,10 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, RefreshCw } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/translations';
+import { Badge } from '@/components/ui/badge';
 
 export const SupplyPlanningFilters = () => {
   const { language } = useLanguage();
@@ -22,7 +23,7 @@ export const SupplyPlanningFilters = () => {
   const [selectedPriority, setSelectedPriority] = useState('all');
 
   return (
-    <Card className="p-4 mb-6">
+    <Card className="p-4 mb-6 border-dtwin-medium/20 bg-gradient-to-r from-white to-dtwin-light/5">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -30,7 +31,7 @@ export const SupplyPlanningFilters = () => {
             placeholder={getTranslation("supplyPlanning.searchItems", language)}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
+            className="pl-9 border-dtwin-medium/30 focus:border-dtwin-dark focus:ring-dtwin-dark"
           />
         </div>
         
@@ -54,11 +55,36 @@ export const SupplyPlanningFilters = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">{getTranslation("common.all", language)}</SelectItem>
-                <SelectItem value="planned">{getTranslation("supplyPlanning.status.planned", language)}</SelectItem>
-                <SelectItem value="ordered">{getTranslation("supplyPlanning.status.ordered", language)}</SelectItem>
-                <SelectItem value="confirmed">{getTranslation("supplyPlanning.status.confirmed", language)}</SelectItem>
-                <SelectItem value="shipped">{getTranslation("supplyPlanning.status.shipped", language)}</SelectItem>
-                <SelectItem value="received">{getTranslation("supplyPlanning.status.received", language)}</SelectItem>
+                <SelectItem value="planned">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="h-2 w-2 rounded-full p-0" />
+                    {getTranslation("supplyPlanning.status.planned", language)}
+                  </div>
+                </SelectItem>
+                <SelectItem value="ordered">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="primary" className="h-2 w-2 rounded-full p-0" />
+                    {getTranslation("supplyPlanning.status.ordered", language)}
+                  </div>
+                </SelectItem>
+                <SelectItem value="confirmed">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="primary" className="h-2 w-2 rounded-full p-0" />
+                    {getTranslation("supplyPlanning.status.confirmed", language)}
+                  </div>
+                </SelectItem>
+                <SelectItem value="shipped">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="warning" className="h-2 w-2 rounded-full p-0" />
+                    {getTranslation("supplyPlanning.status.shipped", language)}
+                  </div>
+                </SelectItem>
+                <SelectItem value="received">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="success" className="h-2 w-2 rounded-full p-0" />
+                    {getTranslation("supplyPlanning.status.received", language)}
+                  </div>
+                </SelectItem>
               </SelectContent>
             </Select>
             
@@ -68,18 +94,45 @@ export const SupplyPlanningFilters = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">{getTranslation("common.all", language)}</SelectItem>
-                <SelectItem value="critical">{getTranslation("supplyPlanning.priority.critical", language)}</SelectItem>
-                <SelectItem value="high">{getTranslation("supplyPlanning.priority.high", language)}</SelectItem>
-                <SelectItem value="medium">{getTranslation("supplyPlanning.priority.medium", language)}</SelectItem>
-                <SelectItem value="low">{getTranslation("supplyPlanning.priority.low", language)}</SelectItem>
+                <SelectItem value="critical">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="destructive" className="h-2 w-2 rounded-full p-0" />
+                    {getTranslation("supplyPlanning.priority.critical", language)}
+                  </div>
+                </SelectItem>
+                <SelectItem value="high">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="warning" className="h-2 w-2 rounded-full p-0" />
+                    {getTranslation("supplyPlanning.priority.high", language)}
+                  </div>
+                </SelectItem>
+                <SelectItem value="medium">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="primary" className="h-2 w-2 rounded-full p-0" />
+                    {getTranslation("supplyPlanning.priority.medium", language)}
+                  </div>
+                </SelectItem>
+                <SelectItem value="low">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="success" className="h-2 w-2 rounded-full p-0" />
+                    {getTranslation("supplyPlanning.priority.low", language)}
+                  </div>
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
           
-          <Button variant="outline" size="icon" className="h-9 w-9 shrink-0">
-            <Filter className="h-4 w-4" />
-            <span className="sr-only">{getTranslation("common.filter", language)}</span>
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="icon" className="h-9 w-9 shrink-0 border-dtwin-medium/30">
+              <Filter className="h-4 w-4" />
+              <span className="sr-only">{getTranslation("common.filter", language)}</span>
+            </Button>
+            
+            <Button variant="outline" size="icon" className="h-9 w-9 shrink-0 border-dtwin-medium/30">
+              <RefreshCw className="h-4 w-4" />
+              <span className="sr-only">Refresh</span>
+            </Button>
+          </div>
         </div>
       </div>
     </Card>

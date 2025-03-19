@@ -5,6 +5,7 @@ import { SupplyPlanningTabs } from "@/components/supply-planning/SupplyPlanningT
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
 import { Navigate } from "react-router-dom";
+import { Sparkles } from "lucide-react";
 
 const SupplyPlanning = () => {
   const { user } = useAuth();
@@ -17,11 +18,16 @@ const SupplyPlanning = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold tracking-tight">
-          {getTranslation("navigationItems.supplyPlanning", language)}
-        </h1>
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-dtwin-medium/10 rounded-lg">
+            <Sparkles className="h-6 w-6 text-dtwin-dark" />
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-dtwin-dark to-dtwin-medium bg-clip-text text-transparent">
+            {getTranslation("navigationItems.supplyPlanning", language)}
+          </h1>
+        </div>
         <p className="text-muted-foreground">
-          {getTranslation("modulesSummary.supplyPlanningDescription", language)}
+          {getTranslation("supplyPlanning.moduleDescription", language)}
         </p>
         <SupplyPlanningTabs />
       </div>

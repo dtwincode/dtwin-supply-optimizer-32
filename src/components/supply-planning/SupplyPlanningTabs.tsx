@@ -8,6 +8,7 @@ import { SupplierManagementTab } from "./SupplierManagementTab";
 import { LeadTimeManagementTab } from "./LeadTimeManagementTab";
 import { RecommendedOrdersTab } from "./RecommendedOrdersTab";
 import { SupplyPlanningFilters } from "./SupplyPlanningFilters";
+import { SupplyPlanningMetrics } from "./SupplyPlanningMetrics";
 
 export const SupplyPlanningTabs = () => {
   const { language } = useLanguage();
@@ -17,18 +18,32 @@ export const SupplyPlanningTabs = () => {
     <div className="space-y-4">
       <SupplyPlanningFilters />
       
+      {activeTab === "lead-time-management" && <SupplyPlanningMetrics />}
+      
       <Tabs defaultValue="recommended-orders" onValueChange={setActiveTab} value={activeTab}>
-        <TabsList className="grid grid-cols-4 mb-6">
-          <TabsTrigger value="recommended-orders">
+        <TabsList className="grid grid-cols-4 mb-6 bg-background/80 p-1 backdrop-blur-sm">
+          <TabsTrigger 
+            value="recommended-orders" 
+            className="data-[state=active]:bg-dtwin-medium data-[state=active]:text-white"
+          >
             {getTranslation("supplyPlanning.tabs.recommendedOrders", language)}
           </TabsTrigger>
-          <TabsTrigger value="purchase-orders">
+          <TabsTrigger 
+            value="purchase-orders"
+            className="data-[state=active]:bg-dtwin-medium data-[state=active]:text-white"
+          >
             {getTranslation("supplyPlanning.tabs.purchaseOrders", language)}
           </TabsTrigger>
-          <TabsTrigger value="supplier-management">
+          <TabsTrigger 
+            value="supplier-management"
+            className="data-[state=active]:bg-dtwin-medium data-[state=active]:text-white"
+          >
             {getTranslation("supplyPlanning.tabs.supplierManagement", language)}
           </TabsTrigger>
-          <TabsTrigger value="lead-time-management">
+          <TabsTrigger 
+            value="lead-time-management"
+            className="data-[state=active]:bg-dtwin-medium data-[state=active]:text-white"
+          >
             {getTranslation("supplyPlanning.tabs.leadTimeManagement", language)}
           </TabsTrigger>
         </TabsList>

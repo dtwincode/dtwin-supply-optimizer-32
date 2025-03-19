@@ -7,6 +7,7 @@ import { salesTranslations } from './sales';
 import { logisticsTranslations } from './common/logistics';
 import { chartTranslations } from './common/charts';
 import { inventoryTranslations } from './common/inventory';
+import { supplyPlanningTranslations } from './common/supplyPlanning';
 export { toArabicNumerals } from './utils';
 
 export const translations: Translations = {
@@ -17,7 +18,8 @@ export const translations: Translations = {
   sustainabilityMetrics: sustainabilityMetricsTranslations,
   modulesSummary: modulesSummaryTranslations,
   common: commonTranslations,
-  sales: salesTranslations
+  sales: salesTranslations,
+  supplyPlanning: supplyPlanningTranslations
 };
 
 export const getTranslation = (key: string, language: 'en' | 'ar'): string => {
