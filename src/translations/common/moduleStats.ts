@@ -23,9 +23,6 @@ export const moduleStatsTranslations = {
   reportCount: {
     en: "Available Reports",
     ar: "التقارير المتاحة"
-  },
-  modules: {
-    en: "Modules",
-    ar: "الوحدات"
   }
+  // Removed the duplicate 'modules' property
 };

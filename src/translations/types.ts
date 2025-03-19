@@ -1,3 +1,4 @@
+
 // Common translation types
 export interface TranslationItem {
   en: string;
@@ -97,7 +98,7 @@ export interface CommonTranslations {
   activeCampaigns: TranslationItem;
   onTimeDelivery: TranslationItem;
   reportCount: TranslationItem;
-  modules: TranslationItem;
+  // Removed duplicate 'modules' property here
 }
 
 export interface UITranslations {
