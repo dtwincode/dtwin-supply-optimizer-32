@@ -73,7 +73,7 @@ export const RealTimeNotifications: React.FC = () => {
           toast.info(newNotification.message, {
             description: `${new Date(newNotification.timestamp).toLocaleTimeString()}`,
             action: {
-              label: 'View',
+              label: getTranslation('common.logistics.view', language) || 'View',
               onClick: () => console.log('Viewed notification', newNotification.id)
             }
           });
@@ -106,10 +106,14 @@ export const RealTimeNotifications: React.FC = () => {
     const minutes = Math.floor((Date.now() - new Date(timestamp).getTime()) / 60000);
     
     if (minutes < 1) return getTranslation('common.logistics.justNow', language) || 'Just now';
-    if (minutes < 60) return `${minutes} ${getTranslation('common.logistics.minutesAgo', language) || 'minutes ago'}`;
+    if (minutes < 60) {
+      return `${minutes} ${getTranslation('common.logistics.minutesAgo', language) || 'minutes ago'}`;
+    }
     
     const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours} ${getTranslation('common.logistics.hoursAgo', language) || 'hours ago'}`;
+    if (hours < 24) {
+      return `${hours} ${getTranslation('common.logistics.hoursAgo', language) || 'hours ago'}`;
+    }
     
     const days = Math.floor(hours / 24);
     return `${days} ${getTranslation('common.logistics.daysAgo', language) || 'days ago'}`;
@@ -126,13 +130,8 @@ export const RealTimeNotifications: React.FC = () => {
   };
 
   const getNotificationTypeLabel = (type: string) => {
-    switch (type) {
-      case 'alert': return getTranslation('common.logistics.alert', language) || 'Alert';
-      case 'success': return getTranslation('common.logistics.success', language) || 'Success';
-      case 'info': return getTranslation('common.logistics.info', language) || 'Info';
-      case 'warning': return getTranslation('common.logistics.warning', language) || 'Warning';
-      default: return type;
-    }
+    const translationKey = `common.logistics.${type}`;
+    return getTranslation(translationKey, language) || type.charAt(0).toUpperCase() + type.slice(1);
   };
 
   const unreadCount = notifications.filter(n => !n.read).length;
