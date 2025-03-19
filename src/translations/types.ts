@@ -4,109 +4,20 @@ export interface TranslationValue {
   ar: string;
 }
 
-export interface NavigationItems {
-  dashboard: TranslationValue;
-  forecasting: TranslationValue;
-  inventory: TranslationValue;
-  salesPlanning: TranslationValue;
-  marketing: TranslationValue;
-  logistics: TranslationValue;
-  reports: TranslationValue;
-  askAI: TranslationValue;
-  data: TranslationValue;
-  guidelines: TranslationValue;
-  supplyPlanning: TranslationValue;
-}
-
-export interface DashboardMetrics {
-  totalSKUs: TranslationValue;
-  bufferPenetration: TranslationValue;
-  orderStatus: TranslationValue;
-  flowIndex: TranslationValue;
-}
-
-export interface FinancialMetrics {
-  title: TranslationValue;
-  revenue: TranslationValue;
-  operatingCosts: TranslationValue;
-  profitMargin: TranslationValue;
-}
-
-export interface SustainabilityMetrics {
-  title: TranslationValue;
-  carbonFootprint: TranslationValue;
-  wasteReduction: TranslationValue;
-  greenSuppliers: TranslationValue;
-  yearlyReduction: TranslationValue;
-  wasteEfficiency: TranslationValue;
-  sustainableSourcing: TranslationValue;
-}
-
-export interface ModulesSummary {
-  inventoryManagement: TranslationValue;
-  demandForecasting: TranslationValue;
-  salesPlanning: TranslationValue;
-  marketingCampaigns: TranslationValue;
-  logistics: TranslationValue;
-  reportsAnalytics: TranslationValue;
-  viewDetails: TranslationValue;
-}
-
-export interface PaginationTranslations {
-  next: TranslationValue;
-  previous: TranslationValue;
-  page: TranslationValue;
-  of: TranslationValue;
-  perPage: TranslationValue;
-  items: TranslationValue;
-  showing: TranslationValue;
-  to: TranslationValue;
-  viewDetails: TranslationValue;
+export interface NavigationTranslations {
+  [key: string]: TranslationValue;
 }
 
 export interface UITranslations {
-  settings: TranslationValue;
-  logout: TranslationValue;
-  cancel: TranslationValue;
-  save: TranslationValue;
-  delete: TranslationValue;
-  edit: TranslationValue;
-  create: TranslationValue;
-  search: TranslationValue;
-  filter: TranslationValue;
-  apply: TranslationValue;
-  reset: TranslationValue;
-  viewDetails: TranslationValue;
-  skuCount: TranslationValue;
-  accuracyLabel: TranslationValue;
-  pipelineValue: TranslationValue;
-  activeCampaigns: TranslationValue;
-  onTimeDelivery: TranslationValue;
-  reportCount: TranslationValue;
-  fromLastMonth: TranslationValue;
-  fromLastWeek: TranslationValue;
-  thisQuarter: TranslationValue;
-  modules: TranslationValue;
+  [key: string]: TranslationValue;
+}
+
+export interface PaginationTranslations {
+  [key: string]: TranslationValue;
 }
 
 export interface ModuleTranslations {
-  inventoryDescription: TranslationValue;
-  forecastingDescription: TranslationValue;
-  salesDescription: TranslationValue;
-  marketingDescription: TranslationValue;
-  logisticsDescription: TranslationValue;
-  reportsDescription: TranslationValue;
-  moduleDescriptions: TranslationValue;
-}
-
-export interface NavigationTranslations {
-  dashboard: TranslationValue;
-  sales: TranslationValue;
-  inventory: TranslationValue;
-  logistics: TranslationValue;
-  forecasting: TranslationValue;
-  supplyPlanning: TranslationValue;
-  marketing: TranslationValue;
+  [key: string]: TranslationValue;
 }
 
 export interface DashboardMetricsTranslations {
@@ -114,11 +25,12 @@ export interface DashboardMetricsTranslations {
   ordersProcessed: TranslationValue;
   customerSatisfaction: TranslationValue;
   averageOrderValue: TranslationValue;
-  websiteTraffic: TranslationValue;
+  newCustomers: TranslationValue;
+  returningCustomers: TranslationValue;
   conversionRate: TranslationValue;
-  customerRetentionRate: TranslationValue;
-  emailOpenRate: TranslationValue;
-  socialMediaEngagement: TranslationValue;
+  inventoryTurnover: TranslationValue;
+  supplyLeadTime: TranslationValue;
+  [key: string]: TranslationValue;
 }
 
 export interface FinancialMetricsTranslations {
@@ -126,25 +38,25 @@ export interface FinancialMetricsTranslations {
   netIncome: TranslationValue;
   operatingMargin: TranslationValue;
   revenueGrowth: TranslationValue;
-  costOfGoodsSold: TranslationValue;
-  ebitda: TranslationValue;
   cashFlow: TranslationValue;
   accountsReceivable: TranslationValue;
-  accountsPayable: TranslationValue;
-  inventoryTurnover: TranslationValue;
+  inventoryValue: TranslationValue;
+  expenseRatio: TranslationValue;
+  daysPayable: TranslationValue;
+  daysInventory: TranslationValue;
+  [key: string]: TranslationValue;
 }
 
 export interface SustainabilityMetricsTranslations {
   carbonEmissions: TranslationValue;
-  wasteReduction: TranslationValue;
   energyConsumption: TranslationValue;
   waterUsage: TranslationValue;
   recyclingRate: TranslationValue;
-  sustainableSourcing: TranslationValue;
-  employeeWellbeing: TranslationValue;
-  communityEngagement: TranslationValue;
-  ethicalPractices: TranslationValue;
-  supplyChainSustainability: TranslationValue;
+  wasteReduction: TranslationValue;
+  sustainablePackaging: TranslationValue;
+  greenTransportation: TranslationValue;
+  renewableEnergy: TranslationValue;
+  [key: string]: TranslationValue;
 }
 
 export interface ModulesSummaryTranslations {
@@ -153,50 +65,7 @@ export interface ModulesSummaryTranslations {
   logisticsSummary: TranslationValue;
   forecastingSummary: TranslationValue;
   supplyPlanningSummary: TranslationValue;
-}
-
-export interface CommonTranslations {
-  // UI translations
-  theme: TranslationValue;
-  light: TranslationValue;
-  dark: TranslationValue;
-  system: TranslationValue;
-  language: TranslationValue;
-  english: TranslationValue;
-  arabic: TranslationValue;
-  signOut: TranslationValue;
-  
-  // Inventory translations
-  inventoryTitle: TranslationValue;
-  bufferZones: TranslationValue;
-  skuClassification: TranslationValue;
-  leadTime: TranslationValue;
-  replenishmentOrders: TranslationValue;
-  bufferStatus: TranslationValue;
-  netFlowPosition: TranslationValue;
-  inventorySummary: TranslationValue;
-  
-  // Chart translations
-  chartTitles: TranslationValue;
-  zones: TranslationValue;
-  
-  // Pagination translations
-  next: TranslationValue;
-  previous: TranslationValue;
-  page: TranslationValue;
-  of: TranslationValue;
-  perPage: TranslationValue;
-  items: TranslationValue;
-  showing: TranslationValue;
-  to: TranslationValue;
-  
-  // Module translations
-  dashboard: TranslationValue;
-  sales: TranslationValue;
-  inventory: TranslationValue;
-  logistics: TranslationValue;
-  forecasting: TranslationValue;
-  supplyPlanning: TranslationValue;
+  [key: string]: TranslationValue;
 }
 
 export interface SalesTranslations {
@@ -210,7 +79,6 @@ export interface SalesTranslations {
   customerDemographics: TranslationValue;
   salesTrends: TranslationValue;
   regionalSales: TranslationValue;
-  // Additional properties from the sales.ts file
   title: TranslationValue;
   newPlan: TranslationValue;
   topDown: TranslationValue;
@@ -220,215 +88,11 @@ export interface SalesTranslations {
     region: TranslationValue;
     status: TranslationValue;
   };
-}
-
-export interface InventoryTranslations {
-  inventoryTitle: TranslationValue;
-  bufferZones: TranslationValue;
-  skuClassification: TranslationValue;
-  leadTime: TranslationValue;
-  replenishmentOrders: TranslationValue;
-  bufferStatus: TranslationValue;
-  netFlowPosition: TranslationValue;
-  adu: TranslationValue;
-  inventorySummary: TranslationValue;
-  onHand: TranslationValue;
-  onOrder: TranslationValue;
-  allocated: TranslationValue;
-  available: TranslationValue;
-  bufferPenetration: TranslationValue;
-  avgDailyUsage: TranslationValue;
-  orders: TranslationValue;
-  status: TranslationValue;
-  quantity: TranslationValue;
-  expectedDelivery: TranslationValue;
-  inventoryLevel: TranslationValue;
-  reorderPoint: TranslationValue;
-  safetyStock: TranslationValue;
-  inventoryPolicy: TranslationValue;
-  green: TranslationValue;
-  yellow: TranslationValue;
-  red: TranslationValue;
-  tooHigh: TranslationValue;
-  optimal: TranslationValue;
-  warning: TranslationValue;
-  tooLow: TranslationValue;
-  bufferDetails: TranslationValue;
-  bufferZone: TranslationValue;
-  bufferValue: TranslationValue;
-  yellowZone: TranslationValue;
-  redZone: TranslationValue;
-  greenZone: TranslationValue;
-  decouplingPoint: TranslationValue;
-  supplier: TranslationValue;
-  manufacturer: TranslationValue;
-  distributor: TranslationValue;
-  warehouse: TranslationValue;
-  retailer: TranslationValue;
-  consumer: TranslationValue;
-  daysOfStock: TranslationValue;
-  aduAnalysis: TranslationValue;
-  aiInsights: TranslationValue;
-}
-
-export interface LogisticsTranslations {
-  optimizeSupplyChain: TranslationValue;
-  dashboard: TranslationValue;
-  tracking: TranslationValue;
-  analytics: TranslationValue;
-  sustainability: TranslationValue;
-  recentShipments: TranslationValue;
-  orders: TranslationValue;
-  documents: TranslationValue;
-  routes: TranslationValue;
-  transport: TranslationValue;
-  deliveryPerformance: TranslationValue;
-  advancedAnalytics: TranslationValue;
-  geographicDistribution: TranslationValue;
-  heatmapAnalytics: TranslationValue;
-  riskAnalysis: TranslationValue;
-  deliveryRiskAssessment: TranslationValue;
-  sustainableRouting: TranslationValue;
-  ecoRoutingOptions: TranslationValue;
-  sustainabilityReporting: TranslationValue;
-  environmentalReports: TranslationValue;
-  logisticsTrackingMap: TranslationValue;
-  liveOn: TranslationValue;
-  liveOff: TranslationValue;
-  layers: TranslationValue;
-  mapLayers: TranslationValue;
-  shipments: TranslationValue;
-  warehouses: TranslationValue;
-  trafficData: TranslationValue;
-  weatherOverlay: TranslationValue;
-  showDelayedOnly: TranslationValue;
-  activeShipments: TranslationValue;
-  facilities: TranslationValue;
-  mapUnavailable: TranslationValue;
-  mapError: TranslationValue;
-  eta: TranslationValue;
-  delayedEta: TranslationValue;
-  liveTrackingEnabled: TranslationValue;
-  locationUpdatesEnabled: TranslationValue;
-  liveTrackingDisabled: TranslationValue;
-  inTransit: TranslationValue;
-  delivered: TranslationValue;
-  outForDelivery: TranslationValue;
-  delayed: TranslationValue;
-  processing: TranslationValue;
-  exception: TranslationValue;
-  searchPlaceholder: TranslationValue;
-  filterByStatus: TranslationValue;
-  allStatuses: TranslationValue;
-  filterByCarrier: TranslationValue;
-  allCarriers: TranslationValue;
-  filterByDate: TranslationValue;
-  advancedFilters: TranslationValue;
-  clearFilters: TranslationValue;
-  mapView: TranslationValue;
-  mapViewSettings: TranslationValue;
-  mapViewDescription: TranslationValue;
-  showRoutes: TranslationValue;
-  showHeatmap: TranslationValue;
-  clusterMarkers: TranslationValue;
-  refreshData: TranslationValue;
-  analyticsView: TranslationValue;
-  priority: TranslationValue;
-  selectPriority: TranslationValue;
-  allPriorities: TranslationValue;
-  highPriority: TranslationValue;
-  mediumPriority: TranslationValue;
-  lowPriority: TranslationValue;
-  region: TranslationValue;
-  selectRegion: TranslationValue;
-  allRegions: TranslationValue;
-  shippingMethod: TranslationValue;
-  selectShipping: TranslationValue;
-  allMethods: TranslationValue;
-  express: TranslationValue;
-  standard: TranslationValue;
-  economy: TranslationValue;
-  sameDay: TranslationValue;
-  deliveryTimeRange: TranslationValue;
-  day: TranslationValue;
-  days: TranslationValue;
-  costRange: TranslationValue;
-  international: TranslationValue;
-  customsClearance: TranslationValue;
-  specialHandling: TranslationValue;
-  resetFilters: TranslationValue;
-  applyFilters: TranslationValue;
-  carrierPerformance: TranslationValue;
-  carbonFootprint: TranslationValue;
-  delayRate: TranslationValue;
-  predictedVolume: TranslationValue;
-  weatherImpact: TranslationValue;
-  routeOptimization: TranslationValue;
-  transportModes: TranslationValue;
-  optimizeRoute: TranslationValue;
-  origin: TranslationValue;
-  destination: TranslationValue;
-  waypoints: TranslationValue;
-  optimizationCriteria: TranslationValue;
-  transportMode: TranslationValue;
-  departureTime: TranslationValue;
-  totalDistance: TranslationValue;
-  totalTime: TranslationValue;
-  totalCost: TranslationValue;
-  emissions: TranslationValue;
-  fuelConsumption: TranslationValue;
-  savedRoutes: TranslationValue;
-  orderRef: TranslationValue;
-  carrier: TranslationValue;
-  trackingNumber: TranslationValue;
-  statusLabel: TranslationValue;
-  purchaseOrderPipeline: TranslationValue;
-  monitorAndTrack: TranslationValue;
-  routeOptimizationDesc: TranslationValue;
-  transportModesDesc: TranslationValue;
-  documentManagement: TranslationValue;
-  uploadAndManage: TranslationValue;
-  uploadedDocuments: TranslationValue;
-  onTimeDeliveryRate: TranslationValue;
-  averageTransitTime: TranslationValue;
-  deliverySuccessRate: TranslationValue;
-  costPerShipment: TranslationValue;
-  lastUpdated: TranslationValue;
-  notAvailable: TranslationValue;
-  supplier: TranslationValue;
-  stage: TranslationValue;
-  startDate: TranslationValue;
-  completion: TranslationValue;
-  blockers: TranslationValue;
-  none: TranslationValue;
-  poPipeline: TranslationValue;
-  notifications: TranslationValue;
-  new: TranslationValue;
-  markAllRead: TranslationValue;
-  noNotifications: TranslationValue;
-  markRead: TranslationValue;
-  dismiss: TranslationValue;
-  allNotificationsRead: TranslationValue;
-  justNow: TranslationValue;
-  minutesAgo: TranslationValue;
-  hoursAgo: TranslationValue;
-  daysAgo: TranslationValue;
-  alert: TranslationValue;
-  success: TranslationValue;
-  info: TranslationValue;
-  warning: TranslationValue;
-  notificationsTab: TranslationValue;
-}
-
-export interface ForecastingTranslations {
-  analysis: TranslationValue;
-  distribution: TranslationValue;
-  whatIf: TranslationValue;
-  external: TranslationValue;
-  forecastModel: TranslationValue;
-  modelAccuracy: TranslationValue;
-  selectPeriod: TranslationValue;
-  applyFilters: TranslationValue;
+  [key: string]: TranslationValue | {
+    category: TranslationValue;
+    region: TranslationValue;
+    status: TranslationValue;
+  };
 }
 
 export interface SupplyPlanningTranslations {
@@ -542,11 +206,76 @@ export interface SupplyPlanningTranslations {
   variabilityLevels: TranslationValue;
   ddmrpImpact: TranslationValue;
   moduleDescription: TranslationValue;
+  [key: string]: TranslationValue | any;
+}
+
+export interface LogisticsTranslations {
+  optimizeSupplyChain: TranslationValue;
+  dashboard: TranslationValue;
+  tracking: TranslationValue;
+  analytics: TranslationValue;
+  sustainability: TranslationValue;
+  recentShipments: TranslationValue;
+  orders: TranslationValue;
+  documents: TranslationValue;
+  routes: TranslationValue;
+  transport: TranslationValue;
+  deliveryPerformance: TranslationValue;
+  advancedAnalytics: TranslationValue;
+  geographicDistribution: TranslationValue;
+  heatmapAnalytics: TranslationValue;
+  riskAnalysis: TranslationValue;
+  deliveryRiskAssessment: TranslationValue;
+  sustainableRouting: TranslationValue;
+  ecoRoutingOptions: TranslationValue;
+  sustainabilityReporting: TranslationValue;
+  environmentalReports: TranslationValue;
+  [key: string]: TranslationValue | any;
+}
+
+export interface ChartTranslations {
+  chartTitles: {
+    [key: string]: TranslationValue;
+  };
+  zones: {
+    [key: string]: TranslationValue;
+  };
+  [key: string]: TranslationValue | {
+    [key: string]: TranslationValue;
+  };
+}
+
+export interface InventoryTranslations {
+  inventoryTitle: TranslationValue;
+  bufferZones: TranslationValue;
+  skuClassification: TranslationValue;
+  leadTime: TranslationValue;
+  replenishmentOrders: TranslationValue;
+  bufferStatus: TranslationValue;
+  netFlowPosition: TranslationValue;
+  inventorySummary: TranslationValue;
+  [key: string]: TranslationValue | any;
+}
+
+export interface ForecastingTranslations {
+  analysis: TranslationValue;
+  distribution: TranslationValue;
+  whatIf: TranslationValue;
+  external: TranslationValue;
+  forecastModel: TranslationValue;
+  modelAccuracy: TranslationValue;
+  selectPeriod: TranslationValue;
+  applyFilters: TranslationValue;
+  [key: string]: TranslationValue | any;
+}
+
+export interface CommonTranslations {
+  [key: string]: TranslationValue | any;
 }
 
 export interface Translations {
   dashboard: TranslationValue;
-  navigationItems: NavigationItems;
+  navigationItems: NavigationTranslations;
   dashboardMetrics: DashboardMetricsTranslations;
   financialMetrics: FinancialMetricsTranslations;
   sustainabilityMetrics: SustainabilityMetricsTranslations;
@@ -555,4 +284,5 @@ export interface Translations {
   sales: SalesTranslations;
   supplyPlanning: SupplyPlanningTranslations;
   forecasting: ForecastingTranslations;
+  [key: string]: TranslationValue | any;
 }

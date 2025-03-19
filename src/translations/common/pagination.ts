@@ -24,7 +24,7 @@ export const paginationTranslations: PaginationTranslations = {
   },
   items: {
     en: "items",
-    ar: "العناصر"
+    ar: "عناصر"
   },
   showing: {
     en: "Showing",
@@ -33,9 +33,5 @@ export const paginationTranslations: PaginationTranslations = {
   to: {
     en: "to",
     ar: "إلى"
-  },
-  viewDetails: {
-    en: "View Details",
-    ar: "عرض التفاصيل"
   }
 };

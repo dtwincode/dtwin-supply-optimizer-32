@@ -10,34 +10,17 @@ import { forecastingTranslations } from './common/forecasting';
 
 export const commonTranslations: CommonTranslations = {
   // UI translations
-  ...uiTranslations,
-  
-  // Inventory translations
-  inventoryTitle: inventoryTranslations.inventoryTitle,
-  bufferZones: inventoryTranslations.bufferZones,
-  skuClassification: inventoryTranslations.skuClassification,
-  leadTime: inventoryTranslations.leadTime,
-  replenishmentOrders: inventoryTranslations.replenishmentOrders,
-  bufferStatus: inventoryTranslations.bufferStatus,
-  netFlowPosition: inventoryTranslations.netFlowPosition,
-  inventorySummary: inventoryTranslations.inventorySummary,
+  ui: uiTranslations,
   
   // Chart translations
   chartTitles: chartTranslations.chartTitles,
   zones: chartTranslations.zones,
   
   // Pagination translations
-  next: paginationTranslations.next,
-  previous: paginationTranslations.previous,
-  page: paginationTranslations.page,
-  of: paginationTranslations.of,
-  perPage: paginationTranslations.perPage,
-  items: paginationTranslations.items,
-  showing: paginationTranslations.showing,
-  to: paginationTranslations.to,
+  pagination: paginationTranslations,
   
   // Module translations
-  ...moduleTranslations,
+  modules: moduleTranslations,
   
   // Include full sections as nested objects
   logistics: logisticsTranslations,

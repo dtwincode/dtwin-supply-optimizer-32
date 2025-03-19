@@ -1,107 +1,147 @@
 
-import { DashboardMetrics, FinancialMetrics, SustainabilityMetrics, ModulesSummary, TranslationValue } from './types';
+import { TranslationValue, DashboardMetricsTranslations, FinancialMetricsTranslations, SustainabilityMetricsTranslations, ModulesSummaryTranslations } from './types';
 
 export const dashboardTitle: TranslationValue = {
-  en: "Supply Chain Dashboard",
-  ar: "لوحة تحكم سلسلة التوريد"
+  en: "Dashboard",
+  ar: "لوحة المعلومات"
 };
 
-export const dashboardMetricsTranslations: DashboardMetrics = {
-  totalSKUs: {
-    en: "Total SKUs",
-    ar: "إجمالي وحدات التخزين"
+export const dashboardMetricsTranslations: DashboardMetricsTranslations = {
+  totalRevenue: {
+    en: "Total Revenue",
+    ar: "إجمالي الإيرادات"
   },
-  bufferPenetration: {
-    en: "Buffer Penetration",
-    ar: "اختراق المخزون"
+  ordersProcessed: {
+    en: "Orders Processed",
+    ar: "الطلبات المعالجة"
   },
-  orderStatus: {
-    en: "Order Status",
-    ar: "حالة الطلب"
+  customerSatisfaction: {
+    en: "Customer Satisfaction",
+    ar: "رضا العملاء"
   },
-  flowIndex: {
-    en: "Flow Index",
-    ar: "مؤشر التدفق"
+  averageOrderValue: {
+    en: "Average Order Value",
+    ar: "متوسط قيمة الطلب"
+  },
+  newCustomers: {
+    en: "New Customers",
+    ar: "عملاء جدد"
+  },
+  returningCustomers: {
+    en: "Returning Customers",
+    ar: "العملاء العائدون"
+  },
+  conversionRate: {
+    en: "Conversion Rate",
+    ar: "معدل التحويل"
+  },
+  inventoryTurnover: {
+    en: "Inventory Turnover",
+    ar: "معدل دوران المخزون"
+  },
+  supplyLeadTime: {
+    en: "Supply Lead Time",
+    ar: "وقت التوريد"
   }
 };
 
-export const financialMetricsTranslations: FinancialMetrics = {
-  title: {
-    en: "Financial Performance",
-    ar: "الأداء المالي"
+export const financialMetricsTranslations: FinancialMetricsTranslations = {
+  grossProfit: {
+    en: "Gross Profit",
+    ar: "الربح الإجمالي"
   },
-  revenue: {
-    en: "Revenue",
-    ar: "الإيرادات"
+  netIncome: {
+    en: "Net Income",
+    ar: "صافي الدخل"
   },
-  operatingCosts: {
-    en: "Operating Costs",
-    ar: "تكاليف التشغيل"
+  operatingMargin: {
+    en: "Operating Margin",
+    ar: "هامش التشغيل"
   },
-  profitMargin: {
-    en: "Profit Margin",
-    ar: "هامش الربح"
+  revenueGrowth: {
+    en: "Revenue Growth",
+    ar: "نمو الإيرادات"
+  },
+  cashFlow: {
+    en: "Cash Flow",
+    ar: "التدفق النقدي"
+  },
+  accountsReceivable: {
+    en: "Accounts Receivable",
+    ar: "الذمم المدينة"
+  },
+  inventoryValue: {
+    en: "Inventory Value",
+    ar: "قيمة المخزون"
+  },
+  expenseRatio: {
+    en: "Expense Ratio",
+    ar: "نسبة المصروفات"
+  },
+  daysPayable: {
+    en: "Days Payable",
+    ar: "أيام الدفع"
+  },
+  daysInventory: {
+    en: "Days Inventory",
+    ar: "أيام المخزون"
   }
 };
 
-export const sustainabilityMetricsTranslations: SustainabilityMetrics = {
-  title: {
-    en: "Sustainability",
-    ar: "الاستدامة"
+export const sustainabilityMetricsTranslations: SustainabilityMetricsTranslations = {
+  carbonEmissions: {
+    en: "Carbon Emissions",
+    ar: "انبعاثات الكربون"
   },
-  carbonFootprint: {
-    en: "Carbon Footprint",
-    ar: "البصمة الكربونية"
+  energyConsumption: {
+    en: "Energy Consumption",
+    ar: "استهلاك الطاقة"
+  },
+  waterUsage: {
+    en: "Water Usage",
+    ar: "استخدام المياه"
+  },
+  recyclingRate: {
+    en: "Recycling Rate",
+    ar: "معدل إعادة التدوير"
   },
   wasteReduction: {
     en: "Waste Reduction",
     ar: "تقليل النفايات"
   },
-  greenSuppliers: {
-    en: "Green Suppliers",
-    ar: "الموردون الخضر"
+  sustainablePackaging: {
+    en: "Sustainable Packaging",
+    ar: "التعبئة المستدامة"
   },
-  yearlyReduction: {
-    en: "Annual reduction in CO2 emissions",
-    ar: "تخفيض سنوي في انبعاثات ثاني أكسيد الكربون"
+  greenTransportation: {
+    en: "Green Transportation",
+    ar: "النقل الأخضر"
   },
-  wasteEfficiency: {
-    en: "Improvement in waste management efficiency",
-    ar: "تحسين كفاءة إدارة النفايات"
-  },
-  sustainableSourcing: {
-    en: "Suppliers meeting sustainability standards",
-    ar: "الموردون الذين يلبون معايير الاستدامة"
+  renewableEnergy: {
+    en: "Renewable Energy",
+    ar: "الطاقة المتجددة"
   }
 };
 
-export const modulesSummaryTranslations: ModulesSummary = {
-  inventoryManagement: {
-    en: "Inventory Management",
-    ar: "إدارة المخزون"
+export const modulesSummaryTranslations: ModulesSummaryTranslations = {
+  salesSummary: {
+    en: "Sales",
+    ar: "المبيعات"
   },
-  demandForecasting: {
-    en: "Demand Forecasting",
-    ar: "التنبؤ بالطلب"
+  inventorySummary: {
+    en: "Inventory",
+    ar: "المخزون"
   },
-  salesPlanning: {
-    en: "Sales Planning",
-    ar: "تخطيط المبيعات"
-  },
-  marketingCampaigns: {
-    en: "Marketing Campaigns",
-    ar: "الحملات التسويقية"
-  },
-  logistics: {
+  logisticsSummary: {
     en: "Logistics",
     ar: "الخدمات اللوجستية"
   },
-  reportsAnalytics: {
-    en: "Reports & Analytics",
-    ar: "التقارير والتحليلات"
+  forecastingSummary: {
+    en: "Forecasting",
+    ar: "التنبؤ"
   },
-  viewDetails: {
-    en: "View Details",
-    ar: "عرض التفاصيل"
+  supplyPlanningSummary: {
+    en: "Supply Planning",
+    ar: "تخطيط التوريد"
   }
 };
