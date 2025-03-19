@@ -5,7 +5,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RouteOptimizationContainer } from '@/components/logistics/route-optimization/RouteOptimizationContainer';
 import { TransportModeList } from '@/components/logistics/route-optimization/TransportModeList';
 import { LogisticsOrdersTable } from '@/components/logistics/orders/LogisticsOrdersTable';
-import { POPipelineTable } from '@/components/logistics/pipeline/POPipelineTable';
 import { DocumentList } from '@/components/logistics/documents/DocumentList';
 import { DocumentUpload } from '@/components/logistics/documents/DocumentUpload';
 import { LogisticsMetricsGrid } from '@/components/logistics/metrics/LogisticsMetricsGrid';
@@ -38,18 +37,14 @@ const Logistics = () => {
           <LogisticsMap />
           <div className="lg:col-span-1">
             <Tabs defaultValue="orders" className="w-full">
-              <TabsList className="grid w-full grid-cols-5">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="orders">{getTranslation('common.logistics.orders', language)}</TabsTrigger>
-                <TabsTrigger value="pipeline">{getTranslation('common.logistics.poPipeline', language)}</TabsTrigger>
                 <TabsTrigger value="documents">{getTranslation('common.logistics.documents', language)}</TabsTrigger>
                 <TabsTrigger value="routes">{getTranslation('common.logistics.routes', language)}</TabsTrigger>
                 <TabsTrigger value="transport">{getTranslation('common.logistics.transport', language)}</TabsTrigger>
               </TabsList>
               <TabsContent value="orders" className="space-y-4 pt-4">
                 <LogisticsOrdersTable />
-              </TabsContent>
-              <TabsContent value="pipeline" className="space-y-4 pt-4">
-                <POPipelineTable />
               </TabsContent>
               <TabsContent value="documents" className="space-y-4 pt-4">
                 <DocumentUpload />
