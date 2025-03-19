@@ -16,6 +16,14 @@ export const chartTranslations = {
     bufferProfile: {
       en: "Buffer Profile Distribution",
       ar: "توزيع نسب المخزون"
+    },
+    demandVariability: {
+      en: "Demand Variability Analysis",
+      ar: "تحليل تغير الطلب"
+    },
+    inventoryTrends: {
+      en: "Inventory Trends",
+      ar: "اتجاهات المخزون"
     }
   },
   zones: {
@@ -30,6 +38,10 @@ export const chartTranslations = {
     green: {
       en: "Green Zone",
       ar: "المنطقة الخضراء"
+    },
+    inventory: {
+      en: "Current Inventory",
+      ar: "المخزون الحالي"
     }
   }
 };
