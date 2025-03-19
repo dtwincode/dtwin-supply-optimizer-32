@@ -167,6 +167,11 @@ export interface ForecastingTranslations {
   distribution: TranslationItem;
   reconciliation: TranslationItem;
   factors: TranslationItem;
+  external: TranslationItem;
+  forecastModel: TranslationItem;
+  modelAccuracy: TranslationItem;
+  selectPeriod: TranslationItem;
+  applyFilters: TranslationItem;
   [key: string]: TranslationItem | Record<string, any>;
 }
 

@@ -30,9 +30,13 @@ export const getTranslation = (key: string, language: 'en' | 'ar'): string => {
       current = current[k];
     } else {
       console.warn(`Translation key not found: ${key}`);
-      return key;
+      return key; // Return the key itself instead of adding dots
     }
   }
   
-  return current[language] || key;
+  if (typeof current === 'object' && current[language]) {
+    return current[language];
+  }
+  
+  return key; // Return the key if translation not found
 };

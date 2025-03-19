@@ -97,5 +97,10 @@ export const modulesSummaryTranslations: ModulesSummaryTranslations = {
   supplyPlanning: {
     en: "Supply Planning",
     ar: "تخطيط التوريد"
+  },
+  // Adding missing translations from console logs
+  reportsAnalytics: {
+    en: "Reports & Analytics",
+    ar: "التقارير والتحليلات"
   }
 };

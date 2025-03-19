@@ -47,8 +47,8 @@ export const forecastingTranslations: ForecastingTranslations = {
     ar: "التسوية"
   },
   factors: {
-    en: "Factors",
-    ar: "العوامل"
+    en: "External Factors",
+    ar: "العوامل الخارجية"
   },
   external: {
     en: "External",

@@ -1,7 +1,7 @@
 
-import { TranslationItem } from '../types';
+import { SupplyPlanningTranslations } from '../types';
 
-export const supplyPlanningTranslations = {
+export const supplyPlanningTranslations: SupplyPlanningTranslations = {
   title: {
     en: "Supply Planning",
     ar: "تخطيط التوريد"
@@ -30,5 +30,4 @@ export const supplyPlanningTranslations = {
     en: "Purchase Orders",
     ar: "أوامر الشراء"
   }
-  // Removed the 'tabs' property that was causing type errors
 };
