@@ -223,12 +223,70 @@ export const LogisticsMap = () => {
     }
   };
 
-  // This function would be used to create map markers
-  // We'll implement this differently since we're not using the MapMarker component directly
-  const renderMapMarkers = () => {
-    // This would be where we create markers with the map instance
-    // Currently returning an empty array as we'll handle markers differently
-    return [];
+  // Prepare map markers
+  const prepareMapMarkers = () => {
+    const markers = [];
+    
+    // Add warehouse markers if the layer is enabled
+    if (showWarehousesLayer) {
+      warehouseLocations.forEach(warehouse => {
+        markers.push({
+          id: `warehouse-${warehouse.id}`,
+          latitude: warehouse.lat,
+          longitude: warehouse.lng,
+          color: getWarehouseMarkerColor(warehouse.type),
+          icon: 'warehouse',
+          onClick: () => handleWarehouseClick(warehouse),
+          tooltipContent: (
+            <div className="p-2 max-w-[200px]">
+              <div className="font-semibold">{warehouse.name}</div>
+              <div className="text-sm text-muted-foreground">{warehouse.type.replace('_', ' ')}</div>
+              <div className="text-sm mt-1">
+                <span className="font-medium">{warehouse.shipments}</span> active shipments
+              </div>
+            </div>
+          )
+        });
+      });
+    }
+    
+    // Add shipment markers if the layer is enabled
+    if (showShipmentsLayer) {
+      filteredShipments.forEach(shipment => {
+        markers.push({
+          id: `shipment-${shipment.id}`,
+          latitude: shipment.lat,
+          longitude: shipment.lng,
+          color: getShipmentMarkerColor(shipment.status, shipment.isDelayed),
+          icon: shipment.vehicle || 'delivery',
+          onClick: () => handleShipmentClick(shipment),
+          tooltipContent: (
+            <div className="p-2 max-w-[200px]">
+              <div className="font-semibold">{shipment.orderId}</div>
+              <div className="flex items-center text-sm">
+                {getStatusBadge(shipment.status, shipment.isDelayed)}
+              </div>
+              <div className="text-xs mt-2">
+                <div>
+                  <span className="font-medium">{getTranslation('common.logistics.origin', language) || 'From'}:</span> {shipment.from}
+                </div>
+                <div>
+                  <span className="font-medium">{getTranslation('common.logistics.destination', language) || 'To'}:</span> {shipment.to}
+                </div>
+                <div>
+                  <span className="font-medium">{getTranslation('common.logistics.carrier', language) || 'Carrier'}:</span> {shipment.carrier}
+                </div>
+                <div>
+                  <span className="font-medium">{getTranslation('common.logistics.eta', language) || 'ETA'}:</span> {formatDate(shipment.eta)}
+                </div>
+              </div>
+            </div>
+          )
+        });
+      });
+    }
+    
+    return markers;
   };
 
   return (
@@ -404,6 +462,7 @@ export const LogisticsMap = () => {
           latitude={24.0}
           longitude={45.0}
           zoom={5}
+          markers={prepareMapMarkers()}
         />
       </div>
     </div>
