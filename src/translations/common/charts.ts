@@ -1,42 +1,35 @@
 
-import { ChartTranslations } from '../types';
-
-export const chartTranslations: ChartTranslations = {
+export const chartTranslations = {
   chartTitles: {
-    bufferProfile: {
-      en: "Buffer Profile Distribution",
-      ar: "توزيع نسب المخزون"
-    },
-    demandVariability: {
-      en: "Demand Variability Analysis",
-      ar: "تحليل تغير الطلب"
-    },
-    inventoryTrends: {
-      en: "Inventory Trends",
-      ar: "اتجاهات المخزون"
+    salesTrend: {
+      en: "Sales Trend",
+      ar: "اتجاه المبيعات"
     },
     forecastAccuracy: {
       en: "Forecast Accuracy",
       ar: "دقة التنبؤ"
+    },
+    inventoryLevels: {
+      en: "Inventory Levels",
+      ar: "مستويات المخزون"
+    },
+    bufferProfile: {
+      en: "Buffer Profile Distribution",
+      ar: "توزيع نسب المخزون"
     }
   },
   zones: {
-    green: {
-      en: "Green Zone",
-      ar: "المنطقة الخضراء"
+    red: {
+      en: "Red Zone",
+      ar: "المنطقة الحمراء"
     },
     yellow: {
       en: "Yellow Zone",
       ar: "المنطقة الصفراء"
     },
-    red: {
-      en: "Red Zone",
-      ar: "المنطقة الحمراء"
-    },
-    // Add inventory label for the chart
-    inventory: {
-      en: "Current Inventory",
-      ar: "المخزون الحالي"
+    green: {
+      en: "Green Zone",
+      ar: "المنطقة الخضراء"
     }
   }
 };
