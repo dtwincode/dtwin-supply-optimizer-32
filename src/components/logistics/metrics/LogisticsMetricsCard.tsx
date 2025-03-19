@@ -60,7 +60,7 @@ export const LogisticsMetricsCard = ({
       metricType === 'avg_transit_time' ? 
         `${latestMetric.metric_value.toFixed(1)} days` : 
       metricType === 'cost_per_shipment' ? 
-        `$${latestMetric.metric_value.toFixed(2)}` : 
+        `﷼${latestMetric.metric_value.toFixed(2)}` : 
         latestMetric.metric_value.toFixed(2)) : 
       defaultValue);
 

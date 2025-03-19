@@ -97,7 +97,7 @@ export const OptimizedRouteDetails = ({ route, onReset }: OptimizedRouteDetailsP
               <div className="flex items-center space-x-2">
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-sm font-medium">${route.total_cost.toFixed(2)}</p>
+                  <p className="text-sm font-medium">﷼{route.total_cost.toFixed(2)}</p>
                   <p className="text-xs text-muted-foreground">{getTranslation('common.logistics.totalCost', language)}</p>
                 </div>
               </div>
