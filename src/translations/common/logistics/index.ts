@@ -37,6 +37,24 @@ export const logisticsTranslations = {
   delayedEta: statusTranslations.delayedEta,
   pending: statusTranslations.pending,
   
+  // Add direct tab translations to ensure they're accessible by the t function
+  dashboard: {
+    en: "Dashboard",
+    ar: "لوحة القيادة"
+  },
+  tracking: {
+    en: "Tracking",
+    ar: "التتبع"
+  },
+  analytics: {
+    en: "Analytics",
+    ar: "التحليلات"
+  },
+  sustainability: {
+    en: "Sustainability",
+    ar: "الاستدامة"
+  },
+  
   // Ensure we have all the properties required by LogisticsTranslations interface
   purchaseOrderPipeline: {
     en: "Purchase Order Pipeline",

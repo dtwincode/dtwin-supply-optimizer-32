@@ -15,9 +15,6 @@ export const LogisticsTabs = () => {
   const { language } = useLanguage();
   const t = (key: string) => getTranslation(`common.logistics.${key}`, language) || key;
 
-  // Check the translation for DDOM tab for debugging
-  console.log("DDOM tab title translation:", getTranslation(`common.logistics.ddom.title`, language));
-
   return (
     <Tabs defaultValue="dashboard" className="w-full">
       <TabsList className="w-full justify-start mb-2 bg-transparent border-b rounded-none p-0 h-auto">
