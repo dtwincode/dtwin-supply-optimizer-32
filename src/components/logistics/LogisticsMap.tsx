@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { CardContent } from '@/components/ui/card';
 import { useLogisticsTracking } from '@/hooks/useLogisticsTracking';
-import { Loader2, AlertTriangle, MapPin, LocateFixed, Layers, AlertCircle, Truck, RefreshCw, Box } from 'lucide-react';
+import { Loader2, AlertTriangle, MapPin, LocateFixed, Layers, AlertCircle, Truck, RefreshCw, Box, Clock } from 'lucide-react';
 import BaseMap from '@/components/shared/maps/BaseMap';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ErrorBoundary } from '../ErrorBoundary';

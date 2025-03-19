@@ -7,7 +7,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Calendar, Filter, TrendingUp, RefreshCw, Search, Map, SlidersHorizontal, Tags } from "lucide-react";
+import { Calendar, Filter, TrendingUp, RefreshCw, Search, Map, SlidersHorizontal, Tags, X } from "lucide-react";
 import { useState } from "react";
 import { 
   Popover,
