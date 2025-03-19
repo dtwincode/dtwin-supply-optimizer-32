@@ -36,7 +36,7 @@ export const LogisticsMetricsGrid = () => {
       <LogisticsMetricsCard
         icon={DollarSign}
         label={getTranslation("common.logistics.costPerShipment", language)}
-        value="245.75 ريال"
+        value="$245.75"
         bgColor="bg-purple-100"
         textColor="text-purple-700"
         metricType="cost_per_shipment"
