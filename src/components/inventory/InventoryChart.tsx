@@ -1,5 +1,4 @@
-
-import { BarChart, Bar, LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ComposedChart, Scatter } from 'recharts';
+import { BarChart, Bar, LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ComposedChart, Scatter, Cell } from 'recharts';
 import { Card } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
@@ -36,11 +35,9 @@ export const InventoryChart = ({ data }: InventoryChartProps) => {
   const [normalizeData, setNormalizeData] = useState(false);
   
   const getFilteredData = () => {
-    // Apply limit to data
     const limitedData = data.slice(0, dataLimit);
     
     if (normalizeData) {
-      // Normalize data to percentages for easier comparison across different SKUs
       return limitedData.map(item => {
         const total = (item.redZoneSize || 0) + (item.yellowZoneSize || 0) + (item.greenZoneSize || 0);
         return {
@@ -195,6 +192,12 @@ export const InventoryChart = ({ data }: InventoryChartProps) => {
   };
 
   const renderBufferPenetrationChart = () => {
+    const getBarColor = (value: number) => {
+      if (value >= 80) return '#EF4444';
+      if (value >= 40) return '#F59E0B';
+      return '#10B981';
+    };
+
     return (
       <BarChart {...commonProps}>
         <CartesianGrid strokeDasharray="3 3" />
@@ -202,10 +205,14 @@ export const InventoryChart = ({ data }: InventoryChartProps) => {
         <YAxis />
         <Tooltip />
         <Legend />
-        <Bar dataKey="bufferPenetration" fill={({ bufferPenetration }) => 
-          bufferPenetration >= 80 ? '#EF4444' : 
-          bufferPenetration >= 40 ? '#F59E0B' : '#10B981'
-        } name="Buffer Penetration %" />
+        <Bar dataKey="bufferPenetration" name="Buffer Penetration %">
+          {chartData.map((entry, index) => (
+            <Cell 
+              key={`cell-${index}`} 
+              fill={getBarColor(entry.bufferPenetration || 0)}
+            />
+          ))}
+        </Bar>
       </BarChart>
     );
   };
