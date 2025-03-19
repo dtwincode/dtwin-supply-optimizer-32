@@ -1,5 +1,5 @@
 
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/index";
 import Auth from "./pages/Auth";
 import Marketing from "./pages/Marketing";
@@ -21,7 +21,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from './components/ui/toaster';
 import { FilterProvider } from "./contexts/FilterContext";
+import { Suspense } from "react";
 
+// Create a client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -32,6 +34,15 @@ const queryClient = new QueryClient({
   },
 });
 
+// Fallback loading component
+const PageLoading = () => (
+  <div className="flex items-center justify-center h-screen">
+    <div className="text-center">
+      <p className="text-muted-foreground">Loading...</p>
+    </div>
+  </div>
+);
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -39,29 +50,31 @@ function App() {
         <LanguageProvider>
           <FilterProvider>
             <TooltipProvider>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/marketing" element={<Marketing />} />
-                <Route path="/forecasting/*" element={<Forecasting />} />
-                <Route path="/inventory" element={<Inventory />} />
-                <Route path="/sales-planning" element={<SalesPlanning />} />
-                <Route path="/reports" element={<Reports />} />
-                <Route path="/logistics" element={<Logistics />} />
-                <Route path="/data" element={<Settings />} />
-                <Route path="/settings" element={<Settings />} /> {/* Adding a fallback route for /settings */}
-                <Route path="/guidelines" element={<Guidelines />} />
-                <Route path="/guidelines/getting-started" element={<GettingStarted />} />
-                <Route path="/guidelines/forecasting-basics" element={<ForecastingBasics />} />
-                <Route path="/guidelines/collaboration" element={<Collaboration />} />
-                <Route path="/guidelines/advanced" element={<Advanced />} />
-                <Route path="/guidelines/ai-assistant" element={<AIAssistant />} />
-                <Route path="/sql-config" element={<SQLConfig />} />
-                <Route path="/ask-ai" element={<AskAI />} />
-                <Route path="/tickets" element={<Tickets />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-              <Toaster />
+              <Suspense fallback={<PageLoading />}>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/marketing" element={<Marketing />} />
+                  <Route path="/forecasting/*" element={<Forecasting />} />
+                  <Route path="/inventory" element={<Inventory />} />
+                  <Route path="/sales-planning" element={<SalesPlanning />} />
+                  <Route path="/reports" element={<Reports />} />
+                  <Route path="/logistics" element={<Logistics />} />
+                  <Route path="/data" element={<Settings />} />
+                  <Route path="/settings" element={<Navigate to="/data" replace />} />
+                  <Route path="/guidelines" element={<Guidelines />} />
+                  <Route path="/guidelines/getting-started" element={<GettingStarted />} />
+                  <Route path="/guidelines/forecasting-basics" element={<ForecastingBasics />} />
+                  <Route path="/guidelines/collaboration" element={<Collaboration />} />
+                  <Route path="/guidelines/advanced" element={<Advanced />} />
+                  <Route path="/guidelines/ai-assistant" element={<AIAssistant />} />
+                  <Route path="/sql-config" element={<SQLConfig />} />
+                  <Route path="/ask-ai" element={<AskAI />} />
+                  <Route path="/tickets" element={<Tickets />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+                <Toaster />
+              </Suspense>
             </TooltipProvider>
           </FilterProvider>
         </LanguageProvider>

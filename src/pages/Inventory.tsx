@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
 import { TabsContent } from "@/components/ui/tabs";
@@ -71,13 +72,22 @@ const Inventory = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Better error handling for console errors
   useEffect(() => {
     const originalConsoleError = console.error;
     console.error = (...args) => {
       if (args[0] && typeof args[0] === 'string' && args[0].includes('Mapbox')) {
         console.log("MapBox error suppressed:", args[0]);
-      } else if (args[0] && args[0]._type === 'Error') {
-        setHasError(true);
+      } else {
+        // More robust error detection
+        const errorDetected = args.some(arg => 
+          (arg && typeof arg === 'object' && arg._type === 'Error') ||
+          (arg instanceof Error)
+        );
+        
+        if (errorDetected) {
+          setHasError(true);
+        }
       }
       originalConsoleError.apply(console, args);
     };
@@ -88,10 +98,14 @@ const Inventory = () => {
   }, []);
 
   const handleCreatePurchaseOrder = (item: InventoryItem) => {
-    toast({
-      title: getTranslation("common.success", language),
-      description: getTranslation("common.purchaseOrderCreated", language),
-    });
+    try {
+      toast({
+        title: getTranslation("common.success", language),
+        description: getTranslation("common.purchaseOrderCreated", language),
+      });
+    } catch (error) {
+      console.error("Error creating purchase order:", error);
+    }
   };
 
   const handleDecouplingPointSuccess = () => {
@@ -112,24 +126,33 @@ const Inventory = () => {
     });
   };
 
-  const filteredData = inventoryData.filter(item => {
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
+  // Safe filtering function
+  const safeFilter = (item: InventoryItem, query: string): boolean => {
+    try {
+      if (!query) return true;
+      
+      const queryLower = query.toLowerCase();
       return (
-        item.sku.toLowerCase().includes(query) ||
-        item.name.toLowerCase().includes(query) ||
-        item.productFamily.toLowerCase().includes(query) ||
-        item.location.toLowerCase().includes(query)
+        (item.sku && item.sku.toLowerCase().includes(queryLower)) ||
+        (item.name && item.name.toLowerCase().includes(queryLower)) ||
+        (item.productFamily && item.productFamily.toLowerCase().includes(queryLower)) ||
+        (item.location && item.location.toLowerCase().includes(queryLower))
       );
+    } catch (error) {
+      console.error("Error filtering inventory item:", error);
+      return true; // Show the item if filtering fails
     }
-    return true;
-  });
+  };
 
-  const paginatedData = filteredData.slice(
-    (currentPage - 1) * 10,
-    currentPage * 10
-  );
+  // Apply filters safely
+  const filteredData = inventoryData.filter(item => safeFilter(item, searchQuery));
 
+  // Safe pagination
+  const startIndex = Math.max(0, (currentPage - 1) * 10);
+  const endIndex = Math.min(startIndex + 10, filteredData.length);
+  const paginatedData = filteredData.slice(startIndex, endIndex);
+
+  // Loading state
   if (isLoading) {
     return (
       <DashboardLayout>
@@ -142,6 +165,7 @@ const Inventory = () => {
     );
   }
 
+  // Error state
   if (hasError) {
     return (
       <DashboardLayout>
@@ -187,11 +211,11 @@ const Inventory = () => {
           </div>
         </div>
 
-        <ErrorBoundary fallback={<div>{getTranslation("common.inventory.errorLoading", language)}</div>} onError={handleError}>
+        <ErrorBoundary fallback={<Card className="p-6 text-center">Error loading summary cards</Card>} onError={handleError}>
           <InventorySummaryCards />
         </ErrorBoundary>
         
-        <ErrorBoundary fallback={<div>{language === 'ar' ? "خطأ في تحميل تصنيفات وحدات التخزين" : "Error loading SKU classifications"}</div>} onError={handleError}>
+        <ErrorBoundary fallback={<Card className="p-6 text-center">{language === 'ar' ? "خطأ في تحميل تصنيفات وحدات التخزين" : "Error loading SKU classifications"}</Card>} onError={handleError}>
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">
               {getTranslation("common.inventory.skuClassifications", language)}
@@ -200,16 +224,16 @@ const Inventory = () => {
           </Card>
         </ErrorBoundary>
         
-        <ErrorBoundary fallback={<div>{language === 'ar' ? "عرض الخريطة غير متوفر حاليًا" : "Map visualization currently unavailable"}</div>} onError={handleError}>
+        <ErrorBoundary fallback={<Card className="p-6 text-center">{language === 'ar' ? "عرض الخريطة غير متوفر حاليًا" : "Map visualization currently unavailable"}</Card>} onError={handleError}>
           <NetworkDecouplingMap />
         </ErrorBoundary>
         
-        <ErrorBoundary fallback={<div>{language === 'ar' ? "خطأ في تحميل رسم بياني للمخزون" : "Error loading inventory chart"}</div>} onError={handleError}>
+        <ErrorBoundary fallback={<Card className="p-6 text-center">{language === 'ar' ? "خطأ في تحميل رسم بياني للمخزون" : "Error loading inventory chart"}</Card>} onError={handleError}>
           <InventoryChart data={filteredData} />
         </ErrorBoundary>
 
         <Card>
-          <ErrorBoundary fallback={<div className="p-6">{getTranslation("common.inventory.errorLoading", language)}</div>} onError={handleError}>
+          <ErrorBoundary fallback={<div className="p-6 text-center">{getTranslation("common.inventory.errorLoading", language)}</div>} onError={handleError}>
             <InventoryTabs>
               <TabsContent value="inventory">
                 <InventoryTab 
@@ -218,7 +242,7 @@ const Inventory = () => {
                 />
                 <div className="mt-4 flex justify-between items-center p-6">
                   <div className="text-sm text-gray-500">
-                    {getTranslation("common.showing", language)} {(currentPage - 1) * 10 + 1} {getTranslation("common.to", language)} {Math.min(currentPage * 10, filteredData.length)} {getTranslation("common.of", language)} {filteredData.length} {getTranslation("common.items", language)}
+                    {getTranslation("common.showing", language)} {filteredData.length > 0 ? startIndex + 1 : 0} {getTranslation("common.to", language)} {Math.min(endIndex, filteredData.length)} {getTranslation("common.of", language)} {filteredData.length} {getTranslation("common.items", language)}
                   </div>
                   <div className="flex gap-2">
                     <Button
@@ -231,7 +255,7 @@ const Inventory = () => {
                     <Button
                       variant="outline"
                       onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredData.length / 10), p + 1))}
-                      disabled={currentPage === Math.ceil(filteredData.length / 10)}
+                      disabled={currentPage === Math.ceil(filteredData.length / 10) || filteredData.length === 0}
                     >
                       {getTranslation("common.next", language)}
                     </Button>

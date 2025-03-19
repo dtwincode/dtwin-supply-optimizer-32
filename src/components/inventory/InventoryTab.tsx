@@ -12,32 +12,52 @@ import { useToast } from "@/hooks/use-toast";
 
 // Simplified buffer calculation functions for fallback
 const simplifiedCalculateBufferZones = (item: InventoryItem) => {
-  const redZone = item.redZoneSize || (item.adu && item.leadTimeDays ? Math.round(item.adu * (item.leadTimeDays * 0.33)) : 0);
-  const yellowZone = item.yellowZoneSize || (item.adu && item.leadTimeDays ? Math.round(item.adu * item.leadTimeDays) : 0);
-  const greenZone = item.greenZoneSize || (item.adu && item.leadTimeDays ? Math.round(item.adu * (item.leadTimeDays * 0.5)) : 0);
-  
-  return { red: redZone, yellow: yellowZone, green: greenZone };
+  try {
+    const redZone = item.redZoneSize || (item.adu && item.leadTimeDays ? Math.round(item.adu * (item.leadTimeDays * 0.33)) : 0);
+    const yellowZone = item.yellowZoneSize || (item.adu && item.leadTimeDays ? Math.round(item.adu * item.leadTimeDays) : 0);
+    const greenZone = item.greenZoneSize || (item.adu && item.leadTimeDays ? Math.round(item.adu * (item.leadTimeDays * 0.5)) : 0);
+    
+    return { red: redZone, yellow: yellowZone, green: greenZone };
+  } catch (error) {
+    console.error("Error calculating buffer zones:", error);
+    return { red: 0, yellow: 0, green: 0 };
+  }
 };
 
 const simplifiedCalculateNetFlowPosition = (item: InventoryItem) => {
-  const onHand = item.onHand || 0;
-  const onOrder = item.onOrder || 0;
-  const qualifiedDemand = item.qualifiedDemand || 0;
-  const netFlowPosition = onHand + onOrder - qualifiedDemand;
-  
-  return { onHand, onOrder, qualifiedDemand, netFlowPosition };
+  try {
+    const onHand = item.onHand || 0;
+    const onOrder = item.onOrder || 0;
+    const qualifiedDemand = item.qualifiedDemand || 0;
+    const netFlowPosition = onHand + onOrder - qualifiedDemand;
+    
+    return { onHand, onOrder, qualifiedDemand, netFlowPosition };
+  } catch (error) {
+    console.error("Error calculating net flow position:", error);
+    return { onHand: 0, onOrder: 0, qualifiedDemand: 0, netFlowPosition: 0 };
+  }
 };
 
 const simplifiedCalculateBufferPenetration = (netFlowPosition: number, bufferZones: { red: number; yellow: number; green: number; }) => {
-  const totalBuffer = bufferZones.red + bufferZones.yellow + bufferZones.green;
-  const penetration = totalBuffer > 0 ? ((totalBuffer - netFlowPosition) / totalBuffer) * 100 : 0;
-  return Math.max(0, Math.min(100, penetration));
+  try {
+    const totalBuffer = bufferZones.red + bufferZones.yellow + bufferZones.green;
+    const penetration = totalBuffer > 0 ? ((totalBuffer - netFlowPosition) / totalBuffer) * 100 : 0;
+    return Math.max(0, Math.min(100, penetration));
+  } catch (error) {
+    console.error("Error calculating buffer penetration:", error);
+    return 0;
+  }
 };
 
 const simplifiedGetBufferStatus = (bufferPenetration: number): 'green' | 'yellow' | 'red' => {
-  if (bufferPenetration <= 33) return 'green';
-  if (bufferPenetration <= 66) return 'yellow';
-  return 'red';
+  try {
+    if (bufferPenetration <= 33) return 'green';
+    if (bufferPenetration <= 66) return 'yellow';
+    return 'red';
+  } catch (error) {
+    console.error("Error determining buffer status:", error);
+    return 'green';
+  }
 };
 
 interface InventoryTabProps {
@@ -55,13 +75,22 @@ export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) =
     status: 'green' | 'yellow' | 'red';
   }>>({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadBufferData = () => {
       try {
+        if (!paginatedData || paginatedData.length === 0) {
+          setItemBuffers({});
+          setLoading(false);
+          return;
+        }
+        
         const bufferData: Record<string, any> = {};
         
         for (const item of paginatedData) {
+          if (!item || !item.id) continue;
+          
           const bufferZones = simplifiedCalculateBufferZones(item);
           const netFlow = simplifiedCalculateNetFlowPosition(item);
           const bufferPenetration = simplifiedCalculateBufferPenetration(netFlow.netFlowPosition, bufferZones);
@@ -76,8 +105,10 @@ export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) =
         }
         
         setItemBuffers(bufferData);
+        setError(null);
       } catch (error) {
         console.error("Error calculating buffer data:", error);
+        setError("Failed to load buffer data");
         toast({
           title: getTranslation("common.error", language),
           description: getTranslation("common.inventory.errorLoading", language),
@@ -88,21 +119,39 @@ export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) =
       }
     };
 
-    loadBufferData();
+    setLoading(true);
+    // Use a short timeout to allow the component to mount properly
+    const timer = setTimeout(() => {
+      loadBufferData();
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, [paginatedData, toast, language]);
 
   if (loading) {
     return <div className="p-6 text-center">{getTranslation("common.inventory.loadingData", language)}</div>;
   }
 
+  if (error) {
+    return (
+      <div className="p-6 text-center text-red-500">
+        {error}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 p-6">
-      {paginatedData.length === 0 ? (
+      {!paginatedData || paginatedData.length === 0 ? (
         <div className="text-center py-10">
           <p className="text-muted-foreground">{getTranslation("common.inventory.noItems", language)}</p>
         </div>
       ) : (
         paginatedData.map((item) => {
+          if (!item || !item.id) {
+            return null;
+          }
+          
           const bufferData = itemBuffers[item.id];
           
           if (!bufferData) {
@@ -115,9 +164,9 @@ export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) =
                 <InventoryTableHeader />
                 <TableBody>
                   <TableRow>
-                    <TableCell className="font-medium">{item.sku}</TableCell>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell>{item.onHand}</TableCell>
+                    <TableCell className="font-medium">{item.sku || "N/A"}</TableCell>
+                    <TableCell>{item.name || "N/A"}</TableCell>
+                    <TableCell>{typeof item.onHand === 'number' ? item.onHand : "N/A"}</TableCell>
                     <TableCell>
                       <BufferStatusBadge status={bufferData.status} />
                     </TableCell>
@@ -128,8 +177,8 @@ export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) =
                         adu={item.adu}
                       />
                     </TableCell>
-                    <TableCell>{item.location}</TableCell>
-                    <TableCell>{item.productFamily}</TableCell>
+                    <TableCell>{item.location || "N/A"}</TableCell>
+                    <TableCell>{item.productFamily || "N/A"}</TableCell>
                     <TableCell>
                       <CreatePODialog 
                         item={item}
