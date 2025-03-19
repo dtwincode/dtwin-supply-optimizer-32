@@ -30,13 +30,7 @@ export const supplyPlanningTranslations: SupplyPlanningTranslations = {
   },
   status: {
     en: "Status",
-    ar: "الحالة"
-  },
-  priority: {
-    en: "Priority",
-    ar: "الأولوية"
-  },
-  status: {
+    ar: "الحالة",
     planned: {
       en: "Planned",
       ar: "مخطط"
@@ -59,6 +53,8 @@ export const supplyPlanningTranslations: SupplyPlanningTranslations = {
     }
   },
   priority: {
+    en: "Priority",
+    ar: "الأولوية",
     critical: {
       en: "Critical",
       ar: "حرج"
@@ -83,10 +79,6 @@ export const supplyPlanningTranslations: SupplyPlanningTranslations = {
   recommendedQty: {
     en: "Recommended Qty",
     ar: "الكمية الموصى بها"
-  },
-  supplier: {
-    en: "Supplier",
-    ar: "المورد"
   },
   leadTime: {
     en: "Lead Time",
@@ -154,10 +146,6 @@ export const supplyPlanningTranslations: SupplyPlanningTranslations = {
     en: "from last month",
     ar: "من الشهر الماضي"
   },
-  days: {
-    en: "days",
-    ar: "أيام"
-  },
   generateRecommendations: {
     en: "Generate Recommendations",
     ar: "توليد التوصيات"
@@ -182,7 +170,6 @@ export const supplyPlanningTranslations: SupplyPlanningTranslations = {
     en: "DDMRP Buffer Impact",
     ar: "تأثير مخزون DDMRP"
   },
-  // Module description
   moduleDescription: {
     en: "Optimize your supply chain with AI-powered planning, real-time visibility, and automated replenishment recommendations",
     ar: "تحسين سلسلة التوريد الخاصة بك باستخدام التخطيط المدعوم بالذكاء الاصطناعي والرؤية في الوقت الفعلي وتوصيات إعادة التزويد الآلية"

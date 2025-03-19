@@ -1,3 +1,4 @@
+
 import { DashboardMetrics, FinancialMetrics, SustainabilityMetrics, ModulesSummary, TranslationValue } from './types';
 
 export const dashboardTitle: TranslationValue = {
@@ -102,9 +103,5 @@ export const modulesSummaryTranslations: ModulesSummary = {
   viewDetails: {
     en: "View Details",
     ar: "عرض التفاصيل"
-  },
-  supplyPlanningDescription: {
-    en: "Optimize your supply chain with AI-powered planning, real-time visibility, and automated replenishment recommendations",
-    ar: "تحسين سلسلة التوريد الخاصة بك باستخدام التخطيط المدعوم بالذكاء الاصطناعي والرؤية في الوقت الفعلي وتوصيات إعادة التزويد الآلية"
   }
 };
