@@ -40,6 +40,10 @@ export const statusTranslations = {
     en: "Pending",
     ar: "معلق"
   },
+  statusLabel: {
+    en: "Status",
+    ar: "الحالة"
+  },
   status: {
     planned: {
       en: "Planned",
