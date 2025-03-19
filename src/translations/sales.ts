@@ -2,6 +2,37 @@
 import { SalesTranslations } from './types';
 
 export const salesTranslations: SalesTranslations = {
+  title: {
+    en: "Sales Planning",
+    ar: "تخطيط المبيعات"
+  },
+  newPlan: {
+    en: "New Plan",
+    ar: "خطة جديدة"
+  },
+  topDown: {
+    en: "Top-Down Planning",
+    ar: "التخطيط من الأعلى إلى الأسفل"
+  },
+  bottomUp: {
+    en: "Bottom-Up Planning",
+    ar: "التخطيط من الأسفل إلى الأعلى"
+  },
+  filters: {
+    category: {
+      en: "Category",
+      ar: "الفئة"
+    },
+    region: {
+      en: "Region",
+      ar: "المنطقة"
+    },
+    status: {
+      en: "Status",
+      ar: "الحالة"
+    }
+  },
+  // Adding missing properties to meet the interface requirements
   salesPerformance: {
     en: "Sales Performance",
     ar: "أداء المبيعات"
@@ -18,59 +49,24 @@ export const salesTranslations: SalesTranslations = {
     en: "Customers",
     ar: "العملاء"
   },
-  averageOrderValue: {
-    en: "Average Order Value",
-    ar: "متوسط قيمة الطلب"
+  categories: {
+    en: "Categories",
+    ar: "الفئات"
   },
-  topSellingProducts: {
-    en: "Top Selling Products",
-    ar: "المنتجات الأكثر مبيعًا"
+  channels: {
+    en: "Channels",
+    ar: "القنوات"
   },
-  salesChannels: {
-    en: "Sales Channels",
-    ar: "قنوات المبيعات"
+  growth: {
+    en: "Growth",
+    ar: "النمو"
   },
-  customerDemographics: {
-    en: "Customer Demographics",
-    ar: "التركيبة السكانية للعملاء"
+  conversion: {
+    en: "Conversion",
+    ar: "التحويل"
   },
-  salesTrends: {
-    en: "Sales Trends",
-    ar: "اتجاهات المبيعات"
-  },
-  regionalSales: {
-    en: "Regional Sales",
-    ar: "المبيعات الإقليمية"
-  },
-  // Additional properties
-  title: {
-    en: "Sales Planning",
-    ar: "تخطيط المبيعات"
-  },
-  newPlan: {
-    en: "Create New Sales Plan",
-    ar: "إنشاء خطة مبيعات جديدة"
-  },
-  topDown: {
-    en: "Top-Down",
-    ar: "من الأعلى إلى الأسفل"
-  },
-  bottomUp: {
-    en: "Bottom-Up",
-    ar: "من الأسفل إلى الأعلى"
-  },
-  filters: {
-    category: {
-      en: "Category",
-      ar: "الفئة"
-    },
-    region: {
-      en: "Region",
-      ar: "المنطقة"
-    },
-    status: {
-      en: "Status",
-      ar: "الحالة"
-    }
+  salesTarget: {
+    en: "Sales Target",
+    ar: "هدف المبيعات"
   }
 };

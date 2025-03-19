@@ -1,146 +1,100 @@
 
-import { TranslationValue, DashboardMetricsTranslations, FinancialMetricsTranslations, SustainabilityMetricsTranslations, ModulesSummaryTranslations } from './types';
+import { 
+  DashboardMetricsTranslations, 
+  FinancialMetricsTranslations, 
+  SustainabilityMetricsTranslations, 
+  ModulesSummaryTranslations, 
+  TranslationItem 
+} from './types';
 
-export const dashboardTitle: TranslationValue = {
+export const dashboardTitle: TranslationItem = {
   en: "Dashboard",
   ar: "لوحة المعلومات"
 };
 
 export const dashboardMetricsTranslations: DashboardMetricsTranslations = {
-  totalRevenue: {
-    en: "Total Revenue",
-    ar: "إجمالي الإيرادات"
-  },
-  ordersProcessed: {
-    en: "Orders Processed",
-    ar: "الطلبات المعالجة"
-  },
-  customerSatisfaction: {
-    en: "Customer Satisfaction",
-    ar: "رضا العملاء"
-  },
-  averageOrderValue: {
-    en: "Average Order Value",
-    ar: "متوسط قيمة الطلب"
-  },
-  newCustomers: {
-    en: "New Customers",
-    ar: "عملاء جدد"
-  },
-  returningCustomers: {
-    en: "Returning Customers",
-    ar: "العملاء العائدون"
-  },
-  conversionRate: {
-    en: "Conversion Rate",
-    ar: "معدل التحويل"
-  },
-  inventoryTurnover: {
-    en: "Inventory Turnover",
-    ar: "معدل دوران المخزون"
-  },
-  supplyLeadTime: {
-    en: "Supply Lead Time",
-    ar: "وقت التوريد"
-  }
-};
-
-export const financialMetricsTranslations: FinancialMetricsTranslations = {
-  grossProfit: {
-    en: "Gross Profit",
-    ar: "الربح الإجمالي"
-  },
-  netIncome: {
-    en: "Net Income",
-    ar: "صافي الدخل"
-  },
-  operatingMargin: {
-    en: "Operating Margin",
-    ar: "هامش التشغيل"
-  },
-  revenueGrowth: {
-    en: "Revenue Growth",
-    ar: "نمو الإيرادات"
-  },
-  cashFlow: {
-    en: "Cash Flow",
-    ar: "التدفق النقدي"
-  },
-  accountsReceivable: {
-    en: "Accounts Receivable",
-    ar: "الذمم المدينة"
+  dashboardTitle: {
+    en: "Dashboard Metrics",
+    ar: "مقاييس لوحة المعلومات"
   },
   inventoryValue: {
     en: "Inventory Value",
     ar: "قيمة المخزون"
   },
-  expenseRatio: {
-    en: "Expense Ratio",
-    ar: "نسبة المصروفات"
+  forecastAccuracy: {
+    en: "Forecast Accuracy",
+    ar: "دقة التنبؤ"
   },
-  daysPayable: {
-    en: "Days Payable",
-    ar: "أيام الدفع"
+  serviceLevel: {
+    en: "Service Level",
+    ar: "مستوى الخدمة"
   },
-  daysInventory: {
-    en: "Days Inventory",
-    ar: "أيام المخزون"
+  stockoutsReduction: {
+    en: "Stockouts Reduction",
+    ar: "تقليل نفاد المخزون"
+  },
+  leadTimeVariance: {
+    en: "Lead Time Variance",
+    ar: "تباين وقت الانتظار"
+  },
+  inventoryTurnover: {
+    en: "Inventory Turnover",
+    ar: "دوران المخزون"
+  },
+  stockCoverageDays: {
+    en: "Stock Coverage Days",
+    ar: "أيام تغطية المخزون"
+  }
+};
+
+export const financialMetricsTranslations: FinancialMetricsTranslations = {
+  workingCapital: {
+    en: "Working Capital",
+    ar: "رأس المال العامل"
+  },
+  inventoryCost: {
+    en: "Inventory Cost",
+    ar: "تكلفة المخزون"
+  },
+  stockoutCost: {
+    en: "Stockout Cost",
+    ar: "تكلفة نفاد المخزون"
+  },
+  carryingCost: {
+    en: "Carrying Cost",
+    ar: "تكلفة الاحتفاظ"
   }
 };
 
 export const sustainabilityMetricsTranslations: SustainabilityMetricsTranslations = {
-  carbonEmissions: {
-    en: "Carbon Emissions",
-    ar: "انبعاثات الكربون"
-  },
-  energyConsumption: {
-    en: "Energy Consumption",
-    ar: "استهلاك الطاقة"
-  },
-  waterUsage: {
-    en: "Water Usage",
-    ar: "استخدام المياه"
-  },
-  recyclingRate: {
-    en: "Recycling Rate",
-    ar: "معدل إعادة التدوير"
-  },
   wasteReduction: {
     en: "Waste Reduction",
     ar: "تقليل النفايات"
   },
-  sustainablePackaging: {
-    en: "Sustainable Packaging",
-    ar: "التعبئة المستدامة"
+  co2Emissions: {
+    en: "CO2 Emissions",
+    ar: "انبعاثات ثاني أكسيد الكربون"
   },
-  greenTransportation: {
-    en: "Green Transportation",
-    ar: "النقل الأخضر"
-  },
-  renewableEnergy: {
-    en: "Renewable Energy",
-    ar: "الطاقة المتجددة"
+  energyConsumption: {
+    en: "Energy Consumption",
+    ar: "استهلاك الطاقة"
   }
 };
 
 export const modulesSummaryTranslations: ModulesSummaryTranslations = {
-  salesSummary: {
-    en: "Sales",
-    ar: "المبيعات"
+  inventoryOptimization: {
+    en: "Inventory Optimization",
+    ar: "تحسين المخزون"
   },
-  inventorySummary: {
-    en: "Inventory",
-    ar: "المخزون"
+  forecastingPerformance: {
+    en: "Forecasting Performance",
+    ar: "أداء التنبؤ"
   },
-  logisticsSummary: {
-    en: "Logistics",
-    ar: "الخدمات اللوجستية"
+  salesPlanning: {
+    en: "Sales Planning",
+    ar: "تخطيط المبيعات"
   },
-  forecastingSummary: {
-    en: "Forecasting",
-    ar: "التنبؤ"
-  },
-  supplyPlanningSummary: {
+  supplyPlanning: {
     en: "Supply Planning",
     ar: "تخطيط التوريد"
   }
