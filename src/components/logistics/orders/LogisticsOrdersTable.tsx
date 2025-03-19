@@ -2,8 +2,18 @@
 import React from 'react';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/translations';
+import { ExternalLink, MoreHorizontal, MapPin, AlertTriangle, CheckCircle } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Sample data for the orders table
 const ordersData = [
@@ -66,34 +76,79 @@ export const LogisticsOrdersTable = () => {
     return variantMap[status] || 'default';
   };
 
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'in-transit':
+        return <MapPin className="h-3 w-3" />;
+      case 'delivered':
+        return <CheckCircle className="h-3 w-3" />;
+      case 'out-for-delivery':
+        return <AlertTriangle className="h-3 w-3" />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div dir={language === 'ar' ? 'rtl' : 'ltr'}>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>{getTranslation('common.logistics.orderRef', language)}</TableHead>
-            <TableHead>{getTranslation('common.logistics.carrier', language)}</TableHead>
-            <TableHead>{getTranslation('common.logistics.trackingNumber', language)}</TableHead>
-            <TableHead>{getTranslation('common.logistics.statusLabel', language)}</TableHead>
-            <TableHead>{getTranslation('common.logistics.lastUpdated', language)}</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {ordersData.map((order) => (
-            <TableRow key={order.id}>
-              <TableCell className="font-medium">{order.orderRef}</TableCell>
-              <TableCell>{order.carrier}</TableCell>
-              <TableCell>{order.trackingNumber}</TableCell>
-              <TableCell>
-                <Badge variant={getStatusVariant(order.status) as any}>
-                  {getStatusTranslation(order.status)}
-                </Badge>
-              </TableCell>
-              <TableCell>{order.lastUpdated}</TableCell>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/50">
+              <TableHead>{getTranslation('common.logistics.orderRef', language)}</TableHead>
+              <TableHead>{getTranslation('common.logistics.carrier', language)}</TableHead>
+              <TableHead>{getTranslation('common.logistics.trackingNumber', language)}</TableHead>
+              <TableHead>{getTranslation('common.logistics.statusLabel', language)}</TableHead>
+              <TableHead>{getTranslation('common.logistics.lastUpdated', language)}</TableHead>
+              <TableHead className="text-right">{getTranslation('common.actions', language) || "Actions"}</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {ordersData.map((order) => (
+              <TableRow key={order.id} className="hover:bg-muted/30">
+                <TableCell className="font-medium">{order.orderRef}</TableCell>
+                <TableCell>{order.carrier}</TableCell>
+                <TableCell>
+                  <div className="flex items-center">
+                    <span className="font-mono text-xs">{order.trackingNumber}</span>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 ml-1">
+                      <ExternalLink className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Badge 
+                    variant={getStatusVariant(order.status) as any} 
+                    className="flex items-center gap-1"
+                  >
+                    {getStatusIcon(order.status)}
+                    {getStatusTranslation(order.status)}
+                  </Badge>
+                </TableCell>
+                <TableCell>{order.lastUpdated}</TableCell>
+                <TableCell className="text-right">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem>View Details</DropdownMenuItem>
+                      <DropdownMenuItem>Track Shipment</DropdownMenuItem>
+                      <DropdownMenuItem>Update Status</DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem className="text-destructive">Report Issue</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 };

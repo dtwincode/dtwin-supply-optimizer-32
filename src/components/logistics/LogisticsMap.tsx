@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CardContent } from '@/components/ui/card';
 import { useLogisticsTracking } from '@/hooks/useLogisticsTracking';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { Loader2, AlertTriangle, MapPin } from 'lucide-react';
 import BaseMap from '@/components/shared/maps/BaseMap';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ErrorBoundary } from '../ErrorBoundary';
@@ -47,31 +47,33 @@ export const LogisticsMap: React.FC = () => {
   );
 
   return (
-    <Card className="col-span-2">
-      <CardHeader>
-        <CardTitle dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <div className="relative h-full">
+      <div className="absolute top-4 left-4 z-10 bg-white/80 backdrop-blur-sm p-3 rounded-lg shadow-md flex items-center">
+        <MapPin className="h-5 w-5 text-dtwin-medium mr-2" />
+        <span className="font-semibold text-gray-800">
           {getTranslation("common.logistics.logisticsTrackingMap", language)}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <div className="flex h-80 items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        ) : hasMapError ? (
-          <div className="h-80 flex items-center justify-center flex-col p-6">
-            <MapErrorFallback />
-          </div>
-        ) : (
-          <ErrorBoundary fallback={<MapErrorFallback />}>
+        </span>
+      </div>
+      
+      {isLoading ? (
+        <div className="flex h-80 items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : hasMapError ? (
+        <div className="h-80 flex items-center justify-center flex-col p-6">
+          <MapErrorFallback />
+        </div>
+      ) : (
+        <ErrorBoundary fallback={<MapErrorFallback />}>
+          <div className="h-[400px] rounded-lg overflow-hidden">
             <BaseMap 
               latitude={centerCoords.lat} 
               longitude={centerCoords.lng} 
               zoom={5}
             />
-          </ErrorBoundary>
-        )}
-      </CardContent>
-    </Card>
+          </div>
+        </ErrorBoundary>
+      )}
+    </div>
   );
 };
