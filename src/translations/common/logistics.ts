@@ -424,6 +424,28 @@ export const logisticsTranslations = {
     }
   },
   
+  // Additional translations for metrics
+  carrierPerformance: {
+    en: "Carrier Performance",
+    ar: "أداء الناقل"
+  },
+  carbonFootprint: {
+    en: "Carbon Footprint",
+    ar: "البصمة الكربونية"
+  },
+  delayRate: {
+    en: "Delay Rate",
+    ar: "معدل التأخير"
+  },
+  predictedVolume: {
+    en: "Predicted Volume",
+    ar: "الحجم المتوقع"
+  },
+  weatherImpact: {
+    en: "Weather Impact",
+    ar: "تأثير الطقس"
+  },
+  
   // Adding required translations to match LogisticsTranslations interface
   routeOptimization: {
     en: "Route Optimization",

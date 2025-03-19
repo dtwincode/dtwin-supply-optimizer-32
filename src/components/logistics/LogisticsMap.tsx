@@ -42,10 +42,10 @@ export const LogisticsMap: React.FC = () => {
 
   // Sample warehouse data
   const warehouseLocations = [
-    { id: 'wh1', name: getTranslation('common.logistics.warehouses.riyadh', language) || 'Riyadh Distribution Center', lat: 24.7136, lng: 46.6753, type: 'distribution_center', shipments: 24 },
-    { id: 'wh2', name: getTranslation('common.logistics.warehouses.jeddah', language) || 'Jeddah Regional Warehouse', lat: 21.5412, lng: 39.1721, type: 'warehouse', shipments: 18 },
-    { id: 'wh3', name: getTranslation('common.logistics.warehouses.dammam', language) || 'Dammam Port Facility', lat: 26.4207, lng: 50.0887, type: 'port', shipments: 12 },
-    { id: 'wh4', name: getTranslation('common.logistics.warehouses.mecca', language) || 'Mecca Fulfillment Center', lat: 21.3891, lng: 39.8579, type: 'fulfillment_center', shipments: 9 },
+    { id: 'wh1', name: getTranslation('common.logistics.warehouseLocations.riyadh', language) || 'Riyadh Distribution Center', lat: 24.7136, lng: 46.6753, type: 'distribution_center', shipments: 24 },
+    { id: 'wh2', name: getTranslation('common.logistics.warehouseLocations.jeddah', language) || 'Jeddah Regional Warehouse', lat: 21.5412, lng: 39.1721, type: 'warehouse', shipments: 18 },
+    { id: 'wh3', name: getTranslation('common.logistics.warehouseLocations.dammam', language) || 'Dammam Port Facility', lat: 26.4207, lng: 50.0887, type: 'port', shipments: 12 },
+    { id: 'wh4', name: getTranslation('common.logistics.warehouseLocations.mecca', language) || 'Mecca Fulfillment Center', lat: 21.3891, lng: 39.8579, type: 'fulfillment_center', shipments: 9 },
   ];
 
   // Sample shipment data
@@ -357,4 +357,3 @@ export const LogisticsMap: React.FC = () => {
     </div>
   );
 };
-
