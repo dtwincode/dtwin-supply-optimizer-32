@@ -1,3 +1,4 @@
+
 export interface TranslationValue {
   en: string;
   ar: string;
@@ -247,6 +248,8 @@ export interface SupplyPlanningTranslations {
     poCreatedDesc: TranslationValue;
     poError: TranslationValue;
     poErrorDesc: TranslationValue;
+    poUpdated: TranslationValue;
+    poUpdatedDesc: TranslationValue;
   };
   avgLeadTime: TranslationValue;
   leadTimeVariability: TranslationValue;
@@ -269,6 +272,67 @@ export interface SupplyPlanningTranslations {
   purchaseOrdersDesc: TranslationValue;
   supplierManagementDesc: TranslationValue;
   leadTimeManagementDesc: TranslationValue;
+  // Purchase order tab translations
+  poNumber: TranslationValue;
+  quantity: TranslationValue;
+  orderDate: TranslationValue;
+  deliveryDate: TranslationValue;
+  actions: TranslationValue;
+  noPurchaseOrders: TranslationValue;
+  viewDetails: TranslationValue;
+  trackShipment: TranslationValue;
+  markAsReceived: TranslationValue;
+  cancel: TranslationValue;
+  reportIssue: TranslationValue;
+  createPurchaseOrder: TranslationValue;
+  editPurchaseOrder: TranslationValue;
+  selectStatus: TranslationValue;
+  selectDate: TranslationValue;
+  notes: TranslationValue;
+  notesPlaceholder: TranslationValue;
+  update: TranslationValue;
+  // Supplier management tab translations
+  onTimeDelivery: TranslationValue;
+  supplierPerformance: TranslationValue;
+  qualityCompliance: TranslationValue;
+  supplierQuality: TranslationValue;
+  activeSuppliers: TranslationValue;
+  totalSuppliers: TranslationValue;
+  supplierPerformanceComparison: TranslationValue;
+  supplierPerformanceDesc: TranslationValue;
+  metrics: {
+    reliability: TranslationValue;
+    leadTime: TranslationValue;
+    quality: TranslationValue;
+    cost: TranslationValue;
+  };
+  supplierList: TranslationValue;
+  supplierListDesc: TranslationValue;
+  supplierName: TranslationValue;
+  reliability: TranslationValue;
+  leadTimeAdherence: TranslationValue;
+  qualityScore: TranslationValue;
+  costEfficiency: TranslationValue;
+  viewPerformance: TranslationValue;
+  contact: TranslationValue;
+  // Lead time management tab translations
+  leadTimeTrends: TranslationValue;
+  sixMonthTrend: TranslationValue;
+  minLeadTime: TranslationValue;
+  maxLeadTime: TranslationValue;
+  skuLeadTimes: TranslationValue;
+  skuLeadTimesDesc: TranslationValue;
+  leadTimeDays: TranslationValue;
+  variability: TranslationValue;
+  trend: TranslationValue;
+  viewHistory: TranslationValue;
+  leadTimeOptimization: TranslationValue;
+  leadTimeOptimizationDesc: TranslationValue;
+  riskAnalysis: TranslationValue;
+  riskAnalysisDesc: TranslationValue;
+  runAnalysis: TranslationValue;
+  leadTimeReduction: TranslationValue;
+  leadTimeReductionDesc: TranslationValue;
 }
 
 export interface SalesTranslations {

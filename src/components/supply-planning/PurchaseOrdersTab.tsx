@@ -62,15 +62,15 @@ export const PurchaseOrdersTab = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'planned':
-        return <Badge variant="outline">{getTranslation("supplyPlanning.status.planned", language)}</Badge>;
+        return <Badge variant="outline">{getTranslation("supplyPlanning.statusTypes.planned", language)}</Badge>;
       case 'ordered':
-        return <Badge variant="secondary">{getTranslation("supplyPlanning.status.ordered", language)}</Badge>;
+        return <Badge variant="secondary">{getTranslation("supplyPlanning.statusTypes.ordered", language)}</Badge>;
       case 'confirmed':
-        return <Badge variant="default">{getTranslation("supplyPlanning.status.confirmed", language)}</Badge>;
+        return <Badge variant="default">{getTranslation("supplyPlanning.statusTypes.confirmed", language)}</Badge>;
       case 'shipped':
-        return <Badge variant="default">{getTranslation("supplyPlanning.status.shipped", language)}</Badge>;
+        return <Badge variant="default">{getTranslation("supplyPlanning.statusTypes.shipped", language)}</Badge>;
       case 'received':
-        return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">{getTranslation("supplyPlanning.status.received", language)}</Badge>;
+        return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">{getTranslation("supplyPlanning.statusTypes.received", language)}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -84,7 +84,7 @@ export const PurchaseOrdersTab = () => {
   if (isLoading) {
     return (
       <Card className="p-6">
-        <p>{getTranslation("inventory.loadingData", language)}</p>
+        <p>{getTranslation("common.inventory.loadingData", language)}</p>
       </Card>
     );
   }
@@ -92,7 +92,7 @@ export const PurchaseOrdersTab = () => {
   if (error) {
     return (
       <Card className="p-6">
-        <p>{getTranslation("inventory.errorLoading", language)}</p>
+        <p>{getTranslation("common.inventory.errorLoading", language)}</p>
       </Card>
     );
   }
@@ -102,7 +102,7 @@ export const PurchaseOrdersTab = () => {
       <Card className="overflow-hidden">
         <div className="p-6 border-b">
           <h3 className="text-lg font-semibold">
-            {getTranslation("supplyPlanning.purchaseOrders", language)}
+            {getTranslation("supplyPlanning.tabs.purchaseOrders", language)}
           </h3>
           <p className="text-sm text-muted-foreground">
             {getTranslation("supplyPlanning.purchaseOrdersDesc", language)}
@@ -113,13 +113,13 @@ export const PurchaseOrdersTab = () => {
           <TableHeader>
             <TableRow>
               <TableHead>{getTranslation("supplyPlanning.poNumber", language)}</TableHead>
-              <TableHead>{getTranslation("inventory.sku", language)}</TableHead>
+              <TableHead>{getTranslation("common.inventory.sku", language)}</TableHead>
               <TableHead>{getTranslation("supplyPlanning.quantity", language)}</TableHead>
               <TableHead>{getTranslation("supplyPlanning.supplier", language)}</TableHead>
               <TableHead>{getTranslation("supplyPlanning.orderDate", language)}</TableHead>
               <TableHead>{getTranslation("supplyPlanning.deliveryDate", language)}</TableHead>
               <TableHead>{getTranslation("supplyPlanning.status", language)}</TableHead>
-              <TableHead className="text-right">{getTranslation("inventory.actions", language)}</TableHead>
+              <TableHead className="text-right">{getTranslation("supplyPlanning.actions", language)}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
