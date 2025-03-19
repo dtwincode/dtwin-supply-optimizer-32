@@ -15,6 +15,9 @@ export const LogisticsTabs = () => {
   const { language } = useLanguage();
   const t = (key: string) => getTranslation(`common.logistics.${key}`, language) || key;
 
+  // Check the translation for DDOM tab for debugging
+  console.log("DDOM tab title translation:", getTranslation(`common.logistics.ddom.title`, language));
+
   return (
     <Tabs defaultValue="dashboard" className="w-full">
       <TabsList className="w-full justify-start mb-2 bg-transparent border-b rounded-none p-0 h-auto">
@@ -28,7 +31,7 @@ export const LogisticsTabs = () => {
           {t('analytics')}
         </TabsTrigger>
         <TabsTrigger value="ddom" className="rounded-t-lg rounded-b-none data-[state=active]:bg-background data-[state=active]:border-b-transparent data-[state=active]:border data-[state=active]:border-b-0 data-[state=active]:shadow h-10">
-          {t('ddom.title')}
+          DDOM
         </TabsTrigger>
         <TabsTrigger value="sustainability" className="rounded-t-lg rounded-b-none data-[state=active]:bg-background data-[state=active]:border-b-transparent data-[state=active]:border data-[state=active]:border-b-0 data-[state=active]:shadow h-10">
           {t('sustainability')}

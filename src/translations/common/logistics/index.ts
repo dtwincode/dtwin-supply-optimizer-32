@@ -22,7 +22,9 @@ export const logisticsTranslations = {
   ...pipelineTranslations,
   ...analyticsTranslations,
   ...sustainabilityTranslations,
-  ...ddomTranslations,
+  
+  // Import DDOM translations directly to ensure they're available
+  ddom: ddomTranslations.ddom,
   
   // Import status translations properly - ensuring the nested structures are preserved
   status: statusTranslations.status,  // Use the nested status object that matches the interface
