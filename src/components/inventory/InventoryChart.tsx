@@ -258,65 +258,73 @@ export const InventoryChart = ({ data }: InventoryChartProps) => {
         </div>
 
         {showBufferExplanation && (
-          <Card className="p-4 bg-slate-50">
+          <Card className="p-4 bg-slate-50 text-sm">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div>
-                  <h4 className="font-medium mb-2">{language === 'ar' ? 'نوع الرسم البياني' : 'Chart Type'}</h4>
-                  <div className="flex gap-2">
+                  <h4 className="font-medium mb-1.5 text-xs">{language === 'ar' ? 'نوع الرسم البياني' : 'Chart Type'}</h4>
+                  <div className="flex flex-wrap gap-1.5">
                     <Toggle 
                       variant="outline" 
+                      size="sm"
                       pressed={chartType === 'bar'} 
                       onClick={() => setChartType('bar')}
                       aria-label="Bar Chart"
+                      className="text-xs py-1 h-7"
                     >
-                      <BarChartIcon className="h-4 w-4 mr-2" />
+                      <BarChartIcon className="h-3 w-3 mr-1" />
                       Bar
                     </Toggle>
                     <Toggle 
-                      variant="outline" 
+                      variant="outline"
+                      size="sm"
                       pressed={chartType === 'line'} 
                       onClick={() => setChartType('line')}
                       aria-label="Line Chart"
+                      className="text-xs py-1 h-7"
                     >
-                      <LineChartIcon className="h-4 w-4 mr-2" />
+                      <LineChartIcon className="h-3 w-3 mr-1" />
                       Line
                     </Toggle>
                     <Toggle 
-                      variant="outline" 
+                      variant="outline"
+                      size="sm"
                       pressed={chartType === 'area'} 
                       onClick={() => setChartType('area')}
                       aria-label="Area Chart"
+                      className="text-xs py-1 h-7"
                     >
-                      <LineChartIcon className="h-4 w-4 mr-2" />
+                      <LineChartIcon className="h-3 w-3 mr-1" />
                       Area
                     </Toggle>
                     <Toggle 
-                      variant="outline" 
+                      variant="outline"
+                      size="sm"
                       pressed={chartType === 'composed'} 
                       onClick={() => setChartType('composed')}
                       aria-label="Composed Chart"
+                      className="text-xs py-1 h-7"
                     >
-                      <PieChart className="h-4 w-4 mr-2" />
+                      <PieChart className="h-3 w-3 mr-1" />
                       Composed
                     </Toggle>
                   </div>
                 </div>
                 
                 <div>
-                  <h4 className="font-medium mb-2">{language === 'ar' ? 'عرض المقاييس' : 'Metric View'}</h4>
-                  <Tabs defaultValue={metricView} onValueChange={(value) => setMetricView(value as DDMRPMetricView)}>
-                    <TabsList>
-                      <TabsTrigger value="bufferZones">Buffer Zones</TabsTrigger>
-                      <TabsTrigger value="netFlow">Net Flow</TabsTrigger>
-                      <TabsTrigger value="aduTrends">ADU Trends</TabsTrigger>
-                      <TabsTrigger value="bufferPenetration">Buffer Penetration</TabsTrigger>
+                  <h4 className="font-medium mb-1.5 text-xs">{language === 'ar' ? 'عرض المقاييس' : 'Metric View'}</h4>
+                  <Tabs defaultValue={metricView} onValueChange={(value) => setMetricView(value as DDMRPMetricView)} className="w-full">
+                    <TabsList className="w-full grid grid-cols-4 h-7">
+                      <TabsTrigger value="bufferZones" className="text-xs py-0">Buffer</TabsTrigger>
+                      <TabsTrigger value="netFlow" className="text-xs py-0">Net Flow</TabsTrigger>
+                      <TabsTrigger value="aduTrends" className="text-xs py-0">ADU</TabsTrigger>
+                      <TabsTrigger value="bufferPenetration" className="text-xs py-0">Penetration</TabsTrigger>
                     </TabsList>
                   </Tabs>
                 </div>
 
                 <div>
-                  <h4 className="font-medium mb-2">{language === 'ar' ? 'حد البيانات' : 'Data Limit'}</h4>
+                  <h4 className="font-medium mb-1.5 text-xs">{language === 'ar' ? 'حد البيانات' : 'Data Limit'}</h4>
                   <div className="flex items-center gap-2">
                     <Slider 
                       min={5} 
@@ -326,40 +334,43 @@ export const InventoryChart = ({ data }: InventoryChartProps) => {
                       onValueChange={(value) => setDataLimit(value[0])} 
                       className="w-[60%]"
                     />
-                    <span className="w-12 text-center">{dataLimit}</span>
+                    <span className="w-10 text-center text-xs">{dataLimit}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span>{language === 'ar' ? 'عرض بيانات موحدة (%)' : 'Show Normalized Data (%)'}</span>
+                  <span className="text-xs">{language === 'ar' ? 'عرض بيانات موحدة (%)' : 'Show Normalized Data (%)'}</span>
                   <Switch 
                     checked={normalizeData} 
-                    onCheckedChange={setNormalizeData} 
+                    onCheckedChange={setNormalizeData}
+                    className="scale-75" 
                   />
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span>{language === 'ar' ? 'عرض خطوط العتبة' : 'Show Threshold Lines'}</span>
+                  <span className="text-xs">{language === 'ar' ? 'عرض خطوط العتبة' : 'Show Threshold Lines'}</span>
                   <Switch 
                     checked={showThresholdLines} 
-                    onCheckedChange={setShowThresholdLines} 
+                    onCheckedChange={setShowThresholdLines}
+                    className="scale-75"
                   />
                 </div>
 
-                <div className="flex gap-4">
+                <div className="flex flex-wrap gap-2">
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
+                        size="sm"
                         className={cn(
-                          "w-[180px] justify-start text-left font-normal",
+                          "w-[130px] justify-start text-left font-normal text-xs",
                           !fromDate && "text-muted-foreground"
                         )}
                       >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {fromDate ? format(fromDate, "MMM dd, yyyy") : "Select date"}
+                        <CalendarIcon className="mr-1 h-3 w-3" />
+                        {fromDate ? format(fromDate, "MMM dd, yy") : "From date"}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
@@ -376,13 +387,14 @@ export const InventoryChart = ({ data }: InventoryChartProps) => {
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
+                        size="sm"
                         className={cn(
-                          "w-[180px] justify-start text-left font-normal",
+                          "w-[130px] justify-start text-left font-normal text-xs",
                           !toDate && "text-muted-foreground"
                         )}
                       >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {toDate ? format(toDate, "MMM dd, yyyy") : "Select date"}
+                        <CalendarIcon className="mr-1 h-3 w-3" />
+                        {toDate ? format(toDate, "MMM dd, yy") : "To date"}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
@@ -399,19 +411,19 @@ export const InventoryChart = ({ data }: InventoryChartProps) => {
               </div>
             </div>
 
-            <div className="mt-4 pt-4 border-t">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white p-3 border rounded-md">
-                  <div className="text-sm font-medium text-gray-500">Items at Zero Stock</div>
-                  <div className="text-2xl font-bold">{totalOrderToZero}</div>
+            <div className="mt-3 pt-3 border-t">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <div className="bg-white p-2 border rounded-md">
+                  <div className="text-xs font-medium text-gray-500">Items at Zero Stock</div>
+                  <div className="text-xl font-bold">{totalOrderToZero}</div>
                 </div>
-                <div className="bg-white p-3 border rounded-md">
-                  <div className="text-sm font-medium text-gray-500">Avg. Buffer Penetration</div>
-                  <div className="text-2xl font-bold">{averageBufferPenetration}%</div>
+                <div className="bg-white p-2 border rounded-md">
+                  <div className="text-xs font-medium text-gray-500">Avg. Buffer Penetration</div>
+                  <div className="text-xl font-bold">{averageBufferPenetration}%</div>
                 </div>
-                <div className="bg-white p-3 border rounded-md">
-                  <div className="text-sm font-medium text-gray-500">Items Shown</div>
-                  <div className="text-2xl font-bold">{chartData.length} <span className="text-sm text-gray-500">/ {data.length}</span></div>
+                <div className="bg-white p-2 border rounded-md">
+                  <div className="text-xs font-medium text-gray-500">Items Shown</div>
+                  <div className="text-xl font-bold">{chartData.length} <span className="text-xs text-gray-500">/ {data.length}</span></div>
                 </div>
               </div>
             </div>
