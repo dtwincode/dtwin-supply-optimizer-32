@@ -1,9 +1,11 @@
 
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tag, Info } from "lucide-react";
+import { Tag, Info, Award, TrendingUp } from "lucide-react";
 import { SKUClassification } from "./types";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface SKUClassificationsProps {
   classifications: SKUClassification[];
@@ -44,77 +46,150 @@ export function SKUClassifications({ classifications }: SKUClassificationsProps)
     return tooltips[type as keyof typeof tooltips]?.[level] || '';
   };
 
+  // Animation variants for cards
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+  
+  const item = {
+    hidden: { y: 20, opacity: 0 },
+    show: { y: 0, opacity: 1 }
+  };
+
+  // Score color based on value
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return "text-blue-600";
+    if (score >= 60) return "text-indigo-600";
+    if (score >= 40) return "text-purple-600";
+    return "text-gray-600";
+  };
+
+  // Different background styles for cards
+  const cardBackgrounds = [
+    "bg-gradient-to-r from-blue-50 to-indigo-50",
+    "bg-gradient-to-r from-purple-50 to-pink-50",
+    "bg-gradient-to-r from-green-50 to-emerald-50"
+  ];
+
   return (
     <TooltipProvider>
-      <div className="grid gap-4">
-        {classifications.map((item) => (
-          <Card key={item.sku} className="p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-start gap-4">
-              <Tag className="w-5 h-5 text-gray-500" />
-              <div className="flex-1">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h4 className="font-medium text-lg">{item.sku}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Updated: {new Date(item.lastUpdated).toLocaleDateString()}
-                    </p>
+      <motion.div 
+        className="grid grid-cols-1 md:grid-cols-3 gap-4"
+        variants={container}
+        initial="hidden"
+        animate="show"
+      >
+        {classifications.map((item, index) => (
+          <motion.div key={item.sku} variants={item}>
+            <Card className={cn("overflow-hidden transition-all hover:shadow-lg", cardBackgrounds[index % cardBackgrounds.length])}>
+              {/* Header with Score */}
+              <div className="flex justify-between items-center p-4 border-b">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 rounded-full bg-white shadow-sm">
+                    <Tag className="w-4 h-4 text-gray-600" />
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium">Classification Score</p>
-                    <p className="text-2xl font-bold text-blue-600">
-                      {item.classification.score || 'N/A'}
-                    </p>
-                  </div>
+                  <span className="font-medium">{item.sku}</span>
                 </div>
-                
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Badge className={getClassificationBadgeColor(item.classification.leadTimeCategory)}>
-                      Lead Time: {item.classification.leadTimeCategory}
-                    </Badge>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Info className="h-4 w-4 text-gray-400" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        {getClassificationTooltip('leadTime', item.classification.leadTimeCategory)}
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <Badge className={getClassificationBadgeColor(item.classification.variabilityLevel)}>
-                      Variability: {item.classification.variabilityLevel}
-                    </Badge>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Info className="h-4 w-4 text-gray-400" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        {getClassificationTooltip('variability', item.classification.variabilityLevel)}
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <Badge className={getClassificationBadgeColor(item.classification.criticality)}>
-                      Criticality: {item.classification.criticality}
-                    </Badge>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Info className="h-4 w-4 text-gray-400" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        {getClassificationTooltip('criticality', item.classification.criticality)}
-                      </TooltipContent>
-                    </Tooltip>
+                <div className="flex flex-col items-end">
+                  <span className="text-xs text-gray-500">Score</span>
+                  <div className="flex items-center gap-1">
+                    <Award className="w-4 h-4 text-amber-500" />
+                    <span className={cn("text-lg font-bold", getScoreColor(item.classification.score || 0))}>
+                      {item.classification.score || 'N/A'}
+                    </span>
                   </div>
                 </div>
               </div>
-            </div>
-          </Card>
+              
+              {/* Classification Details */}
+              <div className="p-4 space-y-3">
+                {/* Lead Time */}
+                <div className="flex items-center gap-2 bg-white p-3 rounded-lg shadow-sm">
+                  <div className={cn("h-8 w-1 rounded-full", 
+                    item.classification.leadTimeCategory === 'high' ? 'bg-red-400' : 
+                    item.classification.leadTimeCategory === 'medium' ? 'bg-yellow-400' : 
+                    'bg-green-400')} />
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Lead Time</span>
+                      <Badge className={getClassificationBadgeColor(item.classification.leadTimeCategory)}>
+                        {item.classification.leadTimeCategory}
+                      </Badge>
+                    </div>
+                  </div>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="h-4 w-4 text-gray-400" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {getClassificationTooltip('leadTime', item.classification.leadTimeCategory)}
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                
+                {/* Variability */}
+                <div className="flex items-center gap-2 bg-white p-3 rounded-lg shadow-sm">
+                  <div className={cn("h-8 w-1 rounded-full", 
+                    item.classification.variabilityLevel === 'high' ? 'bg-red-400' : 
+                    item.classification.variabilityLevel === 'medium' ? 'bg-yellow-400' : 
+                    'bg-green-400')} />
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Variability</span>
+                      <Badge className={getClassificationBadgeColor(item.classification.variabilityLevel)}>
+                        {item.classification.variabilityLevel}
+                      </Badge>
+                    </div>
+                  </div>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <TrendingUp className="h-4 w-4 text-gray-400" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {getClassificationTooltip('variability', item.classification.variabilityLevel)}
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                
+                {/* Criticality */}
+                <div className="flex items-center gap-2 bg-white p-3 rounded-lg shadow-sm">
+                  <div className={cn("h-8 w-1 rounded-full", 
+                    item.classification.criticality === 'high' ? 'bg-red-400' : 
+                    item.classification.criticality === 'medium' ? 'bg-yellow-400' : 
+                    'bg-green-400')} />
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Criticality</span>
+                      <Badge className={getClassificationBadgeColor(item.classification.criticality)}>
+                        {item.classification.criticality}
+                      </Badge>
+                    </div>
+                  </div>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="h-4 w-4 text-gray-400" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {getClassificationTooltip('criticality', item.classification.criticality)}
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </div>
+              
+              {/* Footer */}
+              <div className="px-4 py-2 bg-white/50 text-xs text-gray-500 text-right">
+                Updated: {new Date(item.lastUpdated).toLocaleDateString()}
+              </div>
+            </Card>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </TooltipProvider>
   );
 }
