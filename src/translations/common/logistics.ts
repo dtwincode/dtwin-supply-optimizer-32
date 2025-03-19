@@ -1,3 +1,4 @@
+
 export const logisticsTranslations = {
   // Existing translations
   tracking: {
@@ -176,10 +177,7 @@ export const logisticsTranslations = {
     en: "Weather Impact",
     ar: "تأثير الطقس"
   },
-  lastUpdated: {
-    en: "Last updated",
-    ar: "آخر تحديث"
-  },
+  // Remove duplicate lastUpdated
   notAvailable: {
     en: "N/A",
     ar: "غير متاح"
@@ -229,20 +227,158 @@ export const logisticsTranslations = {
     ar: "تقارير الأثر البيئي قادمة قريبا"
   },
   
+  // Additional translations needed for logistics
+  routeOptimization: {
+    en: "Route Optimization",
+    ar: "تحسين المسار"
+  },
+  transportModes: {
+    en: "Transport Modes",
+    ar: "وسائل النقل"
+  },
+  optimizeRoute: {
+    en: "Optimize Route",
+    ar: "تحسين المسار"
+  },
+  origin: {
+    en: "Origin",
+    ar: "المنشأ"
+  },
+  destination: {
+    en: "Destination",
+    ar: "الوجهة"
+  },
+  eta: {
+    en: "ETA",
+    ar: "وقت الوصول المتوقع"
+  },
+  delayedEta: {
+    en: "Delayed (3h+)",
+    ar: "متأخر (3 ساعات+)"
+  },
+  exception: {
+    en: "Exception",
+    ar: "استثناء"
+  },
+  liveTrackingEnabled: {
+    en: "Live tracking enabled",
+    ar: "تتبع مباشر مفعل"
+  },
+  liveTrackingDisabled: {
+    en: "Live tracking disabled",
+    ar: "تتبع مباشر معطل"
+  },
+  liveOn: {
+    en: "Live",
+    ar: "مباشر"
+  },
+  liveOff: {
+    en: "Go Live",
+    ar: "تشغيل مباشر"
+  },
+  layers: {
+    en: "Layers",
+    ar: "طبقات"
+  },
+  mapLayers: {
+    en: "Map Layers",
+    ar: "طبقات الخريطة"
+  },
+  shipments: {
+    en: "Shipments",
+    ar: "الشحنات"
+  },
+  warehouses: {
+    en: "Warehouses",
+    ar: "المستودعات"
+  },
+  trafficData: {
+    en: "Traffic Data",
+    ar: "بيانات المرور"
+  },
+  weatherOverlay: {
+    en: "Weather Overlay",
+    ar: "طبقة الطقس"
+  },
+  showDelayedOnly: {
+    en: "Show Delayed Only",
+    ar: "عرض المتأخر فقط"
+  },
+  mapViewSettings: {
+    en: "Map View Settings",
+    ar: "إعدادات عرض الخريطة"
+  },
+  showRoutes: {
+    en: "Show Routes",
+    ar: "عرض المسارات"
+  },
+  showHeatmap: {
+    en: "Show Heatmap",
+    ar: "عرض خريطة الحرارة"
+  },
+  clusterMarkers: {
+    en: "Cluster Markers",
+    ar: "تجميع العلامات"
+  },
+  locationUpdatesEnabled: {
+    en: "Location updates every 15 seconds",
+    ar: "تحديثات الموقع كل 15 ثانية"
+  },
+  activeShipments: {
+    en: "Active Shipments",
+    ar: "الشحنات النشطة"
+  },
+  warehouseLocations: {
+    riyadh: {
+      en: "Riyadh Distribution Center",
+      ar: "مركز توزيع الرياض"
+    },
+    jeddah: {
+      en: "Jeddah Regional Warehouse",
+      ar: "مستودع جدة الإقليمي"
+    },
+    dammam: {
+      en: "Dammam Port Facility",
+      ar: "منشأة ميناء الدمام"
+    },
+    mecca: {
+      en: "Mecca Fulfillment Center",
+      ar: "مركز مكة للتنفيذ"
+    }
+  },
+  carriers: {
+    saudiPost: {
+      en: "Saudi Post",
+      ar: "البريد السعودي"
+    },
+    aramex: {
+      en: "Aramex",
+      ar: "أرامكس"
+    },
+    dhl: {
+      en: "DHL",
+      ar: "دي إتش إل"
+    },
+    fedex: {
+      en: "FedEx",
+      ar: "فيديكس"
+    }
+  },
+  
   // New DDOM-specific translations
   ddom: {
-    en: "DDOM",
-    ar: "النموذج التشغيلي المدفوع بالطلب"
-  },
-  ddomCompliance: {
-    en: "DDOM Operational Model",
-    ar: "نموذج التشغيل المدفوع بالطلب"
-  },
-  ddomDescription: {
-    en: "Demand Driven Operational Model with integrated tactical management",
-    ar: "نموذج التشغيل المدفوع بالطلب مع الإدارة التكتيكية المتكاملة"
-  },
-  ddom: {
+    title: {
+      en: "DDOM",
+      ar: "النموذج التشغيلي المدفوع بالطلب"
+    },
+    operationalModel: {
+      en: "DDOM Operational Model",
+      ar: "نموذج التشغيل المدفوع بالطلب"
+    },
+    description: {
+      en: "Demand Driven Operational Model with integrated tactical management",
+      ar: "نموذج التشغيل المدفوع بالطلب مع الإدارة التكتيكية المتكاملة"
+    },
     flowIndex: {
       en: "Flow Index",
       ar: "مؤشر التدفق"

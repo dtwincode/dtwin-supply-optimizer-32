@@ -12,7 +12,8 @@ import {
   CartesianGrid, 
   Tooltip, 
   Legend, 
-  ResponsiveContainer 
+  ResponsiveContainer,
+  ReferenceLine
 } from 'recharts';
 
 // Sample data for the variance chart
@@ -59,6 +60,7 @@ export const DDOMVarianceChart: React.FC = () => {
                 }}
               />
               <Legend />
+              <ReferenceLine y={0} stroke="#000" />
               <Bar dataKey="planned" fill="#8884d8" name={t('planned')} />
               <Bar dataKey="actual" fill="#82ca9d" name={t('actual')} />
             </BarChart>

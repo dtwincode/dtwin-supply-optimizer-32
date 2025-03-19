@@ -1,4 +1,3 @@
-
 import React from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -61,7 +60,7 @@ const Logistics = () => {
               {t('analytics')}
             </TabsTrigger>
             <TabsTrigger value="ddom" className="rounded-t-lg rounded-b-none data-[state=active]:bg-background data-[state=active]:border-b-transparent data-[state=active]:border data-[state=active]:border-b-0 data-[state=active]:shadow h-10">
-              {t('ddom')}
+              {t('ddom.title')}
             </TabsTrigger>
             <TabsTrigger value="sustainability" className="rounded-t-lg rounded-b-none data-[state=active]:bg-background data-[state=active]:border-b-transparent data-[state=active]:border data-[state=active]:border-b-0 data-[state=active]:shadow h-10">
               {t('sustainability')}
@@ -197,7 +196,6 @@ const Logistics = () => {
             </div>
           </TabsContent>
           
-          {/* New DDOM Tab */}
           <TabsContent value="ddom" className="mt-0 border rounded-tl-none bg-background">
             <div className="p-4 space-y-6">
               <div className="flex items-center gap-3 mb-4">
@@ -205,8 +203,8 @@ const Logistics = () => {
                   <Layers className="h-5 w-5 text-blue-700" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold">{t('ddomCompliance')}</h2>
-                  <p className="text-sm text-muted-foreground">{t('ddomDescription')}</p>
+                  <h2 className="text-lg font-semibold">{t('ddom.operationalModel')}</h2>
+                  <p className="text-sm text-muted-foreground">{t('ddom.description')}</p>
                 </div>
               </div>
               
@@ -259,3 +257,4 @@ const Logistics = () => {
 };
 
 export default Logistics;
+
