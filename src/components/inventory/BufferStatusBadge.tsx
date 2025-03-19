@@ -22,13 +22,9 @@ export const BufferStatusBadge = ({ status }: BufferStatusBadgeProps) => {
     }
   };
 
-  const getStatusText = () => {
-    return getTranslation(`common.zones.${status}`, language);
-  };
-
   return (
     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClasses()}`}>
-      {getStatusText()}
+      {getTranslation(`common.zones.${status}`, language)}
     </span>
   );
 };
