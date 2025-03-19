@@ -47,6 +47,9 @@ export const CarbonFootprintTracker: React.FC = () => {
   const prevYearCO2 = 15500; // Simulated previous year total
   const co2Change = Math.round(((totalCO2 - prevYearCO2) / prevYearCO2) * 100);
   
+  // Helper function for translations
+  const t = (key: string) => getTranslation(key, language) || key;
+  
   return (
     <Card className="shadow-md">
       <CardHeader className="pb-2">
@@ -54,7 +57,7 @@ export const CarbonFootprintTracker: React.FC = () => {
           <div className="flex items-center space-x-2">
             <Leaf className="h-5 w-5 text-green-600" />
             <CardTitle className="text-xl">
-              {getTranslation('common.logistics.carbonFootprint', language) || "Carbon Footprint Tracker"}
+              {t('common.logistics.carbonFootprint')}
             </CardTitle>
           </div>
           <div className="flex items-center space-x-2">
@@ -70,7 +73,7 @@ export const CarbonFootprintTracker: React.FC = () => {
             </Select>
             <Button variant="outline" size="sm">
               <FileBarChart className="h-4 w-4 mr-2" />
-              {getTranslation('common.logistics.exportReport', language) || "Export Report"}
+              {t('common.logistics.exportReport')}
             </Button>
           </div>
         </div>
@@ -79,7 +82,7 @@ export const CarbonFootprintTracker: React.FC = () => {
           <Badge className={co2Change < 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
             <span className="flex items-center">
               {co2Change < 0 ? <TrendingDown className="h-3 w-3 mr-1" /> : null}
-              {co2Change}% {getTranslation('common.logistics.vsLastYear', language) || "vs Last Year"}
+              {co2Change}% {t('common.logistics.vsLastYear')}
             </span>
           </Badge>
         </CardDescription>
@@ -88,13 +91,13 @@ export const CarbonFootprintTracker: React.FC = () => {
         <Tabs defaultValue="trends">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="trends">
-              {getTranslation('common.logistics.trends', language) || "Trends"}
+              {t('common.logistics.trends')}
             </TabsTrigger>
             <TabsTrigger value="breakdown">
-              {getTranslation('common.logistics.breakdown', language) || "Breakdown"}
+              {t('common.logistics.breakdown')}
             </TabsTrigger>
             <TabsTrigger value="efficiency">
-              {getTranslation('common.logistics.efficiency', language) || "Efficiency"}
+              {t('common.logistics.efficiency')}
             </TabsTrigger>
           </TabsList>
           
@@ -121,7 +124,7 @@ export const CarbonFootprintTracker: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h3 className="text-sm font-medium mb-2">
-                  {getTranslation('common.logistics.transportTypes', language) || "By Transport Type"}
+                  {t('common.logistics.transportTypes')}
                 </h3>
                 {transportTypes.map((transport) => (
                   <div key={transport.name} className="mb-4">
@@ -143,28 +146,25 @@ export const CarbonFootprintTracker: React.FC = () => {
               <div className="space-y-4">
                 <div className="border rounded-lg p-4">
                   <h3 className="text-sm font-medium mb-1">
-                    {getTranslation('common.logistics.topReductions', language) || "Top Opportunities for Reduction"}
+                    {t('common.logistics.topReductions')}
                   </h3>
                   <ul className="space-y-2 mt-3">
                     <li className="flex items-center">
                       <ArrowRight className="h-4 w-4 text-green-500 mr-2" />
                       <span className="text-sm">
-                        {getTranslation('common.logistics.switchToRail', language) || 
-                          "Switch 20% of truck shipments to rail (-485 kg CO₂)"}
+                        {t('common.logistics.switchToRail')}
                       </span>
                     </li>
                     <li className="flex items-center">
                       <ArrowRight className="h-4 w-4 text-green-500 mr-2" />
                       <span className="text-sm">
-                        {getTranslation('common.logistics.optimizeRoutes', language) || 
-                          "Optimize delivery routes (-320 kg CO₂)"}
+                        {t('common.logistics.optimizeRoutes')}
                       </span>
                     </li>
                     <li className="flex items-center">
                       <ArrowRight className="h-4 w-4 text-green-500 mr-2" />
                       <span className="text-sm">
-                        {getTranslation('common.logistics.useEVs', language) || 
-                          "Use electric vehicles for last-mile delivery (-275 kg CO₂)"}
+                        {t('common.logistics.useEVs')}
                       </span>
                     </li>
                   </ul>
@@ -172,12 +172,12 @@ export const CarbonFootprintTracker: React.FC = () => {
                 
                 <div className="border rounded-lg p-4">
                   <h3 className="text-sm font-medium mb-2">
-                    {getTranslation('common.logistics.yearGoalProgress', language) || "Year's Goal Progress"}
+                    {t('common.logistics.yearGoalProgress')}
                   </h3>
                   <div className="flex items-end space-x-1">
                     <span className="text-2xl font-medium">{Math.round((totalCO2 / 14000) * 100)}%</span>
                     <span className="text-sm text-gray-500 mb-1">
-                      {getTranslation('common.logistics.ofTarget', language) || "of target"}
+                      {t('common.logistics.ofTarget')}
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
@@ -187,7 +187,7 @@ export const CarbonFootprintTracker: React.FC = () => {
                     ></div>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    {getTranslation('common.logistics.yearTarget', language) || "Year target"}: 14,000 kg CO₂
+                    {t('common.logistics.yearTarget')}: 14,000 kg CO₂
                   </p>
                 </div>
               </div>
@@ -200,10 +200,10 @@ export const CarbonFootprintTracker: React.FC = () => {
                 <CardContent className="pt-6">
                   <div className="text-center">
                     <p className="text-sm text-gray-500">
-                      {getTranslation('common.logistics.co2PerShipment', language) || "CO₂ per Shipment"}
+                      {t('common.logistics.co2PerShipment')}
                     </p>
                     <p className="text-3xl font-medium mt-2">{co2PerShipment} kg</p>
-                    <Badge className="mt-2 bg-green-100 text-green-800">-4.2% {getTranslation('common.logistics.yoy', language) || "YoY"}</Badge>
+                    <Badge className="mt-2 bg-green-100 text-green-800">-4.2% {t('common.logistics.yoy')}</Badge>
                   </div>
                 </CardContent>
               </Card>
@@ -212,10 +212,10 @@ export const CarbonFootprintTracker: React.FC = () => {
                 <CardContent className="pt-6">
                   <div className="text-center">
                     <p className="text-sm text-gray-500">
-                      {getTranslation('common.logistics.co2PerKm', language) || "CO₂ per km"}
+                      {t('common.logistics.co2PerKm')}
                     </p>
                     <p className="text-3xl font-medium mt-2">{co2PerKm} kg</p>
-                    <Badge className="mt-2 bg-green-100 text-green-800">-2.7% {getTranslation('common.logistics.yoy', language) || "YoY"}</Badge>
+                    <Badge className="mt-2 bg-green-100 text-green-800">-2.7% {t('common.logistics.yoy')}</Badge>
                   </div>
                 </CardContent>
               </Card>
@@ -224,10 +224,10 @@ export const CarbonFootprintTracker: React.FC = () => {
                 <CardContent className="pt-6">
                   <div className="text-center">
                     <p className="text-sm text-gray-500">
-                      {getTranslation('common.logistics.carbonOffset', language) || "Carbon Offset"}
+                      {t('common.logistics.carbonOffset')}
                     </p>
                     <p className="text-3xl font-medium mt-2">3,450 kg</p>
-                    <Badge className="mt-2 bg-blue-100 text-blue-800">24.6% {getTranslation('common.logistics.ofTotal', language) || "of total"}</Badge>
+                    <Badge className="mt-2 bg-blue-100 text-blue-800">24.6% {t('common.logistics.ofTotal')}</Badge>
                   </div>
                 </CardContent>
               </Card>

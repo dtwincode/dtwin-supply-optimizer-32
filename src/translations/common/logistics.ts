@@ -747,5 +747,78 @@ export const logisticsTranslations = {
   hours: {
     en: "hrs",
     ar: "ساعات"
+  },
+  // Carbon Footprint Tracker translations
+  exportReport: {
+    en: "Export Report",
+    ar: "تصدير التقرير"
+  },
+  vsLastYear: {
+    en: "vs Last Year",
+    ar: "مقارنة بالعام الماضي"
+  },
+  trends: {
+    en: "Trends",
+    ar: "الاتجاهات"
+  },
+  breakdown: {
+    en: "Breakdown",
+    ar: "التفصيل"
+  },
+  efficiency: {
+    en: "Efficiency",
+    ar: "الكفاءة"
+  },
+  transportTypes: {
+    en: "By Transport Type",
+    ar: "حسب نوع النقل"
+  },
+  topReductions: {
+    en: "Top Opportunities for Reduction",
+    ar: "أفضل فرص التخفيض"
+  },
+  switchToRail: {
+    en: "Switch 20% of truck shipments to rail (-485 kg CO₂)",
+    ar: "تحويل 20٪ من شحنات الشاحنات إلى السكك الحديدية (-485 كجم CO₂)"
+  },
+  optimizeRoutes: {
+    en: "Optimize delivery routes (-320 kg CO₂)",
+    ar: "تحسين مسارات التسليم (-320 كجم CO₂)"
+  },
+  useEVs: {
+    en: "Use electric vehicles for last-mile delivery (-275 kg CO₂)",
+    ar: "استخدام المركبات الكهربائية للتسليم في الميل الأخير (-275 كجم CO₂)"
+  },
+  yearGoalProgress: {
+    en: "Year's Goal Progress",
+    ar: "تقدم هدف العام"
+  },
+  ofTarget: {
+    en: "of target",
+    ar: "من الهدف"
+  },
+  yearTarget: {
+    en: "Year target",
+    ar: "هدف العام"
+  },
+  co2PerShipment: {
+    en: "CO₂ per Shipment",
+    ar: "CO₂ لكل شحنة"
+  },
+  co2PerKm: {
+    en: "CO₂ per km",
+    ar: "CO₂ لكل كم"
+  },
+  carbonOffset: {
+    en: "Carbon Offset",
+    ar: "تعويض الكربون"
+  },
+  yoy: {
+    en: "YoY",
+    ar: "عام بعد عام"
+  },
+  ofTotal: {
+    en: "of total",
+    ar: "من الإجمالي"
   }
 };
