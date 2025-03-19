@@ -30,7 +30,9 @@ export const supplyPlanningTranslations: SupplyPlanningTranslations = {
   },
   status: {
     en: "Status",
-    ar: "الحالة",
+    ar: "الحالة"
+  },
+  statusTypes: {
     planned: {
       en: "Planned",
       ar: "مخطط"
@@ -54,7 +56,9 @@ export const supplyPlanningTranslations: SupplyPlanningTranslations = {
   },
   priority: {
     en: "Priority",
-    ar: "الأولوية",
+    ar: "الأولوية"
+  },
+  priorityLevels: {
     critical: {
       en: "Critical",
       ar: "حرج"
@@ -181,5 +185,25 @@ export const supplyPlanningTranslations: SupplyPlanningTranslations = {
   recommendedOrdersDesc: {
     en: "AI-generated replenishment recommendations based on current inventory levels and demand patterns",
     ar: "توصيات إعادة التزويد المولدة بالذكاء الاصطناعي بناءً على مستويات المخزون الحالية وأنماط الطلب"
+  },
+  all: {
+    en: "All",
+    ar: "الكل"
+  },
+  refresh: {
+    en: "Refresh",
+    ar: "تحديث"
+  },
+  purchaseOrdersDesc: {
+    en: "Track and manage purchase orders across your supply chain",
+    ar: "تتبع وإدارة أوامر الشراء عبر سلسلة التوريد الخاصة بك"
+  },
+  supplierManagementDesc: {
+    en: "Manage supplier relationships and monitor performance metrics",
+    ar: "إدارة علاقات الموردين ومراقبة مؤشرات الأداء"
+  },
+  leadTimeManagementDesc: {
+    en: "Analyze lead time patterns and optimize your supply chain planning",
+    ar: "تحليل أنماط وقت التوريد وتحسين تخطيط سلسلة التوريد"
   }
 };

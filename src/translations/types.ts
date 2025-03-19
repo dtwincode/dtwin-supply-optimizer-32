@@ -220,18 +220,16 @@ export interface SupplyPlanningTranslations {
   };
   searchItems: TranslationValue;
   supplier: TranslationValue;
-  status: {
-    en: string;
-    ar: string;
+  status: TranslationValue;
+  statusTypes: {
     planned: TranslationValue;
     ordered: TranslationValue;
     confirmed: TranslationValue;
     shipped: TranslationValue;
     received: TranslationValue;
   };
-  priority: {
-    en: string;
-    ar: string;
+  priority: TranslationValue;
+  priorityLevels: {
     critical: TranslationValue;
     high: TranslationValue;
     medium: TranslationValue;
@@ -266,6 +264,11 @@ export interface SupplyPlanningTranslations {
   moduleDescription: TranslationValue;
   recommendedOrders: TranslationValue;
   recommendedOrdersDesc: TranslationValue;
+  all: TranslationValue;
+  refresh: TranslationValue;
+  purchaseOrdersDesc: TranslationValue;
+  supplierManagementDesc: TranslationValue;
+  leadTimeManagementDesc: TranslationValue;
 }
 
 export interface SalesTranslations {

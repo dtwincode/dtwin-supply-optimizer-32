@@ -42,7 +42,7 @@ export const SupplyPlanningFilters = () => {
                 <SelectValue placeholder={getTranslation("supplyPlanning.supplier", language)} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{getTranslation("common.all", language)}</SelectItem>
+                <SelectItem value="all">{getTranslation("supplyPlanning.all", language)}</SelectItem>
                 <SelectItem value="supplier1">Supplier A</SelectItem>
                 <SelectItem value="supplier2">Supplier B</SelectItem>
                 <SelectItem value="supplier3">Supplier C</SelectItem>
@@ -54,35 +54,35 @@ export const SupplyPlanningFilters = () => {
                 <SelectValue placeholder={getTranslation("supplyPlanning.status", language)} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{getTranslation("common.all", language)}</SelectItem>
+                <SelectItem value="all">{getTranslation("supplyPlanning.all", language)}</SelectItem>
                 <SelectItem value="planned">
                   <div className="flex items-center gap-2">
                     <Badge variant="secondary" className="h-2 w-2 rounded-full p-0" />
-                    {getTranslation("supplyPlanning.status.planned", language)}
+                    {getTranslation("supplyPlanning.statusTypes.planned", language)}
                   </div>
                 </SelectItem>
                 <SelectItem value="ordered">
                   <div className="flex items-center gap-2">
                     <Badge variant="primary" className="h-2 w-2 rounded-full p-0" />
-                    {getTranslation("supplyPlanning.status.ordered", language)}
+                    {getTranslation("supplyPlanning.statusTypes.ordered", language)}
                   </div>
                 </SelectItem>
                 <SelectItem value="confirmed">
                   <div className="flex items-center gap-2">
                     <Badge variant="primary" className="h-2 w-2 rounded-full p-0" />
-                    {getTranslation("supplyPlanning.status.confirmed", language)}
+                    {getTranslation("supplyPlanning.statusTypes.confirmed", language)}
                   </div>
                 </SelectItem>
                 <SelectItem value="shipped">
                   <div className="flex items-center gap-2">
                     <Badge variant="warning" className="h-2 w-2 rounded-full p-0" />
-                    {getTranslation("supplyPlanning.status.shipped", language)}
+                    {getTranslation("supplyPlanning.statusTypes.shipped", language)}
                   </div>
                 </SelectItem>
                 <SelectItem value="received">
                   <div className="flex items-center gap-2">
                     <Badge variant="success" className="h-2 w-2 rounded-full p-0" />
-                    {getTranslation("supplyPlanning.status.received", language)}
+                    {getTranslation("supplyPlanning.statusTypes.received", language)}
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -93,29 +93,29 @@ export const SupplyPlanningFilters = () => {
                 <SelectValue placeholder={getTranslation("supplyPlanning.priority", language)} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{getTranslation("common.all", language)}</SelectItem>
+                <SelectItem value="all">{getTranslation("supplyPlanning.all", language)}</SelectItem>
                 <SelectItem value="critical">
                   <div className="flex items-center gap-2">
                     <Badge variant="destructive" className="h-2 w-2 rounded-full p-0" />
-                    {getTranslation("supplyPlanning.priority.critical", language)}
+                    {getTranslation("supplyPlanning.priorityLevels.critical", language)}
                   </div>
                 </SelectItem>
                 <SelectItem value="high">
                   <div className="flex items-center gap-2">
                     <Badge variant="warning" className="h-2 w-2 rounded-full p-0" />
-                    {getTranslation("supplyPlanning.priority.high", language)}
+                    {getTranslation("supplyPlanning.priorityLevels.high", language)}
                   </div>
                 </SelectItem>
                 <SelectItem value="medium">
                   <div className="flex items-center gap-2">
                     <Badge variant="primary" className="h-2 w-2 rounded-full p-0" />
-                    {getTranslation("supplyPlanning.priority.medium", language)}
+                    {getTranslation("supplyPlanning.priorityLevels.medium", language)}
                   </div>
                 </SelectItem>
                 <SelectItem value="low">
                   <div className="flex items-center gap-2">
                     <Badge variant="success" className="h-2 w-2 rounded-full p-0" />
-                    {getTranslation("supplyPlanning.priority.low", language)}
+                    {getTranslation("supplyPlanning.priorityLevels.low", language)}
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -130,7 +130,7 @@ export const SupplyPlanningFilters = () => {
             
             <Button variant="outline" size="icon" className="h-9 w-9 shrink-0 border-dtwin-medium/30">
               <RefreshCw className="h-4 w-4" />
-              <span className="sr-only">Refresh</span>
+              <span className="sr-only">{getTranslation("supplyPlanning.refresh", language)}</span>
             </Button>
           </div>
         </div>
