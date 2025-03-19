@@ -2,13 +2,13 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/translations';
 import { LogisticsMetricsCard } from './LogisticsMetricsCard';
-import { TrendingUp, Clock, CheckCircle, DollarSign } from 'lucide-react';
+import { TrendingUp, Clock, CheckCircle, DollarSign, Truck, Leaf, AlertTriangle, BarChart, Globe } from 'lucide-react';
 
 export const LogisticsMetricsGrid = () => {
   const { language } = useLanguage();
   
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-3" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <LogisticsMetricsCard
         icon={TrendingUp}
         label={getTranslation("common.logistics.onTimeDeliveryRate", language)}
@@ -40,6 +40,46 @@ export const LogisticsMetricsGrid = () => {
         bgColor="bg-purple-100"
         textColor="text-purple-700"
         metricType="cost_per_shipment"
+      />
+      <LogisticsMetricsCard
+        icon={Truck}
+        label={getTranslation("common.logistics.carrierPerformance", language) || "Carrier Performance"}
+        value="92.4%"
+        bgColor="bg-blue-100"
+        textColor="text-blue-700"
+        metricType="carrier_performance"
+      />
+      <LogisticsMetricsCard
+        icon={Leaf}
+        label={getTranslation("common.logistics.carbonFootprint", language) || "Carbon Footprint"}
+        value="124.5 kg"
+        bgColor="bg-green-100"
+        textColor="text-green-700"
+        metricType="carbon_footprint"
+      />
+      <LogisticsMetricsCard
+        icon={AlertTriangle}
+        label={getTranslation("common.logistics.delayRate", language) || "Delay Rate"}
+        value="4.2%"
+        bgColor="bg-orange-100"
+        textColor="text-orange-700"
+        metricType="delay_rate"
+      />
+      <LogisticsMetricsCard
+        icon={BarChart}
+        label={getTranslation("common.logistics.predictedVolume", language) || "Predicted Volume"}
+        value="+8.3%"
+        bgColor="bg-indigo-100"
+        textColor="text-indigo-700"
+        metricType="predicted_volume"
+      />
+      <LogisticsMetricsCard
+        icon={Globe}
+        label={getTranslation("common.logistics.weatherImpact", language) || "Weather Impact"}
+        value="Medium"
+        bgColor="bg-cyan-100"
+        textColor="text-cyan-700"
+        metricType="weather_impact"
       />
     </div>
   );
