@@ -41,5 +41,9 @@ export const navigationTranslations: NavigationItems = {
   guidelines: {
     en: "Guidelines",
     ar: "الدليل الإرشادي"
+  },
+  supplyPlanning: {
+    en: "Supply Planning",
+    ar: "تخطيط التوريد"
   }
 };

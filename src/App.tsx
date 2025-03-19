@@ -1,3 +1,4 @@
+
 import { Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/index";
 import Auth from "./pages/Auth";
@@ -14,6 +15,7 @@ import { GettingStarted, ForecastingBasics, Collaboration, Advanced, AIAssistant
 import NotFound from "./pages/NotFound";
 import Tickets from "./pages/Tickets";
 import SQLConfig from "./pages/SQLConfig";
+import SupplyPlanning from "./pages/SupplyPlanning";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -48,6 +50,7 @@ function App() {
                   <Route path="/forecasting/*" element={<Forecasting />} />
                   <Route path="/inventory/*" element={<Inventory />} />
                   <Route path="/sales-planning" element={<SalesPlanning />} />
+                  <Route path="/supply-planning" element={<SupplyPlanning />} />
                   <Route path="/reports" element={<Reports />} />
                   <Route path="/logistics" element={<Logistics />} />
                   <Route path="/data" element={<Settings />} />

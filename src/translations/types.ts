@@ -1,4 +1,3 @@
-
 export interface TranslationValue {
   en: string;
   ar: string;
@@ -142,6 +141,7 @@ export interface NavigationItems {
   askAI: TranslationValue;
   data: TranslationValue;
   guidelines: TranslationValue;
+  supplyPlanning: TranslationValue;
 }
 
 export interface LogisticsTranslations {
