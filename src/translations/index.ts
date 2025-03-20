@@ -1,14 +1,18 @@
 
 import { Translations } from './types';
 import { navigationTranslations } from './navigation';
+import { dashboardTranslations } from './common/dashboard';
+import { modulesSummaryTranslations } from './common/modules';
 import { uiTranslations } from './common/ui';
-import { inventoryTranslations } from './common/inventory';
-import { supplyPlanningTranslations } from './common/supplyPlanning';
-import { moduleTranslations } from './common/modules';
 import { chartTranslations } from './common/charts';
+import { inventoryTranslations } from './common/inventory';
 import { paginationTranslations } from './common/pagination';
+import { supplyPlanningTranslations } from './common/supplyPlanning';
+import { financialMetricsTranslations } from './common/financialMetrics';
+import { sustainabilityMetricsTranslations } from './common/sustainabilityMetrics';
 import { logisticsTranslations } from './common/logistics';
 import { ddsopTranslations } from './common/ddsop';
+import { salesTranslations } from './common/sales';
 import { toArabicNumerals } from './utils';
 
 export { toArabicNumerals };
@@ -19,6 +23,10 @@ export const translations: Translations = {
     ar: 'لوحة القيادة',
   },
   navigationItems: navigationTranslations,
+  dashboardMetrics: dashboardTranslations,
+  financialMetrics: financialMetricsTranslations,
+  sustainabilityMetrics: sustainabilityMetricsTranslations,
+  modulesSummary: modulesSummaryTranslations,
   common: {
     ...uiTranslations,
     
@@ -92,121 +100,13 @@ export const translations: Translations = {
       ar: "الوحدات"
     },
     
-    // Module translations
-    ...moduleTranslations,
-    
     // Include full sections as nested objects
     logistics: logisticsTranslations,
     inventory: inventoryTranslations
   },
-  sales: {
-    en: {
-      title: "Sales Planning",
-      description: "Manage and track your sales plans",
-    },
-    ar: {
-      title: "تخطيط المبيعات",
-      description: "إدارة وتتبع خطط المبيعات الخاصة بك",
-    }
-  },
+  sales: salesTranslations,
   supplyPlanning: supplyPlanningTranslations,
   ddsop: ddsopTranslations,
-  // Dashboard metrics translations
-  dashboardMetrics: {
-    totalSKUs: {
-      en: "Total SKUs",
-      ar: "إجمالي وحدات التخزين"
-    },
-    bufferPenetration: {
-      en: "Buffer Penetration",
-      ar: "اختراق المخزون"
-    },
-    orderStatus: {
-      en: "Order Status",
-      ar: "حالة الطلب"
-    },
-    flowIndex: {
-      en: "Flow Index",
-      ar: "مؤشر التدفق"
-    }
-  },
-  // Financial metrics translations
-  financialMetrics: {
-    title: {
-      en: "Financial Metrics",
-      ar: "المقاييس المالية"
-    },
-    revenue: {
-      en: "Revenue",
-      ar: "الإيرادات"
-    },
-    operatingCosts: {
-      en: "Operating Costs",
-      ar: "تكاليف التشغيل"
-    },
-    profitMargin: {
-      en: "Profit Margin",
-      ar: "هامش الربح"
-    }
-  },
-  // Sustainability metrics translations
-  sustainabilityMetrics: {
-    title: {
-      en: "Sustainability Metrics",
-      ar: "مقاييس الاستدامة"
-    },
-    carbonFootprint: {
-      en: "Carbon Footprint",
-      ar: "البصمة الكربونية"
-    },
-    wasteReduction: {
-      en: "Waste Reduction",
-      ar: "تقليل النفايات"
-    },
-    greenSuppliers: {
-      en: "Green Suppliers",
-      ar: "الموردين الخضر"
-    },
-    yearlyReduction: {
-      en: "Yearly reduction",
-      ar: "تخفيض سنوي"
-    },
-    wasteEfficiency: {
-      en: "Waste efficiency",
-      ar: "كفاءة النفايات"
-    },
-    sustainableSourcing: {
-      en: "Sustainable sourcing",
-      ar: "التوريد المستدام"
-    }
-  },
-  // Module summary translations
-  modulesSummary: {
-    inventoryManagement: {
-      en: "Inventory Management",
-      ar: "إدارة المخزون"
-    },
-    demandForecasting: {
-      en: "Demand Forecasting",
-      ar: "التنبؤ بالطلب"
-    },
-    salesPlanning: {
-      en: "Sales Planning",
-      ar: "تخطيط المبيعات"
-    },
-    marketingCampaigns: {
-      en: "Marketing Campaigns",
-      ar: "حملات التسويق"
-    },
-    logistics: {
-      en: "Logistics",
-      ar: "الخدمات اللوجستية"
-    },
-    reportsAnalytics: {
-      en: "Reports & Analytics",
-      ar: "التقارير والتحليلات"
-    }
-  }
 };
 
 export type Language = 'en' | 'ar';

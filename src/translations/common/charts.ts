@@ -1,21 +1,17 @@
 
 export const chartTranslations = {
   chartTitles: {
-    salesTrend: {
-      en: "Sales Trend",
-      ar: "اتجاه المبيعات"
-    },
-    forecastAccuracy: {
-      en: "Forecast Accuracy",
-      ar: "دقة التنبؤ"
-    },
-    inventoryLevels: {
-      en: "Inventory Levels",
-      ar: "مستويات المخزون"
-    },
     bufferProfile: {
-      en: "Buffer Profile Distribution",
-      ar: "توزيع نسب المخزون"
+      en: "Buffer Profile",
+      ar: "ملف المخزون"
+    },
+    replenishment: {
+      en: "Replenishment",
+      ar: "إعادة التزويد"
+    },
+    netFlow: {
+      en: "Net Flow",
+      ar: "التدفق الصافي"
     },
     demandVariability: {
       en: "Demand Variability",
