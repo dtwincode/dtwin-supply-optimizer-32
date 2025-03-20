@@ -190,8 +190,8 @@ const Inventory = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex flex-col gap-4">
+      <div className="space-y-4">
+        <div className="flex flex-col gap-3">
           <div className="flex justify-between items-center">
             <p className="text-muted-foreground">
               {getTranslation("common.inventory.manageAndTrack", language)}
@@ -218,18 +218,20 @@ const Inventory = () => {
           <InventorySummaryCards />
         </ErrorBoundary>
         
-        <ErrorBoundary fallback={<Card className="p-6 text-center">{language === 'ar' ? "خطأ في تحميل تصنيفات وحدات التخزين" : "Error loading SKU classifications"}</Card>} onError={handleError}>
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">
-              {getTranslation("common.inventory.skuClassifications", language)}
-            </h3>
-            <SKUClassifications classifications={mockClassifications} />
-          </Card>
-        </ErrorBoundary>
-        
-        <ErrorBoundary fallback={<Card className="p-6 text-center">{language === 'ar' ? "عرض الخريطة غير متوفر حاليًا" : "Map visualization currently unavailable"}</Card>} onError={handleError}>
-          <NetworkDecouplingMap />
-        </ErrorBoundary>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <ErrorBoundary fallback={<Card className="p-6 text-center">{language === 'ar' ? "خطأ في تحميل تصنيفات وحدات التخزين" : "Error loading SKU classifications"}</Card>} onError={handleError}>
+            <Card className="p-4">
+              <h3 className="text-lg font-semibold mb-3">
+                {getTranslation("common.inventory.skuClassifications", language)}
+              </h3>
+              <SKUClassifications classifications={mockClassifications} />
+            </Card>
+          </ErrorBoundary>
+          
+          <ErrorBoundary fallback={<Card className="p-6 text-center">{language === 'ar' ? "عرض الخريطة غير متوفر حاليًا" : "Map visualization currently unavailable"}</Card>} onError={handleError}>
+            <NetworkDecouplingMap />
+          </ErrorBoundary>
+        </div>
         
         <ErrorBoundary fallback={<Card className="p-6 text-center">{language === 'ar' ? "خطأ في تحميل رسم بياني للمخزون" : "Error loading inventory chart"}</Card>} onError={handleError}>
           <InventoryChart data={filteredData} />
@@ -238,12 +240,12 @@ const Inventory = () => {
         <Card>
           <ErrorBoundary fallback={<div className="p-6 text-center">{getTranslation("common.inventory.errorLoading", language)}</div>} onError={handleError}>
             <InventoryTabs defaultValue={defaultTab}>
-              <div className="space-y-6 p-6">
+              <div className="space-y-4 p-5">
                 <InventoryTab 
                   paginatedData={paginatedData}
                   onCreatePO={handleCreatePurchaseOrder}
                 />
-                <div className="mt-4 flex justify-between items-center">
+                <div className="mt-3 flex justify-between items-center">
                   <div className="text-sm text-gray-500">
                     {getTranslation("common.showing", language)} {filteredData.length > 0 ? startIndex + 1 : 0} {getTranslation("common.to", language)} {Math.min(endIndex, filteredData.length)} {getTranslation("common.of", language)} {filteredData.length} {getTranslation("common.items", language)}
                   </div>

@@ -26,7 +26,8 @@ export const NetworkDecouplingMap = () => {
 
   if (mapError) {
     return (
-      <Card className="p-6 my-4">
+      <Card className="h-full p-4">
+        <h3 className="text-lg font-semibold mb-3">Network Decoupling Map</h3>
         <Alert variant="destructive">
           <InfoIcon className="h-4 w-4" />
           <AlertTitle>Map Unavailable</AlertTitle>
@@ -39,9 +40,9 @@ export const NetworkDecouplingMap = () => {
   }
 
   return (
-    <Card className="p-6 my-4">
-      <h3 className="text-lg font-semibold mb-4">Network Decoupling Map</h3>
-      <div className="h-64 bg-gray-100 rounded flex items-center justify-center">
+    <Card className="h-full p-4">
+      <h3 className="text-lg font-semibold mb-3">Network Decoupling Map</h3>
+      <div className="h-48 bg-gray-100 rounded flex items-center justify-center">
         <p className="text-muted-foreground">Network visualization is currently loading or unavailable.</p>
       </div>
     </Card>
