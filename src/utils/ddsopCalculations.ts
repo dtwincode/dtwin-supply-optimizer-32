@@ -136,13 +136,13 @@ export const isItemDDSOPCompliant = async (item: InventoryItem): Promise<boolean
   // 3. It has proper variability factor assigned
   // 4. Strategic adjustments are applied when necessary
   
-  const hasProperBufferZones = item.redZoneSize && item.yellowZoneSize && item.greenZoneSize;
+  const hasProperBufferZones = Boolean(item.redZoneSize && item.yellowZoneSize && item.greenZoneSize);
   const hasNetFlowPosition = typeof item.netFlowPosition === 'number';
   const hasVariabilityFactor = typeof item.variabilityFactor === 'number';
-  const hasStrategicAdjustments = item.dynamicAdjustments && 
+  const hasStrategicAdjustments = Boolean(item.dynamicAdjustments && 
     (item.dynamicAdjustments.seasonality || 
      item.dynamicAdjustments.trend || 
-     item.dynamicAdjustments.marketStrategy);
+     item.dynamicAdjustments.marketStrategy));
   
   return hasProperBufferZones && 
          hasNetFlowPosition && 
