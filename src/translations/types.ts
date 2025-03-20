@@ -1,4 +1,3 @@
-
 export interface TranslationValue {
   en: string;
   ar: string;
@@ -143,6 +142,7 @@ export interface NavigationItems {
   data: TranslationValue;
   guidelines: TranslationValue;
   supplyPlanning: TranslationValue;
+  ddsop: TranslationValue;
 }
 
 export interface LogisticsTranslations {
@@ -417,4 +417,5 @@ export interface Translations {
   common: CommonTranslations;
   sales: SalesTranslations;
   supplyPlanning: SupplyPlanningTranslations;
+  ddsop: any;
 }
