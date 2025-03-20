@@ -1,9 +1,9 @@
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { AlertCircle, ArrowDown, ArrowUp, BadgeCheck, BarChart3, Check, Clock, HeartPulse, LineChart as LineChartIcon, RefreshCw, ShieldAlert, TrendingUp } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { AlertCircle, ArrowDown, ArrowUp, BadgeCheck, BarChart3, Check, HeartPulse } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toArabicNumerals } from "@/translations";
@@ -15,7 +15,6 @@ const kpiData = [
     value: 92.7,
     change: 3.5,
     trend: 'up',
-    icon: Check,
     color: 'text-green-500',
     bgColor: 'bg-green-50',
   },
@@ -24,7 +23,6 @@ const kpiData = [
     value: 4.8,
     change: 0.3,
     trend: 'up',
-    icon: RefreshCw,
     color: 'text-blue-500',
     bgColor: 'bg-blue-50',
   },
@@ -33,7 +31,6 @@ const kpiData = [
     value: 3.2,
     change: -1.8,
     trend: 'down',
-    icon: ShieldAlert,
     color: 'text-purple-500',
     bgColor: 'bg-purple-50',
   },
@@ -42,7 +39,6 @@ const kpiData = [
     value: 5.4,
     change: -0.9,
     trend: 'down',
-    icon: Clock,
     color: 'text-indigo-500',
     bgColor: 'bg-indigo-50',
   }
@@ -56,7 +52,6 @@ const performanceData = [
   { name: 'Apr', actual: 83, target: 86 },
   { name: 'May', actual: 88, target: 88 },
   { name: 'Jun', actual: 90, target: 90 },
-  { name: 'Jul', actual: 92, target: 92 },
 ];
 
 // Buffer distribution data
@@ -73,91 +68,152 @@ const criticalAlerts = [
     title: 'executiveSummary.alerts.lowBuffer', 
     description: 'executiveSummary.alerts.lowBufferDesc',
     impact: 'high',
-    module: 'inventory'
   },
   { 
     id: 'alert2', 
     title: 'executiveSummary.alerts.demandSpike', 
     description: 'executiveSummary.alerts.demandSpikeDesc',
     impact: 'medium',
-    module: 'forecasting'
   }
 ];
 
+// Module health data
+const moduleHealth = [
+  { name: 'inventory', status: 'healthy' },
+  { name: 'supplyPlanning', status: 'healthy' },
+  { name: 'salesPlanning', status: 'healthy' },
+  { name: 'forecasting', status: 'warning' },
+  { name: 'ddsop', status: 'healthy' },
+  { name: 'logistics', status: 'healthy' },
+];
+
 const ExecutiveSummary = () => {
-  const { language, isRTL } = useLanguage();
+  const { language } = useLanguage();
   
   const formatNumber = (num: number): string => {
     return language === 'ar' ? toArabicNumerals(num) : num.toString();
   };
 
   return (
-    <div className="space-y-6">
+    <Card className="p-3">
       <div className="flex items-center justify-between mb-2">
-        <h3 className="font-display text-xl font-semibold flex items-center">
-          <BadgeCheck className="mr-2 h-5 w-5 text-primary" />
+        <h3 className="font-display text-md font-semibold flex items-center">
+          <BadgeCheck className="mr-1 h-4 w-4 text-primary" />
           {getTranslation('executiveSummary.title', language) || "Executive Summary"}
         </h3>
-        <span className="text-sm text-muted-foreground">
-          {getTranslation('executiveSummary.lastUpdated', language) || "Last updated:"} {new Date().toLocaleDateString()}
-        </span>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpiData.map((kpi) => (
-          <Card key={kpi.title} className="shadow-sm">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm text-gray-500 font-medium">
-                    {getTranslation(kpi.title, language) || kpi.title}
-                  </p>
-                  <div className="text-2xl font-semibold mt-1">
-                    {formatNumber(kpi.value)}%
-                  </div>
-                  <div className={`flex items-center text-sm mt-1 ${
-                    (kpi.title.includes('stockoutRate') || kpi.title.includes('cycleTime')) 
-                      ? kpi.trend === 'down' ? 'text-green-500' : 'text-red-500'
-                      : kpi.trend === 'up' ? 'text-green-500' : 'text-red-500'
-                  }`}>
-                    {kpi.trend === 'up' ? 
-                      <ArrowUp className="h-4 w-4 mr-1" /> : 
-                      <ArrowDown className="h-4 w-4 mr-1" />
-                    }
-                    <span>{formatNumber(Math.abs(kpi.change))}%</span>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+        {/* KPI Cards */}
+        <div className="md:col-span-2">
+          <div className="grid grid-cols-2 gap-2">
+            {kpiData.map((kpi) => (
+              <Card key={kpi.title} className="shadow-sm p-2">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-xs text-gray-500 font-medium">
+                      {getTranslation(kpi.title, language) || kpi.title}
+                    </p>
+                    <div className="text-md font-semibold">
+                      {formatNumber(kpi.value)}%
+                    </div>
+                    <div className={`flex items-center text-xs ${
+                      (kpi.title.includes('stockoutRate') || kpi.title.includes('cycleTime')) 
+                        ? kpi.trend === 'down' ? 'text-green-500' : 'text-red-500'
+                        : kpi.trend === 'up' ? 'text-green-500' : 'text-red-500'
+                    }`}>
+                      {kpi.trend === 'up' ? 
+                        <ArrowUp className="h-3 w-3 mr-0.5" /> : 
+                        <ArrowDown className="h-3 w-3 mr-0.5" />
+                      }
+                      <span>{formatNumber(Math.abs(kpi.change))}%</span>
+                    </div>
                   </div>
                 </div>
-                <div className={`${kpi.bgColor} p-3 rounded-full`}>
-                  <kpi.icon className={`h-6 w-6 ${kpi.color}`} />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              </Card>
+            ))}
+          </div>
+        </div>
 
-      {/* Charts & Alerts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Performance Trend */}
-        <Card className="lg:col-span-2">
-          <CardHeader className="pb-2">
-            <CardTitle>
-              {getTranslation('executiveSummary.performanceTrend', language) || "Supply Chain Performance"}
-            </CardTitle>
-            <CardDescription>
-              {getTranslation('executiveSummary.performanceTrendDesc', language) || "Actual vs Target performance over time"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-80">
+        {/* Buffer Distribution Chart */}
+        <div className="md:col-span-1">
+          <Card className="p-2 h-full">
+            <p className="text-xs font-medium mb-1">
+              {getTranslation('executiveSummary.bufferDistribution', language) || "Buffer Distribution"}
+            </p>
+            <div className="h-24">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={performanceData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis domain={[70, 100]} />
+                <PieChart>
+                  <Pie
+                    data={bufferData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={20}
+                    outerRadius={36}
+                    fill="#8884d8"
+                    paddingAngle={2}
+                    dataKey="value"
+                  >
+                    {bufferData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
                   <Tooltip />
-                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="flex flex-wrap gap-x-2 mt-1 justify-center">
+              {bufferData.map((entry) => (
+                <div key={entry.name} className="flex items-center">
+                  <div className="w-2 h-2 mr-0.5 rounded-full" style={{ backgroundColor: entry.color }}></div>
+                  <span className="text-xs">
+                    {entry.name}: {formatNumber(entry.value)}%
+                  </span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+
+        {/* Critical Alerts */}
+        <div className="md:col-span-1">
+          <Card className="p-2 h-full">
+            <p className="text-xs font-medium flex items-center mb-1">
+              <AlertCircle className="mr-1 h-3 w-3 text-danger-500" />
+              {getTranslation('executiveSummary.criticalAlerts', language) || "Critical Alerts"}
+            </p>
+            {criticalAlerts.map((alert) => (
+              <Alert key={alert.id} variant="destructive" className="py-1 px-2 mb-1 border-l-2 border-l-danger-400">
+                <AlertTitle className="text-xs font-medium">
+                  {getTranslation(alert.title, language) || alert.title}
+                  <span className={cn(
+                    "ml-1 px-1 rounded text-xs",
+                    alert.impact === 'high' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
+                  )}>
+                    {getTranslation(`executiveSummary.impact.${alert.impact}`, language) || alert.impact}
+                  </span>
+                </AlertTitle>
+                <AlertDescription className="text-xs">
+                  {getTranslation(alert.description, language) || alert.description}
+                </AlertDescription>
+              </Alert>
+            ))}
+          </Card>
+        </div>
+
+        {/* Performance Trend Chart */}
+        <div className="md:col-span-2">
+          <Card className="p-2">
+            <p className="text-xs font-medium mb-1">
+              {getTranslation('executiveSummary.performanceTrend', language) || "Supply Chain Performance"}
+            </p>
+            <div className="h-36">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={performanceData} margin={{ top: 5, right: 5, left: -15, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                  <YAxis domain={[70, 100]} tick={{ fontSize: 10 }} />
+                  <Tooltip />
                   <Line 
                     type="monotone" 
                     dataKey="actual" 
@@ -169,148 +225,37 @@ const ExecutiveSummary = () => {
                     type="monotone" 
                     dataKey="target" 
                     stroke="#9ca3af" 
-                    strokeDasharray="5 5"
+                    strokeDasharray="3 3"
                     name={getTranslation('executiveSummary.charts.target', language) || "Target"} 
+                    strokeWidth={2}
                   />
                 </LineChart>
               </ResponsiveContainer>
             </div>
-          </CardContent>
-        </Card>
+          </Card>
+        </div>
 
-        {/* Buffer Distribution */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle>
-              {getTranslation('executiveSummary.bufferDistribution', language) || "Buffer Distribution"}
-            </CardTitle>
-            <CardDescription>
-              {getTranslation('executiveSummary.bufferDistributionDesc', language) || "Current buffer status across all SKUs"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-60 mt-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={bufferData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    paddingAngle={2}
-                    dataKey="value"
-                    label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {bufferData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="flex justify-center mt-4">
-              <div className="flex items-center space-x-4">
-                {bufferData.map((entry) => (
-                  <div key={entry.name} className="flex items-center">
-                    <div className="w-3 h-3 mr-1 rounded-full" style={{ backgroundColor: entry.color }}></div>
-                    <span className="text-sm">
-                      {getTranslation(`common.zones.${entry.name.toLowerCase()}`, language) || entry.name}: {formatNumber(entry.value)}%
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Critical Alerts */}
-      <div className="space-y-4">
-        <h4 className="font-semibold flex items-center">
-          <AlertCircle className="mr-2 h-5 w-5 text-danger-500" />
-          {getTranslation('executiveSummary.criticalAlerts', language) || "Critical Alerts"}
-        </h4>
-        
-        {criticalAlerts.length > 0 ? (
-          <div className="space-y-3">
-            {criticalAlerts.map((alert) => (
-              <Alert key={alert.id} variant="destructive" className="border-l-4 border-l-danger-400">
-                <AlertTitle className="font-semibold flex items-center">
-                  {getTranslation(alert.title, language) || alert.title}
-                  <span className={cn(
-                    "ml-2 px-2 py-0.5 rounded text-xs font-medium",
-                    alert.impact === 'high' ? 'bg-red-100 text-red-700' : 
-                    alert.impact === 'medium' ? 'bg-amber-100 text-amber-700' : 
-                    'bg-blue-100 text-blue-700'
-                  )}>
-                    {getTranslation(`executiveSummary.impact.${alert.impact}`, language) || alert.impact}
-                  </span>
-                </AlertTitle>
-                <AlertDescription>
-                  {getTranslation(alert.description, language) || alert.description}
-                </AlertDescription>
-              </Alert>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-6 bg-gray-50 rounded-lg">
-            <p className="text-gray-500">
-              {getTranslation('executiveSummary.noAlerts', language) || "No critical alerts at this time"}
+        {/* Module Health Status */}
+        <div className="md:col-span-2">
+          <Card className="p-2">
+            <p className="text-xs font-medium flex items-center mb-1">
+              <HeartPulse className="mr-1 h-3 w-3 text-success-500" />
+              {getTranslation('executiveSummary.moduleHealth', language) || "Module Health"}
             </p>
-          </div>
-        )}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-1 text-xs">
+              {moduleHealth.map((module) => (
+                <div key={module.name} className={`flex items-center p-1 rounded-md 
+                  ${module.status === 'healthy' ? 'bg-green-50' : 'bg-amber-50'}`}>
+                  <div className={`w-2 h-2 rounded-full mr-1 
+                    ${module.status === 'healthy' ? 'bg-green-500' : 'bg-amber-500'}`}></div>
+                  <span className="flex-1">{getTranslation(`navigationItems.${module.name}`, language)}</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
       </div>
-
-      {/* Module Health */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <HeartPulse className="mr-2 h-5 w-5 text-success-500" />
-            {getTranslation('executiveSummary.moduleHealth', language) || "Module Health"}
-          </CardTitle>
-          <CardDescription>
-            {getTranslation('executiveSummary.moduleHealthDesc', language) || "Current status of all system modules"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="flex items-center p-3 bg-green-50 rounded-md">
-              <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-              <span className="flex-1">{getTranslation('navigationItems.inventory', language)}</span>
-              <span className="text-sm text-green-600">{getTranslation('executiveSummary.status.healthy', language) || "Healthy"}</span>
-            </div>
-            <div className="flex items-center p-3 bg-green-50 rounded-md">
-              <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-              <span className="flex-1">{getTranslation('navigationItems.supplyPlanning', language)}</span>
-              <span className="text-sm text-green-600">{getTranslation('executiveSummary.status.healthy', language) || "Healthy"}</span>
-            </div>
-            <div className="flex items-center p-3 bg-green-50 rounded-md">
-              <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-              <span className="flex-1">{getTranslation('navigationItems.salesPlanning', language)}</span>
-              <span className="text-sm text-green-600">{getTranslation('executiveSummary.status.healthy', language) || "Healthy"}</span>
-            </div>
-            <div className="flex items-center p-3 bg-amber-50 rounded-md">
-              <div className="w-3 h-3 bg-amber-500 rounded-full mr-2"></div>
-              <span className="flex-1">{getTranslation('navigationItems.forecasting', language)}</span>
-              <span className="text-sm text-amber-600">{getTranslation('executiveSummary.status.warning', language) || "Warning"}</span>
-            </div>
-            <div className="flex items-center p-3 bg-green-50 rounded-md">
-              <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-              <span className="flex-1">{getTranslation('navigationItems.ddsop', language)}</span>
-              <span className="text-sm text-green-600">{getTranslation('executiveSummary.status.healthy', language) || "Healthy"}</span>
-            </div>
-            <div className="flex items-center p-3 bg-green-50 rounded-md">
-              <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-              <span className="flex-1">{getTranslation('navigationItems.logistics', language)}</span>
-              <span className="text-sm text-green-600">{getTranslation('executiveSummary.status.healthy', language) || "Healthy"}</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    </Card>
   );
 };
 

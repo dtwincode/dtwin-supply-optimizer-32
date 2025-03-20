@@ -41,13 +41,13 @@ const Index = () => {
       <Suspense fallback={<LoadingFallback />}>
         <div 
           className={cn(
-            "space-y-4 transition-all duration-500 ease-in-out",
+            "space-y-2 transition-all duration-500 ease-in-out",
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           )} 
           dir={isRTL ? 'rtl' : 'ltr'}
         >
           <section className="transition-opacity duration-500">
-            <h2 className="font-display text-2xl font-semibold mb-4">
+            <h2 className="font-display text-xl font-semibold mb-2">
               {getTranslation('dashboard', language)}
             </h2>
             
@@ -60,17 +60,22 @@ const Index = () => {
 };
 
 const MemoizedMetrics = memo(() => (
-  <div className="transition-all duration-500 ease-in-out space-y-6">
-    <ExecutiveSummary />
-    <DashboardMetrics />
-    
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <FinancialMetrics />
-      <SustainabilityMetrics />
+  <div className="transition-all duration-500 ease-in-out space-y-4">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="lg:col-span-2">
+        <DashboardMetrics />
+      </div>
+      <div className="flex flex-col space-y-4">
+        <FinancialMetrics />
+        <SustainabilityMetrics />
+      </div>
     </div>
     
-    <ModuleSummaryCards />
-    <DashboardCharts />
+    <div className="grid grid-cols-1 gap-4">
+      <ExecutiveSummary />
+      <ModuleSummaryCards />
+      <DashboardCharts />
+    </div>
   </div>
 ));
 
