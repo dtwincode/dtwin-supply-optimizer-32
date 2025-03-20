@@ -144,7 +144,7 @@ export const DDOMSandOPIntegration: React.FC = () => {
   const t = (key: string) => getTranslation(`common.logistics.ddom.${key}`, language) || key;
   const [activeTab, setActiveTab] = useState('cycles');
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
-  const [strategicAdjustments, setStrategicAdjustments] = useState<DDSOPStrategicAdjustment[]>([]);
+  const [strategicBufferAdjustments, setStrategicBufferAdjustments] = useState<DDSOPStrategicAdjustment[]>([]);
   const [showStrategicAdjustments, setShowStrategicAdjustments] = useState(false);
 
   const getStatusBadge = (status: string) => {
@@ -208,7 +208,7 @@ export const DDOMSandOPIntegration: React.FC = () => {
       });
       
       if (reportData.strategicAdjustments) {
-        setStrategicAdjustments(reportData.strategicAdjustments);
+        setStrategicBufferAdjustments(reportData.strategicAdjustments);
         setShowStrategicAdjustments(true);
       }
       
@@ -472,7 +472,7 @@ export const DDOMSandOPIntegration: React.FC = () => {
                 ))}
               </div>
               
-              {showStrategicAdjustments && strategicAdjustments.length > 0 && (
+              {showStrategicAdjustments && strategicBufferAdjustments.length > 0 && (
                 <div className="mt-6 border rounded-md p-4">
                   <div className="flex items-center mb-3">
                     <Settings className="h-5 w-5 text-blue-600 mr-2" />
@@ -484,7 +484,7 @@ export const DDOMSandOPIntegration: React.FC = () => {
                   </p>
                   
                   <div className="space-y-3 mt-3">
-                    {strategicAdjustments.map((adjustment) => (
+                    {strategicBufferAdjustments.map((adjustment) => (
                       <div key={adjustment.id} className="border rounded-md p-3">
                         <div className="flex justify-between items-start">
                           <div>
@@ -507,6 +507,7 @@ export const DDOMSandOPIntegration: React.FC = () => {
                               >
                                 {adjustment.impact.charAt(0).toUpperCase() + adjustment.impact.slice(1)} Impact
                               </Badge>
+                              <span className="ml-2 text-xs text-muted-foreground">{adjustment.strategy}</span>
                             </div>
                           </div>
                           <Button variant="outline" size="sm" onClick={() => toast.success(`Applied adjustment to ${adjustment.bufferType}`)}>
