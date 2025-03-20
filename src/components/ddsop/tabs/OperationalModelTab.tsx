@@ -3,6 +3,7 @@ import React from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/translations';
 import { Card, CardContent } from '@/components/ui/card';
+import { OperationalDashboard } from '@/components/ddsop/operational/OperationalDashboard';
 
 export const OperationalModelTab = () => {
   const { language } = useLanguage();
@@ -16,12 +17,7 @@ export const OperationalModelTab = () => {
           {t('operationalModelDescription')}
         </p>
         
-        {/* This is where we'll move the DDOMOperationalDashboard component content in a future update */}
-        <div className="flex items-center justify-center h-64 bg-slate-50 rounded-md border border-dashed border-slate-200">
-          <p className="text-muted-foreground">
-            {t('operationalMetrics')}
-          </p>
-        </div>
+        <OperationalDashboard />
       </CardContent>
     </Card>
   );

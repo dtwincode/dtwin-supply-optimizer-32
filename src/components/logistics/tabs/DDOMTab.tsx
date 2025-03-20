@@ -5,9 +5,10 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/translations';
 import { DDOMOperationalDashboard } from '@/components/logistics/ddom/DDOMOperationalDashboard';
 import { DDOMCollaborativeExecution } from '@/components/logistics/ddom/DDOMCollaborativeExecution';
-import { DDOMSandOPIntegration } from '@/components/logistics/ddom/DDOMSandOPIntegration';
-import { DDOMAdaptivePlanning } from '@/components/logistics/ddom/DDOMAdaptivePlanning';
 import { Badge } from '@/components/ui/badge';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { ExternalLink } from 'lucide-react';
 
 export const DDOMTab = () => {
   const { language } = useLanguage();
@@ -25,20 +26,33 @@ export const DDOMTab = () => {
             <p className="text-sm text-muted-foreground">{t('ddom.description')}</p>
           </div>
         </div>
-        <Badge className="flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 h-8">
-          <ShieldCheck className="h-4 w-4" />
-          <span className="font-medium">DDS&OP Compliant</span>
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge className="flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 h-8">
+            <ShieldCheck className="h-4 w-4" />
+            <span className="font-medium">DDS&OP Compliant</span>
+          </Badge>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/ddsop" className="flex items-center gap-2">
+              <ExternalLink className="h-4 w-4" />
+              <span>Go to DDS&OP Module</span>
+            </Link>
+          </Button>
+        </div>
       </div>
       
       <DDOMOperationalDashboard />
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         <DDOMCollaborativeExecution />
-        <DDOMSandOPIntegration />
+        <div className="border border-dashed rounded-md p-6 bg-slate-50 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-muted-foreground mb-2">Advanced DDOM features are now available in the DDS&OP module</p>
+            <Button variant="default" asChild>
+              <Link to="/ddsop">Open DDS&OP Module</Link>
+            </Button>
+          </div>
+        </div>
       </div>
-      
-      <DDOMAdaptivePlanning />
     </div>
   );
 };

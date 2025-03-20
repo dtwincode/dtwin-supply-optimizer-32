@@ -1,40 +1,48 @@
+
 import { Translations } from './types';
+import { enTranslations } from './en';
+import { arTranslations } from './ar';
+import { dashboardTranslations } from './common/dashboard';
+import { modulesSummaryTranslations } from './common/modules';
+import { uiTranslations } from './common/ui';
 import { navigationTranslations } from './navigation';
-import { dashboardTitle, dashboardMetricsTranslations, financialMetricsTranslations, sustainabilityMetricsTranslations, modulesSummaryTranslations } from './dashboard';
-import { commonTranslations } from './common';
-import { salesTranslations } from './sales';
-import { logisticsTranslations } from './common/logistics';
-import { chartTranslations } from './common/charts';
-import { inventoryTranslations } from './common/inventory';
+import { salesTranslations } from './common/sales';
 import { supplyPlanningTranslations } from './common/supplyPlanning';
+import { financialMetricsTranslations } from './common/financialMetrics';
+import { sustainabilityMetricsTranslations } from './common/sustainabilityMetrics';
 import { ddsopTranslations } from './common/ddsop';
-export { toArabicNumerals } from './utils';
 
 export const translations: Translations = {
-  dashboard: dashboardTitle,
+  dashboard: {
+    en: 'Dashboard',
+    ar: 'لوحة القيادة',
+  },
   navigationItems: navigationTranslations,
-  dashboardMetrics: dashboardMetricsTranslations,
+  dashboardMetrics: dashboardTranslations,
   financialMetrics: financialMetricsTranslations,
   sustainabilityMetrics: sustainabilityMetricsTranslations,
   modulesSummary: modulesSummaryTranslations,
-  common: commonTranslations,
+  common: {
+    ...uiTranslations,
+  },
   sales: salesTranslations,
   supplyPlanning: supplyPlanningTranslations,
   ddsop: ddsopTranslations
 };
 
-export const getTranslation = (key: string, language: 'en' | 'ar'): string => {
+export type Language = 'en' | 'ar';
+
+export function getTranslation(key: string, language: Language) {
   const keys = key.split('.');
   let current: any = translations;
-  
+
   for (const k of keys) {
-    if (current[k]) {
-      current = current[k];
-    } else {
+    if (current[k] === undefined) {
       console.warn(`Translation key not found: ${key}`);
-      return key;
+      return undefined;
     }
+    current = current[k];
   }
-  
-  return current[language] || key;
-};
+
+  return current[language];
+}
