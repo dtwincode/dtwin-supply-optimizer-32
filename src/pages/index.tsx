@@ -7,6 +7,7 @@ import FinancialMetrics from "@/components/dashboard/FinancialMetrics";
 import ModuleSummaryCards from "@/components/dashboard/ModuleSummaryCards";
 import DashboardCharts from "@/components/dashboard/DashboardCharts";
 import SustainabilityMetrics from "@/components/dashboard/SustainabilityMetrics";
+import ExecutiveSummary from "@/components/dashboard/ExecutiveSummary";
 import { memo, Suspense, useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
@@ -60,6 +61,7 @@ const Index = () => {
 
 const MemoizedMetrics = memo(() => (
   <div className="transition-all duration-500 ease-in-out space-y-10">
+    <ExecutiveSummary />
     <DashboardMetrics />
     <FinancialMetrics />
     <SustainabilityMetrics />

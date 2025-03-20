@@ -1,7 +1,7 @@
 
 import { Translations } from './types';
 import { navigationTranslations } from './navigation';
-import { dashboardTranslations } from './common/dashboard';
+import { dashboardTranslations, executiveSummaryTranslations } from './common/dashboard';
 import { modulesSummaryTranslations } from './common/modules';
 import { uiTranslations } from './common/ui';
 import { chartTranslations } from './common/charts';
@@ -29,6 +29,7 @@ export const translations: Translations = {
   sustainabilityMetrics: sustainabilityMetricsTranslations,
   modulesSummary: modulesSummaryTranslations,
   common: commonTranslations, // Use the complete common translations
+  executiveSummary: executiveSummaryTranslations,
   sales: salesTranslations,
   supplyPlanning: supplyPlanningTranslations,
   ddsop: ddsopTranslations,

@@ -1,4 +1,3 @@
-
 export type TranslationValue = {
   en: string;
   ar: string;
@@ -318,24 +317,55 @@ export type ModulesSummary = {
   viewDetails: TranslationValue;
 };
 
-export type Translations = {
+export interface ExecutiveSummary {
+  title: TranslationValue;
+  lastUpdated: TranslationValue;
+  kpis: {
+    orderFulfillment: TranslationValue;
+    inventoryTurnover: TranslationValue;
+    stockoutRate: TranslationValue;
+    planningCycleTime: TranslationValue;
+  };
+  performanceTrend: TranslationValue;
+  performanceTrendDesc: TranslationValue;
+  bufferDistribution: TranslationValue;
+  bufferDistributionDesc: TranslationValue;
+  criticalAlerts: TranslationValue;
+  alerts: {
+    lowBuffer: TranslationValue;
+    lowBufferDesc: TranslationValue;
+    demandSpike: TranslationValue;
+    demandSpikeDesc: TranslationValue;
+  };
+  impact: {
+    high: TranslationValue;
+    medium: TranslationValue;
+    low: TranslationValue;
+  };
+  noAlerts: TranslationValue;
+  moduleHealth: TranslationValue;
+  moduleHealthDesc: TranslationValue;
+  status: {
+    healthy: TranslationValue;
+    warning: TranslationValue;
+    critical: TranslationValue;
+  };
+  charts: {
+    actual: TranslationValue;
+    target: TranslationValue;
+  };
+}
+
+export interface Translations {
   dashboard: TranslationValue;
   navigationItems: NavigationItems;
-  common: CommonTranslations;
-  sales: {
-    en: {
-      title: string;
-      description: string;
-    };
-    ar: {
-      title: string;
-      description: string;
-    };
-  };
-  supplyPlanning: any;
-  ddsop: any;
   dashboardMetrics: DashboardMetrics;
   financialMetrics: FinancialMetrics;
   sustainabilityMetrics: SustainabilityMetrics;
   modulesSummary: ModulesSummary;
-};
+  common: CommonTranslations;
+  executiveSummary: ExecutiveSummary;
+  sales: any;
+  supplyPlanning: any;
+  ddsop: any;
+}
