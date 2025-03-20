@@ -40,20 +40,20 @@ const FinancialMetrics = () => {
   const { language } = useLanguage();
 
   return (
-    <div className="mb-8">
-      <h4 className="font-display text-xl font-semibold mb-4 flex items-center">
+    <div>
+      <h4 className="font-display text-xl font-semibold mb-3 flex items-center">
         <Wallet className="h-5 w-5 mr-2 text-primary" />
         {getTranslation('financialMetrics.title', language)}
       </h4>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-3">
         {financialMetrics.map((metric) => (
-          <Card key={metric.title} className="p-6 hover:shadow-md transition-shadow">
+          <Card key={metric.title} className="p-4 hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm text-gray-500 font-medium">
                   {getTranslation(`financialMetrics.${metric.title}`, language)}
                 </p>
-                <div className="text-2xl font-semibold mt-1 flex items-center">
+                <div className="text-xl font-semibold mt-1 flex items-center">
                   <Image 
                     src="/lovable-uploads/b7ca4974-ecc5-4f81-bfc0-6ae96ce56a48.png" 
                     alt="Currency" 
@@ -72,8 +72,8 @@ const FinancialMetrics = () => {
                   <span className="ml-1 text-xs text-gray-500">{getTranslation('common.thisQuarter', language)}</span>
                 </div>
               </div>
-              <div className={`${metric.bgColor} p-3 rounded-full`}>
-                <metric.icon className={`h-6 w-6 ${metric.color}`} />
+              <div className={`${metric.bgColor} p-2 rounded-full`}>
+                <metric.icon className={`h-5 w-5 ${metric.color}`} />
               </div>
             </div>
           </Card>

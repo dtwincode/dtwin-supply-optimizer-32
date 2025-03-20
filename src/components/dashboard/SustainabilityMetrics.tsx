@@ -42,20 +42,20 @@ const SustainabilityMetrics = () => {
   const { language } = useLanguage();
 
   return (
-    <div className="mb-8">
-      <h4 className="font-display text-xl font-semibold mb-4 flex items-center">
+    <div>
+      <h4 className="font-display text-xl font-semibold mb-3 flex items-center">
         <Leaf className="h-5 w-5 mr-2 text-success-500" />
         {getTranslation('sustainabilityMetrics.title', language)}
       </h4>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-3">
         {sustainabilityMetrics.map((metric) => (
-          <Card key={metric.title} className="p-6 hover:shadow-md transition-shadow">
+          <Card key={metric.title} className="p-4 hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm text-gray-500 font-medium">
                   {getTranslation(`sustainabilityMetrics.${metric.title}`, language)}
                 </p>
-                <div className="text-2xl font-semibold mt-1">
+                <div className="text-xl font-semibold mt-1">
                   <span>{language === 'ar' ? toArabicNumerals(metric.value) : metric.value}</span>
                 </div>
                 <div className={`flex items-center text-sm mt-1 ${
@@ -74,8 +74,8 @@ const SustainabilityMetrics = () => {
                   {getTranslation(`sustainabilityMetrics.${metric.description}`, language)}
                 </p>
               </div>
-              <div className={`${metric.bgColor} p-3 rounded-full`}>
-                <metric.icon className={`h-6 w-6 ${metric.color}`} />
+              <div className={`${metric.bgColor} p-2 rounded-full`}>
+                <metric.icon className={`h-5 w-5 ${metric.color}`} />
               </div>
             </div>
           </Card>
