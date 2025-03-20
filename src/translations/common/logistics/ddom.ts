@@ -1,4 +1,3 @@
-
 export const ddomTranslations = {
   ddom: {
     title: {
@@ -173,7 +172,74 @@ export const ddomTranslations = {
       en: "Full S&OP integration will connect strategic, tactical, and operational planning layers into a unified DDOM-compliant framework.",
       ar: "سيربط التكامل الكامل لتخطيط المبيعات والعمليات طبقات التخطيط الاستراتيجية والتكتيكية والتشغيلية في إطار موحد متوافق مع DDOM."
     },
-    // Status-related translations
+    adaptivePlanning: {
+      en: "Adaptive Planning",
+      ar: "التخطيط التكيفي"
+    },
+    planningCycles: {
+      en: "Planning Cycles",
+      ar: "دورات التخطيط"
+    },
+    cycleMetrics: {
+      en: "Cycle Metrics",
+      ar: "مقاييس الدورة"
+    },
+    marketSignals: {
+      en: "Market Signals",
+      ar: "إشارات السوق"
+    },
+    frequency: {
+      en: "Frequency",
+      ar: "التكرار"
+    },
+    nextCycle: {
+      en: "Next Cycle",
+      ar: "الدورة التالية"
+    },
+    triggerCycle: {
+      en: "Trigger Cycle",
+      ar: "بدء الدورة"
+    },
+    cycleTriggered: {
+      en: "Adaptive cycle has been triggered",
+      ar: "تم بدء الدورة التكيفية"
+    },
+    upcoming: {
+      en: "Upcoming",
+      ar: "قادم"
+    },
+    standby: {
+      en: "On Standby",
+      ar: "في الانتظار"
+    },
+    pendingAction: {
+      en: "Pending Action",
+      ar: "في انتظار الإجراء"
+    },
+    inAssessment: {
+      en: "In Assessment",
+      ar: "قيد التقييم"
+    },
+    monitored: {
+      en: "Monitored",
+      ar: "مراقب"
+    },
+    highImpact: {
+      en: "High Impact",
+      ar: "تأثير مرتفع"
+    },
+    mediumImpact: {
+      en: "Medium Impact",
+      ar: "تأثير متوسط"
+    },
+    lowImpact: {
+      en: "Low Impact",
+      ar: "تأثير منخفض"
+    },
+    detected: {
+      en: "Detected",
+      ar: "تم اكتشافه"
+    },
     completed: {
       en: "Completed",
       ar: "مكتمل"
@@ -206,7 +272,6 @@ export const ddomTranslations = {
       en: "All",
       ar: "الكل"
     },
-    // Execution metric status translations
     onTrack: {
       en: "On Track",
       ar: "على المسار الصحيح"
@@ -231,7 +296,6 @@ export const ddomTranslations = {
       en: "Stable",
       ar: "مستقر"
     },
-    // Additional metrics translations
     metric: {
       en: "Metric",
       ar: "مقياس"

@@ -6,6 +6,7 @@ import { getTranslation } from '@/translations';
 import { DDOMOperationalDashboard } from '@/components/logistics/ddom/DDOMOperationalDashboard';
 import { DDOMCollaborativeExecution } from '@/components/logistics/ddom/DDOMCollaborativeExecution';
 import { DDOMSandOPIntegration } from '@/components/logistics/ddom/DDOMSandOPIntegration';
+import { DDOMAdaptivePlanning } from '@/components/logistics/ddom/DDOMAdaptivePlanning';
 
 export const DDOMTab = () => {
   const { language } = useLanguage();
@@ -29,6 +30,8 @@ export const DDOMTab = () => {
         <DDOMCollaborativeExecution />
         <DDOMSandOPIntegration />
       </div>
+      
+      <DDOMAdaptivePlanning />
     </div>
   );
 };
