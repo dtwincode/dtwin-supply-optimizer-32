@@ -1,3 +1,4 @@
+
 import { InventoryItem, BufferZones, NetFlowPosition } from "@/types/inventory";
 import { calculateBufferZones, calculateNetFlowPosition } from "./bufferCalculations";
 
@@ -31,6 +32,7 @@ export interface DDSOPReportData {
   adjustments: any[];
   steps: any[];
   recommendations: DDSOPRecommendation[];
+  strategicAdjustments?: DDSOPStrategicAdjustment[];
 }
 
 export interface DDSOPRecommendation {
@@ -39,6 +41,17 @@ export interface DDSOPRecommendation {
   description: string;
   impact: 'high' | 'medium' | 'low';
   timeframe: string;
+}
+
+// New interface for strategic adjustments
+export interface DDSOPStrategicAdjustment {
+  id: number;
+  bufferType: string;
+  currentValue: number;
+  recommendedValue: number;
+  reason: string;
+  impact: 'high' | 'medium' | 'low';
+  strategy: string;
 }
 
 // Generate DDS&OP Report
@@ -95,6 +108,9 @@ export const generateDDSOPReport = async (data: {
       timeframe: 'Immediate'
     });
   }
+
+  // Generate strategic buffer adjustments (new addition)
+  const strategicAdjustments = generateStrategicBufferAdjustments(metrics, adjustments);
   
   return {
     generatedDate: new Date().toISOString(),
@@ -104,8 +120,77 @@ export const generateDDSOPReport = async (data: {
     metrics,
     adjustments,
     steps: stepData,
-    recommendations
+    recommendations,
+    strategicAdjustments
   };
+};
+
+// New function to generate strategic buffer adjustments based on DDS&OP principles
+export const generateStrategicBufferAdjustments = (
+  metrics: any[],
+  adjustments: any[]
+): DDSOPStrategicAdjustment[] => {
+  const strategicAdjustments: DDSOPStrategicAdjustment[] = [];
+  
+  // Example strategic buffer adjustments based on metrics
+  const bufferComplianceMetric = metrics.find(m => m.name === 'Buffer Alignment');
+  
+  if (bufferComplianceMetric && bufferComplianceMetric.value < bufferComplianceMetric.target) {
+    // Recommend buffer adjustment for low compliance
+    strategicAdjustments.push({
+      id: 1,
+      bufferType: 'Safety Stock',
+      currentValue: 10,
+      recommendedValue: 15,
+      reason: 'Buffer compliance below target threshold',
+      impact: 'high',
+      strategy: 'Increase safety buffer to improve overall buffer alignment'
+    });
+  }
+  
+  // Recommend adjustments for seasonal patterns
+  strategicAdjustments.push({
+    id: 2,
+    bufferType: 'Seasonal Variability Factor',
+    currentValue: 1.0,
+    recommendedValue: 1.2,
+    reason: 'Upcoming high-demand season',
+    impact: 'medium',
+    strategy: 'Temporarily increase variability factor for seasonal products'
+  });
+  
+  // Recommend lead time adjustment if there are delays
+  const supplyMetric = metrics.find(m => m.name === 'Supply-Demand Balance');
+  if (supplyMetric && supplyMetric.value < supplyMetric.target) {
+    strategicAdjustments.push({
+      id: 3,
+      bufferType: 'Lead Time Factor',
+      currentValue: 0.8,
+      recommendedValue: 1.0,
+      reason: 'Recent supply delays affecting buffer positioning',
+      impact: 'medium',
+      strategy: 'Adjust lead time factors to account for recent supplier delays'
+    });
+  }
+  
+  // Bi-directional adjustment - strategic to tactical
+  const hasStrategicAdjustment = adjustments.some(a => 
+    a.description.includes('strategic') && a.alignedWithDDSOP
+  );
+  
+  if (hasStrategicAdjustment) {
+    strategicAdjustments.push({
+      id: 4,
+      bufferType: 'Decoupling Point Placement',
+      currentValue: 2,
+      recommendedValue: 3,
+      reason: 'Strategic business objective change',
+      impact: 'high',
+      strategy: 'Reposition decoupling points to align with new strategic direction'
+    });
+  }
+  
+  return strategicAdjustments;
 };
 
 // Calculate overall DDS&OP compliance score
@@ -234,6 +319,46 @@ export const isItemDDSOPCompliant = async (item: InventoryItem): Promise<boolean
          hasNetFlowPosition && 
          hasVariabilityFactor &&
          hasStrategicAdjustments;
+};
+
+// Evaluate if an item needs strategic buffer adjustment
+export const evaluateStrategicBufferAdjustment = (
+  item: InventoryItem, 
+  marketTrends: any[],
+  businessObjectives: any[]
+): { needsAdjustment: boolean; recommendations: string[] } => {
+  const recommendations: string[] = [];
+  let needsAdjustment = false;
+  
+  // Check for seasonality trends
+  const hasSeasonal = marketTrends.some(trend => 
+    trend.type === 'seasonal' && 
+    trend.affectedSkus.includes(item.sku)
+  );
+  
+  if (hasSeasonal && (!item.dynamicAdjustments || !item.dynamicAdjustments.seasonality)) {
+    needsAdjustment = true;
+    recommendations.push('Apply seasonal adjustment to buffer profile');
+  }
+  
+  // Check for strategic business objectives alignment
+  const relatedObjectives = businessObjectives.filter(obj => 
+    obj.affectedCategories.includes(item.category) ||
+    obj.affectedRegions.includes(item.region)
+  );
+  
+  if (relatedObjectives.length > 0 && (!item.dynamicAdjustments || !item.dynamicAdjustments.marketStrategy)) {
+    needsAdjustment = true;
+    recommendations.push('Align buffer with strategic business objectives');
+  }
+  
+  // Check buffer health
+  if (item.bufferHealthAssessment && item.bufferHealthAssessment < 70) {
+    needsAdjustment = true;
+    recommendations.push('Recalibrate buffer zones due to low buffer health');
+  }
+  
+  return { needsAdjustment, recommendations };
 };
 
 // Get DDS&OP cycle status

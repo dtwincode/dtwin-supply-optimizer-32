@@ -266,7 +266,7 @@ export const ddomTranslations = {
     },
     standby: {
       en: "On Standby",
-      ar: "في الانتظار"
+      ar: "في الانظار"
     },
     pendingAction: {
       en: "Pending Action",
@@ -384,5 +384,37 @@ export const ddomTranslations = {
       en: "hours",
       ar: "ساعات"
     }
+  },
+  ddsopCompliance: {
+    en: "DDS&OP Compliance",
+    ar: "الامتثال لـ DDS&OP"
+  },
+  strategicBufferAdjustments: {
+    en: "Strategic Buffer Adjustments",
+    ar: "تعديلات المخزون الاستراتيجية"
+  },
+  bidirectionalIntegration: {
+    en: "Bi-directional Integration",
+    ar: "التكامل ثنائي الاتجاه"
+  },
+  currentValue: {
+    en: "Current Value",
+    ar: "القيمة الحالية"
+  },
+  recommendedValue: {
+    en: "Recommended Value",
+    ar: "القيمة الموصى بها"
+  },
+  applyAdjustment: {
+    en: "Apply Adjustment",
+    ar: "تطبيق التعديل"
+  },
+  adjustmentApplied: {
+    en: "Adjustment Applied",
+    ar: "تم تطبيق التعديل"
+  },
+  strategicAdjustment: {
+    en: "Strategic Adjustment",
+    ar: "التعديل الاستراتيجي"
   }
 };

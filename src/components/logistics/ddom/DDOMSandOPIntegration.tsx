@@ -11,7 +11,8 @@ import {
   RefreshCw,
   ShieldCheck,
   ArrowRight,
-  Download
+  Download,
+  Settings
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/translations';
@@ -20,7 +21,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
-import { generateDDSOPReport } from '@/utils/ddsopCalculations';
+import { generateDDSOPReport, DDSOPStrategicAdjustment } from '@/utils/ddsopCalculations';
 
 const sopCycles = [
   {
@@ -143,6 +144,8 @@ export const DDOMSandOPIntegration: React.FC = () => {
   const t = (key: string) => getTranslation(`common.logistics.ddom.${key}`, language) || key;
   const [activeTab, setActiveTab] = useState('cycles');
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [strategicAdjustments, setStrategicAdjustments] = useState<DDSOPStrategicAdjustment[]>([]);
+  const [showStrategicAdjustments, setShowStrategicAdjustments] = useState(false);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -203,6 +206,11 @@ export const DDOMSandOPIntegration: React.FC = () => {
         adjustments: strategicAdjustments,
         stepData: ddsopSteps
       });
+      
+      if (reportData.strategicAdjustments) {
+        setStrategicAdjustments(reportData.strategicAdjustments);
+        setShowStrategicAdjustments(true);
+      }
       
       toast.success('DDS&OP Report generated successfully');
       
@@ -463,6 +471,53 @@ export const DDOMSandOPIntegration: React.FC = () => {
                   </div>
                 ))}
               </div>
+              
+              {showStrategicAdjustments && strategicAdjustments.length > 0 && (
+                <div className="mt-6 border rounded-md p-4">
+                  <div className="flex items-center mb-3">
+                    <Settings className="h-5 w-5 text-blue-600 mr-2" />
+                    <h3 className="font-medium">Strategic Buffer Adjustments</h3>
+                    <Badge className="ml-2 bg-blue-100 text-blue-800">Bi-directional</Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    DDS&OP recommended strategic adjustments to tactical buffers based on business objectives and market conditions.
+                  </p>
+                  
+                  <div className="space-y-3 mt-3">
+                    {strategicAdjustments.map((adjustment) => (
+                      <div key={adjustment.id} className="border rounded-md p-3">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="font-medium">{adjustment.bufferType}</h4>
+                            <p className="text-sm mt-1">{adjustment.reason}</p>
+                            <div className="flex items-center mt-2 text-sm">
+                              <span className="text-muted-foreground">Current: {adjustment.currentValue}</span>
+                              <ArrowRight className="h-3 w-3 mx-2" />
+                              <span className="font-medium">Recommended: {adjustment.recommendedValue}</span>
+                            </div>
+                            <div className="mt-2">
+                              <Badge 
+                                className={`${
+                                  adjustment.impact === 'high' 
+                                    ? 'bg-red-100 text-red-800' 
+                                    : adjustment.impact === 'medium'
+                                      ? 'bg-amber-100 text-amber-800'
+                                      : 'bg-green-100 text-green-800'
+                                }`}
+                              >
+                                {adjustment.impact.charAt(0).toUpperCase() + adjustment.impact.slice(1)} Impact
+                              </Badge>
+                            </div>
+                          </div>
+                          <Button variant="outline" size="sm" onClick={() => toast.success(`Applied adjustment to ${adjustment.bufferType}`)}>
+                            Apply
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               
               <div className="mt-4 flex justify-center">
                 <Button 
