@@ -132,6 +132,62 @@ export const ddomTranslations = {
       en: "In Development",
       ar: "قيد التطوير"
     },
+    active: {
+      en: "Active",
+      ar: "نشط"
+    },
+    sopCycles: {
+      en: "S&OP Cycles",
+      ar: "دورات تخطيط المبيعات والعمليات"
+    },
+    reconciliation: {
+      en: "Reconciliation",
+      ar: "التوفيق"
+    },
+    lastCompleted: {
+      en: "Last Completed",
+      ar: "آخر اكتمال"
+    },
+    viewDetails: {
+      en: "View Details",
+      ar: "عرض التفاصيل"
+    },
+    approved: {
+      en: "Approved",
+      ar: "معتمد"
+    },
+    startReconciliation: {
+      en: "Start Reconciliation",
+      ar: "بدء التوفيق"
+    },
+    reconciliationReport: {
+      en: "Reconciliation Report",
+      ar: "تقرير التوفيق"
+    },
+    reconciliationStarted: {
+      en: "Reconciliation process started",
+      ar: "بدأت عملية التوفيق"
+    },
+    projectionsLoaded: {
+      en: "Projections loaded successfully",
+      ar: "تم تحميل التوقعات بنجاح"
+    },
+    adjustmentReviewed: {
+      en: "Adjustment #{id} has been reviewed",
+      ar: "تمت مراجعة التعديل رقم {id}"
+    },
+    inReview: {
+      en: "In Review",
+      ar: "قيد المراجعة"
+    },
+    review: {
+      en: "Review",
+      ar: "مراجعة"
+    },
+    success: {
+      en: "Success",
+      ar: "نجاح"
+    },
     sandopIntegrationTooltip: {
       en: "S&OP integration features are being developed to fully comply with DDOM requirements",
       ar: "يتم تطوير ميزات تكامل تخطيط المبيعات والعمليات للامتثال الكامل لمتطلبات DDOM"
