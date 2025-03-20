@@ -45,5 +45,9 @@ export const navigationTranslations: NavigationItems = {
   supplyPlanning: {
     en: "Supply Planning",
     ar: "تخطيط التوريد"
+  },
+  ddsop: {
+    en: "DDS&OP",
+    ar: "تخطيط المبيعات والعمليات المدفوع بالطلب"
   }
 };

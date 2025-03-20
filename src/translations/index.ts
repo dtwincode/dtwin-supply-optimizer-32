@@ -1,4 +1,3 @@
-
 import { Translations } from './types';
 import { navigationTranslations } from './navigation';
 import { dashboardTitle, dashboardMetricsTranslations, financialMetricsTranslations, sustainabilityMetricsTranslations, modulesSummaryTranslations } from './dashboard';
@@ -8,6 +7,7 @@ import { logisticsTranslations } from './common/logistics';
 import { chartTranslations } from './common/charts';
 import { inventoryTranslations } from './common/inventory';
 import { supplyPlanningTranslations } from './common/supplyPlanning';
+import { ddsopTranslations } from './common/ddsop';
 export { toArabicNumerals } from './utils';
 
 export const translations: Translations = {
@@ -19,7 +19,8 @@ export const translations: Translations = {
   modulesSummary: modulesSummaryTranslations,
   common: commonTranslations,
   sales: salesTranslations,
-  supplyPlanning: supplyPlanningTranslations
+  supplyPlanning: supplyPlanningTranslations,
+  ddsop: ddsopTranslations
 };
 
 export const getTranslation = (key: string, language: 'en' | 'ar'): string => {

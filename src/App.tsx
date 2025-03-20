@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import Tickets from "./pages/Tickets";
 import SQLConfig from "./pages/SQLConfig";
 import SupplyPlanning from "./pages/SupplyPlanning";
+import DDSOP from "./pages/DDSOP";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -53,6 +54,7 @@ function App() {
                   <Route path="/supply-planning" element={<SupplyPlanning />} />
                   <Route path="/reports" element={<Reports />} />
                   <Route path="/logistics" element={<Logistics />} />
+                  <Route path="/ddsop" element={<DDSOP />} />
                   <Route path="/data" element={<Settings />} />
                   <Route path="/settings" element={<Navigate to="/data" replace />} />
                   <Route path="/guidelines" element={<Guidelines />} />
