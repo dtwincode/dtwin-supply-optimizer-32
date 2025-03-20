@@ -1,5 +1,28 @@
+
 export const ddsopTranslations = {
-  // Main navigation and labels
+  // Main header and description
+  title: {
+    en: "Demand-Driven S&OP",
+    ar: "تخطيط المبيعات والعمليات المدفوع بالطلب"
+  },
+  description: {
+    en: "Integrate demand-driven operational planning with strategic S&OP processes",
+    ar: "دمج التخطيط التشغيلي المدفوع بالطلب مع عمليات تخطيط المبيعات والعمليات الاستراتيجية"
+  },
+  compliantMode: {
+    en: "Compliant Mode",
+    ar: "وضع الامتثال"
+  },
+  filters: {
+    en: "Filters",
+    ar: "تصفية"
+  },
+  generateReport: {
+    en: "Generate Report",
+    ar: "إنشاء تقرير"
+  },
+  
+  // Main navigation and tabs
   operationalModel: {
     en: "Operational Model",
     ar: "نموذج التشغيل"
@@ -39,8 +62,7 @@ export const ddsopTranslations = {
     ar: "دورات التخطيط التكيفية واكتشاف إشارات السوق للتخطيط سريع الاستجابة"
   },
   
-  // We'll reuse many translations from the logistics/ddom.ts file since they apply to both modules
-  // We'll only define new ones specific to the DDSOP module
+  // Metrics
   integrationMetrics: {
     en: "S&OP Integration Metrics",
     ar: "مقاييس تكامل تخطيط المبيعات والعمليات"
@@ -58,7 +80,7 @@ export const ddsopTranslations = {
     ar: "مقاييس التخطيط التكيفي"
   },
   
-  // Reused translations from logistics/ddom.ts
+  // KPI translations
   flowIndex: {
     en: "Flow Index",
     ar: "مؤشر التدفق"
@@ -83,6 +105,8 @@ export const ddsopTranslations = {
     en: "Plan vs Actual Variance",
     ar: "تباين الخطة مقابل الفعلي"
   },
+  
+  // Collaborative execution
   shareExecutionPlan: {
     en: "Share Execution Plan",
     ar: "مشاركة خطة التنفيذ"
@@ -119,6 +143,8 @@ export const ddsopTranslations = {
     en: "Execution plan shared with team",
     ar: "تمت مشاركة خطة التنفيذ مع الفريق"
   },
+  
+  // Buffer and resource metrics
   bufferpenetrationresponse: {
     en: "Buffer Penetration Response",
     ar: "استجابة اختراق المخزون"
@@ -139,6 +165,8 @@ export const ddsopTranslations = {
     en: "Strategic Decoupling Effectiveness",
     ar: "فعالية الفصل الاستراتيجي"
   },
+  
+  // Adaptive planning
   planningCycles: {
     en: "Planning Cycles",
     ar: "دورات التخطيط"
@@ -167,6 +195,8 @@ export const ddsopTranslations = {
     en: "Adaptive cycle has been triggered",
     ar: "تم بدء الدورة التكيفية"
   },
+  
+  // S&OP integration
   sopCycles: {
     en: "S&OP Cycles",
     ar: "دورات تخطيط المبيعات والعمليات"
@@ -265,20 +295,8 @@ export const ddsopTranslations = {
     en: "Pending",
     ar: "معلق"
   },
-  approved: {
-    en: "Approved",
-    ar: "معتمد"
-  },
-  inReview: {
-    en: "In Review",
-    ar: "قيد المراجعة"
-  },
-  success: {
-    en: "Success",
-    ar: "نجاح"
-  },
   
-  // Priority and impact labels
+  // Priority and impact
   highImpact: {
     en: "High Impact",
     ar: "تأثير مرتفع"
@@ -305,6 +323,10 @@ export const ddsopTranslations = {
   },
   
   // Trend indicators
+  increasing: {
+    en: "Increasing",
+    ar: "في زيادة"
+  },
   improving: {
     en: "Improving",
     ar: "في تحسن"

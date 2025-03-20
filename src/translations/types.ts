@@ -213,8 +213,9 @@ export type CommonTranslations = {
   logout: TranslationValue;
   cancel: TranslationValue;
   save: TranslationValue;
-  edit: TranslationValue;
   delete: TranslationValue;
+  edit: TranslationValue;
+  create: TranslationValue;
   search: TranslationValue;
   filter: TranslationValue;
   apply: TranslationValue;
@@ -246,6 +247,7 @@ export type CommonTranslations = {
     replenishment: TranslationValue;
     netFlow: TranslationValue;
     demandVariability: TranslationValue;
+    inventoryTrends: TranslationValue;
   };
   
   // Zone translations
@@ -264,7 +266,7 @@ export type CommonTranslations = {
   showing: TranslationValue;
   to: TranslationValue;
   
-  // Include additional properties needed for dashboards
+  // Dashboard metrics
   skuCount: TranslationValue;
   accuracyLabel: TranslationValue;
   pipelineValue: TranslationValue;
@@ -279,6 +281,7 @@ export type CommonTranslations = {
   // Nested objects
   logistics: any;
   inventory: any;
+  ddsop: any;
 };
 
 export type DashboardMetrics = {

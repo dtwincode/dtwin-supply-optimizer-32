@@ -28,6 +28,7 @@ export const translations: Translations = {
   sustainabilityMetrics: sustainabilityMetricsTranslations,
   modulesSummary: modulesSummaryTranslations,
   common: {
+    // UI translations
     ...uiTranslations,
     
     // Inventory translations
@@ -102,7 +103,8 @@ export const translations: Translations = {
     
     // Include full sections as nested objects
     logistics: logisticsTranslations,
-    inventory: inventoryTranslations
+    inventory: inventoryTranslations,
+    ddsop: ddsopTranslations
   },
   sales: salesTranslations,
   supplyPlanning: supplyPlanningTranslations,
