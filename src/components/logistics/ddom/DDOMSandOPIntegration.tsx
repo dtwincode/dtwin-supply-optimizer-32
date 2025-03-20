@@ -142,7 +142,8 @@ export const DDOMSandOPIntegration: React.FC = () => {
   };
 
   const handleReviewAdjustment = (id: number) => {
-    toast.success(t('adjustmentReviewed', { id }));
+    // Fix here: Using string template for the translation key instead of passing object
+    toast.success(t(`adjustmentReviewed`).replace('{id}', id.toString()));
   };
 
   return (
