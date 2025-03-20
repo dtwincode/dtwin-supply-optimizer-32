@@ -173,7 +173,7 @@ export const ddomTranslations = {
       en: "Full S&OP integration will connect strategic, tactical, and operational planning layers into a unified DDOM-compliant framework.",
       ar: "سيربط التكامل الكامل لتخطيط المبيعات والعمليات طبقات التخطيط الاستراتيجية والتكتيكية والتشغيلية في إطار موحد متوافق مع DDOM."
     },
-    // Add missing status-related translations
+    // Status-related translations
     completed: {
       en: "Completed",
       ar: "مكتمل"
@@ -205,6 +205,64 @@ export const ddomTranslations = {
     all: {
       en: "All",
       ar: "الكل"
+    },
+    // Execution metric status translations
+    onTrack: {
+      en: "On Track",
+      ar: "على المسار الصحيح"
+    },
+    warning: {
+      en: "Warning",
+      ar: "تحذير"
+    },
+    alert: {
+      en: "Alert",
+      ar: "تنبيه"
+    },
+    improving: {
+      en: "Improving",
+      ar: "في تحسن"
+    },
+    declining: {
+      en: "Declining",
+      ar: "في تراجع"
+    },
+    stable: {
+      en: "Stable",
+      ar: "مستقر"
+    },
+    // Additional metrics translations
+    metric: {
+      en: "Metric",
+      ar: "مقياس"
+    },
+    status: {
+      en: "Status",
+      ar: "الحالة"
+    },
+    actual: {
+      en: "Actual",
+      ar: "الفعلي"
+    },
+    target: {
+      en: "Target",
+      ar: "الهدف"
+    },
+    trend: {
+      en: "Trend",
+      ar: "الاتجاه"
+    },
+    planned: {
+      en: "Planned",
+      ar: "المخطط"
+    },
+    variance: {
+      en: "Variance",
+      ar: "التباين"
+    },
+    hours: {
+      en: "hours",
+      ar: "ساعات"
     }
   }
 };
