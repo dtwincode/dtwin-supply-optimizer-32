@@ -1,4 +1,3 @@
-
 import { InventoryItem, BufferZones, NetFlowPosition } from "@/types/inventory";
 import { calculateBufferZones, calculateNetFlowPosition } from "./bufferCalculations";
 
@@ -21,6 +20,93 @@ export interface DDSOPCycleStatus {
   lastCompletedDate: Date;
   cycleCompletionPercentage: number;
 }
+
+// DDS&OP Report interfaces
+export interface DDSOPReportData {
+  generatedDate: string;
+  reportName: string;
+  complianceScore: number;
+  cycleData: any;
+  metrics: any[];
+  adjustments: any[];
+  steps: any[];
+  recommendations: DDSOPRecommendation[];
+}
+
+export interface DDSOPRecommendation {
+  id: number;
+  area: string;
+  description: string;
+  impact: 'high' | 'medium' | 'low';
+  timeframe: string;
+}
+
+// Generate DDS&OP Report
+export const generateDDSOPReport = async (data: {
+  cycleData: any;
+  metrics: any[];
+  adjustments: any[];
+  stepData: any[];
+}): Promise<DDSOPReportData> => {
+  const { cycleData, metrics, adjustments, stepData } = data;
+  
+  // Calculate overall compliance score from metrics
+  const complianceScore = metrics.reduce((sum, metric) => {
+    return sum + (metric.value / metric.target) * 100;
+  }, 0) / metrics.length;
+  
+  // Generate recommendations based on metrics and adjustments
+  const recommendations: DDSOPRecommendation[] = [];
+  
+  // Add recommendations based on metrics that are below target
+  metrics.forEach((metric, index) => {
+    if (metric.value < metric.target) {
+      recommendations.push({
+        id: index + 1,
+        area: metric.name,
+        description: `Improve ${metric.name} metrics which are currently at ${metric.value}% versus target of ${metric.target}%`,
+        impact: metric.value < metric.target * 0.8 ? 'high' : 'medium',
+        timeframe: 'Next cycle'
+      });
+    }
+  });
+  
+  // Add recommendations for non-aligned adjustments
+  adjustments.forEach((adjustment, index) => {
+    if (!adjustment.alignedWithDDSOP) {
+      recommendations.push({
+        id: recommendations.length + 1,
+        area: 'Strategic Alignment',
+        description: `Align adjustment "${adjustment.description}" with DDS&OP principles`,
+        impact: adjustment.impact as 'high' | 'medium' | 'low',
+        timeframe: 'Current cycle'
+      });
+    }
+  });
+  
+  // Add missing step recommendations
+  const pendingSteps = stepData.filter(step => step.status === 'pending');
+  if (pendingSteps.length > 0) {
+    recommendations.push({
+      id: recommendations.length + 1,
+      area: 'Process Compliance',
+      description: `Complete ${pendingSteps.length} pending DDS&OP process steps`,
+      impact: 'high',
+      timeframe: 'Immediate'
+    });
+  }
+  
+  return {
+    generatedDate: new Date().toISOString(),
+    reportName: `DDS&OP Compliance Report - ${new Date().toLocaleDateString()}`,
+    complianceScore: Math.round(complianceScore * 100) / 100,
+    cycleData,
+    metrics,
+    adjustments,
+    steps: stepData,
+    recommendations
+  };
+};
 
 // Calculate overall DDS&OP compliance score
 export const calculateDDSOPComplianceScore = (metrics: DDSOPMetrics): number => {

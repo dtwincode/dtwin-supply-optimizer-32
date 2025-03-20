@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
@@ -11,7 +10,8 @@ import {
   FileText,
   RefreshCw,
   ShieldCheck,
-  ArrowRight
+  ArrowRight,
+  Download
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/translations';
@@ -20,8 +20,8 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
+import { generateDDSOPReport } from '@/utils/ddsopCalculations';
 
-// Sample S&OP cycle data
 const sopCycles = [
   {
     id: 1,
@@ -41,7 +41,6 @@ const sopCycles = [
   }
 ];
 
-// Sample reconciliation data
 const reconciliationMetrics = [
   {
     id: 'supply-demand',
@@ -73,7 +72,6 @@ const reconciliationMetrics = [
   }
 ];
 
-// Sample strategic adjustments
 const strategicAdjustments = [
   {
     id: 1,
@@ -109,7 +107,6 @@ const strategicAdjustments = [
   }
 ];
 
-// DDS&OP Specific steps
 const ddsopSteps = [
   {
     id: 1,
@@ -145,6 +142,7 @@ export const DDOMSandOPIntegration: React.FC = () => {
   const { language } = useLanguage();
   const t = (key: string) => getTranslation(`common.logistics.ddom.${key}`, language) || key;
   const [activeTab, setActiveTab] = useState('cycles');
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -191,8 +189,39 @@ export const DDOMSandOPIntegration: React.FC = () => {
   };
 
   const handleReviewAdjustment = (id: number) => {
-    // Fix here: Using string template for the translation key instead of passing object
     toast.success(t(`adjustmentReviewed`).replace('{id}', id.toString()));
+  };
+
+  const handleGenerateDDSOPReport = async () => {
+    setIsGeneratingReport(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      const reportData = await generateDDSOPReport({
+        cycleData: sopCycles[0],
+        metrics: reconciliationMetrics,
+        adjustments: strategicAdjustments,
+        stepData: ddsopSteps
+      });
+      
+      toast.success('DDS&OP Report generated successfully');
+      
+      const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `DDSOP_Report_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+    } catch (error) {
+      console.error('Error generating DDS&OP report:', error);
+      toast.error('Failed to generate DDS&OP report');
+    } finally {
+      setIsGeneratingReport(false);
+    }
   };
 
   return (
@@ -436,9 +465,13 @@ export const DDOMSandOPIntegration: React.FC = () => {
               </div>
               
               <div className="mt-4 flex justify-center">
-                <Button className="flex items-center gap-2">
+                <Button 
+                  className="flex items-center gap-2"
+                  onClick={handleGenerateDDSOPReport}
+                  disabled={isGeneratingReport}
+                >
                   <FileText className="h-4 w-4" />
-                  Generate DDS&OP Report
+                  {isGeneratingReport ? 'Generating Report...' : 'Generate DDS&OP Report'}
                 </Button>
               </div>
             </div>
