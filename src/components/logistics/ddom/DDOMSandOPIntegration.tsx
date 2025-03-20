@@ -9,7 +9,9 @@ import {
   CheckCircle2, 
   AlertCircle,
   FileText,
-  RefreshCw
+  RefreshCw,
+  ShieldCheck,
+  ArrowRight
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/translations';
@@ -26,14 +28,16 @@ const sopCycles = [
     name: 'Monthly S&OP Cycle',
     nextDate: '2024-07-15',
     lastCompleted: '2024-06-15',
-    status: 'on-track'
+    status: 'on-track',
+    complianceScore: 92
   },
   {
     id: 2,
     name: 'Quarterly Strategic Review',
     nextDate: '2024-09-01',
     lastCompleted: '2024-06-01',
-    status: 'upcoming'
+    status: 'upcoming',
+    complianceScore: 88
   }
 ];
 
@@ -59,6 +63,13 @@ const reconciliationMetrics = [
     value: 84,
     target: 85,
     status: 'warning'
+  },
+  {
+    id: 'ddsop-compliance',
+    name: 'DDS&OP Compliance',
+    value: 90,
+    target: 85,
+    status: 'success'
   }
 ];
 
@@ -69,28 +80,64 @@ const strategicAdjustments = [
     description: 'Increase safety stock for high-volatility items',
     impact: 'medium',
     status: 'pending',
-    date: '2024-06-25'
+    date: '2024-06-25',
+    alignedWithDDSOP: true
   },
   {
     id: 2,
     description: 'Adjust replenishment frequency for seasonal products',
     impact: 'high',
     status: 'approved',
-    date: '2024-06-22'
+    date: '2024-06-22',
+    alignedWithDDSOP: true
   },
   {
     id: 3,
     description: 'Review buffer profiles for electronic components',
     impact: 'medium',
     status: 'pending',
-    date: '2024-06-20'
+    date: '2024-06-20',
+    alignedWithDDSOP: true
   },
   {
     id: 4,
     description: 'Adjust lead time factors for overseas suppliers',
     impact: 'high',
     status: 'in-review',
-    date: '2024-06-18'
+    date: '2024-06-18',
+    alignedWithDDSOP: false
+  }
+];
+
+// DDS&OP Specific steps
+const ddsopSteps = [
+  {
+    id: 1,
+    name: 'Demand Review',
+    status: 'completed',
+    date: '2024-06-10',
+    notes: 'Conducted full review of demand drivers and signals'
+  },
+  {
+    id: 2,
+    name: 'Supply Review',
+    status: 'completed',
+    date: '2024-06-12',
+    notes: 'Reviewed buffer status and projections'
+  },
+  {
+    id: 3,
+    name: 'Integrated Reconciliation',
+    status: 'completed',
+    date: '2024-06-14',
+    notes: 'Aligned tactical and strategic objectives'
+  },
+  {
+    id: 4,
+    name: 'Management Business Review',
+    status: 'pending',
+    date: '2024-06-20',
+    notes: 'Final approval pending executive committee'
   }
 ];
 
@@ -115,6 +162,8 @@ export const DDOMSandOPIntegration: React.FC = () => {
         return <Badge className="bg-green-600">{t('approved')}</Badge>;
       case 'in-review':
         return <Badge variant="outline" className="bg-blue-100 text-blue-800">{t('inReview')}</Badge>;
+      case 'completed':
+        return <Badge className="bg-green-600">{t('completed')}</Badge>;
       default:
         return <Badge>{status}</Badge>;
     }
@@ -154,19 +203,26 @@ export const DDOMSandOPIntegration: React.FC = () => {
             <Calendar className="h-5 w-5 mr-2 text-dtwin-medium" />
             {t('sandopIntegration')}
           </CardTitle>
-          <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
-            <CheckCircle2 className="h-3 w-3 mr-1" />
-            {t('active')}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200">
+              <ShieldCheck className="h-3 w-3 mr-1" />
+              DDS&OP Compliant
+            </Badge>
+            <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
+              <CheckCircle2 className="h-3 w-3 mr-1" />
+              {t('active')}
+            </Badge>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="p-0">
         <Tabs defaultValue="cycles" onValueChange={setActiveTab}>
           <div className="px-6 pt-2">
-            <TabsList className="grid grid-cols-3 w-full">
+            <TabsList className="grid grid-cols-4 w-full">
               <TabsTrigger value="cycles">{t('sopCycles')}</TabsTrigger>
               <TabsTrigger value="reconciliation">{t('reconciliation')}</TabsTrigger>
               <TabsTrigger value="adjustments">{t('tacticalAdjustments')}</TabsTrigger>
+              <TabsTrigger value="ddsop">DDS&OP Steps</TabsTrigger>
             </TabsList>
           </div>
 
@@ -188,6 +244,20 @@ export const DDOMSandOPIntegration: React.FC = () => {
                           <span className="mr-3">{t('nextCycle')}: {cycle.nextDate}</span>
                           <Calendar className="h-3 w-3 mr-1 ml-2" />
                           <span>{t('lastCompleted')}: {cycle.lastCompleted}</span>
+                        </div>
+                        <div className="mt-2">
+                          <span className="text-sm font-medium">DDS&OP Compliance: {cycle.complianceScore}%</span>
+                          <Progress 
+                            value={cycle.complianceScore} 
+                            max={100} 
+                            className={`h-2 mt-1 ${
+                              cycle.complianceScore >= 90 
+                                ? 'bg-green-500' 
+                                : cycle.complianceScore >= 80 
+                                  ? 'bg-amber-500' 
+                                  : 'bg-red-500'
+                            }`} 
+                          />
                         </div>
                       </div>
                       <Button size="sm" variant="outline" onClick={handleViewProjections} className="text-xs">
@@ -214,7 +284,7 @@ export const DDOMSandOPIntegration: React.FC = () => {
 
           <TabsContent value="reconciliation" className="m-0 p-0">
             <div className="px-6 pt-4 pb-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                 {reconciliationMetrics.map((metric) => (
                   <div key={metric.id} className="border rounded-md p-3">
                     <div className="flex justify-between items-start mb-2">
@@ -289,6 +359,12 @@ export const DDOMSandOPIntegration: React.FC = () => {
                         <div className="flex items-center mt-1">
                           {getImpactBadge(adjustment.impact)}
                           <span className="ml-2 text-xs text-muted-foreground">{adjustment.date}</span>
+                          {adjustment.alignedWithDDSOP && (
+                            <Badge className="ml-2 bg-blue-100 text-blue-800">
+                              <ShieldCheck className="h-3 w-3 mr-1" />
+                              DDS&OP Aligned
+                            </Badge>
+                          )}
                         </div>
                       </div>
                       <div className="flex flex-col items-end">
@@ -307,6 +383,63 @@ export const DDOMSandOPIntegration: React.FC = () => {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="ddsop" className="m-0 p-0">
+            <div className="px-6 pt-4 pb-4">
+              <div className="border rounded-md p-4 mb-4">
+                <div className="flex items-center mb-3">
+                  <ShieldCheck className="h-5 w-5 text-blue-600 mr-2" />
+                  <h3 className="font-medium">DDS&OP Compliance Status</h3>
+                  <Badge className="ml-2 bg-green-100 text-green-800">Certified</Badge>
+                </div>
+                <p className="text-sm text-muted-foreground mb-2">
+                  Demand Driven S&OP process aligns strategic and tactical supply chain decisions with business objectives through a bi-directional integration process.
+                </p>
+                <Progress value={90} max={100} className="h-2 bg-blue-500 mb-1" />
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>Overall Compliance: 90%</span>
+                  <span>Next Review: July 15, 2024</span>
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <h3 className="text-sm font-medium px-1">DDS&OP Process Steps</h3>
+                {ddsopSteps.map((step, index) => (
+                  <div key={step.id} className="relative">
+                    {index > 0 && (
+                      <div className="absolute left-4 -top-3 h-3 w-0.5 bg-gray-200"></div>
+                    )}
+                    <div className="flex items-start border rounded-md p-3">
+                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-800 mr-3 flex-shrink-0">
+                        {step.id}
+                      </div>
+                      <div className="flex-grow">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium">{step.name}</h4>
+                          {getStatusBadge(step.status)}
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">{step.notes}</p>
+                        <div className="text-xs text-muted-foreground mt-2">
+                          <Calendar className="h-3 w-3 inline mr-1" />
+                          {step.date}
+                        </div>
+                      </div>
+                    </div>
+                    {index < ddsopSteps.length - 1 && (
+                      <div className="absolute left-4 -bottom-3 h-3 w-0.5 bg-gray-200"></div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-4 flex justify-center">
+                <Button className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Generate DDS&OP Report
+                </Button>
               </div>
             </div>
           </TabsContent>
