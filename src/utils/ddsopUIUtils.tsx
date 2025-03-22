@@ -1,11 +1,10 @@
 
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { getTranslation } from '@/translations';
-import { LanguageType } from '@/translations/types';
+import { Language, getTranslation } from '@/translations';
 
 // Shared function to get status badges with consistent styling
-export const getStatusBadge = (status: string, language: LanguageType) => {
+export const getStatusBadge = (status: string, language: Language) => {
   const t = (key: string) => getTranslation(`ddsop.${key}`, language) || key;
   
   switch (status) {
@@ -25,15 +24,13 @@ export const getStatusBadge = (status: string, language: LanguageType) => {
       return <Badge className="bg-amber-600">{t('inAssessment')}</Badge>;
     case 'monitored':
       return <Badge variant="outline" className="bg-blue-100 text-blue-800">{t('monitored')}</Badge>;
-    case 'success':
-      return <Badge className="bg-green-600">{t('successStatus')}</Badge>;
     default:
       return <Badge>{status}</Badge>;
   }
 };
 
 // Shared function to get trend icons with consistent styling
-export const getTrendIcon = (trend: string, language: LanguageType) => {
+export const getTrendIcon = (trend: string, language: Language) => {
   const t = (key: string) => getTranslation(`ddsop.${key}`, language) || key;
   
   switch (trend) {
@@ -48,7 +45,7 @@ export const getTrendIcon = (trend: string, language: LanguageType) => {
 };
 
 // Shared function to get impact badges with consistent styling
-export const getImpactBadge = (impact: string, language: LanguageType) => {
+export const getImpactBadge = (impact: string, language: Language) => {
   const t = (key: string) => getTranslation(`ddsop.${key}`, language) || key;
   
   switch (impact) {

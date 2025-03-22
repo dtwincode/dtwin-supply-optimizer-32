@@ -1,18 +1,6 @@
 
-/**
- * Convert numbers in a string to Arabic numerals
- * This is used for Arabic language display
- */
-export const toArabicNumerals = (str: string | number): string => {
-  if (typeof str === 'number') {
-    str = str.toString();
-  }
-  
-  return str.replace(/[0-9]/g, (d) => {
-    return String.fromCharCode(1632 + parseInt(d, 10));
-  });
+// Helper function to convert numbers to Arabic numerals
+export const toArabicNumerals = (num: number | string): string => {
+  const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+  return num.toString().replace(/[0-9]/g, (d) => arabicNumerals[parseInt(d)]);
 };
-
-/**
- * Other utility functions for translations can be added here
- */

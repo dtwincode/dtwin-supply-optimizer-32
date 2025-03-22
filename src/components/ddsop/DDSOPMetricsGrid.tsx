@@ -1,52 +1,15 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/translations';
 import { ShieldCheck, ArrowUpDown, AlertCircle, Clock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-
-// Define metrics directly in the component for now
-// This can be moved to a data file later
-const cycleMetrics = [
-  {
-    id: 'cycle-adherence',
-    name: 'tacticalCycleAdherence',
-    value: 92,
-    target: '90%',
-    trend: 'improving'
-  },
-  {
-    id: 'response-time',
-    name: 'adaptiveResponseTime',
-    value: 24,
-    unit: 'hours',
-    target: '36',
-    trend: 'improving'
-  },
-  {
-    id: 'signal-detection',
-    name: 'signalDetectionRate',
-    value: 85,
-    target: '80%',
-    trend: 'stable'
-  },
-  {
-    id: 'adjustment-accuracy',
-    name: 'adjustmentAccuracy',
-    value: 78,
-    target: '85%',
-    trend: 'declining'
-  }
-];
+import { cycleMetrics } from '@/data/ddsopMetricsData';
 
 export const DDSOPMetricsGrid = () => {
   const { language } = useLanguage();
   const t = (key: string) => getTranslation(`ddsop.${key}`, language) || key;
-  
-  useEffect(() => {
-    console.log("DDSOPMetricsGrid rendered with language:", language);
-  }, [language]);
   
   // Map icons to metrics for display
   const metricsWithIcons = cycleMetrics.map(metric => {

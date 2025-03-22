@@ -109,12 +109,3 @@ export const modulesSummaryTranslations: ModulesSummary = {
     ar: "عرض التفاصيل"
   }
 };
-
-// Bundle all dashboard translations into one export for easy access
-export const dashboardTranslations = {
-  dashboardTitle,
-  dashboardMetricsTranslations,
-  financialMetricsTranslations,
-  sustainabilityMetricsTranslations,
-  modulesSummaryTranslations
-};
