@@ -40,6 +40,15 @@ export const InventoryContent = ({
 }: InventoryContentProps) => {
   const { language } = useLanguage();
 
+  // Handle previous and next page navigation correctly
+  const handlePreviousPage = () => {
+    setCurrentPage(Math.max(1, currentPage - 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage(Math.min(Math.ceil(filteredData.length / 10), currentPage + 1));
+  };
+
   return (
     <div className="space-y-4">
       <ErrorBoundary fallback={<Card className="p-6 text-center">Error loading summary cards</Card>} onError={handleError}>
@@ -87,14 +96,14 @@ export const InventoryContent = ({
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
-                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      onClick={handlePreviousPage}
                       disabled={currentPage === 1}
                     >
                       {getTranslation("common.previous", language)}
                     </Button>
                     <Button
                       variant="outline"
-                      onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredData.length / 10), p + 1))}
+                      onClick={handleNextPage}
                       disabled={currentPage === Math.ceil(filteredData.length / 10) || filteredData.length === 0}
                     >
                       {getTranslation("common.next", language)}
