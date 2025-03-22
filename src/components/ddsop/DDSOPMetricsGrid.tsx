@@ -71,7 +71,7 @@ export const DDSOPMetricsGrid = () => {
                 value={metric.value} 
                 max={100} 
                 className={`h-2 ${
-                  metric.value >= parseInt(metric.target) 
+                  metric.value >= parseInt(String(metric.target)) 
                     ? 'bg-green-500' 
                     : 'bg-amber-500'
                 }`} 

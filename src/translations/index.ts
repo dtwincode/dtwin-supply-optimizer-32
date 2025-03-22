@@ -29,7 +29,7 @@ export const translations: Translations = {
   modulesSummary: modulesSummaryTranslations,
   common: commonTranslations,
   executiveSummary: executiveSummaryTranslations,
-  sales: salesTranslations,
+  sales: {}, // Added empty object for sales translations as it's required by the type
   supplyPlanning: supplyPlanningTranslations,
   ddsop: ddsopTranslations, // Ensure DDSOP translations are exported
 };
