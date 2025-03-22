@@ -5,13 +5,14 @@ import { DDSOPHeader } from '@/components/ddsop/DDSOPHeader';
 import { DDSOPMetricsGrid } from '@/components/ddsop/DDSOPMetricsGrid';
 import { DDSOPTabs } from '@/components/ddsop/DDSOPTabs';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import PageLoading from '@/components/PageLoading';
 
 const DDSOP = () => {
   return (
     <DashboardLayout>
       <ErrorBoundary>
-        <Suspense fallback={<div className="p-8 text-center">Loading DDSOP module...</div>}>
-          <div className="space-y-6">
+        <Suspense fallback={<PageLoading />}>
+          <div className="space-y-6 p-6">
             <DDSOPHeader />
             <DDSOPMetricsGrid />
             <DDSOPTabs />

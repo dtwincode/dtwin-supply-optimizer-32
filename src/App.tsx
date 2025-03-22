@@ -21,7 +21,6 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from 'sonner';
 import { FilterProvider } from "./contexts/FilterContext";
 import { Suspense } from "react";
 import PageLoading from "./components/PageLoading";
@@ -68,7 +67,6 @@ function App() {
                   <Route path="/tickets" element={<Tickets />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
-                <Toaster position="top-right" />
               </Suspense>
             </TooltipProvider>
           </FilterProvider>
