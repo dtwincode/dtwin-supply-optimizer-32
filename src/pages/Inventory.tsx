@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useState, useEffect } from "react";
@@ -17,7 +18,7 @@ import { SKUClassifications } from "@/components/inventory/SKUClassifications";
 import { SKUClassification } from "@/components/inventory/types";
 import { DecouplingPointDialog } from "@/components/inventory/DecouplingPointDialog";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { InventoryTourGuide, TourButton } from "@/components/inventory/InventoryTourGuide";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -71,11 +72,16 @@ const Inventory = () => {
   const [hasTakenTour, setHasTakenTour] = useLocalStorage('inventory-tour-completed', false);
   
   const getDefaultTabFromPath = () => {
-    const pathSegments = location.pathname.split('/');
-    const lastSegment = pathSegments[pathSegments.length - 1];
-    
-    const validTabs = ['inventory', 'buffer', 'decoupling', 'netflow', 'adu', 'ai'];
-    return validTabs.includes(lastSegment) ? lastSegment : 'inventory';
+    try {
+      const pathSegments = location.pathname.split('/');
+      const lastSegment = pathSegments[pathSegments.length - 1];
+      
+      const validTabs = ['inventory', 'buffer', 'decoupling', 'netflow', 'adu', 'ai'];
+      return validTabs.includes(lastSegment) ? lastSegment : 'inventory';
+    } catch (error) {
+      console.error("Error determining default tab:", error);
+      return 'inventory';
+    }
   };
   
   const defaultTab = getDefaultTabFromPath();

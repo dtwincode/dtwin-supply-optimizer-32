@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Joyride, { CallBackProps, STATUS, Step } from 'react-joyride';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
-import { InfoIcon, XCircle } from 'lucide-react';
+import { InfoIcon } from 'lucide-react';
 import { getTranslation } from '@/translations';
 
 interface InventoryTourGuideProps {
@@ -133,7 +133,7 @@ export const InventoryTourGuide: React.FC<InventoryTourGuideProps> = ({
   );
 };
 
-// Create a button component to trigger the tour
+// Create a button component to trigger the tour that doesn't rely on router
 export const TourButton: React.FC<{ onClick: () => void }> = ({ onClick }) => {
   const { language } = useLanguage();
   
