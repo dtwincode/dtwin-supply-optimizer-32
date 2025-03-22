@@ -72,9 +72,21 @@ export const ddsopTranslations: TranslationDictionary = {
     days: 'days',
     hours: 'hours',
     
-    success: 'On Track',
-    warning: 'Needs Attention',
-    danger: 'Critical',
+    // Custom status names (unique property names)
+    successStatus: 'On Track',
+    warningStatus: 'Needs Attention',
+    dangerStatus: 'Critical',
+    
+    // Adaptive planning
+    adaptivePlanning: 'Adaptive Planning',
+    planningCycles: 'Planning Cycles',
+    cycleMetrics: 'Cycle Metrics',
+    marketSignals: 'Market Signals',
+    frequency: 'Frequency',
+    nextCycle: 'Next Cycle',
+    triggerCycle: 'Trigger Cycle',
+    cycleTriggered: 'Cycle triggered successfully',
+    detected: 'Detected',
   },
   es: {
     // Dashboard metrics
@@ -146,9 +158,21 @@ export const ddsopTranslations: TranslationDictionary = {
     days: 'días',
     hours: 'horas',
     
-    success: 'En Objetivo',
-    warning: 'Requiere Atención',
-    danger: 'Crítico',
+    // Custom status names (unique property names)
+    successStatus: 'En Objetivo',
+    warningStatus: 'Requiere Atención',
+    dangerStatus: 'Crítico',
+    
+    // Adaptive planning
+    adaptivePlanning: 'Planificación Adaptativa',
+    planningCycles: 'Ciclos de Planificación',
+    cycleMetrics: 'Métricas de Ciclo',
+    marketSignals: 'Señales de Mercado',
+    frequency: 'Frecuencia',
+    nextCycle: 'Próximo Ciclo',
+    triggerCycle: 'Activar Ciclo',
+    cycleTriggered: 'Ciclo activado con éxito',
+    detected: 'Detectado',
   },
   ar: {
     // Dashboard metrics
@@ -220,8 +244,20 @@ export const ddsopTranslations: TranslationDictionary = {
     days: 'أيام',
     hours: 'ساعات',
     
-    success: 'على المسار',
-    warning: 'يحتاج اهتمام',
-    danger: 'حرج',
+    // Custom status names (unique property names)
+    successStatus: 'على المسار',
+    warningStatus: 'يحتاج اهتمام',
+    dangerStatus: 'حرج',
+    
+    // Adaptive planning
+    adaptivePlanning: 'التخطيط التكيفي',
+    planningCycles: 'دورات التخطيط',
+    cycleMetrics: 'مقاييس الدورة',
+    marketSignals: 'إشارات السوق',
+    frequency: 'التكرار',
+    nextCycle: 'الدورة القادمة',
+    triggerCycle: 'تفعيل الدورة',
+    cycleTriggered: 'تم تفعيل الدورة بنجاح',
+    detected: 'تم اكتشافه',
   }
 };

@@ -1,12 +1,18 @@
 
 /**
- * Converts western numerals (0-9) to Arabic numerals (٠-٩)
+ * Convert numbers in a string to Arabic numerals
+ * This is used for Arabic language display
  */
-export const toArabicNumerals = (number: number | string): string => {
-  const western = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-  const arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+export const toArabicNumerals = (str: string | number): string => {
+  if (typeof str === 'number') {
+    str = str.toString();
+  }
   
-  return number.toString().replace(/[0-9]/g, match => {
-    return arabic[western.indexOf(match)];
+  return str.replace(/[0-9]/g, (d) => {
+    return String.fromCharCode(1632 + parseInt(d, 10));
   });
 };
+
+/**
+ * Other utility functions for translations can be added here
+ */

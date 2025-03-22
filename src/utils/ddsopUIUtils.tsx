@@ -2,7 +2,7 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { getTranslation } from '@/translations';
-import { LanguageType } from '@/translations';
+import { LanguageType } from '@/translations/types';
 
 // Shared function to get status badges with consistent styling
 export const getStatusBadge = (status: string, language: LanguageType) => {
@@ -25,6 +25,8 @@ export const getStatusBadge = (status: string, language: LanguageType) => {
       return <Badge className="bg-amber-600">{t('inAssessment')}</Badge>;
     case 'monitored':
       return <Badge variant="outline" className="bg-blue-100 text-blue-800">{t('monitored')}</Badge>;
+    case 'success':
+      return <Badge className="bg-green-600">{t('successStatus')}</Badge>;
     default:
       return <Badge>{status}</Badge>;
   }
