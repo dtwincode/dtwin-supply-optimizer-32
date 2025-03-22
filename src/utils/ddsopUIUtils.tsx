@@ -1,10 +1,11 @@
 
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Language, getTranslation } from '@/translations';
+import { getTranslation } from '@/translations';
+import { LanguageType } from '@/translations';
 
 // Shared function to get status badges with consistent styling
-export const getStatusBadge = (status: string, language: Language) => {
+export const getStatusBadge = (status: string, language: LanguageType) => {
   const t = (key: string) => getTranslation(`ddsop.${key}`, language) || key;
   
   switch (status) {
@@ -30,7 +31,7 @@ export const getStatusBadge = (status: string, language: Language) => {
 };
 
 // Shared function to get trend icons with consistent styling
-export const getTrendIcon = (trend: string, language: Language) => {
+export const getTrendIcon = (trend: string, language: LanguageType) => {
   const t = (key: string) => getTranslation(`ddsop.${key}`, language) || key;
   
   switch (trend) {
@@ -45,7 +46,7 @@ export const getTrendIcon = (trend: string, language: Language) => {
 };
 
 // Shared function to get impact badges with consistent styling
-export const getImpactBadge = (impact: string, language: Language) => {
+export const getImpactBadge = (impact: string, language: LanguageType) => {
   const t = (key: string) => getTranslation(`ddsop.${key}`, language) || key;
   
   switch (impact) {

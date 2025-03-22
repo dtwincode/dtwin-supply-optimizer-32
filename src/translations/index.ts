@@ -2,9 +2,10 @@
 import { LanguageType, TranslationKey } from './types';
 import { commonTranslations } from './common';
 import { navigationTranslations } from './navigation';
-import { dashboardTranslations } from './dashboard';
+import { dashboardMetricsTranslations, financialMetricsTranslations, sustainabilityMetricsTranslations, modulesSummaryTranslations } from './dashboard';
 import { salesTranslations } from './sales';
 import { ddsopTranslations } from './ddsop';
+import { toArabicNumerals } from './utils';
 
 // Helper function to find a translation by key, traversing the key path
 export const getTranslation = (keyPath: string, language: LanguageType): string | undefined => {
@@ -13,7 +14,12 @@ export const getTranslation = (keyPath: string, language: LanguageType): string 
     let current: any = {
       ...commonTranslations[language],
       ...navigationTranslations[language],
-      ...dashboardTranslations[language],
+      dashboard: {
+        ...dashboardMetricsTranslations,
+        ...financialMetricsTranslations,
+        ...sustainabilityMetricsTranslations,
+        ...modulesSummaryTranslations
+      },
       ...salesTranslations[language],
       ...ddsopTranslations[language],
       // Add more translation sets here as needed
@@ -39,4 +45,5 @@ export const getTranslation = (keyPath: string, language: LanguageType): string 
   }
 };
 
+export { toArabicNumerals };
 export * from './types';

@@ -1,7 +1,13 @@
-
 export type TranslationValue = {
   en: string;
   ar: string;
+};
+
+export type LanguageType = 'en' | 'ar' | 'es';
+export type Language = LanguageType; // Alias for backward compatibility
+export type TranslationKey = string;
+export type TranslationDictionary = {
+  [key in LanguageType]?: { [key: string]: string | any };
 };
 
 export type NavigationItems = {
