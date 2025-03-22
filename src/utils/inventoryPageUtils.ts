@@ -1,5 +1,6 @@
 
 import { InventoryItem } from "@/types/inventory";
+import { IndustryType } from "@/contexts/IndustryContext";
 
 export const safeFilter = (item: InventoryItem, query: string): boolean => {
   try {
@@ -31,7 +32,7 @@ export const getDefaultTabFromPath = (pathname: string): string => {
   }
 };
 
-export const getIndustrySpecificFilters = (industryType: string) => {
+export const getIndustrySpecificFilters = (industryType: IndustryType) => {
   const commonFilters = ['sku', 'name', 'productFamily', 'location'];
   
   const industrySpecificFilters = {
@@ -42,10 +43,10 @@ export const getIndustrySpecificFilters = (industryType: string) => {
     fmcg: [...commonFilters, 'shelfLife', 'batchNumber']
   };
   
-  return industrySpecificFilters[industryType as keyof typeof industrySpecificFilters] || commonFilters;
+  return industrySpecificFilters[industryType] || commonFilters;
 };
 
-export const getIndustrySpecificColumns = (industryType: string) => {
+export const getIndustrySpecificColumns = (industryType: IndustryType) => {
   const commonColumns = [
     { key: 'sku', label: 'SKU' },
     { key: 'name', label: 'Product Name' },
@@ -80,5 +81,5 @@ export const getIndustrySpecificColumns = (industryType: string) => {
     ]
   };
   
-  return industrySpecificColumns[industryType as keyof typeof industrySpecificColumns] || commonColumns;
+  return industrySpecificColumns[industryType] || commonColumns;
 };
