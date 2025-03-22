@@ -1,7 +1,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Info } from "lucide-react";
 
 interface ClassificationBadgeProps {
@@ -33,33 +33,27 @@ const getClassificationTooltip = (type: string, level: string) => {
 
 const getBadgeColor = (level: string) => {
   switch (level) {
-    case 'high':
-      return 'bg-red-100 text-red-800 border border-red-200';
-    case 'medium':
-      return 'bg-yellow-100 text-yellow-800 border border-yellow-200';
-    case 'low':
-      return 'bg-green-100 text-green-800 border border-green-200';
-    default:
-      return 'bg-gray-100 text-gray-800 border border-gray-200';
+    case 'high': return 'bg-red-100 text-red-800 border border-red-200';
+    case 'medium': return 'bg-yellow-100 text-yellow-800 border border-yellow-200';
+    case 'low': return 'bg-green-100 text-green-800 border border-green-200';
+    default: return 'bg-gray-100 text-gray-800 border border-gray-200';
   }
 };
 
 export function ClassificationBadge({ level, type, label }: ClassificationBadgeProps) {
   return (
-    <TooltipProvider>
-      <div className="flex items-center gap-2">
-        <Badge className={getBadgeColor(level)}>
-          {label}
-        </Badge>
-        <Tooltip>
-          <TooltipTrigger>
-            <Info className="h-4 w-4 text-gray-400" />
-          </TooltipTrigger>
-          <TooltipContent>
-            {getClassificationTooltip(type, level)}
-          </TooltipContent>
-        </Tooltip>
-      </div>
-    </TooltipProvider>
+    <div className="flex items-center gap-1">
+      <Badge className={cn(getBadgeColor(level), "px-1.5 py-0 text-xs")}>
+        {label}
+      </Badge>
+      <Tooltip>
+        <TooltipTrigger>
+          <Info className="h-3 w-3 text-gray-400" />
+        </TooltipTrigger>
+        <TooltipContent>
+          {getClassificationTooltip(type, level)}
+        </TooltipContent>
+      </Tooltip>
+    </div>
   );
 }

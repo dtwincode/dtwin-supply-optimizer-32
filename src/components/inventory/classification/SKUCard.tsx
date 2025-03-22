@@ -47,28 +47,23 @@ export function SKUCard({ sku, classification, lastUpdated, index }: SKUCardProp
 
   return (
     <motion.div variants={item} initial="hidden" animate="show">
-      <Card className={cn("overflow-hidden transition-all hover:shadow-lg", cardBackgrounds[index % cardBackgrounds.length])}>
+      <Card className={cn("overflow-hidden transition-all hover:shadow-md", cardBackgrounds[index % cardBackgrounds.length])}>
         {/* Header with Score */}
-        <div className="flex justify-between items-center p-4 border-b">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-full bg-white shadow-sm">
-              <Tag className="w-4 h-4 text-gray-600" />
-            </div>
-            <span className="font-medium">{sku}</span>
+        <div className="flex justify-between items-center p-2 border-b">
+          <div className="flex items-center gap-1">
+            <Tag className="w-3 h-3 text-gray-600" />
+            <span className="text-xs font-medium">{sku}</span>
           </div>
-          <div className="flex flex-col items-end">
-            <span className="text-xs text-gray-500">Score</span>
-            <div className="flex items-center gap-1">
-              <Award className="w-4 h-4 text-amber-500" />
-              <span className={cn("text-lg font-bold", getScoreColor(classification.score || 0))}>
-                {classification.score || 'N/A'}
-              </span>
-            </div>
+          <div className="flex items-center gap-1">
+            <Award className="w-3 h-3 text-amber-500" />
+            <span className={cn("text-sm font-bold", getScoreColor(classification.score || 0))}>
+              {classification.score || 'N/A'}
+            </span>
           </div>
         </div>
         
         {/* Classification Details */}
-        <div className="p-4 space-y-3">
+        <div className="p-2 space-y-1.5">
           <ClassificationItem 
             title="Lead Time"
             level={mapLeadTimeCategoryToLevel(classification.leadTimeCategory)}
@@ -89,8 +84,8 @@ export function SKUCard({ sku, classification, lastUpdated, index }: SKUCardProp
         </div>
         
         {/* Footer */}
-        <div className="px-4 py-2 bg-white/50 text-xs text-gray-500 text-right">
-          Updated: {new Date(lastUpdated).toLocaleDateString()}
+        <div className="px-2 py-1 bg-white/50 text-[10px] text-gray-500 text-right">
+          {new Date(lastUpdated).toLocaleDateString()}
         </div>
       </Card>
     </motion.div>
