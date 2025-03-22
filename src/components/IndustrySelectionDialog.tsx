@@ -10,24 +10,45 @@ import { getTranslation } from "@/translations";
 import { industries } from "@/components/guidelines/data/industryData";
 import { IndustryType } from "@/contexts/IndustryContext";
 
-export function IndustrySelectionDialog() {
+interface IndustrySelectionDialogProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export function IndustrySelectionDialog({ 
+  open: controlledOpen, 
+  onOpenChange 
+}: IndustrySelectionDialogProps) {
   const { selectedIndustry, setSelectedIndustry, isIndustrySelected } = useIndustry();
-  const [open, setOpen] = useState(!isIndustrySelected);
+  const [open, setOpen] = useState(controlledOpen !== undefined ? controlledOpen : !isIndustrySelected);
   const [selectedValue, setSelectedValue] = useState<IndustryType>(selectedIndustry);
   const { language } = useLanguage();
 
   useEffect(() => {
-    // If industry hasn't been selected yet, show the dialog
-    setOpen(!isIndustrySelected);
-  }, [isIndustrySelected]);
+    // If controlled externally
+    if (controlledOpen !== undefined) {
+      setOpen(controlledOpen);
+    }
+    // If not controlled and industry hasn't been selected yet
+    else if (controlledOpen === undefined) {
+      setOpen(!isIndustrySelected);
+    }
+  }, [controlledOpen, isIndustrySelected]);
+
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (onOpenChange) {
+      onOpenChange(newOpen);
+    }
+  };
 
   const handleSubmit = () => {
     setSelectedIndustry(selectedValue);
-    setOpen(false);
+    handleOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
