@@ -2,65 +2,52 @@
 import React from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/translations';
-import { TrendingUp, ShieldCheck, ArrowUpDown, AlertCircle, Clock } from 'lucide-react';
+import { ShieldCheck, ArrowUpDown, AlertCircle, Clock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { cycleMetrics } from '@/data/ddsopMetricsData';
 
 export const DDSOPMetricsGrid = () => {
   const { language } = useLanguage();
   const t = (key: string) => getTranslation(`ddsop.${key}`, language) || key;
   
-  const metrics = [
-    {
-      id: 'cycle-adherence',
-      name: t('tacticalCycleAdherence'),
-      value: 92,
-      target: 95,
-      trend: 'improving',
-      icon: ShieldCheck
-    },
-    {
-      id: 'market-response',
-      name: t('marketResponseTime'),
-      value: 3.5,
-      unit: t('days'),
-      target: '> 5',
-      trend: 'stable',
-      icon: Clock
-    },
-    {
-      id: 'signal-detection',
-      name: t('signalDetectionRate'),
-      value: 87,
-      target: 90,
-      trend: 'stable',
-      icon: ArrowUpDown
-    },
-    {
-      id: 'adjustment-accuracy',
-      name: t('adjustmentAccuracy'),
-      value: 83,
-      target: 85,
-      trend: 'improving',
-      icon: AlertCircle
+  // Map icons to metrics for display
+  const metricsWithIcons = cycleMetrics.map(metric => {
+    let icon;
+    switch(metric.id) {
+      case 'cycle-adherence':
+        icon = ShieldCheck;
+        break;
+      case 'response-time':
+        icon = Clock;
+        break;
+      case 'signal-detection':
+        icon = ArrowUpDown;
+        break;
+      case 'adjustment-accuracy':
+        icon = AlertCircle;
+        break;
+      default:
+        icon = AlertCircle;
     }
-  ];
+    return { ...metric, icon };
+  });
 
   // Ensure we can display metrics properly for different value types
   const renderMetricValue = (metric) => {
     if (metric.unit) {
-      return `${metric.value} ${metric.unit}`;
+      return `${metric.value} ${t(metric.unit)}`;
     }
     return `${metric.value}%`;
   };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      {metrics.map((metric) => (
+      {metricsWithIcons.map((metric) => (
         <Card key={metric.id} className="overflow-hidden">
           <CardContent className="p-4">
             <div className="flex justify-between items-start mb-2">
-              <h3 className="text-base font-medium">{metric.name}</h3>
+              <h3 className="text-base font-medium">{t(metric.name)}</h3>
               <span className="text-xl font-bold">
                 {renderMetricValue(metric)}
               </span>

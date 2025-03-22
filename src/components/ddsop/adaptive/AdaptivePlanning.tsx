@@ -9,160 +9,13 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-
-// Sample data for cycle metrics
-const cycleMetrics = [
-  {
-    id: 'cycle-adherence',
-    name: 'tacticalCycleAdherence',
-    value: 92,
-    target: 95,
-    status: 'on-track',
-    trend: 'improving'
-  },
-  {
-    id: 'response-time',
-    name: 'marketResponseTime',
-    value: 3.5,
-    unit: 'days',
-    target: '< 5',
-    status: 'on-track',
-    trend: 'stable'
-  },
-  {
-    id: 'signal-detection',
-    name: 'signalDetectionRate',
-    value: 87,
-    target: 90,
-    status: 'warning',
-    trend: 'stable'
-  },
-  {
-    id: 'adjustment-accuracy',
-    name: 'adjustmentAccuracy',
-    value: 83,
-    target: 85,
-    status: 'warning',
-    trend: 'improving'
-  }
-];
-
-// Sample planning cycles
-const planningCycles = [
-  {
-    id: 1,
-    name: 'Weekly Operational Review',
-    frequency: 'Weekly',
-    nextDate: '2023-08-10',
-    status: 'on-track',
-    type: 'operational'
-  },
-  {
-    id: 2,
-    name: 'Monthly Tactical Review',
-    frequency: 'Monthly',
-    nextDate: '2023-08-25',
-    status: 'on-track',
-    type: 'tactical'
-  },
-  {
-    id: 3,
-    name: 'Quarterly Strategic Adjustment',
-    frequency: 'Quarterly',
-    nextDate: '2023-09-15',
-    status: 'upcoming',
-    type: 'strategic'
-  },
-  {
-    id: 4,
-    name: 'Market Disruption Response',
-    frequency: 'As Needed',
-    nextDate: 'On Demand',
-    status: 'standby',
-    type: 'adaptive'
-  }
-];
-
-// Sample market signals
-const marketSignals = [
-  {
-    id: 1,
-    name: 'Supplier Lead Time Increase',
-    impact: 'high',
-    detectedDate: '2023-08-01',
-    status: 'pending-action',
-    category: 'supply'
-  },
-  {
-    id: 2,
-    name: 'Regional Demand Spike',
-    impact: 'medium',
-    detectedDate: '2023-07-28',
-    status: 'in-assessment',
-    category: 'demand'
-  },
-  {
-    id: 3,
-    name: 'Competitor Pricing Change',
-    impact: 'low',
-    detectedDate: '2023-07-25',
-    status: 'monitored',
-    category: 'market'
-  }
-];
+import { getStatusBadge, getTrendIcon, getImpactBadge } from '@/utils/ddsopUIUtils';
+import { cycleMetrics, planningCycles, marketSignals } from '@/data/ddsopMetricsData';
 
 export const AdaptivePlanning: React.FC = () => {
   const { language } = useLanguage();
   const t = (key: string) => getTranslation(`ddsop.${key}`, language) || key;
   const [activeTab, setActiveTab] = useState('cycles');
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'on-track':
-        return <Badge className="bg-green-600">{t('onTrack')}</Badge>;
-      case 'warning':
-        return <Badge className="bg-amber-600">{t('warning')}</Badge>;
-      case 'alert':
-        return <Badge className="bg-red-600">{t('alert')}</Badge>;
-      case 'upcoming':
-        return <Badge variant="outline" className="bg-blue-100 text-blue-800">{t('upcoming')}</Badge>;
-      case 'standby':
-        return <Badge variant="outline" className="bg-gray-100 text-gray-800">{t('standby')}</Badge>;
-      case 'pending-action':
-        return <Badge className="bg-red-600">{t('pendingAction')}</Badge>;
-      case 'in-assessment':
-        return <Badge className="bg-amber-600">{t('inAssessment')}</Badge>;
-      case 'monitored':
-        return <Badge variant="outline" className="bg-blue-100 text-blue-800">{t('monitored')}</Badge>;
-      default:
-        return <Badge>{status}</Badge>;
-    }
-  };
-
-  const getTrendIcon = (trend: string) => {
-    switch (trend) {
-      case 'improving':
-        return <span className="text-green-600 text-xs flex items-center">↑ {t('improving')}</span>;
-      case 'declining':
-        return <span className="text-red-600 text-xs flex items-center">↓ {t('declining')}</span>;
-      case 'stable':
-      default:
-        return <span className="text-blue-600 text-xs flex items-center">→ {t('stable')}</span>;
-    }
-  };
-
-  const getImpactBadge = (impact: string) => {
-    switch (impact) {
-      case 'high':
-        return <Badge className="bg-red-600">{t('highImpact')}</Badge>;
-      case 'medium':
-        return <Badge className="bg-amber-600">{t('mediumImpact')}</Badge>;
-      case 'low':
-        return <Badge variant="outline" className="bg-green-100 text-green-800">{t('lowImpact')}</Badge>;
-      default:
-        return <Badge>{impact}</Badge>;
-    }
-  };
 
   const handleTriggerCycle = () => {
     toast.success(t('cycleTriggered'));
@@ -195,7 +48,7 @@ export const AdaptivePlanning: React.FC = () => {
                       <div className="space-y-1">
                         <div className="flex items-center">
                           <p className="font-medium">{cycle.name}</p>
-                          {getStatusBadge(cycle.status)}
+                          {getStatusBadge(cycle.status, language)}
                         </div>
                         <div className="flex items-center text-sm text-muted-foreground">
                           <Calendar className="h-3 w-3 mr-1" />
@@ -244,7 +97,7 @@ export const AdaptivePlanning: React.FC = () => {
                       <span>{t('target')}: {metric.target}</span>
                       <div className="flex items-center">
                         <span className="mr-2">{t('trend')}:</span>
-                        {getTrendIcon(metric.trend)}
+                        {getTrendIcon(metric.trend, language)}
                       </div>
                     </div>
                   </div>
@@ -271,7 +124,7 @@ export const AdaptivePlanning: React.FC = () => {
                           <p className="font-medium">{signal.name}</p>
                         </div>
                         <div className="flex items-center mt-1">
-                          {getImpactBadge(signal.impact)}
+                          {getImpactBadge(signal.impact, language)}
                           <Badge className="ml-2" variant="outline">{signal.category}</Badge>
                         </div>
                       </div>
@@ -279,7 +132,7 @@ export const AdaptivePlanning: React.FC = () => {
                         <span className="text-xs text-muted-foreground">
                           {t('detected')}: {signal.detectedDate}
                         </span>
-                        {getStatusBadge(signal.status)}
+                        {getStatusBadge(signal.status, language)}
                       </div>
                     </div>
                   </div>
