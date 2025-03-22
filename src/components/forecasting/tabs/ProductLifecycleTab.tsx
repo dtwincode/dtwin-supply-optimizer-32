@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -34,13 +33,21 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { 
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
   FileQuestion, 
   Rocket, 
   ArrowUp, 
   BarChart2, 
   TrendingDown, 
-  HelpCircle 
+  PlusCircle,
+  Calendar,
+  Package,
+  Tag,
+  Percent,
+  ChevronRight
 } from "lucide-react";
 
 // Sample data for demonstration
@@ -131,11 +138,33 @@ const salesTrendData = [
   { month: "Jun", new: 280, growth: 380, mature: 495, decline: 45 },
 ];
 
+// New Product form initial state
+const initialNewProductState = {
+  sku: "",
+  name: "",
+  stage: "new",
+  launchDate: "",
+  category: "",
+  salesTarget: "",
+  confidence: 70,
+  description: "",
+  forecastMethod: "analogous",
+  similarProducts: [] as string[],
+  isPromotional: false,
+  seasonality: "none",
+  targetMarkets: [] as string[],
+  plannedEndOfLife: ""
+};
+
 const ProductLifecycleTab = () => {
   const [selectedStage, setSelectedStage] = useState<string>("all");
   const [selectedMethod, setSelectedMethod] = useState<string>("all");
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState("overview");
+  
+  // New Product Dialog State
+  const [isNewProductDialogOpen, setIsNewProductDialogOpen] = useState(false);
+  const [newProduct, setNewProduct] = useState(initialNewProductState);
 
   // Filter products based on selected stage
   const filteredProducts = sampleProducts.filter(product => 
@@ -160,6 +189,27 @@ const ProductLifecycleTab = () => {
     { month: "Nov", forecast: 540, actual: null },
     { month: "Dec", forecast: 570, actual: null },
   ];
+
+  // Handler for new product input changes
+  const handleNewProductChange = (field: string, value: any) => {
+    setNewProduct(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Handler for adding a new product
+  const handleAddNewProduct = () => {
+    // In a real application, this would call an API to save the product
+    console.log("New product to be added:", newProduct);
+    
+    // Reset form and close dialog
+    setNewProduct(initialNewProductState);
+    setIsNewProductDialogOpen(false);
+    
+    // Show success message (in a real app would use toast notification)
+    alert("New product added successfully!");
+  };
 
   return (
     <div className="space-y-6">
@@ -191,8 +241,19 @@ const ProductLifecycleTab = () => {
             </SelectContent>
           </Select>
           
-          <Button variant="outline" onClick={() => setCurrentView(currentView === "overview" ? "overview" : "overview")}>
+          <Button 
+            variant="outline" 
+            onClick={() => setCurrentView(currentView === "overview" ? "overview" : "overview")}
+          >
             {currentView === "detail" ? "Back to Overview" : "Refresh"}
+          </Button>
+          
+          <Button 
+            onClick={() => setIsNewProductDialogOpen(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            <PlusCircle className="mr-2 h-4 w-4" />
+            New Product
           </Button>
         </div>
       </div>
@@ -755,66 +816,4 @@ const ProductLifecycleTab = () => {
                             <div>
                               <h4 className="font-medium">Consider transition to Growth stage</h4>
                               <p className="text-sm text-muted-foreground">
-                                Based on current sales velocity and market penetration, this product is showing strong
-                                indicators for transition to Growth stage within the next 30-45 days.
-                              </p>
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-start space-x-2 p-3 bg-green-50 rounded-md">
-                            <FileQuestion className="h-5 w-5 text-green-500 mt-0.5" />
-                            <div>
-                              <h4 className="font-medium">Optimize inventory strategy</h4>
-                              <p className="text-sm text-muted-foreground">
-                                Consider increasing safety stock by 15% to support accelerating demand pattern
-                                and avoid stockouts during promotional periods.
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <h3 className="font-medium mb-4">Similar Products Performance</h3>
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Product</TableHead>
-                              <TableHead>Stage</TableHead>
-                              <TableHead>Growth Rate</TableHead>
-                              <TableHead>Time in Stage</TableHead>
-                              <TableHead>Forecast Accuracy</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {selectedProductData.similarProducts.map((sku, idx) => (
-                              <TableRow key={sku}>
-                                <TableCell>{sku}</TableCell>
-                                <TableCell>
-                                  <Badge 
-                                    className={idx === 0 ? "bg-green-500" : "bg-blue-500"}
-                                  >
-                                    {idx === 0 ? "Growth" : "New"}
-                                  </Badge>
-                                </TableCell>
-                                <TableCell>{idx === 0 ? "+22.4%" : "+16.8%"}</TableCell>
-                                <TableCell>{idx === 0 ? "120 days" : "75 days"}</TableCell>
-                                <TableCell>{idx === 0 ? "88.5%" : "84.3%"}</TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </div>
-        )
-      )}
-    </div>
-  );
-};
-
-export default ProductLifecycleTab;
+                                Based
