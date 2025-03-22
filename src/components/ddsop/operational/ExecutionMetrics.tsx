@@ -50,7 +50,7 @@ export const ExecutionMetrics: React.FC = () => {
 
   // Sort items by priority (alert first, then warning, then on-track)
   const sortedItems = [...executionWithRecommendations].sort((a, b) => {
-    const priorityOrder = { 'alert': 0, 'warning': 1, 'on-track': 2 };
+    const priorityOrder: Record<string, number> = { 'alert': 0, 'warning': 1, 'on-track': 2 };
     return priorityOrder[a.status] - priorityOrder[b.status];
   });
 

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { DDSOPHeader } from '@/components/ddsop/DDSOPHeader';
 import { DDSOPMetricsGrid } from '@/components/ddsop/DDSOPMetricsGrid';
@@ -10,11 +10,13 @@ const DDSOP = () => {
   return (
     <DashboardLayout>
       <ErrorBoundary>
-        <div className="space-y-6">
-          <DDSOPHeader />
-          <DDSOPMetricsGrid />
-          <DDSOPTabs />
-        </div>
+        <Suspense fallback={<div className="p-8 text-center">Loading DDSOP module...</div>}>
+          <div className="space-y-6">
+            <DDSOPHeader />
+            <DDSOPMetricsGrid />
+            <DDSOPTabs />
+          </div>
+        </Suspense>
       </ErrorBoundary>
     </DashboardLayout>
   );
