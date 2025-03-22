@@ -17,7 +17,7 @@ export const LogisticsHeader = () => {
         </div>
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">
-            {getTranslation('navigationItems.logistics', language)}
+            {t('title')}
           </h1>
           <p className="text-muted-foreground">
             {t('optimizeSupplyChain')}

@@ -22,7 +22,6 @@ export const logisticsTranslations = {
   ...pipelineTranslations,
   ...analyticsTranslations,
   ...sustainabilityTranslations,
-  ...ddomTranslations,
   
   // Import status translations properly - ensuring the nested structures are preserved
   status: statusTranslations.status,  // Use the nested status object that matches the interface
@@ -35,23 +34,14 @@ export const logisticsTranslations = {
   delayedEta: statusTranslations.delayedEta,
   pending: statusTranslations.pending,
   
-  // Making sure essential translations are available for the top-level tabs
-  dashboard: {
-    en: "Dashboard",
-    ar: "لوحة المعلومات"
-  },
-  tracking: {
-    en: "Tracking",
-    ar: "التتبع"
-  },
-  analytics: {
-    en: "Analytics",
-    ar: "التحليلات"
-  },
-  sustainability: {
-    en: "Sustainability",
-    ar: "الاستدامة"
-  },
+  // Making sure essential translations are available for the top-level
+  dashboard: generalLogisticsTranslations.dashboard,
+  tracking: generalLogisticsTranslations.tracking,
+  analytics: generalLogisticsTranslations.analytics,
+  sustainability: generalLogisticsTranslations.sustainability,
+  
+  // Add DDOM translations
+  ddom: ddomTranslations,
   
   ddsopCompliance: {
     en: "DDS&OP Compliant",

@@ -16,6 +16,10 @@ export const generalLogisticsTranslations = {
     en: "Sustainability",
     ar: "الاستدامة"
   },
+  title: {
+    en: "Logistics",
+    ar: "الخدمات اللوجستية"
+  },
   optimizeSupplyChain: {
     en: "Optimize supply chain network and logistics operations",
     ar: "تحسين شبكة سلسلة التوريد وعمليات الخدمات اللوجستية"
@@ -79,5 +83,9 @@ export const generalLogisticsTranslations = {
   uploadedDocuments: {
     en: "Uploaded Documents",
     ar: "المستندات المحملة"
+  },
+  recentShipments: {
+    en: "Recent Shipments",
+    ar: "الشحنات الأخيرة"
   }
 };

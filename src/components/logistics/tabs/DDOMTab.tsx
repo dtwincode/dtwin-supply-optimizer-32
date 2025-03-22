@@ -30,7 +30,7 @@ export const DDOMTab = () => {
         <div className="flex items-center gap-2">
           <Badge className="flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 h-8">
             <ShieldCheck className="h-4 w-4" />
-            <span className="font-medium">{getTranslation('common.logistics.ddsopCompliance', language)}</span>
+            <span className="font-medium">{commonT('ddsopCompliance')}</span>
           </Badge>
           <Button variant="outline" size="sm" asChild>
             <Link to="/ddsop" className="flex items-center gap-2">

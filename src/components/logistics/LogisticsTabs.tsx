@@ -34,7 +34,7 @@ export const LogisticsTabs = () => {
           value="ddom" 
           className="rounded-t-lg rounded-b-none data-[state=active]:bg-background data-[state=active]:border-b-transparent data-[state=active]:border data-[state=active]:border-b-0 data-[state=active]:shadow h-10"
         >
-          {t('ddom.title.en')}
+          {t('ddom.title')}
         </TabsTrigger>
         <TabsTrigger 
           value="sustainability" 
