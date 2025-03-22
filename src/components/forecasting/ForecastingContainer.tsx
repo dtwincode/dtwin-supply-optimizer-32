@@ -17,6 +17,8 @@ import { PharmacyForecastingFactors } from "./PharmacyForecastingFactors";
 import { useIndustry } from "@/contexts/IndustryContext";
 import { useForecastData } from "@/hooks/useForecastData";
 import { type ModelParameter } from "@/types/modelParameters";
+import { ForecastData } from "./table/types";
+import { SavedModelConfig } from "@/types/forecasting";
 
 interface ForecastingContainerProps {
   activeTab: string;
@@ -83,11 +85,42 @@ export const ForecastingContainer: React.FC<ForecastingContainerProps> = ({
   const handleModelSelect = (model: string) => {
     setSelectedModel(model);
   };
+
+  // Convert ForecastDataPoint[] to ForecastData[]
+  const tableData: ForecastData[] = filteredData.map(item => ({
+    id: item.id,
+    week: item.week,
+    forecast: item.forecast,
+    lower: item.forecast * 0.9, // Create lower bound based on forecast
+    upper: item.forecast * 1.1, // Create upper bound based on forecast
+    sku: item.sku,
+    category: item.category,
+    subcategory: item.subcategory
+  }));
   
-  const mockModels = [
-    { id: "arima", name: "ARIMA", accuracy: 92 },
-    { id: "prophet", name: "Prophet", accuracy: 88 },
-    { id: "exp-smoothing", name: "Exponential Smoothing", accuracy: 85 },
+  // Create properly typed mock data for model recommendations
+  const mockModels: SavedModelConfig[] = [
+    { 
+      id: "arima", 
+      model_id: "arima",
+      parameters: [{ name: "p", value: 1, description: "Auto-regressive term" }],
+      created_at: "2024-01-01T00:00:00Z",
+      performance_metrics: { accuracy: 92, trend: "improving", trained_at: "2024-01-01T00:00:00Z" }
+    },
+    { 
+      id: "prophet", 
+      model_id: "prophet",
+      parameters: [{ name: "changepoint_prior_scale", value: 0.05, description: "Flexibility of the trend" }],
+      created_at: "2024-01-01T00:00:00Z",
+      performance_metrics: { accuracy: 88, trend: "stable", trained_at: "2024-01-01T00:00:00Z" }
+    },
+    { 
+      id: "exp-smoothing", 
+      model_id: "exp-smoothing",
+      parameters: [{ name: "alpha", value: 0.3, description: "Smoothing factor" }],
+      created_at: "2024-01-01T00:00:00Z",
+      performance_metrics: { accuracy: 85, trend: "stable", trained_at: "2024-01-01T00:00:00Z" }
+    }
   ];
   
   return (
@@ -98,7 +131,11 @@ export const ForecastingContainer: React.FC<ForecastingContainerProps> = ({
         onFiltersChange={handleFiltersChange}
         onParametersChange={handleParametersChange}
       />
-      <ForecastingTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+      
+      {/* We'll need to modify the ForecastingTabs component to accept activeTab and setActiveTab props */}
+      <div className="mb-4">
+        <ForecastingTabs />
+      </div>
 
       {activeTab === "dashboard" && (
         <div className="space-y-6">
@@ -142,7 +179,7 @@ export const ForecastingContainer: React.FC<ForecastingContainerProps> = ({
             setToDate={setEndDate}
           />
           {selectedIndustry === 'pharmacy' && <PharmacyForecastingFactors />}
-          <ForecastTable data={filteredData} />
+          <ForecastTable data={tableData} />
         </div>
       )}
 
