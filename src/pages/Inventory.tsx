@@ -59,6 +59,7 @@ const Inventory = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const location = useLocation();
+  const [selectedIndustry, setSelectedIndustry] = useLocalStorage('selected-industry', 'retail');
   
   const [isTourRunning, setIsTourRunning] = useState(false);
   const [hasTakenTour, setHasTakenTour] = useLocalStorage('inventory-tour-completed', false);
@@ -81,6 +82,11 @@ const Inventory = () => {
     
     return () => clearTimeout(timer);
   }, [hasTakenTour]);
+
+  useEffect(() => {
+    // Reset page when industry changes
+    setCurrentPage(1);
+  }, [selectedIndustry]);
 
   useEffect(() => {
     const originalConsoleError = console.error;
@@ -134,6 +140,16 @@ const Inventory = () => {
     });
   };
 
+  const handleIndustryChange = (industry: string) => {
+    setSelectedIndustry(industry);
+    toast({
+      title: language === 'ar' ? "تم تغيير القطاع" : "Industry Changed",
+      description: language === 'ar' 
+        ? `تم تحديث عرض المخزون لقطاع ${industry === 'groceries' ? 'البقالة' : industry === 'electronics' ? 'الإلكترونيات' : industry}`
+        : `Inventory view updated for ${industry === 'groceries' ? 'Groceries' : industry === 'electronics' ? 'Electronics Sales' : industry} industry`,
+    });
+  };
+
   const filteredData = inventoryData.filter(item => safeFilter(item, searchQuery));
 
   const startIndex = Math.max(0, (currentPage - 1) * 10);
@@ -177,6 +193,8 @@ const Inventory = () => {
         setSearchQuery={setSearchQuery}
         onDecouplingPointDialogOpen={handleDecouplingPointDialogOpen}
         startTour={startTour}
+        selectedIndustry={selectedIndustry}
+        onIndustryChange={handleIndustryChange}
       />
 
       <InventoryContent 

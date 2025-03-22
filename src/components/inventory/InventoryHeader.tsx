@@ -4,21 +4,27 @@ import { getTranslation } from "@/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HelpCircle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import InventoryFilters from "@/components/inventory/InventoryFilters";
 import { TourButton } from "@/components/inventory/InventoryTourGuide";
+import { industries } from "@/components/guidelines/data/industryData";
 
 interface InventoryHeaderProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   onDecouplingPointDialogOpen: () => void;
   startTour: () => void;
+  selectedIndustry?: string;
+  onIndustryChange?: (industry: string) => void;
 }
 
 export const InventoryHeader = ({
   searchQuery,
   setSearchQuery,
   onDecouplingPointDialogOpen,
-  startTour
+  startTour,
+  selectedIndustry = "retail",
+  onIndustryChange
 }: InventoryHeaderProps) => {
   const { language } = useLanguage();
 
@@ -48,6 +54,23 @@ export const InventoryHeader = ({
           </TooltipProvider>
         </div>
         <div className="flex gap-2 inventory-filters">
+          {onIndustryChange && (
+            <Select
+              value={selectedIndustry}
+              onValueChange={onIndustryChange}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select Industry" />
+              </SelectTrigger>
+              <SelectContent>
+                {industries.map((industry) => (
+                  <SelectItem key={industry.id} value={industry.id}>
+                    {language === 'ar' ? industry.nameAr : industry.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
           <InventoryFilters
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}

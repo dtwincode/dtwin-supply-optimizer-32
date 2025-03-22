@@ -30,3 +30,55 @@ export const getDefaultTabFromPath = (pathname: string): string => {
     return 'inventory';
   }
 };
+
+export const getIndustrySpecificFilters = (industryType: string) => {
+  const commonFilters = ['sku', 'name', 'productFamily', 'location'];
+  
+  const industrySpecificFilters = {
+    groceries: [...commonFilters, 'expiryDate', 'freshness', 'temperatureZone'],
+    electronics: [...commonFilters, 'version', 'lifecycleStage', 'warrantyStatus'],
+    retail: [...commonFilters, 'season', 'promotionEligible'],
+    pharmacy: [...commonFilters, 'regulatoryStatus', 'prescriptionRequired'],
+    fmcg: [...commonFilters, 'shelfLife', 'batchNumber']
+  };
+  
+  return industrySpecificFilters[industryType as keyof typeof industrySpecificFilters] || commonFilters;
+};
+
+export const getIndustrySpecificColumns = (industryType: string) => {
+  const commonColumns = [
+    { key: 'sku', label: 'SKU' },
+    { key: 'name', label: 'Product Name' },
+    { key: 'onHand', label: 'On Hand' },
+    { key: 'allocated', label: 'Allocated' },
+    { key: 'available', label: 'Available' }
+  ];
+  
+  const industrySpecificColumns = {
+    groceries: [
+      ...commonColumns,
+      { key: 'expiryDate', label: 'Expiry Date' },
+      { key: 'freshness', label: 'Freshness %' },
+      { key: 'temperatureZone', label: 'Temperature Zone' }
+    ],
+    electronics: [
+      ...commonColumns,
+      { key: 'version', label: 'Version' },
+      { key: 'lifecycleStage', label: 'Lifecycle Stage' },
+      { key: 'warrantyPeriod', label: 'Warranty (Months)' }
+    ],
+    retail: commonColumns,
+    pharmacy: [
+      ...commonColumns,
+      { key: 'regulatoryStatus', label: 'Regulatory Status' },
+      { key: 'storageConditions', label: 'Storage Conditions' }
+    ],
+    fmcg: [
+      ...commonColumns,
+      { key: 'shelfLife', label: 'Shelf Life (Days)' },
+      { key: 'batchNumber', label: 'Batch Number' }
+    ]
+  };
+  
+  return industrySpecificColumns[industryType as keyof typeof industrySpecificColumns] || commonColumns;
+};
