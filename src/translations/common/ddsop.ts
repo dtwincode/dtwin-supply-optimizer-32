@@ -1,4 +1,3 @@
-
 export const ddsopTranslations = {
   // Main header and description
   title: {
@@ -78,6 +77,28 @@ export const ddsopTranslations = {
   adaptiveMetrics: {
     en: "Adaptive Planning Metrics",
     ar: "مقاييس التخطيط التكيفي"
+  },
+  
+  // New metrics specifically shown in the image
+  tacticalCycleAdherence: {
+    en: "Cycle Adherence",
+    ar: "الالتزام بالدورة"
+  },
+  marketResponseTime: {
+    en: "Market Response Time",
+    ar: "وقت الاستجابة للسوق"
+  },
+  signalDetectionRate: {
+    en: "Signal Detection Rate",
+    ar: "معدل اكتشاف الإشارات"
+  },
+  adjustmentAccuracy: {
+    en: "Adjustment Accuracy",
+    ar: "دقة التعديل"
+  },
+  days: {
+    en: "days",
+    ar: "أيام"
   },
   
   // KPI translations
@@ -323,10 +344,6 @@ export const ddsopTranslations = {
   },
   
   // Trend indicators
-  increasing: {
-    en: "Increasing",
-    ar: "في زيادة"
-  },
   improving: {
     en: "Improving",
     ar: "في تحسن"

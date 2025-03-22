@@ -12,7 +12,6 @@ import { financialMetricsTranslations } from './common/financialMetrics';
 import { sustainabilityMetricsTranslations } from './common/sustainabilityMetrics';
 import { logisticsTranslations } from './common/logistics';
 import { ddsopTranslations } from './common/ddsop';
-import { salesTranslations } from './common/sales';
 import { toArabicNumerals } from './utils';
 import { commonTranslations } from './common';
 
@@ -28,11 +27,11 @@ export const translations: Translations = {
   financialMetrics: financialMetricsTranslations,
   sustainabilityMetrics: sustainabilityMetricsTranslations,
   modulesSummary: modulesSummaryTranslations,
-  common: commonTranslations, // Use the complete common translations
+  common: commonTranslations,
   executiveSummary: executiveSummaryTranslations,
   sales: salesTranslations,
   supplyPlanning: supplyPlanningTranslations,
-  ddsop: ddsopTranslations,
+  ddsop: ddsopTranslations, // Ensure DDSOP translations are exported
 };
 
 export type Language = 'en' | 'ar';

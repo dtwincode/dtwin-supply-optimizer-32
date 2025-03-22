@@ -2,85 +2,96 @@
 import React from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/translations';
-import { TrendingUp, ShieldCheck, ArrowUpDown, AlertCircle } from 'lucide-react';
+import { TrendingUp, ShieldCheck, ArrowUpDown, AlertCircle, Clock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 
 export const DDSOPMetricsGrid = () => {
   const { language } = useLanguage();
-  const t = (key: string) => getTranslation(`common.ddsop.${key}`, language) || key;
+  const t = (key: string) => getTranslation(`ddsop.${key}`, language) || key;
   
   const metrics = [
     {
-      id: 'flow-index',
-      name: t('flowIndex'),
-      value: 87,
-      target: 95,
-      trend: 'increasing',
-      icon: TrendingUp
-    },
-    {
-      id: 'tactical-cycle',
+      id: 'cycle-adherence',
       name: t('tacticalCycleAdherence'),
       value: 92,
-      target: 90,
-      trend: 'stable',
+      target: 95,
+      trend: 'improving',
       icon: ShieldCheck
     },
     {
-      id: 'demand-signal',
-      name: t('demandSignalQuality'),
-      value: 84,
-      target: 85,
-      trend: 'increasing',
+      id: 'market-response',
+      name: t('marketResponseTime'),
+      value: 3.5,
+      unit: t('days'),
+      target: '> 5',
+      trend: 'stable',
+      icon: Clock
+    },
+    {
+      id: 'signal-detection',
+      name: t('signalDetectionRate'),
+      value: 87,
+      target: 90,
+      trend: 'stable',
       icon: ArrowUpDown
     },
     {
-      id: 'execution-variance',
-      name: t('executionVariance'),
-      value: 78,
-      target: 80,
-      trend: 'decreasing',
+      id: 'adjustment-accuracy',
+      name: t('adjustmentAccuracy'),
+      value: 83,
+      target: 85,
+      trend: 'improving',
       icon: AlertCircle
     }
   ];
 
+  // Ensure we can display metrics properly for different value types
+  const renderMetricValue = (metric) => {
+    if (metric.unit) {
+      return `${metric.value} ${metric.unit}`;
+    }
+    return `${metric.value}%`;
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {metrics.map((metric) => (
-        <Card key={metric.id}>
+        <Card key={metric.id} className="overflow-hidden">
           <CardContent className="p-4">
             <div className="flex justify-between items-start mb-2">
-              <div className="bg-primary-50 p-2 rounded-full">
-                <metric.icon className="h-5 w-5 text-primary" />
-              </div>
-              <span className={`text-sm font-semibold ${
-                metric.value >= metric.target ? 'text-green-600' : 'text-amber-600'
-              }`}>
-                {metric.value}%
+              <h3 className="text-base font-medium">{metric.name}</h3>
+              <span className="text-xl font-bold">
+                {renderMetricValue(metric)}
               </span>
             </div>
-            <h3 className="text-sm font-medium mb-1">{metric.name}</h3>
-            <Progress 
-              value={metric.value} 
-              max={100} 
-              className={`h-2 ${
-                metric.value >= metric.target 
-                  ? 'bg-green-500' 
-                  : 'bg-amber-500'
-              }`} 
-            />
-            <div className="flex justify-between text-xs text-muted-foreground mt-2">
-              <span>{t('target')}: {metric.target}%</span>
-              <span className={`${
-                metric.trend === 'increasing' 
-                  ? 'text-green-600' 
-                  : metric.trend === 'decreasing' 
-                    ? 'text-red-600' 
-                    : 'text-blue-600'
-              }`}>
-                {t(metric.trend)}
-              </span>
+            
+            {!metric.unit && (
+              <Progress 
+                value={metric.value} 
+                max={100} 
+                className={`h-2 ${
+                  metric.value >= parseInt(metric.target) 
+                    ? 'bg-green-500' 
+                    : 'bg-amber-500'
+                }`} 
+              />
+            )}
+            
+            <div className="flex justify-between text-xs mt-2">
+              <span className="text-muted-foreground">{t('target')}: {metric.target}</span>
+              <div className="flex items-center">
+                <span className="text-muted-foreground">{t('trend')}: </span>
+                <span className={`${
+                  metric.trend === 'improving' 
+                    ? 'text-green-600' 
+                    : metric.trend === 'declining' 
+                      ? 'text-red-600' 
+                      : 'text-blue-600'
+                } ml-1`}>
+                  {t(metric.trend)}
+                </span>
+              </div>
             </div>
           </CardContent>
         </Card>
