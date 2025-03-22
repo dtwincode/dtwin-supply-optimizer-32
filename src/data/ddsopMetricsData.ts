@@ -7,7 +7,7 @@ export interface CycleMetric {
   target: string;
   trend: 'improving' | 'stable' | 'declining';
   unit?: string;
-  status?: string; // Added status property needed by AdaptivePlanning component
+  status: string; // Added status property needed by AdaptivePlanning component
 }
 
 // Export metrics for DDSOP dashboard
