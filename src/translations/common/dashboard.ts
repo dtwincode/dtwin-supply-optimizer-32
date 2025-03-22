@@ -2,6 +2,10 @@
 import { DashboardMetrics, ExecutiveSummary } from '../types';
 
 export const dashboardTranslations: DashboardMetrics = {
+  title: {
+    en: "Key Metrics",
+    ar: "المقاييس الرئيسية"
+  },
   totalSKUs: {
     en: "Total SKUs",
     ar: "إجمالي وحدات التخزين"

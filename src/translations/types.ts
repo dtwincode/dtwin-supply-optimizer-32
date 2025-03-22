@@ -1,3 +1,4 @@
+
 export type TranslationValue = {
   en: string;
   ar: string;
@@ -284,6 +285,7 @@ export type CommonTranslations = {
 };
 
 export type DashboardMetrics = {
+  title: TranslationValue;
   totalSKUs: TranslationValue;
   bufferPenetration: TranslationValue;
   orderStatus: TranslationValue;
