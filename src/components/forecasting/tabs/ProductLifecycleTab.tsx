@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -52,7 +51,6 @@ import {
   ChevronRight
 } from "lucide-react";
 
-// Sample data for demonstration
 const lifecycleStages = [
   { id: "new", name: "New Product Introduction", icon: Rocket, color: "bg-blue-500" },
   { id: "growth", name: "Growth", icon: ArrowUp, color: "bg-green-500" },
@@ -123,7 +121,6 @@ const sampleProducts = [
   },
 ];
 
-// Sample data for charts
 const lifecycleDistributionData = [
   { name: "New", count: 45 },
   { name: "Growth", count: 87 },
@@ -140,7 +137,6 @@ const salesTrendData = [
   { month: "Jun", new: 280, growth: 380, mature: 495, decline: 45 },
 ];
 
-// New Product form initial state
 const initialNewProductState = {
   sku: "",
   name: "",
@@ -164,11 +160,9 @@ const ProductLifecycleTab = () => {
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState("overview");
   
-  // New Product Dialog State
   const [isNewProductDialogOpen, setIsNewProductDialogOpen] = useState(false);
   const [newProduct, setNewProduct] = useState(initialNewProductState);
 
-  // Filter products based on selected stage
   const filteredProducts = sampleProducts.filter(product => 
     selectedStage === "all" || product.stage === selectedStage
   );
@@ -182,7 +176,6 @@ const ProductLifecycleTab = () => {
     ? sampleProducts.find(p => p.id === selectedProduct) 
     : null;
 
-  // Sample forecast data for product detail
   const productForecastData = [
     { month: "Jul", forecast: 420, actual: 410 },
     { month: "Aug", forecast: 450, actual: 455 },
@@ -192,7 +185,6 @@ const ProductLifecycleTab = () => {
     { month: "Dec", forecast: 570, actual: null },
   ];
 
-  // Handler for new product input changes
   const handleNewProductChange = (field: string, value: any) => {
     setNewProduct(prev => ({
       ...prev,
@@ -200,16 +192,12 @@ const ProductLifecycleTab = () => {
     }));
   };
 
-  // Handler for adding a new product
   const handleAddNewProduct = () => {
-    // In a real application, this would call an API to save the product
     console.log("New product to be added:", newProduct);
     
-    // Reset form and close dialog
     setNewProduct(initialNewProductState);
     setIsNewProductDialogOpen(false);
     
-    // Show success message (in a real app would use toast notification)
     alert("New product added successfully!");
   };
 
@@ -263,7 +251,6 @@ const ProductLifecycleTab = () => {
       <ScrollArea className="h-[calc(100vh-200px)]">
         {currentView === "overview" ? (
           <div className="space-y-6">
-            {/* Lifecycle stages cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {lifecycleStages.map(stage => {
                 const count = sampleProducts.filter(p => p.stage === stage.id).length;
@@ -286,7 +273,6 @@ const ProductLifecycleTab = () => {
               })}
             </div>
 
-            {/* Analytics */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
@@ -332,7 +318,6 @@ const ProductLifecycleTab = () => {
               </Card>
             </div>
 
-            {/* Products Table */}
             <Card>
               <CardHeader>
                 <CardTitle>Products by Lifecycle Stage</CardTitle>
@@ -402,7 +387,6 @@ const ProductLifecycleTab = () => {
             </Card>
           </div>
         ) : (
-          // Product Detail View
           selectedProductData && (
             <div className="space-y-6">
               <Card>
@@ -858,9 +842,8 @@ const ProductLifecycleTab = () => {
         )}
       </ScrollArea>
 
-      {/* Add New Product Dialog */}
       <Dialog open={isNewProductDialogOpen} onOpenChange={setIsNewProductDialogOpen}>
-        <DialogContent className="sm:max-w-[725px] max-h-[90vh]">
+        <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-auto">
           <DialogHeader>
             <DialogTitle>Add New Product</DialogTitle>
             <DialogDescription>
@@ -868,7 +851,7 @@ const ProductLifecycleTab = () => {
             </DialogDescription>
           </DialogHeader>
           
-          <ScrollArea className="max-h-[calc(90vh-180px)] pr-4">
+          <div className="max-h-[calc(90vh-180px)] overflow-y-auto pr-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 py-2">
               <div className="space-y-2">
                 <Label htmlFor="sku">SKU</Label>
@@ -1050,7 +1033,7 @@ const ProductLifecycleTab = () => {
                 </p>
               </div>
             </div>
-          </ScrollArea>
+          </div>
           
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsNewProductDialogOpen(false)}>Cancel</Button>
