@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -814,4 +815,251 @@ const ProductLifecycleTab = () => {
                           <h3 className="font-medium mb-4">Recommendations</h3>
                           <div className="space-y-2">
                             <div className="flex items-start space-x-2 p-3 bg-blue-50 rounded-md">
-                              <FileQuestion className="h-5 w-5 text
+                              <FileQuestion className="h-5 w-5 text-blue-500 mt-0.5" />
+                              <div>
+                                <h4 className="font-medium text-sm">Consider Growth Stage Transition</h4>
+                                <p className="text-sm text-muted-foreground">
+                                  This product is meeting 2 of 3 criteria for transition to Growth stage. 
+                                  Consider transitioning in 45 days when the Time in Stage criteria is met.
+                                </p>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-start space-x-2 p-3 bg-green-50 rounded-md">
+                              <FileQuestion className="h-5 w-5 text-green-500 mt-0.5" />
+                              <div>
+                                <h4 className="font-medium text-sm">Increase Marketing Efforts</h4>
+                                <p className="text-sm text-muted-foreground">
+                                  Growth rate is slightly below target. Consider increasing marketing spend by 15% 
+                                  to accelerate adoption and reach growth target.
+                                </p>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-start space-x-2 p-3 bg-purple-50 rounded-md">
+                              <FileQuestion className="h-5 w-5 text-purple-500 mt-0.5" />
+                              <div>
+                                <h4 className="font-medium text-sm">Expand Distribution Channels</h4>
+                                <p className="text-sm text-muted-foreground">
+                                  Product is performing well in current channels. Consider expanding to online marketplaces
+                                  to increase market penetration by an estimated 20%.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </div>
+          )
+        )}
+      </ScrollArea>
+
+      {/* Add New Product Dialog */}
+      <Dialog open={isNewProductDialogOpen} onOpenChange={setIsNewProductDialogOpen}>
+        <DialogContent className="sm:max-w-[725px] max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>Add New Product</DialogTitle>
+            <DialogDescription>
+              Enter product details to create a new product and configure its lifecycle.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <ScrollArea className="max-h-[calc(90vh-180px)] pr-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 py-2">
+              <div className="space-y-2">
+                <Label htmlFor="sku">SKU</Label>
+                <Input 
+                  id="sku" 
+                  value={newProduct.sku} 
+                  onChange={(e) => handleNewProductChange('sku', e.target.value)}
+                  placeholder="e.g. SKU-001"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="name">Product Name</Label>
+                <Input 
+                  id="name" 
+                  value={newProduct.name} 
+                  onChange={(e) => handleNewProductChange('name', e.target.value)}
+                  placeholder="e.g. Smart Watch X1"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="category">Category</Label>
+                <Select 
+                  value={newProduct.category} 
+                  onValueChange={(value) => handleNewProductChange('category', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Electronics">Electronics</SelectItem>
+                    <SelectItem value="Audio">Audio</SelectItem>
+                    <SelectItem value="Accessories">Accessories</SelectItem>
+                    <SelectItem value="Smart Home">Smart Home</SelectItem>
+                    <SelectItem value="Wearables">Wearables</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="launchDate">Launch Date</Label>
+                <Input 
+                  id="launchDate" 
+                  type="date" 
+                  value={newProduct.launchDate} 
+                  onChange={(e) => handleNewProductChange('launchDate', e.target.value)}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="stage">Lifecycle Stage</Label>
+                <Select 
+                  value={newProduct.stage}
+                  onValueChange={(value) => handleNewProductChange('stage', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select stage" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {lifecycleStages.map(stage => (
+                      <SelectItem key={stage.id} value={stage.id}>{stage.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="forecastMethod">Forecast Method</Label>
+                <Select 
+                  value={newProduct.forecastMethod}
+                  onValueChange={(value) => handleNewProductChange('forecastMethod', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select method" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="time-series">Time Series</SelectItem>
+                    <SelectItem value="analogous">Analogous Products</SelectItem>
+                    <SelectItem value="judgmental">Judgmental</SelectItem>
+                    <SelectItem value="market-based">Market-based</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="salesTarget">Sales Target (units)</Label>
+                <Input 
+                  id="salesTarget" 
+                  type="number" 
+                  value={newProduct.salesTarget} 
+                  onChange={(e) => handleNewProductChange('salesTarget', e.target.value)}
+                  placeholder="e.g. 5000"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="confidence">Confidence Level (%)</Label>
+                <div className="flex items-center space-x-2">
+                  <Input 
+                    id="confidence" 
+                    type="number" 
+                    min="0"
+                    max="100"
+                    value={newProduct.confidence} 
+                    onChange={(e) => handleNewProductChange('confidence', parseInt(e.target.value))}
+                  />
+                  <span>{newProduct.confidence}%</span>
+                </div>
+              </div>
+              
+              {newProduct.forecastMethod === "analogous" && (
+                <div className="space-y-2 col-span-2">
+                  <Label>Similar Products</Label>
+                  <div className="flex space-x-2">
+                    <Input 
+                      placeholder="Enter SKU (e.g. SKU-055)" 
+                      value={newProduct.similarProducts.join(', ')}
+                      onChange={(e) => handleNewProductChange('similarProducts', e.target.value.split(',').map(s => s.trim()))}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">Enter SKUs separated by commas</p>
+                </div>
+              )}
+              
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="description">Product Description</Label>
+                <Textarea 
+                  id="description" 
+                  value={newProduct.description} 
+                  onChange={(e) => handleNewProductChange('description', e.target.value)}
+                  placeholder="Enter product description and key features"
+                  rows={3}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="seasonality">Seasonality</Label>
+                <Select 
+                  value={newProduct.seasonality}
+                  onValueChange={(value) => handleNewProductChange('seasonality', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select seasonality" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    <SelectItem value="holiday">Holiday Season</SelectItem>
+                    <SelectItem value="summer">Summer</SelectItem>
+                    <SelectItem value="back-to-school">Back to School</SelectItem>
+                    <SelectItem value="quarterly">Quarterly Cycle</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="plannedEndOfLife">Planned End of Life</Label>
+                <Input 
+                  id="plannedEndOfLife" 
+                  type="date" 
+                  value={newProduct.plannedEndOfLife} 
+                  onChange={(e) => handleNewProductChange('plannedEndOfLife', e.target.value)}
+                />
+              </div>
+              
+              <div className="space-y-2 col-span-2">
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="isPromotional" 
+                    checked={newProduct.isPromotional}
+                    onCheckedChange={(checked) => 
+                      handleNewProductChange('isPromotional', Boolean(checked))
+                    }
+                  />
+                  <Label htmlFor="isPromotional">Promotional Product</Label>
+                </div>
+                <p className="text-xs text-muted-foreground pl-6">
+                  Mark this if the product is part of a promotional campaign or has a limited lifecycle
+                </p>
+              </div>
+            </div>
+          </ScrollArea>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsNewProductDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleAddNewProduct}>Add Product</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default ProductLifecycleTab;

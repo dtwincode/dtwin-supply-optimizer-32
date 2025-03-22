@@ -89,7 +89,7 @@ const Forecasting = () => {
           />
         )}
 
-        <div className={`px-6 mt-6 ${showFilters ? '' : 'h-[calc(100vh-200px)]'}`}>
+        <div className={`px-6 mt-6 flex-1 ${showFilters ? '' : 'h-[calc(100vh-200px)]'}`}>
           <Routes>
             <Route index element={<ForecastAnalysisTab />} />
             <Route path="distribution" element={<ForecastDistributionTab forecastTableData={dummyData.forecastTableData} />} />
