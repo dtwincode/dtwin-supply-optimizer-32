@@ -6,7 +6,8 @@ import {
   BarChart3, 
   FlipHorizontal, 
   LineChart, 
-  CloudLightning 
+  CloudLightning,
+  Layers
 } from "lucide-react";
 
 export const ForecastingTabs = () => {
@@ -33,6 +34,11 @@ export const ForecastingTabs = () => {
       title: "External",
       href: "/forecasting/external",
       icon: CloudLightning,
+    },
+    {
+      title: "Lifecycle",
+      href: "/forecasting/lifecycle",
+      icon: Layers,
     }
   ];
 
