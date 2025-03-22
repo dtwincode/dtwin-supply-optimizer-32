@@ -9,10 +9,12 @@ export const OperationalModelTab = () => {
   const { language } = useLanguage();
   const t = (key: string) => getTranslation(`common.ddsop.${key}`, language) || key;
 
+  console.log("Rendering OperationalModelTab");
+
   return (
     <Card className="mt-6">
       <CardContent className="p-6">
-        <h2 className="text-lg font-semibold mb-4">{t('operationalDashboard')}</h2>
+        <h2 className="text-lg font-semibold mb-4">{t('operationalModel')}</h2>
         <p className="text-muted-foreground mb-6">
           {t('operationalModelDescription')}
         </p>

@@ -16,19 +16,27 @@ const data = [
   { name: 'Week 6', plan: 200, actual: 182, variance: -18 },
 ];
 
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: any[];
+  label?: string;
+}
+
 export const VarianceChart: React.FC = () => {
   const { language } = useLanguage();
   const t = (key: string) => getTranslation(`ddsop.${key}`, language) || key;
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  console.log("Rendering VarianceChart");
+
+  const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white p-3 border border-gray-200 shadow-sm rounded-md">
           <p className="font-medium">{label}</p>
           <p className="text-blue-600">{`${t('planned')}: ${payload[0].value}`}</p>
           <p className="text-green-600">{`${t('actual')}: ${payload[1].value}`}</p>
-          <p className={`font-medium ${payload[2].value >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {`${t('variance')}: ${payload[2].value}`}
+          <p className={`font-medium ${payload[2]?.value >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            {`${t('variance')}: ${payload[2]?.value}`}
           </p>
         </div>
       );

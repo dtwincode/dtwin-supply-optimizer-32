@@ -12,30 +12,34 @@ export const DDSOPTabs = () => {
   const { language } = useLanguage();
   const t = (key: string) => getTranslation(`common.ddsop.${key}`, language) || key;
 
+  console.log("Rendering DDSOPTabs");
+
   return (
-    <Tabs defaultValue="operational" className="w-full">
-      <TabsList className="grid grid-cols-4 w-full">
-        <TabsTrigger value="operational">{t('operationalModel')}</TabsTrigger>
-        <TabsTrigger value="integration">{t('sandopIntegration')}</TabsTrigger>
-        <TabsTrigger value="execution">{t('collaborativeExecution')}</TabsTrigger>
-        <TabsTrigger value="adaptive">{t('adaptivePlanning')}</TabsTrigger>
-      </TabsList>
-      
-      <TabsContent value="operational">
-        <OperationalModelTab />
-      </TabsContent>
-      
-      <TabsContent value="integration">
-        <SandOPIntegrationTab />
-      </TabsContent>
-      
-      <TabsContent value="execution">
-        <CollaborativeExecutionTab />
-      </TabsContent>
-      
-      <TabsContent value="adaptive">
-        <AdaptivePlanningTab />
-      </TabsContent>
-    </Tabs>
+    <div className="w-full">
+      <Tabs defaultValue="operational" className="w-full">
+        <TabsList className="grid grid-cols-4 w-full">
+          <TabsTrigger value="operational">{t('operationalModel')}</TabsTrigger>
+          <TabsTrigger value="integration">{t('sandopIntegration')}</TabsTrigger>
+          <TabsTrigger value="execution">{t('collaborativeExecution')}</TabsTrigger>
+          <TabsTrigger value="adaptive">{t('adaptivePlanning')}</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="operational">
+          <OperationalModelTab />
+        </TabsContent>
+        
+        <TabsContent value="integration">
+          <SandOPIntegrationTab />
+        </TabsContent>
+        
+        <TabsContent value="execution">
+          <CollaborativeExecutionTab />
+        </TabsContent>
+        
+        <TabsContent value="adaptive">
+          <AdaptivePlanningTab />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };

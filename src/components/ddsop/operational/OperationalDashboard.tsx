@@ -13,6 +13,8 @@ export const OperationalDashboard: React.FC = () => {
   const { language } = useLanguage();
   const t = (key: string) => getTranslation(`ddsop.${key}`, language) || key;
 
+  console.log("Rendering OperationalDashboard");
+
   const getProgressColor = (status: string) => {
     switch (status) {
       case 'success':
@@ -26,10 +28,13 @@ export const OperationalDashboard: React.FC = () => {
     }
   };
 
+  // Ensure we have metric data
+  const metrics = ddomMetrics || [];
+  
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-        {ddomMetrics.map((metric) => (
+        {metrics.map((metric) => (
           <Card key={metric.id} className="shadow-sm">
             <CardContent className="pt-6 pb-4">
               <div className="flex justify-between items-start mb-3">

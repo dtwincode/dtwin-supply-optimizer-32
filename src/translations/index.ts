@@ -1,52 +1,42 @@
 
-import { Translations } from './types';
-import { navigationTranslations } from './navigation';
-import { dashboardTranslations, executiveSummaryTranslations } from './common/dashboard';
-import { modulesSummaryTranslations } from './common/modules';
-import { uiTranslations } from './common/ui';
-import { chartTranslations } from './common/charts';
-import { inventoryTranslations } from './common/inventory';
-import { paginationTranslations } from './common/pagination';
-import { supplyPlanningTranslations } from './common/supplyPlanning';
-import { financialMetricsTranslations } from './common/financialMetrics';
-import { sustainabilityMetricsTranslations } from './common/sustainabilityMetrics';
-import { logisticsTranslations } from './common/logistics';
-import { ddsopTranslations } from './common/ddsop';
-import { toArabicNumerals } from './utils';
+import { LanguageType, TranslationKey } from './types';
 import { commonTranslations } from './common';
+import { navigationTranslations } from './navigation';
+import { dashboardTranslations } from './dashboard';
+import { salesTranslations } from './sales';
+import { ddsopTranslations } from './ddsop';
 
-export { toArabicNumerals };
+// Helper function to find a translation by key, traversing the key path
+export const getTranslation = (keyPath: string, language: LanguageType): string | undefined => {
+  try {
+    const parts = keyPath.split('.');
+    let current: any = {
+      ...commonTranslations[language],
+      ...navigationTranslations[language],
+      ...dashboardTranslations[language],
+      ...salesTranslations[language],
+      ...ddsopTranslations[language],
+      // Add more translation sets here as needed
+    };
 
-export const translations: Translations = {
-  dashboard: {
-    en: 'Dashboard',
-    ar: 'لوحة القيادة',
-  },
-  navigationItems: navigationTranslations,
-  dashboardMetrics: dashboardTranslations,
-  financialMetrics: financialMetricsTranslations,
-  sustainabilityMetrics: sustainabilityMetricsTranslations,
-  modulesSummary: modulesSummaryTranslations,
-  common: commonTranslations,
-  executiveSummary: executiveSummaryTranslations,
-  sales: {}, // Added empty object for sales translations as it's required by the type
-  supplyPlanning: supplyPlanningTranslations,
-  ddsop: ddsopTranslations, // Ensure DDSOP translations are exported
+    for (const part of parts) {
+      if (current[part] === undefined) {
+        // console.warn(`Translation key not found: ${keyPath} for language ${language}`);
+        return part; // Return the last part of the key as a fallback
+      }
+      current = current[part];
+    }
+
+    if (typeof current !== 'string') {
+      // console.warn(`Translation key ${keyPath} does not resolve to a string for language ${language}`);
+      return parts[parts.length - 1]; // Return the last part of the key as a fallback
+    }
+
+    return current;
+  } catch (error) {
+    console.error(`Error getting translation for key ${keyPath}:`, error);
+    return keyPath.split('.').pop(); // Return the last part of the key as a fallback
+  }
 };
 
-export type Language = 'en' | 'ar';
-
-export function getTranslation(key: string, language: Language) {
-  const keys = key.split('.');
-  let current: any = translations;
-
-  for (const k of keys) {
-    if (current[k] === undefined) {
-      console.warn(`Translation key not found: ${key}`);
-      return key; // Return the key as fallback instead of undefined
-    }
-    current = current[k];
-  }
-
-  return current[language];
-}
+export * from './types';
