@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Package, ShieldAlert, Zap, ArrowUpDown, TrendingUp, TrendingDown } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -24,7 +23,7 @@ const DashboardMetrics = () => {
 
   return (
     <Card className="p-3">
-      <h4 className="font-display text-md font-semibold mb-2 px-2">
+      <h4 className="font-semibold text-base text-gray-800 dark:text-gray-100 mb-3 px-2">
         {getTranslation('dashboardMetrics.title', language) || "Key Metrics"}
       </h4>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
