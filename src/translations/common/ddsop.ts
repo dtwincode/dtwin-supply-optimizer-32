@@ -32,4 +32,19 @@ export const ddsopTranslations: TranslationDictionary = {
     filters: 'Filtros',
     generateReport: 'Generar Informe',
   },
+  ar: {
+    title: 'تخطيط المبيعات والعمليات المدفوع بالطلب',
+    description: 'إدارة عملية تخطيط المبيعات والعمليات المدفوعة بالطلب',
+    operationalModel: 'النموذج التشغيلي',
+    sandopIntegration: 'تكامل تخطيط المبيعات والعمليات',
+    collaborativeExecution: 'التنفيذ التعاوني',
+    adaptivePlanning: 'التخطيط التكيفي',
+    operationalModelDescription: 'إدارة المقاييس التشغيلية ومراقبة أداء التنفيذ في الوقت الفعلي.',
+    sandopIntegrationDescription: 'مواءمة التخطيط الاستراتيجي والتكتيكي من خلال عمليات تخطيط المبيعات والعمليات المتكاملة.',
+    collaborativeExecutionDescription: 'تنسيق التنفيذ متعدد الوظائف لقرارات تخطيط المبيعات والعمليات.',
+    adaptivePlanningDescription: 'الاستجابة لإشارات السوق وتعديل الخطط بشكل ديناميكي.',
+    compliantMode: 'متوافق مع DDMRP',
+    filters: 'التصفية',
+    generateReport: 'إنشاء تقرير',
+  }
 };

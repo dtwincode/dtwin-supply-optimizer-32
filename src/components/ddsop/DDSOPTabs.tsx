@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/translations';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -12,7 +12,9 @@ export const DDSOPTabs = () => {
   const { language } = useLanguage();
   const t = (key: string) => getTranslation(`common.ddsop.${key}`, language) || key;
 
-  console.log("Rendering DDSOPTabs");
+  useEffect(() => {
+    console.log("DDSOPTabs rendered, language:", language);
+  }, [language]);
 
   return (
     <div className="w-full">

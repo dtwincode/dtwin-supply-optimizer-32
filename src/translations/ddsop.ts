@@ -21,6 +21,21 @@ export const ddsopTranslations: TranslationDictionary = {
     declining: 'Declining',
     stable: 'Stable',
     
+    // Status badges
+    onTrack: 'On Track',
+    warning: 'Warning',
+    alert: 'Alert',
+    upcoming: 'Upcoming',
+    standby: 'Standby',
+    pendingAction: 'Pending Action',
+    inAssessment: 'In Assessment',
+    monitored: 'Monitored',
+    
+    // Impact badges
+    highImpact: 'High Impact',
+    mediumImpact: 'Medium Impact',
+    lowImpact: 'Low Impact',
+    
     // Variance chart
     planVsActual: 'Plan vs. Actual',
     planned: 'Planned',
@@ -80,6 +95,21 @@ export const ddsopTranslations: TranslationDictionary = {
     declining: 'Disminuyendo',
     stable: 'Estable',
     
+    // Status badges
+    onTrack: 'En Curso',
+    warning: 'Advertencia',
+    alert: 'Alerta',
+    upcoming: 'Próximo',
+    standby: 'En Espera',
+    pendingAction: 'Acción Pendiente',
+    inAssessment: 'En Evaluación',
+    monitored: 'Monitoreado',
+    
+    // Impact badges
+    highImpact: 'Alto Impacto',
+    mediumImpact: 'Impacto Medio',
+    lowImpact: 'Bajo Impacto',
+    
     // Variance chart
     planVsActual: 'Plan vs. Real',
     planned: 'Planificado',
@@ -120,4 +150,78 @@ export const ddsopTranslations: TranslationDictionary = {
     warning: 'Requiere Atención',
     danger: 'Crítico',
   },
+  ar: {
+    // Dashboard metrics
+    flowIndex: 'مؤشر التدفق',
+    tacticalCycleAdherence: 'الالتزام بالدورة التكتيكية',
+    demandSignalQuality: 'جودة إشارة الطلب',
+    executionVariance: 'تباين التنفيذ',
+    adaptiveResponseTime: 'وقت الاستجابة التكيفية',
+    marketResponseTime: 'وقت استجابة السوق',
+    signalDetectionRate: 'معدل اكتشاف الإشارة',
+    adjustmentAccuracy: 'دقة التعديل',
+    
+    // Status and metrics
+    status: 'الحالة',
+    target: 'الهدف',
+    trend: 'الاتجاه',
+    improving: 'تحسن',
+    declining: 'تراجع',
+    stable: 'مستقر',
+    
+    // Status badges
+    onTrack: 'على المسار',
+    warning: 'تحذير',
+    alert: 'تنبيه',
+    upcoming: 'قادم',
+    standby: 'في الانتظار',
+    pendingAction: 'إجراء معلق',
+    inAssessment: 'قيد التقييم',
+    monitored: 'تحت المراقبة',
+    
+    // Impact badges
+    highImpact: 'تأثير عالي',
+    mediumImpact: 'تأثير متوسط',
+    lowImpact: 'تأثير منخفض',
+    
+    // Variance chart
+    planVsActual: 'الخطة مقابل الفعلي',
+    planned: 'مخطط',
+    actual: 'فعلي',
+    variance: 'التباين',
+    
+    // Execution metrics
+    executionMetrics: 'مقاييس التنفيذ',
+    metrics: 'المقاييس',
+    actions: 'الإجراءات',
+    metric: 'مقياس',
+    current: 'الحالي',
+    metricsDisplayed: 'المقاييس المعروضة',
+    criticalItems: 'العناصر الحرجة',
+    warningItems: 'عناصر التحذير',
+    takeAction: 'اتخاذ إجراء',
+    
+    // Action recommendations
+    immediateActionNeeded: 'إجراء فوري مطلوب',
+    preventiveActionRecommended: 'إجراء وقائي موصى به',
+    continuedMonitoringAdvised: 'استمرار المراقبة مستحسن',
+    maintainCurrentApproach: 'الحفاظ على النهج الحالي',
+    reviewAndAnalyze: 'مراجعة وتحليل',
+    
+    // Action statuses
+    actionInitiated: 'تم بدء الإجراء بنجاح',
+    
+    // Metric names
+    flowIndexMetric: 'مؤشر التدفق',
+    tacticalCycleAdherenceMetric: 'الالتزام بالدورة التكتيكية',
+    demandSignalQualityMetric: 'جودة إشارة الطلب',
+    executionVarianceMetric: 'تباين التنفيذ',
+    adaptiveResponseTimeMetric: 'وقت الاستجابة التكيفية',
+    days: 'أيام',
+    hours: 'ساعات',
+    
+    success: 'على المسار',
+    warning: 'يحتاج اهتمام',
+    danger: 'حرج',
+  }
 };

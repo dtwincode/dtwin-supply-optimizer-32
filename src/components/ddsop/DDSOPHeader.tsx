@@ -11,6 +11,8 @@ export const DDSOPHeader = () => {
   const { language } = useLanguage();
   const t = (key: string) => getTranslation(`common.ddsop.${key}`, language) || key;
 
+  console.log("Rendering DDSOPHeader with language:", language);
+
   return (
     <Card>
       <CardContent className="p-6">

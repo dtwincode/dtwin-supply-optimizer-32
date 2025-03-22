@@ -1,187 +1,80 @@
 
-// Centralized data store for DDSOP metrics to avoid duplication
+// Define metric types for enhanced type safety
+export interface CycleMetric {
+  id: string;
+  name: string;
+  value: number;
+  target: string;
+  trend: 'improving' | 'stable' | 'declining';
+  unit?: string;
+}
 
-// Cycle metrics used in multiple components
-export const cycleMetrics = [
+// Export metrics for DDSOP dashboard
+export const cycleMetrics: CycleMetric[] = [
   {
     id: 'cycle-adherence',
     name: 'tacticalCycleAdherence',
     value: 92,
-    target: 95,
-    status: 'on-track',
+    target: '90%',
     trend: 'improving'
   },
   {
     id: 'response-time',
-    name: 'marketResponseTime',
-    value: 3.5,
-    unit: 'days',
-    target: '< 5',
-    status: 'on-track',
-    trend: 'stable'
+    name: 'adaptiveResponseTime',
+    value: 24,
+    unit: 'hours',
+    target: '36',
+    trend: 'improving'
   },
   {
     id: 'signal-detection',
     name: 'signalDetectionRate',
-    value: 87,
-    target: 90,
-    status: 'warning',
+    value: 85,
+    target: '80%',
     trend: 'stable'
   },
   {
     id: 'adjustment-accuracy',
     name: 'adjustmentAccuracy',
-    value: 83,
-    target: 85,
-    status: 'warning',
-    trend: 'improving'
-  }
-];
-
-// Planning cycles data
-export const planningCycles = [
-  {
-    id: 1,
-    name: 'Weekly Operational Review',
-    frequency: 'Weekly',
-    nextDate: '2023-08-10',
-    status: 'on-track',
-    type: 'operational'
-  },
-  {
-    id: 2,
-    name: 'Monthly Tactical Review',
-    frequency: 'Monthly',
-    nextDate: '2023-08-25',
-    status: 'on-track',
-    type: 'tactical'
-  },
-  {
-    id: 3,
-    name: 'Quarterly Strategic Adjustment',
-    frequency: 'Quarterly',
-    nextDate: '2023-09-15',
-    status: 'upcoming',
-    type: 'strategic'
-  },
-  {
-    id: 4,
-    name: 'Market Disruption Response',
-    frequency: 'As Needed',
-    nextDate: 'On Demand',
-    status: 'standby',
-    type: 'adaptive'
-  }
-];
-
-// Market signals data
-export const marketSignals = [
-  {
-    id: 1,
-    name: 'Supplier Lead Time Increase',
-    impact: 'high',
-    detectedDate: '2023-08-01',
-    status: 'pending-action',
-    category: 'supply'
-  },
-  {
-    id: 2,
-    name: 'Regional Demand Spike',
-    impact: 'medium',
-    detectedDate: '2023-07-28',
-    status: 'in-assessment',
-    category: 'demand'
-  },
-  {
-    id: 3,
-    name: 'Competitor Pricing Change',
-    impact: 'low',
-    detectedDate: '2023-07-25',
-    status: 'monitored',
-    category: 'market'
-  }
-];
-
-// Execution metrics data
-export const executionItems = [
-  { 
-    id: 1, 
-    name: 'Buffer Penetration Response', 
-    status: 'on-track', 
-    metric: '95%',
-    target: '90%',
-    trend: 'improving'
-  },
-  { 
-    id: 2, 
-    name: 'Resource Utilization', 
-    status: 'warning', 
-    metric: '84%',
-    target: '85-95%',
-    trend: 'stable'
-  },
-  { 
-    id: 3, 
-    name: 'Tactical Cycle Adherence', 
-    status: 'on-track', 
-    metric: '92%',
-    target: '90%',
-    trend: 'improving'
-  },
-  { 
-    id: 4, 
-    name: 'Demand Signal Quality', 
-    status: 'alert', 
-    metric: '78%',
+    value: 78,
     target: '85%',
     trend: 'declining'
-  },
-  { 
-    id: 5, 
-    name: 'Strategic Decoupling Effectiveness', 
-    status: 'on-track', 
-    metric: '89%',
-    target: '80%',
-    trend: 'stable'
   }
 ];
 
-// Dashboard metrics
-export const ddomMetrics = [
-  { 
-    id: 'flow-index', 
-    name: 'flowIndex', 
-    value: 86, 
-    target: 90, 
-    status: 'warning'
+export const executionMetrics = [
+  {
+    id: 'flow-index',
+    name: 'flowIndexMetric',
+    value: 0.87,
+    target: 0.85,
+    status: 'success',
+    trend: 'improving',
+    recommendation: 'maintainCurrentApproach'
   },
-  { 
-    id: 'tactical-cycle', 
-    name: 'tacticalCycleAdherence', 
-    value: 92, 
-    target: 90, 
-    status: 'success'
+  {
+    id: 'execution-variance',
+    name: 'executionVarianceMetric',
+    value: 12.4,
+    target: 10.0,
+    status: 'warning',
+    trend: 'stable',
+    recommendation: 'preventiveActionRecommended'
   },
-  { 
-    id: 'demand-signal', 
-    name: 'demandSignalQuality', 
-    value: 78, 
-    target: 85, 
-    status: 'danger'
-  },
-  { 
-    id: 'execution-variance', 
-    name: 'executionVariance', 
-    value: 88, 
-    target: 85, 
-    status: 'success'
-  },
-  { 
-    id: 'adaptive-response', 
-    name: 'adaptiveResponseTime', 
-    value: 4.2, 
-    unit: 'hours', 
-    target: "< 5.0",
-    status: 'success'
+  {
+    id: 'demand-signal',
+    name: 'demandSignalQualityMetric',
+    value: 0.79,
+    target: 0.80,
+    status: 'warning',
+    trend: 'declining',
+    recommendation: 'immediateActionNeeded'
   }
 ];
+
+export const varianceData = {
+  months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+  planned: [120, 140, 150, 135, 160, 170],
+  actual: [125, 135, 155, 140, 150, 165],
+  variance: [5, -5, 5, 5, -10, -5]
+};

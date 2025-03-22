@@ -18,7 +18,13 @@ const DDSOP = () => {
       console.log("DDSOP page loaded");
     }, 500);
     
-    return () => clearTimeout(timer);
+    // Log when the component mounts for debugging
+    console.log("DDSOP component mounted");
+    
+    return () => {
+      clearTimeout(timer);
+      console.log("DDSOP component unmounted");
+    };
   }, []);
 
   if (isLoading) {
@@ -28,6 +34,9 @@ const DDSOP = () => {
       </DashboardLayout>
     );
   }
+
+  // Directly log when rendering
+  console.log("DDSOP rendering content");
 
   return (
     <DashboardLayout>

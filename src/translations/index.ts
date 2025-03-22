@@ -27,14 +27,14 @@ export const getTranslation = (keyPath: string, language: LanguageType): string 
 
     for (const part of parts) {
       if (current[part] === undefined) {
-        // console.warn(`Translation key not found: ${keyPath} for language ${language}`);
+        console.warn(`Translation key not found: ${keyPath} for language ${language}`);
         return part; // Return the last part of the key as a fallback
       }
       current = current[part];
     }
 
     if (typeof current !== 'string') {
-      // console.warn(`Translation key ${keyPath} does not resolve to a string for language ${language}`);
+      console.warn(`Translation key ${keyPath} does not resolve to a string for language ${language}`);
       return parts[parts.length - 1]; // Return the last part of the key as a fallback
     }
 
