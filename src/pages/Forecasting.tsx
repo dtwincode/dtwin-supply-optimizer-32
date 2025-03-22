@@ -56,6 +56,7 @@ const Forecasting = () => {
 
   // Hide filters on lifecycle tab
   const showFilters = !currentPath.includes('/forecasting/lifecycle');
+  const isLifecycleTab = currentPath.includes('/forecasting/lifecycle');
 
   return (
     <DashboardLayout>
@@ -89,7 +90,7 @@ const Forecasting = () => {
           />
         )}
 
-        <div className={`px-6 mt-6 flex-1 ${showFilters ? '' : 'h-[calc(100vh-200px)]'}`}>
+        <div className={`px-6 mt-6 flex-1 ${isLifecycleTab ? 'h-full' : ''}`}>
           <Routes>
             <Route index element={<ForecastAnalysisTab />} />
             <Route path="distribution" element={<ForecastDistributionTab forecastTableData={dummyData.forecastTableData} />} />

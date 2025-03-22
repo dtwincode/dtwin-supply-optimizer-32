@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -202,53 +203,55 @@ const ProductLifecycleTab = () => {
   };
 
   return (
-    <div className="space-y-6 h-full">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Product Lifecycle Management</h2>
-        <div className="flex space-x-2">
-          <Select value={selectedStage} onValueChange={setSelectedStage}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select stage" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Stages</SelectItem>
-              {lifecycleStages.map(stage => (
-                <SelectItem key={stage.id} value={stage.id}>{stage.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          
-          <Select value={selectedMethod} onValueChange={setSelectedMethod}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Forecast method" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Methods</SelectItem>
-              <SelectItem value="time-series">Time Series</SelectItem>
-              <SelectItem value="analogous">Analogous</SelectItem>
-              <SelectItem value="judgmental">Judgmental</SelectItem>
-              <SelectItem value="market-based">Market-based</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Button 
-            variant="outline" 
-            onClick={() => setCurrentView(currentView === "overview" ? "overview" : "overview")}
-          >
-            {currentView === "detail" ? "Back to Overview" : "Refresh"}
-          </Button>
-          
-          <Button 
-            onClick={() => setIsNewProductDialogOpen(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            <PlusCircle className="mr-2 h-4 w-4" />
-            New Product
-          </Button>
+    <div className="h-full flex flex-col">
+      <div className="w-full px-2 pb-4 pt-2">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold">Product Lifecycle Management</h2>
+          <div className="flex space-x-2">
+            <Select value={selectedStage} onValueChange={setSelectedStage}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select stage" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Stages</SelectItem>
+                {lifecycleStages.map(stage => (
+                  <SelectItem key={stage.id} value={stage.id}>{stage.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            <Select value={selectedMethod} onValueChange={setSelectedMethod}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Forecast method" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Methods</SelectItem>
+                <SelectItem value="time-series">Time Series</SelectItem>
+                <SelectItem value="analogous">Analogous</SelectItem>
+                <SelectItem value="judgmental">Judgmental</SelectItem>
+                <SelectItem value="market-based">Market-based</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <Button 
+              variant="outline" 
+              onClick={() => setCurrentView(currentView === "overview" ? "overview" : "overview")}
+            >
+              {currentView === "detail" ? "Back to Overview" : "Refresh"}
+            </Button>
+            
+            <Button 
+              onClick={() => setIsNewProductDialogOpen(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              <PlusCircle className="mr-2 h-4 w-4" />
+              New Product
+            </Button>
+          </div>
         </div>
       </div>
 
-      <ScrollArea className="h-[calc(100vh-200px)]">
+      <ScrollArea className="flex-1">
         {currentView === "overview" ? (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
