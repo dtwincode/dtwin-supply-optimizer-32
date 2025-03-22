@@ -1,20 +1,11 @@
 
-import { MenuIcon, TicketPlus, LogOut, Factory } from "lucide-react";
+import { MenuIcon, TicketPlus, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { getTranslation } from "@/translations";
 import { useLocation } from "react-router-dom";
 import { navigationItems } from "./Navigation";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import { useIndustry } from "@/contexts/IndustryContext";
-import { IndustryType } from "@/contexts/IndustryContext";
-import { industries } from "@/components/guidelines/data/industryData";
 
 interface HeaderProps {
   sidebarOpen: boolean;
@@ -34,7 +25,6 @@ const Header = ({
   signOut
 }: HeaderProps) => {
   const location = useLocation();
-  const { selectedIndustry, setSelectedIndustry } = useIndustry();
   
   const getCurrentModuleName = () => {
     const currentPath = location.pathname;
@@ -42,11 +32,6 @@ const Header = ({
       item.href === currentPath || (item.href === "/" && currentPath === "")
     );
     return currentModule ? getTranslation(currentModule.name, language) : "";
-  };
-
-  const getCurrentIndustryName = () => {
-    const industry = industries.find(i => i.id === selectedIndustry);
-    return industry ? (language === 'ar' ? industry.nameAr : industry.name) : "";
   };
 
   return (
@@ -64,38 +49,6 @@ const Header = ({
           {getCurrentModuleName()}
         </h2>
         <div className="ml-auto flex items-center gap-2">
-          <DropdownMenu>
-            <HoverCard>
-              <HoverCardTrigger asChild>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex items-center gap-1"
-                  >
-                    <Factory className="h-3 w-3 mr-1" />
-                    {getCurrentIndustryName()}
-                  </Button>
-                </DropdownMenuTrigger>
-              </HoverCardTrigger>
-              <HoverCardContent className="w-48">
-                <p className="text-sm">
-                  {language === 'ar' ? 'تغيير نوع القطاع' : 'Change Industry Type'}
-                </p>
-              </HoverCardContent>
-            </HoverCard>
-            <DropdownMenuContent align="end">
-              {industries.map((industry) => (
-                <DropdownMenuItem 
-                  key={industry.id}
-                  onClick={() => setSelectedIndustry(industry.id as IndustryType)}
-                >
-                  {language === 'ar' ? industry.nameAr : industry.name}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
           <HoverCard>
             <HoverCardTrigger asChild>
               <Button

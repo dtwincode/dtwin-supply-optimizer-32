@@ -19,13 +19,11 @@ import SupplyPlanning from "./pages/SupplyPlanning";
 import DDSOP from "./pages/DDSOP";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { IndustryProvider } from "@/contexts/IndustryContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FilterProvider } from "./contexts/FilterContext";
 import { Suspense } from "react";
 import PageLoading from "./components/PageLoading";
-import { IndustrySelectionDialog } from "@/components/IndustrySelectionDialog";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,39 +40,36 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <LanguageProvider>
-          <IndustryProvider>
-            <FilterProvider>
-              <TooltipProvider>
-                <IndustrySelectionDialog />
-                <Suspense fallback={<PageLoading />}>
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/auth" element={<Auth />} />
-                    <Route path="/ddsop" element={<DDSOP />} />
-                    <Route path="/forecasting/*" element={<Forecasting />} />
-                    <Route path="/inventory/*" element={<Inventory />} />
-                    <Route path="/supply-planning" element={<SupplyPlanning />} />
-                    <Route path="/sales-planning" element={<SalesPlanning />} />
-                    <Route path="/marketing" element={<Marketing />} />
-                    <Route path="/logistics" element={<Logistics />} />
-                    <Route path="/reports" element={<Reports />} />
-                    <Route path="/ask-ai" element={<AskAI />} />
-                    <Route path="/data" element={<Settings />} />
-                    <Route path="/settings" element={<Navigate to="/data" replace />} />
-                    <Route path="/guidelines" element={<Guidelines />} />
-                    <Route path="/guidelines/getting-started" element={<GettingStarted />} />
-                    <Route path="/guidelines/forecasting-basics" element={<ForecastingBasics />} />
-                    <Route path="/guidelines/collaboration" element={<Collaboration />} />
-                    <Route path="/guidelines/advanced" element={<Advanced />} />
-                    <Route path="/guidelines/ai-assistant" element={<AIAssistant />} />
-                    <Route path="/sql-config" element={<SQLConfig />} />
-                    <Route path="/tickets" element={<Tickets />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </Suspense>
-              </TooltipProvider>
-            </FilterProvider>
-          </IndustryProvider>
+          <FilterProvider>
+            <TooltipProvider>
+              <Suspense fallback={<PageLoading />}>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/ddsop" element={<DDSOP />} />
+                  <Route path="/forecasting/*" element={<Forecasting />} />
+                  <Route path="/inventory/*" element={<Inventory />} />
+                  <Route path="/supply-planning" element={<SupplyPlanning />} />
+                  <Route path="/sales-planning" element={<SalesPlanning />} />
+                  <Route path="/marketing" element={<Marketing />} />
+                  <Route path="/logistics" element={<Logistics />} />
+                  <Route path="/reports" element={<Reports />} />
+                  <Route path="/ask-ai" element={<AskAI />} />
+                  <Route path="/data" element={<Settings />} />
+                  <Route path="/settings" element={<Navigate to="/data" replace />} />
+                  <Route path="/guidelines" element={<Guidelines />} />
+                  <Route path="/guidelines/getting-started" element={<GettingStarted />} />
+                  <Route path="/guidelines/forecasting-basics" element={<ForecastingBasics />} />
+                  <Route path="/guidelines/collaboration" element={<Collaboration />} />
+                  <Route path="/guidelines/advanced" element={<Advanced />} />
+                  <Route path="/guidelines/ai-assistant" element={<AIAssistant />} />
+                  <Route path="/sql-config" element={<SQLConfig />} />
+                  <Route path="/tickets" element={<Tickets />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+            </TooltipProvider>
+          </FilterProvider>
         </LanguageProvider>
       </AuthProvider>
     </QueryClientProvider>

@@ -1,217 +1,126 @@
-
-import React, { useState } from "react";
-import { ForecastingTabs } from "./ForecastingTabs";
-import { ForecastingHeader } from "./ForecastingHeader";
-import { ForecastChart } from "./ForecastChart";
-import { ForecastMetricsCards } from "./ForecastMetricsCards";
-import { ForecastTable } from "./ForecastTable";
+import { useState } from "react";
 import { ForecastFilters } from "./ForecastFilters";
-import { ModelSelectionCard } from "./ModelSelectionCard";
+import { ForecastDataPoint } from "@/types/forecasting";
+import { useLocalStorage } from "@/hooks/use-local-storage";
+import { useToast } from "@/hooks/use-toast";
+import { ForecastMetricsCards } from "./ForecastMetricsCards";
+import { ForecastingHeader } from "./ForecastingHeader";
 import { ScenarioManagement } from "./ScenarioManagement";
-import { ForecastingDateRange } from "./ForecastingDateRange";
 import { ModelVersioning } from "./ModelVersioning";
-import { ErrorDistribution } from "./components/ErrorDistribution";
-import { ModelRecommendations } from "./components/ModelRecommendations";
-import { AnomalyDetection } from "./components/AnomalyDetection";
-import { PharmacyForecastingFactors } from "./PharmacyForecastingFactors";
-import { useIndustry } from "@/contexts/IndustryContext";
-import { useForecastData } from "@/hooks/useForecastData";
-import { type ModelParameter } from "@/types/modelParameters";
-import { ForecastData } from "./table/types";
-import { SavedModelConfig } from "@/types/forecasting";
+import { DataUploadDialog } from "../settings/DataUploadDialog";
+import { Card, CardContent } from "@/components/ui/card";
+import { ModelParameter } from "@/types/modelParameters";
 
-interface ForecastingContainerProps {
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
-}
-
-export const ForecastingContainer: React.FC<ForecastingContainerProps> = ({
-  activeTab,
-  setActiveTab,
-}) => {
-  const { selectedIndustry } = useIndustry();
-  const [selectedModel, setSelectedModel] = useState("exp-smoothing");
-  const [startDate, setStartDate] = useState(new Date('2024-01-01'));
-  const [endDate, setEndDate] = useState(new Date('2024-12-31'));
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedRegion, setSelectedRegion] = useState("all");
-  const [selectedCity, setSelectedCity] = useState("all");
-  const [selectedChannel, setSelectedChannel] = useState("all");
-  const [selectedWarehouse, setSelectedWarehouse] = useState("all");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedSubcategory, setSelectedSubcategory] = useState("all");
-  const [selectedSku, setSelectedSku] = useState("all");
+export function ForecastingContainer() {
+  const [activeTab, setActiveTab] = useState("metrics");
+  const [isScenarioOpen, setIsScenarioOpen] = useState(false);
+  const [isVersioningOpen, setIsVersioningOpen] = useState(false);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [scenarioName, setScenarioName] = useState("");
-  
-  const {
-    filteredData,
-    metrics,
-    confidenceIntervals,
-    outliers,
-    seasonalityPatterns
-  } = useForecastData(
-    selectedRegion,
-    selectedCity,
-    selectedChannel,
-    selectedWarehouse,
-    searchQuery,
-    startDate.toISOString(),
-    endDate.toISOString(),
-    selectedModel,
-    selectedCategory,
-    selectedSubcategory,
-    selectedSku
-  );
+  const { toast } = useToast();
 
-  const handleDateRangeChange = (start: Date, end: Date) => {
-    setStartDate(start);
-    setEndDate(end);
+  const handleDateRangeChange = (startDate: Date, endDate: Date) => {
+    console.log("Date range changed:", startDate, endDate);
   };
 
   const handleModelChange = (modelId: string) => {
-    setSelectedModel(modelId);
+    console.log("Model changed:", modelId);
   };
 
   const handleFiltersChange = (filters: any) => {
-    // Process filter changes
     console.log("Filters changed:", filters);
   };
 
   const handleParametersChange = (modelId: string, parameters: ModelParameter[]) => {
-    // Process parameter changes
-    console.log("Parameters changed for model:", modelId, parameters);
+    console.log("Parameters changed:", modelId, parameters);
   };
 
-  const handleModelSelect = (model: string) => {
-    setSelectedModel(model);
+  const handleDataUploaded = () => {
+    setIsUploadDialogOpen(false);
   };
 
-  // Convert ForecastDataPoint[] to ForecastData[]
-  const tableData: ForecastData[] = filteredData.map(item => ({
-    id: item.id,
-    week: item.week,
-    forecast: item.forecast,
-    lower: item.forecast * 0.9, // Create lower bound based on forecast
-    upper: item.forecast * 1.1, // Create upper bound based on forecast
-    sku: item.sku,
-    category: item.category,
-    subcategory: item.subcategory
-  }));
-  
-  // Create properly typed mock data for model recommendations
-  const mockModels: SavedModelConfig[] = [
-    { 
-      id: "arima", 
-      model_id: "arima",
-      parameters: [{ name: "p", value: 1, description: "Auto-regressive term" }],
-      created_at: "2024-01-01T00:00:00Z",
-      performance_metrics: { accuracy: 92, trend: "improving", trained_at: "2024-01-01T00:00:00Z" }
-    },
-    { 
-      id: "prophet", 
-      model_id: "prophet",
-      parameters: [{ name: "changepoint_prior_scale", value: 0.05, description: "Flexibility of the trend" }],
-      created_at: "2024-01-01T00:00:00Z",
-      performance_metrics: { accuracy: 88, trend: "stable", trained_at: "2024-01-01T00:00:00Z" }
-    },
-    { 
-      id: "exp-smoothing", 
-      model_id: "exp-smoothing",
-      parameters: [{ name: "alpha", value: 0.3, description: "Smoothing factor" }],
-      created_at: "2024-01-01T00:00:00Z",
-      performance_metrics: { accuracy: 85, trend: "stable", trained_at: "2024-01-01T00:00:00Z" }
-    }
-  ];
-  
+  const handleScenarioLoad = (scenario: any) => {
+    console.log("Loading scenario:", scenario);
+  };
+
   return (
-    <div className="space-y-6">
-      <ForecastingHeader 
+    <div>
+      <ForecastingHeader
         onDateRangeChange={handleDateRangeChange}
         onModelChange={handleModelChange}
         onFiltersChange={handleFiltersChange}
         onParametersChange={handleParametersChange}
       />
+
+      <Card className="mt-6">
+        <CardContent className="p-6">
+          <div className="space-y-6">
+            {activeTab === "metrics" && (
+              <ForecastMetricsCards
+                metrics={{
+                  mape: 5.2,
+                  mae: 2.3,
+                  rmse: 3.1
+                }}
+              />
+            )}
+            {activeTab === "filters" && (
+              <ForecastFilters
+                searchQuery=""
+                setSearchQuery={() => {}}
+                selectedRegion="all"
+                setSelectedRegion={() => {}}
+                selectedCity="all"
+                setSelectedCity={() => {}}
+                selectedChannel="all"
+                setSelectedChannel={() => {}}
+                selectedWarehouse="all"
+                setSelectedWarehouse={() => {}}
+                selectedL1MainProd="all"
+                setSelectedL1MainProd={() => {}}
+                selectedL2ProdLine="all"
+                setSelectedL2ProdLine={() => {}}
+                selectedL3ProdCategory="all"
+                setSelectedL3ProdCategory={() => {}}
+                selectedL4DeviceMake="all"
+                setSelectedL4DeviceMake={() => {}}
+                selectedL5ProdSubCategory="all"
+                setSelectedL5ProdSubCategory={() => {}}
+                selectedL6DeviceModel="all"
+                setSelectedL6DeviceModel={() => {}}
+                selectedL7DeviceColor="all"
+                setSelectedL7DeviceColor={() => {}}
+                selectedL8DeviceStorage="all"
+                setSelectedL8DeviceStorage={() => {}}
+                channelTypes={[]}
+                warehouses={[]}
+                forecastData={[]}
+              />
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      <ScenarioManagement
+        scenarioName={scenarioName}
+        setScenarioName={setScenarioName}
+        currentModel="arima"
+        currentHorizon="1-month"
+        currentParameters={{}}
+        forecastData={[]}
+        onScenarioLoad={handleScenarioLoad}
+      />
+
+      <ModelVersioning modelId="arima" />
       
-      {/* We'll need to modify the ForecastingTabs component to accept activeTab and setActiveTab props */}
-      <div className="mb-4">
-        <ForecastingTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-      </div>
-
-      {activeTab === "dashboard" && (
-        <div className="space-y-6">
-          <ForecastMetricsCards metrics={metrics} />
-          <ForecastFilters 
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            selectedRegion={selectedRegion}
-            setSelectedRegion={setSelectedRegion}
-            selectedCity={selectedCity}
-            setSelectedCity={setSelectedCity}
-            selectedChannel={selectedChannel}
-            setSelectedChannel={setSelectedChannel}
-            selectedWarehouse={selectedWarehouse}
-            setSelectedWarehouse={setSelectedWarehouse}
-            selectedL1MainProd="all"
-            setSelectedL1MainProd={() => {}}
-            selectedL2ProdLine="all"
-            setSelectedL2ProdLine={() => {}}
-            selectedL3ProdCategory="all"
-            setSelectedL3ProdCategory={() => {}}
-            selectedL4DeviceMake="all"
-            setSelectedL4DeviceMake={() => {}}
-            selectedL5ProdSubCategory="all"
-            setSelectedL5ProdSubCategory={() => {}}
-            selectedL6DeviceModel="all"
-            setSelectedL6DeviceModel={() => {}}
-            selectedL7DeviceColor="all"
-            setSelectedL7DeviceColor={() => {}}
-            selectedL8DeviceStorage="all"
-            setSelectedL8DeviceStorage={() => {}}
-            channelTypes={['Online', 'Retail', 'Wholesale']}
-            warehouses={['Warehouse A', 'Warehouse B', 'Warehouse C']}
-            forecastData={filteredData}
-          />
-          <ForecastChart data={filteredData} confidenceIntervals={confidenceIntervals} />
-          <ForecastingDateRange 
-            fromDate={startDate} 
-            toDate={endDate} 
-            setFromDate={setStartDate} 
-            setToDate={setEndDate}
-          />
-          {selectedIndustry === 'pharmacy' && <PharmacyForecastingFactors />}
-          <ForecastTable data={tableData} />
-        </div>
-      )}
-
-      {activeTab === "models" && (
-        <div className="space-y-6">
-          <ModelSelectionCard 
-            selectedModel={selectedModel}
-            onModelChange={handleModelChange}
-            onParametersChange={handleParametersChange}
-          />
-          <ModelVersioning modelId={selectedModel} />
-          <ErrorDistribution data={filteredData} />
-          <ModelRecommendations models={mockModels} onSelectModel={handleModelSelect} />
-          {selectedIndustry === 'pharmacy' && <PharmacyForecastingFactors />}
-        </div>
-      )}
-
-      {activeTab === "scenarios" && (
-        <div className="space-y-6">
-          <ScenarioManagement 
-            scenarioName={scenarioName}
-            setScenarioName={setScenarioName}
-            currentModel={selectedModel}
-            currentHorizon="12" // Changed from number to string here
-            currentParameters={{}}
-            forecastData={filteredData}
-            onScenarioLoad={() => {}}
-          />
-          <AnomalyDetection data={filteredData} />
-          {selectedIndustry === 'pharmacy' && <PharmacyForecastingFactors />}
-        </div>
-      )}
+      <DataUploadDialog
+        isOpen={isUploadDialogOpen}
+        onClose={() => setIsUploadDialogOpen(false)}
+        title="Upload Forecasting Data"
+        tableName="forecasting_data"
+        module="forecasting"
+        onDataUploaded={handleDataUploaded}
+      />
     </div>
   );
-};
+}

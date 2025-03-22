@@ -1,58 +1,64 @@
-import React from "react";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useNavigate, useLocation } from "react-router-dom";
 
-interface ForecastingTabsProps {
-  activeTab?: string;
-  setActiveTab?: (tab: string) => void;
-}
+import { Link, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { 
+  BarChart3, 
+  FlipHorizontal, 
+  LineChart, 
+  CloudLightning 
+} from "lucide-react";
 
-export const ForecastingTabs: React.FC<ForecastingTabsProps> = ({ 
-  activeTab, 
-  setActiveTab 
-}) => {
-  const navigate = useNavigate();
+export const ForecastingTabs = () => {
   const location = useLocation();
-  
-  // If activeTab and setActiveTab are provided, use those
-  // Otherwise, use the route-based navigation
-  const handleTabChange = (value: string) => {
-    if (setActiveTab) {
-      setActiveTab(value);
-    } else {
-      const basePath = "/forecasting";
-      const path = value === "analysis" 
-        ? basePath 
-        : `${basePath}/${value}`;
-      navigate(path);
+  const currentPath = location.pathname;
+
+  const tabs = [
+    {
+      title: "Analysis",
+      href: "/forecasting",
+      icon: LineChart,
+    },
+    {
+      title: "Distribution",
+      href: "/forecasting/distribution",
+      icon: BarChart3,
+    },
+    {
+      title: "What-If",
+      href: "/forecasting/what-if",
+      icon: FlipHorizontal,
+    },
+    {
+      title: "External",
+      href: "/forecasting/external",
+      icon: CloudLightning,
     }
-  };
-  
-  // If activeTab is not provided, determine it from the route
-  const currentActiveTab = activeTab || (() => {
-    const path = location.pathname;
-    if (path.includes("distribution")) return "distribution";
-    if (path.includes("what-if")) return "what-if";
-    if (path.includes("external")) return "external";
-    return "analysis";
-  })();
+  ];
 
   return (
-    <Tabs value={currentActiveTab} onValueChange={handleTabChange} className="w-full">
-      <TabsList className="grid grid-cols-4 w-full">
-        <TabsTrigger value="analysis">
-          Forecast Analysis
-        </TabsTrigger>
-        <TabsTrigger value="distribution">
-          Forecast Distribution
-        </TabsTrigger>
-        <TabsTrigger value="what-if">
-          What-If Analysis
-        </TabsTrigger>
-        <TabsTrigger value="external">
-          External Factors
-        </TabsTrigger>
-      </TabsList>
-    </Tabs>
+    <div className="flex items-center gap-4 border-b">
+      {tabs.map((tab) => {
+        const Icon = tab.icon;
+        const isActive = 
+          (tab.href === "/forecasting" && currentPath === "/forecasting") ||
+          (tab.href !== "/forecasting" && currentPath.startsWith(tab.href));
+
+        return (
+          <Link key={tab.href} to={tab.href}>
+            <Button
+              variant="ghost"
+              className={cn(
+                "gap-2 py-2",
+                isActive && "bg-muted font-medium"
+              )}
+            >
+              <Icon className="h-4 w-4" />
+              {tab.title}
+            </Button>
+          </Link>
+        );
+      })}
+    </div>
   );
 };
