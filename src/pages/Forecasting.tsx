@@ -54,9 +54,12 @@ const Forecasting = () => {
     }
   };
 
+  // Hide filters on lifecycle tab
+  const showFilters = !currentPath.includes('/forecasting/lifecycle');
+
   return (
     <DashboardLayout>
-      <div className="flex flex-col">
+      <div className="flex flex-col h-full">
         <div className="px-6 py-6">
           <h1 className="text-3xl font-semibold tracking-tight">Demand Forecasting</h1>
           <p className="text-muted-foreground mt-2">
@@ -69,22 +72,24 @@ const Forecasting = () => {
           <ForecastingTabs />
         </div>
 
-        <FiltersSection 
-          isTimeExpanded={isTimeExpanded}
-          isProductExpanded={isProductExpanded}
-          isLocationExpanded={isLocationExpanded}
-          handleSectionToggle={handleSectionToggle}
-          trainingFromDate={trainingFromDate}
-          trainingToDate={trainingToDate}
-          testingFromDate={testingFromDate}
-          testingToDate={testingToDate}
-          setTrainingFromDate={setTrainingFromDate}
-          setTrainingToDate={setTrainingToDate}
-          setTestingFromDate={setTestingFromDate}
-          setTestingToDate={setTestingToDate}
-        />
+        {showFilters && (
+          <FiltersSection 
+            isTimeExpanded={isTimeExpanded}
+            isProductExpanded={isProductExpanded}
+            isLocationExpanded={isLocationExpanded}
+            handleSectionToggle={handleSectionToggle}
+            trainingFromDate={trainingFromDate}
+            trainingToDate={trainingToDate}
+            testingFromDate={testingFromDate}
+            testingToDate={testingToDate}
+            setTrainingFromDate={setTrainingFromDate}
+            setTrainingToDate={setTrainingToDate}
+            setTestingFromDate={setTestingFromDate}
+            setTestingToDate={setTestingToDate}
+          />
+        )}
 
-        <div className="px-6 mt-6">
+        <div className={`px-6 mt-6 ${showFilters ? '' : 'h-[calc(100vh-200px)]'}`}>
           <Routes>
             <Route index element={<ForecastAnalysisTab />} />
             <Route path="distribution" element={<ForecastDistributionTab forecastTableData={dummyData.forecastTableData} />} />

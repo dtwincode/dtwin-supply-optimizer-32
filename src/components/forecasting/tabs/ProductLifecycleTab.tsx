@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -35,8 +34,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   FileQuestion, 
   Rocket, 
@@ -213,7 +213,7 @@ const ProductLifecycleTab = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 h-full">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Product Lifecycle Management</h2>
         <div className="flex space-x-2">
@@ -259,748 +259,559 @@ const ProductLifecycleTab = () => {
         </div>
       </div>
 
-      {currentView === "overview" ? (
-        <div className="space-y-6">
-          {/* Lifecycle stages cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {lifecycleStages.map(stage => {
-              const count = sampleProducts.filter(p => p.stage === stage.id).length;
-              const Icon = stage.icon;
-              return (
-                <Card key={stage.id} className="cursor-pointer hover:shadow-md transition-shadow">
-                  <CardContent className="pt-6">
-                    <div className="flex items-center space-x-4">
-                      <div className={`p-2 rounded-full ${stage.color} text-white`}>
-                        <Icon className="h-8 w-8" />
-                      </div>
-                      <div>
-                        <h3 className="font-medium">{stage.name}</h3>
-                        <p className="text-2xl font-bold">{count} Products</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-
-          {/* Analytics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Product Lifecycle Distribution</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={lifecycleDistributionData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="count" fill="#8884d8" name="Number of Products" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Sales Trends by Lifecycle Stage</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={salesTrendData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Line type="monotone" dataKey="new" stroke="#3b82f6" name="New" />
-                      <Line type="monotone" dataKey="growth" stroke="#22c55e" name="Growth" />
-                      <Line type="monotone" dataKey="mature" stroke="#eab308" name="Mature" />
-                      <Line type="monotone" dataKey="decline" stroke="#ef4444" name="Decline" />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Products Table */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Products by Lifecycle Stage</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>SKU</TableHead>
-                    <TableHead>Product Name</TableHead>
-                    <TableHead>Lifecycle Stage</TableHead>
-                    <TableHead>Launch Date</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Forecast Method</TableHead>
-                    <TableHead>Confidence</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredProducts.map(product => (
-                    <TableRow key={product.id}>
-                      <TableCell>{product.sku}</TableCell>
-                      <TableCell>{product.name}</TableCell>
-                      <TableCell>
-                        <Badge 
-                          className={
-                            product.stage === "new" ? "bg-blue-500" :
-                            product.stage === "growth" ? "bg-green-500" :
-                            product.stage === "mature" ? "bg-yellow-500" :
-                            "bg-red-500"
-                          }
-                        >
-                          {product.stage === "new" ? "New" :
-                           product.stage === "growth" ? "Growth" :
-                           product.stage === "mature" ? "Mature" :
-                           "Decline"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{product.launchDate}</TableCell>
-                      <TableCell>{product.category}</TableCell>
-                      <TableCell>{product.forecastMethod}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <span className="mr-2">{product.confidence}%</span>
-                          <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div 
-                              className={`h-full ${product.confidence > 80 ? 'bg-green-500' : product.confidence > 60 ? 'bg-yellow-500' : 'bg-red-500'}`}
-                              style={{ width: `${product.confidence}%` }}
-                            />
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => handleProductSelect(product.id)}
-                        >
-                          Details
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </div>
-      ) : (
-        // Product Detail View
-        selectedProductData && (
+      <ScrollArea className="h-[calc(100vh-200px)]">
+        {currentView === "overview" ? (
           <div className="space-y-6">
+            {/* Lifecycle stages cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {lifecycleStages.map(stage => {
+                const count = sampleProducts.filter(p => p.stage === stage.id).length;
+                const Icon = stage.icon;
+                return (
+                  <Card key={stage.id} className="cursor-pointer hover:shadow-md transition-shadow">
+                    <CardContent className="pt-6">
+                      <div className="flex items-center space-x-4">
+                        <div className={`p-2 rounded-full ${stage.color} text-white`}>
+                          <Icon className="h-8 w-8" />
+                        </div>
+                        <div>
+                          <h3 className="font-medium">{stage.name}</h3>
+                          <p className="text-2xl font-bold">{count} Products</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+
+            {/* Analytics */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Product Lifecycle Distribution</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={lifecycleDistributionData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="count" fill="#8884d8" name="Number of Products" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Sales Trends by Lifecycle Stage</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={salesTrendData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="month" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Line type="monotone" dataKey="new" stroke="#3b82f6" name="New" />
+                        <Line type="monotone" dataKey="growth" stroke="#22c55e" name="Growth" />
+                        <Line type="monotone" dataKey="mature" stroke="#eab308" name="Mature" />
+                        <Line type="monotone" dataKey="decline" stroke="#ef4444" name="Decline" />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Products Table */}
             <Card>
               <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle>{selectedProductData.name}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{selectedProductData.sku}</p>
-                  </div>
-                  <Badge 
-                    className={
-                      selectedProductData.stage === "new" ? "bg-blue-500" :
-                      selectedProductData.stage === "growth" ? "bg-green-500" :
-                      selectedProductData.stage === "mature" ? "bg-yellow-500" :
-                      "bg-red-500"
-                    }
-                  >
-                    {selectedProductData.stage === "new" ? "New Product" :
-                     selectedProductData.stage === "growth" ? "Growth" :
-                     selectedProductData.stage === "mature" ? "Mature" :
-                     "Decline"}
-                  </Badge>
-                </div>
+                <CardTitle>Products by Lifecycle Stage</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-sm font-medium text-muted-foreground">Product Details</h3>
-                      <div className="grid grid-cols-2 gap-2 mt-2">
-                        <div>
-                          <span className="text-sm text-muted-foreground">Category:</span>
-                          <p className="font-medium">{selectedProductData.category}</p>
-                        </div>
-                        <div>
-                          <span className="text-sm text-muted-foreground">Launch Date:</span>
-                          <p className="font-medium">{selectedProductData.launchDate}</p>
-                        </div>
-                        <div>
-                          <span className="text-sm text-muted-foreground">Sales Target:</span>
-                          <p className="font-medium">{selectedProductData.salesTarget.toLocaleString()} units</p>
-                        </div>
-                        <div>
-                          <span className="text-sm text-muted-foreground">Forecast Method:</span>
-                          <p className="font-medium">{selectedProductData.forecastMethod}</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {selectedProductData.similarProducts.length > 0 && (
-                      <div>
-                        <h3 className="text-sm font-medium text-muted-foreground">Similar Products</h3>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {selectedProductData.similarProducts.map(sku => (
-                            <Badge key={sku} variant="outline">{sku}</Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    <div>
-                      <h3 className="text-sm font-medium text-muted-foreground">Lifecycle Transition Planning</h3>
-                      <div className="mt-2 p-3 border rounded-md">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm">Current Stage:</span>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>SKU</TableHead>
+                      <TableHead>Product Name</TableHead>
+                      <TableHead>Lifecycle Stage</TableHead>
+                      <TableHead>Launch Date</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Forecast Method</TableHead>
+                      <TableHead>Confidence</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredProducts.map(product => (
+                      <TableRow key={product.id}>
+                        <TableCell>{product.sku}</TableCell>
+                        <TableCell>{product.name}</TableCell>
+                        <TableCell>
                           <Badge 
                             className={
-                              selectedProductData.stage === "new" ? "bg-blue-500" :
-                              selectedProductData.stage === "growth" ? "bg-green-500" :
-                              selectedProductData.stage === "mature" ? "bg-yellow-500" :
+                              product.stage === "new" ? "bg-blue-500" :
+                              product.stage === "growth" ? "bg-green-500" :
+                              product.stage === "mature" ? "bg-yellow-500" :
                               "bg-red-500"
                             }
                           >
-                            {selectedProductData.stage === "new" ? "New Product" :
-                             selectedProductData.stage === "growth" ? "Growth" :
-                             selectedProductData.stage === "mature" ? "Mature" :
+                            {product.stage === "new" ? "New" :
+                             product.stage === "growth" ? "Growth" :
+                             product.stage === "mature" ? "Mature" :
                              "Decline"}
                           </Badge>
-                        </div>
-                        <div className="space-y-2">
-                          <RadioGroup defaultValue={selectedProductData.stage} className="flex space-x-2">
-                            {lifecycleStages.map(stage => (
-                              <div key={stage.id} className="flex items-center space-x-1">
-                                <RadioGroupItem value={stage.id} id={`stage-${stage.id}`} />
-                                <Label htmlFor={`stage-${stage.id}`} className="text-xs">{stage.name.split(' ')[0]}</Label>
-                              </div>
-                            ))}
-                          </RadioGroup>
-                          <div className="flex items-center space-x-2">
-                            <Label className="text-sm">Planned transition date:</Label>
-                            <Input type="date" className="w-40 h-8 text-sm" />
+                        </TableCell>
+                        <TableCell>{product.launchDate}</TableCell>
+                        <TableCell>{product.category}</TableCell>
+                        <TableCell>{product.forecastMethod}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center">
+                            <span className="mr-2">{product.confidence}%</span>
+                            <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                              <div 
+                                className={`h-full ${product.confidence > 80 ? 'bg-green-500' : product.confidence > 60 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                                style={{ width: `${product.confidence}%` }}
+                              />
+                            </div>
                           </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-2">Forecast vs Actual Performance</h3>
-                    <div className="h-[250px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={productForecastData}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="month" />
-                          <YAxis />
-                          <Tooltip />
-                          <Legend />
-                          <Line type="monotone" dataKey="forecast" stroke="#3b82f6" name="Forecast" strokeWidth={2} />
-                          <Line type="monotone" dataKey="actual" stroke="#22c55e" name="Actual" strokeWidth={2} />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-                </div>
+                        </TableCell>
+                        <TableCell>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => handleProductSelect(product.id)}
+                          >
+                            Details
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </CardContent>
             </Card>
+          </div>
+        ) : (
+          // Product Detail View
+          selectedProductData && (
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle>{selectedProductData.name}</CardTitle>
+                      <p className="text-sm text-muted-foreground">{selectedProductData.sku}</p>
+                    </div>
+                    <Badge 
+                      className={
+                        selectedProductData.stage === "new" ? "bg-blue-500" :
+                        selectedProductData.stage === "growth" ? "bg-green-500" :
+                        selectedProductData.stage === "mature" ? "bg-yellow-500" :
+                        "bg-red-500"
+                      }
+                    >
+                      {selectedProductData.stage === "new" ? "New Product" :
+                       selectedProductData.stage === "growth" ? "Growth" :
+                       selectedProductData.stage === "mature" ? "Mature" :
+                       "Decline"}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="text-sm font-medium text-muted-foreground">Product Details</h3>
+                        <div className="grid grid-cols-2 gap-2 mt-2">
+                          <div>
+                            <span className="text-sm text-muted-foreground">Category:</span>
+                            <p className="font-medium">{selectedProductData.category}</p>
+                          </div>
+                          <div>
+                            <span className="text-sm text-muted-foreground">Launch Date:</span>
+                            <p className="font-medium">{selectedProductData.launchDate}</p>
+                          </div>
+                          <div>
+                            <span className="text-sm text-muted-foreground">Sales Target:</span>
+                            <p className="font-medium">{selectedProductData.salesTarget.toLocaleString()} units</p>
+                          </div>
+                          <div>
+                            <span className="text-sm text-muted-foreground">Forecast Method:</span>
+                            <p className="font-medium">{selectedProductData.forecastMethod}</p>
+                          </div>
+                        </div>
+                      </div>
 
-            <Tabs defaultValue="forecast">
-              <TabsList>
-                <TabsTrigger value="forecast">Forecasting</TabsTrigger>
-                <TabsTrigger value="transition">Transition Planning</TabsTrigger>
-                <TabsTrigger value="insights">Analytics & Insights</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="forecast" className="space-y-4 mt-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Forecast Configuration</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label>Forecast Method</Label>
-                          <Select defaultValue={selectedProductData.forecastMethod}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select method" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="time-series">Time Series</SelectItem>
-                              <SelectItem value="analogous">Analogous Products</SelectItem>
-                              <SelectItem value="judgmental">Judgmental</SelectItem>
-                              <SelectItem value="market-based">Market-based</SelectItem>
-                            </SelectContent>
-                          </Select>
+                      {selectedProductData.similarProducts.length > 0 && (
+                        <div>
+                          <h3 className="text-sm font-medium text-muted-foreground">Similar Products</h3>
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {selectedProductData.similarProducts.map(sku => (
+                              <Badge key={sku} variant="outline">{sku}</Badge>
+                            ))}
+                          </div>
                         </div>
-                        
-                        {selectedProductData.forecastMethod === "analogous" && (
+                      )}
+
+                      <div>
+                        <h3 className="text-sm font-medium text-muted-foreground">Lifecycle Transition Planning</h3>
+                        <div className="mt-2 p-3 border rounded-md">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm">Current Stage:</span>
+                            <Badge 
+                              className={
+                                selectedProductData.stage === "new" ? "bg-blue-500" :
+                                selectedProductData.stage === "growth" ? "bg-green-500" :
+                                selectedProductData.stage === "mature" ? "bg-yellow-500" :
+                                "bg-red-500"
+                              }
+                            >
+                              {selectedProductData.stage === "new" ? "New Product" :
+                               selectedProductData.stage === "growth" ? "Growth" :
+                               selectedProductData.stage === "mature" ? "Mature" :
+                               "Decline"}
+                            </Badge>
+                          </div>
                           <div className="space-y-2">
-                            <Label>Reference Products</Label>
-                            <div className="flex flex-wrap gap-2">
-                              {selectedProductData.similarProducts.map(sku => (
-                                <Badge key={sku}>{sku} <button className="ml-1">×</button></Badge>
+                            <RadioGroup defaultValue={selectedProductData.stage} className="flex space-x-2">
+                              {lifecycleStages.map(stage => (
+                                <div key={stage.id} className="flex items-center space-x-1">
+                                  <RadioGroupItem value={stage.id} id={`stage-${stage.id}`} />
+                                  <Label htmlFor={`stage-${stage.id}`} className="text-xs">{stage.name.split(' ')[0]}</Label>
+                                </div>
                               ))}
-                              <Button variant="outline" size="sm" className="h-6">Add</Button>
+                            </RadioGroup>
+                            <div className="flex items-center space-x-2">
+                              <Label className="text-sm">Planned transition date:</Label>
+                              <Input type="date" className="w-40 h-8 text-sm" />
                             </div>
                           </div>
-                        )}
-                        
-                        <div className="space-y-2">
-                          <Label>Forecast Horizon</Label>
-                          <Select defaultValue="6">
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select horizon" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="3">3 months</SelectItem>
-                              <SelectItem value="6">6 months</SelectItem>
-                              <SelectItem value="12">12 months</SelectItem>
-                              <SelectItem value="18">18 months</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label>Seasonality Pattern</Label>
-                          <Select defaultValue="auto">
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select pattern" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="none">None</SelectItem>
-                              <SelectItem value="auto">Auto-detect</SelectItem>
-                              <SelectItem value="monthly">Monthly</SelectItem>
-                              <SelectItem value="quarterly">Quarterly</SelectItem>
-                            </SelectContent>
-                          </Select>
                         </div>
                       </div>
-                      
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <Label>Confidence Level</Label>
-                            <span className="text-sm font-medium">{selectedProductData.confidence}%</span>
-                          </div>
-                          <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div 
-                              className={`h-full ${selectedProductData.confidence > 80 ? 'bg-green-500' : selectedProductData.confidence > 60 ? 'bg-yellow-500' : 'bg-red-500'}`}
-                              style={{ width: `${selectedProductData.confidence}%` }}
-                            />
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label>Sales Target</Label>
-                          <div className="flex items-center space-x-2">
-                            <Input 
-                              type="number" 
-                              defaultValue={selectedProductData.salesTarget} 
-                            />
-                            <span>units</span>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label>Adjustment Factors</Label>
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-medium text-muted-foreground mb-2">Forecast vs Actual Performance</h3>
+                      <div className="h-[250px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={productForecastData}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="month" />
+                            <YAxis />
+                            <Tooltip />
+                            <Legend />
+                            <Line type="monotone" dataKey="forecast" stroke="#3b82f6" name="Forecast" strokeWidth={2} />
+                            <Line type="monotone" dataKey="actual" stroke="#22c55e" name="Actual" strokeWidth={2} />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Tabs defaultValue="forecast">
+                <TabsList>
+                  <TabsTrigger value="forecast">Forecasting</TabsTrigger>
+                  <TabsTrigger value="transition">Transition Planning</TabsTrigger>
+                  <TabsTrigger value="insights">Analytics & Insights</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="forecast" className="space-y-4 mt-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Forecast Configuration</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-4">
                           <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm">Market Growth</span>
-                              <Input type="number" defaultValue={5} className="w-20 h-8" />
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm">Cannibalization</span>
-                              <Input type="number" defaultValue={-2} className="w-20 h-8" />
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm">Promotions</span>
-                              <Input type="number" defaultValue={8} className="w-20 h-8" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-end mt-6 space-x-2">
-                      <Button variant="outline">Reset</Button>
-                      <Button>Update Forecast</Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              <TabsContent value="transition" className="space-y-4 mt-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Lifecycle Transition Planning</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-1">
-                          <h3 className="font-medium">Current Lifecycle Stage</h3>
-                          <Badge 
-                            className={
-                              selectedProductData.stage === "new" ? "bg-blue-500" :
-                              selectedProductData.stage === "growth" ? "bg-green-500" :
-                              selectedProductData.stage === "mature" ? "bg-yellow-500" :
-                              "bg-red-500"
-                            }
-                          >
-                            {selectedProductData.stage === "new" ? "New Product" :
-                             selectedProductData.stage === "growth" ? "Growth" :
-                             selectedProductData.stage === "mature" ? "Mature" :
-                             "Decline"}
-                          </Badge>
-                        </div>
-                        
-                        <div className="space-y-1">
-                          <h3 className="font-medium">Transition Criteria Met</h3>
-                          <Badge variant="outline" className="bg-yellow-100">2 of 3</Badge>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-4">
-                        <h3 className="font-medium">Stage Transition Timeline</h3>
-                        <div className="relative">
-                          <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div className="h-full bg-blue-500" style={{ width: "25%" }} />
-                          </div>
-                          <div className="flex justify-between mt-2">
-                            <div className="text-center">
-                              <div className="w-4 h-4 bg-blue-500 rounded-full mx-auto" />
-                              <span className="text-xs">NPI</span>
-                            </div>
-                            <div className="text-center">
-                              <div className="w-4 h-4 bg-gray-300 rounded-full mx-auto" />
-                              <span className="text-xs">Growth</span>
-                            </div>
-                            <div className="text-center">
-                              <div className="w-4 h-4 bg-gray-300 rounded-full mx-auto" />
-                              <span className="text-xs">Mature</span>
-                            </div>
-                            <div className="text-center">
-                              <div className="w-4 h-4 bg-gray-300 rounded-full mx-auto" />
-                              <span className="text-xs">Decline</span>
-                            </div>
-                            <div className="text-center">
-                              <div className="w-4 h-4 bg-gray-300 rounded-full mx-auto" />
-                              <span className="text-xs">EOL</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-4">
-                        <h3 className="font-medium">Transition Criteria</h3>
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Criteria</TableHead>
-                              <TableHead>Threshold</TableHead>
-                              <TableHead>Current Value</TableHead>
-                              <TableHead>Status</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            <TableRow>
-                              <TableCell>Market Penetration</TableCell>
-                              <TableCell>5%</TableCell>
-                              <TableCell>6.2%</TableCell>
-                              <TableCell><Badge className="bg-green-500">Met</Badge></TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell>Growth Rate</TableCell>
-                              <TableCell>15% monthly</TableCell>
-                              <TableCell>12.5%</TableCell>
-                              <TableCell><Badge className="bg-yellow-500">Partial</Badge></TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell>Time in Stage</TableCell>
-                              <TableCell>90 days</TableCell>
-                              <TableCell>45 days</TableCell>
-                              <TableCell><Badge className="bg-red-500">Not Met</Badge></TableCell>
-                            </TableRow>
-                          </TableBody>
-                        </Table>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <h3 className="font-medium">Planned Transition</h3>
-                        <div className="flex items-end space-x-4">
-                          <div className="space-y-1">
-                            <Label>Target Stage</Label>
-                            <Select defaultValue="growth">
-                              <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Select stage" />
+                            <Label>Forecast Method</Label>
+                            <Select defaultValue={selectedProductData.forecastMethod}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select method" />
                               </SelectTrigger>
                               <SelectContent>
-                                {lifecycleStages.map(stage => (
-                                  <SelectItem key={stage.id} value={stage.id}>{stage.name}</SelectItem>
-                                ))}
+                                <SelectItem value="time-series">Time Series</SelectItem>
+                                <SelectItem value="analogous">Analogous Products</SelectItem>
+                                <SelectItem value="judgmental">Judgmental</SelectItem>
+                                <SelectItem value="market-based">Market-based</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
                           
-                          <div className="space-y-1">
-                            <Label>Planned Date</Label>
-                            <Input type="date" defaultValue="2024-09-15" />
+                          {selectedProductData.forecastMethod === "analogous" && (
+                            <div className="space-y-2">
+                              <Label>Reference Products</Label>
+                              <div className="flex flex-wrap gap-2">
+                                {selectedProductData.similarProducts.map(sku => (
+                                  <Badge key={sku}>{sku} <button className="ml-1">×</button></Badge>
+                                ))}
+                                <Button variant="outline" size="sm" className="h-6">Add</Button>
+                              </div>
+                            </div>
+                          )}
+                          
+                          <div className="space-y-2">
+                            <Label>Forecast Horizon</Label>
+                            <Select defaultValue="6">
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select horizon" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="3">3 months</SelectItem>
+                                <SelectItem value="6">6 months</SelectItem>
+                                <SelectItem value="12">12 months</SelectItem>
+                                <SelectItem value="18">18 months</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </div>
                           
-                          <Button>Schedule Transition</Button>
+                          <div className="space-y-2">
+                            <Label>Seasonality Pattern</Label>
+                            <Select defaultValue="auto">
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select pattern" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">None</SelectItem>
+                                <SelectItem value="auto">Auto-detect</SelectItem>
+                                <SelectItem value="monthly">Monthly</SelectItem>
+                                <SelectItem value="quarterly">Quarterly</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              <TabsContent value="insights" className="space-y-4 mt-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Product Performance Insights</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <Card>
-                          <CardContent className="pt-6">
-                            <div className="text-center">
-                              <h3 className="text-sm font-medium text-muted-foreground">Growth Rate</h3>
-                              <p className="text-2xl font-bold text-green-500">+18.5%</p>
-                              <p className="text-xs text-muted-foreground">vs 15% average for category</p>
-                            </div>
-                          </CardContent>
-                        </Card>
                         
-                        <Card>
-                          <CardContent className="pt-6">
-                            <div className="text-center">
-                              <h3 className="text-sm font-medium text-muted-foreground">Market Share</h3>
-                              <p className="text-2xl font-bold">4.2%</p>
-                              <p className="text-xs text-green-500">+0.8% from last period</p>
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <Label>Confidence Level</Label>
+                              <span className="text-sm font-medium">{selectedProductData.confidence}%</span>
                             </div>
-                          </CardContent>
-                        </Card>
-                        
-                        <Card>
-                          <CardContent className="pt-6">
-                            <div className="text-center">
-                              <h3 className="text-sm font-medium text-muted-foreground">Forecast Accuracy</h3>
-                              <p className="text-2xl font-bold">92.7%</p>
-                              <p className="text-xs text-green-500">Above 85% target</p>
+                            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                              <div 
+                                className={`h-full ${selectedProductData.confidence > 80 ? 'bg-green-500' : selectedProductData.confidence > 60 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                                style={{ width: `${selectedProductData.confidence}%` }}
+                              />
                             </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-                      
-                      <div>
-                        <h3 className="font-medium mb-4">Recommendations</h3>
-                        <div className="space-y-2">
-                          <div className="flex items-start space-x-2 p-3 bg-blue-50 rounded-md">
-                            <FileQuestion className="h-5 w-5 text-blue-500 mt-0.5" />
-                            <div>
-                              <h4 className="font-medium">Consider transition to Growth stage</h4>
-                              <p className="text-sm text-muted-foreground">
-                                Based on current performance metrics, this product may be ready for transition to the Growth stage within the next 30-45 days.
-                              </p>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label>Sales Target</Label>
+                            <div className="flex items-center space-x-2">
+                              <Input 
+                                type="number" 
+                                defaultValue={selectedProductData.salesTarget} 
+                              />
+                              <span>units</span>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label>Adjustment Factors</Label>
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm">Market Growth</span>
+                                <Input type="number" defaultValue={5} className="w-20 h-8" />
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm">Cannibalization</span>
+                                <Input type="number" defaultValue={-2} className="w-20 h-8" />
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm">Promotions</span>
+                                <Input type="number" defaultValue={8} className="w-20 h-8" />
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </div>
-        )
-      )}
-
-      {/* New Product Dialog */}
-      <Dialog open={isNewProductDialogOpen} onOpenChange={setIsNewProductDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Add New Product</DialogTitle>
-          </DialogHeader>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-            <div className="space-y-3">
-              <div className="space-y-1">
-                <Label htmlFor="sku">SKU</Label>
-                <Input 
-                  id="sku" 
-                  value={newProduct.sku} 
-                  onChange={(e) => handleNewProductChange("sku", e.target.value)} 
-                  placeholder="Enter SKU"
-                />
-              </div>
-              
-              <div className="space-y-1">
-                <Label htmlFor="name">Product Name</Label>
-                <Input 
-                  id="name" 
-                  value={newProduct.name} 
-                  onChange={(e) => handleNewProductChange("name", e.target.value)} 
-                  placeholder="Enter product name"
-                />
-              </div>
-              
-              <div className="space-y-1">
-                <Label htmlFor="category">Category</Label>
-                <Input 
-                  id="category" 
-                  value={newProduct.category} 
-                  onChange={(e) => handleNewProductChange("category", e.target.value)} 
-                  placeholder="Enter category"
-                />
-              </div>
-              
-              <div className="space-y-1">
-                <Label htmlFor="launchDate">Launch Date</Label>
-                <Input 
-                  id="launchDate" 
-                  type="date" 
-                  value={newProduct.launchDate} 
-                  onChange={(e) => handleNewProductChange("launchDate", e.target.value)} 
-                />
-              </div>
-              
-              <div className="space-y-1">
-                <Label htmlFor="stage">Lifecycle Stage</Label>
-                <Select 
-                  value={newProduct.stage} 
-                  onValueChange={(value) => handleNewProductChange("stage", value)}
-                >
-                  <SelectTrigger id="stage">
-                    <SelectValue placeholder="Select stage" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {lifecycleStages.map(stage => (
-                      <SelectItem key={stage.id} value={stage.id}>{stage.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <div className="space-y-3">
-              <div className="space-y-1">
-                <Label htmlFor="forecastMethod">Forecast Method</Label>
-                <Select 
-                  value={newProduct.forecastMethod} 
-                  onValueChange={(value) => handleNewProductChange("forecastMethod", value)}
-                >
-                  <SelectTrigger id="forecastMethod">
-                    <SelectValue placeholder="Select method" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="time-series">Time Series</SelectItem>
-                    <SelectItem value="analogous">Analogous Products</SelectItem>
-                    <SelectItem value="judgmental">Judgmental</SelectItem>
-                    <SelectItem value="market-based">Market-based</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-1">
-                <Label htmlFor="salesTarget">Sales Target (units)</Label>
-                <Input 
-                  id="salesTarget" 
-                  type="number" 
-                  value={newProduct.salesTarget} 
-                  onChange={(e) => handleNewProductChange("salesTarget", e.target.value)} 
-                  placeholder="Enter sales target"
-                />
-              </div>
-              
-              <div className="space-y-1">
-                <Label htmlFor="confidence">Confidence Level (%)</Label>
-                <Input 
-                  id="confidence" 
-                  type="number" 
-                  min="0" 
-                  max="100" 
-                  value={newProduct.confidence} 
-                  onChange={(e) => handleNewProductChange("confidence", parseInt(e.target.value))} 
-                />
-              </div>
-              
-              <div className="space-y-1">
-                <Label htmlFor="seasonality">Seasonality</Label>
-                <Select 
-                  value={newProduct.seasonality} 
-                  onValueChange={(value) => handleNewProductChange("seasonality", value)}
-                >
-                  <SelectTrigger id="seasonality">
-                    <SelectValue placeholder="Select seasonality" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">None</SelectItem>
-                    <SelectItem value="monthly">Monthly</SelectItem>
-                    <SelectItem value="quarterly">Quarterly</SelectItem>
-                    <SelectItem value="yearly">Yearly</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-1">
-                <Label htmlFor="plannedEndOfLife">Planned End of Life (optional)</Label>
-                <Input 
-                  id="plannedEndOfLife" 
-                  type="date" 
-                  value={newProduct.plannedEndOfLife} 
-                  onChange={(e) => handleNewProductChange("plannedEndOfLife", e.target.value)} 
-                />
-              </div>
-            </div>
-            
-            <div className="col-span-1 md:col-span-2 space-y-1">
-              <Label htmlFor="description">Description</Label>
-              <Textarea 
-                id="description" 
-                value={newProduct.description} 
-                onChange={(e) => handleNewProductChange("description", e.target.value)} 
-                placeholder="Enter product description"
-                rows={3}
-              />
-            </div>
-            
-            <div className="col-span-1 md:col-span-2">
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="isPromotional" 
-                  checked={newProduct.isPromotional} 
-                  onCheckedChange={(value) => handleNewProductChange("isPromotional", value)} 
-                />
-                <Label htmlFor="isPromotional">Promotional product</Label>
-              </div>
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsNewProductDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleAddNewProduct}>Add Product</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-};
-
-export default ProductLifecycleTab;
+                      
+                      <div className="flex justify-end mt-6 space-x-2">
+                        <Button variant="outline">Reset</Button>
+                        <Button>Update Forecast</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                
+                <TabsContent value="transition" className="space-y-4 mt-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Lifecycle Transition Planning</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-6">
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-1">
+                            <h3 className="font-medium">Current Lifecycle Stage</h3>
+                            <Badge 
+                              className={
+                                selectedProductData.stage === "new" ? "bg-blue-500" :
+                                selectedProductData.stage === "growth" ? "bg-green-500" :
+                                selectedProductData.stage === "mature" ? "bg-yellow-500" :
+                                "bg-red-500"
+                              }
+                            >
+                              {selectedProductData.stage === "new" ? "New Product" :
+                               selectedProductData.stage === "growth" ? "Growth" :
+                               selectedProductData.stage === "mature" ? "Mature" :
+                               "Decline"}
+                            </Badge>
+                          </div>
+                          
+                          <div className="space-y-1">
+                            <h3 className="font-medium">Transition Criteria Met</h3>
+                            <Badge variant="outline" className="bg-yellow-100">2 of 3</Badge>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          <h3 className="font-medium">Stage Transition Timeline</h3>
+                          <div className="relative">
+                            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                              <div className="h-full bg-blue-500" style={{ width: "25%" }} />
+                            </div>
+                            <div className="flex justify-between mt-2">
+                              <div className="text-center">
+                                <div className="w-4 h-4 bg-blue-500 rounded-full mx-auto" />
+                                <span className="text-xs">NPI</span>
+                              </div>
+                              <div className="text-center">
+                                <div className="w-4 h-4 bg-gray-300 rounded-full mx-auto" />
+                                <span className="text-xs">Growth</span>
+                              </div>
+                              <div className="text-center">
+                                <div className="w-4 h-4 bg-gray-300 rounded-full mx-auto" />
+                                <span className="text-xs">Mature</span>
+                              </div>
+                              <div className="text-center">
+                                <div className="w-4 h-4 bg-gray-300 rounded-full mx-auto" />
+                                <span className="text-xs">Decline</span>
+                              </div>
+                              <div className="text-center">
+                                <div className="w-4 h-4 bg-gray-300 rounded-full mx-auto" />
+                                <span className="text-xs">EOL</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          <h3 className="font-medium">Transition Criteria</h3>
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Criteria</TableHead>
+                                <TableHead>Threshold</TableHead>
+                                <TableHead>Current Value</TableHead>
+                                <TableHead>Status</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              <TableRow>
+                                <TableCell>Market Penetration</TableCell>
+                                <TableCell>5%</TableCell>
+                                <TableCell>6.2%</TableCell>
+                                <TableCell><Badge className="bg-green-500">Met</Badge></TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell>Growth Rate</TableCell>
+                                <TableCell>15% monthly</TableCell>
+                                <TableCell>12.5%</TableCell>
+                                <TableCell><Badge className="bg-yellow-500">Partial</Badge></TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell>Time in Stage</TableCell>
+                                <TableCell>90 days</TableCell>
+                                <TableCell>45 days</TableCell>
+                                <TableCell><Badge className="bg-red-500">Not Met</Badge></TableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <h3 className="font-medium">Planned Transition</h3>
+                          <div className="flex items-end space-x-4">
+                            <div className="space-y-1">
+                              <Label>Target Stage</Label>
+                              <Select defaultValue="growth">
+                                <SelectTrigger className="w-[180px]">
+                                  <SelectValue placeholder="Select stage" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {lifecycleStages.map(stage => (
+                                    <SelectItem key={stage.id} value={stage.id}>{stage.name}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            
+                            <div className="space-y-1">
+                              <Label>Planned Date</Label>
+                              <Input type="date" defaultValue="2024-09-15" />
+                            </div>
+                            
+                            <Button>Schedule Transition</Button>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                
+                <TabsContent value="insights" className="space-y-4 mt-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Product Performance Insights</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <Card>
+                            <CardContent className="pt-6">
+                              <div className="text-center">
+                                <h3 className="text-sm font-medium text-muted-foreground">Growth Rate</h3>
+                                <p className="text-2xl font-bold text-green-500">+18.5%</p>
+                                <p className="text-xs text-muted-foreground">vs 15% average for category</p>
+                              </div>
+                            </CardContent>
+                          </Card>
+                          
+                          <Card>
+                            <CardContent className="pt-6">
+                              <div className="text-center">
+                                <h3 className="text-sm font-medium text-muted-foreground">Market Share</h3>
+                                <p className="text-2xl font-bold">4.2%</p>
+                                <p className="text-xs text-green-500">+0.8% from last period</p>
+                              </div>
+                            </CardContent>
+                          </Card>
+                          
+                          <Card>
+                            <CardContent className="pt-6">
+                              <div className="text-center">
+                                <h3 className="text-sm font-medium text-muted-foreground">Forecast Accuracy</h3>
+                                <p className="text-2xl font-bold">92.7%</p>
+                                <p className="text-xs text-green-500">Above 85% target</p>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </div>
+                        
+                        <div>
+                          <h3 className="font-medium mb-4">Recommendations</h3>
+                          <div className="space-y-2">
+                            <div className="flex items-start space-x-2 p-3 bg-blue-50 rounded-md">
+                              <FileQuestion className="h-5 w-5 text
