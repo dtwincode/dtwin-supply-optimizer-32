@@ -70,6 +70,19 @@ export const DDOMOperationalDashboard: React.FC = () => {
     }
   };
 
+  const getStatusTranslation = (status: string) => {
+    switch (status) {
+      case 'success':
+        return t('onTrack');
+      case 'warning':
+        return t('warning');
+      case 'danger':
+        return t('alert');
+      default:
+        return status;
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
@@ -96,7 +109,7 @@ export const DDOMOperationalDashboard: React.FC = () => {
                     className={`h-1.5 ${getProgressColor(metric.status)}`} 
                   />
                   <div className="flex justify-between text-[10px] text-muted-foreground">
-                    <span>{t('status')}: {metric.status}</span>
+                    <span>{t('status')}: {getStatusTranslation(metric.status)}</span>
                     <span>{t('target')}: {metric.target}%</span>
                   </div>
                 </div>
@@ -105,7 +118,7 @@ export const DDOMOperationalDashboard: React.FC = () => {
               {typeof metric.value === 'number' && metric.unit && (
                 <div className="mt-1">
                   <div className="flex justify-between text-[10px] text-muted-foreground">
-                    <span>{t('status')}: {metric.status}</span>
+                    <span>{t('status')}: {getStatusTranslation(metric.status)}</span>
                     <span>{t('target')}: {metric.target}</span>
                   </div>
                 </div>

@@ -12,7 +12,8 @@ import { ExternalLink } from 'lucide-react';
 
 export const DDOMTab = () => {
   const { language } = useLanguage();
-  const t = (key: string) => getTranslation(`common.logistics.${key}`, language) || key;
+  const t = (key: string) => getTranslation(`common.logistics.ddom.${key}`, language) || key;
+  const commonT = (key: string) => getTranslation(`common.logistics.${key}`, language) || key;
 
   return (
     <div className="p-4 space-y-6">
@@ -22,19 +23,19 @@ export const DDOMTab = () => {
             <Layers className="h-5 w-5 text-blue-700" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold">{t('ddom.operationalModel')}</h2>
-            <p className="text-sm text-muted-foreground">{t('ddom.description')}</p>
+            <h2 className="text-lg font-semibold">{t('operationalModel')}</h2>
+            <p className="text-sm text-muted-foreground">{t('description')}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <Badge className="flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 h-8">
             <ShieldCheck className="h-4 w-4" />
-            <span className="font-medium">DDS&OP Compliant</span>
+            <span className="font-medium">{getTranslation('common.logistics.ddsopCompliance', language)}</span>
           </Badge>
           <Button variant="outline" size="sm" asChild>
             <Link to="/ddsop" className="flex items-center gap-2">
               <ExternalLink className="h-4 w-4" />
-              <span>Go to DDS&OP Module</span>
+              <span>{language === 'en' ? 'Go to DDS&OP Module' : 'الانتقال إلى وحدة DDS&OP'}</span>
             </Link>
           </Button>
         </div>
@@ -46,9 +47,15 @@ export const DDOMTab = () => {
         <DDOMCollaborativeExecution />
         <div className="border border-dashed rounded-md p-6 bg-slate-50 flex items-center justify-center">
           <div className="text-center">
-            <p className="text-muted-foreground mb-2">Advanced DDOM features are now available in the DDS&OP module</p>
+            <p className="text-muted-foreground mb-2">
+              {language === 'en' ? 
+                'Advanced DDOM features are now available in the DDS&OP module' : 
+                'الميزات المتقدمة لنموذج التشغيل المدفوع بالطلب متوفرة الآن في وحدة DDS&OP'}
+            </p>
             <Button variant="default" asChild>
-              <Link to="/ddsop">Open DDS&OP Module</Link>
+              <Link to="/ddsop">
+                {language === 'en' ? 'Open DDS&OP Module' : 'فتح وحدة DDS&OP'}
+              </Link>
             </Button>
           </div>
         </div>
