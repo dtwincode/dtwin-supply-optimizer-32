@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 const cycleMetrics = [
   {
     id: 'cycle-adherence',
-    name: 'Cycle Adherence',
+    name: 'tacticalCycleAdherence',
     value: 92,
     target: 95,
     status: 'on-track',
@@ -22,7 +22,7 @@ const cycleMetrics = [
   },
   {
     id: 'response-time',
-    name: 'Market Response Time',
+    name: 'marketResponseTime',
     value: 3.5,
     unit: 'days',
     target: '< 5',
@@ -31,7 +31,7 @@ const cycleMetrics = [
   },
   {
     id: 'signal-detection',
-    name: 'Signal Detection Rate',
+    name: 'signalDetectionRate',
     value: 87,
     target: 90,
     status: 'warning',
@@ -39,7 +39,7 @@ const cycleMetrics = [
   },
   {
     id: 'adjustment-accuracy',
-    name: 'Adjustment Accuracy',
+    name: 'adjustmentAccuracy',
     value: 83,
     target: 85,
     status: 'warning',
@@ -113,7 +113,7 @@ const marketSignals = [
 
 export const AdaptivePlanning: React.FC = () => {
   const { language } = useLanguage();
-  const t = (key: string) => getTranslation(`common.ddsop.${key}`, language) || key;
+  const t = (key: string) => getTranslation(`ddsop.${key}`, language) || key;
   const [activeTab, setActiveTab] = useState('cycles');
 
   const getStatusBadge = (status: string) => {
@@ -222,9 +222,9 @@ export const AdaptivePlanning: React.FC = () => {
                 {cycleMetrics.map((metric) => (
                   <div key={metric.id} className="border rounded-md p-3">
                     <div className="flex justify-between items-start mb-2">
-                      <p className="font-medium">{metric.name}</p>
+                      <p className="font-medium">{t(metric.name)}</p>
                       <span className="text-lg font-semibold">
-                        {metric.unit ? `${metric.value} ${metric.unit}` : `${metric.value}%`}
+                        {metric.unit ? `${metric.value} ${t(metric.unit)}` : `${metric.value}%`}
                       </span>
                     </div>
                     {!metric.unit && (
