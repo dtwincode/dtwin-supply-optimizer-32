@@ -18,6 +18,10 @@ import { SKUClassification } from "@/components/inventory/types";
 import { DecouplingPointDialog } from "@/components/inventory/DecouplingPointDialog";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Routes, Route, useLocation } from "react-router-dom";
+import { InventoryTourGuide, TourButton } from "@/components/inventory/InventoryTourGuide";
+import { useLocalStorage } from "@/hooks/use-local-storage";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { HelpCircle } from "lucide-react";
 
 const mockClassifications: SKUClassification[] = [
   {
@@ -63,6 +67,9 @@ const Inventory = () => {
   const [hasError, setHasError] = useState(false);
   const location = useLocation();
   
+  const [isTourRunning, setIsTourRunning] = useState(false);
+  const [hasTakenTour, setHasTakenTour] = useLocalStorage('inventory-tour-completed', false);
+  
   const getDefaultTabFromPath = () => {
     const pathSegments = location.pathname.split('/');
     const lastSegment = pathSegments[pathSegments.length - 1];
@@ -77,10 +84,18 @@ const Inventory = () => {
     const timer = setTimeout(() => {
       setIsLoading(false);
       console.log("Inventory page loaded successfully");
+      
+      if (!hasTakenTour) {
+        const tourDelay = setTimeout(() => {
+          setIsTourRunning(true);
+        }, 1500);
+        
+        return () => clearTimeout(tourDelay);
+      }
     }, 500);
     
     return () => clearTimeout(timer);
-  }, []);
+  }, [hasTakenTour]);
 
   useEffect(() => {
     const originalConsoleError = console.error;
@@ -157,6 +172,21 @@ const Inventory = () => {
   const endIndex = Math.min(startIndex + 10, filteredData.length);
   const paginatedData = filteredData.slice(startIndex, endIndex);
 
+  const handleTourFinish = () => {
+    setIsTourRunning(false);
+    setHasTakenTour(true);
+    toast({
+      title: language === 'ar' ? "اكتملت الجولة!" : "Tour Completed!",
+      description: language === 'ar' 
+        ? "يمكنك دائمًا إعادة تشغيل الجولة من خلال النقر على زر المساعدة."
+        : "You can always restart the tour by clicking the help button.",
+    });
+  };
+
+  const startTour = () => {
+    setIsTourRunning(true);
+  };
+
   if (isLoading) {
     return (
       <DashboardLayout>
@@ -190,13 +220,34 @@ const Inventory = () => {
 
   return (
     <DashboardLayout>
+      <InventoryTourGuide run={isTourRunning} onFinish={handleTourFinish} />
+      
       <div className="space-y-4">
         <div className="flex flex-col gap-3">
-          <div className="flex justify-between items-center">
-            <p className="text-muted-foreground">
-              {getTranslation("common.inventory.manageAndTrack", language)}
-            </p>
-            <div className="flex gap-2">
+          <div className="flex justify-between items-center inventory-header">
+            <div className="flex items-center gap-2">
+              <p className="text-muted-foreground">
+                {getTranslation("common.inventory.manageAndTrack", language)}
+              </p>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8"
+                      onClick={startTour}
+                    >
+                      <HelpCircle className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {language === 'ar' ? 'بدء جولة مرشدة' : 'Start guided tour'}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <div className="flex gap-2 inventory-filters">
               <InventoryFilters
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
@@ -207,20 +258,24 @@ const Inventory = () => {
                   setSelectedLocationId("loc-main-warehouse");
                   setDialogOpen(true);
                 }}
+                className="decoupling-point-button"
               >
                 {getTranslation("common.inventory.addDecouplingPoint", language)}
               </Button>
+              <TourButton onClick={startTour} />
             </div>
           </div>
         </div>
 
         <ErrorBoundary fallback={<Card className="p-6 text-center">Error loading summary cards</Card>} onError={handleError}>
-          <InventorySummaryCards />
+          <div className="inventory-summary-cards">
+            <InventorySummaryCards />
+          </div>
         </ErrorBoundary>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <ErrorBoundary fallback={<Card className="p-6 text-center">{language === 'ar' ? "خطأ في تحميل تصنيفات وحدات التخزين" : "Error loading SKU classifications"}</Card>} onError={handleError}>
-            <Card className="p-4">
+            <Card className="p-4 inventory-classifications">
               <h3 className="text-lg font-semibold mb-3">
                 {getTranslation("common.inventory.skuClassifications", language)}
               </h3>
@@ -229,45 +284,51 @@ const Inventory = () => {
           </ErrorBoundary>
           
           <ErrorBoundary fallback={<Card className="p-6 text-center">{language === 'ar' ? "عرض الخريطة غير متوفر حاليًا" : "Map visualization currently unavailable"}</Card>} onError={handleError}>
-            <NetworkDecouplingMap />
+            <div className="inventory-map">
+              <NetworkDecouplingMap />
+            </div>
           </ErrorBoundary>
         </div>
         
         <ErrorBoundary fallback={<Card className="p-6 text-center">{language === 'ar' ? "خطأ في تحميل رسم بياني للمخزون" : "Error loading inventory chart"}</Card>} onError={handleError}>
-          <InventoryChart data={filteredData} />
+          <div className="inventory-chart">
+            <InventoryChart data={filteredData} />
+          </div>
         </ErrorBoundary>
 
         <Card>
           <ErrorBoundary fallback={<div className="p-6 text-center">{getTranslation("common.inventory.errorLoading", language)}</div>} onError={handleError}>
-            <InventoryTabs defaultValue={defaultTab}>
-              <div className="space-y-4 p-5">
-                <InventoryTab 
-                  paginatedData={paginatedData}
-                  onCreatePO={handleCreatePurchaseOrder}
-                />
-                <div className="mt-3 flex justify-between items-center">
-                  <div className="text-sm text-gray-500">
-                    {getTranslation("common.showing", language)} {filteredData.length > 0 ? startIndex + 1 : 0} {getTranslation("common.to", language)} {Math.min(endIndex, filteredData.length)} {getTranslation("common.of", language)} {filteredData.length} {getTranslation("common.items", language)}
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                      disabled={currentPage === 1}
-                    >
-                      {getTranslation("common.previous", language)}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredData.length / 10), p + 1))}
-                      disabled={currentPage === Math.ceil(filteredData.length / 10) || filteredData.length === 0}
-                    >
-                      {getTranslation("common.next", language)}
-                    </Button>
+            <div className="inventory-tabs">
+              <InventoryTabs defaultValue={defaultTab}>
+                <div className="space-y-4 p-5">
+                  <InventoryTab 
+                    paginatedData={paginatedData}
+                    onCreatePO={handleCreatePurchaseOrder}
+                  />
+                  <div className="mt-3 flex justify-between items-center">
+                    <div className="text-sm text-gray-500">
+                      {getTranslation("common.showing", language)} {filteredData.length > 0 ? startIndex + 1 : 0} {getTranslation("common.to", language)} {Math.min(endIndex, filteredData.length)} {getTranslation("common.of", language)} {filteredData.length} {getTranslation("common.items", language)}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                      >
+                        {getTranslation("common.previous", language)}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredData.length / 10), p + 1))}
+                        disabled={currentPage === Math.ceil(filteredData.length / 10) || filteredData.length === 0}
+                      >
+                        {getTranslation("common.next", language)}
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </InventoryTabs>
+              </InventoryTabs>
+            </div>
           </ErrorBoundary>
         </Card>
         
