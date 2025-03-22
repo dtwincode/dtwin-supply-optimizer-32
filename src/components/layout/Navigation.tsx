@@ -11,7 +11,8 @@ import {
   Search, 
   Database, 
   BookOpen, 
-  ShoppingCart 
+  ShoppingCart,
+  Gift
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -25,6 +26,7 @@ const navigationItems = [
   { name: "navigationItems.inventory", icon: Package, href: "/inventory" },
   { name: "navigationItems.supplyPlanning", icon: ShoppingCart, href: "/supply-planning" },
   { name: "navigationItems.salesPlanning", icon: LineChart, href: "/sales-planning" },
+  { name: "navigationItems.marketing", icon: Gift, href: "/marketing" },
   { name: "navigationItems.logistics", icon: Truck, href: "/logistics" },
   { name: "navigationItems.reports", icon: FileText, href: "/reports" },
   { name: "navigationItems.askAI", icon: Search, href: "/ask-ai" },

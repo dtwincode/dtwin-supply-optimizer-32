@@ -51,6 +51,7 @@ function App() {
                   <Route path="/inventory/*" element={<Inventory />} />
                   <Route path="/supply-planning" element={<SupplyPlanning />} />
                   <Route path="/sales-planning" element={<SalesPlanning />} />
+                  <Route path="/marketing" element={<Marketing />} />
                   <Route path="/logistics" element={<Logistics />} />
                   <Route path="/reports" element={<Reports />} />
                   <Route path="/ask-ai" element={<AskAI />} />
@@ -63,7 +64,6 @@ function App() {
                   <Route path="/guidelines/advanced" element={<Advanced />} />
                   <Route path="/guidelines/ai-assistant" element={<AIAssistant />} />
                   <Route path="/sql-config" element={<SQLConfig />} />
-                  <Route path="/marketing" element={<Marketing />} />
                   <Route path="/tickets" element={<Tickets />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
