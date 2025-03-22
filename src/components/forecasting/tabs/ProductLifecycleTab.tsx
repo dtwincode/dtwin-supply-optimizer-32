@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -816,4 +817,190 @@ const ProductLifecycleTab = () => {
                             <div>
                               <h4 className="font-medium">Consider transition to Growth stage</h4>
                               <p className="text-sm text-muted-foreground">
-                                Based
+                                Based on current performance metrics, this product may be ready for transition to the Growth stage within the next 30-45 days.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+        )
+      )}
+
+      {/* New Product Dialog */}
+      <Dialog open={isNewProductDialogOpen} onOpenChange={setIsNewProductDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Add New Product</DialogTitle>
+          </DialogHeader>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <Label htmlFor="sku">SKU</Label>
+                <Input 
+                  id="sku" 
+                  value={newProduct.sku} 
+                  onChange={(e) => handleNewProductChange("sku", e.target.value)} 
+                  placeholder="Enter SKU"
+                />
+              </div>
+              
+              <div className="space-y-1">
+                <Label htmlFor="name">Product Name</Label>
+                <Input 
+                  id="name" 
+                  value={newProduct.name} 
+                  onChange={(e) => handleNewProductChange("name", e.target.value)} 
+                  placeholder="Enter product name"
+                />
+              </div>
+              
+              <div className="space-y-1">
+                <Label htmlFor="category">Category</Label>
+                <Input 
+                  id="category" 
+                  value={newProduct.category} 
+                  onChange={(e) => handleNewProductChange("category", e.target.value)} 
+                  placeholder="Enter category"
+                />
+              </div>
+              
+              <div className="space-y-1">
+                <Label htmlFor="launchDate">Launch Date</Label>
+                <Input 
+                  id="launchDate" 
+                  type="date" 
+                  value={newProduct.launchDate} 
+                  onChange={(e) => handleNewProductChange("launchDate", e.target.value)} 
+                />
+              </div>
+              
+              <div className="space-y-1">
+                <Label htmlFor="stage">Lifecycle Stage</Label>
+                <Select 
+                  value={newProduct.stage} 
+                  onValueChange={(value) => handleNewProductChange("stage", value)}
+                >
+                  <SelectTrigger id="stage">
+                    <SelectValue placeholder="Select stage" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {lifecycleStages.map(stage => (
+                      <SelectItem key={stage.id} value={stage.id}>{stage.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <Label htmlFor="forecastMethod">Forecast Method</Label>
+                <Select 
+                  value={newProduct.forecastMethod} 
+                  onValueChange={(value) => handleNewProductChange("forecastMethod", value)}
+                >
+                  <SelectTrigger id="forecastMethod">
+                    <SelectValue placeholder="Select method" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="time-series">Time Series</SelectItem>
+                    <SelectItem value="analogous">Analogous Products</SelectItem>
+                    <SelectItem value="judgmental">Judgmental</SelectItem>
+                    <SelectItem value="market-based">Market-based</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-1">
+                <Label htmlFor="salesTarget">Sales Target (units)</Label>
+                <Input 
+                  id="salesTarget" 
+                  type="number" 
+                  value={newProduct.salesTarget} 
+                  onChange={(e) => handleNewProductChange("salesTarget", e.target.value)} 
+                  placeholder="Enter sales target"
+                />
+              </div>
+              
+              <div className="space-y-1">
+                <Label htmlFor="confidence">Confidence Level (%)</Label>
+                <Input 
+                  id="confidence" 
+                  type="number" 
+                  min="0" 
+                  max="100" 
+                  value={newProduct.confidence} 
+                  onChange={(e) => handleNewProductChange("confidence", parseInt(e.target.value))} 
+                />
+              </div>
+              
+              <div className="space-y-1">
+                <Label htmlFor="seasonality">Seasonality</Label>
+                <Select 
+                  value={newProduct.seasonality} 
+                  onValueChange={(value) => handleNewProductChange("seasonality", value)}
+                >
+                  <SelectTrigger id="seasonality">
+                    <SelectValue placeholder="Select seasonality" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                    <SelectItem value="quarterly">Quarterly</SelectItem>
+                    <SelectItem value="yearly">Yearly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-1">
+                <Label htmlFor="plannedEndOfLife">Planned End of Life (optional)</Label>
+                <Input 
+                  id="plannedEndOfLife" 
+                  type="date" 
+                  value={newProduct.plannedEndOfLife} 
+                  onChange={(e) => handleNewProductChange("plannedEndOfLife", e.target.value)} 
+                />
+              </div>
+            </div>
+            
+            <div className="col-span-1 md:col-span-2 space-y-1">
+              <Label htmlFor="description">Description</Label>
+              <Textarea 
+                id="description" 
+                value={newProduct.description} 
+                onChange={(e) => handleNewProductChange("description", e.target.value)} 
+                placeholder="Enter product description"
+                rows={3}
+              />
+            </div>
+            
+            <div className="col-span-1 md:col-span-2">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="isPromotional" 
+                  checked={newProduct.isPromotional} 
+                  onCheckedChange={(value) => handleNewProductChange("isPromotional", value)} 
+                />
+                <Label htmlFor="isPromotional">Promotional product</Label>
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsNewProductDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleAddNewProduct}>Add Product</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default ProductLifecycleTab;
