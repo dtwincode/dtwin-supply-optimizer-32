@@ -1,7 +1,45 @@
 import { IndustryType } from "@/contexts/IndustryContext";
 
+type ModuleConfiguration = {
+  forecasting: {
+    additionalFactors: string[];
+    timeFrames: string[];
+    indicators: string[];
+  };
+  inventory: {
+    criticalMetrics: string[];
+    bufferTypes: string[];
+    monitoringRequirements: string[];
+  };
+  supplyPlanning: {
+    supplierRequirements: string[];
+    orderTypes: string[];
+    leadTimeFactors: string[];
+  };
+  salesPlanning: {
+    salesChannels: string[];
+    customerTypes: string[];
+    promotionalRestrictions: string[];
+  };
+  ddsop: {
+    planningHorizons: string[];
+    reviewCycles: string[];
+    complianceChecks: string[];
+  };
+  logistics: {
+    transportRequirements: string[];
+    storageTypes: string[];
+    handlingRequirements: string[];
+  };
+};
+
+type IndustrySpecificData = {
+  moduleConfigurations: ModuleConfiguration;
+  kpis: Record<string, string>;
+};
+
 // Shared industry-specific data configurations
-export const getIndustrySpecificData = (industry: IndustryType) => {
+export const getIndustrySpecificData = (industry: IndustryType): IndustrySpecificData => {
   switch (industry) {
     case 'pharmacy':
       return {
@@ -224,7 +262,10 @@ export const getIndustryKPIDescriptions = (industry: IndustryType) => {
 };
 
 // Get module-specific configurations based on industry
-export const getModuleConfigurations = (industry: IndustryType, module: keyof ReturnType<typeof getIndustrySpecificData>['moduleConfigurations']) => {
+export const getModuleConfigurations = <T extends keyof ModuleConfiguration>(
+  industry: IndustryType, 
+  module: T
+): ModuleConfiguration[T] => {
   const data = getIndustrySpecificData(industry);
   return data.moduleConfigurations[module];
 };

@@ -2,12 +2,12 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
-import { DashboardMetrics } from "@/components/dashboard/DashboardMetrics";
-import { FinancialMetrics } from "@/components/dashboard/FinancialMetrics";
-import { SustainabilityMetrics } from "@/components/dashboard/SustainabilityMetrics";
-import { ModuleSummaryCards } from "@/components/dashboard/ModuleSummaryCards";
-import { ExecutiveSummary } from "@/components/dashboard/ExecutiveSummary";
-import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
+import DashboardMetrics from "@/components/dashboard/DashboardMetrics";
+import FinancialMetrics from "@/components/dashboard/FinancialMetrics";
+import SustainabilityMetrics from "@/components/dashboard/SustainabilityMetrics";
+import ModuleSummaryCards from "@/components/dashboard/ModuleSummaryCards";
+import ExecutiveSummary from "@/components/dashboard/ExecutiveSummary";
+import DashboardCharts from "@/components/dashboard/DashboardCharts";
 import { IndustrySpecificKPIs } from "@/components/dashboard/IndustrySpecificKPIs";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIndustry } from "@/contexts/IndustryContext";
