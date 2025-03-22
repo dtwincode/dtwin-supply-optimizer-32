@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { AlertCircle, CheckCircle, Clock, Activity, Target } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/translations';
@@ -20,7 +20,7 @@ export const DDOMOperationalDashboard: React.FC = () => {
       value: 86, 
       target: 90, 
       status: 'warning', 
-      icon: <Activity className="h-5 w-5 text-amber-500" /> 
+      icon: <Activity className="h-4 w-4 text-amber-500" /> 
     },
     { 
       id: 'tactical-cycle', 
@@ -28,7 +28,7 @@ export const DDOMOperationalDashboard: React.FC = () => {
       value: 92, 
       target: 90, 
       status: 'success', 
-      icon: <CheckCircle className="h-5 w-5 text-green-500" /> 
+      icon: <CheckCircle className="h-4 w-4 text-green-500" /> 
     },
     { 
       id: 'demand-signal', 
@@ -36,7 +36,7 @@ export const DDOMOperationalDashboard: React.FC = () => {
       value: 78, 
       target: 85, 
       status: 'danger', 
-      icon: <AlertCircle className="h-5 w-5 text-red-500" /> 
+      icon: <AlertCircle className="h-4 w-4 text-red-500" /> 
     },
     { 
       id: 'execution-variance', 
@@ -44,7 +44,7 @@ export const DDOMOperationalDashboard: React.FC = () => {
       value: 88, 
       target: 85, 
       status: 'success', 
-      icon: <Target className="h-5 w-5 text-green-500" /> 
+      icon: <Target className="h-4 w-4 text-green-500" /> 
     },
     { 
       id: 'adaptive-response', 
@@ -53,7 +53,7 @@ export const DDOMOperationalDashboard: React.FC = () => {
       unit: t('hours'), 
       target: "< 5.0",
       status: 'success', 
-      icon: <Clock className="h-5 w-5 text-green-500" /> 
+      icon: <Clock className="h-4 w-4 text-green-500" /> 
     }
   ];
 
@@ -71,17 +71,17 @@ export const DDOMOperationalDashboard: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
         {ddomMetrics.map((metric) => (
           <Card key={metric.id} className="shadow-sm">
-            <CardContent className="pt-6 pb-4">
-              <div className="flex justify-between items-start mb-3">
+            <CardContent className="p-3">
+              <div className="flex justify-between items-start mb-2">
                 <div className="flex items-center">
                   {metric.icon}
-                  <span className="ml-2 text-sm font-medium">{metric.name}</span>
+                  <span className="ml-1.5 text-xs font-medium">{metric.name}</span>
                 </div>
-                <span className="text-xl font-bold">
+                <span className="text-lg font-bold">
                   {typeof metric.value === 'number' ? 
                     (metric.unit ? `${metric.value} ${metric.unit}` : `${metric.value}%`) : 
                     metric.value}
@@ -93,9 +93,9 @@ export const DDOMOperationalDashboard: React.FC = () => {
                   <Progress 
                     value={metric.value} 
                     max={100} 
-                    className={`h-2 ${getProgressColor(metric.status)}`} 
+                    className={`h-1.5 ${getProgressColor(metric.status)}`} 
                   />
-                  <div className="flex justify-between text-xs text-muted-foreground">
+                  <div className="flex justify-between text-[10px] text-muted-foreground">
                     <span>{t('status')}: {metric.status}</span>
                     <span>{t('target')}: {metric.target}%</span>
                   </div>
@@ -103,8 +103,8 @@ export const DDOMOperationalDashboard: React.FC = () => {
               )}
               
               {typeof metric.value === 'number' && metric.unit && (
-                <div className="mt-2">
-                  <div className="flex justify-between text-xs text-muted-foreground">
+                <div className="mt-1">
+                  <div className="flex justify-between text-[10px] text-muted-foreground">
                     <span>{t('status')}: {metric.status}</span>
                     <span>{t('target')}: {metric.target}</span>
                   </div>
@@ -115,7 +115,7 @@ export const DDOMOperationalDashboard: React.FC = () => {
         ))}
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <DDOMVarianceChart />
         <DDOMExecutionMetrics />
       </div>

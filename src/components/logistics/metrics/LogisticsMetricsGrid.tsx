@@ -8,7 +8,7 @@ export const LogisticsMetricsGrid = () => {
   const { language } = useLanguage();
   
   return (
-    <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-3" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-3" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <LogisticsMetricsCard
         icon={TrendingUp}
         label={getTranslation("common.logistics.onTimeDeliveryRate", language)}
@@ -36,7 +36,7 @@ export const LogisticsMetricsGrid = () => {
       <LogisticsMetricsCard
         icon={DollarSign}
         label={getTranslation("common.logistics.costPerShipment", language)}
-        value="$245.75"
+        value="﷼245.75"
         bgColor="bg-purple-100"
         textColor="text-purple-700"
         metricType="cost_per_shipment"

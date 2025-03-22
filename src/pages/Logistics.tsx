@@ -8,7 +8,7 @@ import { LogisticsTabs } from '@/components/logistics/LogisticsTabs';
 const Logistics = () => {
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-4">
         <LogisticsHeader />
         <LogisticsMetricsGrid />
         <LogisticsTabs />

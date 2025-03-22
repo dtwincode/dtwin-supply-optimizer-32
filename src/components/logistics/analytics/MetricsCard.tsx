@@ -35,7 +35,6 @@ export const MetricsCard = ({ title, metricType }: MetricsCardProps) => {
     ],
   });
 
-  // Use an effect to set the error state based on isError
   useEffect(() => {
     if (isError) {
       setHasError(true);
@@ -52,13 +51,13 @@ export const MetricsCard = ({ title, metricType }: MetricsCardProps) => {
 
   if (isLoading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>{title}</CardTitle>
+      <Card className="h-full">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium">{title}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex justify-center items-center h-12">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          <div className="flex justify-center items-center h-10">
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
           </div>
         </CardContent>
       </Card>
@@ -67,34 +66,34 @@ export const MetricsCard = ({ title, metricType }: MetricsCardProps) => {
 
   if (isError || hasError) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>{title}</CardTitle>
+      <Card className="h-full">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium">{title}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-2 text-destructive">
-            <AlertTriangle className="h-4 w-4" />
-            <span className="text-sm">
-              {language === 'en' ? 'Metrics unavailable' : 'المقاييس غير متوفرة'}
+            <AlertTriangle className="h-3 w-3" />
+            <span className="text-xs">
+              {language === 'en' ? 'Unavailable' : 'غير متوفر'}
             </span>
           </div>
-          <div className="text-2xl font-bold text-muted-foreground">--</div>
+          <div className="text-xl font-bold text-muted-foreground">--</div>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
+    <Card className="h-full">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">
+        <div className="text-xl font-bold">
           {latestMetric?.metric_value !== undefined ? latestMetric.metric_value.toFixed(2) : '--'}
         </div>
         <p className="text-xs text-muted-foreground" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-          {getTranslation("common.logistics.lastUpdated", language)}: {latestMetric?.timestamp ? formatDate(latestMetric.timestamp) : getTranslation("common.logistics.notAvailable", language)}
+          {getTranslation("common.logistics.lastUpdated", language)}: {latestMetric?.timestamp ? formatDate(latestMetric.timestamp) : "N/A"}
         </p>
       </CardContent>
     </Card>
