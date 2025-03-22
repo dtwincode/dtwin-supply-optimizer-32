@@ -7,6 +7,10 @@ export const dashboardTitle: TranslationValue = {
 };
 
 export const dashboardMetricsTranslations: DashboardMetrics = {
+  title: {
+    en: "Key Metrics",
+    ar: "المقاييس الرئيسية"
+  },
   totalSKUs: {
     en: "Total SKUs",
     ar: "إجمالي وحدات التخزين"
