@@ -10,7 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Filter } from "lucide-react";
+import { Filter, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface IntegratedDataPreviewTableProps {
   data: IntegratedData[];
@@ -28,6 +29,7 @@ export function IntegratedDataPreviewTable({
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [isStabilized, setIsStabilized] = useState<boolean>(false);
   const [isInitialRender, setIsInitialRender] = useState<boolean>(true);
+  const [errorState, setErrorState] = useState<string | null>(null);
   const previousDataLength = useRef<number>(0);
   const stabilityTimer = useRef<NodeJS.Timeout | null>(null);
 
@@ -38,23 +40,31 @@ export function IntegratedDataPreviewTable({
       clearTimeout(stabilityTimer.current);
     }
 
-    const currentDataLength = data.length;
-    
-    // Only set stabilized to true if we have data and the length hasn't changed
-    if (currentDataLength > 0 && currentDataLength === previousDataLength.current) {
-      stabilityTimer.current = setTimeout(() => {
-        setIsStabilized(true);
-        setIsInitialRender(false);
-      }, 800); // Increased delay for better stability
-    } else if (currentDataLength > 0) {
-      // Data length changed, update reference but wait before stabilizing
-      previousDataLength.current = currentDataLength;
-      setIsStabilized(false);
+    try {
+      const currentDataLength = data?.length || 0;
       
-      stabilityTimer.current = setTimeout(() => {
-        setIsStabilized(true);
-        setIsInitialRender(false);
-      }, 800);
+      // Reset error state on new data
+      setErrorState(null);
+      
+      // Only set stabilized to true if we have data and the length hasn't changed
+      if (currentDataLength > 0 && currentDataLength === previousDataLength.current) {
+        stabilityTimer.current = setTimeout(() => {
+          setIsStabilized(true);
+          setIsInitialRender(false);
+        }, 800); // Increased delay for better stability
+      } else if (currentDataLength > 0) {
+        // Data length changed, update reference but wait before stabilizing
+        previousDataLength.current = currentDataLength;
+        setIsStabilized(false);
+        
+        stabilityTimer.current = setTimeout(() => {
+          setIsStabilized(true);
+          setIsInitialRender(false);
+        }, 800);
+      }
+    } catch (error) {
+      console.error("Error in table stabilization:", error);
+      setErrorState("An error occurred while preparing the data view");
     }
 
     return () => {
@@ -66,105 +76,124 @@ export function IntegratedDataPreviewTable({
 
   // Extract historical sales dates from metadata - memoized for performance
   const extractDateFromMetadata = useCallback((row: IntegratedData): string => {
-    if (row.metadata && typeof row.metadata === 'object') {
-      const metadataObj = row.metadata as Record<string, any>;
-      // Look for date fields in metadata
-      const dateFields = ['Date', 'date', 'sales_date', 'transaction_date'];
-      for (const field of dateFields) {
-        if (metadataObj[field]) {
-          return String(metadataObj[field]);
+    try {
+      if (row.metadata && typeof row.metadata === 'object') {
+        const metadataObj = row.metadata as Record<string, any>;
+        // Look for date fields in metadata
+        const dateFields = ['Date', 'date', 'sales_date', 'transaction_date'];
+        for (const field of dateFields) {
+          if (metadataObj[field]) {
+            return String(metadataObj[field]);
+          }
         }
       }
+      return row.date || '';
+    } catch (error) {
+      console.error("Error extracting date:", error);
+      return '';
     }
-    return row.date || '';
   }, []);
 
   // Get all possible columns from the data, excluding system columns - stable memoization
   const availableColumns = useMemo(() => {
-    if (!data.length) return [];
+    if (!data || !data.length) return [];
     
-    const columns = new Set<string>();
-    const excludedColumns = [
-      'id', 
-      'metadata', 
-      'source_files',
-      'created_at',
-      'updated_at',
-      'validation_status',
-      'actual_value',
-      'sku' // Exclude sku if it's not explicitly part of the selected mapping
-    ];
+    try {
+      const columns = new Set<string>();
+      const excludedColumns = [
+        'id', 
+        'metadata', 
+        'source_files',
+        'created_at',
+        'updated_at',
+        'validation_status',
+        'actual_value',
+        'sku' // Exclude sku if it's not explicitly part of the selected mapping
+      ];
 
-    // Include columns based on the selected mapping configuration
-    if (selectedMapping && selectedMapping.selected_columns_array && selectedMapping.selected_columns_array.length > 0) {
-      // First prioritize mapping-defined columns
-      selectedMapping.selected_columns_array.forEach((column: string) => {
-        if (!excludedColumns.includes(column)) {
-          columns.add(column);
-        }
-      });
-    }
-    
-    // Process all rows to find unique column names
-    const sampleSize = Math.min(100, data.length);
-    const sampleData = data.slice(0, sampleSize);
-
-    sampleData.forEach(row => {
-      if (row.metadata && typeof row.metadata === 'object') {
-        Object.keys(row.metadata).forEach(key => {
-          if (!excludedColumns.includes(key)) {
-            columns.add(key);
+      // Include columns based on the selected mapping configuration
+      if (selectedMapping && selectedMapping.selected_columns_array && selectedMapping.selected_columns_array.length > 0) {
+        // First prioritize mapping-defined columns
+        selectedMapping.selected_columns_array.forEach((column: string) => {
+          if (!excludedColumns.includes(column)) {
+            columns.add(column);
           }
         });
       }
       
-      // Add direct row properties excluding system properties
-      Object.keys(row).forEach(key => {
-        if (!excludedColumns.includes(key) && key !== 'metadata' && key !== 'source_files') {
-          columns.add(key);
+      // Process all rows to find unique column names
+      const sampleSize = Math.min(100, data.length);
+      const sampleData = data.slice(0, sampleSize);
+
+      sampleData.forEach(row => {
+        if (row && row.metadata && typeof row.metadata === 'object') {
+          Object.keys(row.metadata).forEach(key => {
+            if (!excludedColumns.includes(key)) {
+              columns.add(key);
+            }
+          });
+        }
+        
+        // Add direct row properties excluding system properties
+        if (row) {
+          Object.keys(row).forEach(key => {
+            if (!excludedColumns.includes(key) && key !== 'metadata' && key !== 'source_files') {
+              columns.add(key);
+            }
+          });
         }
       });
-    });
-    
-    // Make sure we don't have duplicates, and add 'date' if it doesn't exist
-    if (!columns.has('date') && !columns.has('Date')) {
-      columns.add('date');
+      
+      // Make sure we don't have duplicates, and add 'date' if it doesn't exist
+      if (!columns.has('date') && !columns.has('Date')) {
+        columns.add('date');
+      }
+      
+      return Array.from(columns);
+    } catch (error) {
+      console.error("Error getting columns:", error);
+      setErrorState("Error extracting columns from data");
+      return [];
     }
-    
-    return Array.from(columns);
-  }, [data.length, selectedMapping]);
+  }, [data, selectedMapping]);
 
   // Get unique values for each column - with improved performance
   const uniqueValues = useMemo(() => {
     const values: Record<string, Set<string>> = {};
     
-    if (!data.length || !availableColumns.length || isLoading) {
+    if (!data || !data.length || !availableColumns.length || isLoading) {
       return values;
     }
     
-    availableColumns.forEach(column => {
-      values[column] = new Set();
-      
-      // Only process a reasonable number of rows for better performance
-      const maxRowsToProcess = 100;
-      const rowsToProcess = data.slice(0, maxRowsToProcess);
-      
-      rowsToProcess.forEach(row => {
-        if (column === 'date' || column === 'Date') {
-          const dateValue = extractDateFromMetadata(row);
-          if (dateValue) {
-            values[column].add(dateValue);
+    try {
+      availableColumns.forEach(column => {
+        values[column] = new Set();
+        
+        // Only process a reasonable number of rows for better performance
+        const maxRowsToProcess = 100;
+        const rowsToProcess = data.slice(0, maxRowsToProcess);
+        
+        rowsToProcess.forEach(row => {
+          if (column === 'date' || column === 'Date') {
+            const dateValue = extractDateFromMetadata(row);
+            if (dateValue) {
+              values[column].add(dateValue);
+            }
+          } else {
+            // Try to get value from metadata first, then from row directly
+            const value = row.metadata?.[column] ?? row[column];
+            if (value !== undefined && value !== null && value !== '') {
+              values[column].add(String(value));
+            }
           }
-        } else {
-          // Try to get value from metadata first, then from row directly
-          const value = row.metadata?.[column] ?? row[column];
-          if (value !== undefined && value !== null && value !== '') {
-            values[column].add(String(value));
-          }
-        }
+        });
       });
-    });
-    return values;
+      return values;
+    } catch (error) {
+      console.error("Error getting unique values:", error);
+      setErrorState("Error processing data values");
+      return values;
+    }
   }, [data, availableColumns, extractDateFromMetadata, isLoading]);
 
   const handleFilterChange = useCallback((column: string, value: string) => {
@@ -175,30 +204,36 @@ export function IntegratedDataPreviewTable({
   }, []);
 
   const filteredData = useMemo(() => {
-    if (!data.length || isLoading || !isStabilized) return [];
+    if (!data || !data.length || isLoading || !isStabilized) return [];
     
-    // If there are no active filters, return a slice of the data directly
-    if (Object.keys(filters).every(key => !filters[key])) {
-      return data.slice(0, 100); // Limit to 100 rows to improve performance
+    try {
+      // If there are no active filters, return a slice of the data directly
+      if (Object.keys(filters).every(key => !filters[key])) {
+        return data.slice(0, 100); // Limit to 100 rows to improve performance
+      }
+      
+      // Apply filters to a limited dataset
+      return data
+        .slice(0, 1000) // Only filter through the first 1000 rows for performance
+        .filter(row => {
+          return Object.entries(filters).every(([column, filterValue]) => {
+            if (!filterValue) return true;
+            
+            if (column === 'date' || column === 'Date') {
+              const dateValue = extractDateFromMetadata(row);
+              return dateValue === filterValue;
+            }
+            
+            const value = row.metadata?.[column] ?? row[column];
+            return String(value) === filterValue;
+          });
+        })
+        .slice(0, 100); // Limit results to 100 rows
+    } catch (error) {
+      console.error("Error filtering data:", error);
+      setErrorState("Error filtering data");
+      return [];
     }
-    
-    // Apply filters to a limited dataset
-    return data
-      .slice(0, 1000) // Only filter through the first 1000 rows for performance
-      .filter(row => {
-        return Object.entries(filters).every(([column, filterValue]) => {
-          if (!filterValue) return true;
-          
-          if (column === 'date' || column === 'Date') {
-            const dateValue = extractDateFromMetadata(row);
-            return dateValue === filterValue;
-          }
-          
-          const value = row.metadata?.[column] ?? row[column];
-          return String(value) === filterValue;
-        });
-      })
-      .slice(0, 100); // Limit results to 100 rows
   }, [data, filters, extractDateFromMetadata, isLoading, isStabilized]);
 
   // Show loading indicator while data is being prepared
@@ -207,6 +242,16 @@ export function IntegratedDataPreviewTable({
       <div className="flex items-center justify-center py-8">
         <div className="text-center text-muted-foreground">Loading...</div>
       </div>
+    );
+  }
+
+  // Show error state if we encountered problems
+  if (errorState) {
+    return (
+      <Alert variant="destructive" className="my-4">
+        <AlertCircle className="h-4 w-4 mr-2" />
+        <AlertDescription>{errorState}</AlertDescription>
+      </Alert>
     );
   }
 
@@ -223,10 +268,13 @@ export function IntegratedDataPreviewTable({
   }
 
   // Show empty state when there's no data
-  if (!data.length) {
+  if (!data || data.length === 0) {
     return (
-      <div className="text-center py-4 text-muted-foreground">
-        No integrated data available
+      <div className="text-center py-8 border rounded-lg">
+        <AlertCircle className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+        <div className="text-muted-foreground">
+          No integrated data available
+        </div>
       </div>
     );
   }
@@ -249,9 +297,9 @@ export function IntegratedDataPreviewTable({
               <TableHeader>
                 <TableRow>
                   {dedupedColumns.map((column) => (
-                    <TableHead key={column} className="min-w-[150px]">
+                    <TableHead key={column} className="min-w-[150px] bg-muted/50">
                       <div className="flex items-center justify-between">
-                        <span>{column}</span>
+                        <span className="font-medium">{column}</span>
                         <Select
                           value={filters[column] || "all"}
                           onValueChange={(value) => handleFilterChange(column, value)}
@@ -279,30 +327,42 @@ export function IntegratedDataPreviewTable({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredData.map((row, index) => (
-                  <TableRow key={row.id || index}>
-                    {dedupedColumns.map((column) => (
-                      <TableCell 
-                        key={`${row.id || index}-${column}`} 
-                        className="min-w-[150px]"
-                      >
-                        {column.toLowerCase() === 'date' || column === 'Date' ? extractDateFromMetadata(row) : (
-                          (() => {
-                            const value = row.metadata?.[column] ?? row[column];
-                            return typeof value === 'object'
-                              ? JSON.stringify(value)
-                              : String(value ?? '');
-                          })()
-                        )}
-                      </TableCell>
-                    ))}
+                {filteredData.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={dedupedColumns.length} className="h-24 text-center">
+                      No results match the current filters
+                    </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  filteredData.map((row, index) => (
+                    <TableRow key={row.id || index}>
+                      {dedupedColumns.map((column) => (
+                        <TableCell 
+                          key={`${row.id || index}-${column}`} 
+                          className="min-w-[150px]"
+                        >
+                          {column.toLowerCase() === 'date' || column === 'Date' ? extractDateFromMetadata(row) : (
+                            (() => {
+                              const value = row.metadata?.[column] ?? row[column];
+                              return typeof value === 'object'
+                                ? JSON.stringify(value)
+                                : String(value ?? '');
+                            })()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
+      </div>
+      
+      <div className="text-xs text-muted-foreground text-right">
+        Showing {filteredData.length} of {data.length} records
       </div>
     </div>
   );

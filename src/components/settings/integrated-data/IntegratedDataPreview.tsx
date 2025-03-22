@@ -31,6 +31,7 @@ export function IntegratedDataPreview() {
   } = useIntegratedData();
 
   const [showHelp, setShowHelp] = useState(false);
+  const [showDebugInfo, setShowDebugInfo] = useState(false);
   
   // Update the showHelp state based on conditions
   useEffect(() => {
@@ -73,6 +74,28 @@ export function IntegratedDataPreview() {
         ) : (
           <>
             <DataAlert selectedMapping={selectedMapping} />
+            
+            {/* Debugging button - only visible in development */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="mb-2">
+                <button 
+                  onClick={() => setShowDebugInfo(!showDebugInfo)} 
+                  className="text-xs text-muted-foreground underline"
+                >
+                  {showDebugInfo ? 'Hide' : 'Show'} Debug Info
+                </button>
+                {showDebugInfo && (
+                  <div className="mt-2 p-2 bg-slate-50 text-xs border rounded">
+                    <p>Data count: {data.length}</p>
+                    <p>Loading: {isLoading ? 'Yes' : 'No'}</p>
+                    <p>Integrating: {isIntegrating ? 'Yes' : 'No'}</p>
+                    <p>Has integrated: {hasIntegrated ? 'Yes' : 'No'}</p>
+                    <p>Selected mapping: {selectedMapping ? selectedMapping.mapping_name : 'None'}</p>
+                  </div>
+                )}
+              </div>
+            )}
+            
             <IntegratedDataPreviewTable
               data={data}
               isLoading={isLoading}

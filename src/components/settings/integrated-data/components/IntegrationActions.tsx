@@ -1,6 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react"; 
 
 interface IntegrationActionsProps {
   data: any[];
@@ -18,7 +19,7 @@ export const IntegrationActions: React.FC<IntegrationActionsProps> = ({
   onRunIntegration
 }) => {
   return (
-    <div className="flex justify-between items-center">
+    <div className="flex justify-between items-center mt-4 p-3 border rounded-md bg-muted/30">
       <div className="text-sm text-muted-foreground">
         {data.length > 0 ? 
           `Displaying ${Math.min(data.length, 100)} integrated records` : 
@@ -32,7 +33,9 @@ export const IntegrationActions: React.FC<IntegrationActionsProps> = ({
         onClick={onRunIntegration} 
         disabled={isIntegrating || !selectedMapping}
         className={isIntegrating ? "bg-blue-400" : ""}
+        size="sm"
       >
+        <RefreshCw className={`h-4 w-4 mr-2 ${isIntegrating ? 'animate-spin' : ''}`} />
         {isIntegrating ? "Integration Running..." : hasIntegrated ? "Refresh Integration" : "Run Integration"}
       </Button>
     </div>
