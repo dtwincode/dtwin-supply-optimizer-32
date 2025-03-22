@@ -46,14 +46,14 @@ function App() {
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/auth" element={<Auth />} />
-                  <Route path="/marketing" element={<Marketing />} />
+                  <Route path="/ddsop" element={<DDSOP />} />
                   <Route path="/forecasting/*" element={<Forecasting />} />
                   <Route path="/inventory/*" element={<Inventory />} />
-                  <Route path="/sales-planning" element={<SalesPlanning />} />
                   <Route path="/supply-planning" element={<SupplyPlanning />} />
-                  <Route path="/reports" element={<Reports />} />
+                  <Route path="/sales-planning" element={<SalesPlanning />} />
                   <Route path="/logistics" element={<Logistics />} />
-                  <Route path="/ddsop" element={<DDSOP />} />
+                  <Route path="/reports" element={<Reports />} />
+                  <Route path="/ask-ai" element={<AskAI />} />
                   <Route path="/data" element={<Settings />} />
                   <Route path="/settings" element={<Navigate to="/data" replace />} />
                   <Route path="/guidelines" element={<Guidelines />} />
@@ -63,7 +63,7 @@ function App() {
                   <Route path="/guidelines/advanced" element={<Advanced />} />
                   <Route path="/guidelines/ai-assistant" element={<AIAssistant />} />
                   <Route path="/sql-config" element={<SQLConfig />} />
-                  <Route path="/ask-ai" element={<AskAI />} />
+                  <Route path="/marketing" element={<Marketing />} />
                   <Route path="/tickets" element={<Tickets />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>

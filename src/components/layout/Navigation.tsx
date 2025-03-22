@@ -1,18 +1,30 @@
 
 import { memo } from "react";
-import { Home, TrendingUp, Package, LineChart, Gift, Truck, FileText, Search, Database, BookOpen, ShoppingCart, Layers } from "lucide-react";
+import { 
+  Home, 
+  TrendingUp, 
+  Package, 
+  LineChart, 
+  Layers, 
+  Truck, 
+  FileText, 
+  Search, 
+  Database, 
+  BookOpen, 
+  ShoppingCart 
+} from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { getTranslation } from "@/translations";
 
+// Reorganized navigation items in a logical workflow for planners
 const navigationItems = [
   { name: "navigationItems.dashboard", icon: Home, href: "/" },
+  { name: "navigationItems.ddsop", icon: Layers, href: "/ddsop" },
   { name: "navigationItems.forecasting", icon: TrendingUp, href: "/forecasting" },
   { name: "navigationItems.inventory", icon: Package, href: "/inventory" },
   { name: "navigationItems.supplyPlanning", icon: ShoppingCart, href: "/supply-planning" },
   { name: "navigationItems.salesPlanning", icon: LineChart, href: "/sales-planning" },
-  { name: "navigationItems.ddsop", icon: Layers, href: "/ddsop" },
-  { name: "navigationItems.marketing", icon: Gift, href: "/marketing" },
   { name: "navigationItems.logistics", icon: Truck, href: "/logistics" },
   { name: "navigationItems.reports", icon: FileText, href: "/reports" },
   { name: "navigationItems.askAI", icon: Search, href: "/ask-ai" },
