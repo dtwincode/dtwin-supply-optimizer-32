@@ -24,13 +24,24 @@ const getRecommendation = (status: string, trend: string, metric: string, target
   }
 };
 
+type ExecutionItemWithRec = {
+  id: number;
+  name: string;
+  status: string;
+  metric: string;
+  target: string;
+  trend: string;
+  recommendation: string;
+  actionDescription: string;
+};
+
 export const ExecutionMetrics: React.FC = () => {
   const { language } = useLanguage();
   const t = (key: string) => getTranslation(`ddsop.${key}`, language) || key;
   const [viewMode, setViewMode] = useState<'metrics' | 'actions'>('metrics');
 
   // Generate action-oriented data with recommendations
-  const executionWithRecommendations = executionItems.map(item => {
+  const executionWithRecommendations: ExecutionItemWithRec[] = executionItems.map(item => {
     const recommendation = getRecommendation(item.status, item.trend, item.metric, item.target);
     return {
       ...item,

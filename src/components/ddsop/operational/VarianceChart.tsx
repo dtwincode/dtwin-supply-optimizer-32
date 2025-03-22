@@ -1,68 +1,69 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/translations';
-import { FileBarChart } from 'lucide-react';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer,
-  ReferenceLine
-} from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
+import { BarChart as BarChartIcon } from 'lucide-react';
 
-// Sample data for the variance chart
-const varianceData = [
-  { name: 'Week 1', planned: 120, actual: 118, variance: 1.7 },
-  { name: 'Week 2', planned: 145, actual: 132, variance: 9.0 },
-  { name: 'Week 3', planned: 135, actual: 142, variance: -5.2 },
-  { name: 'Week 4', planned: 155, actual: 149, variance: 3.9 },
-  { name: 'Week 5', planned: 160, actual: 147, variance: 8.1 },
-  { name: 'Week 6', planned: 150, actual: 158, variance: -5.3 },
+// Sample data for variance chart
+const data = [
+  { name: 'Week 1', plan: 150, actual: 120, variance: -30 },
+  { name: 'Week 2', plan: 160, actual: 155, variance: -5 },
+  { name: 'Week 3', plan: 170, actual: 180, variance: 10 },
+  { name: 'Week 4', plan: 180, actual: 165, variance: -15 },
+  { name: 'Week 5', plan: 190, actual: 205, variance: 15 },
+  { name: 'Week 6', plan: 200, actual: 182, variance: -18 },
 ];
 
 export const VarianceChart: React.FC = () => {
   const { language } = useLanguage();
-  const t = (key: string) => getTranslation(`common.ddsop.${key}`, language) || key;
+  const t = (key: string) => getTranslation(`ddsop.${key}`, language) || key;
+
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-3 border border-gray-200 shadow-sm rounded-md">
+          <p className="font-medium">{label}</p>
+          <p className="text-blue-600">{`${t('planned')}: ${payload[0].value}`}</p>
+          <p className="text-green-600">{`${t('actual')}: ${payload[1].value}`}</p>
+          <p className={`font-medium ${payload[2].value >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            {`${t('variance')}: ${payload[2].value}`}
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center">
-          <FileBarChart className="h-5 w-5 mr-2 text-dtwin-medium" />
-          {t('planVsActualVariance')}
+          <BarChartIcon className="h-5 w-5 mr-2 text-dtwin-medium" />
+          {t('planVsActual')}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
-              data={varianceData}
-              margin={{
-                top: 5,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
+              data={data}
+              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
             >
-              <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+              <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
-              <Tooltip 
-                formatter={(value: number, name: string) => {
-                  if (name === 'variance') return [`${value}%`, t('variance')];
-                  return [value, name === 'planned' ? t('planned') : t('actual')];
-                }}
-              />
+              <Tooltip content={<CustomTooltip />} />
               <Legend />
-              <ReferenceLine y={0} stroke="#000" />
-              <Bar dataKey="planned" fill="#8884d8" name={t('planned')} />
-              <Bar dataKey="actual" fill="#82ca9d" name={t('actual')} />
+              <Bar dataKey="plan" fill="#3b82f6" name={t('planned')} />
+              <Bar dataKey="actual" fill="#22c55e" name={t('actual')} />
+              <Bar 
+                dataKey="variance" 
+                fill="#f43f5e" 
+                name={t('variance')} 
+                hide={true} // Hide from chart but keep in tooltip
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
