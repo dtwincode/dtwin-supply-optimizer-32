@@ -134,7 +134,7 @@ export const ForecastingContainer: React.FC<ForecastingContainerProps> = ({
       
       {/* We'll need to modify the ForecastingTabs component to accept activeTab and setActiveTab props */}
       <div className="mb-4">
-        <ForecastingTabs />
+        <ForecastingTabs activeTab={activeTab} setActiveTab={setActiveTab} />
       </div>
 
       {activeTab === "dashboard" && (
@@ -203,10 +203,10 @@ export const ForecastingContainer: React.FC<ForecastingContainerProps> = ({
             scenarioName={scenarioName}
             setScenarioName={setScenarioName}
             currentModel={selectedModel}
-            currentHorizon={12}
-            scenarios={[]}
-            onCreateScenario={() => {}}
-            onDeleteScenario={() => {}}
+            currentHorizon="12" // Changed from number to string here
+            currentParameters={{}}
+            forecastData={filteredData}
+            onScenarioLoad={() => {}}
           />
           <AnomalyDetection data={filteredData} />
           {selectedIndustry === 'pharmacy' && <PharmacyForecastingFactors />}
