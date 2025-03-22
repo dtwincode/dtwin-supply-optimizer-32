@@ -1,11 +1,11 @@
 
 import { ModelSelectionCard } from "./ModelSelectionCard";
 import { ForecastMetricsCards } from "./ForecastMetricsCards";
-import { ForecastingDateRange } from "./ForecastingDateRange";
-import { ForecastFilters } from "./ForecastFilters";
+import { Card } from "@/components/ui/card";
 import { useState } from "react";
 import { ModelParameter } from "@/types/modelParameters";
-import { Card } from "@/components/ui/card";
+import { ForecastingHeaderDateRange } from "./header/ForecastingHeaderDateRange";
+import { ForecastingHeaderFilters } from "./header/ForecastingHeaderFilters";
 
 interface ForecastingHeaderProps {
   onDateRangeChange: (startDate: Date, endDate: Date) => void;
@@ -42,43 +42,8 @@ export const ForecastingHeader = ({
     <div className="space-y-6">
       <Card className="p-6">
         <div className="space-y-6">
-          <ForecastingDateRange 
-            fromDate={new Date()} 
-            toDate={new Date()} 
-            setFromDate={(date) => onDateRangeChange(date, new Date())}
-            setToDate={(date) => onDateRangeChange(new Date(), date)}
-          />
-          <ForecastFilters 
-            searchQuery=""
-            setSearchQuery={() => {}}
-            selectedRegion="all"
-            setSelectedRegion={() => {}}
-            selectedCity="all"
-            setSelectedCity={() => {}}
-            selectedChannel="all"
-            setSelectedChannel={() => {}}
-            selectedWarehouse="all"
-            setSelectedWarehouse={() => {}}
-            selectedL1MainProd="all"
-            setSelectedL1MainProd={() => {}}
-            selectedL2ProdLine="all"
-            setSelectedL2ProdLine={() => {}}
-            selectedL3ProdCategory="all"
-            setSelectedL3ProdCategory={() => {}}
-            selectedL4DeviceMake="all"
-            setSelectedL4DeviceMake={() => {}}
-            selectedL5ProdSubCategory="all"
-            setSelectedL5ProdSubCategory={() => {}}
-            selectedL6DeviceModel="all"
-            setSelectedL6DeviceModel={() => {}}
-            selectedL7DeviceColor="all"
-            setSelectedL7DeviceColor={() => {}}
-            selectedL8DeviceStorage="all"
-            setSelectedL8DeviceStorage={() => {}}
-            channelTypes={[]}
-            warehouses={[]}
-            forecastData={[]}
-          />
+          <ForecastingHeaderDateRange onDateRangeChange={onDateRangeChange} />
+          <ForecastingHeaderFilters onFiltersChange={onFiltersChange} />
         </div>
       </Card>
       
