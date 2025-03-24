@@ -7,6 +7,7 @@ import { chartTranslations } from './common/charts';
 import { paginationTranslations } from './common/pagination';
 import { logisticsTranslations } from './common/logistics';
 import { ddsopTranslations } from './common/ddsop';
+import { zonesTranslations } from './common/zones';
 
 export const commonTranslations: CommonTranslations = {
   // UI translations
@@ -23,6 +24,9 @@ export const commonTranslations: CommonTranslations = {
   submit: { en: "Submit", ar: "إرسال" },
   skus: { en: "SKUs", ar: "وحدات التخزين" },
   create: { en: "Create", ar: "إنشاء" },
+  
+  // Zones translations
+  zones: zonesTranslations,
   
   // Inventory translations
   inventoryTitle: inventoryTranslations.inventoryTitle,
