@@ -1,4 +1,3 @@
-
 import { InventoryTranslations } from '../types';
 
 export const inventoryTranslations: InventoryTranslations = {
@@ -122,7 +121,6 @@ export const inventoryTranslations: InventoryTranslations = {
     en: "Turnover",
     ar: "معدل دوران المخزون"
   },
-  // Add decoupling point translations
   decouplingPoints: {
     en: "Decoupling Points",
     ar: "نقاط الفصل"
@@ -194,5 +192,29 @@ export const inventoryTranslations: InventoryTranslations = {
   configureDecouplingPoints: {
     en: "Configure and visualize decoupling points across your supply network",
     ar: "تكوين وتصور نقاط الفصل عبر شبكة التوريد الخاصة بك"
+  },
+  decouplingTypeInfo: {
+    en: "Decoupling Type Information",
+    ar: "معلومات نوع نقطة الفصل"
+  },
+  strategicInfo: {
+    en: "Strategic decoupling points are used for long-term planning and strategic inventory positioning",
+    ar: "تستخدم نقاط الفصل الاستراتيجية للتخطيط طويل المدى وتحديد موقع المخزون الاستراتيجي"
+  },
+  customerOrderInfo: {
+    en: "Customer order decoupling points separate forecast-driven from order-driven operations",
+    ar: "تفصل نقاط فصل طلبات العملاء بين العمليات المدفوعة بالتنبؤ والعمليات المدفوعة بالطلب"
+  },
+  stockPointInfo: {
+    en: "Stock points are where inventory is deliberately held to decouple operations",
+    ar: "نقاط المخزون هي حيث يتم الاحتفاظ بالمخزون عمدًا لفصل العمليات"
+  },
+  intermediateInfo: {
+    en: "Intermediate decoupling points separate stages in production or transportation",
+    ar: "تفصل نقاط الفصل الوسيطة بين مراحل الإنتاج أو النقل"
+  },
+  bufferProfileInfo: {
+    en: "Buffer profiles determine how buffer zones are calculated for this decoupling point",
+    ar: "تحدد ملفات تعريف المخزون كيفية حساب مناطق المخزون لنقطة الفصل هذه"
   }
 };
