@@ -113,5 +113,14 @@ export const inventoryTranslations: InventoryTranslations = {
   lastUpdated: {
     en: "Last Updated",
     ar: "آخر تحديث"
+  },
+  // Add the missing ADU and turnover translations
+  adu: {
+    en: "ADU",
+    ar: "متوسط الاستخدام اليومي"
+  },
+  turnover: {
+    en: "Turnover",
+    ar: "معدل دوران المخزون"
   }
 };

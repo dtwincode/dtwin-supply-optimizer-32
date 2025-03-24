@@ -1,4 +1,3 @@
-
 export type TranslationValue = {
   en: string;
   ar: string;
@@ -73,6 +72,8 @@ export type InventoryTranslations = {
   criticality: TranslationValue;
   score: TranslationValue;
   lastUpdated: TranslationValue;
+  adu: TranslationValue;
+  turnover: TranslationValue;
 };
 
 export type PaginationTranslations = {

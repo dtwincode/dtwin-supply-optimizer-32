@@ -45,7 +45,7 @@ export const commonTranslations: CommonTranslations = {
   },
   
   // Add missing chart translations for replenishment and netFlow
-  zones: chartTranslations.zones,
+  // Remove duplicate zones property here
   
   // Pagination translations
   previous: paginationTranslations.previous,
