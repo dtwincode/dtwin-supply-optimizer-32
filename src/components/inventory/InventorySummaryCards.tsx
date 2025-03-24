@@ -61,7 +61,7 @@ const InventorySummaryCards = () => {
             </div>
             <div>
               <p className="text-xs font-medium text-gray-500">{getTranslation('common.zones.green', language)}</p>
-              <p className="text-xl font-bold">45 SKUs</p>
+              <p className="text-xl font-bold">45 {getTranslation('common.skus', language)}</p>
             </div>
           </div>
         </Card>
@@ -75,7 +75,7 @@ const InventorySummaryCards = () => {
             </div>
             <div>
               <p className="text-xs font-medium text-gray-500">{getTranslation('common.zones.yellow', language)}</p>
-              <p className="text-xl font-bold">28 SKUs</p>
+              <p className="text-xl font-bold">28 {getTranslation('common.skus', language)}</p>
             </div>
           </div>
         </Card>
@@ -89,7 +89,7 @@ const InventorySummaryCards = () => {
             </div>
             <div>
               <p className="text-xs font-medium text-gray-500">{getTranslation('common.zones.red', language)}</p>
-              <p className="text-xl font-bold">12 SKUs</p>
+              <p className="text-xl font-bold">12 {getTranslation('common.skus', language)}</p>
             </div>
           </div>
         </Card>
