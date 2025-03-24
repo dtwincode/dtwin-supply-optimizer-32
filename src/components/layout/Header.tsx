@@ -109,7 +109,7 @@ const Header = ({
             </HoverCardTrigger>
             <HoverCardContent className="w-48">
               <p className="text-sm">
-                {getTranslation('ui.signOut', language)}
+                {getTranslation('common.logout', language)}
               </p>
             </HoverCardContent>
           </HoverCard>
