@@ -74,6 +74,24 @@ export type InventoryTranslations = {
   lastUpdated: TranslationValue;
   adu: TranslationValue;
   turnover: TranslationValue;
+  decouplingPoints: TranslationValue;
+  decouplingNetwork: TranslationValue;
+  listView: TranslationValue;
+  locationId: TranslationValue;
+  type: TranslationValue;
+  description: TranslationValue;
+  edit: TranslationValue;
+  delete: TranslationValue;
+  noDecouplingPoints: TranslationValue;
+  confirmDelete: TranslationValue;
+  success: TranslationValue;
+  decouplingPointDeleted: TranslationValue;
+  decouplingPointSaved: TranslationValue;
+  refresh: TranslationValue;
+  networkVisualization: TranslationValue;
+  nodes: TranslationValue;
+  links: TranslationValue;
+  configureDecouplingPoints: TranslationValue;
 };
 
 export type PaginationTranslations = {
@@ -372,3 +390,4 @@ export interface Translations {
   supplyPlanning: any;
   ddsop: any;
 }
+

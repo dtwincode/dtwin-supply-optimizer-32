@@ -1,110 +1,80 @@
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { useBufferProfiles } from "@/hooks/useBufferProfiles";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useDecouplingPoints } from "@/hooks/useDecouplingPoints";
 import { DecouplingPoint } from "@/types/inventory/decouplingTypes";
-import { createDecouplingPoint, updateDecouplingPoint } from "@/services/inventoryService";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslation } from "@/translations";
 
-export interface DecouplingPointDialogProps {
-  locationId: string;
-  existingPoint?: DecouplingPoint;
-  onSuccess?: () => void;
+interface DecouplingPointDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  locationId: string;
+  existingPoint?: DecouplingPoint;
+  onSuccess: () => void;
 }
 
-export const DecouplingPointDialog = ({
+export const DecouplingPointDialog: React.FC<DecouplingPointDialogProps> = ({
+  open,
+  onOpenChange,
   locationId,
   existingPoint,
   onSuccess,
-  open,
-  onOpenChange,
-}: DecouplingPointDialogProps) => {
-  const [type, setType] = useState<DecouplingPoint["type"]>("strategic");
-  const [description, setDescription] = useState("");
-  const [bufferProfileId, setBufferProfileId] = useState("");
+}) => {
+  const { language } = useLanguage();
+  const { createPoint, updatePoint } = useDecouplingPoints();
+  const [type, setType] = useState<DecouplingPoint['type']>('stock_point');
+  const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const { profiles, loading: loadingProfiles } = useBufferProfiles();
-  const { toast } = useToast();
+  const [bufferProfileId, setBufferProfileId] = useState('default-profile');
 
   useEffect(() => {
     if (existingPoint) {
       setType(existingPoint.type);
-      setDescription(existingPoint.description || "");
+      setDescription(existingPoint.description || '');
       setBufferProfileId(existingPoint.bufferProfileId);
     } else {
-      // Reset form for new creation
-      setType("strategic");
-      setDescription("");
-      setBufferProfileId("");
+      // Default values for new decoupling point
+      setType('stock_point');
+      setDescription('');
+      setBufferProfileId('default-profile');
     }
-  }, [existingPoint, open]);
+  }, [existingPoint]);
 
-  const handleSubmit = async () => {
-    if (!bufferProfileId) {
-      toast({
-        title: "Validation Error",
-        description: "Please select a buffer profile",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
     try {
+      setIsSubmitting(true);
+      
+      const pointData = {
+        locationId,
+        type,
+        description,
+        bufferProfileId,
+      };
+      
+      let result;
       if (existingPoint) {
-        await updateDecouplingPoint({
+        result = await updatePoint({
           id: existingPoint.id,
-          locationId,
-          type,
-          description,
-          bufferProfileId
-        });
-        toast({
-          title: "Success",
-          description: "Decoupling point updated successfully"
+          ...pointData,
         });
       } else {
-        await createDecouplingPoint({
-          locationId,
-          type,
-          description,
-          bufferProfileId
-        });
-        toast({
-          title: "Success",
-          description: "Decoupling point created successfully"
-        });
+        result = await createPoint(pointData);
       }
       
-      if (onSuccess) onSuccess();
-      onOpenChange(false);
+      if (result.success) {
+        onSuccess();
+        onOpenChange(false);
+      }
     } catch (error) {
-      console.error("Error saving decoupling point:", error);
-      toast({
-        title: "Error",
-        description: "Failed to save decoupling point",
-        variant: "destructive",
-      });
+      console.error('Error saving decoupling point:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -115,90 +85,82 @@ export const DecouplingPointDialog = ({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
-            {existingPoint ? "Edit Decoupling Point" : "Create Decoupling Point"}
+            {existingPoint 
+              ? getTranslation('common.edit', language) + ' ' + getTranslation('common.inventory.decouplingPoint', language)
+              : getTranslation('common.inventory.addDecouplingPoint', language)
+            }
           </DialogTitle>
-          <DialogDescription>
-            Configure a decoupling point for your supply network.
-          </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="location" className="text-right">
-              Location
-            </Label>
-            <Input
-              id="location"
-              value={locationId}
-              className="col-span-3"
-              readOnly
-            />
+        
+        <form onSubmit={handleSubmit} className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="locationId">{getTranslation('common.inventory.locationId', language)}</Label>
+            <Input id="locationId" value={locationId} disabled />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="type" className="text-right">
-              Type
-            </Label>
+          
+          <div className="space-y-2">
+            <Label htmlFor="type">{getTranslation('common.inventory.type', language)}</Label>
             <Select
               value={type}
-              onValueChange={(value: DecouplingPoint["type"]) => setType(value)}
+              onValueChange={(value) => setType(value as DecouplingPoint['type'])}
             >
-              <SelectTrigger id="type" className="col-span-3">
+              <SelectTrigger id="type">
                 <SelectValue placeholder="Select type" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="stock_point">Stock Point</SelectItem>
                 <SelectItem value="strategic">Strategic</SelectItem>
                 <SelectItem value="customer_order">Customer Order</SelectItem>
-                <SelectItem value="stock_point">Stock Point</SelectItem>
                 <SelectItem value="intermediate">Intermediate</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="description" className="text-right">
-              Description
-            </Label>
-            <Input
+          
+          <div className="space-y-2">
+            <Label htmlFor="description">{getTranslation('common.inventory.description', language)}</Label>
+            <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="col-span-3"
+              placeholder={language === 'ar' ? "أدخل وصفاً لنقطة الفصل" : "Enter a description for the decoupling point"}
+              rows={3}
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="buffer-profile" className="text-right">
-              Buffer Profile
-            </Label>
+          
+          <div className="space-y-2">
+            <Label htmlFor="bufferProfile">{getTranslation('common.inventory.bufferZones', language)}</Label>
             <Select
               value={bufferProfileId}
               onValueChange={setBufferProfileId}
-              disabled={loadingProfiles}
             >
-              <SelectTrigger id="buffer-profile" className="col-span-3">
-                <SelectValue placeholder="Select profile" />
+              <SelectTrigger id="bufferProfile">
+                <SelectValue placeholder="Select buffer profile" />
               </SelectTrigger>
               <SelectContent>
-                {loadingProfiles ? (
-                  <SelectItem value="loading" disabled>
-                    Loading profiles...
-                  </SelectItem>
-                ) : (
-                  profiles.map((profile) => (
-                    <SelectItem key={profile.id} value={profile.id}>
-                      {profile.name}
-                    </SelectItem>
-                  ))
-                )}
+                <SelectItem value="default-profile">Default Profile</SelectItem>
+                <SelectItem value="high-variability">High Variability</SelectItem>
+                <SelectItem value="low-variability">Low Variability</SelectItem>
               </SelectContent>
             </Select>
           </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button type="submit" onClick={handleSubmit} disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : existingPoint ? "Update" : "Create"}
-          </Button>
-        </DialogFooter>
+          
+          <DialogFooter>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
+            >
+              {getTranslation('common.cancel', language)}
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 
+                (language === 'ar' ? "جاري الحفظ..." : "Saving...") : 
+                getTranslation('common.save', language)
+              }
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

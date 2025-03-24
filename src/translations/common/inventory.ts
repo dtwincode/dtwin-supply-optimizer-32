@@ -114,7 +114,6 @@ export const inventoryTranslations: InventoryTranslations = {
     en: "Last Updated",
     ar: "آخر تحديث"
   },
-  // Add the missing ADU and turnover translations
   adu: {
     en: "ADU",
     ar: "متوسط الاستخدام اليومي"
@@ -122,5 +121,78 @@ export const inventoryTranslations: InventoryTranslations = {
   turnover: {
     en: "Turnover",
     ar: "معدل دوران المخزون"
+  },
+  // Add decoupling point translations
+  decouplingPoints: {
+    en: "Decoupling Points",
+    ar: "نقاط الفصل"
+  },
+  decouplingNetwork: {
+    en: "Network View",
+    ar: "عرض الشبكة"
+  },
+  listView: {
+    en: "List View",
+    ar: "عرض القائمة"
+  },
+  locationId: {
+    en: "Location ID",
+    ar: "معرف الموقع"
+  },
+  type: {
+    en: "Type",
+    ar: "النوع"
+  },
+  description: {
+    en: "Description",
+    ar: "الوصف"
+  },
+  edit: {
+    en: "Edit",
+    ar: "تعديل"
+  },
+  delete: {
+    en: "Delete",
+    ar: "حذف"
+  },
+  noDecouplingPoints: {
+    en: "No decoupling points found. Add one to get started.",
+    ar: "لم يتم العثور على نقاط فصل. أضف واحدة للبدء."
+  },
+  confirmDelete: {
+    en: "Are you sure you want to delete this decoupling point?",
+    ar: "هل أنت متأكد أنك تريد حذف نقطة الفصل هذه؟"
+  },
+  success: {
+    en: "Success",
+    ar: "نجاح"
+  },
+  decouplingPointDeleted: {
+    en: "Decoupling point deleted successfully",
+    ar: "تم حذف نقطة الفصل بنجاح"
+  },
+  decouplingPointSaved: {
+    en: "Decoupling point saved successfully",
+    ar: "تم حفظ نقطة الفصل بنجاح"
+  },
+  refresh: {
+    en: "Refresh",
+    ar: "تحديث"
+  },
+  networkVisualization: {
+    en: "Network Visualization",
+    ar: "تصور الشبكة"
+  },
+  nodes: {
+    en: "Nodes",
+    ar: "النقاط"
+  },
+  links: {
+    en: "Links",
+    ar: "الروابط"
+  },
+  configureDecouplingPoints: {
+    en: "Configure and visualize decoupling points across your supply network",
+    ar: "تكوين وتصور نقاط الفصل عبر شبكة التوريد الخاصة بك"
   }
 };

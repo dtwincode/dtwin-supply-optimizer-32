@@ -4,6 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { DecouplingPoint, DecouplingNode, DecouplingLink, DecouplingNetwork } from '@/types/inventory/decouplingTypes';
 import { useToast } from '@/hooks/use-toast';
 import { getDecouplingPoints, createDecouplingPoint, updateDecouplingPoint, deleteDecouplingPoint } from '@/services/inventoryService';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { getTranslation } from '@/translations';
 
 // Define mock location data structure for development
 interface LocationData {
@@ -28,6 +30,7 @@ export function useDecouplingPoints() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const { toast } = useToast();
+  const { language } = useLanguage();
 
   const fetchDecouplingPoints = useCallback(async () => {
     setLoading(true);
@@ -43,14 +46,16 @@ export function useDecouplingPoints() {
       console.error('Error fetching decoupling points:', err);
       setError(err instanceof Error ? err : new Error('Failed to fetch decoupling points'));
       toast({
-        title: "Error",
-        description: "Failed to load decoupling points",
+        title: getTranslation('common.error', language),
+        description: language === 'ar' 
+          ? "فشل في تحميل نقاط الفصل" 
+          : "Failed to load decoupling points",
         variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [toast, language]);
 
   const buildNetwork = useCallback(async (decouplingPoints: DecouplingPoint[]) => {
     try {
@@ -137,21 +142,23 @@ export function useDecouplingPoints() {
       await buildNetwork([...points, newPoint]);
       
       toast({
-        title: "Success",
-        description: "Decoupling point created successfully",
+        title: getTranslation('common.success', language),
+        description: getTranslation('common.inventory.decouplingPointSaved', language),
       });
       
       return { success: true, point: newPoint };
     } catch (err) {
       console.error('Error creating decoupling point:', err);
       toast({
-        title: "Error",
-        description: "Failed to create decoupling point",
+        title: getTranslation('common.error', language),
+        description: language === 'ar' 
+          ? "فشل في إنشاء نقطة الفصل" 
+          : "Failed to create decoupling point",
         variant: "destructive",
       });
       return { success: false };
     }
-  }, [points, buildNetwork, toast]);
+  }, [points, buildNetwork, toast, language]);
 
   const updatePoint = useCallback(async (pointData: Partial<DecouplingPoint> & { id: string }) => {
     try {
@@ -168,21 +175,23 @@ export function useDecouplingPoints() {
       await buildNetwork(updatedPoints);
       
       toast({
-        title: "Success",
-        description: "Decoupling point updated successfully",
+        title: getTranslation('common.success', language),
+        description: getTranslation('common.inventory.decouplingPointSaved', language),
       });
       
       return { success: true, point: updatedPoint };
     } catch (err) {
       console.error('Error updating decoupling point:', err);
       toast({
-        title: "Error",
-        description: "Failed to update decoupling point",
+        title: getTranslation('common.error', language),
+        description: language === 'ar' 
+          ? "فشل في تحديث نقطة الفصل" 
+          : "Failed to update decoupling point",
         variant: "destructive",
       });
       return { success: false };
     }
-  }, [points, buildNetwork, toast]);
+  }, [points, buildNetwork, toast, language]);
 
   const deletePoint = useCallback(async (id: string) => {
     try {
@@ -195,21 +204,23 @@ export function useDecouplingPoints() {
       await buildNetwork(updatedPoints);
       
       toast({
-        title: "Success",
-        description: "Decoupling point deleted successfully",
+        title: getTranslation('common.success', language),
+        description: getTranslation('common.inventory.decouplingPointDeleted', language),
       });
       
       return { success: true };
     } catch (err) {
       console.error('Error deleting decoupling point:', err);
       toast({
-        title: "Error",
-        description: "Failed to delete decoupling point",
+        title: getTranslation('common.error', language),
+        description: language === 'ar' 
+          ? "فشل في حذف نقطة الفصل" 
+          : "Failed to delete decoupling point",
         variant: "destructive",
       });
       return { success: false };
     }
-  }, [points, buildNetwork, toast]);
+  }, [points, buildNetwork, toast, language]);
 
   return {
     points,

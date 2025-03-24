@@ -17,6 +17,8 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { DecouplingPoint } from "@/types/inventory/decouplingTypes";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslation } from "@/translations";
 
 export const DecouplingTab = () => {
   const { points, network, loading, fetchDecouplingPoints, deletePoint } = useDecouplingPoints();
@@ -24,6 +26,7 @@ export const DecouplingTab = () => {
   const [selectedLocation, setSelectedLocation] = useState<string>("");
   const [selectedPoint, setSelectedPoint] = useState<DecouplingPoint | undefined>(undefined);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const { language } = useLanguage();
 
   const handleCreateDecouplingPoint = (locationId: string) => {
     setSelectedLocation(locationId);
@@ -38,14 +41,14 @@ export const DecouplingTab = () => {
   };
 
   const handleDeleteDecouplingPoint = async (point: DecouplingPoint) => {
-    const confirmed = window.confirm("Are you sure you want to delete this decoupling point?");
+    const confirmed = window.confirm(getTranslation('common.inventory.confirmDelete', language));
     if (!confirmed) return;
 
     const result = await deletePoint(point.id);
     if (result.success) {
       toast({
-        title: "Success",
-        description: "Decoupling point deleted successfully",
+        title: getTranslation('common.inventory.success', language),
+        description: getTranslation('common.inventory.decouplingPointDeleted', language),
       });
     }
   };
@@ -53,8 +56,8 @@ export const DecouplingTab = () => {
   const handleSuccess = () => {
     fetchDecouplingPoints();
     toast({
-      title: "Success",
-      description: "Decoupling point saved successfully",
+      title: getTranslation('common.inventory.success', language),
+      description: getTranslation('common.inventory.decouplingPointSaved', language),
     });
   };
 
@@ -62,9 +65,9 @@ export const DecouplingTab = () => {
     <Card className="col-span-2">
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Decoupling Points</CardTitle>
+          <CardTitle>{getTranslation('common.inventory.decouplingPoints', language)}</CardTitle>
           <CardDescription>
-            Configure and visualize decoupling points across your supply network
+            {getTranslation('common.inventory.configureDecouplingPoints', language)}
           </CardDescription>
         </div>
         <div className="flex gap-2">
@@ -74,22 +77,22 @@ export const DecouplingTab = () => {
             onClick={() => fetchDecouplingPoints()}
           >
             <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh
+            {getTranslation('common.inventory.refresh', language)}
           </Button>
           <Button 
             size="sm" 
             onClick={() => handleCreateDecouplingPoint("loc-main-warehouse")}
           >
             <PlusCircle className="h-4 w-4 mr-2" />
-            Add Decoupling Point
+            {getTranslation('common.inventory.addDecouplingPoint', language)}
           </Button>
         </div>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="network" className="space-y-4">
           <TabsList>
-            <TabsTrigger value="network">Network View</TabsTrigger>
-            <TabsTrigger value="list">List View</TabsTrigger>
+            <TabsTrigger value="network">{getTranslation('common.inventory.decouplingNetwork', language)}</TabsTrigger>
+            <TabsTrigger value="list">{getTranslation('common.inventory.listView', language)}</TabsTrigger>
           </TabsList>
           
           <TabsContent value="network" className="space-y-4">
@@ -111,17 +114,17 @@ export const DecouplingTab = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Location ID</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead>{getTranslation('common.inventory.locationId', language)}</TableHead>
+                    <TableHead>{getTranslation('common.inventory.type', language)}</TableHead>
+                    <TableHead>{getTranslation('common.inventory.description', language)}</TableHead>
+                    <TableHead>{getTranslation('common.inventory.actions', language)}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {points.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                        No decoupling points found. Add one to get started.
+                        {getTranslation('common.inventory.noDecouplingPoints', language)}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -139,14 +142,14 @@ export const DecouplingTab = () => {
                               size="sm" 
                               onClick={() => handleEditDecouplingPoint(point)}
                             >
-                              Edit
+                              {getTranslation('common.inventory.edit', language)}
                             </Button>
                             <Button 
                               variant="destructive" 
                               size="sm" 
                               onClick={() => handleDeleteDecouplingPoint(point)}
                             >
-                              Delete
+                              {getTranslation('common.inventory.delete', language)}
                             </Button>
                           </div>
                         </TableCell>
