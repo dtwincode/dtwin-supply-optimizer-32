@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -15,6 +14,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Slider } from "@/components/ui/slider";
 
 interface DecouplingPointDialogProps {
   open: boolean;
@@ -128,6 +128,20 @@ export const DecouplingPointDialog: React.FC<DecouplingPointDialogProps> = ({
       default:
         return '';
     }
+  };
+
+  const getVariabilityDescription = (value: number): string => {
+    if (value <= 0.7) return language === 'ar' ? "منخفض: للمنتجات ذات الطلب المستقر والمتوقع" : "Low: For products with stable, predictable demand";
+    if (value <= 1.0) return language === 'ar' ? "متوسط: للمنتجات ذات التغير المعتدل في الطلب" : "Medium: For products with moderate demand variability";
+    if (value <= 1.5) return language === 'ar' ? "عالي: للمنتجات ذات التغير الكبير في الطلب" : "High: For products with significant demand variability";
+    return language === 'ar' ? "عالي جدًا: للمنتجات ذات الطلب غير المتوقع بشكل كبير" : "Very High: For products with highly unpredictable demand";
+  };
+
+  const getVariabilityColor = (value: number): string => {
+    if (value <= 0.7) return "bg-green-100 text-green-800";
+    if (value <= 1.0) return "bg-blue-100 text-blue-800";
+    if (value <= 1.5) return "bg-yellow-100 text-yellow-800";
+    return "bg-red-100 text-red-800";
   };
 
   return (
@@ -263,19 +277,35 @@ export const DecouplingPointDialog: React.FC<DecouplingPointDialogProps> = ({
                 />
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="variabilityFactor">
-                  {language === 'ar' ? "عامل التغير" : "Variability Factor"}
-                </Label>
-                <Input
-                  id="variabilityFactor"
-                  type="number"
-                  step="0.1"
-                  min="0.1"
-                  max="3.0"
-                  value={variabilityFactor}
-                  onChange={(e) => setVariabilityFactor(Number(e.target.value))}
-                />
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <Label htmlFor="variabilityFactor">
+                    {language === 'ar' ? "عامل التغير" : "Variability Factor"}
+                  </Label>
+                  <span className="text-sm font-medium">{variabilityFactor.toFixed(1)}</span>
+                </div>
+                
+                <div className="py-2">
+                  <Slider
+                    id="variabilityFactor"
+                    min={0.5}
+                    max={2.0}
+                    step={0.1}
+                    value={[variabilityFactor]}
+                    onValueChange={(value) => setVariabilityFactor(value[0])}
+                  />
+                </div>
+                
+                <div className={`text-sm p-2 rounded-md ${getVariabilityColor(variabilityFactor)}`}>
+                  {getVariabilityDescription(variabilityFactor)}
+                </div>
+                
+                <div className="text-xs text-muted-foreground mt-1">
+                  {language === 'ar' 
+                    ? "يؤثر على حجم المنطقة الحمراء (مخزون الأمان). القيم الأعلى تعني مخزون أمان أكبر."
+                    : "Affects the red zone size (safety stock). Higher values mean larger safety stock."
+                  }
+                </div>
               </div>
               
               <div className="space-y-2">
