@@ -150,7 +150,7 @@ export const DecouplingPointDialog: React.FC<DecouplingPointDialogProps> = ({
                 </Select>
                 
                 {type && (
-                  <Alert variant="outline" className="mt-2">
+                  <Alert variant="default" className="mt-2">
                     <InfoIcon className="h-4 w-4" />
                     <AlertDescription className="text-xs ml-2">
                       {getTypeDescription(type)}
@@ -188,7 +188,7 @@ export const DecouplingPointDialog: React.FC<DecouplingPointDialogProps> = ({
                   </SelectContent>
                 </Select>
                 
-                <Alert variant="outline" className="mt-2">
+                <Alert variant="default" className="mt-2">
                   <InfoIcon className="h-4 w-4" />
                   <AlertDescription className="text-xs ml-2">
                     {language === 'ar' 

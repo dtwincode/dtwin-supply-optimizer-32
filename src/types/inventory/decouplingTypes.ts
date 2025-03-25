@@ -9,7 +9,7 @@ export interface DecouplingPoint {
 
 export interface DecouplingNode {
   id: string;
-  type: 'location' | 'decoupling';
+  type: 'location' | 'decoupling' | 'supplier' | 'customer';
   label: string;
   parentId?: string;
   level: number;
@@ -21,6 +21,8 @@ export interface DecouplingLink {
   source: string;
   target: string;
   label?: string;
+  type?: 'material_flow' | 'information_flow';
+  metadata?: Record<string, any>;
 }
 
 export interface DecouplingNetwork {

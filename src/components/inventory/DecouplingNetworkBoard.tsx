@@ -1,5 +1,5 @@
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { DecouplingNetwork } from '@/types/inventory/decouplingTypes';
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
@@ -13,11 +13,14 @@ import {
   Node,
   Edge,
   Position,
-  MarkerType
+  MarkerType,
+  Panel
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { NodeResizer } from 'reactflow';
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { AlertCircle, Info } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface DecouplingNetworkBoardProps {
   network: DecouplingNetwork;
@@ -62,6 +65,7 @@ const getDecouplingTypeColor = (type: string): string => {
 
 export const DecouplingNetworkBoard: React.FC<DecouplingNetworkBoardProps> = ({ network }) => {
   const { language } = useLanguage();
+  const [showHelp, setShowHelp] = useState(false);
   
   // Convert network data to ReactFlow nodes and edges
   const initialNodes: Node[] = network.nodes.map((node, index) => ({
@@ -155,6 +159,11 @@ export const DecouplingNetworkBoard: React.FC<DecouplingNetworkBoardProps> = ({ 
     custom: CustomNode,
   };
 
+  // Toggle help panel
+  const toggleHelp = () => {
+    setShowHelp(!showHelp);
+  };
+
   return (
     <div className="border rounded-md p-4 bg-white h-[500px]">
       <h3 className="text-lg font-medium mb-4">{getTranslation('common.inventory.networkVisualization', language)}</h3>
@@ -197,6 +206,46 @@ export const DecouplingNetworkBoard: React.FC<DecouplingNetworkBoardProps> = ({ 
             }}
           />
           <Background gap={12} size={1} />
+          
+          {/* Information panel */}
+          <Panel position="top-right">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button 
+                    onClick={toggleHelp}
+                    className="p-2 rounded-full bg-white shadow-md hover:bg-gray-100"
+                  >
+                    <Info size={16} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {language === 'ar' ? "معلومات الشبكة" : "Network Information"}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </Panel>
+          
+          {showHelp && (
+            <Panel position="top-left" className="w-64">
+              <Card>
+                <CardContent className="p-3 text-xs space-y-2">
+                  <div>
+                    <p className="font-medium mb-1">{getTranslation('common.inventory.nodes', language)}</p>
+                    <p>{getTranslation('common.inventory.nodesDescription', language)}</p>
+                  </div>
+                  <div>
+                    <p className="font-medium mb-1">{getTranslation('common.inventory.links', language)}</p>
+                    <p>{getTranslation('common.inventory.linksDescription', language)}</p>
+                  </div>
+                  <div className="flex items-center text-blue-600">
+                    <AlertCircle size={12} className="mr-1" />
+                    <p>{getTranslation('common.inventory.networkHelp', language)}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Panel>
+          )}
         </ReactFlow>
       </div>
       

@@ -1,3 +1,4 @@
+
 import { InventoryTranslations } from '../types';
 
 export const inventoryTranslations: InventoryTranslations = {
@@ -193,10 +194,6 @@ export const inventoryTranslations: InventoryTranslations = {
     en: "Configure and visualize decoupling points across your supply network",
     ar: "تكوين وتصور نقاط الفصل عبر شبكة التوريد الخاصة بك"
   },
-  decouplingTypeInfo: {
-    en: "Decoupling Type Information",
-    ar: "معلومات نوع نقطة الفصل"
-  },
   strategicInfo: {
     en: "Strategic decoupling points are used for long-term planning and strategic inventory positioning",
     ar: "تستخدم نقاط الفصل الاستراتيجية للتخطيط طويل المدى وتحديد موقع المخزون الاستراتيجي"
@@ -216,5 +213,17 @@ export const inventoryTranslations: InventoryTranslations = {
   bufferProfileInfo: {
     en: "Buffer profiles determine how buffer zones are calculated for this decoupling point",
     ar: "تحدد ملفات تعريف المخزون كيفية حساب مناطق المخزون لنقطة الفصل هذه"
+  },
+  nodesDescription: {
+    en: "Nodes represent locations or decoupling points in your supply chain",
+    ar: "تمثل النقاط المواقع أو نقاط الفصل في سلسلة التوريد الخاصة بك"
+  },
+  linksDescription: {
+    en: "Links represent the flow of materials between nodes in your supply chain",
+    ar: "تمثل الروابط تدفق المواد بين النقاط في سلسلة التوريد الخاصة بك"
+  },
+  networkHelp: {
+    en: "Network visualization helps you understand the relationships between different points in your supply chain",
+    ar: "يساعدك تصور الشبكة على فهم العلاقات بين النقاط المختلفة في سلسلة التوريد الخاصة بك"
   }
 };
