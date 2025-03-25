@@ -42,7 +42,7 @@ export const DecouplingPointDialog: React.FC<DecouplingPointDialogProps> = ({
   const [variabilityFactor, setVariabilityFactor] = useState(1.0);
   const [enableDynamicAdjustment, setEnableDynamicAdjustment] = useState(false);
   const [minimumOrderQuantity, setMinimumOrderQuantity] = useState(0);
-  const [replenishmentStrategy, setReplenishmentStrategy] = useState('min-max');
+  const [replenishmentStrategy, setReplenishmentStrategy] = useState<DecouplingPoint['replenishmentStrategy']>('min-max');
 
   useEffect(() => {
     if (existingPoint) {
@@ -238,7 +238,7 @@ export const DecouplingPointDialog: React.FC<DecouplingPointDialogProps> = ({
                 </Label>
                 <Select
                   value={replenishmentStrategy}
-                  onValueChange={setReplenishmentStrategy}
+                  onValueChange={(value) => setReplenishmentStrategy(value as DecouplingPoint['replenishmentStrategy'])}
                 >
                   <SelectTrigger id="replenishmentStrategy">
                     <SelectValue placeholder="Select strategy" />
