@@ -92,6 +92,14 @@ export type InventoryTranslations = {
   nodes: TranslationValue;
   links: TranslationValue;
   configureDecouplingPoints: TranslationValue;
+  strategicInfo: TranslationValue;
+  customerOrderInfo: TranslationValue;
+  stockPointInfo: TranslationValue;
+  intermediateInfo: TranslationValue;
+  bufferProfileInfo: TranslationValue;
+  nodesDescription: TranslationValue;
+  linksDescription: TranslationValue;
+  networkHelp: TranslationValue;
 };
 
 export type PaginationTranslations = {
@@ -390,4 +398,3 @@ export interface Translations {
   supplyPlanning: any;
   ddsop: any;
 }
-
