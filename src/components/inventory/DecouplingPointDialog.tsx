@@ -8,11 +8,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { InfoIcon } from "lucide-react";
+import { InfoIcon, HelpCircle } from "lucide-react";
 import { useDecouplingPoints } from "@/hooks/useDecouplingPoints";
 import { DecouplingPoint } from "@/types/inventory/decouplingTypes";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface DecouplingPointDialogProps {
   open: boolean;
@@ -36,17 +38,33 @@ export const DecouplingPointDialog: React.FC<DecouplingPointDialogProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bufferProfileId, setBufferProfileId] = useState('default-profile');
   const [activeTab, setActiveTab] = useState('basic');
+  const [leadTimeAdjustment, setLeadTimeAdjustment] = useState(0);
+  const [variabilityFactor, setVariabilityFactor] = useState(1.0);
+  const [enableDynamicAdjustment, setEnableDynamicAdjustment] = useState(false);
+  const [minimumOrderQuantity, setMinimumOrderQuantity] = useState(0);
+  const [replenishmentStrategy, setReplenishmentStrategy] = useState('min-max');
 
   useEffect(() => {
     if (existingPoint) {
       setType(existingPoint.type);
       setDescription(existingPoint.description || '');
       setBufferProfileId(existingPoint.bufferProfileId);
+      // If the existingPoint had additional properties, we would set them here
+      setLeadTimeAdjustment(existingPoint.leadTimeAdjustment || 0);
+      setVariabilityFactor(existingPoint.variabilityFactor || 1.0);
+      setEnableDynamicAdjustment(existingPoint.enableDynamicAdjustment || false);
+      setMinimumOrderQuantity(existingPoint.minimumOrderQuantity || 0);
+      setReplenishmentStrategy(existingPoint.replenishmentStrategy || 'min-max');
     } else {
       // Default values for new decoupling point
       setType('stock_point');
       setDescription('');
       setBufferProfileId('default-profile');
+      setLeadTimeAdjustment(0);
+      setVariabilityFactor(1.0);
+      setEnableDynamicAdjustment(false);
+      setMinimumOrderQuantity(0);
+      setReplenishmentStrategy('min-max');
     }
   }, [existingPoint, open]);
 
@@ -61,6 +79,11 @@ export const DecouplingPointDialog: React.FC<DecouplingPointDialogProps> = ({
         type,
         description,
         bufferProfileId,
+        leadTimeAdjustment,
+        variabilityFactor,
+        enableDynamicAdjustment,
+        minimumOrderQuantity,
+        replenishmentStrategy,
       };
       
       let result;
@@ -171,9 +194,28 @@ export const DecouplingPointDialog: React.FC<DecouplingPointDialogProps> = ({
               </div>
             </TabsContent>
             
-            <TabsContent value="advanced" className="space-y-4 py-4">
+            <TabsContent value="advanced" className="space-y-6 py-4">
               <div className="space-y-2">
-                <Label htmlFor="bufferProfile">{getTranslation('common.inventory.bufferZones', language)}</Label>
+                <div className="flex justify-between items-center">
+                  <Label htmlFor="bufferProfile">{getTranslation('common.inventory.bufferZones', language)}</Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-6 w-6">
+                          <HelpCircle className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs">
+                          {language === 'ar' 
+                            ? "ملفات تعريف المخزون تحدد كيفية حساب مناطق المخزون المؤقت"
+                            : "Buffer profiles determine how buffer zones are calculated"
+                          }
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <Select
                   value={bufferProfileId}
                   onValueChange={setBufferProfileId}
@@ -185,18 +227,79 @@ export const DecouplingPointDialog: React.FC<DecouplingPointDialogProps> = ({
                     <SelectItem value="default-profile">Default Profile</SelectItem>
                     <SelectItem value="high-variability">High Variability</SelectItem>
                     <SelectItem value="low-variability">Low Variability</SelectItem>
+                    <SelectItem value="custom">Custom Profile</SelectItem>
                   </SelectContent>
                 </Select>
-                
-                <Alert variant="default" className="mt-2">
-                  <InfoIcon className="h-4 w-4" />
-                  <AlertDescription className="text-xs ml-2">
-                    {language === 'ar' 
-                      ? "ملفات تعريف المخزون تحدد كيفية حساب وإدارة النطاقات الاحتياطية لنقطة الفصل هذه"
-                      : "Buffer profiles determine how the buffer zones are calculated and managed for this decoupling point"
-                    }
-                  </AlertDescription>
-                </Alert>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="replenishmentStrategy">
+                  {language === 'ar' ? "استراتيجية إعادة التزويد" : "Replenishment Strategy"}
+                </Label>
+                <Select
+                  value={replenishmentStrategy}
+                  onValueChange={setReplenishmentStrategy}
+                >
+                  <SelectTrigger id="replenishmentStrategy">
+                    <SelectValue placeholder="Select strategy" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="min-max">Min-Max</SelectItem>
+                    <SelectItem value="top-of-green">Top of Green</SelectItem>
+                    <SelectItem value="top-of-yellow">Top of Yellow</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="leadTimeAdjustment">
+                  {language === 'ar' ? "تعديل وقت التسليم (بالأيام)" : "Lead Time Adjustment (days)"}
+                </Label>
+                <Input
+                  id="leadTimeAdjustment"
+                  type="number"
+                  value={leadTimeAdjustment}
+                  onChange={(e) => setLeadTimeAdjustment(Number(e.target.value))}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="variabilityFactor">
+                  {language === 'ar' ? "عامل التغير" : "Variability Factor"}
+                </Label>
+                <Input
+                  id="variabilityFactor"
+                  type="number"
+                  step="0.1"
+                  min="0.1"
+                  max="3.0"
+                  value={variabilityFactor}
+                  onChange={(e) => setVariabilityFactor(Number(e.target.value))}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="minimumOrderQuantity">
+                  {language === 'ar' ? "الحد الأدنى لكمية الطلب" : "Minimum Order Quantity"}
+                </Label>
+                <Input
+                  id="minimumOrderQuantity"
+                  type="number"
+                  min="0"
+                  value={minimumOrderQuantity}
+                  onChange={(e) => setMinimumOrderQuantity(Number(e.target.value))}
+                />
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="enableDynamicAdjustment" 
+                  checked={enableDynamicAdjustment}
+                  onCheckedChange={(checked) => setEnableDynamicAdjustment(checked as boolean)}
+                />
+                <Label htmlFor="enableDynamicAdjustment" className="text-sm">
+                  {language === 'ar' ? "تمكين التعديل الديناميكي" : "Enable Dynamic Adjustment"}
+                </Label>
               </div>
             </TabsContent>
             

@@ -1,10 +1,14 @@
-
 export interface DecouplingPoint {
   id: string;
   locationId: string;
   type: 'strategic' | 'customer_order' | 'stock_point' | 'intermediate';
   description?: string;
   bufferProfileId: string;
+  leadTimeAdjustment?: number;
+  variabilityFactor?: number;
+  enableDynamicAdjustment?: boolean;
+  minimumOrderQuantity?: number;
+  replenishmentStrategy?: 'min-max' | 'top-of-green' | 'top-of-yellow';
 }
 
 export interface DecouplingNode {
