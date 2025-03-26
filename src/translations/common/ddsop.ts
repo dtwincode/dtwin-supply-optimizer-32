@@ -1,3 +1,4 @@
+
 export const ddsopTranslations = {
   // Main header and description
   title: {
@@ -403,21 +404,57 @@ export const ddsopTranslations = {
     en: "hours",
     ar: "ساعات"
   },
-  // Added these specific metric names and made sure they are properly mapped
+  
+  // Specific metric names used in the operational dashboard
+  // These entries replace the duplicate ones that were causing errors
   tacticalCycle: {
     en: "Tactical Cycle",
     ar: "الدورة التكتيكية"
   },
-  marketResponseTime: {
-    en: "Market Response Time",
-    ar: "وقت الاستجابة للسوق"
+  
+  // Added for execution metrics
+  current: {
+    en: "Current",
+    ar: "الحالي"
   },
-  signalDetectionRate: {
-    en: "Signal Detection Rate",
-    ar: "معدل اكتشاف الإشارات"
+  takeAction: {
+    en: "Take Action",
+    ar: "اتخاذ إجراء"
   },
-  adjustmentAccuracy: {
-    en: "Adjustment Accuracy",
-    ar: "دقة التعديل"
+  metricsDisplayed: {
+    en: "metrics displayed",
+    ar: "المقاييس المعروضة"
   },
+  criticalItems: {
+    en: "critical items",
+    ar: "العناصر الحرجة"
+  },
+  warningItems: {
+    en: "warning items",
+    ar: "عناصر التحذير"
+  },
+  immediateActionNeeded: {
+    en: "Immediate action needed",
+    ar: "إجراء فوري مطلوب"
+  },
+  preventiveActionRecommended: {
+    en: "Preventive action recommended",
+    ar: "إجراء وقائي موصى به"
+  },
+  continuedMonitoringAdvised: {
+    en: "Continued monitoring advised",
+    ar: "ينصح بالمراقبة المستمرة"
+  },
+  maintainCurrentApproach: {
+    en: "Maintain current approach",
+    ar: "الحفاظ على النهج الحالي"
+  },
+  reviewAndAnalyze: {
+    en: "Review and analyze",
+    ar: "مراجعة وتحليل"
+  },
+  actionInitiated: {
+    en: "Action has been initiated",
+    ar: "تم بدء الإجراء"
+  }
 };
