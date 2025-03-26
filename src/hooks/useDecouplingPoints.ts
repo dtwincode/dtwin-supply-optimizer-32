@@ -1,251 +1,246 @@
 
-import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { DecouplingPoint, DecouplingNode, DecouplingLink, DecouplingNetwork } from '@/types/inventory/decouplingTypes';
-import { useToast } from '@/hooks/use-toast';
-import { getDecouplingPoints, createDecouplingPoint, updateDecouplingPoint, deleteDecouplingPoint } from '@/services/inventoryService';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { DecouplingPoint, DecouplingNetwork } from '@/types/inventory/decouplingTypes';
+import { useToast } from '@/components/ui/use-toast';
 import { getTranslation } from '@/translations';
 
-// Define mock location data structure for development
-interface LocationData {
-  id: string;
-  name: string;
-  level: number;
-  address?: string;
-  city?: string;
-  country?: string;
-}
-
-// Define mock connection data structure for development
-interface ConnectionData {
-  source_id: string;
-  target_id: string;
-  connection_type?: string;
-}
-
-export function useDecouplingPoints() {
-  const [points, setPoints] = useState<DecouplingPoint[]>([]);
-  const [network, setNetwork] = useState<DecouplingNetwork>({ nodes: [], links: [] });
-  const [loading, setLoading] = useState(true);
+export const useDecouplingPoints = () => {
+  const [decouplingPoints, setDecouplingPoints] = useState<DecouplingPoint[]>([]);
+  const [decouplingNetwork, setDecouplingNetwork] = useState<DecouplingNetwork>({ nodes: [], links: [] });
+  const [isLoading, setIsLoading] = useState(true);
+  const [isNetworkLoading, setIsNetworkLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const { toast } = useToast();
   const { language } = useLanguage();
 
-  const fetchDecouplingPoints = useCallback(async () => {
-    setLoading(true);
+  // Mock function to fetch decoupling points
+  const fetchDecouplingPoints = async () => {
+    // In a real app, this would be an API call
     try {
-      const fetchedPoints = await getDecouplingPoints();
-      // Ensure all required fields are present in the fetched points
-      const validPoints: DecouplingPoint[] = fetchedPoints.map(point => ({
-        ...point,
-        name: point.name || `${point.type} point at ${point.locationId}`
-      }));
+      setIsLoading(true);
       
-      setPoints(validPoints);
-      
-      // Build the network based on fetched points
-      await buildNetwork(validPoints);
-      
-      setError(null);
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Mock data
+      const mockPoints: DecouplingPoint[] = [
+        {
+          id: 'dp1',
+          locationId: 'loc-main-warehouse',
+          name: 'Main Warehouse Strategic Buffer',
+          type: 'strategic',
+          description: 'Strategic buffer for seasonal demand fluctuations',
+          bufferProfileId: 'bp-standard',
+          leadTimeAdjustment: 1.2,
+          variabilityFactor: 1.5,
+          enableDynamicAdjustment: true,
+          minimumOrderQuantity: 100,
+          replenishmentStrategy: 'top-of-green',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: 'dp2',
+          locationId: 'loc-distribution-center',
+          name: 'Distribution Center CODP',
+          type: 'customer_order',
+          description: 'Customer order decoupling point for regional distribution',
+          bufferProfileId: 'bp-regional',
+          leadTimeAdjustment: 1.0,
+          variabilityFactor: 1.2,
+          enableDynamicAdjustment: false,
+          minimumOrderQuantity: 50,
+          replenishmentStrategy: 'min-max',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: 'dp3',
+          locationId: 'loc-retail',
+          name: 'Retail Stock Point',
+          type: 'stock_point',
+          description: 'Final stock point before consumer sales',
+          bufferProfileId: 'bp-retail',
+          leadTimeAdjustment: 0.8,
+          variabilityFactor: 1.1,
+          enableDynamicAdjustment: true,
+          minimumOrderQuantity: 25,
+          replenishmentStrategy: 'top-of-yellow',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      ];
+
+      setDecouplingPoints(mockPoints);
+      return mockPoints;
     } catch (err) {
-      console.error('Error fetching decoupling points:', err);
-      setError(err instanceof Error ? err : new Error('Failed to fetch decoupling points'));
+      const error = err instanceof Error ? err : new Error(String(err));
+      setError(error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Mock function to fetch decoupling network
+  const fetchDecouplingNetwork = async () => {
+    try {
+      setIsNetworkLoading(true);
+      
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // Get the points to create the network
+      const points = await fetchDecouplingPoints();
+      
+      // Mock network data based on points
+      const mockNetwork: DecouplingNetwork = {
+        nodes: [
+          {
+            id: 'supplier1',
+            type: 'supplier',
+            label: 'Raw Material Supplier',
+            level: 0,
+            metadata: { country: 'China', reliability: 0.85 }
+          },
+          ...points.map(point => ({
+            id: point.id,
+            type: 'decoupling',
+            label: point.name,
+            level: 1,
+            metadata: { locationId: point.locationId },
+            decouplingType: point.type
+          })),
+          {
+            id: 'customer1',
+            type: 'customer',
+            label: 'Retail Customers',
+            level: 2,
+            metadata: { segment: 'B2C', priority: 'high' }
+          }
+        ],
+        links: [
+          {
+            source: 'supplier1',
+            target: 'dp1',
+            type: 'material_flow',
+            metadata: { leadTime: 14 }
+          },
+          {
+            source: 'dp1',
+            target: 'dp2',
+            type: 'material_flow',
+            metadata: { leadTime: 7 }
+          },
+          {
+            source: 'dp2',
+            target: 'dp3',
+            type: 'material_flow',
+            metadata: { leadTime: 3 }
+          },
+          {
+            source: 'dp3',
+            target: 'customer1',
+            type: 'material_flow',
+            metadata: { leadTime: 1 }
+          }
+        ]
+      };
+
+      setDecouplingNetwork(mockNetwork);
+      return mockNetwork;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      setError(error);
+      throw error;
+    } finally {
+      setIsNetworkLoading(false);
+    }
+  };
+
+  // Function to create a new decoupling point
+  const createDecouplingPoint = async (data: Omit<DecouplingPoint, 'id'>) => {
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Create new decoupling point with generated ID
+      const newPoint: DecouplingPoint = {
+        ...data,
+        id: `dp-${Date.now()}`,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      // Update state with new point
+      setDecouplingPoints(prev => [...prev, newPoint]);
+
       toast({
-        title: getTranslation('common.error', language),
-        description: language === 'ar' 
-          ? "فشل في تحميل نقاط الفصل" 
-          : "Failed to load decoupling points",
+        title: getTranslation("common.inventory.success", language),
+        description: getTranslation("common.inventory.decouplingPointSaved", language),
+      });
+
+      return newPoint;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      setError(error);
+      
+      toast({
+        title: getTranslation("common.error", language),
+        description: error.message,
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
+      
+      throw error;
     }
-  }, [toast, language]);
+  };
 
-  const buildNetwork = useCallback(async (decouplingPoints: DecouplingPoint[]) => {
+  // Function to delete a decoupling point
+  const deleteDecouplingPoint = async (id: string) => {
     try {
-      // In a real app, these would be fetched from Supabase
-      // For now, use mock data instead of trying to fetch from 'locations' table
-      const mockLocations: LocationData[] = [
-        { id: "loc-main-warehouse", name: "Main Warehouse", level: 0, address: "123 Main St", city: "Los Angeles", country: "USA" },
-        { id: "loc-distribution-center", name: "Distribution Center", level: 1, address: "456 Center Ave", city: "Chicago", country: "USA" },
-        { id: "loc-retail-store", name: "Retail Store", level: 2, address: "789 Market St", city: "New York", country: "USA" }
-      ];
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Create nodes and links
-      const nodes: DecouplingNode[] = [];
-      const links: DecouplingLink[] = [];
+      // Update state by filtering out the deleted point
+      setDecouplingPoints(prev => prev.filter(p => p.id !== id));
 
-      // Add location nodes
-      mockLocations.forEach((location) => {
-        nodes.push({
-          id: location.id,
-          type: 'location',
-          label: location.name,
-          level: location.level,
-          metadata: { 
-            address: location.address,
-            city: location.city,
-            country: location.country
-          }
-        });
+      toast({
+        title: getTranslation("common.inventory.success", language),
+        description: getTranslation("common.inventory.decouplingPointDeleted", language),
       });
 
-      // Add decoupling point nodes
-      decouplingPoints.forEach(point => {
-        const decouplingNode: DecouplingNode = {
-          id: `dp-${point.id}`,
-          type: 'decoupling',
-          label: point.name || (point.description || `${point.type} point`),
-          parentId: point.locationId,
-          level: 1, // Child of location
-          metadata: { type: point.type },
-          decouplingType: point.type
-        };
-        
-        nodes.push(decouplingNode);
-        
-        // Add link from location to decoupling point
-        links.push({
-          source: point.locationId,
-          target: `dp-${point.id}`
-        });
-      });
-
-      // Mock supply chain connections instead of fetching from non-existent table
-      const mockConnections: ConnectionData[] = [
-        { source_id: "loc-main-warehouse", target_id: "loc-distribution-center", connection_type: "supply" },
-        { source_id: "loc-distribution-center", target_id: "loc-retail-store", connection_type: "distribution" }
-      ];
-
-      mockConnections.forEach(conn => {
-        links.push({
-          source: conn.source_id,
-          target: conn.target_id,
-          label: conn.connection_type
-        });
-      });
-
-      setNetwork({ nodes, links });
+      return true;
     } catch (err) {
-      console.error('Error building network:', err);
-      setError(err instanceof Error ? err : new Error('Failed to build network'));
+      const error = err instanceof Error ? err : new Error(String(err));
+      setError(error);
+      
+      toast({
+        title: getTranslation("common.error", language),
+        description: error.message,
+        variant: "destructive",
+      });
+      
+      throw error;
     }
+  };
+
+  // Initial data load
+  useEffect(() => {
+    fetchDecouplingNetwork().catch(err => {
+      console.error("Error fetching decoupling network:", err);
+    });
   }, []);
 
-  useEffect(() => {
-    fetchDecouplingPoints();
-  }, [fetchDecouplingPoints]);
-
-  const createPoint = useCallback(async (point: Omit<DecouplingPoint, 'id'>) => {
-    try {
-      const newPoint = await createDecouplingPoint(point);
-      
-      const validPoint: DecouplingPoint = {
-        ...newPoint,
-        name: newPoint.name || `${newPoint.type} point at ${newPoint.locationId}`
-      };
-      
-      setPoints(prev => [...prev, validPoint]);
-      
-      // Update network
-      await buildNetwork([...points, validPoint]);
-      
-      toast({
-        title: getTranslation('common.success', language),
-        description: getTranslation('common.inventory.decouplingPointSaved', language),
-      });
-      
-      return { success: true, point: validPoint };
-    } catch (err) {
-      console.error('Error creating decoupling point:', err);
-      toast({
-        title: getTranslation('common.error', language),
-        description: language === 'ar' 
-          ? "فشل في إنشاء نقطة الفصل" 
-          : "Failed to create decoupling point",
-        variant: "destructive",
-      });
-      return { success: false };
-    }
-  }, [points, buildNetwork, toast, language]);
-
-  const updatePoint = useCallback(async (pointData: Partial<DecouplingPoint> & { id: string }) => {
-    try {
-      const updatedPoint = await updateDecouplingPoint(pointData);
-      
-      const validPoint: DecouplingPoint = {
-        ...updatedPoint,
-        name: updatedPoint.name || `${updatedPoint.type} point at ${updatedPoint.locationId}`
-      };
-      
-      setPoints(prev => 
-        prev.map(p => p.id === validPoint.id ? validPoint : p)
-      );
-      
-      // Update network
-      const updatedPoints = points.map(p => 
-        p.id === validPoint.id ? validPoint : p
-      );
-      await buildNetwork([...updatedPoints]);
-      
-      toast({
-        title: getTranslation('common.success', language),
-        description: getTranslation('common.inventory.decouplingPointSaved', language),
-      });
-      
-      return { success: true, point: validPoint };
-    } catch (err) {
-      console.error('Error updating decoupling point:', err);
-      toast({
-        title: getTranslation('common.error', language),
-        description: language === 'ar' 
-          ? "فشل في تحديث نقطة الفصل" 
-          : "Failed to update decoupling point",
-        variant: "destructive",
-      });
-      return { success: false };
-    }
-  }, [points, buildNetwork, toast, language]);
-
-  const deletePoint = useCallback(async (id: string) => {
-    try {
-      await deleteDecouplingPoint(id);
-      
-      const updatedPoints = points.filter(p => p.id !== id);
-      setPoints(updatedPoints);
-      
-      // Update network
-      await buildNetwork(updatedPoints);
-      
-      toast({
-        title: getTranslation('common.success', language),
-        description: getTranslation('common.inventory.decouplingPointDeleted', language),
-      });
-      
-      return { success: true };
-    } catch (err) {
-      console.error('Error deleting decoupling point:', err);
-      toast({
-        title: getTranslation('common.error', language),
-        description: language === 'ar' 
-          ? "فشل في حذف نقطة الفصل" 
-          : "Failed to delete decoupling point",
-        variant: "destructive",
-      });
-      return { success: false };
-    }
-  }, [points, buildNetwork, toast, language]);
-
   return {
-    points,
-    network,
-    loading,
+    decouplingPoints,
+    decouplingNetwork,
+    isLoading,
+    isNetworkLoading,
     error,
-    fetchDecouplingPoints,
-    createPoint,
-    updatePoint,
-    deletePoint
+    createDecouplingPoint,
+    deleteDecouplingPoint,
+    refreshDecouplingPoints: fetchDecouplingPoints,
+    refreshDecouplingNetwork: fetchDecouplingNetwork
   };
-}
+};
