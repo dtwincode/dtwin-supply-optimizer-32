@@ -84,22 +84,22 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           sidebarOpen ? "translate-x-0" : isRTL ? 'translate-x-full' : '-translate-x-full'
         )}
       >
-        <div className="h-full w-64 bg-white shadow-lg">
-          <div className="flex items-center justify-between p-4 border-b">
+        <div className="h-full w-48 bg-white shadow-lg">
+          <div className="flex items-center justify-between p-2 border-b">
             <div className="flex items-center w-full justify-center">
               <Link to="/">
                 <img 
                   src="/lovable-uploads/ff1ca214-cc5f-4fa6-8bfd-4818cf19a551.png" 
                   alt="dtwin logo" 
-                  className="h-24 w-auto"
+                  className="h-16 w-auto"
                 />
               </Link>
             </div>
             <button
               onClick={() => setSidebarOpen(false)}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="p-1 rounded-lg hover:bg-gray-100 transition-colors"
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4" />
             </button>
           </div>
           <Navigation 
@@ -112,7 +112,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       <div
         className={cn(
           "transition-all duration-500 ease-in-out",
-          sidebarOpen ? (isRTL ? 'mr-64' : 'ml-64') : 'ml-0'
+          sidebarOpen ? (isRTL ? 'mr-48' : 'ml-48') : 'ml-0'
         )}
       >
         <Header

@@ -43,19 +43,19 @@ const Navigation = memo(({ language, isRTL }: NavigationProps) => {
   const location = useLocation();
 
   return (
-    <nav className="p-4 space-y-1">
+    <nav className="py-2 space-y-0.5">
       {navigationItems.map((item) => (
         <Link
           key={item.name}
           to={item.href}
           className={cn(
-            "flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200",
+            "flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-colors duration-200",
             location.pathname === item.href || (item.href === "/" && location.pathname === "")
               ? "bg-dtwin-medium text-white"
               : "text-gray-600 hover:bg-gray-100"
           )}
         >
-          <item.icon className={`h-5 w-5 ${isRTL ? 'ml-3' : 'mr-3'}`} />
+          <item.icon className={`h-4 w-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
           {getTranslation(item.name, language)}
         </Link>
       ))}
