@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { AlertTriangle, Home, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { toast } from "sonner";
 
 const NotFound = () => {
   const location = useLocation();
@@ -12,7 +13,7 @@ const NotFound = () => {
   const [mountTime] = useState(new Date().toISOString());
   
   useEffect(() => {
-    // Comprehensive error logging for routing problems
+    // Log detailed info when NotFound mounts to help with debugging
     console.error(
       "404 Error: Route not found:", 
       {
@@ -27,6 +28,9 @@ const NotFound = () => {
         fullUrl: window.location.href
       }
     );
+    
+    // Show toast notification
+    toast.error(`Page not found: ${location.pathname}`);
     
     // Log available routes for debugging
     console.log("404 Page - Available routes:", [

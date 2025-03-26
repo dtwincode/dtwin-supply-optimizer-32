@@ -36,9 +36,9 @@ const queryClient = new QueryClient({
   },
 });
 
-// Fixed: React Query v5 subscription - directly pass the function without 'listener' property
+// Fixed for React Query v5 - use direct event handler for errors
 queryClient.getQueryCache().subscribe(event => {
-  if (event.type === 'updated' && event.query.state.status === 'error') {
+  if (event.type === 'error') {
     console.error('Query error:', event.query.state.error);
   }
 });
@@ -70,7 +70,7 @@ const RouteDebugger = ({ children }: { children: React.ReactNode }) => {
     return () => {
       console.log('[Route Debugger] Unmounted at:', new Date().toISOString());
     };
-  }, [children]);
+  }, []);
   
   return <>{children}</>;
 };

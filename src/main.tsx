@@ -60,7 +60,7 @@ if (!rootElement) {
         >
           <BrowserRouter>
             <App />
-            <Toaster position="top-right" richColors closeButton />
+            <Toaster richColors closeButton position="top-right" />
           </BrowserRouter>
         </ErrorBoundary>
       </React.StrictMode>,
