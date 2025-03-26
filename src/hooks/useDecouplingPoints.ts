@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { DecouplingPoint, DecouplingNode, DecouplingLink, DecouplingNetwork } from '@/types/inventory/decouplingTypes';
+import { DecouplingPoint, DecouplingNetworkNode, DecouplingNetworkLink, DecouplingNetwork, DecouplingNode, DecouplingLink } from '@/types/inventory/decouplingTypes';
 import { useToast } from '@/hooks/use-toast';
 import { getDecouplingPoints, createDecouplingPoint, updateDecouplingPoint, deleteDecouplingPoint } from '@/services/inventoryService';
 import { useLanguage } from '@/contexts/LanguageContext';
