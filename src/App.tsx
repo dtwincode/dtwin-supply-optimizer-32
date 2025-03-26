@@ -24,6 +24,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FilterProvider } from "./contexts/FilterContext";
 import { Suspense, useEffect } from "react";
 import PageLoading from "./components/PageLoading";
+import { toast } from "sonner";
 
 // Configure query client with compatible options for v5
 const queryClient = new QueryClient({
@@ -40,6 +41,7 @@ const queryClient = new QueryClient({
 queryClient.getQueryCache().subscribe(event => {
   if (event.type === 'updated' && event.query.state.status === 'error') {
     console.error('Query error:', event.query.state.error);
+    toast.error(`Data fetch error: ${event.query.state.error?.message || 'Unknown error'}`);
   }
 });
 
