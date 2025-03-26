@@ -52,7 +52,6 @@ export const inventoryTranslations: InventoryTranslations = {
       ar: "إدارة وعرض تصنيفات وحدات التخزين بناءً على وقت التوريد والتقلب والأهمية"
     }
   },
-  // Adding missing required properties
   skuClassification: {
     en: "SKU Classification",
     ar: "تصنيف وحدات التخزين"
