@@ -1,4 +1,3 @@
-
 export const ddsopTranslations = {
   // Main header and description
   title: {
@@ -403,5 +402,22 @@ export const ddsopTranslations = {
   hours: {
     en: "hours",
     ar: "ساعات"
-  }
+  },
+  // Added these specific metric names and made sure they are properly mapped
+  tacticalCycle: {
+    en: "Tactical Cycle",
+    ar: "الدورة التكتيكية"
+  },
+  marketResponseTime: {
+    en: "Market Response Time",
+    ar: "وقت الاستجابة للسوق"
+  },
+  signalDetectionRate: {
+    en: "Signal Detection Rate",
+    ar: "معدل اكتشاف الإشارات"
+  },
+  adjustmentAccuracy: {
+    en: "Adjustment Accuracy",
+    ar: "دقة التعديل"
+  },
 };

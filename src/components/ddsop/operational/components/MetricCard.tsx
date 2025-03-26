@@ -48,36 +48,49 @@ export const MetricCard: React.FC<MetricCardProps> = ({ metric }) => {
     }
   };
 
+  // Format the value display
+  const displayValue = typeof metric.value === 'number' 
+    ? (metric.unit ? metric.value : `${metric.value}%`) 
+    : metric.value;
+  
+  // Format the target display
+  const displayTarget = metric.target && (metric.unit 
+    ? `${metric.target} ${t(metric.unit)}` 
+    : metric.target);
+
   return (
     <Card className="shadow-sm overflow-hidden">
       <CardContent className="p-4">
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="text-lg font-medium">{t(metric.name)}</h3>
-          <span className="text-2xl font-bold">
-            {typeof metric.value === 'number' ? 
-              (metric.unit ? `${metric.value} ${t(metric.unit)}` : `${metric.value}%`) : 
-              metric.value}
-          </span>
-        </div>
-        
-        {typeof metric.value === 'number' && !metric.unit && (
-          <Progress 
-            value={metric.value} 
-            max={100} 
-            className={`h-2 mb-2 ${getProgressColor(metric.status)}`} 
-          />
-        )}
-        
-        <div className="flex justify-between text-sm text-muted-foreground">
-          <span>{t('target')}: {metric.target}{metric.unit ? ` ${t(metric.unit)}` : ''}</span>
-          {metric.trend && (
-            <div className="flex items-center">
-              <span className="mr-1">{t('trend')}:</span>
-              <span className={getTrendColor(metric.trend)}>
-                {t(metric.trend.toLowerCase())}
-              </span>
-            </div>
+        <div className="flex flex-col">
+          <div className="flex justify-between items-start mb-2">
+            <h3 className="text-lg font-medium">{t(metric.name)}</h3>
+            <span className="text-2xl font-bold">
+              {displayValue}
+              {typeof metric.value === 'number' && metric.unit && 
+                <span className="ml-2">{t(metric.unit)}</span>
+              }
+            </span>
+          </div>
+          
+          {typeof metric.value === 'number' && !metric.unit && (
+            <Progress 
+              value={metric.value} 
+              max={100} 
+              className={`h-2 mb-2 ${getProgressColor(metric.status)}`} 
+            />
           )}
+          
+          <div className="flex justify-between text-sm text-muted-foreground mt-2">
+            <span>{t('target')}: {displayTarget}</span>
+            {metric.trend && (
+              <div className="flex items-center">
+                <span className="mr-1">{t('trend')}:</span>
+                <span className={getTrendColor(metric.trend)}>
+                  {t(metric.trend.toLowerCase())}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>
