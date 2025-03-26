@@ -36,25 +36,40 @@ const queryClient = new QueryClient({
   },
 });
 
-// Fix: Correctly implement the event subscription for React Query v5
+// Fixed: React Query v5 subscription - directly pass the function without 'listener' property
 queryClient.getQueryCache().subscribe(event => {
   if (event.type === 'updated' && event.query.state.status === 'error') {
     console.error('Query error:', event.query.state.error);
   }
 });
 
-// Add route debugging component
+// Enhanced route debugger component
 const RouteDebugger = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
-    console.log('Routes mounted with children:', children);
+    // Detailed path and route information
+    const currentPath = window.location.pathname;
+    const search = window.location.search;
+    const hash = window.location.hash;
+    const userAgent = navigator.userAgent;
     
-    // Additional debug logging for route detection
-    console.log('Current routes available:', [
+    console.log('[Route Debugger] Mounted with details:', {
+      currentPath,
+      search,
+      hash,
+      userAgent,
+      timestamp: new Date().toISOString()
+    });
+    
+    console.log('[Route Debugger] Available routes:', [
       "/", "/auth", "/ddsop", "/forecasting", "/inventory", 
       "/supply-planning", "/sales-and-returns", "/marketing", 
       "/logistics", "/reports", "/ask-ai", "/data", 
       "/guidelines", "/sql-config", "/tickets"
     ]);
+    
+    return () => {
+      console.log('[Route Debugger] Unmounted at:', new Date().toISOString());
+    };
   }, [children]);
   
   return <>{children}</>;
@@ -62,17 +77,23 @@ const RouteDebugger = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
   // Enhanced debug logs
-  console.log("App component rendering", new Date().toISOString());
+  console.log("[App] Component rendering", new Date().toISOString());
   
   useEffect(() => {
-    console.log("App component mounted");
+    console.log("[App] Component mounted");
     
     // Log current path to help with debugging
     const path = window.location.pathname;
-    console.log("Current path at App mount:", path);
+    const search = window.location.search;
+    console.log("[App] Current location at App mount:", { 
+      path, 
+      search,
+      fullUrl: window.location.href,
+      userAgent: navigator.userAgent
+    });
     
     return () => {
-      console.log("App component unmounted");
+      console.log("[App] Component unmounted");
     };
   }, []);
   

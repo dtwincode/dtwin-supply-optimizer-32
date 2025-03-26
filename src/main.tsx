@@ -5,19 +5,33 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App.tsx'
 import './index.css'
 import { Toaster } from "sonner"
+import { ErrorBoundary } from "@/components/ErrorBoundary"
 
-// Add global error handler
+// Add global error handler with more information
 if (typeof window !== 'undefined') {
   window.onerror = function(message, source, lineno, colno, error) {
-    console.error('Global error caught:', { message, source, lineno, colno, error });
+    console.error('Global error caught:', { 
+      message, 
+      source, 
+      lineno, 
+      colno, 
+      error,
+      timestamp: new Date().toISOString(),
+      url: window.location.href,
+      userAgent: navigator.userAgent
+    });
     return false;
   };
   
   // Add enhanced debugging for router issues
-  console.log("Browser pathname on load:", window.location.pathname);
-  console.log("Browser search on load:", window.location.search);
-  console.log("Full URL:", window.location.href);
-  console.log("Browser user agent:", navigator.userAgent);
+  console.log("Browser details on load:", {
+    pathname: window.location.pathname,
+    search: window.location.search,
+    hash: window.location.hash,
+    href: window.location.href,
+    userAgent: navigator.userAgent,
+    timestamp: new Date().toISOString()
+  });
 }
 
 // Make sure root element exists with improved error handling
@@ -39,10 +53,16 @@ if (!rootElement) {
     console.log('Rendering application...');
     root.render(
       <React.StrictMode>
-        <BrowserRouter>
-          <App />
-          <Toaster position="top-right" />
-        </BrowserRouter>
+        <ErrorBoundary
+          onError={(error, info) => {
+            console.error("Root error boundary caught:", { error, info, time: new Date().toISOString() });
+          }}
+        >
+          <BrowserRouter>
+            <App />
+            <Toaster position="top-right" richColors closeButton />
+          </BrowserRouter>
+        </ErrorBoundary>
       </React.StrictMode>,
     );
     console.log('App successfully rendered');
