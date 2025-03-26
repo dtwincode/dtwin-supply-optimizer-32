@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -34,6 +33,7 @@ export const DecouplingPointDialog: React.FC<DecouplingPointDialogProps> = ({
 }) => {
   const { language } = useLanguage();
   const { createPoint, updatePoint } = useDecouplingPoints();
+  const [name, setName] = useState('');
   const [type, setType] = useState<DecouplingPoint['type']>('stock_point');
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,11 +45,14 @@ export const DecouplingPointDialog: React.FC<DecouplingPointDialogProps> = ({
   const [minimumOrderQuantity, setMinimumOrderQuantity] = useState(0);
   const [replenishmentStrategy, setReplenishmentStrategy] = useState<DecouplingPoint['replenishmentStrategy']>('min-max');
 
+  const t = (key: string) => getTranslation(`common.inventory.${key}`, language);
+
   useEffect(() => {
     if (existingPoint) {
+      setName(existingPoint.name || '');
       setType(existingPoint.type);
       setDescription(existingPoint.description || '');
-      setBufferProfileId(existingPoint.bufferProfileId);
+      setBufferProfileId(existingPoint.bufferProfileId || 'default-profile');
       setLeadTimeAdjustment(existingPoint.leadTimeAdjustment || 0);
       setVariabilityFactor(existingPoint.variabilityFactor || 1.0);
       setEnableDynamicAdjustment(existingPoint.enableDynamicAdjustment || false);
@@ -57,6 +60,7 @@ export const DecouplingPointDialog: React.FC<DecouplingPointDialogProps> = ({
       setReplenishmentStrategy(existingPoint.replenishmentStrategy || 'min-max');
     } else {
       // Default values for new decoupling point
+      setName('');
       setType('stock_point');
       setDescription('');
       setBufferProfileId('default-profile');
@@ -76,6 +80,7 @@ export const DecouplingPointDialog: React.FC<DecouplingPointDialogProps> = ({
       
       const pointData = {
         locationId,
+        name: name || `${type} point at ${locationId}`,
         type,
         description,
         bufferProfileId,
@@ -134,7 +139,7 @@ export const DecouplingPointDialog: React.FC<DecouplingPointDialogProps> = ({
     if (value <= 0.7) return language === 'ar' ? "منخفض: للمنتجات ذات الطلب المستقر والمتوقع" : "Low: For products with stable, predictable demand";
     if (value <= 1.0) return language === 'ar' ? "متوسط: للمنتجات ذات التغير المعتدل في الطلب" : "Medium: For products with moderate demand variability";
     if (value <= 1.5) return language === 'ar' ? "عالي: للمنتجات ذات التغير الكبير في الطلب" : "High: For products with significant demand variability";
-    return language === 'ar' ? "عالي جدًا: للمنتجات ذات الطلب غير المتوقع بشكل كبير" : "Very High: For products with highly unpredictable demand";
+    return language === 'ar' ? "عالي جدًا: للمنتجات ذات الطلب غير المتوقعة بشكل كبير" : "Very High: For products with highly unpredictable demand";
   };
 
   const getVariabilityColor = (value: number): string => {
@@ -185,8 +190,8 @@ export const DecouplingPointDialog: React.FC<DecouplingPointDialogProps> = ({
         <DialogHeader>
           <DialogTitle>
             {existingPoint 
-              ? getTranslation('common.edit', language) + ' ' + getTranslation('common.inventory.decouplingPoint', language)
-              : getTranslation('common.inventory.addDecouplingPoint', language)
+              ? getTranslation('common.edit', language) + ' ' + t('decouplingPoint')
+              : t('addDecouplingPoint')
             }
           </DialogTitle>
         </DialogHeader>
@@ -200,12 +205,22 @@ export const DecouplingPointDialog: React.FC<DecouplingPointDialogProps> = ({
           <form onSubmit={handleSubmit}>
             <TabsContent value="basic" className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="locationId">{getTranslation('common.inventory.locationId', language)}</Label>
+                <Label htmlFor="locationId">{t('locationId')}</Label>
                 <Input id="locationId" value={locationId} disabled />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="type">{getTranslation('common.inventory.type', language)}</Label>
+                <Label htmlFor="name">{t('name')}</Label>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={language === 'ar' ? "أدخل اسماً لنقطة الفصل" : "Enter a name for the decoupling point"}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="type">{t('type')}</Label>
                 <Select
                   value={type}
                   onValueChange={(value) => setType(value as DecouplingPoint['type'])}
@@ -214,10 +229,10 @@ export const DecouplingPointDialog: React.FC<DecouplingPointDialogProps> = ({
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="stock_point">Stock Point</SelectItem>
-                    <SelectItem value="strategic">Strategic</SelectItem>
-                    <SelectItem value="customer_order">Customer Order</SelectItem>
-                    <SelectItem value="intermediate">Intermediate</SelectItem>
+                    <SelectItem value="stock_point">{t('stockPointInfo')}</SelectItem>
+                    <SelectItem value="strategic">{t('strategicDecouplingPoint')}</SelectItem>
+                    <SelectItem value="customer_order">{t('customer_orderDecouplingPoint')}</SelectItem>
+                    <SelectItem value="intermediate">{t('intermediateDecouplingPoint')}</SelectItem>
                   </SelectContent>
                 </Select>
                 
@@ -232,7 +247,7 @@ export const DecouplingPointDialog: React.FC<DecouplingPointDialogProps> = ({
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="description">{getTranslation('common.inventory.description', language)}</Label>
+                <Label htmlFor="description">{t('description')}</Label>
                 <Textarea
                   id="description"
                   value={description}
@@ -298,7 +313,7 @@ export const DecouplingPointDialog: React.FC<DecouplingPointDialogProps> = ({
                       <TooltipContent>
                         <p className="max-w-xs">
                           {language === 'ar' 
-                            ? "تحدد هذه الاستراتيجية كيفية إعادة تزويد المخزون بناءً على مستويات المناطق"
+                            ? "تحدد هذه الاستراتيجية كيفية إعادة ت��ويد المخزون بناءً على مستويات المناطق"
                             : "Determines how inventory is replenished based on buffer zone levels"
                           }
                         </p>

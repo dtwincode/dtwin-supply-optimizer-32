@@ -36,10 +36,16 @@ export function useDecouplingPoints() {
     setLoading(true);
     try {
       const fetchedPoints = await getDecouplingPoints();
-      setPoints(fetchedPoints);
+      // Ensure all required fields are present in the fetched points
+      const validPoints: DecouplingPoint[] = fetchedPoints.map(point => ({
+        ...point,
+        name: point.name || `${point.type} point at ${point.locationId}`
+      }));
+      
+      setPoints(validPoints);
       
       // Build the network based on fetched points
-      await buildNetwork(fetchedPoints);
+      await buildNetwork(validPoints);
       
       setError(null);
     } catch (err) {
@@ -91,7 +97,7 @@ export function useDecouplingPoints() {
         const decouplingNode: DecouplingNode = {
           id: `dp-${point.id}`,
           type: 'decoupling',
-          label: point.description || `${point.type} point`,
+          label: point.name || (point.description || `${point.type} point`),
           parentId: point.locationId,
           level: 1, // Child of location
           metadata: { type: point.type },
@@ -136,17 +142,22 @@ export function useDecouplingPoints() {
     try {
       const newPoint = await createDecouplingPoint(point);
       
-      setPoints(prev => [...prev, newPoint]);
+      const validPoint: DecouplingPoint = {
+        ...newPoint,
+        name: newPoint.name || `${newPoint.type} point at ${newPoint.locationId}`
+      };
+      
+      setPoints(prev => [...prev, validPoint]);
       
       // Update network
-      await buildNetwork([...points, newPoint]);
+      await buildNetwork([...points, validPoint]);
       
       toast({
         title: getTranslation('common.success', language),
         description: getTranslation('common.inventory.decouplingPointSaved', language),
       });
       
-      return { success: true, point: newPoint };
+      return { success: true, point: validPoint };
     } catch (err) {
       console.error('Error creating decoupling point:', err);
       toast({
@@ -164,22 +175,27 @@ export function useDecouplingPoints() {
     try {
       const updatedPoint = await updateDecouplingPoint(pointData);
       
+      const validPoint: DecouplingPoint = {
+        ...updatedPoint,
+        name: updatedPoint.name || `${updatedPoint.type} point at ${updatedPoint.locationId}`
+      };
+      
       setPoints(prev => 
-        prev.map(p => p.id === updatedPoint.id ? updatedPoint : p)
+        prev.map(p => p.id === validPoint.id ? validPoint : p)
       );
       
       // Update network
       const updatedPoints = points.map(p => 
-        p.id === updatedPoint.id ? updatedPoint : p
+        p.id === validPoint.id ? validPoint : p
       );
-      await buildNetwork(updatedPoints);
+      await buildNetwork([...updatedPoints]);
       
       toast({
         title: getTranslation('common.success', language),
         description: getTranslation('common.inventory.decouplingPointSaved', language),
       });
       
-      return { success: true, point: updatedPoint };
+      return { success: true, point: validPoint };
     } catch (err) {
       console.error('Error updating decoupling point:', err);
       toast({
