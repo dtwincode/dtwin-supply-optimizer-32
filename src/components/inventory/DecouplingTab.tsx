@@ -21,7 +21,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
 
 export const DecouplingTab = () => {
-  const { points, network, loading, fetchDecouplingPoints, deletePoint } = useDecouplingPoints();
+  const { decouplingPoints, decouplingNetwork, isLoading, refreshDecouplingPoints, deleteDecouplingPoint } = useDecouplingPoints();
   const { toast } = useToast();
   const [selectedLocation, setSelectedLocation] = useState<string>("");
   const [selectedPoint, setSelectedPoint] = useState<DecouplingPoint | undefined>(undefined);
@@ -44,7 +44,7 @@ export const DecouplingTab = () => {
     const confirmed = window.confirm(getTranslation('inventory.confirmDelete', language));
     if (!confirmed) return;
 
-    const result = await deletePoint(point.id);
+    const result = await deleteDecouplingPoint(point.id);
     if (result.success) {
       toast({
         title: getTranslation('inventory.success', language),
@@ -54,7 +54,7 @@ export const DecouplingTab = () => {
   };
 
   const handleSuccess = () => {
-    fetchDecouplingPoints();
+    refreshDecouplingPoints();
     toast({
       title: getTranslation('inventory.success', language),
       description: getTranslation('inventory.decouplingPointSaved', language),
@@ -74,7 +74,7 @@ export const DecouplingTab = () => {
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => fetchDecouplingPoints()}
+            onClick={() => refreshDecouplingPoints()}
           >
             <RefreshCw className="h-4 w-4 mr-2" />
             {getTranslation('inventory.refresh', language)}
@@ -96,17 +96,17 @@ export const DecouplingTab = () => {
           </TabsList>
           
           <TabsContent value="network" className="space-y-4">
-            {loading ? (
+            {isLoading ? (
               <div className="flex h-[400px] items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : (
-              <DecouplingNetworkBoard network={network} />
+              <DecouplingNetworkBoard network={decouplingNetwork} />
             )}
           </TabsContent>
           
           <TabsContent value="list">
-            {loading ? (
+            {isLoading ? (
               <div className="flex h-[400px] items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
@@ -121,14 +121,14 @@ export const DecouplingTab = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {points.length === 0 ? (
+                  {decouplingPoints.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
                         {getTranslation('inventory.noDecouplingPoints', language)}
                       </TableCell>
                     </TableRow>
                   ) : (
-                    points.map((point) => (
+                    decouplingPoints.map((point) => (
                       <TableRow key={point.id}>
                         <TableCell>{point.locationId}</TableCell>
                         <TableCell className="capitalize">

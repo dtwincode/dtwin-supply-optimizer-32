@@ -1,6 +1,7 @@
 
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
+import { zonesTranslations } from "@/translations/common/zones";
 
 interface BufferVisualizerProps {
   netFlowPosition: number;
@@ -24,31 +25,23 @@ export const BufferVisualizer = ({ netFlowPosition, bufferZones, adu }: BufferVi
   // Calculate net flow position as a percentage of total buffer
   const netFlowPercent = Math.min(100, Math.max(0, (netFlowPosition / totalBuffer) * 100));
   
-  // Add console logs to debug translations
-  console.log('Translation keys:', {
-    red: `common.zones.red`,
-    yellow: `common.zones.yellow`,
-    green: `common.zones.green`,
-    netFlow: `common.inventory.netFlowPosition`
-  });
-  
   return (
     <div className="w-full">
       <div className="flex mb-1">
         <div 
           className="h-3 bg-red-500 rounded-l" 
           style={{ width: `${redPercent}%` }}
-          title={`${getTranslation("common.zones.red", language)}: ${bufferZones.red}`}
+          title={`${zonesTranslations.red[language]}: ${bufferZones.red}`}
         ></div>
         <div 
           className="h-3 bg-yellow-500" 
           style={{ width: `${yellowPercent}%` }}
-          title={`${getTranslation("common.zones.yellow", language)}: ${bufferZones.yellow}`}
+          title={`${zonesTranslations.yellow[language]}: ${bufferZones.yellow}`}
         ></div>
         <div 
           className="h-3 bg-green-500 rounded-r" 
           style={{ width: `${greenPercent}%` }}
-          title={`${getTranslation("common.zones.green", language)}: ${bufferZones.green}`}
+          title={`${zonesTranslations.green[language]}: ${bufferZones.green}`}
         ></div>
       </div>
       
@@ -56,7 +49,7 @@ export const BufferVisualizer = ({ netFlowPosition, bufferZones, adu }: BufferVi
         <div 
           className="absolute top-0 h-3 w-1 bg-black rounded-full transform -translate-y-1" 
           style={{ left: `${netFlowPercent}%` }}
-          title={`${getTranslation("common.inventory.netFlowPosition", language)}: ${netFlowPosition}`}
+          title={`${getTranslation("inventory.netFlowPosition", language)}: ${netFlowPosition}`}
         ></div>
       </div>
       

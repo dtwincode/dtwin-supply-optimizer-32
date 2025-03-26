@@ -1,6 +1,7 @@
 
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
+import { zonesTranslations } from "@/translations/common/zones";
 
 interface BufferStatusBadgeProps {
   status: "green" | "yellow" | "red";
@@ -22,11 +23,8 @@ export const BufferStatusBadge = ({ status }: BufferStatusBadgeProps) => {
     }
   };
 
-  // Make sure to use the exact path that exists in the translations object
   const getStatusText = () => {
-    // Adding console.log to debug
-    console.log(`Getting translation for key: common.zones.${status}, language: ${language}`);
-    return getTranslation(`common.zones.${status}`, language);
+    return zonesTranslations[status][language];
   };
 
   return (

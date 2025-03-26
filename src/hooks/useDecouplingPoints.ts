@@ -25,18 +25,19 @@ interface ConnectionData {
 }
 
 export function useDecouplingPoints() {
-  const [points, setPoints] = useState<DecouplingPoint[]>([]);
-  const [network, setNetwork] = useState<DecouplingNetwork>({ nodes: [], links: [] });
-  const [loading, setLoading] = useState(true);
+  const [decouplingPoints, setDecouplingPoints] = useState<DecouplingPoint[]>([]);
+  const [decouplingNetwork, setDecouplingNetwork] = useState<DecouplingNetwork>({ nodes: [], links: [] });
+  const [isLoading, setIsLoading] = useState(true);
+  const [isNetworkLoading, setIsNetworkLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const { toast } = useToast();
   const { language } = useLanguage();
 
-  const fetchDecouplingPoints = useCallback(async () => {
-    setLoading(true);
+  const refreshDecouplingPoints = useCallback(async () => {
+    setIsLoading(true);
     try {
       const fetchedPoints = await getDecouplingPoints();
-      setPoints(fetchedPoints);
+      setDecouplingPoints(fetchedPoints);
       
       // Build the network based on fetched points
       await buildNetwork(fetchedPoints);
@@ -53,11 +54,12 @@ export function useDecouplingPoints() {
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }, [toast, language]);
 
   const buildNetwork = useCallback(async (decouplingPoints: DecouplingPoint[]) => {
+    setIsNetworkLoading(true);
     try {
       // In a real app, these would be fetched from Supabase
       // For now, use mock data instead of trying to fetch from 'locations' table
@@ -94,7 +96,7 @@ export function useDecouplingPoints() {
           label: point.description || `${point.type} point`,
           parentId: point.locationId,
           level: 1, // Child of location
-          metadata: { type: point.type },
+          metadata: { locationId: point.locationId },
           decouplingType: point.type
         };
         
@@ -121,25 +123,35 @@ export function useDecouplingPoints() {
         });
       });
 
-      setNetwork({ nodes, links });
+      setDecouplingNetwork({ nodes, links });
     } catch (err) {
       console.error('Error building network:', err);
       setError(err instanceof Error ? err : new Error('Failed to build network'));
+    } finally {
+      setIsNetworkLoading(false);
     }
   }, []);
 
-  useEffect(() => {
-    fetchDecouplingPoints();
-  }, [fetchDecouplingPoints]);
+  const refreshDecouplingNetwork = useCallback(async () => {
+    try {
+      await buildNetwork(decouplingPoints);
+    } catch (err) {
+      console.error('Error refreshing network:', err);
+    }
+  }, [decouplingPoints, buildNetwork]);
 
-  const createPoint = useCallback(async (point: Omit<DecouplingPoint, 'id'>) => {
+  useEffect(() => {
+    refreshDecouplingPoints();
+  }, [refreshDecouplingPoints]);
+
+  const createDecouplingPoint = useCallback(async (point: Omit<DecouplingPoint, 'id'>) => {
     try {
       const newPoint = await createDecouplingPoint(point);
       
-      setPoints(prev => [...prev, newPoint]);
+      setDecouplingPoints(prev => [...prev, newPoint]);
       
       // Update network
-      await buildNetwork([...points, newPoint]);
+      await buildNetwork([...decouplingPoints, newPoint]);
       
       toast({
         title: getTranslation('common.success', language),
@@ -158,18 +170,18 @@ export function useDecouplingPoints() {
       });
       return { success: false };
     }
-  }, [points, buildNetwork, toast, language]);
+  }, [decouplingPoints, buildNetwork, toast, language]);
 
-  const updatePoint = useCallback(async (pointData: Partial<DecouplingPoint> & { id: string }) => {
+  const updateDecouplingPoint = useCallback(async (pointData: Partial<DecouplingPoint> & { id: string }) => {
     try {
       const updatedPoint = await updateDecouplingPoint(pointData);
       
-      setPoints(prev => 
+      setDecouplingPoints(prev => 
         prev.map(p => p.id === updatedPoint.id ? updatedPoint : p)
       );
       
       // Update network
-      const updatedPoints = points.map(p => 
+      const updatedPoints = decouplingPoints.map(p => 
         p.id === updatedPoint.id ? updatedPoint : p
       );
       await buildNetwork(updatedPoints);
@@ -191,14 +203,14 @@ export function useDecouplingPoints() {
       });
       return { success: false };
     }
-  }, [points, buildNetwork, toast, language]);
+  }, [decouplingPoints, buildNetwork, toast, language]);
 
-  const deletePoint = useCallback(async (id: string) => {
+  const deleteDecouplingPoint = useCallback(async (id: string) => {
     try {
       await deleteDecouplingPoint(id);
       
-      const updatedPoints = points.filter(p => p.id !== id);
-      setPoints(updatedPoints);
+      const updatedPoints = decouplingPoints.filter(p => p.id !== id);
+      setDecouplingPoints(updatedPoints);
       
       // Update network
       await buildNetwork(updatedPoints);
@@ -220,16 +232,18 @@ export function useDecouplingPoints() {
       });
       return { success: false };
     }
-  }, [points, buildNetwork, toast, language]);
+  }, [decouplingPoints, buildNetwork, toast, language]);
 
   return {
-    points,
-    network,
-    loading,
+    decouplingPoints,
+    decouplingNetwork,
+    isLoading,
+    isNetworkLoading,
     error,
-    fetchDecouplingPoints,
-    createPoint,
-    updatePoint,
-    deletePoint
+    createDecouplingPoint,
+    updateDecouplingPoint,
+    deleteDecouplingPoint,
+    refreshDecouplingPoints,
+    refreshDecouplingNetwork
   };
 }

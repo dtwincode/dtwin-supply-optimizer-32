@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -33,7 +32,7 @@ export const DecouplingPointDialog: React.FC<DecouplingPointDialogProps> = ({
   onSuccess,
 }) => {
   const { language } = useLanguage();
-  const { createPoint, updatePoint } = useDecouplingPoints();
+  const { createDecouplingPoint, updateDecouplingPoint } = useDecouplingPoints();
   const [type, setType] = useState<DecouplingPoint['type']>('stock_point');
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -88,12 +87,12 @@ export const DecouplingPointDialog: React.FC<DecouplingPointDialogProps> = ({
       
       let result;
       if (existingPoint) {
-        result = await updatePoint({
+        result = await updateDecouplingPoint({
           id: existingPoint.id,
           ...pointData,
         });
       } else {
-        result = await createPoint(pointData);
+        result = await createDecouplingPoint(pointData);
       }
       
       if (result.success) {
@@ -165,7 +164,7 @@ export const DecouplingPointDialog: React.FC<DecouplingPointDialogProps> = ({
 
   const getLeadTimeDescription = (value: number): string => {
     if (value < 0) return language === 'ar' ? "تسريع: تخفيض وقت التوريد للتعويض" : "Accelerated: reduces lead time to compensate";
-    if (value === 0) return language === 'ar' ? "قياسي: استخدام وقت التوريد الفعلي" : "Standard: using actual lead time";
+    if (value === 0) return language === 'ar' ? "قياسي: استخدام وقت ا��توريد الفعلي" : "Standard: using actual lead time";
     if (value <= 2) return language === 'ar' ? "مخزون احتياطي: إضافة هامش صغير" : "Safety buffer: adding a small margin";
     if (value <= 5) return language === 'ar' ? "متوسط: زيادة وقت التوريد لاحتياط إضافي" : "Medium buffer: increasing lead time for additional safety";
     return language === 'ar' ? "احتياطي كبير: زيادة كبيرة في وقت التوريد للحالات غير المتوقعة" : "Large buffer: significant increase for unpredictable situations";
