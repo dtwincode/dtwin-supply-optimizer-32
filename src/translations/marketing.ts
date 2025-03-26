@@ -3,8 +3,8 @@ import { MarketingTranslations } from './types';
 
 export const marketingTranslations: MarketingTranslations = {
   marketingModule: {
-    en: "Marketing & Promotions",
-    ar: "التسويق والعروض الترويجية"
+    en: "Marketing",
+    ar: "التسويق"
   },
   dashboard: {
     en: "Dashboard",
@@ -39,12 +39,12 @@ export const marketingTranslations: MarketingTranslations = {
     ar: "معدل التحويل"
   },
   roi: {
-    en: "ROI (%)",
-    ar: "العائد على الاستثمار (%)"
+    en: "ROI",
+    ar: "العائد على الاستثمار"
   },
   demandImpact: {
-    en: "Demand Impact (%)",
-    ar: "تأثير الطلب (%)"
+    en: "Demand Impact",
+    ar: "تأثير الطلب"
   },
   customerAcquisition: {
     en: "Customer Acquisition",
@@ -52,19 +52,19 @@ export const marketingTranslations: MarketingTranslations = {
   },
   baselineForecast: {
     en: "Baseline Forecast",
-    ar: "تنبؤ الأساس"
+    ar: "التنبؤ الأساسي"
   },
   withCampaigns: {
     en: "With Campaigns",
     ar: "مع الحملات"
   },
   averageUplift: {
-    en: "Average Forecast Uplift",
-    ar: "متوسط زيادة التنبؤ"
+    en: "Average Uplift",
+    ar: "متوسط الارتفاع"
   },
   campaignForecastDescription: {
-    en: "Marketing campaigns are projected to increase overall demand by this percentage",
-    ar: "من المتوقع أن تزيد حملات التسويق من الطلب العام بهذه النسبة المئوية"
+    en: "Campaigns improve forecast accuracy by reducing uncertainty in demand planning",
+    ar: "تحسن الحملات دقة التنبؤ من خلال تقليل عدم اليقين في تخطيط الطلب"
   },
   supplyChainIntegration: {
     en: "Supply Chain Integration",
@@ -80,19 +80,19 @@ export const marketingTranslations: MarketingTranslations = {
   },
   supply: {
     en: "Supply",
-    ar: "التوريد"
+    ar: "العرض"
   },
   inventoryAlerts: {
-    en: "Inventory Alerts for Promotional Items",
-    ar: "تنبيهات المخزون للعناصر الترويجية"
+    en: "Inventory Alerts",
+    ar: "تنبيهات المخزون"
   },
   forecastUpdates: {
-    en: "Forecast Updates from Campaigns",
-    ar: "تحديثات التنبؤ من الحملات"
+    en: "Forecast Updates",
+    ar: "تحديثات التنبؤ"
   },
   supplyRequirements: {
-    en: "Additional Supply Requirements",
-    ar: "متطلبات التوريد الإضافية"
+    en: "Supply Requirements",
+    ar: "متطلبات العرض"
   },
   leadTime: {
     en: "Lead Time",
@@ -101,7 +101,7 @@ export const marketingTranslations: MarketingTranslations = {
   marketingMetrics: {
     campaignROI: {
       en: "Campaign ROI",
-      ar: "عائد الاستثمار في الحملة"
+      ar: "عائد الاستثمار للحملة"
     },
     customerAcquisition: {
       en: "Customer Acquisition",
@@ -117,12 +117,12 @@ export const marketingTranslations: MarketingTranslations = {
     }
   },
   percentageReturn: {
-    en: "% Return",
-    ar: "% العائد"
+    en: "Percentage Return",
+    ar: "نسبة العائد"
   },
   percent: {
-    en: "%",
-    ar: "%"
+    en: "Percent",
+    ar: "نسبة مئوية"
   },
   target: {
     en: "Target",

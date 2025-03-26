@@ -389,43 +389,43 @@ export interface ExecutiveSummary {
 }
 
 export interface MarketingTranslations {
-  marketingModule: Record<Language, string>;
-  dashboard: Record<Language, string>;
-  calendar: Record<Language, string>;
-  analytics: Record<Language, string>;
-  forecastImpact: Record<Language, string>;
-  campaignPerformance: Record<Language, string>;
-  averageROI: Record<Language, string>;
-  avgDemandImpact: Record<Language, string>;
-  conversionRate: Record<Language, string>;
-  roi: Record<Language, string>;
-  demandImpact: Record<Language, string>;
-  customerAcquisition: Record<Language, string>;
-  baselineForecast: Record<Language, string>;
-  withCampaigns: Record<Language, string>;
-  averageUplift: Record<Language, string>;
-  campaignForecastDescription: Record<Language, string>;
-  supplyChainIntegration: Record<Language, string>;
-  inventory: Record<Language, string>;
-  forecast: Record<Language, string>;
-  supply: Record<Language, string>;
-  inventoryAlerts: Record<Language, string>;
-  forecastUpdates: Record<Language, string>;
-  supplyRequirements: Record<Language, string>;
-  leadTime: Record<Language, string>;
+  marketingModule: Record<string, string>;
+  dashboard: Record<string, string>;
+  calendar: Record<string, string>;
+  analytics: Record<string, string>;
+  forecastImpact: Record<string, string>;
+  campaignPerformance: Record<string, string>;
+  averageROI: Record<string, string>;
+  avgDemandImpact: Record<string, string>;
+  conversionRate: Record<string, string>;
+  roi: Record<string, string>;
+  demandImpact: Record<string, string>;
+  customerAcquisition: Record<string, string>;
+  baselineForecast: Record<string, string>;
+  withCampaigns: Record<string, string>;
+  averageUplift: Record<string, string>;
+  campaignForecastDescription: Record<string, string>;
+  supplyChainIntegration: Record<string, string>;
+  inventory: Record<string, string>;
+  forecast: Record<string, string>;
+  supply: Record<string, string>;
+  inventoryAlerts: Record<string, string>;
+  forecastUpdates: Record<string, string>;
+  supplyRequirements: Record<string, string>;
+  leadTime: Record<string, string>;
   marketingMetrics: {
-    campaignROI: Record<Language, string>;
-    customerAcquisition: Record<Language, string>;
-    conversionRate: Record<Language, string>;
-    demandImpact: Record<Language, string>;
+    campaignROI: Record<string, string>;
+    customerAcquisition: Record<string, string>;
+    conversionRate: Record<string, string>;
+    demandImpact: Record<string, string>;
   };
-  percentageReturn: Record<Language, string>;
-  percent: Record<Language, string>;
-  target: Record<Language, string>;
-  trend: Record<Language, string>;
-  improving: Record<Language, string>;
-  declining: Record<Language, string>;
-  stable: Record<Language, string>;
+  percentageReturn: Record<string, string>;
+  percent: Record<string, string>;
+  target: Record<string, string>;
+  trend: Record<string, string>;
+  improving: Record<string, string>;
+  declining: Record<string, string>;
+  stable: Record<string, string>;
 }
 
 export interface Translations {
@@ -442,3 +442,4 @@ export interface Translations {
   ddsop: any;
   marketing: MarketingTranslations;
 }
+
