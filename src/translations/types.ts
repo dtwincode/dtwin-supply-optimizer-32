@@ -19,6 +19,7 @@ export type NavigationItems = {
   askAI: TranslationValue;
   data: TranslationValue;
   guidelines: TranslationValue;
+  inventoryClassification: TranslationValue;
 };
 
 export type UITranslations = {
@@ -442,4 +443,3 @@ export interface Translations {
   ddsop: any;
   marketing: MarketingTranslations;
 }
-

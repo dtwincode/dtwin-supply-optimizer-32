@@ -33,7 +33,7 @@ export const InventoryTabs = ({ children, defaultValue = "inventory" }: Inventor
           {getTranslation("common.inventoryTitle", language)}
         </TabsTrigger>
         <TabsTrigger value="classification">
-          {getTranslation("common.inventory.classification", language) || "Classification"}
+          {getTranslation("navigationItems.inventoryClassification", language) || "Classification"}
         </TabsTrigger>
         <TabsTrigger value="buffer">
           {getTranslation("common.bufferZones", language)}
