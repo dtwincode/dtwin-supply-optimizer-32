@@ -13,9 +13,11 @@ if (typeof window !== 'undefined') {
     return false;
   };
   
-  // Add additional debugging for router issues
-  console.log("Browser pathname:", window.location.pathname);
-  console.log("Browser search:", window.location.search);
+  // Add enhanced debugging for router issues
+  console.log("Browser pathname on load:", window.location.pathname);
+  console.log("Browser search on load:", window.location.search);
+  console.log("Full URL:", window.location.href);
+  console.log("Browser user agent:", navigator.userAgent);
 }
 
 // Make sure root element exists with improved error handling
@@ -29,7 +31,12 @@ if (!rootElement) {
   console.log('Found root element, initializing app...');
   
   try {
+    // Log that we're about to create the root
+    console.log('Creating React root...');
     const root = ReactDOM.createRoot(rootElement);
+    
+    // Log that we're about to render
+    console.log('Rendering application...');
     root.render(
       <React.StrictMode>
         <BrowserRouter>

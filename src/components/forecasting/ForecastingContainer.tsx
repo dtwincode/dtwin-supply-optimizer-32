@@ -1,6 +1,6 @@
+
 import { useState } from "react";
 import { ForecastFilters } from "./ForecastFilters";
-import { ForecastDataPoint } from "@/types/forecasting";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useToast } from "@/hooks/use-toast";
 import { ForecastMetricsCards } from "./ForecastMetricsCards";
@@ -37,10 +37,18 @@ export function ForecastingContainer() {
 
   const handleDataUploaded = () => {
     setIsUploadDialogOpen(false);
+    toast({
+      title: "Data uploaded successfully",
+      description: "Your forecasting data has been processed",
+    });
   };
 
   const handleScenarioLoad = (scenario: any) => {
     console.log("Loading scenario:", scenario);
+    toast({
+      title: "Scenario loaded",
+      description: `Loaded scenario: ${scenario.name || 'Unnamed'}`,
+    });
   };
 
   return (

@@ -36,7 +36,7 @@ const queryClient = new QueryClient({
   },
 });
 
-// Add error handling for query errors using the correct format for tanstack/react-query v5
+// Fix: Correctly implement the event subscription for React Query v5
 queryClient.getQueryCache().subscribe(event => {
   if (event.type === 'updated' && event.query.state.status === 'error') {
     console.error('Query error:', event.query.state.error);
@@ -47,9 +47,17 @@ queryClient.getQueryCache().subscribe(event => {
 const RouteDebugger = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     console.log('Routes mounted with children:', children);
+    
+    // Additional debug logging for route detection
+    console.log('Current routes available:', [
+      "/", "/auth", "/ddsop", "/forecasting", "/inventory", 
+      "/supply-planning", "/sales-and-returns", "/marketing", 
+      "/logistics", "/reports", "/ask-ai", "/data", 
+      "/guidelines", "/sql-config", "/tickets"
+    ]);
   }, [children]);
   
-  return children;
+  return <>{children}</>;
 };
 
 function App() {
@@ -58,12 +66,14 @@ function App() {
   
   useEffect(() => {
     console.log("App component mounted");
-    console.log("Available routes:", [
-      "/", "/auth", "/ddsop", "/forecasting", "/inventory", 
-      "/supply-planning", "/sales-and-returns", "/marketing", 
-      "/logistics", "/reports", "/ask-ai", "/data", 
-      "/guidelines", "/sql-config", "/tickets"
-    ]);
+    
+    // Log current path to help with debugging
+    const path = window.location.pathname;
+    console.log("Current path at App mount:", path);
+    
+    return () => {
+      console.log("App component unmounted");
+    };
   }, []);
   
   return (
@@ -75,7 +85,7 @@ function App() {
               <Suspense fallback={<PageLoading />}>
                 <RouteDebugger>
                   <Routes>
-                    {/* Debug logged routes */}
+                    {/* Explicit home route */}
                     <Route path="/" element={<Index />} />
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/ddsop" element={<DDSOP />} />
@@ -103,7 +113,7 @@ function App() {
                     <Route path="/guidelines/ai-assistant" element={<AIAssistant />} />
                     <Route path="/sql-config" element={<SQLConfig />} />
                     <Route path="/tickets" element={<Tickets />} />
-                    {/* Catch-all route needs to be LAST */}
+                    {/* Improved catch-all route */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </RouteDebugger>

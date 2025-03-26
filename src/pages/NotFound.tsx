@@ -1,15 +1,17 @@
 
-import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Home, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const NotFound = () => {
   const location = useLocation();
-
+  const navigate = useNavigate();
+  const [mountTime] = useState(new Date().toISOString());
+  
   useEffect(() => {
-    // Enhanced error logging for routing problems
+    // Comprehensive error logging for routing problems
     console.error(
       "404 Error: Route not found:", 
       {
@@ -17,10 +19,24 @@ const NotFound = () => {
         search: location.search,
         hash: location.hash,
         state: location.state,
-        key: location.key
+        key: location.key,
+        mountTime: mountTime,
+        userAgent: navigator.userAgent
       }
     );
-  }, [location]);
+    
+    // Log available routes for debugging
+    console.log("Available routes:", [
+      "/", "/auth", "/ddsop", "/forecasting", "/inventory", 
+      "/supply-planning", "/sales-and-returns", "/marketing", 
+      "/logistics", "/reports", "/ask-ai", "/data", 
+      "/guidelines", "/sql-config", "/tickets"
+    ]);
+  }, [location, mountTime]);
+
+  const goBack = () => {
+    navigate(-1);
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -39,8 +55,15 @@ const NotFound = () => {
         </p>
         <div className="space-y-4">
           <Link to="/" className="block">
-            <Button className="w-full">Return to Dashboard</Button>
+            <Button className="w-full flex items-center justify-center">
+              <Home className="mr-2 h-4 w-4" />
+              Return to Dashboard
+            </Button>
           </Link>
+          <Button variant="outline" className="w-full flex items-center justify-center" onClick={goBack}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Go Back
+          </Button>
           <Link to="/data" className="block">
             <Button variant="outline" className="w-full">Go to Data Management</Button>
           </Link>
@@ -48,7 +71,9 @@ const NotFound = () => {
             <p className="font-bold">Debug Info:</p>
             <p>Pathname: {location.pathname}</p>
             <p>Search: {location.search}</p>
+            <p>Previous Page: {document.referrer || "Not available"}</p>
             <p>Timestamp: {new Date().toISOString()}</p>
+            <p>Mount Time: {mountTime}</p>
           </div>
         </div>
       </div>
