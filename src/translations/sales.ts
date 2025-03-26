@@ -65,5 +65,21 @@ export const salesTranslations = {
   forecast: {
     en: "Forecast",
     ar: "التنبؤ"
+  },
+  processed: {
+    en: "Processed",
+    ar: "تمت المعالجة"
+  },
+  pending: {
+    en: "Pending",
+    ar: "قيد الانتظار"
+  },
+  approved: {
+    en: "Approved",
+    ar: "تمت الموافقة"
+  },
+  rejected: {
+    en: "Rejected",
+    ar: "مرفوض"
   }
 };

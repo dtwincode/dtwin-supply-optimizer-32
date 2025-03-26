@@ -41,6 +41,10 @@ export const ReturnsManagement = () => {
     }
   };
 
+  const getStatusTranslation = (status: ProductReturn['status']) => {
+    return getTranslation(`sales.${status}`, language);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -69,7 +73,7 @@ export const ReturnsManagement = () => {
                 <TableCell>{returnItem.reason}</TableCell>
                 <TableCell>
                   <Badge className={getStatusColor(returnItem.status)}>
-                    {returnItem.status}
+                    {getStatusTranslation(returnItem.status)}
                   </Badge>
                 </TableCell>
                 <TableCell>
