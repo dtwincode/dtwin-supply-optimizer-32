@@ -5,32 +5,22 @@ export interface DecouplingPoint {
   type: 'strategic' | 'customer_order' | 'stock_point' | 'intermediate';
   description?: string;
   bufferProfileId: string;
-  leadTimeAdjustment?: number;
-  variabilityFactor?: number;
-  enableDynamicAdjustment?: boolean;
-  minimumOrderQuantity?: number;
-  replenishmentStrategy?: 'min-max' | 'top-of-green' | 'top-of-yellow';
 }
 
-export interface DecouplingNode {
+export interface DecouplingNetworkNode {
   id: string;
-  type: 'location' | 'decoupling' | 'supplier' | 'customer';
   label: string;
-  parentId?: string;
-  level: number;
-  metadata: Record<string, any>;
-  decouplingType?: DecouplingPoint['type'];
+  type: string;
+  decouplingType?: string;
 }
 
-export interface DecouplingLink {
+export interface DecouplingNetworkLink {
   source: string;
   target: string;
-  label?: string;
-  type?: 'material_flow' | 'information_flow';
-  metadata?: Record<string, any>;
+  label: string;
 }
 
 export interface DecouplingNetwork {
-  nodes: DecouplingNode[];
-  links: DecouplingLink[];
+  nodes: DecouplingNetworkNode[];
+  links: DecouplingNetworkLink[];
 }
