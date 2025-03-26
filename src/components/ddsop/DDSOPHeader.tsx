@@ -13,27 +13,27 @@ export const DDSOPHeader = () => {
 
   return (
     <Card>
-      <CardContent className="p-6">
+      <CardContent className="p-4">
         <div className="flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-full">
-              <Layers className="h-6 w-6 text-blue-700" />
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 bg-blue-100 rounded-full">
+              <Layers className="h-5 w-5 text-blue-700" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">{t('title')}</h1>
-              <p className="text-sm text-muted-foreground">{t('description')}</p>
+              <h1 className="text-xl font-bold tracking-tight">{t('title')}</h1>
+              <p className="text-xs text-muted-foreground">{t('description')}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <Badge className="bg-green-100 text-green-800">
+          <div className="flex items-center gap-2">
+            <Badge className="bg-green-100 text-green-800 text-xs">
               {t('compliantMode')}
             </Badge>
-            <Button variant="outline" size="sm" className="gap-1">
-              <FilterIcon className="h-4 w-4" />
+            <Button variant="outline" size="sm" className="gap-1 text-xs h-8">
+              <FilterIcon className="h-3 w-3" />
               {t('filters')}
-              <ChevronDownIcon className="h-4 w-4" />
+              <ChevronDownIcon className="h-3 w-3" />
             </Button>
-            <Button size="sm">{t('generateReport')}</Button>
+            <Button size="sm" className="text-xs h-8">{t('generateReport')}</Button>
           </div>
         </div>
       </CardContent>
