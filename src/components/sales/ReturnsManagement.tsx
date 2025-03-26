@@ -45,7 +45,7 @@ export const ReturnsManagement = () => {
     <Card>
       <CardHeader>
         <CardTitle>
-          {language === 'ar' ? 'إدارة المرتجعات' : 'Returns Management'}
+          {getTranslation('sales.returns', language)}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -75,12 +75,10 @@ export const ReturnsManagement = () => {
                 <TableCell>
                   <div className="space-y-1">
                     <div className="text-sm">
-                      {language === 'ar' ? 'المخزون: ' : 'Inventory: '}
-                      {returnItem.impact.inventory}
+                      {getTranslation('sales.inventory', language)}: {returnItem.impact.inventory}
                     </div>
                     <div className="text-sm">
-                      {language === 'ar' ? 'التنبؤ: ' : 'Forecast: '}
-                      {returnItem.impact.forecast}
+                      {getTranslation('sales.forecast', language)}: {returnItem.impact.forecast}
                     </div>
                   </div>
                 </TableCell>

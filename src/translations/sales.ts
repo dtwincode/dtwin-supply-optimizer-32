@@ -1,3 +1,4 @@
+
 export const salesTranslations = {
   title: {
     en: "Sales Planning",
@@ -56,5 +57,13 @@ export const salesTranslations = {
   impact: {
     en: "Impact",
     ar: "التأثير"
+  },
+  inventory: {
+    en: "Inventory",
+    ar: "المخزون"
+  },
+  forecast: {
+    en: "Forecast",
+    ar: "التنبؤ"
   }
 };
