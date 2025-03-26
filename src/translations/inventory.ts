@@ -376,5 +376,9 @@ export const inventoryTranslations: InventoryTranslations = {
   intermediateDecouplingPoint: {
     en: "Intermediate Point",
     ar: "نقطة وسيطة"
+  },
+  totalItems: {
+    en: "Total Items",
+    ar: "إجمالي العناصر"
   }
 };

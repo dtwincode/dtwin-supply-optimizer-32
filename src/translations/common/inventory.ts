@@ -1,3 +1,4 @@
+
 import { InventoryTranslations } from '../types';
 
 export const inventoryTranslations: InventoryTranslations = {
