@@ -63,13 +63,13 @@ export const SupplyPlanningFilters = () => {
                 </SelectItem>
                 <SelectItem value="ordered">
                   <div className="flex items-center gap-2">
-                    <Badge variant="primary" className="h-2 w-2 rounded-full p-0" />
+                    <Badge variant="default" className="h-2 w-2 rounded-full p-0" />
                     {getTranslation("supplyPlanning.statusTypes.ordered", language)}
                   </div>
                 </SelectItem>
                 <SelectItem value="confirmed">
                   <div className="flex items-center gap-2">
-                    <Badge variant="primary" className="h-2 w-2 rounded-full p-0" />
+                    <Badge variant="info" className="h-2 w-2 rounded-full p-0" />
                     {getTranslation("supplyPlanning.statusTypes.confirmed", language)}
                   </div>
                 </SelectItem>
@@ -108,7 +108,7 @@ export const SupplyPlanningFilters = () => {
                 </SelectItem>
                 <SelectItem value="medium">
                   <div className="flex items-center gap-2">
-                    <Badge variant="primary" className="h-2 w-2 rounded-full p-0" />
+                    <Badge variant="default" className="h-2 w-2 rounded-full p-0" />
                     {getTranslation("supplyPlanning.priorityLevels.medium", language)}
                   </div>
                 </SelectItem>
