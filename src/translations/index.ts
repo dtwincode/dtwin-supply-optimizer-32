@@ -18,7 +18,7 @@ import { salesTranslations } from './sales';
 import { marketingTranslations } from './marketing';
 
 export { toArabicNumerals };
-export { Language };
+export type { Language };
 
 export const translations: Translations = {
   dashboard: {
