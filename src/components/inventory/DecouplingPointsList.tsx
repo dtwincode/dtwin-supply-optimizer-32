@@ -35,22 +35,13 @@ const sampleDecouplingPoints: DecouplingPoint[] = [
 
 export const DecouplingPointsList = () => {
   const { language } = useLanguage();
+
+  // Function to get translation with inventory prefix
   const t = (key: string) => getTranslation(`common.inventory.${key}`, language);
 
   // Function to format the type for display
   const formatType = (type: string) => {
-    switch (type) {
-      case 'strategic':
-        return t('strategicDecouplingPoint');
-      case 'customer_order':
-        return t('customer_orderDecouplingPoint');
-      case 'stock_point':
-        return t('stock_pointDecouplingPoint');
-      case 'intermediate':
-        return t('intermediateDecouplingPoint');
-      default:
-        return type;
-    }
+    return t(`${type}DecouplingPoint`);
   };
 
   return (
