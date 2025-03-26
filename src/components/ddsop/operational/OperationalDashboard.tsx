@@ -9,7 +9,7 @@ export const OperationalDashboard: React.FC = () => {
   const metrics = [
     {
       id: "tactical-cycle",
-      name: "Tactical Cycle",
+      name: "tacticalCycle",
       value: 92,
       target: 95,
       status: "warning",
@@ -17,7 +17,7 @@ export const OperationalDashboard: React.FC = () => {
     },
     {
       id: "market-response",
-      name: "Market Response Time",
+      name: "marketResponseTime",
       value: 3.5,
       unit: "days",
       target: 5,
@@ -26,7 +26,7 @@ export const OperationalDashboard: React.FC = () => {
     },
     {
       id: "signal-detection",
-      name: "Signal Detection Rate",
+      name: "signalDetectionRate",
       value: 87,
       target: 90,
       status: "warning",
@@ -34,7 +34,7 @@ export const OperationalDashboard: React.FC = () => {
     },
     {
       id: "adjustment-accuracy",
-      name: "Adjustment Accuracy",
+      name: "adjustmentAccuracy",
       value: 83,
       target: 85,
       status: "warning",

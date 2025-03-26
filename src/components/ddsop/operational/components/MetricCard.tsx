@@ -69,10 +69,10 @@ export const MetricCard: React.FC<MetricCardProps> = ({ metric }) => {
         )}
         
         <div className="flex justify-between text-sm text-muted-foreground">
-          <span>Target: {metric.target}{metric.unit ? ` ${t(metric.unit)}` : ''}</span>
+          <span>{t('target')}: {metric.target}{metric.unit ? ` ${t(metric.unit)}` : ''}</span>
           {metric.trend && (
             <div className="flex items-center">
-              <span className="mr-1">Trend:</span>
+              <span className="mr-1">{t('trend')}:</span>
               <span className={getTrendColor(metric.trend)}>
                 {t(metric.trend.toLowerCase())}
               </span>
