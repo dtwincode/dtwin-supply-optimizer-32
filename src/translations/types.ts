@@ -99,6 +99,9 @@ export type Translations = {
   ddsop: any;
   marketing: any;
   inventory: InventoryTranslations;
+  ui: UITranslations;
+  charts: any;
+  pagination: PaginationTranslations;
 };
 
 // Adding missing types
