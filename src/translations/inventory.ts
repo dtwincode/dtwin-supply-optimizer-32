@@ -1,7 +1,6 @@
 
 import { InventoryTranslations } from './types';
 
-// Inventory module translations
 export const inventoryTranslations: InventoryTranslations = {
   inventoryTitle: {
     en: "Inventory Management",
@@ -51,22 +50,6 @@ export const inventoryTranslations: InventoryTranslations = {
     description: {
       en: "Manage and view SKU classifications based on lead time, variability, and criticality",
       ar: "إدارة وعرض تصنيفات وحدات التخزين بناءً على وقت التوريد والتقلب والأهمية"
-    },
-    leadTime: {
-      en: "Lead Time",
-      ar: "وقت التوريد"
-    },
-    variability: {
-      en: "Variability",
-      ar: "التقلب"
-    },
-    criticality: {
-      en: "Criticality",
-      ar: "الأهمية"
-    },
-    lastUpdated: {
-      en: "Last Updated",
-      ar: "آخر تحديث"
     }
   }
 };

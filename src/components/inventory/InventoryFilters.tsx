@@ -2,7 +2,7 @@
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
-interface InventoryFiltersProps {
+export interface InventoryFiltersProps {
   searchQuery: string;
   setSearchQuery: (value: string) => void;
 }
