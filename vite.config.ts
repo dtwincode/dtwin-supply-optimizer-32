@@ -1,3 +1,4 @@
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -11,11 +12,11 @@ const __dirname = dirname(__filename);
 export default defineConfig(({ mode }) => ({
   base: './',
   server: {
-    host: true, // ✅ مطلوب أثناء التطوير
+    host: true, // Required during development
     port: 8080,
   },
   preview: {
-    host: true, // ✅ مطلوب لـ Lovable Preview
+    host: true, // Required for Lovable Preview
     port: 8080,
   },
   plugins: [
