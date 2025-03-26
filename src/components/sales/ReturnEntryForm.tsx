@@ -73,7 +73,7 @@ export const ReturnEntryForm = ({ onSubmit, onCancel }: ReturnEntryFormProps) =>
           region: data.region,
           city: data.city
         },
-        status: "pending", // New returns start in pending status
+        status: "recorded", // New returns start in recorded status
         impact
       };
       
@@ -81,13 +81,13 @@ export const ReturnEntryForm = ({ onSubmit, onCancel }: ReturnEntryFormProps) =>
       
       toast({
         title: getTranslation('sales.returnSubmitted', language) || "Return Submitted",
-        description: getTranslation('sales.returnProcessingMessage', language) || "The return has been submitted and is now pending approval.",
+        description: getTranslation('sales.returnProcessingMessage', language) || "The return has been recorded and the impact assessment is ready.",
       });
     } catch (error) {
       console.error("Error submitting return:", error);
       toast({
         title: getTranslation('sales.returnError', language) || "Error",
-        description: getTranslation('sales.returnErrorMessage', language) || "There was an error submitting your return.",
+        description: getTranslation('sales.returnErrorMessage', language) || "There was an error recording your return.",
         variant: "destructive",
       });
     } finally {

@@ -38,6 +38,10 @@ export const salesTranslations = {
     en: "Add New Return",
     ar: "إضافة إرجاع جديد"
   },
+  recordReturn: {
+    en: "Record Return",
+    ar: "تسجيل إرجاع"
+  },
   submitReturn: {
     en: "Submit Return",
     ar: "تقديم الإرجاع"
@@ -51,16 +55,16 @@ export const salesTranslations = {
     ar: "تم تقديم الإرجاع"
   },
   returnProcessingMessage: {
-    en: "The return has been submitted and is now pending approval.",
-    ar: "تم تقديم الإرجاع وهو الآن في انتظار الموافقة."
+    en: "The return has been recorded and the impact assessment is ready.",
+    ar: "تم تسجيل الإرجاع وتقييم التأثير جاهز."
   },
   returnError: {
     en: "Error",
     ar: "خطأ"
   },
   returnErrorMessage: {
-    en: "There was an error submitting your return.",
-    ar: "حدث خطأ أثناء تقديم الإرجاع الخاص بك."
+    en: "There was an error recording your return.",
+    ar: "حدث خطأ أثناء تسجيل الإرجاع الخاص بك."
   },
   selectCondition: {
     en: "Select condition",
@@ -74,17 +78,9 @@ export const salesTranslations = {
     en: "Actions",
     ar: "إجراءات"
   },
-  approve: {
-    en: "Approve",
-    ar: "موافقة"
-  },
-  reject: {
-    en: "Reject",
-    ar: "رفض"
-  },
-  process: {
-    en: "Process",
-    ar: "معالجة"
+  updateForecast: {
+    en: "Update Forecast",
+    ar: "تحديث التنبؤ"
   },
   sku: {
     en: "SKU",
@@ -122,17 +118,9 @@ export const salesTranslations = {
     en: "Processed",
     ar: "تمت المعالجة"
   },
-  pending: {
-    en: "Pending",
-    ar: "قيد الانتظار"
-  },
-  approved: {
-    en: "Approved",
-    ar: "تمت الموافقة"
-  },
-  rejected: {
-    en: "Rejected",
-    ar: "مرفوض"
+  recorded: {
+    en: "Recorded",
+    ar: "تم التسجيل"
   },
   condition: {
     en: "Condition",

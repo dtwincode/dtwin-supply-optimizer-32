@@ -1,3 +1,4 @@
+
 export interface SalesPlan {
   id: string;
   timeframe: {
@@ -53,7 +54,7 @@ export interface ProductReturn {
     region: string;
     city?: string;
   };
-  status: 'pending' | 'approved' | 'rejected' | 'processed';
+  status: 'recorded' | 'processed';
   impact: {
     inventory: number;
     forecast: number;

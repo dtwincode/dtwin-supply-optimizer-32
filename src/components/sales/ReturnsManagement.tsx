@@ -37,7 +37,7 @@ const mockReturns: Omit<ProductReturn, 'impact'>[] = [
       region: "Western Region",
       city: "Jeddah"
     },
-    status: "pending"
+    status: "recorded"
   },
   {
     id: "3",
@@ -50,7 +50,7 @@ const mockReturns: Omit<ProductReturn, 'impact'>[] = [
       region: "Eastern Region",
       city: "Dammam"
     },
-    status: "approved"
+    status: "processed"
   }
 ];
 
@@ -99,9 +99,7 @@ export const ReturnsManagement = () => {
 
   const getStatusColor = (status: ProductReturn['status']) => {
     switch (status) {
-      case 'pending': return "bg-yellow-100 text-yellow-800";
-      case 'approved': return "bg-green-100 text-green-800";
-      case 'rejected': return "bg-red-100 text-red-800";
+      case 'recorded': return "bg-yellow-100 text-yellow-800";
       case 'processed': return "bg-blue-100 text-blue-800";
       default: return "bg-gray-100 text-gray-800";
     }
@@ -112,35 +110,24 @@ export const ReturnsManagement = () => {
   };
 
   const handleNewReturn = (returnData: ProductReturn) => {
-    setReturns(prev => [returnData, ...prev]);
+    // New returns are automatically in 'recorded' status
+    const newReturn = {
+      ...returnData,
+      status: 'recorded' as ProductReturn['status']
+    };
+    
+    setReturns(prev => [newReturn, ...prev]);
     // In a real application, this would also save to a database
   };
 
-  const handleApproveReturn = (id: string) => {
-    setReturns(prev => prev.map(returnItem => 
-      returnItem.id === id 
-        ? { ...returnItem, status: 'approved' as ProductReturn['status'] }
-        : returnItem
-    ));
-    // In a real application, this would also update the database
-  };
-
-  const handleRejectReturn = (id: string) => {
-    setReturns(prev => prev.map(returnItem => 
-      returnItem.id === id 
-        ? { ...returnItem, status: 'rejected' as ProductReturn['status'] }
-        : returnItem
-    ));
-    // In a real application, this would also update the database
-  };
-
-  const handleProcessReturn = (id: string) => {
+  const handleUpdateForecast = (id: string) => {
+    // Mark as analyzed and update forecasts based on return data
     setReturns(prev => prev.map(returnItem => 
       returnItem.id === id 
         ? { ...returnItem, status: 'processed' as ProductReturn['status'] }
         : returnItem
     ));
-    // In a real application, this would also update the database and inventory
+    // In a real application, this would trigger a forecast update
   };
 
   return (
@@ -192,34 +179,14 @@ export const ReturnsManagement = () => {
                 </TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
-                    {returnItem.status === 'pending' && (
-                      <>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => handleApproveReturn(returnItem.id)}
-                          className="text-green-600 border-green-600 hover:bg-green-50"
-                        >
-                          {getTranslation('sales.approve', language)}
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => handleRejectReturn(returnItem.id)}
-                          className="text-red-600 border-red-600 hover:bg-red-50"
-                        >
-                          {getTranslation('sales.reject', language)}
-                        </Button>
-                      </>
-                    )}
-                    {returnItem.status === 'approved' && (
+                    {returnItem.status === 'recorded' && (
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        onClick={() => handleProcessReturn(returnItem.id)}
+                        onClick={() => handleUpdateForecast(returnItem.id)}
                         className="text-blue-600 border-blue-600 hover:bg-blue-50"
                       >
-                        {getTranslation('sales.process', language)}
+                        {getTranslation('sales.updateForecast', language) || "Update Forecast"}
                       </Button>
                     )}
                   </div>
