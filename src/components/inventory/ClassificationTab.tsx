@@ -55,7 +55,7 @@ export function ClassificationTab() {
             {getTranslation("navigationItems.inventoryClassification", language) || "SKU Classification"}
           </CardTitle>
           <CardDescription>
-            {"Classify SKUs based on lead time, variability, and criticality"}
+            {getTranslation("common.inventory.classification.description", language) || "Classify SKUs based on lead time, variability, and criticality"}
           </CardDescription>
         </CardHeader>
         <CardContent>

@@ -1,10 +1,14 @@
 
 import { NavigationItems } from './types';
 
-export const navigationTranslations: NavigationItems = {
+export const navigationItems: NavigationItems = {
   dashboard: {
     en: "Dashboard",
     ar: "لوحة التحكم"
+  },
+  ddsop: {
+    en: "DD S&OP",
+    ar: "التخطيط الطلبي للمبيعات والعمليات"
   },
   forecasting: {
     en: "Forecasting",
@@ -14,9 +18,17 @@ export const navigationTranslations: NavigationItems = {
     en: "Inventory",
     ar: "المخزون"
   },
+  inventoryClassification: {
+    en: "SKU Classification",
+    ar: "تصنيف وحدات التخزين"
+  },
+  supplyPlanning: {
+    en: "Supply Planning",
+    ar: "تخطيط الإمداد"
+  },
   salesPlanning: {
-    en: "Sales & Returns",
-    ar: "المبيعات والمرتجعات"
+    en: "Sales Planning",
+    ar: "تخطيط المبيعات"
   },
   returnsManagement: {
     en: "Returns Management",
@@ -39,23 +51,11 @@ export const navigationTranslations: NavigationItems = {
     ar: "اسأل الذكاء الاصطناعي"
   },
   data: {
-    en: "Data",
-    ar: "البيانات"
+    en: "Data Management",
+    ar: "إدارة البيانات"
   },
   guidelines: {
     en: "Guidelines",
-    ar: "الدليل الإرشادي"
-  },
-  supplyPlanning: {
-    en: "Supply Planning",
-    ar: "تخطيط التوريد"
-  },
-  ddsop: {
-    en: "DDS&OP",
-    ar: "تخطيط المبيعات والعمليات المدفوع بالطلب"
-  },
-  inventoryClassification: {
-    en: "Classification",
-    ar: "التصنيف"
+    ar: "الإرشادات"
   }
 };

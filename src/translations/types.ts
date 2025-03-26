@@ -1,4 +1,11 @@
 
+export type Language = 'en' | 'ar';
+
+export type TranslationValue = {
+  en: string;
+  ar: string;
+};
+
 export type InventoryTranslations = {
   inventoryTitle: TranslationValue;
   bufferZones: TranslationValue;
@@ -60,4 +67,68 @@ export type InventoryTranslations = {
     title: TranslationValue;
     description: TranslationValue;
   };
+};
+
+export type NavigationItems = {
+  dashboard: TranslationValue;
+  ddsop: TranslationValue;
+  forecasting: TranslationValue;
+  inventory: TranslationValue;
+  inventoryClassification: TranslationValue;
+  supplyPlanning: TranslationValue;
+  salesPlanning: TranslationValue;
+  returnsManagement: TranslationValue;
+  marketing: TranslationValue;
+  logistics: TranslationValue;
+  reports: TranslationValue;
+  askAI: TranslationValue;
+  data: TranslationValue;
+  guidelines: TranslationValue;
+};
+
+export type Translations = {
+  navigationItems: NavigationItems;
+  inventory: InventoryTranslations;
+};
+
+// Adding missing types
+export type CommonTranslations = {
+  // Common translations
+  [key: string]: TranslationValue;
+};
+
+export type DashboardMetrics = {
+  [key: string]: TranslationValue;
+};
+
+export type ExecutiveSummary = {
+  [key: string]: TranslationValue;
+};
+
+export type FinancialMetrics = {
+  [key: string]: TranslationValue;
+};
+
+export type PaginationTranslations = {
+  [key: string]: TranslationValue;
+};
+
+export type SupplyPlanningTranslations = {
+  [key: string]: TranslationValue;
+};
+
+export type SustainabilityMetrics = {
+  [key: string]: TranslationValue;
+};
+
+export type UITranslations = {
+  [key: string]: TranslationValue;
+};
+
+export type ModulesSummary = {
+  [key: string]: TranslationValue;
+};
+
+export type MarketingTranslations = {
+  [key: string]: TranslationValue;
 };
