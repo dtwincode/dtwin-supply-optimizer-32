@@ -5,45 +5,40 @@ import { MetricsGrid } from "./components/MetricsGrid";
 import { ChartSection } from "./components/ChartSection";
 
 export const OperationalDashboard: React.FC = () => {
-  // Define operational metrics with consistent typing for target (always number)
+  // Define operational metrics with consistent typing and add trend data
   const metrics = [
     {
       id: "tactical-cycle",
       name: "Tactical Cycle",
       value: 92,
       target: 95,
-      status: "warning"
+      status: "warning",
+      trend: "improving"
     },
     {
-      id: "flow-index",
-      name: "Flow Index",
-      value: 78,
-      target: 85,
-      status: "warning"
+      id: "market-response",
+      name: "Market Response Time",
+      value: 3.5,
+      unit: "days",
+      target: 5,
+      status: "success",
+      trend: "stable"
     },
     {
-      id: "demand-signal",
-      name: "Demand Signal",
-      value: 95,
-      unit: "%",
+      id: "signal-detection",
+      name: "Signal Detection Rate",
+      value: 87,
       target: 90,
-      status: "success"
+      status: "warning",
+      trend: "stable"
     },
     {
-      id: "execution-variance",
-      name: "Execution Variance",
-      value: 5.2,
-      unit: "%",
-      target: 10,
-      status: "success"
-    },
-    {
-      id: "adaptive-response",
-      name: "Adaptive Response",
-      value: 24,
-      unit: "hours",
-      target: 48,
-      status: "success"
+      id: "adjustment-accuracy",
+      name: "Adjustment Accuracy",
+      value: 83,
+      target: 85,
+      status: "warning",
+      trend: "improving"
     }
   ];
 
