@@ -1,4 +1,3 @@
-
 import { Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/index";
 import Auth from "./pages/Auth";
@@ -38,19 +37,15 @@ const queryClient = new QueryClient({
 
 // Add global error handler for queries using the correct event listener structure
 queryClient.getQueryCache().subscribe(() => {
-  const unsubscribe = queryClient.getQueryCache().subscribe({
-    onSuccess: () => {
-      // Handle successful queries if needed
-    },
-    onSettled: (data, error) => {
-      if (error) {
-        console.error('Query cache error:', error);
-      }
-    }
-  });
+  console.log('Query cache subscription initialized');
   
-  // Return unsubscribe function for cleanup
-  return unsubscribe;
+  // In React Query v5, the subscribe method takes a simple function
+  // that receives the event, which includes type and error properties
+  return (event) => {
+    if (event.type === 'error') {
+      console.error('Query cache error:', event.error);
+    }
+  };
 });
 
 // Add route debugging component
