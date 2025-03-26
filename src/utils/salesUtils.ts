@@ -48,6 +48,72 @@ export const calculateForecastImpact = (quantity: number, reason: string): numbe
 };
 
 /**
+ * Calculate revenue impact based on return data
+ * @param quantity Number of returned items
+ * @param condition Condition of returned items
+ * @returns Number representing revenue impact (negative values indicate loss)
+ */
+export const calculateRevenueImpact = (quantity: number, condition: ProductReturn['condition']): number => {
+  // Simplified calculation - assume average product value of $100
+  const avgProductValue = 100;
+  
+  switch (condition) {
+    case 'new':
+      // New items can be resold with minimal loss
+      return -Math.round(quantity * avgProductValue * 0.1);
+    case 'damaged':
+      // Damaged items result in higher revenue loss
+      return -Math.round(quantity * avgProductValue * 0.7);
+    case 'expired':
+      // Expired items result in complete revenue loss
+      return -Math.round(quantity * avgProductValue);
+    default:
+      return -Math.round(quantity * avgProductValue * 0.5);
+  }
+};
+
+/**
+ * Calculate recommended next period adjustment based on return data
+ * @param quantity Number of returned items
+ * @param reason Reason for return
+ * @param condition Condition of returned items
+ * @returns Percentage adjustment recommendation for next period forecast
+ */
+export const calculateNextPeriodAdjustment = (
+  quantity: number, 
+  reason: string,
+  condition: ProductReturn['condition']
+): number => {
+  // Calculate a percentage adjustment based on return quantity and reason
+  let baseAdjustment = 0;
+  
+  // Higher quantities suggest a more significant pattern
+  if (quantity > 10) {
+    baseAdjustment = -3;
+  } else if (quantity > 5) {
+    baseAdjustment = -2;
+  } else {
+    baseAdjustment = -1;
+  }
+  
+  // Adjust based on reason
+  if (reason.toLowerCase().includes('quality') || reason.toLowerCase().includes('defect')) {
+    baseAdjustment *= 1.5;
+  } else if (reason.toLowerCase().includes('wrong') || reason.toLowerCase().includes('incorrect')) {
+    baseAdjustment *= 0.5;
+  }
+  
+  // Adjust based on condition (expired or damaged items might indicate more serious issues)
+  if (condition === 'expired') {
+    baseAdjustment *= 1.2;
+  } else if (condition === 'damaged') {
+    baseAdjustment *= 1.1;
+  }
+  
+  return Math.round(baseAdjustment);
+};
+
+/**
  * Calculate complete impact for a product return
  * @param returnData The product return data
  * @returns Object containing inventory and forecast impact
@@ -55,10 +121,14 @@ export const calculateForecastImpact = (quantity: number, reason: string): numbe
 export const calculateReturnImpact = (returnData: Pick<ProductReturn, 'quantity' | 'condition' | 'reason'>) => {
   const inventoryImpact = calculateInventoryImpact(returnData.quantity, returnData.condition);
   const forecastImpact = calculateForecastImpact(returnData.quantity, returnData.reason);
+  const revenueImpact = calculateRevenueImpact(returnData.quantity, returnData.condition);
+  const nextPeriodAdjustment = calculateNextPeriodAdjustment(returnData.quantity, returnData.reason, returnData.condition);
   
   return {
     inventory: inventoryImpact,
-    forecast: forecastImpact
+    forecast: forecastImpact,
+    revenue: revenueImpact,
+    nextPeriodAdjustment: nextPeriodAdjustment
   };
 };
 

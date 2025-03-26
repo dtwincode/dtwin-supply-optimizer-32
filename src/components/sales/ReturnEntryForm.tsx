@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { ProductReturn } from "@/types/sales";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { Product, MapPin, User } from "lucide-react";
+import { Package, MapPin, User } from "lucide-react";
 
 const returnSchema = z.object({
   productSku: z.string().min(1, { message: "SKU is required" }),
@@ -131,7 +131,7 @@ export const ReturnEntryForm = ({ onSubmit, onCancel }: ReturnEntryFormProps) =>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-3 mb-4">
             <TabsTrigger value="product" className="flex items-center gap-1">
-              <Product className="h-4 w-4" />
+              <Package className="h-4 w-4" />
               {getTranslation('sales.product', language) || "Product"}
             </TabsTrigger>
             <TabsTrigger value="location" className="flex items-center gap-1">
