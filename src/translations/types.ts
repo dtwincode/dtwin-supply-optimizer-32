@@ -1,72 +1,113 @@
+export interface TranslationItem {
+  en: string;
+  ar: string;
+}
+
+export interface NestedTranslationItem {
+  title: TranslationItem;
+  description: TranslationItem;
+}
+
+export interface InventoryTranslations {
+  inventoryTitle: TranslationItem;
+  bufferZones: TranslationItem;
+  bufferStatus: TranslationItem;
+  skuClassification: TranslationItem;
+  leadTime: TranslationItem;
+  replenishmentOrders: TranslationItem;
+  netFlowPosition: TranslationItem;
+  inventorySummary: TranslationItem;
+  inventoryLevels: TranslationItem;
+  skuClassifications: TranslationItem;
+  decouplingPoint: TranslationItem;
+  addDecouplingPoint: TranslationItem;
+  manageAndTrack: TranslationItem;
+  currentStock: TranslationItem;
+  productFamily: TranslationItem;
+  location: TranslationItem;
+  name: TranslationItem;
+  sku: TranslationItem;
+  actions: TranslationItem;
+  noItems: TranslationItem;
+  loadingData: TranslationItem;
+  loadingItem: TranslationItem;
+  errorLoading: TranslationItem;
+  leadTimeCategory: TranslationItem;
+  variabilityLevel: TranslationItem;
+  criticality: TranslationItem;
+  score: TranslationItem;
+  lastUpdated: TranslationItem;
+  adu: TranslationItem;
+  turnover: TranslationItem;
+  decouplingPoints: TranslationItem;
+  decouplingNetwork: TranslationItem;
+  listView: TranslationItem;
+  locationId: TranslationItem;
+  type: TranslationItem;
+  description: TranslationItem;
+  edit: TranslationItem;
+  delete: TranslationItem;
+  noDecouplingPoints: TranslationItem;
+  confirmDelete: TranslationItem;
+  success: TranslationItem;
+  decouplingPointDeleted: TranslationItem;
+  decouplingPointSaved: TranslationItem;
+  refresh: TranslationItem;
+  networkVisualization: TranslationItem;
+  nodes: TranslationItem;
+  links: TranslationItem;
+  configureDecouplingPoints: TranslationItem;
+  strategicInfo: TranslationItem;
+  customerOrderInfo: TranslationItem;
+  stockPointInfo: TranslationItem;
+  intermediateInfo: TranslationItem;
+  bufferProfileInfo: TranslationItem;
+  nodesDescription: TranslationItem;
+  linksDescription: TranslationItem;
+  networkHelp: TranslationItem;
+  classification: NestedTranslationItem;
+  decouplingPointRecommendation: TranslationItem;
+  decouplingPointRecommendationDesc: TranslationItem;
+  decouplingPointRecommendationHelp: TranslationItem;
+  locationSelection: TranslationItem;
+  selectLocation: TranslationItem;
+  weightFactors: TranslationItem;
+  leadTimeFactor: TranslationItem;
+  demandVariabilityFactor: TranslationItem;
+  supplyReliabilityFactor: TranslationItem;
+  inventoryCostFactor: TranslationItem;
+  customerServiceFactor: TranslationItem;
+  leadTimeFactorDesc: TranslationItem;
+  demandVariabilityFactorDesc: TranslationItem;
+  supplyReliabilityFactorDesc: TranslationItem;
+  inventoryCostFactorDesc: TranslationItem;
+  customerServiceFactorDesc: TranslationItem;
+  locationFactorScores: TranslationItem;
+  scoreFor: TranslationItem;
+  analyzing: TranslationItem;
+  analyzeDecouplingPoints: TranslationItem;
+  recommendationScore: TranslationItem;
+  recommendationStatus: TranslationItem;
+  highlyRecommended: TranslationItem;
+  recommended: TranslationItem;
+  consider: TranslationItem;
+  notRecommended: TranslationItem;
+  suggestedType: TranslationItem;
+  confidence: TranslationItem;
+  viewDetailedAnalysis: TranslationItem;
+  analysisComplete: TranslationItem;
+  decouplingRecommendationsReady: TranslationItem;
+  strategicDecouplingPoint: TranslationItem;
+  customer_orderDecouplingPoint: TranslationItem;
+  stock_pointDecouplingPoint: TranslationItem;
+  intermediateDecouplingPoint: TranslationItem;
+}
 
 export type Language = 'en' | 'ar';
 
 export type TranslationValue = {
   en: string;
   ar: string;
-};
-
-export type InventoryTranslations = {
-  inventoryTitle: TranslationValue;
-  bufferZones: TranslationValue;
-  bufferStatus: TranslationValue;
-  skuClassification: TranslationValue;
-  leadTime: TranslationValue;
-  replenishmentOrders: TranslationValue;
-  netFlowPosition: TranslationValue;
-  inventorySummary: TranslationValue;
-  inventoryLevels: TranslationValue;
-  skuClassifications: TranslationValue;
-  decouplingPoint: TranslationValue;
-  addDecouplingPoint: TranslationValue;
-  manageAndTrack: TranslationValue;
-  currentStock: TranslationValue;
-  productFamily: TranslationValue;
-  location: TranslationValue;
-  name: TranslationValue;
-  sku: TranslationValue;
-  actions: TranslationValue;
-  noItems: TranslationValue;
-  loadingData: TranslationValue;
-  loadingItem: TranslationValue;
-  errorLoading: TranslationValue;
-  leadTimeCategory: TranslationValue;
-  variabilityLevel: TranslationValue;
-  criticality: TranslationValue;
-  score: TranslationValue;
-  lastUpdated: TranslationValue;
-  adu: TranslationValue;
-  turnover: TranslationValue;
-  decouplingPoints: TranslationValue;
-  decouplingNetwork: TranslationValue;
-  listView: TranslationValue;
-  locationId: TranslationValue;
-  type: TranslationValue;
-  description: TranslationValue;
-  edit: TranslationValue;
-  delete: TranslationValue;
-  noDecouplingPoints: TranslationValue;
-  confirmDelete: TranslationValue;
-  success: TranslationValue;
-  decouplingPointDeleted: TranslationValue;
-  decouplingPointSaved: TranslationValue;
-  refresh: TranslationValue;
-  networkVisualization: TranslationValue;
-  nodes: TranslationValue;
-  links: TranslationValue;
-  configureDecouplingPoints: TranslationValue;
-  strategicInfo: TranslationValue;
-  customerOrderInfo: TranslationValue;
-  stockPointInfo: TranslationValue;
-  intermediateInfo: TranslationValue;
-  bufferProfileInfo: TranslationValue;
-  nodesDescription: TranslationValue;
-  linksDescription: TranslationValue;
-  networkHelp: TranslationValue;
-  classification: {
-    title: TranslationValue;
-    description: TranslationValue;
-  };
 };
 
 export type NavigationItems = {
@@ -104,7 +145,6 @@ export type Translations = {
   pagination: PaginationTranslations;
 };
 
-// Adding missing types
 export type CommonTranslations = {
   [key: string]: TranslationValue | any;
 };
