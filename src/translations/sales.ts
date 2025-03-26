@@ -34,6 +34,58 @@ export const salesTranslations = {
     en: "Returns Management",
     ar: "إدارة المرتجعات"
   },
+  newReturn: {
+    en: "Add New Return",
+    ar: "إضافة إرجاع جديد"
+  },
+  submitReturn: {
+    en: "Submit Return",
+    ar: "تقديم الإرجاع"
+  },
+  submitting: {
+    en: "Submitting...",
+    ar: "جاري التقديم..."
+  },
+  returnSubmitted: {
+    en: "Return Submitted",
+    ar: "تم تقديم الإرجاع"
+  },
+  returnProcessingMessage: {
+    en: "The return has been submitted and is now pending approval.",
+    ar: "تم تقديم الإرجاع وهو الآن في انتظار الموافقة."
+  },
+  returnError: {
+    en: "Error",
+    ar: "خطأ"
+  },
+  returnErrorMessage: {
+    en: "There was an error submitting your return.",
+    ar: "حدث خطأ أثناء تقديم الإرجاع الخاص بك."
+  },
+  selectCondition: {
+    en: "Select condition",
+    ar: "اختر الحالة"
+  },
+  reasonPlaceholder: {
+    en: "e.g., Quality defect, Wrong size",
+    ar: "مثال: عيب في الجودة، حجم خاطئ"
+  },
+  actions: {
+    en: "Actions",
+    ar: "إجراءات"
+  },
+  approve: {
+    en: "Approve",
+    ar: "موافقة"
+  },
+  reject: {
+    en: "Reject",
+    ar: "رفض"
+  },
+  process: {
+    en: "Process",
+    ar: "معالجة"
+  },
   sku: {
     en: "SKU",
     ar: "رمز المنتج"
@@ -97,5 +149,17 @@ export const salesTranslations = {
   expired: {
     en: "Expired",
     ar: "منتهي الصلاحية"
+  },
+  region: {
+    en: "Region",
+    ar: "المنطقة"
+  },
+  city: {
+    en: "City",
+    ar: "المدينة"
+  },
+  cancel: {
+    en: "Cancel",
+    ar: "إلغاء"
   }
 };

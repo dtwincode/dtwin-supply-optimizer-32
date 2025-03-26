@@ -8,6 +8,8 @@ import { getTranslation } from "@/translations";
 import type { ProductReturn } from "@/types/sales";
 import { calculateReturnImpact } from "@/utils/salesUtils";
 import { useForecastData } from "@/hooks/useForecastData";
+import { ReturnEntryDialog } from "./ReturnEntryDialog";
+import { Button } from "@/components/ui/button";
 
 // Enhanced mock data with more realistic scenarios
 const mockReturns: Omit<ProductReturn, 'impact'>[] = [
@@ -54,6 +56,7 @@ const mockReturns: Omit<ProductReturn, 'impact'>[] = [
 
 export const ReturnsManagement = () => {
   const [returns, setReturns] = useState<ProductReturn[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { language } = useLanguage();
   
   // Reference to the forecast data hook to make the component ready for real integration
@@ -108,12 +111,49 @@ export const ReturnsManagement = () => {
     return getTranslation(`sales.${status}`, language);
   };
 
+  const handleNewReturn = (returnData: ProductReturn) => {
+    setReturns(prev => [returnData, ...prev]);
+    // In a real application, this would also save to a database
+  };
+
+  const handleApproveReturn = (id: string) => {
+    setReturns(prev => prev.map(returnItem => 
+      returnItem.id === id 
+        ? { ...returnItem, status: 'approved' as ProductReturn['status'] }
+        : returnItem
+    ));
+    // In a real application, this would also update the database
+  };
+
+  const handleRejectReturn = (id: string) => {
+    setReturns(prev => prev.map(returnItem => 
+      returnItem.id === id 
+        ? { ...returnItem, status: 'rejected' as ProductReturn['status'] }
+        : returnItem
+    ));
+    // In a real application, this would also update the database
+  };
+
+  const handleProcessReturn = (id: string) => {
+    setReturns(prev => prev.map(returnItem => 
+      returnItem.id === id 
+        ? { ...returnItem, status: 'processed' as ProductReturn['status'] }
+        : returnItem
+    ));
+    // In a real application, this would also update the database and inventory
+  };
+
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>
           {getTranslation('sales.returns', language)}
         </CardTitle>
+        <ReturnEntryDialog 
+          open={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          onSubmit={handleNewReturn}
+        />
       </CardHeader>
       <CardContent>
         <Table>
@@ -125,6 +165,7 @@ export const ReturnsManagement = () => {
               <TableHead>{getTranslation('sales.reason', language)}</TableHead>
               <TableHead>{getTranslation('sales.status', language)}</TableHead>
               <TableHead>{getTranslation('sales.impact', language)}</TableHead>
+              <TableHead>{getTranslation('sales.actions', language)}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -147,6 +188,40 @@ export const ReturnsManagement = () => {
                     <div className="text-sm">
                       {getTranslation('sales.forecast', language)}: {returnItem.impact.forecast}
                     </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex space-x-2">
+                    {returnItem.status === 'pending' && (
+                      <>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleApproveReturn(returnItem.id)}
+                          className="text-green-600 border-green-600 hover:bg-green-50"
+                        >
+                          {getTranslation('sales.approve', language)}
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleRejectReturn(returnItem.id)}
+                          className="text-red-600 border-red-600 hover:bg-red-50"
+                        >
+                          {getTranslation('sales.reject', language)}
+                        </Button>
+                      </>
+                    )}
+                    {returnItem.status === 'approved' && (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleProcessReturn(returnItem.id)}
+                        className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                      >
+                        {getTranslation('sales.process', language)}
+                      </Button>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>
