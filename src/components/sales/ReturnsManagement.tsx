@@ -1,13 +1,16 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
 import type { ProductReturn } from "@/types/sales";
+import { calculateReturnImpact } from "@/utils/salesUtils";
+import { useForecastData } from "@/hooks/useForecastData";
 
-const mockReturns: ProductReturn[] = [
+// Enhanced mock data with more realistic scenarios
+const mockReturns: Omit<ProductReturn, 'impact'>[] = [
   {
     id: "1",
     productSku: "SKU001",
@@ -19,17 +22,77 @@ const mockReturns: ProductReturn[] = [
       region: "Central Region",
       city: "Riyadh"
     },
-    status: "processed",
-    impact: {
-      inventory: 5,
-      forecast: -2
-    }
+    status: "processed"
+  },
+  {
+    id: "2",
+    productSku: "SKU002",
+    quantity: 3,
+    returnDate: "2024-03-18",
+    reason: "Quality defect",
+    condition: "damaged",
+    location: {
+      region: "Western Region",
+      city: "Jeddah"
+    },
+    status: "pending"
+  },
+  {
+    id: "3",
+    productSku: "SKU003",
+    quantity: 2,
+    returnDate: "2024-03-22",
+    reason: "Wrong size ordered",
+    condition: "new",
+    location: {
+      region: "Eastern Region",
+      city: "Dammam"
+    },
+    status: "approved"
   }
 ];
 
 export const ReturnsManagement = () => {
-  const [returns] = useState<ProductReturn[]>(mockReturns);
+  const [returns, setReturns] = useState<ProductReturn[]>([]);
   const { language } = useLanguage();
+  
+  // Reference to the forecast data hook to make the component ready for real integration
+  const { filteredData: forecastData } = useForecastData(
+    "all", // region
+    "all", // city
+    "all", // channel
+    "all", // warehouse
+    "", // searchQuery
+    "2024-01-01", // fromDate
+    "2024-12-31", // toDate
+    "moving-avg", // selectedModel
+    "all", // category
+    "all", // subcategory
+    "all" // sku
+  );
+
+  // Calculate impact when component mounts
+  useEffect(() => {
+    // Process returns and calculate impact
+    const processedReturns = mockReturns.map(returnItem => {
+      // Calculate impact using our utility function
+      const impact = calculateReturnImpact({
+        quantity: returnItem.quantity,
+        condition: returnItem.condition,
+        reason: returnItem.reason
+      });
+      
+      return {
+        ...returnItem,
+        impact
+      };
+    });
+    
+    setReturns(processedReturns);
+    
+    // In a real app, we would use a useEffect dependency on a data source
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const getStatusColor = (status: ProductReturn['status']) => {
     switch (status) {

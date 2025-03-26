@@ -81,5 +81,21 @@ export const salesTranslations = {
   rejected: {
     en: "Rejected",
     ar: "مرفوض"
+  },
+  condition: {
+    en: "Condition",
+    ar: "الحالة"
+  },
+  new: {
+    en: "New",
+    ar: "جديد"
+  },
+  damaged: {
+    en: "Damaged",
+    ar: "تالف"
+  },
+  expired: {
+    en: "Expired",
+    ar: "منتهي الصلاحية"
   }
 };
