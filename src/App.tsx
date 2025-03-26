@@ -36,9 +36,9 @@ const queryClient = new QueryClient({
   },
 });
 
-// Fixed for React Query v5 - use direct event handler for errors
+// Fixed for React Query v5 - use correct event type check
 queryClient.getQueryCache().subscribe(event => {
-  if (event.type === 'error') {
+  if (event.type === 'updated' && event.query.state.status === 'error') {
     console.error('Query error:', event.query.state.error);
   }
 });
