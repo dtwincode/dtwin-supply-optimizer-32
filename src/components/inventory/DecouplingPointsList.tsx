@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useDecouplingPoints } from "@/hooks/useDecouplingPoints";
 import { DecouplingPoint } from "@/types/inventory/decouplingTypes";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { SkeletonTable } from "@/components/ui/skeleton";
+import { SkeletonTable } from "@/components/ui/skeleton-table";
 import { RefreshCw, Edit, Trash } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
@@ -112,7 +112,7 @@ export const DecouplingPointsList = () => {
 
       {selectedPoint && (
         <DecouplingPointDialog
-          pointData={selectedPoint}
+          existingPoint={selectedPoint}
           locationId={selectedPoint.locationId}
           onSuccess={handleEditSuccess}
           open={editDialogOpen}

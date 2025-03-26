@@ -101,6 +101,7 @@ export interface InventoryTranslations {
   customer_orderDecouplingPoint: TranslationItem;
   stock_pointDecouplingPoint: TranslationItem;
   intermediateDecouplingPoint: TranslationItem;
+  totalItems: TranslationItem;
 }
 
 export type Language = 'en' | 'ar';

@@ -33,7 +33,7 @@ const getRecommendationData = (locationId: string, weights: any) => {
   const mockScores = generateScores();
   
   // Calculate weighted score (this is simplified for demo)
-  const totalWeight = Object.values(weights).reduce((sum: any, val: any) => sum + val, 0);
+  const totalWeight = Object.values(weights).reduce((sum: number, val: number) => sum + val, 0);
   let weightedScore = 0;
   
   Object.keys(weights).forEach(key => {
