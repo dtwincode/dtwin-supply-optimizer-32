@@ -1,4 +1,3 @@
-
 export type TranslationValue = {
   en: string;
   ar: string;
@@ -387,6 +386,46 @@ export interface ExecutiveSummary {
   };
 }
 
+export interface MarketingTranslations {
+  marketingModule: Record<Language, string>;
+  dashboard: Record<Language, string>;
+  calendar: Record<Language, string>;
+  analytics: Record<Language, string>;
+  forecastImpact: Record<Language, string>;
+  campaignPerformance: Record<Language, string>;
+  averageROI: Record<Language, string>;
+  avgDemandImpact: Record<Language, string>;
+  conversionRate: Record<Language, string>;
+  roi: Record<Language, string>;
+  demandImpact: Record<Language, string>;
+  customerAcquisition: Record<Language, string>;
+  baselineForecast: Record<Language, string>;
+  withCampaigns: Record<Language, string>;
+  averageUplift: Record<Language, string>;
+  campaignForecastDescription: Record<Language, string>;
+  supplyChainIntegration: Record<Language, string>;
+  inventory: Record<Language, string>;
+  forecast: Record<Language, string>;
+  supply: Record<Language, string>;
+  inventoryAlerts: Record<Language, string>;
+  forecastUpdates: Record<Language, string>;
+  supplyRequirements: Record<Language, string>;
+  leadTime: Record<Language, string>;
+  marketingMetrics: {
+    campaignROI: Record<Language, string>;
+    customerAcquisition: Record<Language, string>;
+    conversionRate: Record<Language, string>;
+    demandImpact: Record<Language, string>;
+  };
+  percentageReturn: Record<Language, string>;
+  percent: Record<Language, string>;
+  target: Record<Language, string>;
+  trend: Record<Language, string>;
+  improving: Record<Language, string>;
+  declining: Record<Language, string>;
+  stable: Record<Language, string>;
+}
+
 export interface Translations {
   dashboard: TranslationValue;
   navigationItems: NavigationItems;
@@ -399,4 +438,5 @@ export interface Translations {
   sales: any;
   supplyPlanning: any;
   ddsop: any;
+  marketing: MarketingTranslations;
 }

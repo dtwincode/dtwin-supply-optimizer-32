@@ -15,6 +15,7 @@ import { ddsopTranslations } from './common/ddsop';
 import { toArabicNumerals } from './utils';
 import { commonTranslations } from './common';
 import { salesTranslations } from './sales';
+import { marketingTranslations } from './marketing';
 
 export { toArabicNumerals };
 
@@ -30,9 +31,10 @@ export const translations: Translations = {
   modulesSummary: modulesSummaryTranslations,
   common: commonTranslations,
   executiveSummary: executiveSummaryTranslations,
-  sales: salesTranslations,  // Updated to use the imported salesTranslations
+  sales: salesTranslations,
   supplyPlanning: supplyPlanningTranslations,
   ddsop: ddsopTranslations,
+  marketing: marketingTranslations,
 };
 
 export type Language = 'en' | 'ar';
