@@ -12,6 +12,10 @@ if (typeof window !== 'undefined') {
     console.error('Global error caught:', { message, source, lineno, colno, error });
     return false;
   };
+  
+  // Add additional debugging for router issues
+  console.log("Browser pathname:", window.location.pathname);
+  console.log("Browser search:", window.location.search);
 }
 
 // Make sure root element exists with improved error handling

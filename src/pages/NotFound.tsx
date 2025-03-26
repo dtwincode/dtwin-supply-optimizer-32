@@ -9,11 +9,18 @@ const NotFound = () => {
   const location = useLocation();
 
   useEffect(() => {
+    // Enhanced error logging for routing problems
     console.error(
-      "404 Error: User attempted to access non-existent route:",
-      location.pathname
+      "404 Error: Route not found:", 
+      {
+        pathname: location.pathname,
+        search: location.search,
+        hash: location.hash,
+        state: location.state,
+        key: location.key
+      }
     );
-  }, [location.pathname]);
+  }, [location]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -37,6 +44,12 @@ const NotFound = () => {
           <Link to="/data" className="block">
             <Button variant="outline" className="w-full">Go to Data Management</Button>
           </Link>
+          <div className="mt-4 p-4 bg-gray-100 rounded text-left text-xs">
+            <p className="font-bold">Debug Info:</p>
+            <p>Pathname: {location.pathname}</p>
+            <p>Search: {location.search}</p>
+            <p>Timestamp: {new Date().toISOString()}</p>
+          </div>
         </div>
       </div>
     </div>
