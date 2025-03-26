@@ -42,13 +42,13 @@ export const DDSOPMetricsGrid = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 gap-3">
       {metricsWithIcons.map((metric) => (
         <Card key={metric.id} className="overflow-hidden">
-          <CardContent className="p-4">
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="text-base font-medium">{t(metric.name)}</h3>
-              <span className="text-xl font-bold">
+          <CardContent className="p-2">
+            <div className="flex justify-between items-start mb-1">
+              <h3 className="text-sm font-medium">{t(metric.name)}</h3>
+              <span className="text-lg font-bold">
                 {renderMetricValue(metric)}
               </span>
             </div>
@@ -57,7 +57,7 @@ export const DDSOPMetricsGrid = () => {
               <Progress 
                 value={metric.value} 
                 max={100} 
-                className={`h-2 ${
+                className={`h-1.5 ${
                   metric.value >= parseInt(String(metric.target)) 
                     ? 'bg-green-500' 
                     : 'bg-amber-500'
@@ -65,7 +65,7 @@ export const DDSOPMetricsGrid = () => {
               />
             )}
             
-            <div className="flex justify-between text-xs mt-2">
+            <div className="flex justify-between text-xs mt-1">
               <span className="text-muted-foreground">{t('target')}: {metric.target}</span>
               <div className="flex items-center">
                 <span className="text-muted-foreground">{t('trend')}: </span>
