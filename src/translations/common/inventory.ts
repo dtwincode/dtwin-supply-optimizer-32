@@ -234,5 +234,145 @@ export const inventoryTranslations: InventoryTranslations = {
       en: "Classify SKUs based on lead time, variability, and criticality",
       ar: "تصنيف وحدات التخزين على أساس وقت التوريد والتباين والأهمية"
     }
+  },
+  decouplingPointRecommendation: {
+    en: "Decoupling Point Recommendation",
+    ar: "توصية نقطة الفصل"
+  },
+  decouplingPointRecommendationDesc: {
+    en: "Analyze potential locations and get recommendations for optimal decoupling point placement",
+    ar: "تحليل المواقع المحتملة والحصول على توصيات لتحديد المثالي لنقاط الفصل"
+  },
+  decouplingPointRecommendationHelp: {
+    en: "This tool analyzes supply chain factors to recommend the best locations for decoupling points and their types based on your specific characteristics.",
+    ar: "تحلل هذه الأداة عوامل سلسلة التوريد للتوصية بأفضل المواقع لنقاط الفصل وأنواعها بناءً على الخصائص المحددة الخاصة بك."
+  },
+  locationSelection: {
+    en: "Location Selection",
+    ar: "اختيار الموقع"
+  },
+  selectLocation: {
+    en: "Select a location to analyze",
+    ar: "اختر موقعًا للتحليل"
+  },
+  weightFactors: {
+    en: "Weight Factors",
+    ar: "ترجيح العوامل"
+  },
+  leadTimeFactor: {
+    en: "Lead Time",
+    ar: "وقت التوريد"
+  },
+  demandVariabilityFactor: {
+    en: "Demand Variability",
+    ar: "تقلب الطلب"
+  },
+  supplyReliabilityFactor: {
+    en: "Supply Reliability",
+    ar: "موثوقية التوريد"
+  },
+  inventoryCostFactor: {
+    en: "Inventory Cost",
+    ar: "تكلفة المخزون"
+  },
+  customerServiceFactor: {
+    en: "Customer Service",
+    ar: "خدمة العملاء"
+  },
+  leadTimeFactorDesc: {
+    en: "The time required to replenish inventory from upstream sources.",
+    ar: "الوقت المطلوب لتجديد المخزون من المصادر الأعلى."
+  },
+  demandVariabilityFactorDesc: {
+    en: "How much demand fluctuates over time.",
+    ar: "مدى تقلب الطلب بمرور الوقت."
+  },
+  supplyReliabilityFactorDesc: {
+    en: "Consistency and dependability of your supply sources.",
+    ar: "اتساق واعتمادية مصادر التوريد الخاصة بك."
+  },
+  inventoryCostFactorDesc: {
+    en: "Cost of holding inventory at this location.",
+    ar: "تكلفة الاحتفاظ بالمخزون في هذا الموقع."
+  },
+  customerServiceFactorDesc: {
+    en: "Impact on customer service levels and response times.",
+    ar: "التأثير على مستويات خدمة العملاء وأوقات الاستجابة."
+  },
+  locationFactorScores: {
+    en: "Location Factor Scores",
+    ar: "درجات عوامل الموقع"
+  },
+  scoreFor: {
+    en: "Score for",
+    ar: "درجة لـ"
+  },
+  analyzing: {
+    en: "Analyzing...",
+    ar: "جاري التحليل..."
+  },
+  analyzeDecouplingPoints: {
+    en: "Analyze",
+    ar: "تحليل"
+  },
+  recommendationScore: {
+    en: "Recommendation Score",
+    ar: "درجة التوصية"
+  },
+  recommendationStatus: {
+    en: "Status",
+    ar: "الحالة"
+  },
+  highlyRecommended: {
+    en: "Highly Recommended",
+    ar: "موصى به بشدة"
+  },
+  recommended: {
+    en: "Recommended",
+    ar: "موصى به"
+  },
+  consider: {
+    en: "Consider",
+    ar: "للنظر"
+  },
+  notRecommended: {
+    en: "Not Recommended",
+    ar: "غير موصى به"
+  },
+  suggestedType: {
+    en: "Suggested Type",
+    ar: "النوع المقترح"
+  },
+  confidence: {
+    en: "Confidence",
+    ar: "مستوى الثقة"
+  },
+  viewDetailedAnalysis: {
+    en: "View Detailed Analysis",
+    ar: "عرض التحليل المفصل"
+  },
+  analysisComplete: {
+    en: "Analysis Complete",
+    ar: "اكتمل التحليل"
+  },
+  decouplingRecommendationsReady: {
+    en: "Decoupling point recommendations are ready for review",
+    ar: "توصيات نقطة الفصل جاهزة للمراجعة"
+  },
+  strategicDecouplingPoint: {
+    en: "Strategic Point",
+    ar: "نقطة استراتيجية"
+  },
+  customer_orderDecouplingPoint: {
+    en: "Customer Order Point",
+    ar: "نقطة طلب العميل"
+  },
+  stock_pointDecouplingPoint: {
+    en: "Stock Point",
+    ar: "نقطة مخزون"
+  },
+  intermediateDecouplingPoint: {
+    en: "Intermediate Point",
+    ar: "نقطة وسيطة"
   }
 };
