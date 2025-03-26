@@ -25,6 +25,7 @@ import { FilterProvider } from "./contexts/FilterContext";
 import { Suspense } from "react";
 import PageLoading from "./components/PageLoading";
 
+// Configure query client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -36,6 +37,9 @@ const queryClient = new QueryClient({
 });
 
 function App() {
+  // Add debug logs to help troubleshoot routing issues
+  console.log("App component rendering");
+  
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -44,6 +48,7 @@ function App() {
             <TooltipProvider>
               <Suspense fallback={<PageLoading />}>
                 <Routes>
+                  {/* Debug routes */}
                   <Route path="/" element={<Index />} />
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/ddsop" element={<DDSOP />} />
@@ -71,6 +76,7 @@ function App() {
                   <Route path="/guidelines/ai-assistant" element={<AIAssistant />} />
                   <Route path="/sql-config" element={<SQLConfig />} />
                   <Route path="/tickets" element={<Tickets />} />
+                  {/* Catch-all route needs to be LAST */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>

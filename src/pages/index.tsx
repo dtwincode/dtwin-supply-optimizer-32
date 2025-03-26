@@ -24,11 +24,16 @@ const LoadingFallback = () => (
   </div>
 );
 
+// Add debug logging
+console.log("Index module loading");
+
 const Index = () => {
+  console.log("Index component rendering");
   const { language, isRTL } = useLanguage();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    console.log("Index component mounted");
     // Increased delay for smoother transition
     const timer = setTimeout(() => {
       setIsVisible(true);

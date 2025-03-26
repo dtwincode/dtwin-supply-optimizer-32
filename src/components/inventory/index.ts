@@ -1,4 +1,5 @@
 
+// Export inventory components
 export { InventoryTabs } from './InventoryTabs';
 export { ClassificationTab } from './ClassificationTab';
 export { DecouplingTab } from './DecouplingTab';

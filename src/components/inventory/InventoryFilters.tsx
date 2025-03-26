@@ -7,10 +7,14 @@ export interface InventoryFiltersProps {
   setSearchQuery: (value: string) => void;
 }
 
+// Make sure this is a default export
 const InventoryFilters = ({
   searchQuery,
   setSearchQuery,
 }: InventoryFiltersProps) => {
+  // Add debugging info
+  console.log("InventoryFilters rendering, searchQuery:", searchQuery);
+
   return (
     <div className="w-full max-w-7xl mx-auto mb-4">
       <div className="relative">
