@@ -25,16 +25,24 @@ import { FilterProvider } from "./contexts/FilterContext";
 import { Suspense, useEffect } from "react";
 import PageLoading from "./components/PageLoading";
 
-// Configure query client with more debugging
+// Configure query client with more debugging but fix the onError TypeScript issue
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
       retry: 1,
       staleTime: 5 * 60 * 1000, // 5 minutes
-      onError: (error) => {
-        console.error('Query error:', error);
-      }
+    },
+  },
+  logger: {
+    log: (message) => {
+      console.log(message);
+    },
+    warn: (message) => {
+      console.warn(message);
+    },
+    error: (error) => {
+      console.error('Query error:', error);
     },
   },
 });

@@ -19,9 +19,10 @@ interface ValidationLog {
 export default function SQLConfig() {
   const { toast } = useToast();
   
-  const { data: logs, error } = useQuery({
+  const { data: logs, error, isError } = useQuery({
     queryKey: ['validationLogs'],
     queryFn: async () => {
+      console.log("Fetching validation logs...");
       const { data, error } = await supabase
         .from('data_validation_logs')
         .select('*')
@@ -29,24 +30,35 @@ export default function SQLConfig() {
         .limit(5);
       
       if (error) {
-        toast({
-          variant: "destructive",
-          title: "Error fetching logs",
-          description: error.message
-        });
+        console.error("Supabase error:", error);
         throw error;
       }
       
+      console.log("Fetched logs:", data);
       return data as ValidationLog[];
     }
   });
 
-  if (error) {
+  // Handle errors with useEffect instead of relying on onError
+  useEffect(() => {
+    if (isError && error) {
+      console.error("Query error:", error);
+      toast({
+        variant: "destructive",
+        title: "Error fetching logs",
+        description: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  }, [error, isError, toast]);
+
+  if (isError) {
     return (
       <DashboardLayout>
         <div className="p-6">
           <Card className="p-6">
-            <div className="text-red-500">Error loading validation logs: {error.message}</div>
+            <div className="text-red-500">
+              Error loading validation logs: {error instanceof Error ? error.message : "Unknown error"}
+            </div>
           </Card>
         </div>
       </DashboardLayout>
