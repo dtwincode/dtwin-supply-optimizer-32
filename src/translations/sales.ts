@@ -1,4 +1,3 @@
-
 export const salesTranslations = {
   title: {
     en: "Sales Planning",
@@ -321,5 +320,37 @@ export const salesTranslations = {
   productName: {
     en: "Product Name",
     ar: "اسم المنتج"
+  },
+  dashboard: {
+    en: "Dashboard",
+    ar: "لوحة المعلومات"
+  },
+  salesTrends: {
+    en: "Sales Trends",
+    ar: "اتجاهات المبيعات"
+  },
+  whatIfScenarios: {
+    en: "What-If Scenarios",
+    ar: "سيناريوهات ماذا-لو"
+  },
+  forecastIntegration: {
+    en: "Forecast Integration",
+    ar: "تكامل التنبؤ"
+  },
+  monthly: {
+    en: "Monthly",
+    ar: "شهري"
+  },
+  quarterly: {
+    en: "Quarterly",
+    ar: "ربع سنوي"
+  },
+  yearly: {
+    en: "Yearly",
+    ar: "سنوي"
+  },
+  viewReturns: {
+    en: "View Returns Management",
+    ar: "عرض إدارة المرتجعات"
   }
 };
