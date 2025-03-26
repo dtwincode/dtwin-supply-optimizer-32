@@ -48,7 +48,8 @@ function App() {
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/ddsop" element={<DDSOP />} />
                   <Route path="/forecasting/*" element={<Forecasting />} />
-                  <Route path="/inventory/*" element={<Inventory />} />
+                  <Route path="/inventory" element={<Inventory />} />
+                  <Route path="/inventory/:tab" element={<Inventory />} />
                   <Route path="/inventory/classification" element={<Navigate to="/inventory?tab=classification" replace />} />
                   <Route path="/supply-planning" element={<SupplyPlanning />} />
                   <Route path="/sales-and-returns" element={<SalesAndReturns />} />

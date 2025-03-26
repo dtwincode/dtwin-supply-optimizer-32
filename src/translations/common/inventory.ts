@@ -1,4 +1,3 @@
-
 import { InventoryTranslations } from '../types';
 
 export const inventoryTranslations: InventoryTranslations = {
@@ -225,5 +224,15 @@ export const inventoryTranslations: InventoryTranslations = {
   networkHelp: {
     en: "Network visualization helps you understand the relationships between different points in your supply chain",
     ar: "يساعدك تصور الشبكة على فهم العلاقات بين النقاط المختلفة في سلسلة التوريد الخاصة بك"
+  },
+  classification: {
+    title: {
+      en: "SKU Classification",
+      ar: "تصنيف وحدات التخزين"
+    },
+    description: {
+      en: "Classify SKUs based on lead time, variability, and criticality",
+      ar: "تصنيف وحدات التخزين على أساس وقت التوريد والتباين والأهمية"
+    }
   }
 };

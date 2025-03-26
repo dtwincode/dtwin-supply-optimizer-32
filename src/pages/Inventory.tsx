@@ -17,7 +17,7 @@ import { SKUClassifications } from "@/components/inventory/SKUClassifications";
 import { SKUClassification } from "@/components/inventory/types";
 import { DecouplingPointDialog } from "@/components/inventory/DecouplingPointDialog";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { InventoryTourGuide, TourButton } from "@/components/inventory/InventoryTourGuide";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -66,16 +66,24 @@ const Inventory = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const location = useLocation();
+  const params = useParams();
   
   const [isTourRunning, setIsTourRunning] = useState(false);
   const [hasTakenTour, setHasTakenTour] = useLocalStorage('inventory-tour-completed', false);
   
   const getDefaultTabFromPath = () => {
-    const pathSegments = location.pathname.split('/');
-    const lastSegment = pathSegments[pathSegments.length - 1];
+    if (params.tab) {
+      return params.tab;
+    }
     
-    const validTabs = ['inventory', 'buffer', 'decoupling', 'netflow', 'adu', 'ai'];
-    return validTabs.includes(lastSegment) ? lastSegment : 'inventory';
+    const queryParams = new URLSearchParams(location.search);
+    const tabParam = queryParams.get('tab');
+    
+    if (tabParam) {
+      return tabParam;
+    }
+    
+    return 'inventory';
   };
   
   const defaultTab = getDefaultTabFromPath();
@@ -217,6 +225,8 @@ const Inventory = () => {
       </DashboardLayout>
     );
   }
+
+  console.log("Current tab from path:", defaultTab);
 
   return (
     <DashboardLayout>
