@@ -322,10 +322,10 @@ const ForecastAnalysisTab = () => {
 
   return (
     <div className="space-y-6">
-      <Card className="p-6">
+      <Card className="p-4">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Model Selection & Comparison</h3>
+            <h3 className="text-sm font-semibold">Model Selection & Comparison</h3>
             <ModelSearch
               searchTerm={searchTerm}
               selectedSku={selectedSku}
@@ -364,28 +364,28 @@ const ForecastAnalysisTab = () => {
         </div>
       </Card>
 
-      <Card className="p-6">
+      <Card className="p-4">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <div className="space-y-1">
-              <h3 className="text-lg font-semibold">Forecast Analysis</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="text-sm font-semibold">Forecast Analysis</h3>
+              <p className="text-xs text-muted-foreground">
                 Visual analysis of forecasted values with confidence intervals
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Confidence Level:</span>
+              <span className="text-xs text-muted-foreground">Confidence Level:</span>
               <Select
                 value={confidenceLevel}
                 onValueChange={setConfidenceLevel}
               >
-                <SelectTrigger className="w-[100px]">
+                <SelectTrigger className="w-[100px] text-xs h-8">
                   <SelectValue placeholder="95%" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="90">90%</SelectItem>
-                  <SelectItem value="95">95%</SelectItem>
-                  <SelectItem value="99">99%</SelectItem>
+                  <SelectItem value="90" className="text-xs">90%</SelectItem>
+                  <SelectItem value="95" className="text-xs">95%</SelectItem>
+                  <SelectItem value="99" className="text-xs">99%</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -406,18 +406,18 @@ const ForecastAnalysisTab = () => {
       
       <ErrorDistribution data={sampleData} />
 
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Model Validation</h3>
+      <Card className="p-4">
+        <h3 className="text-sm font-semibold mb-3">Model Validation</h3>
         <Tabs defaultValue={validationSelectedTab} onValueChange={setValidationSelectedTab} className="w-full">
           <TabsList className="grid w-full md:w-auto md:inline-flex grid-cols-3 h-auto">
-            <TabsTrigger value="overview">Validation Overview</TabsTrigger>
-            <TabsTrigger value="detailed">Detailed Analysis</TabsTrigger>
-            <TabsTrigger value="statistical">Statistical Tests</TabsTrigger>
+            <TabsTrigger value="overview" className="text-xs py-1.5">Validation Overview</TabsTrigger>
+            <TabsTrigger value="detailed" className="text-xs py-1.5">Detailed Analysis</TabsTrigger>
+            <TabsTrigger value="statistical" className="text-xs py-1.5">Statistical Tests</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4 mt-4">
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Forecast vs Actual</h3>
+            <Card className="p-4">
+              <h3 className="text-sm font-semibold mb-3">Forecast vs Actual</h3>
               <div className="h-[350px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={sampleValidationData}>
@@ -445,14 +445,14 @@ const ForecastAnalysisTab = () => {
               </div>
             </Card>
 
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Cross Validation Results</h3>
+            <Card className="p-4">
+              <h3 className="text-sm font-semibold mb-3">Cross Validation Results</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <h4 className="font-medium">Training Set</h4>
-                  <p className="text-3xl font-bold">{(100 - crossValidationResults.trainMetrics.mape).toFixed(1)}%</p>
-                  <p className="text-sm text-muted-foreground">Accuracy</p>
-                  <div className="text-sm space-y-1">
+                  <h4 className="text-xs font-medium">Training Set</h4>
+                  <p className="text-xl font-bold">{(100 - crossValidationResults.trainMetrics.mape).toFixed(1)}%</p>
+                  <p className="text-xs text-muted-foreground">Accuracy</p>
+                  <div className="text-xs space-y-1">
                     <p>MAPE: {crossValidationResults.trainMetrics.mape.toFixed(2)}%</p>
                     <p>MAE: {crossValidationResults.trainMetrics.mae.toFixed(2)}</p>
                     <p>RMSE: {crossValidationResults.trainMetrics.rmse.toFixed(2)}</p>
@@ -460,10 +460,10 @@ const ForecastAnalysisTab = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <h4 className="font-medium">Test Set</h4>
-                  <p className="text-3xl font-bold">{(100 - crossValidationResults.testMetrics.mape).toFixed(1)}%</p>
-                  <p className="text-sm text-muted-foreground">Accuracy</p>
-                  <div className="text-sm space-y-1">
+                  <h4 className="text-xs font-medium">Test Set</h4>
+                  <p className="text-xl font-bold">{(100 - crossValidationResults.testMetrics.mape).toFixed(1)}%</p>
+                  <p className="text-xs text-muted-foreground">Accuracy</p>
+                  <div className="text-xs space-y-1">
                     <p>MAPE: {crossValidationResults.testMetrics.mape.toFixed(2)}%</p>
                     <p>MAE: {crossValidationResults.testMetrics.mae.toFixed(2)}</p>
                     <p>RMSE: {crossValidationResults.testMetrics.rmse.toFixed(2)}</p>
@@ -471,10 +471,10 @@ const ForecastAnalysisTab = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <h4 className="font-medium">Validation Set</h4>
-                  <p className="text-3xl font-bold">{(100 - crossValidationResults.validationMetrics.mape).toFixed(1)}%</p>
-                  <p className="text-sm text-muted-foreground">Accuracy</p>
-                  <div className="text-sm space-y-1">
+                  <h4 className="text-xs font-medium">Validation Set</h4>
+                  <p className="text-xl font-bold">{(100 - crossValidationResults.validationMetrics.mape).toFixed(1)}%</p>
+                  <p className="text-xs text-muted-foreground">Accuracy</p>
+                  <div className="text-xs space-y-1">
                     <p>MAPE: {crossValidationResults.validationMetrics.mape.toFixed(2)}%</p>
                     <p>MAE: {crossValidationResults.validationMetrics.mae.toFixed(2)}</p>
                     <p>RMSE: {crossValidationResults.validationMetrics.rmse.toFixed(2)}</p>
@@ -485,34 +485,34 @@ const ForecastAnalysisTab = () => {
           </TabsContent>
 
           <TabsContent value="detailed" className="space-y-4 mt-4">
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Forecast Accuracy By Time Horizon</h3>
+            <Card className="p-4">
+              <h3 className="text-sm font-semibold mb-3">Forecast Accuracy By Time Horizon</h3>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Time Horizon</TableHead>
-                    <TableHead>MAPE (%)</TableHead>
-                    <TableHead>MAE</TableHead>
-                    <TableHead>RMSE</TableHead>
-                    <TableHead>Bias</TableHead>
+                    <TableHead className="text-xs">Time Horizon</TableHead>
+                    <TableHead className="text-xs">MAPE (%)</TableHead>
+                    <TableHead className="text-xs">MAE</TableHead>
+                    <TableHead className="text-xs">RMSE</TableHead>
+                    <TableHead className="text-xs">Bias</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {horizonMetrics.map((metric) => (
                     <TableRow key={metric.horizon}>
-                      <TableCell className="font-medium">{metric.horizon}</TableCell>
-                      <TableCell>{metric.mape.toFixed(1)}</TableCell>
-                      <TableCell>{metric.mae.toFixed(1)}</TableCell>
-                      <TableCell>{metric.rmse.toFixed(1)}</TableCell>
-                      <TableCell>{metric.bias.toFixed(1)}</TableCell>
+                      <TableCell className="text-xs font-medium">{metric.horizon}</TableCell>
+                      <TableCell className="text-xs">{metric.mape.toFixed(1)}</TableCell>
+                      <TableCell className="text-xs">{metric.mae.toFixed(1)}</TableCell>
+                      <TableCell className="text-xs">{metric.rmse.toFixed(1)}</TableCell>
+                      <TableCell className="text-xs">{metric.bias.toFixed(1)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </Card>
 
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Forecast Error Analysis</h3>
+            <Card className="p-4">
+              <h3 className="text-sm font-semibold mb-3">Forecast Error Analysis</h3>
               <div className="h-[350px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={residualData}>
@@ -530,23 +530,23 @@ const ForecastAnalysisTab = () => {
           </TabsContent>
 
           <TabsContent value="statistical" className="space-y-4 mt-4">
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Statistical Tests</h3>
+            <Card className="p-4">
+              <h3 className="text-sm font-semibold mb-3">Statistical Tests</h3>
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Test</TableHead>
-                      <TableHead>Result</TableHead>
-                      <TableHead>Statistic</TableHead>
-                      <TableHead>p-Value</TableHead>
-                      <TableHead>Description</TableHead>
+                      <TableHead className="text-xs">Test</TableHead>
+                      <TableHead className="text-xs">Result</TableHead>
+                      <TableHead className="text-xs">Statistic</TableHead>
+                      <TableHead className="text-xs">p-Value</TableHead>
+                      <TableHead className="text-xs">Description</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {statisticalTests.map((test) => (
                       <TableRow key={test.name}>
-                        <TableCell className="font-medium">{test.name}</TableCell>
+                        <TableCell className="text-xs font-medium">{test.name}</TableCell>
                         <TableCell>
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                             test.result === 'Pass' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
@@ -554,9 +554,9 @@ const ForecastAnalysisTab = () => {
                             {test.result}
                           </span>
                         </TableCell>
-                        <TableCell>{test.statistic}</TableCell>
-                        <TableCell>{test.pValue}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground">{test.description}</TableCell>
+                        <TableCell className="text-xs">{test.statistic}</TableCell>
+                        <TableCell className="text-xs">{test.pValue}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground">{test.description}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -564,8 +564,8 @@ const ForecastAnalysisTab = () => {
               </div>
             </Card>
 
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Residual Analysis</h3>
+            <Card className="p-4">
+              <h3 className="text-sm font-semibold mb-3">Residual Analysis</h3>
               <div className="h-[350px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={residualData}>
@@ -585,7 +585,7 @@ const ForecastAnalysisTab = () => {
                   </LineChart>
                 </ResponsiveContainer>
               </div>
-              <div className="mt-4 text-sm text-muted-foreground">
+              <div className="mt-4 text-xs text-muted-foreground">
                 <p>Residual analysis is used to examine how well a model fits the data. Ideally, residuals should:</p>
                 <ul className="list-disc list-inside mt-2">
                   <li>Be randomly distributed around zero</li>
