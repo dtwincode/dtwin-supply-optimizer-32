@@ -11,9 +11,5 @@ export const zonesTranslations = {
   red: {
     en: "Red Zone",
     ar: "المنطقة الحمراء"
-  },
-  inventory: {
-    en: "Inventory",
-    ar: "المخزون"
   }
 };
