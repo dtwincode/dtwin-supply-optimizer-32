@@ -8,31 +8,28 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { DecouplingPoint } from '@/types/inventory/decouplingTypes';
 import { Edit, Trash2 } from 'lucide-react';
 
-// Sample data for demonstration purposes
+// Sample data for demonstration purposes with properties that match the DecouplingPoint type
 const sampleDecouplingPoints: DecouplingPoint[] = [
   {
     id: 'dp1',
     locationId: 'loc-main-warehouse',
     type: 'strategic',
     description: 'Strategic decoupling point for long-term planning',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    bufferProfileId: 'bp1',
   },
   {
     id: 'dp2',
     locationId: 'loc-distribution-center',
     type: 'customer_order',
     description: 'Customer order decoupling point for demand-driven operations',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    bufferProfileId: 'bp2',
   },
   {
     id: 'dp3',
     locationId: 'loc-retail-store',
     type: 'stock_point',
     description: 'Stock point for retail operations',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    bufferProfileId: 'bp3',
   }
 ];
 
