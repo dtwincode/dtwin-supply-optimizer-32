@@ -1,6 +1,6 @@
 
 import { Translations, Language } from './types';
-import { navigationItems } from './navigation';
+import { navigationTranslations } from './navigation';
 import { dashboardTranslations, executiveSummaryTranslations } from './common/dashboard';
 import { modulesSummaryTranslations } from './common/modules';
 import { uiTranslations } from './common/ui';
@@ -21,7 +21,7 @@ export { toArabicNumerals };
 export type { Language };
 
 export const translations: Translations = {
-  navigationItems,
+  navigationItems: navigationTranslations,
   dashboardMetrics: dashboardTranslations,
   financialMetrics: financialMetricsTranslations,
   sustainabilityMetrics: sustainabilityMetricsTranslations,
