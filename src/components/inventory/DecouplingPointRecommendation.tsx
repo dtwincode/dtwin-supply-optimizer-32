@@ -1,218 +1,392 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { getTranslation } from '@/translations';
-import { Slider } from '@/components/ui/slider';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Progress } from '@/components/ui/progress';
-import { Loader2 } from 'lucide-react';
+import { useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { BarChart, ResponsiveContainer, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
+import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslation } from "@/translations";
+
+// Mock locations for the demo
+const mockLocations = [
+  { id: "loc-main-warehouse", name: "Main Warehouse" },
+  { id: "loc-distribution-center", name: "Distribution Center" },
+  { id: "loc-retail-store", name: "Retail Store" }
+];
+
+// Mock data for demonstration purposes
+const generateScores = () => {
+  return {
+    leadTime: Math.random() * 10,
+    demandVariability: Math.random() * 10,
+    supplyReliability: Math.random() * 10,
+    inventoryCost: Math.random() * 10,
+    customerService: Math.random() * 10
+  };
+};
+
+const getRecommendationData = (locationId: string, weights: any) => {
+  // In a real application, this would call an API or perform actual calculations
+  const mockScores = generateScores();
+  
+  // Calculate weighted score (this is simplified for demo)
+  const totalWeight = Object.values(weights).reduce((sum: any, val: any) => sum + val, 0);
+  let weightedScore = 0;
+  
+  Object.keys(weights).forEach(key => {
+    // @ts-ignore - this is a mock function
+    weightedScore += (mockScores[key] * weights[key]);
+  });
+  
+  const normalizedScore = (weightedScore / totalWeight) / 10 * 100;
+  
+  // Determine recommendation status based on score
+  let status;
+  if (normalizedScore > 80) status = "highlyRecommended";
+  else if (normalizedScore > 60) status = "recommended";
+  else if (normalizedScore > 40) status = "consider";
+  else status = "notRecommended";
+  
+  // Determine suggested type based on various factors (simplified)
+  const types = ['strategic', 'customer_order', 'stock_point', 'intermediate'];
+  const typeIndex = Math.floor(Math.random() * types.length);
+  
+  const confidence = Math.round(Math.min(normalizedScore + Math.random() * 20, 100));
+  
+  return {
+    score: Math.round(normalizedScore),
+    status,
+    suggestedType: types[typeIndex],
+    confidence,
+    factors: Object.keys(mockScores).map(key => ({
+      // @ts-ignore - this is a mock function
+      name: key,
+      // @ts-ignore - this is a mock function
+      score: mockScores[key]
+    }))
+  };
+};
 
 export const DecouplingPointRecommendation = () => {
+  const { toast } = useToast();
   const { language } = useLanguage();
-  const t = (key: string) => getTranslation(`common.inventory.${key}`, language);
-  
-  const [selectedLocation, setSelectedLocation] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisComplete, setAnalysisComplete] = useState(false);
-  const [factorWeights, setFactorWeights] = useState({
-    leadTime: 5,
+  const [recommendation, setRecommendation] = useState<any>(null);
+  
+  const [weights, setWeights] = useState({
+    leadTime: 7,
     demandVariability: 5,
-    supplyReliability: 5,
+    supplyReliability: 6,
     inventoryCost: 5,
-    customerService: 5
+    customerService: 8
   });
-
-  const handleWeightChange = (factor: string, value: number[]) => {
-    setFactorWeights(prev => ({
-      ...prev,
-      [factor]: value[0]
-    }));
+  
+  const handleWeightChange = (name: keyof typeof weights, value: number[]) => {
+    setWeights(prev => ({ ...prev, [name]: value[0] }));
   };
-
-  const handleAnalyze = () => {
-    if (!selectedLocation) return;
+  
+  const runAnalysis = () => {
+    if (!selectedLocation) {
+      toast({
+        title: getTranslation("common.error", language),
+        description: language === 'ar' 
+          ? "يرجى تحديد موقع للتحليل" 
+          : "Please select a location to analyze",
+        variant: "destructive"
+      });
+      return;
+    }
     
     setIsAnalyzing(true);
+    setAnalysisComplete(false);
     
-    // Simulate analysis process
+    // Simulate analysis delay
     setTimeout(() => {
+      const result = getRecommendationData(selectedLocation, weights);
+      setRecommendation(result);
       setIsAnalyzing(false);
       setAnalysisComplete(true);
+      
+      toast({
+        title: getTranslation("common.inventory.analysisComplete", language),
+        description: getTranslation("common.inventory.decouplingRecommendationsReady", language)
+      });
     }, 2000);
   };
-
-  const locations = [
-    { id: 'loc1', name: 'Main Warehouse' },
-    { id: 'loc2', name: 'Distribution Center A' },
-    { id: 'loc3', name: 'Retail Store B' },
-    { id: 'loc4', name: 'Manufacturing Plant' }
-  ];
-
+  
   return (
-    <Card className="h-full">
-      <CardHeader>
-        <CardTitle>{t('decouplingPointRecommendation')}</CardTitle>
-        <CardDescription>
-          {t('decouplingPointRecommendationDesc')}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <p className="text-sm text-muted-foreground">{t('decouplingPointRecommendationHelp')}</p>
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Location selection card */}
+        <Card>
+          <CardHeader>
+            <CardTitle>{getTranslation("common.inventory.locationSelection", language)}</CardTitle>
+            <CardDescription>
+              {getTranslation("common.inventory.selectLocation", language)}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+              <SelectTrigger>
+                <SelectValue placeholder={language === 'ar' ? "اختر موقعًا" : "Select a location"} />
+              </SelectTrigger>
+              <SelectContent>
+                {mockLocations.map(location => (
+                  <SelectItem key={location.id} value={location.id}>
+                    {location.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </CardContent>
+        </Card>
         
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">{t('locationSelection')}</h3>
-          <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={t('selectLocation')} />
-            </SelectTrigger>
-            <SelectContent>
-              {locations.map(location => (
-                <SelectItem key={location.id} value={location.id}>
-                  {location.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">{t('weightFactors')}</h3>
-          
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <label className="text-sm font-medium">{t('leadTimeFactor')}</label>
-                <span className="text-sm">{factorWeights.leadTime}</span>
-              </div>
-              <Slider
-                value={[factorWeights.leadTime]}
-                min={1}
-                max={10}
-                step={1}
-                onValueChange={(value) => handleWeightChange('leadTime', value)}
-              />
-              <p className="text-xs text-muted-foreground">{t('leadTimeFactorDesc')}</p>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <label className="text-sm font-medium">{t('demandVariabilityFactor')}</label>
-                <span className="text-sm">{factorWeights.demandVariability}</span>
-              </div>
-              <Slider
-                value={[factorWeights.demandVariability]}
-                min={1}
-                max={10}
-                step={1}
-                onValueChange={(value) => handleWeightChange('demandVariability', value)}
-              />
-              <p className="text-xs text-muted-foreground">{t('demandVariabilityFactorDesc')}</p>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <label className="text-sm font-medium">{t('supplyReliabilityFactor')}</label>
-                <span className="text-sm">{factorWeights.supplyReliability}</span>
-              </div>
-              <Slider
-                value={[factorWeights.supplyReliability]}
-                min={1}
-                max={10}
-                step={1}
-                onValueChange={(value) => handleWeightChange('supplyReliability', value)}
-              />
-              <p className="text-xs text-muted-foreground">{t('supplyReliabilityFactorDesc')}</p>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <label className="text-sm font-medium">{t('inventoryCostFactor')}</label>
-                <span className="text-sm">{factorWeights.inventoryCost}</span>
-              </div>
-              <Slider
-                value={[factorWeights.inventoryCost]}
-                min={1}
-                max={10}
-                step={1}
-                onValueChange={(value) => handleWeightChange('inventoryCost', value)}
-              />
-              <p className="text-xs text-muted-foreground">{t('inventoryCostFactorDesc')}</p>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <label className="text-sm font-medium">{t('customerServiceFactor')}</label>
-                <span className="text-sm">{factorWeights.customerService}</span>
-              </div>
-              <Slider
-                value={[factorWeights.customerService]}
-                min={1}
-                max={10}
-                step={1}
-                onValueChange={(value) => handleWeightChange('customerService', value)}
-              />
-              <p className="text-xs text-muted-foreground">{t('customerServiceFactorDesc')}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="pt-4">
-          <Button 
-            className="w-full" 
-            disabled={!selectedLocation || isAnalyzing}
-            onClick={handleAnalyze}
-          >
-            {isAnalyzing ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {t('analyzing')}
-              </>
-            ) : (
-              t('analyzeDecouplingPoints')
-            )}
-          </Button>
-        </div>
-        
-        {analysisComplete && (
-          <div className="space-y-4 pt-4 border-t">
-            <h3 className="text-lg font-medium">{t('analysisComplete')}</h3>
-            <p className="text-sm text-muted-foreground">{t('decouplingRecommendationsReady')}</p>
-            
+        {/* Weight factors card */}
+        <Card className="col-span-1 lg:col-span-2">
+          <CardHeader>
+            <CardTitle>{getTranslation("common.inventory.weightFactors", language)}</CardTitle>
+            <CardDescription>
+              {language === 'ar' 
+                ? "قم بتعيين الأهمية النسبية لكل عامل في تحليلك"
+                : "Set the relative importance of each factor in your analysis"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
             <div className="space-y-4">
-              <div className="p-4 border rounded-lg">
-                <div className="flex justify-between items-center mb-2">
-                  <h4 className="font-medium">{t('scoreFor')}: Distribution Center A</h4>
-                  <div className="text-sm font-medium text-green-600">{t('highlyRecommended')}</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <label className="text-sm font-medium">
+                      {getTranslation("common.inventory.leadTimeFactor", language)}
+                    </label>
+                    <span className="text-sm text-muted-foreground">{weights.leadTime}</span>
+                  </div>
+                  <Slider 
+                    value={[weights.leadTime]} 
+                    min={1} 
+                    max={10} 
+                    step={1} 
+                    onValueChange={(value) => handleWeightChange('leadTime', value)} 
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {getTranslation("common.inventory.leadTimeFactorDesc", language)}
+                  </p>
                 </div>
                 
-                <div className="space-y-1 mb-3">
-                  <div className="text-sm">
-                    {t('recommendationScore')}: 87/100
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <label className="text-sm font-medium">
+                      {getTranslation("common.inventory.demandVariabilityFactor", language)}
+                    </label>
+                    <span className="text-sm text-muted-foreground">{weights.demandVariability}</span>
                   </div>
-                  <Progress value={87} className="h-2" />
+                  <Slider 
+                    value={[weights.demandVariability]} 
+                    min={1} 
+                    max={10} 
+                    step={1} 
+                    onValueChange={(value) => handleWeightChange('demandVariability', value)} 
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {getTranslation("common.inventory.demandVariabilityFactorDesc", language)}
+                  </p>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">{t('suggestedType')}:</span> 
-                    <span className="ml-1 font-medium">Customer Order Point</span>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <label className="text-sm font-medium">
+                      {getTranslation("common.inventory.supplyReliabilityFactor", language)}
+                    </label>
+                    <span className="text-sm text-muted-foreground">{weights.supplyReliability}</span>
                   </div>
-                  <div>
-                    <span className="text-muted-foreground">{t('confidence')}:</span>
-                    <span className="ml-1 font-medium">High (82%)</span>
-                  </div>
+                  <Slider 
+                    value={[weights.supplyReliability]} 
+                    min={1} 
+                    max={10} 
+                    step={1} 
+                    onValueChange={(value) => handleWeightChange('supplyReliability', value)} 
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {getTranslation("common.inventory.supplyReliabilityFactorDesc", language)}
+                  </p>
                 </div>
                 
-                <div className="mt-3">
-                  <Button variant="outline" size="sm">{t('viewDetailedAnalysis')}</Button>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <label className="text-sm font-medium">
+                      {getTranslation("common.inventory.inventoryCostFactor", language)}
+                    </label>
+                    <span className="text-sm text-muted-foreground">{weights.inventoryCost}</span>
+                  </div>
+                  <Slider 
+                    value={[weights.inventoryCost]} 
+                    min={1} 
+                    max={10} 
+                    step={1} 
+                    onValueChange={(value) => handleWeightChange('inventoryCost', value)} 
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {getTranslation("common.inventory.inventoryCostFactorDesc", language)}
+                  </p>
+                </div>
+                
+                <div className="space-y-2 md:col-span-2">
+                  <div className="flex justify-between">
+                    <label className="text-sm font-medium">
+                      {getTranslation("common.inventory.customerServiceFactor", language)}
+                    </label>
+                    <span className="text-sm text-muted-foreground">{weights.customerService}</span>
+                  </div>
+                  <Slider 
+                    value={[weights.customerService]} 
+                    min={1} 
+                    max={10} 
+                    step={1} 
+                    onValueChange={(value) => handleWeightChange('customerService', value)} 
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {getTranslation("common.inventory.customerServiceFactorDesc", language)}
+                  </p>
                 </div>
               </div>
             </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+            
+            <Button onClick={runAnalysis} disabled={isAnalyzing || !selectedLocation} className="w-full">
+              {isAnalyzing 
+                ? getTranslation("common.inventory.analyzing", language) 
+                : getTranslation("common.inventory.analyzeDecouplingPoints", language)}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+      
+      {analysisComplete && recommendation && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>{getTranslation("common.inventory.recommendationScore", language)}</CardTitle>
+              <CardDescription>
+                {getTranslation("common.inventory.scoreFor", language)} {
+                  mockLocations.find(loc => loc.id === selectedLocation)?.name
+                }
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-center">
+                <div className="relative w-40 h-40 rounded-full flex items-center justify-center bg-muted">
+                  <div className="text-4xl font-bold">{recommendation.score}%</div>
+                  <svg 
+                    className="absolute top-0 left-0" 
+                    width="160" height="160" 
+                    viewBox="0 0 160 160"
+                  >
+                    <circle 
+                      cx="80" cy="80" r="70" 
+                      fill="none" 
+                      stroke="#e5e7eb" 
+                      strokeWidth="12" 
+                    />
+                    <circle 
+                      cx="80" cy="80" r="70" 
+                      fill="none" 
+                      stroke={
+                        recommendation.status === "highlyRecommended" ? "#22c55e" :
+                        recommendation.status === "recommended" ? "#3b82f6" :
+                        recommendation.status === "consider" ? "#f59e0b" :
+                        "#ef4444"
+                      } 
+                      strokeWidth="12" 
+                      strokeDasharray={`${recommendation.score * 4.4} 440`}
+                      transform="rotate(-90 80 80)"
+                    />
+                  </svg>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="font-medium">{getTranslation("common.inventory.recommendationStatus", language)}</span>
+                  <span className={
+                    recommendation.status === "highlyRecommended" ? "text-green-600" :
+                    recommendation.status === "recommended" ? "text-blue-600" :
+                    recommendation.status === "consider" ? "text-amber-600" :
+                    "text-red-600"
+                  }>
+                    {getTranslation(`common.inventory.${recommendation.status}`, language)}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between text-sm">
+                  <span className="font-medium">{getTranslation("common.inventory.suggestedType", language)}</span>
+                  <span>
+                    {getTranslation(`common.inventory.${recommendation.suggestedType}DecouplingPoint`, language)}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between text-sm">
+                  <span className="font-medium">{getTranslation("common.inventory.confidence", language)}</span>
+                  <span>{recommendation.confidence}%</span>
+                </div>
+              </div>
+              
+              <Button variant="outline" className="w-full" onClick={() => {}}>
+                {getTranslation("common.inventory.viewDetailedAnalysis", language)}
+              </Button>
+            </CardContent>
+          </Card>
+          
+          <Card className="col-span-1 lg:col-span-2">
+            <CardHeader>
+              <CardTitle>{getTranslation("common.inventory.locationFactorScores", language)}</CardTitle>
+              <CardDescription>
+                {language === 'ar' 
+                  ? "كيف يؤدي هذا الموقع في كل عامل من عوامل التقييم"
+                  : "How this location performs on each evaluation factor"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={recommendation.factors}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="name" 
+                    tickFormatter={(value) => {
+                      const shortNames = {
+                        'leadTime': getTranslation("common.inventory.leadTimeFactor", language),
+                        'demandVariability': getTranslation("common.inventory.demandVariabilityFactor", language),
+                        'supplyReliability': getTranslation("common.inventory.supplyReliabilityFactor", language),
+                        'inventoryCost': getTranslation("common.inventory.inventoryCostFactor", language),
+                        'customerService': getTranslation("common.inventory.customerServiceFactor", language)
+                      };
+                      // @ts-ignore - this is simplified for the demo
+                      return shortNames[value] || value;
+                    }}
+                  />
+                  <YAxis domain={[0, 10]} />
+                  <Tooltip />
+                  <Legend />
+                  <Bar 
+                    dataKey="score" 
+                    fill="#3b82f6" 
+                    name={getTranslation("common.inventory.score", language)} 
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+              
+              <Alert className="mt-4">
+                <AlertDescription>
+                  {getTranslation("common.inventory.decouplingPointRecommendationHelp", language)}
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </div>
   );
 };
