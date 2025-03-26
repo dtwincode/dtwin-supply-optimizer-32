@@ -1,3 +1,4 @@
+
 export type TranslationValue = {
   en: string;
   ar: string;
@@ -9,6 +10,7 @@ export type NavigationItems = {
   inventory: TranslationValue;
   supplyPlanning: TranslationValue;
   salesPlanning: TranslationValue;
+  returnsManagement: TranslationValue;
   ddsop: TranslationValue;
   marketing: TranslationValue;
   logistics: TranslationValue;
