@@ -1,3 +1,4 @@
+
 import { Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/index";
 import Auth from "./pages/Auth";
@@ -24,7 +25,7 @@ import { FilterProvider } from "./contexts/FilterContext";
 import { Suspense, useEffect } from "react";
 import PageLoading from "./components/PageLoading";
 
-// Configure query client without using the unsupported logger property
+// Configure query client with compatible options for v5
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -35,17 +36,11 @@ const queryClient = new QueryClient({
   },
 });
 
-// Add global error handler for queries using the correct event listener structure
-queryClient.getQueryCache().subscribe(() => {
-  console.log('Query cache subscription initialized');
-  
-  // In React Query v5, the subscribe method takes a simple function
-  // that receives the event, which includes type and error properties
-  return (event) => {
-    if (event.type === 'error') {
-      console.error('Query cache error:', event.error);
-    }
-  };
+// Add global error handler for queries using the correct event listener structure for v5
+queryClient.getQueryCache().subscribe((event) => {
+  if (event.type === 'error') {
+    console.error('Query cache error:', event.error);
+  }
 });
 
 // Add route debugging component
