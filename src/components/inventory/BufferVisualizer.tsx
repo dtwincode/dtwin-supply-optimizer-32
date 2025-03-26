@@ -49,7 +49,7 @@ export const BufferVisualizer = ({ netFlowPosition, bufferZones, adu }: BufferVi
         <div 
           className="absolute top-0 h-3 w-1 bg-black rounded-full transform -translate-y-1" 
           style={{ left: `${netFlowPercent}%` }}
-          title={`${getTranslation("inventory.netFlowPosition", language)}: ${netFlowPosition}`}
+          title={`${getTranslation("common.inventory.netFlowPosition", language)}: ${netFlowPosition}`}
         ></div>
       </div>
       

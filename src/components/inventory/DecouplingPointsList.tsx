@@ -13,7 +13,6 @@ const sampleDecouplingPoints: DecouplingPoint[] = [
   {
     id: 'dp1',
     locationId: 'loc-main-warehouse',
-    name: 'Main Warehouse Strategic Point',
     type: 'strategic',
     description: 'Strategic decoupling point for long-term planning',
     createdAt: new Date().toISOString(),
@@ -22,7 +21,6 @@ const sampleDecouplingPoints: DecouplingPoint[] = [
   {
     id: 'dp2',
     locationId: 'loc-distribution-center',
-    name: 'Distribution Center Order Point',
     type: 'customer_order',
     description: 'Customer order decoupling point for demand-driven operations',
     createdAt: new Date().toISOString(),
@@ -31,7 +29,6 @@ const sampleDecouplingPoints: DecouplingPoint[] = [
   {
     id: 'dp3',
     locationId: 'loc-retail-store',
-    name: 'Retail Buffer Stock Point',
     type: 'stock_point',
     description: 'Stock point for retail operations',
     createdAt: new Date().toISOString(),
@@ -51,7 +48,7 @@ export const DecouplingPointsList = () => {
       case 'customer_order':
         return t('customer_orderDecouplingPoint');
       case 'stock_point':
-        return t('stockPointInfo');
+        return t('stock_pointDecouplingPoint');
       case 'intermediate':
         return t('intermediateDecouplingPoint');
       default:
@@ -69,7 +66,6 @@ export const DecouplingPointsList = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>{t('name')}</TableHead>
                 <TableHead>{t('locationId')}</TableHead>
                 <TableHead>{t('type')}</TableHead>
                 <TableHead>{t('description')}</TableHead>
@@ -79,8 +75,7 @@ export const DecouplingPointsList = () => {
             <TableBody>
               {sampleDecouplingPoints.map((point) => (
                 <TableRow key={point.id}>
-                  <TableCell className="font-medium">{point.name}</TableCell>
-                  <TableCell>{point.locationId}</TableCell>
+                  <TableCell className="font-medium">{point.locationId}</TableCell>
                   <TableCell>{formatType(point.type)}</TableCell>
                   <TableCell>{point.description}</TableCell>
                   <TableCell>
