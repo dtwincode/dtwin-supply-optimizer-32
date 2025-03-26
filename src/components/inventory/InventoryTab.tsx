@@ -129,7 +129,7 @@ export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) =
   }, [paginatedData, toast, language]);
 
   if (loading) {
-    return <div className="p-6 text-center">{getTranslation("common.inventory.loadingData", language)}</div>;
+    return <div className="p-6 text-center">{getTranslation("inventory.loadingData", language)}</div>;
   }
 
   if (error) {
@@ -144,7 +144,7 @@ export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) =
     <div className="space-y-6 p-6">
       {!paginatedData || paginatedData.length === 0 ? (
         <div className="text-center py-10">
-          <p className="text-muted-foreground">{getTranslation("common.inventory.noItems", language)}</p>
+          <p className="text-muted-foreground">{getTranslation("inventory.noItems", language)}</p>
         </div>
       ) : (
         paginatedData.map((item) => {
@@ -155,7 +155,7 @@ export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) =
           const bufferData = itemBuffers[item.id];
           
           if (!bufferData) {
-            return <div key={item.id} className="text-muted-foreground">{getTranslation("common.inventory.loadingItem", language)}</div>;
+            return <div key={item.id} className="text-muted-foreground">{getTranslation("inventory.loadingItem", language)}</div>;
           }
 
           return (

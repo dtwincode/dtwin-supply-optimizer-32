@@ -1,8 +1,8 @@
 
 import { NavigationItems } from './types';
 
-// Export the navigation items
-export const navigationItems: NavigationItems = {
+// Navigation items translations
+export const navigationTranslations: NavigationItems = {
   dashboard: {
     en: "Dashboard",
     ar: "لوحة التحكم"
@@ -60,6 +60,3 @@ export const navigationItems: NavigationItems = {
     ar: "الإرشادات"
   }
 };
-
-// Export the navigation items with the specific name expected in index.ts
-export const navigationTranslations = navigationItems;

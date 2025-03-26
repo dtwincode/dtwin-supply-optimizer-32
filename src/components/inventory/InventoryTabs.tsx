@@ -17,16 +17,16 @@ export function InventoryTabs({ defaultValue = "inventory", children }: Inventor
     <Tabs defaultValue={defaultValue} className="w-full">
       <TabsList className="grid grid-cols-4 mb-4">
         <TabsTrigger value="inventory">
-          {getTranslation("common.inventory.inventoryTitle", language)}
+          {getTranslation("inventory.inventoryTitle", language)}
         </TabsTrigger>
         <TabsTrigger value="buffers">
-          {getTranslation("common.inventory.bufferZones", language)}
+          {getTranslation("inventory.bufferZones", language)}
         </TabsTrigger>
         <TabsTrigger value="decoupling">
-          {getTranslation("common.inventory.decouplingPoint", language)}
+          {getTranslation("inventory.decouplingPoint", language)}
         </TabsTrigger>
         <TabsTrigger value="classification">
-          {getTranslation("navigationItems.inventoryClassification", language)}
+          {getTranslation("inventory.classification.title", language)}
         </TabsTrigger>
       </TabsList>
       <TabsContent value="inventory">
