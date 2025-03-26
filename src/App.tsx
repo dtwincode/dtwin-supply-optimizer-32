@@ -36,11 +36,21 @@ const queryClient = new QueryClient({
   },
 });
 
-// Add global error handler for queries
-queryClient.getQueryCache().subscribe({
-  onError: (error) => {
-    console.error('Query cache error:', error);
-  }
+// Add global error handler for queries using the correct event listener structure
+queryClient.getQueryCache().subscribe(() => {
+  const unsubscribe = queryClient.getQueryCache().subscribe({
+    onSuccess: () => {
+      // Handle successful queries if needed
+    },
+    onSettled: (data, error) => {
+      if (error) {
+        console.error('Query cache error:', error);
+      }
+    }
+  });
+  
+  // Return unsubscribe function for cleanup
+  return unsubscribe;
 });
 
 // Add route debugging component
