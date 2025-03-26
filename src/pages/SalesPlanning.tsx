@@ -15,9 +15,9 @@ import type { SalesPlan } from "@/types/sales";
 import { SalesPlanForm } from "@/components/sales/SalesPlanForm";
 import { SalesPlanFilter } from "@/components/sales/SalesPlanFilter";
 import { SalesPlanTable } from "@/components/sales/SalesPlanTable";
-import { ReturnsManagement } from "@/components/sales/ReturnsManagement";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
+import { Link } from "react-router-dom";
 
 const SalesPlanning = () => {
   const [planType, setPlanType] = useState<"top-down" | "bottom-up">("top-down");
@@ -114,7 +114,16 @@ const SalesPlanning = () => {
           </div>
         </Card>
 
-        <ReturnsManagement />
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-semibold">
+            {getTranslation('sales.returns', language) || "Returns Management"}
+          </h2>
+          <Link to="/returns-management">
+            <Button variant="outline">
+              {getTranslation('sales.viewReturns', language) || "View Returns Management"}
+            </Button>
+          </Link>
+        </div>
       </div>
     </DashboardLayout>
   );
