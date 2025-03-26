@@ -44,13 +44,13 @@ export const DecouplingNetwork = () => {
                 <div className="p-3 border rounded flex justify-between items-center">
                   <div>
                     <h4 className="font-medium">Main Warehouse</h4>
-                    <p className="text-sm text-muted-foreground">{t('strategicDecouplingPoint')}</p>
+                    <p className="text-sm text-muted-foreground">{t('strategicInfo')}</p>
                   </div>
                 </div>
                 <div className="p-3 border rounded flex justify-between items-center">
                   <div>
                     <h4 className="font-medium">Distribution Center</h4>
-                    <p className="text-sm text-muted-foreground">{t('customer_orderDecouplingPoint')}</p>
+                    <p className="text-sm text-muted-foreground">{t('customerOrderInfo')}</p>
                   </div>
                 </div>
                 <div className="p-3 border rounded flex justify-between items-center">

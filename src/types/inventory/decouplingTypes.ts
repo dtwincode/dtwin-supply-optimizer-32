@@ -1,3 +1,4 @@
+
 export interface DecouplingPoint {
   id: string;
   locationId: string;

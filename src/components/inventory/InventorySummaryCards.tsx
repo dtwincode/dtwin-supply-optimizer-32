@@ -19,123 +19,87 @@ const InventorySummaryCards = () => {
       }
     }
   };
-  
+
   const item = {
     hidden: { y: 20, opacity: 0 },
     show: { y: 0, opacity: 1 }
   };
 
-  const cardStyles = [
-    "bg-gradient-to-r from-green-50 to-green-100 border-green-200",
-    "bg-gradient-to-r from-amber-50 to-amber-100 border-amber-200",
-    "bg-gradient-to-r from-red-50 to-red-100 border-red-200",
-    "bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200",
-    "bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200",
-    "bg-gradient-to-r from-indigo-50 to-indigo-100 border-indigo-200"
+  const cards = [
+    {
+      title: getTranslation('common.zones.green', language),
+      value: "45",
+      unit: "SKUs",
+      icon: <CheckCircle className="h-12 w-12 text-green-500" />,
+      bgColorClass: "bg-green-50",
+      textColorClass: "text-green-700"
+    },
+    {
+      title: getTranslation('common.zones.yellow', language),
+      value: "28",
+      unit: "SKUs",
+      icon: <AlertTriangle className="h-12 w-12 text-yellow-500" />,
+      bgColorClass: "bg-yellow-50",
+      textColorClass: "text-yellow-700"
+    },
+    {
+      title: getTranslation('common.zones.red', language),
+      value: "12",
+      unit: "SKUs",
+      icon: <Package className="h-12 w-12 text-red-500" />,
+      bgColorClass: "bg-red-50",
+      textColorClass: "text-red-700"
+    },
+    {
+      title: getTranslation('common.inventory.netFlowPosition', language),
+      value: "105",
+      unit: "u",
+      icon: <Waves className="h-12 w-12 text-blue-500" />,
+      bgColorClass: "bg-blue-50",
+      textColorClass: "text-blue-700"
+    },
+    {
+      title: getTranslation('common.inventory.adu', language),
+      value: "24.5",
+      unit: "u/d",
+      icon: <BarChart4 className="h-12 w-12 text-purple-500" />,
+      bgColorClass: "bg-purple-50",
+      textColorClass: "text-purple-700"
+    },
+    {
+      title: getTranslation('common.inventory.turnover', language),
+      value: "4.2",
+      unit: "x",
+      icon: <ArrowUpCircle className="h-12 w-12 text-indigo-500" />,
+      bgColorClass: "bg-indigo-50",
+      textColorClass: "text-indigo-700"
+    }
   ];
-
-  const iconContainerStyles = [
-    "bg-green-100 text-green-600",
-    "bg-amber-100 text-amber-600", 
-    "bg-red-100 text-red-600",
-    "bg-blue-100 text-blue-600",
-    "bg-purple-100 text-purple-600",
-    "bg-indigo-100 text-indigo-600"
-  ];
-
-  // Ensure proper spacing in RTL mode
-  const flexDirection = isRTL ? "flex-row-reverse" : "flex-row";
 
   return (
     <motion.div 
-      className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3"
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4"
       variants={container}
       initial="hidden"
       animate="show"
     >
-      <motion.div variants={item} className="md:col-span-1 lg:col-span-1">
-        <Card className={cn("p-4 h-full shadow-sm hover:shadow transition-all duration-300", cardStyles[0])}>
-          <div className={`flex items-center ${flexDirection} ${isRTL ? 'space-x-reverse' : ''} space-x-3`}>
-            <div className={cn("p-2 rounded-full", iconContainerStyles[0])}>
-              <CheckCircle className="h-5 w-5" />
+      {cards.map((card, index) => (
+        <motion.div key={index} variants={item}>
+          <Card className={cn("p-4", card.bgColorClass)}>
+            <div className={cn("flex", isRTL ? "flex-row-reverse" : "flex-row", "items-center gap-4")}>
+              <div>
+                {card.icon}
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">{card.title}</p>
+                <h3 className={cn("text-2xl font-bold", card.textColorClass)}>
+                  {card.value} <span className="text-base">{card.unit}</span>
+                </h3>
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-medium text-gray-500">{getTranslation('common.zones.green', language)}</p>
-              <p className="text-xl font-bold">45 {getTranslation('common.skus', language)}</p>
-            </div>
-          </div>
-        </Card>
-      </motion.div>
-
-      <motion.div variants={item} className="md:col-span-1 lg:col-span-1">
-        <Card className={cn("p-4 h-full shadow-sm hover:shadow transition-all duration-300", cardStyles[1])}>
-          <div className={`flex items-center ${flexDirection} ${isRTL ? 'space-x-reverse' : ''} space-x-3`}>
-            <div className={cn("p-2 rounded-full", iconContainerStyles[1])}>
-              <AlertTriangle className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-gray-500">{getTranslation('common.zones.yellow', language)}</p>
-              <p className="text-xl font-bold">28 {getTranslation('common.skus', language)}</p>
-            </div>
-          </div>
-        </Card>
-      </motion.div>
-
-      <motion.div variants={item} className="md:col-span-1 lg:col-span-1">
-        <Card className={cn("p-4 h-full shadow-sm hover:shadow transition-all duration-300", cardStyles[2])}>
-          <div className={`flex items-center ${flexDirection} ${isRTL ? 'space-x-reverse' : ''} space-x-3`}>
-            <div className={cn("p-2 rounded-full", iconContainerStyles[2])}>
-              <Package className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-gray-500">{getTranslation('common.zones.red', language)}</p>
-              <p className="text-xl font-bold">12 {getTranslation('common.skus', language)}</p>
-            </div>
-          </div>
-        </Card>
-      </motion.div>
-
-      <motion.div variants={item} className="md:col-span-1 lg:col-span-1">
-        <Card className={cn("p-4 h-full shadow-sm hover:shadow transition-all duration-300", cardStyles[3])}>
-          <div className={`flex items-center ${flexDirection} ${isRTL ? 'space-x-reverse' : ''} space-x-3`}>
-            <div className={cn("p-2 rounded-full", iconContainerStyles[3])}>
-              <Waves className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-gray-500">{getTranslation('common.inventory.netFlowPosition', language)}</p>
-              <p className="text-xl font-bold">105 u</p>
-            </div>
-          </div>
-        </Card>
-      </motion.div>
-
-      <motion.div variants={item} className="md:col-span-1 lg:col-span-1">
-        <Card className={cn("p-4 h-full shadow-sm hover:shadow transition-all duration-300", cardStyles[4])}>
-          <div className={`flex items-center ${flexDirection} ${isRTL ? 'space-x-reverse' : ''} space-x-3`}>
-            <div className={cn("p-2 rounded-full", iconContainerStyles[4])}>
-              <BarChart4 className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-gray-500">{getTranslation('common.inventory.adu', language)}</p>
-              <p className="text-xl font-bold">24.5 u/d</p>
-            </div>
-          </div>
-        </Card>
-      </motion.div>
-
-      <motion.div variants={item} className="md:col-span-1 lg:col-span-1">
-        <Card className={cn("p-4 h-full shadow-sm hover:shadow transition-all duration-300", cardStyles[5])}>
-          <div className={`flex items-center ${flexDirection} ${isRTL ? 'space-x-reverse' : ''} space-x-3`}>
-            <div className={cn("p-2 rounded-full", iconContainerStyles[5])}>
-              <ArrowUpCircle className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-gray-500">{getTranslation('common.inventory.turnover', language)}</p>
-              <p className="text-xl font-bold">4.2x</p>
-            </div>
-          </div>
-        </Card>
-      </motion.div>
+          </Card>
+        </motion.div>
+      ))}
     </motion.div>
   );
 };
