@@ -25,7 +25,7 @@ import { FilterProvider } from "./contexts/FilterContext";
 import { Suspense, useEffect } from "react";
 import PageLoading from "./components/PageLoading";
 
-// Configure query client with more debugging but fix the onError TypeScript issue
+// Configure query client without using the unsupported logger property
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -34,17 +34,13 @@ const queryClient = new QueryClient({
       staleTime: 5 * 60 * 1000, // 5 minutes
     },
   },
-  logger: {
-    log: (message) => {
-      console.log(message);
-    },
-    warn: (message) => {
-      console.warn(message);
-    },
-    error: (error) => {
-      console.error('Query error:', error);
-    },
-  },
+});
+
+// Add global error handler for queries
+queryClient.getQueryCache().subscribe({
+  onError: (error) => {
+    console.error('Query cache error:', error);
+  }
 });
 
 // Add route debugging component
