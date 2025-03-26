@@ -3,6 +3,8 @@ export type TranslationValue = {
   ar: string;
 };
 
+export type Language = 'en' | 'ar';
+
 export type NavigationItems = {
   dashboard: TranslationValue;
   forecasting: TranslationValue;

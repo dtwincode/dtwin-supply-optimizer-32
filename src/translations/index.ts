@@ -1,5 +1,5 @@
 
-import { Translations } from './types';
+import { Translations, Language } from './types';
 import { navigationTranslations } from './navigation';
 import { dashboardTranslations, executiveSummaryTranslations } from './common/dashboard';
 import { modulesSummaryTranslations } from './common/modules';
@@ -18,6 +18,7 @@ import { salesTranslations } from './sales';
 import { marketingTranslations } from './marketing';
 
 export { toArabicNumerals };
+export { Language };
 
 export const translations: Translations = {
   dashboard: {
@@ -36,8 +37,6 @@ export const translations: Translations = {
   ddsop: ddsopTranslations,
   marketing: marketingTranslations,
 };
-
-export type Language = 'en' | 'ar';
 
 export function getTranslation(key: string, language: Language) {
   const keys = key.split('.');
