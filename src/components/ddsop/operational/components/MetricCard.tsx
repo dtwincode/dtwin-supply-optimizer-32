@@ -60,14 +60,14 @@ export const MetricCard: React.FC<MetricCardProps> = ({ metric }) => {
 
   return (
     <Card className="shadow-sm overflow-hidden">
-      <CardContent className="p-4">
+      <CardContent className="p-3">
         <div className="flex flex-col">
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-lg font-medium">{t(metric.name)}</h3>
-            <span className="text-2xl font-bold">
+          <div className="flex justify-between items-start mb-1">
+            <h3 className="text-sm font-medium">{t(metric.name)}</h3>
+            <span className="text-lg font-bold">
               {displayValue}
               {typeof metric.value === 'number' && metric.unit && 
-                <span className="ml-2">{t(metric.unit)}</span>
+                <span className="ml-1 text-sm">{t(metric.unit)}</span>
               }
             </span>
           </div>
@@ -76,11 +76,11 @@ export const MetricCard: React.FC<MetricCardProps> = ({ metric }) => {
             <Progress 
               value={metric.value} 
               max={100} 
-              className={`h-2 mb-2 ${getProgressColor(metric.status)}`} 
+              className={`h-1.5 mb-1 ${getProgressColor(metric.status)}`} 
             />
           )}
           
-          <div className="flex justify-between text-sm text-muted-foreground mt-2">
+          <div className="flex justify-between text-xs text-muted-foreground mt-1">
             <span>{t('target')}: {displayTarget}</span>
             {metric.trend && (
               <div className="flex items-center">

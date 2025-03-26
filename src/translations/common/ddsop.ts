@@ -1,4 +1,3 @@
-
 export const ddsopTranslations = {
   // Main header and description
   title: {
@@ -107,7 +106,6 @@ export const ddsopTranslations = {
     en: "Flow Index",
     ar: "مؤشر التدفق"
   },
-  // Removed duplicate tacticalCycleAdherence here
   demandSignalQuality: {
     en: "Demand Signal Quality",
     ar: "جودة إشارة الطلب"
