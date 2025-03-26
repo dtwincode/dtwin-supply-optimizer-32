@@ -5,13 +5,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   LeadTimeData, 
   LeadTimeAnomaly, 
-  SKUClassification, 
   ReplenishmentData 
 } from "@/components/inventory/types";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { LeadTimePredictions } from "./LeadTimePredictions";
-import { SKUClassifications } from "./SKUClassifications";
 import { ReplenishmentTimes } from "./ReplenishmentTimes";
 import { AILeadLink } from "./AILeadLink";
 
@@ -19,7 +17,6 @@ export const AIInsightsTab = () => {
   const [loading, setLoading] = useState(true);
   const [leadTimeData, setLeadTimeData] = useState<LeadTimeData[]>([]);
   const [leadTimeAnomalies, setLeadTimeAnomalies] = useState<LeadTimeAnomaly[]>([]);
-  const [classifications, setClassifications] = useState<SKUClassification[]>([]);
   const [replenishmentData, setReplenishmentData] = useState<ReplenishmentData[]>([]);
   const { toast } = useToast();
 
@@ -73,40 +70,6 @@ export const AIInsightsTab = () => {
             anomaly_type: "supplier_issue",
             anomaly_score: 0.76,
             detection_date: new Date().toISOString()
-          }
-        ]);
-        
-        // Mock classifications
-        setClassifications([
-          {
-            sku: "SKU001",
-            classification: {
-              leadTimeCategory: "long",
-              variabilityLevel: "medium",
-              criticality: "high",
-              score: 85
-            },
-            lastUpdated: new Date().toISOString()
-          },
-          {
-            sku: "SKU002",
-            classification: {
-              leadTimeCategory: "medium",
-              variabilityLevel: "low",
-              criticality: "medium",
-              score: 65
-            },
-            lastUpdated: new Date().toISOString()
-          },
-          {
-            sku: "SKU003",
-            classification: {
-              leadTimeCategory: "short",
-              variabilityLevel: "high",
-              criticality: "low",
-              score: 45
-            },
-            lastUpdated: new Date().toISOString()
           }
         ]);
         
@@ -171,7 +134,6 @@ export const AIInsightsTab = () => {
           <TabsList>
             <TabsTrigger value="leadTime">Lead Time Predictions</TabsTrigger>
             <TabsTrigger value="anomalies">Anomaly Detection</TabsTrigger>
-            <TabsTrigger value="classification">SKU Classification</TabsTrigger>
             <TabsTrigger value="replenishment">Replenishment Analysis</TabsTrigger>
           </TabsList>
           
@@ -222,22 +184,6 @@ export const AIInsightsTab = () => {
                       ))}
                     </div>
                   )}
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="classification">
-            <div className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">AI-Based SKU Classification</CardTitle>
-                  <CardDescription>
-                    Automated classification based on lead time and variability
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <SKUClassifications classifications={classifications} />
                 </CardContent>
               </Card>
             </div>

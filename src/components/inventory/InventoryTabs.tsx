@@ -8,6 +8,7 @@ import { DecouplingTab } from "./DecouplingTab";
 import { NetFlowTab } from "./NetFlowTab";
 import { ADUTab } from "./ADUTab";
 import { AIInsightsTab } from "./AIInsightsTab";
+import { ClassificationTab } from "./ClassificationTab";
 
 interface InventoryTabsProps {
   children: ReactNode;
@@ -27,9 +28,12 @@ export const InventoryTabs = ({ children, defaultValue = "inventory" }: Inventor
   
   return (
     <Tabs defaultValue={defaultValue} className="w-full">
-      <TabsList className="grid grid-cols-6 mb-4">
+      <TabsList className="grid grid-cols-7 mb-4">
         <TabsTrigger value="inventory">
           {getTranslation("common.inventoryTitle", language)}
+        </TabsTrigger>
+        <TabsTrigger value="classification">
+          {getTranslation("common.inventory.classification", language) || "Classification"}
         </TabsTrigger>
         <TabsTrigger value="buffer">
           {getTranslation("common.bufferZones", language)}
@@ -50,6 +54,10 @@ export const InventoryTabs = ({ children, defaultValue = "inventory" }: Inventor
       
       <TabsContent value="inventory">
         {children}
+      </TabsContent>
+      
+      <TabsContent value="classification">
+        <ClassificationTab />
       </TabsContent>
       
       <TabsContent value="buffer">

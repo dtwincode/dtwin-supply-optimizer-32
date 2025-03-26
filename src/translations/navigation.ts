@@ -53,5 +53,11 @@ export const navigationTranslations: NavigationItems = {
   ddsop: {
     en: "DDS&OP",
     ar: "تخطيط المبيعات والعمليات المدفوع بالطلب"
+  },
+  inventory: {
+    classification: {
+      en: "Classification",
+      ar: "التصنيف"
+    }
   }
 };
