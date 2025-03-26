@@ -114,13 +114,17 @@ export const salesTranslations = {
     en: "Forecast",
     ar: "التنبؤ"
   },
-  processed: {
-    en: "Processed",
-    ar: "تمت المعالجة"
-  },
   recorded: {
     en: "Recorded",
     ar: "تم التسجيل"
+  },
+  processing: {
+    en: "Processing",
+    ar: "قيد المعالجة"
+  },
+  analyzed: {
+    en: "Analyzed",
+    ar: "تم التحليل"
   },
   condition: {
     en: "Condition",
@@ -149,5 +153,161 @@ export const salesTranslations = {
   cancel: {
     en: "Cancel",
     ar: "إلغاء"
+  },
+  viewDetails: {
+    en: "View Details",
+    ar: "عرض التفاصيل"
+  },
+  startAnalysis: {
+    en: "Start Analysis",
+    ar: "بدء التحليل"
+  },
+  searchReturns: {
+    en: "Search returns...",
+    ar: "البحث في المرتجعات..."
+  },
+  returnRecordDetails: {
+    en: "Return Record Details",
+    ar: "تفاصيل سجل الإرجاع"
+  },
+  basicInfo: {
+    en: "Basic Information",
+    ar: "معلومات أساسية"
+  },
+  location: {
+    en: "Location",
+    ar: "الموقع"
+  },
+  customer: {
+    en: "Customer",
+    ar: "العميل"
+  },
+  tags: {
+    en: "Tags",
+    ar: "العلامات"
+  },
+  impactAnalysis: {
+    en: "Impact Analysis",
+    ar: "تحليل التأثير"
+  },
+  unitsAdjusted: {
+    en: "units adjusted",
+    ar: "تم تعديل الوحدات"
+  },
+  forecastImpact: {
+    en: "Forecast Impact",
+    ar: "تأثير التنبؤ"
+  },
+  revenue: {
+    en: "Revenue",
+    ar: "الإيرادات"
+  },
+  financialImpact: {
+    en: "financial impact",
+    ar: "التأثير المالي"
+  },
+  nextPeriodAdjustment: {
+    en: "Next Period",
+    ar: "الفترة القادمة"
+  },
+  recommendedAdjustment: {
+    en: "recommended",
+    ar: "موصى به"
+  },
+  analysisNotes: {
+    en: "Analysis Notes",
+    ar: "ملاحظات التحليل"
+  },
+  enterAnalysisNotes: {
+    en: "Enter analysis and observations...",
+    ar: "أدخل التحليل والملاحظات..."
+  },
+  forecastStatus: {
+    en: "Forecast Status",
+    ar: "حالة التنبؤ"
+  },
+  forecastUpdated: {
+    en: "Forecast has been updated",
+    ar: "تم تحديث التنبؤ"
+  },
+  forecastNotUpdated: {
+    en: "Forecast needs updating",
+    ar: "التنبؤ يحتاج إلى تحديث"
+  },
+  viewForecastImpact: {
+    en: "View Impact",
+    ar: "عرض التأثير"
+  },
+  relatedOrders: {
+    en: "Related Orders",
+    ar: "الطلبات ذات الصلة"
+  },
+  close: {
+    en: "Close",
+    ar: "إغلاق"
+  },
+  returnInsights: {
+    en: "Return Insights",
+    ar: "تحليلات المرتجعات"
+  },
+  trends: {
+    en: "Trends",
+    ar: "الاتجاهات"
+  },
+  reasons: {
+    en: "Reasons",
+    ar: "الأسباب"
+  },
+  returnsTrend: {
+    en: "Returns Over Time",
+    ar: "المرتجعات على مر الزمن"
+  },
+  returnsByCondition: {
+    en: "Returns by Condition",
+    ar: "المرتجعات حسب الحالة"
+  },
+  topReturnReasons: {
+    en: "Top Return Reasons",
+    ar: "أهم أسباب الإرجاع"
+  },
+  returnsByRegion: {
+    en: "Returns by Region",
+    ar: "المرتجعات حسب المنطقة"
+  },
+  forecastImpactOverTime: {
+    en: "Forecast Impact Over Time",
+    ar: "تأثير التنبؤ على مر الزمن"
+  },
+  recommendedActions: {
+    en: "Recommended Actions",
+    ar: "الإجراءات الموصى بها"
+  },
+  adjustForecast: {
+    en: "Adjust Forecast",
+    ar: "تعديل التنبؤ"
+  },
+  adjustForecastDesc: {
+    en: "Reduce Q2 forecast by 3.5% for electronics category due to consistent quality returns.",
+    ar: "تقليل تنبؤ الربع الثاني بنسبة 3.5٪ لفئة الإلكترونيات بسبب مرتجعات الجودة المستمرة."
+  },
+  reviewQuality: {
+    en: "Review Quality",
+    ar: "مراجعة الجودة"
+  },
+  reviewQualityDesc: {
+    en: "Investigate increasing quality issues with smartphone product line in Central Region.",
+    ar: "التحقيق في زيادة مشاكل الجودة مع خط إنتاج الهواتف الذكية في المنطقة الوسطى."
+  },
+  reallocateInventory: {
+    en: "Reallocate Inventory",
+    ar: "إعادة توزيع المخزون"
+  },
+  reallocateInventoryDesc: {
+    en: "Redistribute new-condition returns to Western Region where demand is higher.",
+    ar: "إعادة توزيع المرتجعات الجديدة إلى المنطقة الغربية حيث الطلب أعلى."
+  },
+  productName: {
+    en: "Product Name",
+    ar: "اسم المنتج"
   }
 };

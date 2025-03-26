@@ -19,14 +19,16 @@ export const ReturnEntryDialog = ({ onSubmit, open, onOpenChange }: ReturnEntryD
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        <Button className="gap-2">
+        <Button className="gap-2 bg-blue-600 hover:bg-blue-700">
           <PlusCircle className="h-4 w-4" />
           {getTranslation('sales.recordReturn', language) || "Record Return"}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[650px]">
         <DialogHeader>
-          <DialogTitle>{getTranslation('sales.recordReturn', language) || "Record Return"}</DialogTitle>
+          <DialogTitle className="text-xl">
+            {getTranslation('sales.recordReturn', language) || "Record Return"}
+          </DialogTitle>
         </DialogHeader>
         <ReturnEntryForm 
           onSubmit={(data) => {

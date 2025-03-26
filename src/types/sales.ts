@@ -46,6 +46,7 @@ export interface LocationHierarchy {
 export interface ProductReturn {
   id: string;
   productSku: string;
+  productName?: string;
   quantity: number;
   returnDate: string;
   reason: string;
@@ -53,10 +54,23 @@ export interface ProductReturn {
   location: {
     region: string;
     city?: string;
+    warehouse?: string;
   };
-  status: 'recorded' | 'processed';
+  customer?: {
+    id?: string;
+    name?: string;
+    segment?: string;
+  };
+  status: 'recorded' | 'processing' | 'analyzed';
   impact: {
     inventory: number;
     forecast: number;
+    revenue?: number;
+    nextPeriodAdjustment?: number;
   };
+  analysisNotes?: string;
+  forecastUpdated?: boolean;
+  priorityLevel?: 'low' | 'medium' | 'high';
+  tags?: string[];
+  relatedOrders?: string[];
 }
