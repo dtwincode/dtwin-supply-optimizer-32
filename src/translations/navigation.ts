@@ -61,5 +61,5 @@ export const navigationItems: NavigationItems = {
   }
 };
 
-// Export specifically with the name that index.ts is expecting
+// Export the navigation items with the specific name expected in index.ts
 export const navigationTranslations = navigationItems;

@@ -32,7 +32,10 @@ export const translations: Translations = {
   supplyPlanning: supplyPlanningTranslations,
   ddsop: ddsopTranslations,
   marketing: marketingTranslations,
-  inventory: inventoryTranslations
+  inventory: inventoryTranslations,
+  ui: uiTranslations,
+  charts: chartTranslations,
+  pagination: paginationTranslations
 };
 
 export function getTranslation(key: string, language: Language) {
