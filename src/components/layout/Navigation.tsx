@@ -12,8 +12,7 @@ import {
   Database, 
   BookOpen, 
   ShoppingCart,
-  Gift,
-  RotateCcw
+  Gift
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -26,8 +25,7 @@ const navigationItems = [
   { name: "navigationItems.forecasting", icon: TrendingUp, href: "/forecasting" },
   { name: "navigationItems.inventory", icon: Package, href: "/inventory" },
   { name: "navigationItems.supplyPlanning", icon: ShoppingCart, href: "/supply-planning" },
-  { name: "navigationItems.salesPlanning", icon: LineChart, href: "/sales-planning" },
-  { name: "navigationItems.returnsManagement", icon: RotateCcw, href: "/returns-management" },
+  { name: "navigationItems.salesPlanning", icon: LineChart, href: "/sales-and-returns" },
   { name: "navigationItems.marketing", icon: Gift, href: "/marketing" },
   { name: "navigationItems.logistics", icon: Truck, href: "/logistics" },
   { name: "navigationItems.reports", icon: FileText, href: "/reports" },

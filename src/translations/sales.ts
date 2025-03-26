@@ -4,6 +4,18 @@ export const salesTranslations = {
     en: "Sales Planning",
     ar: "تخطيط المبيعات"
   },
+  salesAndReturns: {
+    en: "Sales & Returns",
+    ar: "المبيعات والمرتجعات"
+  },
+  salesPlanning: {
+    en: "Sales Planning",
+    ar: "تخطيط المبيعات"
+  },
+  returnsManagement: {
+    en: "Returns Management",
+    ar: "إدارة المرتجعات"
+  },
   newPlan: {
     en: "Create New Sales Plan",
     ar: "إنشاء خطة مبيعات جديدة"

@@ -15,8 +15,8 @@ export const navigationTranslations: NavigationItems = {
     ar: "المخزون"
   },
   salesPlanning: {
-    en: "Sales Planning",
-    ar: "تخطيط المبيعات"
+    en: "Sales & Returns",
+    ar: "المبيعات والمرتجعات"
   },
   returnsManagement: {
     en: "Returns Management",

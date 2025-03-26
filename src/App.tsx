@@ -5,8 +5,7 @@ import Auth from "./pages/Auth";
 import Marketing from "./pages/Marketing";
 import Forecasting from "./pages/Forecasting";
 import Inventory from "./pages/Inventory";
-import SalesPlanning from "./pages/SalesPlanning";
-import ReturnsManagement from "./pages/ReturnsManagement";
+import SalesAndReturns from "./pages/SalesAndReturns";
 import Reports from "./pages/Reports";
 import Logistics from "./pages/Logistics";
 import Settings from "./pages/Settings";
@@ -51,8 +50,9 @@ function App() {
                   <Route path="/forecasting/*" element={<Forecasting />} />
                   <Route path="/inventory/*" element={<Inventory />} />
                   <Route path="/supply-planning" element={<SupplyPlanning />} />
-                  <Route path="/sales-planning" element={<SalesPlanning />} />
-                  <Route path="/returns-management" element={<ReturnsManagement />} />
+                  <Route path="/sales-and-returns" element={<SalesAndReturns />} />
+                  <Route path="/sales-planning" element={<Navigate to="/sales-and-returns" replace />} />
+                  <Route path="/returns-management" element={<Navigate to="/sales-and-returns?tab=returns" replace />} />
                   <Route path="/marketing" element={<Marketing />} />
                   <Route path="/logistics" element={<Logistics />} />
                   <Route path="/reports" element={<Reports />} />
