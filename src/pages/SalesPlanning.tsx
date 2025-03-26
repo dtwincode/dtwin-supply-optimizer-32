@@ -15,6 +15,7 @@ import type { SalesPlan } from "@/types/sales";
 import { SalesPlanForm } from "@/components/sales/SalesPlanForm";
 import { SalesPlanFilter } from "@/components/sales/SalesPlanFilter";
 import { SalesPlanTable } from "@/components/sales/SalesPlanTable";
+import { ReturnsManagement } from "@/components/sales/ReturnsManagement";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
 
@@ -112,6 +113,8 @@ const SalesPlanning = () => {
             <SalesPlanTable salesPlans={filteredSalesPlans} />
           </div>
         </Card>
+
+        <ReturnsManagement />
       </div>
     </DashboardLayout>
   );

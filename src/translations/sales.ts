@@ -1,4 +1,3 @@
-
 export const salesTranslations = {
   title: {
     en: "Sales Planning",
@@ -29,5 +28,33 @@ export const salesTranslations = {
       en: "Status",
       ar: "الحالة"
     }
+  },
+  returns: {
+    en: "Returns Management",
+    ar: "إدارة المرتجعات"
+  },
+  sku: {
+    en: "SKU",
+    ar: "رمز المنتج"
+  },
+  quantity: {
+    en: "Quantity",
+    ar: "الكمية"
+  },
+  returnDate: {
+    en: "Return Date",
+    ar: "تاريخ الإرجاع"
+  },
+  reason: {
+    en: "Reason",
+    ar: "السبب"
+  },
+  status: {
+    en: "Status",
+    ar: "الحالة"
+  },
+  impact: {
+    en: "Impact",
+    ar: "التأثير"
   }
 };

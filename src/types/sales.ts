@@ -1,4 +1,3 @@
-
 export interface SalesPlan {
   id: string;
   timeframe: {
@@ -41,4 +40,22 @@ export interface LocationHierarchy {
     name: string;
     warehouses: string[];
   }[];
+}
+
+export interface ProductReturn {
+  id: string;
+  productSku: string;
+  quantity: number;
+  returnDate: string;
+  reason: string;
+  condition: 'new' | 'damaged' | 'expired';
+  location: {
+    region: string;
+    city?: string;
+  };
+  status: 'pending' | 'approved' | 'rejected' | 'processed';
+  impact: {
+    inventory: number;
+    forecast: number;
+  };
 }
