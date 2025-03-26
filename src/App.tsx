@@ -36,10 +36,12 @@ const queryClient = new QueryClient({
   },
 });
 
-// Add global error handler for queries using the correct event listener structure for v5
-queryClient.getQueryCache().subscribe((event) => {
-  if (event.type === 'error') {
-    console.error('Query cache error:', event.error);
+// Add error handling for query errors
+queryClient.getQueryCache().subscribe({
+  listener: (event) => {
+    if (event.type === 'updated' && event.query.state.error) {
+      console.error('Query error:', event.query.state.error);
+    }
   }
 });
 
