@@ -1,4 +1,3 @@
-
 import { Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/index";
 import Auth from "./pages/Auth";
@@ -36,12 +35,10 @@ const queryClient = new QueryClient({
   },
 });
 
-// Add error handling for query errors
-queryClient.getQueryCache().subscribe({
-  listener: (event) => {
-    if (event.type === 'updated' && event.query.state.error) {
-      console.error('Query error:', event.query.state.error);
-    }
+// Add error handling for query errors - using the correct listener format for v5
+queryClient.getQueryCache().subscribe((event) => {
+  if (event.type === 'updated' && event.query.state.error) {
+    console.error('Query error:', event.query.state.error);
   }
 });
 
