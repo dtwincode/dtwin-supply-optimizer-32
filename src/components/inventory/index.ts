@@ -5,7 +5,7 @@ export { DecouplingTab } from './DecouplingTab';
 export { BufferManagementTab } from './BufferManagementTab';
 export { InventoryTab } from './InventoryTab';
 export { InventoryTableHeader } from './InventoryTableHeader';
-export type { InventoryFilters } from './InventoryFilters';
+export type { InventoryFiltersProps } from './InventoryFilters';
 export { default as InventoryFilters } from './InventoryFilters';
 export { default as InventorySummaryCards } from './InventorySummaryCards';
 export { InventoryChart } from './InventoryChart';
