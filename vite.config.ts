@@ -1,4 +1,3 @@
-
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -7,7 +6,7 @@ import { componentTagger } from "lovable-tagger";
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
-    host: "localhost", // Changed from "::" to "localhost" to restrict access
+    host: true, // ✅ يسمح بالوصول من Lovable Preview
     port: 8080,
   },
   plugins: [
