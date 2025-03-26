@@ -48,15 +48,10 @@ export const SalesPerformanceMetrics = () => {
       {metrics.map((metric, index) => (
         <Card 
           key={index}
-          className="p-4 border overflow-hidden relative hover:shadow-md transition-all duration-300 group"
+          className="p-5 border overflow-hidden relative hover:shadow-md transition-all duration-300"
         >
           <div className="flex items-center mb-2">
-            <div className={cn(
-              "p-2 rounded-full mr-3",
-              metric.trend === 'up' ? 
-                (metric.isInverted ? "bg-red-100" : "bg-green-100") : 
-                (metric.isInverted ? "bg-green-100" : "bg-red-100")
-            )}>
+            <div className="bg-gray-100 rounded-full p-3 mr-3">
               {metric.icon}
             </div>
             <div>
@@ -66,42 +61,32 @@ export const SalesPerformanceMetrics = () => {
           </div>
           
           <div className="space-y-2">
-            <div className="flex items-baseline">
-              <span className="text-2xl font-bold">{metric.value}</span>
-              <div className="ml-auto flex items-center text-xs">
+            <div className="flex items-baseline justify-between">
+              <span className="text-3xl font-bold">{metric.value}</span>
+              <div className={cn(
+                "flex items-center text-xs font-medium",
+                metric.isInverted 
+                  ? (metric.trend === 'up' ? "text-red-500" : "text-green-500")
+                  : (metric.trend === 'up' ? "text-green-500" : "text-red-500")
+              )}>
                 {metric.trend === 'up' ? (
-                  <TrendingUp className={cn(
-                    "mr-1 h-3 w-3", 
-                    metric.isInverted ? "text-red-500" : "text-green-500"
-                  )} />
+                  <TrendingUp className="mr-1 h-3 w-3" />
                 ) : (
-                  <TrendingDown className={cn(
-                    "mr-1 h-3 w-3", 
-                    metric.isInverted ? "text-green-500" : "text-red-500"
-                  )} />
+                  <TrendingDown className="mr-1 h-3 w-3" />
                 )}
-                <span className={cn(
-                  metric.isInverted 
-                    ? (metric.trend === 'up' ? "text-red-500" : "text-green-500")
-                    : (metric.trend === 'up' ? "text-green-500" : "text-red-500")
-                )}>
-                  {metric.trendValue}
-                </span>
+                {metric.trendValue}
               </div>
             </div>
             
             <Progress 
               value={metric.isInverted ? 100 - metric.progress : metric.progress} 
-              className="h-1.5 rounded-full" 
+              className={cn("h-2 rounded-full", `bg-gray-100 [&>div]:${metric.color}`)}
             />
             
             <p className="text-xs text-muted-foreground text-right">
               {language === 'ar' ? 'من الشهر الماضي' : 'from last month'}
             </p>
           </div>
-          
-          {/* Decorative gradient element */}
-          <div className="absolute -bottom-6 -right-6 w-16 h-16 rounded-full opacity-10 group-hover:opacity-20 transition-opacity duration-300" style={{ background: `radial-gradient(circle, ${metric.isInverted ? '#ef4444' : '#22c55e'} 0%, transparent 70%)` }}></div>
         </Card>
       ))}
     </div>
