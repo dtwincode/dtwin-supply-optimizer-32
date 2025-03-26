@@ -1,6 +1,6 @@
 
 import { Translations, Language } from './types';
-import { navigationTranslations } from './navigation';
+import { navigationItems } from './navigation';
 import { dashboardTranslations, executiveSummaryTranslations } from './common/dashboard';
 import { modulesSummaryTranslations } from './common/modules';
 import { uiTranslations } from './common/ui';
@@ -21,11 +21,7 @@ export { toArabicNumerals };
 export type { Language };
 
 export const translations: Translations = {
-  dashboard: {
-    en: 'Dashboard',
-    ar: 'لوحة القيادة',
-  },
-  navigationItems: navigationTranslations,
+  navigationItems,
   dashboardMetrics: dashboardTranslations,
   financialMetrics: financialMetricsTranslations,
   sustainabilityMetrics: sustainabilityMetricsTranslations,
@@ -36,6 +32,7 @@ export const translations: Translations = {
   supplyPlanning: supplyPlanningTranslations,
   ddsop: ddsopTranslations,
   marketing: marketingTranslations,
+  inventory: inventoryTranslations
 };
 
 export function getTranslation(key: string, language: Language) {

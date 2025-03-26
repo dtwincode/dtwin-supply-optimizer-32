@@ -25,10 +25,10 @@ export const commonTranslations: CommonTranslations = {
   skus: { en: "SKUs", ar: "وحدات التخزين" },
   create: { en: "Create", ar: "إنشاء" },
   
-  // Zones translations
-  zones: zonesTranslations,
+  // Individual translations
+  zones: { en: "Zones", ar: "المناطق" },
   
-  // Inventory translations
+  // Individual inventory translations
   inventoryTitle: inventoryTranslations.inventoryTitle,
   bufferZones: inventoryTranslations.bufferZones,
   skuClassification: inventoryTranslations.skuClassification,
@@ -39,13 +39,12 @@ export const commonTranslations: CommonTranslations = {
   inventorySummary: inventoryTranslations.inventorySummary,
   
   // Chart translations
-  chartTitles: {
-    ...chartTranslations.chartTitles,
-    inventoryTrends: { en: "Inventory Trends", ar: "اتجاهات المخزون" }
-  },
+  chartTitles: { en: "Chart Titles", ar: "عناوين الرسوم البيانية" },
   
-  // Add missing chart translations for replenishment and netFlow
-  // Remove duplicate zones property here
+  // Add missing chart translations for replenishment and netFlow 
+  replenishment: { en: "Replenishment", ar: "إعادة التزويد" },
+  netFlow: { en: "Net Flow", ar: "التدفق الصافي" },
+  inventoryTrends: { en: "Inventory Trends", ar: "اتجاهات المخزون" },
   
   // Pagination translations
   previous: paginationTranslations.previous,
@@ -77,10 +76,5 @@ export const commonTranslations: CommonTranslations = {
   thisQuarter: { en: "this quarter", ar: "هذا الربع" },
   fromLastMonth: { en: "from last month", ar: "من الشهر الماضي" },
   fromLastWeek: { en: "from last week", ar: "من الأسبوع الماضي" },
-  viewDetails: { en: "View Details", ar: "عرض التفاصيل" },
-  
-  // Include full sections as nested objects
-  logistics: logisticsTranslations,
-  inventory: inventoryTranslations,
-  ddsop: ddsopTranslations
+  viewDetails: { en: "View Details", ar: "عرض التفاصيل" }
 };

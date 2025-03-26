@@ -1,6 +1,7 @@
 
 import { NavigationItems } from './types';
 
+// Export the navigation items
 export const navigationItems: NavigationItems = {
   dashboard: {
     en: "Dashboard",
@@ -59,3 +60,6 @@ export const navigationItems: NavigationItems = {
     ar: "الإرشادات"
   }
 };
+
+// Add this export to match what index.ts is expecting
+export const navigationTranslations = navigationItems;

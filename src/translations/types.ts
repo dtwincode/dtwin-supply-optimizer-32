@@ -63,7 +63,7 @@ export type InventoryTranslations = {
   nodesDescription: TranslationValue;
   linksDescription: TranslationValue;
   networkHelp: TranslationValue;
-  classification?: {
+  classification: {
     title: TranslationValue;
     description: TranslationValue;
   };
@@ -88,13 +88,22 @@ export type NavigationItems = {
 
 export type Translations = {
   navigationItems: NavigationItems;
+  dashboardMetrics: any;
+  financialMetrics: any;
+  sustainabilityMetrics: any;
+  modulesSummary: any;
+  common: CommonTranslations;
+  executiveSummary: any;
+  sales: any;
+  supplyPlanning: any;
+  ddsop: any;
+  marketing: any;
   inventory: InventoryTranslations;
 };
 
 // Adding missing types
 export type CommonTranslations = {
-  // Common translations
-  [key: string]: TranslationValue;
+  [key: string]: TranslationValue | any;
 };
 
 export type DashboardMetrics = {
@@ -102,7 +111,7 @@ export type DashboardMetrics = {
 };
 
 export type ExecutiveSummary = {
-  [key: string]: TranslationValue;
+  [key: string]: TranslationValue | any;
 };
 
 export type FinancialMetrics = {
@@ -114,7 +123,7 @@ export type PaginationTranslations = {
 };
 
 export type SupplyPlanningTranslations = {
-  [key: string]: TranslationValue;
+  [key: string]: TranslationValue | any;
 };
 
 export type SustainabilityMetrics = {
@@ -130,5 +139,5 @@ export type ModulesSummary = {
 };
 
 export type MarketingTranslations = {
-  [key: string]: TranslationValue;
+  [key: string]: TranslationValue | any;
 };
