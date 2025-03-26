@@ -4,6 +4,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
 import { ReactNode } from "react";
 import { ClassificationTab } from "./ClassificationTab";
+import { BufferManagementTab } from "./BufferManagementTab";
+import { DecouplingTab } from "./DecouplingTab";
 
 interface InventoryTabsProps {
   defaultValue?: string;
@@ -33,20 +35,10 @@ export function InventoryTabs({ defaultValue = "inventory", children }: Inventor
         {children}
       </TabsContent>
       <TabsContent value="buffers">
-        <div className="space-y-4">
-          {/* Buffer Management Component will go here */}
-          <p className="text-muted-foreground p-4">
-            {language === "ar" ? "إدارة مناطق المخزون" : "Buffer Management Component"}
-          </p>
-        </div>
+        <BufferManagementTab />
       </TabsContent>
       <TabsContent value="decoupling">
-        <div className="space-y-4">
-          {/* Decoupling Point Management Component will go here */}
-          <p className="text-muted-foreground p-4">
-            {language === "ar" ? "إدارة نقاط الفصل" : "Decoupling Point Management Component"}
-          </p>
-        </div>
+        <DecouplingTab />
       </TabsContent>
       <TabsContent value="classification">
         <ClassificationTab />

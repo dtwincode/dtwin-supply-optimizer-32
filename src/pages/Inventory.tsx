@@ -142,7 +142,7 @@ const Inventory = () => {
   const handleDecouplingPointSuccess = () => {
     toast({
       title: getTranslation("common.success", language),
-      description: language === 'ar' ? "تم ت��ديث إعدادات نقطة الفصل بنجاح" : "Decoupling point configuration updated successfully",
+      description: language === 'ar' ? "تم تحديث إعدادات نقطة الفصل بنجاح" : "Decoupling point configuration updated successfully",
     });
     setDialogOpen(false);
   };
