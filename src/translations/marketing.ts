@@ -8,7 +8,7 @@ export const marketingTranslations: MarketingTranslations = {
   },
   dashboard: {
     en: "Dashboard",
-    ar: "لوحة القيادة"
+    ar: "لوحة المعلومات"
   },
   calendar: {
     en: "Calendar",
@@ -20,18 +20,118 @@ export const marketingTranslations: MarketingTranslations = {
   },
   forecastImpact: {
     en: "Forecast Impact",
-    ar: "تأثير التنبؤ"
+    ar: "تأثير التوقعات"
   },
   campaignPerformance: {
     en: "Campaign Performance",
     ar: "أداء الحملة"
   },
+  leadGeneration: {
+    en: "Lead Generation",
+    ar: "توليد العملاء المحتملين"
+  },
+  customerEngagement: {
+    en: "Customer Engagement",
+    ar: "مشاركة العملاء"
+  },
+  brandAwareness: {
+    en: "Brand Awareness",
+    ar: "الوعي بالعلامة التجارية"
+  },
+  marketingRoi: {
+    en: "Marketing ROI",
+    ar: "عائد الاستثمار التسويقي"
+  },
+  websiteTraffic: {
+    en: "Website Traffic",
+    ar: "حركة المرور على الموقع"
+  },
+  conversionRates: {
+    en: "Conversion Rates",
+    ar: "معدلات التحويل"
+  },
+  socialMediaEngagement: {
+    en: "Social Media Engagement",
+    ar: "مشاركة وسائل التواصل الاجتماعي"
+  },
+  emailMarketingPerformance: {
+    en: "Email Marketing Performance",
+    ar: "أداء التسويق عبر البريد الإلكتروني"
+  },
+  contentMarketingEffectiveness: {
+    en: "Content Marketing Effectiveness",
+    ar: "فعالية التسويق بالمحتوى"
+  },
+  seoPerformance: {
+    en: "SEO Performance",
+    ar: "أداء تحسين محركات البحث"
+  },
+  paidAdvertisingRoi: {
+    en: "Paid Advertising ROI",
+    ar: "عائد الاستثمار في الإعلانات المدفوعة"
+  },
+  marketingAttribution: {
+    en: "Marketing Attribution",
+    ar: "نسب التسويق"
+  },
+  customerSegmentation: {
+    en: "Customer Segmentation",
+    ar: "تقسيم العملاء"
+  },
+  marketingAutomation: {
+    en: "Marketing Automation",
+    ar: "أتمتة التسويق"
+  },
+  marketingTechnology: {
+    en: "Marketing Technology",
+    ar: "تكنولوجيا التسويق"
+  },
+  marketingBudgetAllocation: {
+    en: "Marketing Budget Allocation",
+    ar: "تخصيص ميزانية التسويق"
+  },
+  marketingTeamProductivity: {
+    en: "Marketing Team Productivity",
+    ar: "إنتاجية فريق التسويق"
+  },
+  competitiveAnalysis: {
+    en: "Competitive Analysis",
+    ar: "تحليل المنافسة"
+  },
+  marketTrends: {
+    en: "Market Trends",
+    ar: "اتجاهات السوق"
+  },
+  customerInsights: {
+    en: "Customer Insights",
+    ar: "رؤى العملاء"
+  },
+  marketingInnovation: {
+    en: "Marketing Innovation",
+    ar: "ابتكار التسويق"
+  },
+  brandReputation: {
+    en: "Brand Reputation",
+    ar: "سمعة العلامة التجارية"
+  },
+  customerLoyalty: {
+    en: "Customer Loyalty",
+    ar: "ولاء العملاء"
+  },
+  marketingCompliance: {
+    en: "Marketing Compliance",
+    ar: "الامتثال التسويقي"
+  },
+  marketingEthics: {
+    en: "Marketing Ethics",
+    ar: "أخلاقيات التسويق"
+  },
   averageROI: {
     en: "Average ROI",
-    ar: "متوسط العائد على الاستثمار"
+    ar: "متوسط عائد الاستثمار"
   },
   avgDemandImpact: {
-    en: "Avg. Demand Impact",
+    en: "Avg Demand Impact",
     ar: "متوسط تأثير الطلب"
   },
   conversionRate: {
@@ -40,7 +140,7 @@ export const marketingTranslations: MarketingTranslations = {
   },
   roi: {
     en: "ROI",
-    ar: "العائد على الاستثمار"
+    ar: "عائد الاستثمار"
   },
   demandImpact: {
     en: "Demand Impact",
@@ -63,8 +163,8 @@ export const marketingTranslations: MarketingTranslations = {
     ar: "متوسط الارتفاع"
   },
   campaignForecastDescription: {
-    en: "Campaigns improve forecast accuracy by reducing uncertainty in demand planning",
-    ar: "تحسن الحملات دقة التنبؤ من خلال تقليل عدم اليقين في تخطيط الطلب"
+    en: "Impact of marketing campaigns on demand forecast",
+    ar: "تأثير الحملات التسويقية على توقعات الطلب"
   },
   supplyChainIntegration: {
     en: "Supply Chain Integration",
@@ -80,7 +180,7 @@ export const marketingTranslations: MarketingTranslations = {
   },
   supply: {
     en: "Supply",
-    ar: "العرض"
+    ar: "التوريد"
   },
   inventoryAlerts: {
     en: "Inventory Alerts",
@@ -92,11 +192,11 @@ export const marketingTranslations: MarketingTranslations = {
   },
   supplyRequirements: {
     en: "Supply Requirements",
-    ar: "متطلبات العرض"
+    ar: "متطلبات التوريد"
   },
   leadTime: {
     en: "Lead Time",
-    ar: "وقت التسليم"
+    ar: "وقت التوريد"
   },
   marketingMetrics: {
     campaignROI: {
@@ -134,11 +234,11 @@ export const marketingTranslations: MarketingTranslations = {
   },
   improving: {
     en: "Improving",
-    ar: "تحسن"
+    ar: "يتحسن"
   },
   declining: {
     en: "Declining",
-    ar: "تراجع"
+    ar: "يتراجع"
   },
   stable: {
     en: "Stable",

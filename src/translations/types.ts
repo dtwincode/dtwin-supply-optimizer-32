@@ -1,3 +1,4 @@
+
 export type Language = 'en' | 'ar';
 
 export interface Translation {
@@ -450,6 +451,21 @@ export interface DDSOPTranslations {
   customerCentricity: Translation;
   dataDrivenDecisionMaking: Translation;
   continuousImprovement: Translation;
+  // Add the properties needed for getStatusBadge and getTrendIcon
+  onTrack: Translation;
+  warning: Translation;
+  alert: Translation;
+  upcoming: Translation;
+  standby: Translation;
+  pendingAction: Translation;
+  inAssessment: Translation;
+  monitored: Translation;
+  improving: Translation;
+  declining: Translation;
+  stable: Translation;
+  highImpact: Translation;
+  mediumImpact: Translation;
+  lowImpact: Translation;
 }
 
 export interface ZonesTranslations {
@@ -558,6 +574,7 @@ export interface MarketingTranslations {
   customerLoyalty: Translation;
   marketingCompliance: Translation;
   marketingEthics: Translation;
+  // Add the missing properties
   marketingModule: Translation;
   dashboard: Translation;
   calendar: Translation;

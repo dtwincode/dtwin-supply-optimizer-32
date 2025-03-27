@@ -2,27 +2,108 @@
 import { SupplyPlanningTranslations } from '../types';
 
 export const supplyPlanningTranslations: SupplyPlanningTranslations = {
+  demandForecasting: {
+    en: "Demand Forecasting",
+    ar: "التنبؤ بالطلب"
+  },
+  inventoryOptimization: {
+    en: "Inventory Optimization",
+    ar: "تحسين المخزون"
+  },
+  productionPlanning: {
+    en: "Production Planning",
+    ar: "تخطيط الإنتاج"
+  },
+  capacityManagement: {
+    en: "Capacity Management",
+    ar: "إدارة السعة"
+  },
+  supplyChainVisibility: {
+    en: "Supply Chain Visibility",
+    ar: "رؤية سلسلة التوريد"
+  },
+  riskManagement: {
+    en: "Risk Management",
+    ar: "إدارة المخاطر"
+  },
+  supplierCollaboration: {
+    en: "Supplier Collaboration",
+    ar: "التعاون مع الموردين"
+  },
+  sAndOpPlanning: {
+    en: "S&OP Planning",
+    ar: "تخطيط المبيعات والعمليات"
+  },
+  scenarioPlanning: {
+    en: "Scenario Planning",
+    ar: "تخطيط السيناريو"
+  },
+  performanceMonitoring: {
+    en: "Performance Monitoring",
+    ar: "مراقبة الأداء"
+  },
+  demandPlanningAccuracy: {
+    en: "Demand Planning Accuracy",
+    ar: "دقة تخطيط الطلب"
+  },
+  inventoryCarryingCost: {
+    en: "Inventory Carrying Cost",
+    ar: "تكلفة حمل المخزون"
+  },
+  productionCycleTime: {
+    en: "Production Cycle Time",
+    ar: "وقت دورة الإنتاج"
+  },
+  capacityUtilizationRate: {
+    en: "Capacity Utilization Rate",
+    ar: "معدل استخدام السعة"
+  },
+  supplyChainLeadTime: {
+    en: "Supply Chain Lead Time",
+    ar: "وقت التوريد في سلسلة التوريد"
+  },
+  supplierOnTimeDelivery: {
+    en: "Supplier On-Time Delivery",
+    ar: "تسليم المورد في الوقت المحدد"
+  },
+  forecastErrorRate: {
+    en: "Forecast Error Rate",
+    ar: "معدل خطأ التنبؤ"
+  },
+  inventoryObsolescenceRate: {
+    en: "Inventory Obsolescence Rate",
+    ar: "معدل تقادم المخزون"
+  },
+  productionScheduleAdherence: {
+    en: "Production Schedule Adherence",
+    ar: "الالتزام بجدول الإنتاج"
+  },
+  supplyChainDisruptionFrequency: {
+    en: "Supply Chain Disruption Frequency",
+    ar: "تكرار اضطراب سلسلة التوريد"
+  },
+  // Add the rest of the required properties
   tabs: {
     recommendedOrders: {
-      en: "Smart Recommendations",
-      ar: "التوصيات الذكية"
+      en: "Recommended Orders",
+      ar: "الطلبات الموصى بها"
     },
     purchaseOrders: {
       en: "Purchase Orders",
       ar: "أوامر الشراء"
     },
     supplierManagement: {
-      en: "Supplier Network",
-      ar: "شبكة الموردين"
+      en: "Supplier Management",
+      ar: "إدارة الموردين"
     },
     leadTimeManagement: {
-      en: "Lead Time Analytics",
-      ar: "تحليلات وقت التوريد"
+      en: "Lead Time Management",
+      ar: "إدارة وقت التوريد"
     }
   },
   searchItems: {
-    en: "Search items, suppliers, or orders...",
-    ar: "البحث عن العناصر أو الموردين أو الطلبات..."
+    en: "Search Items",
+    ar: "البحث عن العناصر"
   },
   supplier: {
     en: "Supplier",
@@ -89,7 +170,7 @@ export const supplyPlanningTranslations: SupplyPlanningTranslations = {
     ar: "وقت التوريد"
   },
   days: {
-    en: "days",
+    en: "Days",
     ar: "أيام"
   },
   creating: {
@@ -101,8 +182,8 @@ export const supplyPlanningTranslations: SupplyPlanningTranslations = {
     ar: "إنشاء أمر شراء"
   },
   noRecommendedOrders: {
-    en: "No recommended orders at this time. Your supply chain is optimized!",
-    ar: "لا توجد طلبات موصى بها في الوقت الحالي. سلسلة التوريد الخاصة بك محسنة!"
+    en: "No recommended orders at this time",
+    ar: "لا توجد طلبات موصى بها في هذا الوقت"
   },
   notifications: {
     poCreated: {
@@ -110,49 +191,49 @@ export const supplyPlanningTranslations: SupplyPlanningTranslations = {
       ar: "تم إنشاء أمر الشراء"
     },
     poCreatedDesc: {
-      en: "Purchase order has been successfully created and sent to supplier.",
-      ar: "تم إنشاء أمر الشراء بنجاح وإرساله إلى المورد."
+      en: "Purchase order has been created successfully",
+      ar: "تم إنشاء أمر الشراء بنجاح"
     },
     poError: {
       en: "Error Creating Purchase Order",
       ar: "خطأ في إنشاء أمر الشراء"
     },
     poErrorDesc: {
-      en: "There was an error creating the purchase order. Please try again.",
-      ar: "حدث خطأ أثناء إنشاء أمر الشراء. يرجى المحاولة مرة أخرى."
+      en: "There was an error creating the purchase order",
+      ar: "حدث خطأ أثناء إنشاء أمر الشراء"
     },
     poUpdated: {
       en: "Purchase Order Updated",
       ar: "تم تحديث أمر الشراء"
     },
     poUpdatedDesc: {
-      en: "Purchase order has been successfully updated.",
-      ar: "تم تحديث أمر الشراء بنجاح."
+      en: "Purchase order has been updated successfully",
+      ar: "تم تحديث أمر الشراء بنجاح"
     }
   },
   avgLeadTime: {
-    en: "Average Lead Time",
+    en: "Avg Lead Time",
     ar: "متوسط وقت التوريد"
   },
   leadTimeVariability: {
     en: "Lead Time Variability",
-    ar: "تغير وقت التوريد"
+    ar: "تباين وقت التوريد"
   },
   leadTimeReliability: {
-    en: "On-Time Delivery Rate",
-    ar: "معدل التسليم في الوقت المحدد"
+    en: "Lead Time Reliability",
+    ar: "موثوقية وقت التوريد"
   },
   acrossAllSuppliers: {
-    en: "across all suppliers",
+    en: "Across All Suppliers",
     ar: "عبر جميع الموردين"
   },
   standardDeviation: {
-    en: "standard deviation",
+    en: "Standard Deviation",
     ar: "الانحراف المعياري"
   },
   ordersOnTime: {
-    en: "orders delivered on time",
-    ar: "الطلبات التي تم تسليمها في الوقت المحدد"
+    en: "Orders On Time",
+    ar: "الطلبات في الوقت المحدد"
   },
   fromLastMonth: {
     en: "from last month",
@@ -160,15 +241,15 @@ export const supplyPlanningTranslations: SupplyPlanningTranslations = {
   },
   generateRecommendations: {
     en: "Generate Recommendations",
-    ar: "توليد التوصيات"
+    ar: "إنشاء التوصيات"
   },
   leadTimeCalculations: {
-    en: "Lead Time Analysis",
-    ar: "تحليل وقت التوريد"
+    en: "Lead Time Calculations",
+    ar: "حسابات وقت التوريد"
   },
   leadTimeCalculationsDesc: {
-    en: "Analyze supplier lead times and identify optimization opportunities",
-    ar: "تحليل أوقات التوريد للموردين وتحديد فرص التحسين"
+    en: "How lead times are calculated and categorized",
+    ar: "كيف يتم حساب وتصنيف أوقات التوريد"
   },
   leadTimeCategories: {
     en: "Lead Time Categories",
@@ -176,23 +257,23 @@ export const supplyPlanningTranslations: SupplyPlanningTranslations = {
   },
   variabilityLevels: {
     en: "Variability Levels",
-    ar: "مستويات التغير"
+    ar: "مستويات التباين"
   },
   ddmrpImpact: {
-    en: "DDMRP Buffer Impact",
-    ar: "تأثير مخزون DDMRP"
+    en: "DDMRP Impact",
+    ar: "تأثير DDMRP"
   },
   moduleDescription: {
-    en: "Optimize your supply chain with AI-powered planning, real-time visibility, and automated replenishment recommendations",
-    ar: "تحسين سلسلة التوريد الخاصة بك باستخدام التخطيط المدعوم بالذكاء الاصطناعي والرؤية في الوقت الفعلي وتوصيات إعادة التزويد الآلية"
+    en: "Supply planning and inventory optimization",
+    ar: "تخطيط التوريد وتحسين المخزون"
   },
   recommendedOrders: {
     en: "Recommended Orders",
     ar: "الطلبات الموصى بها"
   },
   recommendedOrdersDesc: {
-    en: "AI-generated replenishment recommendations based on current inventory levels and demand patterns",
-    ar: "توصيات إعادة التزويد المولدة بالذكاء الاصطناعي بناءً على مستويات المخزون الحالية وأنماط الطلب"
+    en: "Orders generated based on DDMRP buffer status",
+    ar: "الطلبات المنشأة بناءً على حالة مخزون DDMRP"
   },
   all: {
     en: "All",
@@ -203,18 +284,17 @@ export const supplyPlanningTranslations: SupplyPlanningTranslations = {
     ar: "تحديث"
   },
   purchaseOrdersDesc: {
-    en: "Track and manage purchase orders across your supply chain",
-    ar: "تتبع وإدارة أوامر الشراء عبر سلسلة التوريد الخاصة بك"
+    en: "Manage and track pending and recent purchase orders",
+    ar: "إدارة وتتبع أوامر الشراء المعلقة والحديثة"
   },
   supplierManagementDesc: {
-    en: "Manage supplier relationships and monitor performance metrics",
-    ar: "إدارة علاقات الموردين ومراقبة مؤشرات الأداء"
+    en: "Supplier performance and relationship management",
+    ar: "أداء المورد وإدارة العلاقات"
   },
   leadTimeManagementDesc: {
-    en: "Analyze lead time patterns and optimize your supply chain planning",
-    ar: "تحليل أنماط وقت التوريد وتحسين تخطيط سلسلة التوريد"
+    en: "Monitor and optimize supplier lead times",
+    ar: "مراقبة وتحسين أوقات توريد الموردين"
   },
-  // Purchase order tab translations
   poNumber: {
     en: "PO Number",
     ar: "رقم أمر الشراء"
@@ -249,7 +329,7 @@ export const supplyPlanningTranslations: SupplyPlanningTranslations = {
   },
   markAsReceived: {
     en: "Mark as Received",
-    ar: "تحديد كمستلم"
+    ar: "وضع علامة كمستلم"
   },
   cancel: {
     en: "Cancel",
@@ -280,14 +360,13 @@ export const supplyPlanningTranslations: SupplyPlanningTranslations = {
     ar: "ملاحظات"
   },
   notesPlaceholder: {
-    en: "Enter any additional information about this order",
-    ar: "أدخل أي معلومات إضافية حول هذا الطلب"
+    en: "Add any special instructions or notes",
+    ar: "أضف أي تعليمات أو ملاحظات خاصة"
   },
   update: {
     en: "Update",
     ar: "تحديث"
   },
-  // Supplier management tab translations
   onTimeDelivery: {
     en: "On-Time Delivery",
     ar: "التسليم في الوقت المحدد"
@@ -306,7 +385,7 @@ export const supplyPlanningTranslations: SupplyPlanningTranslations = {
   },
   activeSuppliers: {
     en: "Active Suppliers",
-    ar: "الموردون النشطون"
+    ar: "الموردين النشطين"
   },
   totalSuppliers: {
     en: "Total Suppliers",
@@ -314,11 +393,11 @@ export const supplyPlanningTranslations: SupplyPlanningTranslations = {
   },
   supplierPerformanceComparison: {
     en: "Supplier Performance Comparison",
-    ar: "مقارنة أداء الموردين"
+    ar: "مقارنة أداء المورد"
   },
   supplierPerformanceDesc: {
-    en: "Compare key performance metrics across your supplier network",
-    ar: "قارن مقاييس الأداء الرئيسية عبر شبكة الموردين الخاصة بك"
+    en: "Compare supplier performance metrics",
+    ar: "مقارنة مقاييس أداء المورد"
   },
   metrics: {
     reliability: {
@@ -343,8 +422,8 @@ export const supplyPlanningTranslations: SupplyPlanningTranslations = {
     ar: "قائمة الموردين"
   },
   supplierListDesc: {
-    en: "View and manage your supplier network",
-    ar: "عرض وإدارة شبكة الموردين الخاصة بك"
+    en: "View and manage supplier information",
+    ar: "عرض وإدارة معلومات المورد"
   },
   supplierName: {
     en: "Supplier Name",
@@ -372,32 +451,31 @@ export const supplyPlanningTranslations: SupplyPlanningTranslations = {
   },
   contact: {
     en: "Contact",
-    ar: "الاتصال"
+    ar: "اتصال"
   },
-  // Lead time management tab translations
   leadTimeTrends: {
     en: "Lead Time Trends",
     ar: "اتجاهات وقت التوريد"
   },
   sixMonthTrend: {
-    en: "Six-month trend analysis",
-    ar: "تحليل الاتجاه لستة أشهر"
+    en: "6-Month Trend",
+    ar: "اتجاه 6 أشهر"
   },
   minLeadTime: {
-    en: "Minimum Lead Time",
+    en: "Min Lead Time",
     ar: "الحد الأدنى لوقت التوريد"
   },
   maxLeadTime: {
-    en: "Maximum Lead Time",
+    en: "Max Lead Time",
     ar: "الحد الأقصى لوقت التوريد"
   },
   skuLeadTimes: {
     en: "SKU Lead Times",
-    ar: "أوقات توريد الأصناف"
+    ar: "أوقات توريد وحدات التخزين"
   },
   skuLeadTimesDesc: {
-    en: "Analyze lead time performance by product",
-    ar: "تحليل أداء وقت التوريد حسب المنتج"
+    en: "Lead time analysis by product category",
+    ar: "تحليل وقت التوريد حسب فئة المنتج"
   },
   leadTimeDays: {
     en: "Lead Time (Days)",
@@ -405,7 +483,7 @@ export const supplyPlanningTranslations: SupplyPlanningTranslations = {
   },
   variability: {
     en: "Variability",
-    ar: "التغير"
+    ar: "التباين"
   },
   trend: {
     en: "Trend",
@@ -420,16 +498,16 @@ export const supplyPlanningTranslations: SupplyPlanningTranslations = {
     ar: "تحسين وقت التوريد"
   },
   leadTimeOptimizationDesc: {
-    en: "Strategies to reduce and stabilize supplier lead times",
-    ar: "استراتيجيات لتقليل واستقرار أوقات التوريد من الموردين"
+    en: "Strategies for lead time compression",
+    ar: "استراتيجيات لضغط وقت التوريد"
   },
   riskAnalysis: {
     en: "Risk Analysis",
     ar: "تحليل المخاطر"
   },
   riskAnalysisDesc: {
-    en: "Identify supply chain vulnerabilities and mitigate risks",
-    ar: "تحديد نقاط الضعف في سلسلة التوريد وتخفيف المخاطر"
+    en: "Risk assessment for lead time variability",
+    ar: "تقييم المخاطر لتباين وقت التوريد"
   },
   runAnalysis: {
     en: "Run Analysis",
@@ -440,7 +518,7 @@ export const supplyPlanningTranslations: SupplyPlanningTranslations = {
     ar: "تقليل وقت التوريد"
   },
   leadTimeReductionDesc: {
-    en: "AI-powered recommendations to optimize supplier lead times",
-    ar: "توصيات مدعومة بالذكاء الاصطناعي لتحسين أوقات التوريد من الموردين"
+    en: "Opportunities for lead time reduction",
+    ar: "فرص تقليل وقت التوريد"
   }
 };
