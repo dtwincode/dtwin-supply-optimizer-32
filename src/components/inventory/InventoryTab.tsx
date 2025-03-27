@@ -1,7 +1,6 @@
 
 import { useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { useI18n } from "@/contexts/I18nContext";
 import { InventoryTableHeader } from "./InventoryTableHeader";
 import { BufferStatusBadge } from "./BufferStatusBadge";

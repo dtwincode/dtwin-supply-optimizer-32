@@ -1,7 +1,5 @@
 
-import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslation } from "@/translations";
-import { zonesTranslations } from "@/translations/common/zones";
+import { useI18n } from "@/contexts/I18nContext";
 
 interface BufferVisualizerProps {
   netFlowPosition: number;
@@ -14,7 +12,7 @@ interface BufferVisualizerProps {
 }
 
 export const BufferVisualizer = ({ netFlowPosition, bufferZones, adu }: BufferVisualizerProps) => {
-  const { language } = useLanguage();
+  const { t } = useI18n();
   const totalBuffer = bufferZones.red + bufferZones.yellow + bufferZones.green;
   
   // Calculate percentages for visualization
@@ -31,17 +29,17 @@ export const BufferVisualizer = ({ netFlowPosition, bufferZones, adu }: BufferVi
         <div 
           className="h-3 bg-red-500 rounded-l" 
           style={{ width: `${redPercent}%` }}
-          title={`${zonesTranslations.red[language]}: ${bufferZones.red}`}
+          title={`${t("common.zones.red")}: ${bufferZones.red}`}
         ></div>
         <div 
           className="h-3 bg-yellow-500" 
           style={{ width: `${yellowPercent}%` }}
-          title={`${zonesTranslations.yellow[language]}: ${bufferZones.yellow}`}
+          title={`${t("common.zones.yellow")}: ${bufferZones.yellow}`}
         ></div>
         <div 
           className="h-3 bg-green-500 rounded-r" 
           style={{ width: `${greenPercent}%` }}
-          title={`${zonesTranslations.green[language]}: ${bufferZones.green}`}
+          title={`${t("common.zones.green")}: ${bufferZones.green}`}
         ></div>
       </div>
       
@@ -49,7 +47,7 @@ export const BufferVisualizer = ({ netFlowPosition, bufferZones, adu }: BufferVi
         <div 
           className="absolute top-0 h-3 w-1 bg-black rounded-full transform -translate-y-1" 
           style={{ left: `${netFlowPercent}%` }}
-          title={`${getTranslation("common.inventory.netFlowPosition", language)}: ${netFlowPosition}`}
+          title={`${t("common.inventory.netFlowPosition")}: ${netFlowPosition}`}
         ></div>
       </div>
       

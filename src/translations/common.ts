@@ -25,18 +25,11 @@ export const commonTranslations: CommonTranslations = {
   skus: { en: "SKUs", ar: "وحدات التخزين" },
   create: { en: "Create", ar: "إنشاء" },
   
-  // Individual translations
-  zones: { en: "Zones", ar: "المناطق" },
+  // Zone translations
+  zones: zonesTranslations,
   
   // Individual inventory translations
-  inventoryTitle: inventoryTranslations.inventoryTitle,
-  bufferZones: inventoryTranslations.bufferZones,
-  skuClassification: inventoryTranslations.skuClassification,
-  leadTime: inventoryTranslations.leadTime,
-  replenishmentOrders: inventoryTranslations.replenishmentOrders,
-  bufferStatus: inventoryTranslations.bufferStatus,
-  netFlowPosition: inventoryTranslations.netFlowPosition,
-  inventorySummary: inventoryTranslations.inventorySummary,
+  inventory: inventoryTranslations,
   
   // Chart translations
   chartTitles: { en: "Chart Titles", ar: "عناوين الرسوم البيانية" },
@@ -76,5 +69,7 @@ export const commonTranslations: CommonTranslations = {
   thisQuarter: { en: "this quarter", ar: "هذا الربع" },
   fromLastMonth: { en: "from last month", ar: "من الشهر الماضي" },
   fromLastWeek: { en: "from last week", ar: "من الأسبوع الماضي" },
-  viewDetails: { en: "View Details", ar: "عرض التفاصيل" }
+  viewDetails: { en: "View Details", ar: "عرض التفاصيل" },
+  purchaseOrderCreated: { en: "Purchase order created successfully", ar: "تم إنشاء طلب الشراء بنجاح" },
+  refresh: { en: "Refresh", ar: "تحديث" }
 };

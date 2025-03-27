@@ -26,10 +26,12 @@ import { Badge } from "@/components/ui/badge";
 import { BufferProfile } from "@/types/inventory";
 import { getActiveBufferConfig } from "@/services/inventoryService";
 import { BufferVisualizer } from "./BufferVisualizer";
+import { useI18n } from "@/contexts/I18nContext";
 
 export const BufferManagementTab = () => {
   const { profiles, loading, fetchProfiles, createOrUpdateProfile } = useBufferProfiles();
   const { toast } = useToast();
+  const { t } = useI18n();
   const [selectedProfile, setSelectedProfile] = useState<BufferProfile | undefined>(undefined);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [activeConfig, setActiveConfig] = useState<any>(null);
@@ -45,8 +47,8 @@ export const BufferManagementTab = () => {
       } catch (error) {
         console.error('Error fetching active buffer configuration:', error);
         toast({
-          title: "Error",
-          description: "Failed to load buffer configuration",
+          title: t("common.error"),
+          description: t("common.inventory.errorLoadingConfig"),
           variant: "destructive",
         });
       } finally {
@@ -55,7 +57,7 @@ export const BufferManagementTab = () => {
     };
 
     fetchActiveConfig();
-  }, [toast]);
+  }, [toast, t]);
 
   const handleEditProfile = (profile: BufferProfile) => {
     setSelectedProfile(profile);
@@ -70,26 +72,26 @@ export const BufferManagementTab = () => {
   const handleSuccess = () => {
     fetchProfiles();
     toast({
-      title: "Success",
-      description: "Buffer profile saved successfully",
+      title: t("common.success"),
+      description: t("common.inventory.bufferProfileSaved"),
     });
   };
 
   const getVariabilityLabel = (factor: string) => {
     switch (factor) {
-      case 'high_variability': return { label: 'High', color: 'bg-red-500' };
-      case 'medium_variability': return { label: 'Medium', color: 'bg-yellow-500' };
-      case 'low_variability': return { label: 'Low', color: 'bg-green-500' };
-      default: return { label: 'Unknown', color: 'bg-gray-500' };
+      case 'high_variability': return { label: t("common.inventory.high"), color: 'bg-red-500' };
+      case 'medium_variability': return { label: t("common.inventory.medium"), color: 'bg-yellow-500' };
+      case 'low_variability': return { label: t("common.inventory.low"), color: 'bg-green-500' };
+      default: return { label: t("common.inventory.unknown"), color: 'bg-gray-500' };
     }
   };
 
   const getLeadTimeLabel = (factor: string) => {
     switch (factor) {
-      case 'long': return { label: 'Long', color: 'bg-red-500' };
-      case 'medium': return { label: 'Medium', color: 'bg-yellow-500' };
-      case 'short': return { label: 'Short', color: 'bg-green-500' };
-      default: return { label: 'Unknown', color: 'bg-gray-500' };
+      case 'long': return { label: t("common.inventory.long"), color: 'bg-red-500' };
+      case 'medium': return { label: t("common.inventory.medium"), color: 'bg-yellow-500' };
+      case 'short': return { label: t("common.inventory.short"), color: 'bg-green-500' };
+      default: return { label: t("common.inventory.unknown"), color: 'bg-gray-500' };
     }
   };
 
@@ -97,9 +99,9 @@ export const BufferManagementTab = () => {
     <Card className="col-span-2">
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Buffer Management</CardTitle>
+          <CardTitle>{t("common.inventory.bufferManagement")}</CardTitle>
           <CardDescription>
-            Configure buffer profiles and manage buffer parameters
+            {t("common.inventory.bufferManagementDesc")}
           </CardDescription>
         </div>
         <div className="flex gap-2">
@@ -109,23 +111,23 @@ export const BufferManagementTab = () => {
             onClick={() => fetchProfiles()}
           >
             <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh
+            {t("common.refresh")}
           </Button>
           <Button 
             size="sm" 
             onClick={handleCreateProfile}
           >
             <PlusCircle className="h-4 w-4 mr-2" />
-            Create Buffer Profile
+            {t("common.inventory.createBufferProfile")}
           </Button>
         </div>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="profiles" className="space-y-4">
           <TabsList>
-            <TabsTrigger value="profiles">Buffer Profiles</TabsTrigger>
-            <TabsTrigger value="config">Buffer Configuration</TabsTrigger>
-            <TabsTrigger value="simulation">Buffer Simulation</TabsTrigger>
+            <TabsTrigger value="profiles">{t("common.inventory.bufferProfiles")}</TabsTrigger>
+            <TabsTrigger value="config">{t("common.inventory.bufferConfiguration")}</TabsTrigger>
+            <TabsTrigger value="simulation">{t("common.inventory.bufferSimulation")}</TabsTrigger>
           </TabsList>
           
           <TabsContent value="profiles" className="space-y-4">
@@ -137,20 +139,20 @@ export const BufferManagementTab = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[200px]">Name</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Variability</TableHead>
-                    <TableHead>Lead Time</TableHead>
-                    <TableHead>MOQ</TableHead>
-                    <TableHead>Lot Size Factor</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead className="w-[200px]">{t("common.inventory.name")}</TableHead>
+                    <TableHead>{t("common.inventory.description")}</TableHead>
+                    <TableHead>{t("common.inventory.variabilityLevel")}</TableHead>
+                    <TableHead>{t("common.inventory.leadTime")}</TableHead>
+                    <TableHead>{t("common.inventory.moq")}</TableHead>
+                    <TableHead>{t("common.inventory.lotSizeFactor")}</TableHead>
+                    <TableHead>{t("common.inventory.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {profiles.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                        No buffer profiles found. Create one to get started.
+                        {t("common.inventory.noBufferProfiles")}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -180,7 +182,7 @@ export const BufferManagementTab = () => {
                               size="sm" 
                               onClick={() => handleEditProfile(profile)}
                             >
-                              Edit
+                              {t("common.edit")}
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -202,20 +204,20 @@ export const BufferManagementTab = () => {
                 <div className="grid grid-cols-3 gap-4">
                   <Card>
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium">Lead Time Factors</CardTitle>
+                      <CardTitle className="text-sm font-medium">{t("common.inventory.leadTimeFactors")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Short</span>
+                          <span className="text-sm text-muted-foreground">{t("common.inventory.short")}</span>
                           <span className="font-medium">{activeConfig?.shortLeadTimeFactor || "-"}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Medium</span>
+                          <span className="text-sm text-muted-foreground">{t("common.inventory.medium")}</span>
                           <span className="font-medium">{activeConfig?.mediumLeadTimeFactor || "-"}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Long</span>
+                          <span className="text-sm text-muted-foreground">{t("common.inventory.long")}</span>
                           <span className="font-medium">{activeConfig?.longLeadTimeFactor || "-"}</span>
                         </div>
                       </div>
@@ -224,20 +226,20 @@ export const BufferManagementTab = () => {
                   
                   <Card>
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium">Lead Time Thresholds (days)</CardTitle>
+                      <CardTitle className="text-sm font-medium">{t("common.inventory.leadTimeThresholds")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Short</span>
+                          <span className="text-sm text-muted-foreground">{t("common.inventory.short")}</span>
                           <span className="font-medium">≤ {activeConfig?.shortLeadTimeThreshold || "-"}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Medium</span>
+                          <span className="text-sm text-muted-foreground">{t("common.inventory.medium")}</span>
                           <span className="font-medium">≤ {activeConfig?.mediumLeadTimeThreshold || "-"}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Long</span>
+                          <span className="text-sm text-muted-foreground">{t("common.inventory.long")}</span>
                           <span className="font-medium">&gt; {activeConfig?.mediumLeadTimeThreshold || "-"}</span>
                         </div>
                       </div>
@@ -246,20 +248,20 @@ export const BufferManagementTab = () => {
                   
                   <Card>
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium">Other Factors</CardTitle>
+                      <CardTitle className="text-sm font-medium">{t("common.inventory.otherFactors")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Replenishment Time</span>
+                          <span className="text-sm text-muted-foreground">{t("common.inventory.replenishmentTime")}</span>
                           <span className="font-medium">{activeConfig?.replenishmentTimeFactor || "-"}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Green Zone</span>
+                          <span className="text-sm text-muted-foreground">{t("common.zones.green")}</span>
                           <span className="font-medium">{activeConfig?.greenZoneFactor || "-"}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Industry</span>
+                          <span className="text-sm text-muted-foreground">{t("common.inventory.industry")}</span>
                           <span className="font-medium capitalize">{activeConfig?.industry?.replace('_', ' ') || "-"}</span>
                         </div>
                       </div>
@@ -273,59 +275,59 @@ export const BufferManagementTab = () => {
           <TabsContent value="simulation">
             <div className="space-y-6">
               <div className="flex flex-col space-y-1.5">
-                <h3 className="text-lg font-semibold">Buffer Simulation</h3>
+                <h3 className="text-lg font-semibold">{t("common.inventory.bufferSimulation")}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Visualize buffer zones based on different parameters
+                  {t("common.inventory.bufferSimulationDesc")}
                 </p>
               </div>
               
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="text-sm font-medium mb-1.5 block">Average Daily Usage (ADU)</label>
+                  <label className="text-sm font-medium mb-1.5 block">{t("common.inventory.adu")}</label>
                   <Select defaultValue="100">
                     <SelectTrigger>
-                      <SelectValue placeholder="Select ADU" />
+                      <SelectValue placeholder={t("common.inventory.selectADU")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="10">10 units/day</SelectItem>
-                      <SelectItem value="50">50 units/day</SelectItem>
-                      <SelectItem value="100">100 units/day</SelectItem>
-                      <SelectItem value="500">500 units/day</SelectItem>
+                      <SelectItem value="10">10 {t("common.inventory.unitsPerDay")}</SelectItem>
+                      <SelectItem value="50">50 {t("common.inventory.unitsPerDay")}</SelectItem>
+                      <SelectItem value="100">100 {t("common.inventory.unitsPerDay")}</SelectItem>
+                      <SelectItem value="500">500 {t("common.inventory.unitsPerDay")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 
                 <div>
-                  <label className="text-sm font-medium mb-1.5 block">Lead Time</label>
+                  <label className="text-sm font-medium mb-1.5 block">{t("common.inventory.leadTime")}</label>
                   <Select defaultValue="14">
                     <SelectTrigger>
-                      <SelectValue placeholder="Select Lead Time" />
+                      <SelectValue placeholder={t("common.inventory.selectLeadTime")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="5">5 days (Short)</SelectItem>
-                      <SelectItem value="14">14 days (Medium)</SelectItem>
-                      <SelectItem value="30">30 days (Long)</SelectItem>
+                      <SelectItem value="5">5 {t("common.inventory.days")} ({t("common.inventory.short")})</SelectItem>
+                      <SelectItem value="14">14 {t("common.inventory.days")} ({t("common.inventory.medium")})</SelectItem>
+                      <SelectItem value="30">30 {t("common.inventory.days")} ({t("common.inventory.long")})</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 
                 <div>
-                  <label className="text-sm font-medium mb-1.5 block">Variability Factor</label>
+                  <label className="text-sm font-medium mb-1.5 block">{t("common.inventory.variabilityFactor")}</label>
                   <Select defaultValue="1.0">
                     <SelectTrigger>
-                      <SelectValue placeholder="Select Variability" />
+                      <SelectValue placeholder={t("common.inventory.selectVariability")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="0.7">Low (0.7)</SelectItem>
-                      <SelectItem value="1.0">Medium (1.0)</SelectItem>
-                      <SelectItem value="1.3">High (1.3)</SelectItem>
+                      <SelectItem value="0.7">{t("common.inventory.low")} (0.7)</SelectItem>
+                      <SelectItem value="1.0">{t("common.inventory.medium")} (1.0)</SelectItem>
+                      <SelectItem value="1.3">{t("common.inventory.high")} (1.3)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
               
               <Card className="p-6">
-                <h4 className="text-sm font-medium mb-4">Simulated Buffer Visualization</h4>
+                <h4 className="text-sm font-medium mb-4">{t("common.inventory.simulatedBufferVisualization")}</h4>
                 <BufferVisualizer 
                   bufferZones={{ red: 1400, yellow: 1400, green: 700 }}
                   netFlowPosition={2100}

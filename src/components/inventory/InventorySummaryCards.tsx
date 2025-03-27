@@ -61,8 +61,8 @@ const InventorySummaryCards = () => {
               <CheckCircle className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs font-medium text-gray-500">{t('common.zones.green')}</p>
-              <p className="text-xl font-bold">45 {t('common.skus')}</p>
+              <p className="text-xs font-medium text-gray-500">{t("common.zones.green")}</p>
+              <p className="text-xl font-bold">45 {t("common.skus")}</p>
             </div>
           </div>
         </Card>
@@ -75,8 +75,8 @@ const InventorySummaryCards = () => {
               <AlertTriangle className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs font-medium text-gray-500">{t('common.zones.yellow')}</p>
-              <p className="text-xl font-bold">28 {t('common.skus')}</p>
+              <p className="text-xs font-medium text-gray-500">{t("common.zones.yellow")}</p>
+              <p className="text-xl font-bold">28 {t("common.skus")}</p>
             </div>
           </div>
         </Card>
@@ -89,8 +89,8 @@ const InventorySummaryCards = () => {
               <Package className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs font-medium text-gray-500">{t('common.zones.red')}</p>
-              <p className="text-xl font-bold">12 {t('common.skus')}</p>
+              <p className="text-xs font-medium text-gray-500">{t("common.zones.red")}</p>
+              <p className="text-xl font-bold">12 {t("common.skus")}</p>
             </div>
           </div>
         </Card>
@@ -103,7 +103,7 @@ const InventorySummaryCards = () => {
               <Waves className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs font-medium text-gray-500">{t('common.inventory.netFlowPosition')}</p>
+              <p className="text-xs font-medium text-gray-500">{t("common.inventory.netFlowPosition")}</p>
               <p className="text-xl font-bold">105 u</p>
             </div>
           </div>
@@ -117,7 +117,7 @@ const InventorySummaryCards = () => {
               <BarChart4 className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs font-medium text-gray-500">{t('common.inventory.adu')}</p>
+              <p className="text-xs font-medium text-gray-500">{t("common.inventory.adu")}</p>
               <p className="text-xl font-bold">24.5 u/d</p>
             </div>
           </div>
@@ -131,7 +131,7 @@ const InventorySummaryCards = () => {
               <ArrowUpCircle className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs font-medium text-gray-500">{t('common.inventory.turnover')}</p>
+              <p className="text-xs font-medium text-gray-500">{t("common.inventory.turnover")}</p>
               <p className="text-xl font-bold">4.2x</p>
             </div>
           </div>
