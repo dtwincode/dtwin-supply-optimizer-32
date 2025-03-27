@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useState, useEffect } from "react";
@@ -12,9 +13,8 @@ import { InventoryTab } from "@/components/inventory/InventoryTab";
 import { InventoryChart } from "@/components/inventory/InventoryChart";
 import { NetworkDecouplingMap } from "@/components/inventory/NetworkDecouplingMap";
 import { inventoryData } from "@/data/inventoryData";
-import { InventoryItem } from "@/types/inventory";
+import { InventoryItem, SKUClassification } from "@/types/inventory";
 import { SKUClassifications } from "@/components/inventory/classification/SKUClassifications";
-import { SKUClassification } from "@/types/inventory";
 import { DecouplingPointDialog } from "@/components/inventory/DecouplingPointDialog";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useLocation, useParams } from "react-router-dom";
