@@ -31,8 +31,8 @@ export type {
   BufferFactorConfig
 } from '../inventory';
 
-// Directly export classification types for easier access
-export type {
+// Make sure all classification types are directly exported for easier access
+export {
   Classification,
   SKUClassification,
   LeadTimeData,
