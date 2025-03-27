@@ -97,7 +97,6 @@ export const inventoryTranslations: InventoryTranslations = {
     en: "Failed to load buffer configuration",
     ar: "فشل في تحميل تكوين المخزون"
   },
-  // Buffer management translations
   bufferManagement: {
     en: "Buffer Management",
     ar: "إدارة المخزون"
@@ -190,7 +189,6 @@ export const inventoryTranslations: InventoryTranslations = {
     en: "days",
     ar: "أيام"
   },
-  // Variability levels
   high: {
     en: "High",
     ar: "مرتفع"
@@ -267,7 +265,7 @@ export const inventoryTranslations: InventoryTranslations = {
     en: "Type",
     ar: "النوع"
   },
-   edit: {
+  edit: {
     en: "Edit",
     ar: "تعديل"
   },
@@ -315,7 +313,7 @@ export const inventoryTranslations: InventoryTranslations = {
     en: "Configure and visualize decoupling points across your supply network",
     ar: "تكوين وتصور نقاط الفصل عبر شبكة التوريد الخاصة بك"
   },
-   strategicInfo: {
+  strategicInfo: {
     en: "Strategic decoupling points are used for long-term planning and strategic inventory positioning",
     ar: "تستخدم نقاط الفصل الاستراتيجية للتخطيط طويل المدى وتحديد موقع المخزون الاستراتيجي"
   },
@@ -433,7 +431,7 @@ export const inventoryTranslations: InventoryTranslations = {
     en: "Analyzing...",
     ar: "جاري التحليل..."
   },
-   analyzeDecouplingPoints: {
+  analyzeDecouplingPoints: {
     en: "Analyze",
     ar: "تحليل"
   },
@@ -496,6 +494,30 @@ export const inventoryTranslations: InventoryTranslations = {
   intermediateDecouplingPoint: {
     en: "Intermediate Point",
     ar: "نقطة وسيطة"
+  },
+  stock: {
+    en: "Stock",
+    ar: "المخزون"
+  },
+  buffer: {
+    en: "Buffer",
+    ar: "المخزون الاحتياطي"
+  },
+  classify: {
+    en: "Classify",
+    ar: "تصنيف"
+  },
+  decouple: {
+    en: "Decouple",
+    ar: "فصل"
+  },
+  netflow: {
+    en: "Net Flow",
+    ar: "التدفق"
+  },
+  ai: {
+    en: "AI",
+    ar: "ذ.ص"
   },
   totalItems: {
     en: "Total Items",
