@@ -1,12 +1,14 @@
 
-import { DashboardMetrics, FinancialMetrics, SustainabilityMetrics, ModulesSummary, TranslationValue } from './types';
+import { Translation } from './types';
 
-export const dashboardTitle: TranslationValue = {
+// Define the dashboard title translation
+export const dashboardTitle: Translation = {
   en: "Supply Chain Dashboard",
   ar: "لوحة تحكم سلسلة التوريد"
 };
 
-export const dashboardMetricsTranslations: DashboardMetrics = {
+// Dashboard metrics translations
+export const dashboardMetricsTranslations = {
   title: {
     en: "Key Metrics",
     ar: "المقاييس الرئيسية"
@@ -29,7 +31,8 @@ export const dashboardMetricsTranslations: DashboardMetrics = {
   }
 };
 
-export const financialMetricsTranslations: FinancialMetrics = {
+// Financial metrics translations
+export const financialMetricsTranslations = {
   title: {
     en: "Financial Performance",
     ar: "الأداء المالي"
@@ -48,7 +51,8 @@ export const financialMetricsTranslations: FinancialMetrics = {
   }
 };
 
-export const sustainabilityMetricsTranslations: SustainabilityMetrics = {
+// Sustainability metrics translations
+export const sustainabilityMetricsTranslations = {
   title: {
     en: "Sustainability",
     ar: "الاستدامة"
@@ -79,7 +83,8 @@ export const sustainabilityMetricsTranslations: SustainabilityMetrics = {
   }
 };
 
-export const modulesSummaryTranslations: ModulesSummary = {
+// Modules summary translations
+export const modulesSummaryTranslations = {
   inventoryManagement: {
     en: "Inventory Management",
     ar: "إدارة المخزون"

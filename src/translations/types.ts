@@ -15,111 +15,44 @@ export interface NavigationTranslations {
   ddsop: Translation;
 }
 
-export interface DashboardTranslations {
-  totalRevenue: Translation;
-  orders: Translation;
-  customers: Translation;
-  averageOrderValue: Translation;
-  topSellingProducts: Translation;
-  revenueByChannel: Translation;
-  customerAcquisitionCost: Translation;
-  customerLifetimeValue: Translation;
-  salesPerformance: Translation;
-  marketingSpend: Translation;
-  websiteTraffic: Translation;
-  conversionRate: Translation;
-  inventoryTurnover: Translation;
-  stockLevels: Translation;
-  supplierPerformance: Translation;
-  leadTime: Translation;
-  productionEfficiency: Translation;
-  capacityUtilization: Translation;
-  transportationCosts: Translation;
-  deliveryPerformance: Translation;
-  customerSatisfaction: Translation;
-  netPromoterScore: Translation;
-  customerRetentionRate: Translation;
-  financialSummary: Translation;
-  environmentalImpact: Translation;
-  socialResponsibility: Translation;
-  governanceCompliance: Translation;
+export interface NavigationItems extends Partial<NavigationTranslations> {
+  dashboard?: Translation;
+  forecasting?: Translation;
+  inventoryClassification?: Translation;
+  salesPlanning?: Translation;
+  returnsManagement?: Translation;
+  reports?: Translation;
+  askAI?: Translation;
+  data?: Translation;
+  guidelines?: Translation;
 }
 
-export interface FinancialMetricsTranslations {
+export interface FinancialMetrics {
+  title: Translation;
   revenue: Translation;
-  grossProfit: Translation;
-  netIncome: Translation;
-  operatingMargin: Translation;
-  currentRatio: Translation;
-  debtToEquityRatio: Translation;
-  returnOnAssets: Translation;
-  earningsPerShare: Translation;
+  operatingCosts: Translation;
+  profitMargin: Translation;
 }
 
-export interface ModulesSummaryTranslations {
-  inventory: Translation;
-  sales: Translation;
-  marketing: Translation;
+export interface DashboardMetrics {
+  title: Translation;
+  totalSKUs: Translation;
+  bufferPenetration: Translation;
+  orderStatus: Translation;
+  flowIndex: Translation;
+}
+
+export interface ModulesSummary {
+  inventoryManagement: Translation;
+  demandForecasting: Translation;
+  salesPlanning: Translation;
+  marketingCampaigns: Translation;
   logistics: Translation;
-  supplyPlanning: Translation;
-  reports: Translation;
-}
-
-export interface CommonTranslations {
-  loading: Translation;
-  noData: Translation;
-  error: Translation;
-  success: Translation;
-  confirm: Translation;
-  back: Translation;
-  next: Translation;
-  submit: Translation;
-  skus: Translation;
-  create: Translation;
-  zones: Translation;
-  inventoryTitle: Translation;
-  bufferZones: Translation;
-  skuClassification: Translation;
-  leadTime: Translation;
-  replenishmentOrders: Translation;
-  bufferStatus: Translation;
-  netFlowPosition: Translation;
-  inventorySummary: Translation;
-  chartTitles: Translation;
-  replenishment: Translation;
-  netFlow: Translation;
-  inventoryTrends: Translation;
-  previous: Translation;
-  page: Translation;
-  of: Translation;
-  perPage: Translation;
-  items: Translation;
-  showing: Translation;
-  to: Translation;
-  settings: Translation;
-  logout: Translation;
-  cancel: Translation;
-  save: Translation;
-  delete: Translation;
-  edit: Translation;
-  search: Translation;
-  filter: Translation;
-  apply: Translation;
-  reset: Translation;
-  modules: Translation;
-  skuCount: Translation;
-  accuracyLabel: Translation;
-  pipelineValue: Translation;
-  activeCampaigns: Translation;
-  onTimeDelivery: Translation;
-  reportCount: Translation;
-  thisQuarter: Translation;
-  fromLastMonth: Translation;
-  fromLastWeek: Translation;
+  reportsAnalytics: Translation;
   viewDetails: Translation;
 }
 
-export interface ExecutiveSummaryTranslations {
+export interface ExecutiveSummary {
   totalRevenue: Translation;
   newCustomers: Translation;
   averageOrderValue: Translation;
@@ -173,80 +106,9 @@ export interface SalesTranslations {
   salesOperations: Translation;
 }
 
-export interface SupplyPlanningTranslations {
-  demandForecasting: Translation;
-  inventoryOptimization: Translation;
-  productionPlanning: Translation;
-  capacityManagement: Translation;
-  supplyChainVisibility: Translation;
-  riskManagement: Translation;
-  supplierCollaboration: Translation;
-  sAndOpPlanning: Translation;
-  scenarioPlanning: Translation;
-  performanceMonitoring: Translation;
-  demandPlanningAccuracy: Translation;
-  inventoryCarryingCost: Translation;
-  productionCycleTime: Translation;
-  capacityUtilizationRate: Translation;
-  supplyChainLeadTime: Translation;
-  supplierOnTimeDelivery: Translation;
-  forecastErrorRate: Translation;
-  inventoryObsolescenceRate: Translation;
-  productionScheduleAdherence: Translation;
-  supplyChainDisruptionFrequency: Translation;
-}
-
-export interface DDSOPTranslations {
-  title: Translation;
-  description: Translation;
-  strategicAlignment: Translation;
-  demandDrivenPlanning: Translation;
-  integratedExecution: Translation;
-  performanceMeasurement: Translation;
-  collaboration: Translation;
-  visibility: Translation;
-  agility: Translation;
-  resilience: Translation;
-  innovation: Translation;
-  sustainability: Translation;
-  customerCentricity: Translation;
-  dataDrivenDecisionMaking: Translation;
-  continuousImprovement: Translation;
-}
-
-export interface MarketingTranslations {
-  campaignPerformance: Translation;
-  leadGeneration: Translation;
-  customerEngagement: Translation;
-  brandAwareness: Translation;
-  marketingRoi: Translation;
-  websiteTraffic: Translation;
-  conversionRates: Translation;
-  socialMediaEngagement: Translation;
-  emailMarketingPerformance: Translation;
-  contentMarketingEffectiveness: Translation;
-  seoPerformance: Translation;
-  paidAdvertisingRoi: Translation;
-  marketingAttribution: Translation;
-  customerSegmentation: Translation;
-  marketingAutomation: Translation;
-  marketingTechnology: Translation;
-  marketingBudgetAllocation: Translation;
-  marketingTeamProductivity: Translation;
-  competitiveAnalysis: Translation;
-  marketTrends: Translation;
-  customerInsights: Translation;
-  marketingInnovation: Translation;
-  brandReputation: Translation;
-  customerLoyalty: Translation;
-  marketingCompliance: Translation;
-  marketingEthics: Translation;
-}
-
 export interface InventoryTranslations {
   inventoryTitle: Translation;
   bufferZones: Translation;
-  bufferStatus: Translation;
   skuClassification: Translation;
   leadTime: Translation;
   replenishmentOrders: Translation;
@@ -360,6 +222,7 @@ export interface UITranslations {
   back: Translation;
   next: Translation;
   submit: Translation;
+  settings?: Translation;
 }
 
 export interface ChartTranslations {
@@ -379,6 +242,7 @@ export interface PaginationTranslations {
   items: Translation;
   showing: Translation;
   to: Translation;
+  viewDetails?: Translation;
 }
 
 export interface LogisticsTranslations {
@@ -388,7 +252,31 @@ export interface LogisticsTranslations {
   sustainability: Translation;
 }
 
-export interface DDsopTranslations {
+export interface SupplyPlanningTranslations {
+  demandForecasting: Translation;
+  inventoryOptimization: Translation;
+  productionPlanning: Translation;
+  capacityManagement: Translation;
+  supplyChainVisibility: Translation;
+  riskManagement: Translation;
+  supplierCollaboration: Translation;
+  sAndOpPlanning: Translation;
+  scenarioPlanning: Translation;
+  performanceMonitoring: Translation;
+  demandPlanningAccuracy: Translation;
+  inventoryCarryingCost: Translation;
+  productionCycleTime: Translation;
+  capacityUtilizationRate: Translation;
+  supplyChainLeadTime: Translation;
+  supplierOnTimeDelivery: Translation;
+  forecastErrorRate: Translation;
+  inventoryObsolescenceRate: Translation;
+  productionScheduleAdherence: Translation;
+  supplyChainDisruptionFrequency: Translation;
+  tabs?: any;
+}
+
+export interface DDSOPTranslations {
   title: Translation;
   description: Translation;
   strategicAlignment: Translation;
@@ -430,4 +318,88 @@ export interface SustainabilityMetrics {
 // Add new interface for our comprehensive sustainability translations
 export interface SustainabilityTranslations {
   [key: string]: SustainabilityTranslation;
+}
+
+export interface CommonTranslations {
+  loading: Translation;
+  noData: Translation;
+  error: Translation;
+  success: Translation;
+  confirm: Translation;
+  back: Translation;
+  next: Translation;
+  submit: Translation;
+  skus: Translation;
+  create: Translation;
+  zones: Translation;
+  inventoryTitle: Translation;
+  bufferZones: Translation;
+  skuClassification: Translation;
+  leadTime: Translation;
+  replenishmentOrders: Translation;
+  bufferStatus: Translation;
+  netFlowPosition: Translation;
+  inventorySummary: Translation;
+  chartTitles: Translation;
+  replenishment: Translation;
+  netFlow: Translation;
+  inventoryTrends: Translation;
+  previous: Translation;
+  page: Translation;
+  of: Translation;
+  perPage: Translation;
+  items: Translation;
+  showing: Translation;
+  to: Translation;
+  settings: Translation;
+  logout: Translation;
+  cancel: Translation;
+  save: Translation;
+  delete: Translation;
+  edit: Translation;
+  search: Translation;
+  filter: Translation;
+  apply: Translation;
+  reset: Translation;
+  modules: Translation;
+  skuCount: Translation;
+  accuracyLabel: Translation;
+  pipelineValue: Translation;
+  activeCampaigns: Translation;
+  onTimeDelivery: Translation;
+  reportCount: Translation;
+  thisQuarter: Translation;
+  fromLastMonth: Translation;
+  fromLastWeek: Translation;
+  viewDetails: Translation;
+}
+
+export interface MarketingTranslations {
+  campaignPerformance: Translation;
+  leadGeneration: Translation;
+  customerEngagement: Translation;
+  brandAwareness: Translation;
+  marketingRoi: Translation;
+  websiteTraffic: Translation;
+  conversionRates: Translation;
+  socialMediaEngagement: Translation;
+  emailMarketingPerformance: Translation;
+  contentMarketingEffectiveness: Translation;
+  seoPerformance: Translation;
+  paidAdvertisingRoi: Translation;
+  marketingAttribution: Translation;
+  customerSegmentation: Translation;
+  marketingAutomation: Translation;
+  marketingTechnology: Translation;
+  marketingBudgetAllocation: Translation;
+  marketingTeamProductivity: Translation;
+  competitiveAnalysis: Translation;
+  marketTrends: Translation;
+  customerInsights: Translation;
+  marketingInnovation: Translation;
+  brandReputation: Translation;
+  customerLoyalty: Translation;
+  marketingCompliance: Translation;
+  marketingEthics: Translation;
+  marketingModule?: Translation;
 }

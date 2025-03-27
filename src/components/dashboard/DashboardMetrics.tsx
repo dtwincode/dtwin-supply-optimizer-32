@@ -1,99 +1,77 @@
-
-import { Card } from "@/components/ui/card";
-import { Package, ShieldAlert, Zap, ArrowUpDown, TrendingUp, TrendingDown } from "lucide-react";
+import React from 'react';
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslation } from "@/translations";
-import { toArabicNumerals } from "@/translations";
+import { getTranslation, toArabicNumerals } from '@/translations';
+import { Card } from "@/components/ui/card";
+import { Leaf, TrendingUp, TrendingDown } from "lucide-react";
 
-const DashboardMetrics = () => {
+const sustainabilityMetrics = [
+  {
+    title: "carbonFootprint",
+    value: "-18.5%",
+    change: "-2.3%",
+    trend: "down",
+    color: "text-green-500",
+  },
+  {
+    title: "wasteReduction",
+    value: "24.8%",
+    change: "+4.2%",
+    trend: "up",
+    color: "text-blue-500",
+  },
+  {
+    title: "greenSuppliers",
+    value: "72.4%",
+    change: "+5.7%",
+    trend: "up",
+    color: "text-emerald-500",
+  }
+];
+
+const renderMetricValue = (value: string | number, language: 'en' | 'ar'): string => {
+  if (typeof value === 'number') {
+    return language === 'ar' ? toArabicNumerals(value.toString()) : value.toString();
+  }
+  return language === 'ar' ? toArabicNumerals(value) : value;
+};
+
+const SustainabilityMetrics = () => {
   const { language } = useLanguage();
-
-  const formatNumber = (num: number): string => {
-    if (language === 'ar') {
-      return toArabicNumerals(num);
-    }
-    return num.toString();
-  };
-
-  const formatPercentage = (percentage: number): string => {
-    if (language === 'ar') {
-      return `${toArabicNumerals(percentage)}%`;
-    }
-    return `${percentage}%`;
-  };
 
   return (
     <Card className="p-3">
-      <h4 className="font-semibold text-base text-gray-800 dark:text-gray-100 mb-3 px-2">
-        {getTranslation('dashboardMetrics.title', language)}
+      <h4 className="font-display text-md font-semibold mb-2 flex items-center">
+        <Leaf className="h-4 w-4 mr-1 text-success-500" />
+        {getTranslation('common.sustainability.metrics', language)}
       </h4>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-        <Card className="p-3 shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-primary">
-          <div className="flex items-start justify-between">
-            <div className="space-y-0.5">
-              <p className="text-xs text-gray-500 font-medium">{getTranslation('dashboardMetrics.totalSKUs', language)}</p>
-              <p className="text-lg font-semibold">{formatNumber(1234)}</p>
-              <div className="flex items-center text-xs text-green-600">
-                <TrendingUp className="h-3 w-3 mr-0.5" />
-                <span>+5.2%</span>
+      <div className="grid grid-cols-1 gap-2">
+        {sustainabilityMetrics.map((metric) => (
+          <div key={metric.title} className="border-b last:border-b-0 pb-2 last:pb-0">
+            <div className="flex justify-between items-center">
+              <p className="text-xs text-gray-500 font-medium">
+                {getTranslation(`common.sustainability.${metric.title}`, language)}
+              </p>
+              <div className="text-sm font-semibold">
+                <span>{language === 'ar' ? toArabicNumerals(metric.value) : metric.value}</span>
               </div>
             </div>
-            <div className="bg-blue-50 p-1.5 rounded-full">
-              <Package className="h-4 w-4 text-primary" />
-            </div>
-          </div>
-        </Card>
-        
-        <Card className="p-3 shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-success-500">
-          <div className="flex items-start justify-between">
-            <div className="space-y-0.5">
-              <p className="text-xs text-gray-500 font-medium">{getTranslation('dashboardMetrics.bufferPenetration', language)}</p>
-              <p className="text-lg font-semibold">{formatPercentage(78)}</p>
-              <div className="flex items-center text-xs text-green-600">
-                <TrendingUp className="h-3 w-3 mr-0.5" />
-                <span>+3.4%</span>
-              </div>
-            </div>
-            <div className="bg-green-50 p-1.5 rounded-full">
-              <ShieldAlert className="h-4 w-4 text-success-500" />
-            </div>
-          </div>
-        </Card>
-        
-        <Card className="p-3 shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-warning-500">
-          <div className="flex items-start justify-between">
-            <div className="space-y-0.5">
-              <p className="text-xs text-gray-500 font-medium">{getTranslation('dashboardMetrics.orderStatus', language)}</p>
-              <p className="text-lg font-semibold">{formatPercentage(92)}</p>
-              <div className="flex items-center text-xs text-amber-600">
+            <div className={`flex items-center text-xs ${
+              (metric.title === 'carbonFootprint' && metric.trend === 'down') || 
+              (metric.title !== 'carbonFootprint' && metric.trend === 'up') 
+                ? 'text-green-500' : 'text-red-500'
+            }`}>
+              {(metric.title === 'carbonFootprint' && metric.trend === 'down') || 
+               (metric.title !== 'carbonFootprint' && metric.trend === 'up') ? 
+                <TrendingUp className="h-3 w-3 mr-0.5" /> : 
                 <TrendingDown className="h-3 w-3 mr-0.5" />
-                <span>-1.2%</span>
-              </div>
-            </div>
-            <div className="bg-amber-50 p-1.5 rounded-full">
-              <Zap className="h-4 w-4 text-warning-500" />
+              }
+              <span>{language === 'ar' ? toArabicNumerals(metric.change) : metric.change}</span>
             </div>
           </div>
-        </Card>
-        
-        <Card className="p-3 shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-danger-500">
-          <div className="flex items-start justify-between">
-            <div className="space-y-0.5">
-              <p className="text-xs text-gray-500 font-medium">{getTranslation('dashboardMetrics.flowIndex', language)}</p>
-              <p className="text-lg font-semibold">{formatNumber(4.2)}x</p>
-              <div className="flex items-center text-xs text-green-600">
-                <TrendingUp className="h-3 w-3 mr-0.5" />
-                <span>+0.3x</span>
-              </div>
-            </div>
-            <div className="bg-red-50 p-1.5 rounded-full">
-              <ArrowUpDown className="h-4 w-4 text-danger-500" />
-            </div>
-          </div>
-        </Card>
+        ))}
       </div>
     </Card>
   );
 };
 
-export default DashboardMetrics;
+export default SustainabilityMetrics;
