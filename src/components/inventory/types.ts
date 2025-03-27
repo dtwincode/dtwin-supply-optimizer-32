@@ -17,4 +17,4 @@ export interface LeadTimeAnomaly {
 }
 
 // Re-export types from the main types
-export type { Classification, SKUClassification, ReplenishmentData } from "@/types/inventory";
+export { Classification, SKUClassification, ReplenishmentData } from "@/types/inventory";
