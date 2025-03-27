@@ -2,10 +2,10 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
-import { SKUClassifications } from "./SKUClassifications";
+import { SKUClassifications } from "./classification/SKUClassifications";
 import { ClassificationManager } from "./ClassificationManager";
 import { useEffect, useState } from "react";
-import { SKUClassification } from "./types";
+import { SKUClassification } from "@/types/inventory";
 
 export function ClassificationTab() {
   const { language } = useLanguage();
