@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -28,7 +27,7 @@ const generateScores = () => {
   };
 };
 
-const getRecommendationData = (locationId: string, weights: Record<string, number>) => {
+const getRecommendationData = (locationId: string, weights: any) => {
   // In a real application, this would call an API or perform actual calculations
   const mockScores = generateScores();
   
@@ -37,10 +36,9 @@ const getRecommendationData = (locationId: string, weights: Record<string, numbe
   let weightedScore = 0;
   
   Object.keys(weights).forEach(key => {
-    // Fix the type issue by ensuring both sides of the multiplication are numbers
+    // Fix the type issue by ensuring we're using a number
     const score = mockScores[key as keyof typeof mockScores] || 0;
-    const weight = Number(weights[key]) || 0; // Ensure weight is a number
-    weightedScore += (score * weight);
+    weightedScore += (score * weights[key]);
   });
   
   const normalizedScore = (weightedScore / totalWeight) / 10 * 100;
