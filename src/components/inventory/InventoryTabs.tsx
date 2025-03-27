@@ -3,12 +3,12 @@ import React, { useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useI18n } from "@/contexts/I18nContext";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ClassificationTab } from "./ClassificationTab";
-import { DecouplingTab } from "./DecouplingTab";
-import { BufferManagementTab } from "./BufferManagementTab";
-import { NetFlowTab } from "./NetFlowTab";
-import { AIInsightsTab } from "./AIInsightsTab";
-import { ADUTab } from "./ADUTab";
+import { ClassificationTab } from "./tabs/ClassificationTab";
+import { DecouplingTab } from "./tabs/DecouplingTab";
+import { BufferManagementTab } from "./tabs/BufferManagementTab";
+import { NetFlowTab } from "./tabs/NetFlowTab";
+import { AIInsightsTab } from "./tabs/AIInsightsTab";
+import { ADUTab } from "./tabs/ADUTab";
 
 interface InventoryTabsProps {
   defaultValue?: string;

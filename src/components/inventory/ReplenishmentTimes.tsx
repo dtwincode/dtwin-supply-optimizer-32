@@ -1,44 +1,51 @@
 
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+// ReplenishmentTimes placeholder - this file would be created as part of the organization
+import React from "react";
 import { ReplenishmentData } from "./types";
 
 interface ReplenishmentTimesProps {
   data: ReplenishmentData[];
 }
 
-export function ReplenishmentTimes({ data }: ReplenishmentTimesProps) {
+export const ReplenishmentTimes: React.FC<ReplenishmentTimesProps> = ({ data }) => {
   return (
-    <div className="grid gap-4">
-      {data.map((item) => (
-        <Card key={item.sku} className="p-4">
-          <div className="flex flex-col gap-2">
-            <div className="flex justify-between items-start">
-              <h4 className="font-medium">{item.sku}</h4>
-              <Badge variant="outline">
-                Total Cycle: {item.totalCycleTime} days
-              </Badge>
+    <div className="space-y-4">
+      {data.length === 0 ? (
+        <p className="text-muted-foreground">No replenishment data available.</p>
+      ) : (
+        data.map((item) => (
+          <div key={item.sku} className="border rounded-md p-3">
+            <div className="flex justify-between">
+              <span className="font-medium">{item.sku}</span>
+              <span className="text-sm text-muted-foreground">
+                {new Date(item.lastUpdated).toLocaleDateString()}
+              </span>
             </div>
-            <div className="grid grid-cols-2 gap-4 mt-2">
+            <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
               <div>
-                <p className="text-sm font-medium">Internal Transfer Time</p>
-                <p className="text-2xl font-bold">{item.internalTransferTime} days</p>
-                <p className="text-sm text-muted-foreground">
-                  From: {item.locationFrom}<br />
-                  To: {item.locationTo}
-                </p>
+                <span className="block text-muted-foreground">From</span>
+                <span>{item.locationFrom}</span>
               </div>
               <div>
-                <p className="text-sm font-medium">Replenishment Lead Time</p>
-                <p className="text-2xl font-bold">{item.replenishmentLeadTime} days</p>
-                <p className="text-sm text-muted-foreground">
-                  Last updated: {new Date(item.lastUpdated).toLocaleDateString()}
-                </p>
+                <span className="block text-muted-foreground">To</span>
+                <span>{item.locationTo}</span>
+              </div>
+              <div>
+                <span className="block text-muted-foreground">Internal Transfer</span>
+                <span>{item.internalTransferTime} days</span>
+              </div>
+              <div>
+                <span className="block text-muted-foreground">Lead Time</span>
+                <span>{item.replenishmentLeadTime} days</span>
+              </div>
+              <div className="col-span-2">
+                <span className="block text-muted-foreground">Total Cycle Time</span>
+                <span className="font-medium">{item.totalCycleTime} days</span>
               </div>
             </div>
           </div>
-        </Card>
-      ))}
+        ))
+      )}
     </div>
   );
-}
+};
