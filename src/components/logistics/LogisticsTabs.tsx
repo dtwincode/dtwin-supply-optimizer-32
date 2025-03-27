@@ -1,13 +1,11 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { getTranslation } from '@/translations';
+import { useI18n } from '@/contexts/I18nContext';
 import { DashboardTab, TrackingTab, AnalyticsTab, DDOMTab, SustainabilityTab } from './tabs';
 
 export const LogisticsTabs = () => {
-  const { language } = useLanguage();
-  const t = (key: string) => getTranslation(`common.logistics.${key}`, language) || key;
+  const { t } = useI18n();
 
   return (
     <Tabs defaultValue="dashboard" className="w-full">
@@ -16,31 +14,31 @@ export const LogisticsTabs = () => {
           value="dashboard" 
           className="rounded-t-lg rounded-b-none data-[state=active]:bg-background data-[state=active]:border-b-transparent data-[state=active]:border data-[state=active]:border-b-0 data-[state=active]:shadow h-10"
         >
-          {t('dashboard')}
+          {t('common.logistics.dashboard')}
         </TabsTrigger>
         <TabsTrigger 
           value="tracking" 
           className="rounded-t-lg rounded-b-none data-[state=active]:bg-background data-[state=active]:border-b-transparent data-[state=active]:border data-[state=active]:border-b-0 data-[state=active]:shadow h-10"
         >
-          {t('tracking')}
+          {t('common.logistics.tracking')}
         </TabsTrigger>
         <TabsTrigger 
           value="analytics" 
           className="rounded-t-lg rounded-b-none data-[state=active]:bg-background data-[state=active]:border-b-transparent data-[state=active]:border data-[state=active]:border-b-0 data-[state=active]:shadow h-10"
         >
-          {t('analytics')}
+          {t('common.logistics.analytics')}
         </TabsTrigger>
         <TabsTrigger 
           value="ddom" 
           className="rounded-t-lg rounded-b-none data-[state=active]:bg-background data-[state=active]:border-b-transparent data-[state=active]:border data-[state=active]:border-b-0 data-[state=active]:shadow h-10"
         >
-          {t('ddom.title')}
+          {t('common.logistics.ddom.title')}
         </TabsTrigger>
         <TabsTrigger 
           value="sustainability" 
           className="rounded-t-lg rounded-b-none data-[state=active]:bg-background data-[state=active]:border-b-transparent data-[state=active]:border data-[state=active]:border-b-0 data-[state=active]:shadow h-10"
         >
-          {t('sustainability')}
+          {t('common.logistics.sustainability')}
         </TabsTrigger>
       </TabsList>
       

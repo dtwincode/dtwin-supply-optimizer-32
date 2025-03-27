@@ -3,7 +3,7 @@ import { MenuIcon, TicketPlus, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { getTranslation } from "@/translations";
+import { useI18n } from "@/contexts/I18nContext";
 import { useLocation } from "react-router-dom";
 import { navigationItems } from "./Navigation";
 
@@ -25,13 +25,14 @@ const Header = ({
   signOut
 }: HeaderProps) => {
   const location = useLocation();
+  const { t } = useI18n();
   
   const getCurrentModuleName = () => {
     const currentPath = location.pathname;
     const currentModule = navigationItems.find(item => 
       item.href === currentPath || (item.href === "/" && currentPath === "")
     );
-    return currentModule ? getTranslation(currentModule.name, language) : "";
+    return currentModule ? t(currentModule.name) : "";
   };
 
   return (
@@ -109,7 +110,7 @@ const Header = ({
             </HoverCardTrigger>
             <HoverCardContent className="w-48">
               <p className="text-sm">
-                {getTranslation('common.logout', language)}
+                {t('common.logout')}
               </p>
             </HoverCardContent>
           </HoverCard>

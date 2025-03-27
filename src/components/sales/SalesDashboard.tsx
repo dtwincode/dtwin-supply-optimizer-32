@@ -2,8 +2,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslation } from "@/translations";
+import { useI18n } from "@/contexts/I18nContext";
 import { salesPlansData } from "@/data/salesData";
 import { SalesTrendsChart } from "./dashboard/SalesTrendsChart";
 import { SalesPerformanceMetrics } from "./dashboard/SalesPerformanceMetrics";
@@ -12,7 +11,7 @@ import { SalesForecastIntegration } from "./dashboard/SalesForecastIntegration";
 
 export const SalesDashboard = () => {
   const [timeFrame, setTimeFrame] = useState<"monthly" | "quarterly" | "yearly">("quarterly");
-  const { language } = useLanguage();
+  const { t } = useI18n();
 
   return (
     <div className="space-y-6">
@@ -25,11 +24,9 @@ export const SalesDashboard = () => {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>{getTranslation('sales.salesTrends', language) || "Sales Trends"}</CardTitle>
+                <CardTitle>{t('sales.salesTrends')}</CardTitle>
                 <CardDescription>
-                  {language === 'ar' 
-                    ? 'مقارنة المبيعات المخططة والفعلية'
-                    : 'Compare planned vs actual sales performance'}
+                  {t('sales.comparePlannedVsActual')}
                 </CardDescription>
               </div>
               <Tabs 
@@ -39,9 +36,9 @@ export const SalesDashboard = () => {
                 className="w-[400px]"
               >
                 <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="monthly">{getTranslation('sales.monthly', language) || "Monthly"}</TabsTrigger>
-                  <TabsTrigger value="quarterly">{getTranslation('sales.quarterly', language) || "Quarterly"}</TabsTrigger>
-                  <TabsTrigger value="yearly">{getTranslation('sales.yearly', language) || "Yearly"}</TabsTrigger>
+                  <TabsTrigger value="monthly">{t('sales.monthly')}</TabsTrigger>
+                  <TabsTrigger value="quarterly">{t('sales.quarterly')}</TabsTrigger>
+                  <TabsTrigger value="yearly">{t('sales.yearly')}</TabsTrigger>
                 </TabsList>
               </Tabs>
             </div>
@@ -53,11 +50,9 @@ export const SalesDashboard = () => {
 
         <Card className="lg:col-span-1">
           <CardHeader>
-            <CardTitle>{getTranslation('sales.whatIfScenarios', language) || "What-If Scenarios"}</CardTitle>
+            <CardTitle>{t('sales.whatIfScenarios')}</CardTitle>
             <CardDescription>
-              {language === 'ar' 
-                ? 'استكشاف تأثيرات سيناريوهات المبيعات المختلفة'
-                : 'Explore the impact of different sales scenarios'}
+              {t('sales.exploreSalesScenarios')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -69,11 +64,9 @@ export const SalesDashboard = () => {
       <div className="grid grid-cols-1 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>{getTranslation('sales.forecastIntegration', language) || "Forecast Integration"}</CardTitle>
+            <CardTitle>{t('sales.forecastIntegration')}</CardTitle>
             <CardDescription>
-              {language === 'ar' 
-                ? 'تكامل بيانات المبيعات مع توقعات الطلب'
-                : 'Integration of sales data with demand forecasts'}
+              {t('sales.integrationWithForecasts')}
             </CardDescription>
           </CardHeader>
           <CardContent>

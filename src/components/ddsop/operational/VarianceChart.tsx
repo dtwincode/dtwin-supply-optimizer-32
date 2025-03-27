@@ -1,8 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { getTranslation } from '@/translations';
+import { useI18n } from '@/contexts/I18nContext';
 import { FileBarChart } from 'lucide-react';
 import { 
   BarChart, 
@@ -27,15 +26,14 @@ const varianceData = [
 ];
 
 export const VarianceChart: React.FC = () => {
-  const { language } = useLanguage();
-  const t = (key: string) => getTranslation(`common.ddsop.${key}`, language) || key;
+  const { t } = useI18n();
 
   return (
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center">
           <FileBarChart className="h-5 w-5 mr-2 text-dtwin-medium" />
-          {t('planVsActualVariance')}
+          {t('common.ddsop.planVsActualVariance')}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -55,14 +53,14 @@ export const VarianceChart: React.FC = () => {
               <YAxis />
               <Tooltip 
                 formatter={(value: number, name: string) => {
-                  if (name === 'variance') return [`${value}%`, t('variance')];
-                  return [value, name === 'planned' ? t('planned') : t('actual')];
+                  if (name === 'variance') return [`${value}%`, t('common.ddsop.variance')];
+                  return [value, name === 'planned' ? t('common.ddsop.planned') : t('common.ddsop.actual')];
                 }}
               />
               <Legend />
               <ReferenceLine y={0} stroke="#000" />
-              <Bar dataKey="planned" fill="#8884d8" name={t('planned')} />
-              <Bar dataKey="actual" fill="#82ca9d" name={t('actual')} />
+              <Bar dataKey="planned" fill="#8884d8" name={t('common.ddsop.planned')} />
+              <Bar dataKey="actual" fill="#82ca9d" name={t('common.ddsop.actual')} />
             </BarChart>
           </ResponsiveContainer>
         </div>

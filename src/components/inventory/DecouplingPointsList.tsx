@@ -7,8 +7,7 @@ import { DecouplingPoint } from "@/types/inventory/decouplingTypes";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { SkeletonTable } from "@/components/ui/skeleton-table";
 import { RefreshCw, Edit, Trash } from "lucide-react";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslation } from "@/translations";
+import { useI18n } from "@/contexts/I18nContext";
 import { DecouplingPointDialog } from "./DecouplingPointDialog";
 
 export const DecouplingPointsList = () => {
@@ -16,7 +15,7 @@ export const DecouplingPointsList = () => {
   const [selectedPoint, setSelectedPoint] = useState<DecouplingPoint | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const { language } = useLanguage();
+  const { t } = useI18n();
 
   useEffect(() => {
     refreshDecouplingPoints();
@@ -50,34 +49,34 @@ export const DecouplingPointsList = () => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">{getTranslation("common.inventory.decouplingPoints", language)}</h2>
+        <h2 className="text-xl font-semibold">{t("common.inventory.decouplingPoints")}</h2>
         <Button size="sm" variant="outline" onClick={() => refreshDecouplingPoints()}>
           <RefreshCw className="h-4 w-4 mr-2" />
-          {getTranslation("common.inventory.refresh", language)}
+          {t("common.inventory.refresh")}
         </Button>
       </div>
 
       {decouplingPoints.length === 0 ? (
         <div className="text-center p-8 border rounded-lg">
           <p className="text-muted-foreground">
-            {getTranslation("common.inventory.noDecouplingPoints", language)}
+            {t("common.inventory.noDecouplingPoints")}
           </p>
         </div>
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{getTranslation("common.inventory.locationId", language)}</TableHead>
-              <TableHead>{getTranslation("common.inventory.type", language)}</TableHead>
-              <TableHead>{getTranslation("common.inventory.description", language)}</TableHead>
-              <TableHead className="text-right">{getTranslation("common.inventory.actions", language)}</TableHead>
+              <TableHead>{t("common.inventory.locationId")}</TableHead>
+              <TableHead>{t("common.inventory.type")}</TableHead>
+              <TableHead>{t("common.inventory.description")}</TableHead>
+              <TableHead className="text-right">{t("common.inventory.actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {decouplingPoints.map((point) => (
               <TableRow key={point.id}>
                 <TableCell>{point.locationId}</TableCell>
-                <TableCell>{getTranslation(`common.inventory.${point.type}DecouplingPoint`, language)}</TableCell>
+                <TableCell>{t(`common.inventory.${point.type}DecouplingPoint`)}</TableCell>
                 <TableCell>{point.description || "-"}</TableCell>
                 <TableCell className="text-right">
                   <Button variant="ghost" size="icon" onClick={() => handleEdit(point)}>
@@ -96,15 +95,15 @@ export const DecouplingPointsList = () => {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{getTranslation("common.delete", language)}</AlertDialogTitle>
+            <AlertDialogTitle>{t("common.delete")}</AlertDialogTitle>
             <AlertDialogDescription>
-              {getTranslation("common.inventory.confirmDelete", language)}
+              {t("common.inventory.confirmDelete")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{getTranslation("common.cancel", language)}</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
-              {getTranslation("common.delete", language)}
+              {t("common.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

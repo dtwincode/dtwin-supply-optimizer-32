@@ -1,13 +1,11 @@
 
 import React from 'react';
 import { Truck } from 'lucide-react';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { getTranslation } from '@/translations';
+import { useI18n } from '@/contexts/I18nContext';
 import { LogisticsFilters } from './filters/LogisticsFilters';
 
 export const LogisticsHeader = () => {
-  const { language } = useLanguage();
-  const t = (key: string) => getTranslation(`common.logistics.${key}`, language) || key;
+  const { t } = useI18n();
 
   return (
     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pb-4 border-b">
@@ -17,10 +15,10 @@ export const LogisticsHeader = () => {
         </div>
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">
-            {t('title')}
+            {t('common.logistics.title')}
           </h1>
           <p className="text-muted-foreground">
-            {t('optimizeSupplyChain')}
+            {t('common.logistics.optimizeSupplyChain')}
           </p>
         </div>
       </div>

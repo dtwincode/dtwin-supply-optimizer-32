@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { getTranslation } from "@/translations";
+import { useI18n } from "@/contexts/I18nContext";
 
 // Reorganized navigation items in a logical workflow for planners
 const navigationItems = [
@@ -41,6 +41,7 @@ interface NavigationProps {
 
 const Navigation = memo(({ language, isRTL }: NavigationProps) => {
   const location = useLocation();
+  const { t } = useI18n();
 
   return (
     <nav className="py-2 space-y-0.5">
@@ -56,7 +57,7 @@ const Navigation = memo(({ language, isRTL }: NavigationProps) => {
           )}
         >
           <item.icon className={`h-4 w-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
-          {getTranslation(item.name, language)}
+          {t(item.name)}
         </Link>
       ))}
     </nav>

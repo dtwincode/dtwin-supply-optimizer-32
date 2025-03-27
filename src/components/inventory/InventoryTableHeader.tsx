@@ -1,22 +1,21 @@
 
 import { TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslation } from "@/translations";
+import { useI18n } from "@/contexts/I18nContext";
 
 export const InventoryTableHeader = () => {
-  const { language } = useLanguage();
+  const { t } = useI18n();
   
   return (
     <TableHeader>
       <TableRow>
-        <TableHead>{getTranslation("common.inventory.sku", language)}</TableHead>
-        <TableHead>{getTranslation("common.inventory.name", language)}</TableHead>
-        <TableHead>{getTranslation("common.inventory.currentStock", language)}</TableHead>
-        <TableHead>{getTranslation("common.inventory.bufferStatus", language)}</TableHead>
-        <TableHead>{getTranslation("common.inventory.bufferZones", language)}</TableHead>
-        <TableHead>{getTranslation("common.inventory.location", language)}</TableHead>
-        <TableHead>{getTranslation("common.inventory.productFamily", language)}</TableHead>
-        <TableHead>{getTranslation("common.inventory.actions", language)}</TableHead>
+        <TableHead>{t("common.inventory.sku")}</TableHead>
+        <TableHead>{t("common.inventory.name")}</TableHead>
+        <TableHead>{t("common.inventory.currentStock")}</TableHead>
+        <TableHead>{t("common.inventory.bufferStatus")}</TableHead>
+        <TableHead>{t("common.inventory.bufferZones")}</TableHead>
+        <TableHead>{t("common.inventory.location")}</TableHead>
+        <TableHead>{t("common.inventory.productFamily")}</TableHead>
+        <TableHead>{t("common.inventory.actions")}</TableHead>
       </TableRow>
     </TableHeader>
   );
