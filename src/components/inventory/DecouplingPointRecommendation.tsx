@@ -27,20 +27,20 @@ const generateScores = () => {
   };
 };
 
-const getRecommendationData = (locationId: string, weights: any) => {
+const getRecommendationData = (locationId: string, weights: Record<string, number>) => {
   // In a real application, this would call an API or perform actual calculations
   const mockScores = generateScores();
   
   // Calculate weighted score (this is simplified for demo)
-  const totalWeight = Object.values(weights).reduce((sum: number, val: any) => sum + Number(val), 0);
+  const totalWeight = Object.values(weights).reduce((sum, val) => sum + Number(val), 0);
   let weightedScore = 0;
   
   Object.keys(weights).forEach(key => {
     // Fix the type issue by ensuring we're using a number
     const score = mockScores[key as keyof typeof mockScores] || 0;
     // Create a variable with the correct type before using it in arithmetic
-    const weightValue = Number(weights[key as keyof typeof weights]);
-    weightedScore += Number(score) * weightValue;
+    const weight = Number(weights[key]);
+    weightedScore += (score * weight);
   });
   
   const normalizedScore = (weightedScore / totalWeight) / 10 * 100;
