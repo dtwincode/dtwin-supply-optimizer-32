@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,8 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/contexts/I18nContext";
 
 interface ImpactAnalysisProps {
   onReconciliationComplete: () => void;
@@ -36,6 +38,7 @@ interface ImpactAnalysisProps {
 
 export const ImpactAnalysis = ({ onReconciliationComplete, forecastPeriod }: ImpactAnalysisProps) => {
   const { toast } = useToast();
+  const { t } = useI18n();
   const [reconciliationMethod, setReconciliationMethod] = useState<"top-down" | "bottom-up">("top-down");
   const [selectedLevel, setSelectedLevel] = useState<string>("product");
   const [isReconciling, setIsReconciling] = useState(false);
@@ -66,8 +69,9 @@ export const ImpactAnalysis = ({ onReconciliationComplete, forecastPeriod }: Imp
     setTimeout(() => {
       setIsReconciling(false);
       toast({
-        title: "Reconciliation Complete",
-        description: `Distribution quantities have been reconciled for the next ${forecastPeriod} days`
+        title: t("forecasting.reconciliationComplete") || "Reconciliation Complete",
+        description: t("forecasting.distributionReconciled", { days: forecastPeriod }) || 
+                    `Distribution quantities have been reconciled for the next ${forecastPeriod} days`
       });
       onReconciliationComplete();
     }, 1500);
@@ -76,33 +80,33 @@ export const ImpactAnalysis = ({ onReconciliationComplete, forecastPeriod }: Imp
   return (
     <Card className="p-6 shadow-sm">
       <div className="space-y-6">
-        <h3 className="text-lg font-semibold">Distribution Impact Analysis</h3>
+        <h3 className="text-lg font-semibold">{t("forecasting.distributionImpactAnalysis") || "Distribution Impact Analysis"}</h3>
         
         <div className="grid gap-6 md:grid-cols-2">
           <div>
-            <h4 className="font-medium mb-4">Reconciliation Configuration</h4>
+            <h4 className="font-medium mb-4">{t("forecasting.reconciliationConfig") || "Reconciliation Configuration"}</h4>
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm text-muted-foreground">Reconciliation Method</label>
+                <label className="text-sm text-muted-foreground">{t("forecasting.reconciliationMethod") || "Reconciliation Method"}</label>
                 <Select
                   value={reconciliationMethod}
                   onValueChange={(value: "top-down" | "bottom-up") => setReconciliationMethod(value)}
                 >
                   <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="Select method" />
+                    <SelectValue placeholder={t("forecasting.selectMethod") || "Select method"} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="top-down">Top-Down</SelectItem>
-                    <SelectItem value="bottom-up">Bottom-Up</SelectItem>
+                    <SelectItem value="top-down">{t("forecasting.topDown") || "Top-Down"}</SelectItem>
+                    <SelectItem value="bottom-up">{t("forecasting.bottomUp") || "Bottom-Up"}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm text-muted-foreground">Hierarchy Level</label>
+                <label className="text-sm text-muted-foreground">{t("forecasting.hierarchyLevel") || "Hierarchy Level"}</label>
                 <Select value={selectedLevel} onValueChange={setSelectedLevel}>
                   <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="Select level" />
+                    <SelectValue placeholder={t("forecasting.selectLevel") || "Select level"} />
                   </SelectTrigger>
                   <SelectContent>
                     {hierarchyLevels.map((level) => (
@@ -122,24 +126,24 @@ export const ImpactAnalysis = ({ onReconciliationComplete, forecastPeriod }: Imp
                 {isReconciling ? (
                   <>
                     <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                    Reconciling...
+                    {t("forecasting.reconciling") || "Reconciling..."}
                   </>
                 ) : (
-                  "Run Reconciliation"
+                  t("forecasting.runReconciliation") || "Run Reconciliation"
                 )}
               </Button>
             </div>
           </div>
 
           <div>
-            <h4 className="font-medium mb-4">Impact Summary</h4>
+            <h4 className="font-medium mb-4">{t("forecasting.impactSummary") || "Impact Summary"}</h4>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Level</TableHead>
-                  <TableHead className="text-right">Forecast</TableHead>
-                  <TableHead className="text-right">Actual</TableHead>
-                  <TableHead className="text-right">Difference</TableHead>
+                  <TableHead>{t("forecasting.level") || "Level"}</TableHead>
+                  <TableHead className="text-right">{t("forecasting.forecast") || "Forecast"}</TableHead>
+                  <TableHead className="text-right">{t("forecasting.actual") || "Actual"}</TableHead>
+                  <TableHead className="text-right">{t("forecasting.difference") || "Difference"}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -166,7 +170,7 @@ export const ImpactAnalysis = ({ onReconciliationComplete, forecastPeriod }: Imp
         </div>
 
         <div className="mt-6">
-          <h4 className="font-medium mb-4">Reconciliation Comparison</h4>
+          <h4 className="font-medium mb-4">{t("forecasting.reconciliationComparison") || "Reconciliation Comparison"}</h4>
           <div className="h-[400px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={reconciliationData}>
@@ -179,21 +183,21 @@ export const ImpactAnalysis = ({ onReconciliationComplete, forecastPeriod }: Imp
                   type="monotone" 
                   dataKey="before" 
                   stroke="#8884d8" 
-                  name="Before Reconciliation"
+                  name={t("forecasting.beforeReconciliation") || "Before Reconciliation"}
                   strokeWidth={2}
                 />
                 <Line 
                   type="monotone" 
                   dataKey="after" 
                   stroke="#82ca9d" 
-                  name="After Reconciliation"
+                  name={t("forecasting.afterReconciliation") || "After Reconciliation"}
                   strokeWidth={2}
                 />
                 <Line 
                   type="monotone" 
                   dataKey="target" 
                   stroke="#ffc658" 
-                  name="Target"
+                  name={t("forecasting.target") || "Target"}
                   strokeDasharray="5 5"
                 />
               </LineChart>

@@ -3,10 +3,11 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { ReportGenerator } from "@/components/reports/ReportGenerator";
 import { Card } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslation } from "@/translations";
+import { useI18n } from "@/contexts/I18nContext";
 
 const Reports = () => {
   const { language } = useLanguage();
+  const { t } = useI18n();
 
   return (
     <DashboardLayout>
@@ -15,7 +16,7 @@ const Reports = () => {
           <p className="text-muted-foreground">
             {language === 'ar' 
               ? 'إنشاء وإدارة التقارير التحليلية'
-              : 'Generate and manage analytical reports'}
+              : t('reports.description') || 'Generate and manage analytical reports'}
           </p>
         </div>
         <Card className="p-6">

@@ -3,7 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Save, X } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/contexts/I18nContext";
 import {
   Table,
   TableBody,
@@ -46,6 +47,7 @@ export const DistributionQuantitiesTable = ({
   forecastPeriod
 }: DistributionQuantitiesTableProps) => {
   const { toast } = useToast();
+  const { t } = useI18n();
   const [editingCell, setEditingCell] = useState<EditableCell | null>(null);
 
   const handleStartEdit = (rowId: string, field: EditableCell['field'], value: number) => {
@@ -63,8 +65,8 @@ export const DistributionQuantitiesTable = ({
     if (min > optimal || optimal > max) {
       toast({
         variant: "destructive",
-        title: "Invalid quantity",
-        description: "Min ≤ Optimal ≤ Max must be maintained"
+        title: t("forecasting.invalidQuantity") || "Invalid quantity",
+        description: t("forecasting.quantityConstraint") || "Min ≤ Optimal ≤ Max must be maintained"
       });
       return false;
     }
@@ -79,8 +81,8 @@ export const DistributionQuantitiesTable = ({
     if (isNaN(numValue)) {
       toast({
         variant: "destructive",
-        title: "Invalid input",
-        description: "Please enter a valid number"
+        title: t("common.error") || "Invalid input",
+        description: t("forecasting.enterValidNumber") || "Please enter a valid number"
       });
       return;
     }
@@ -102,8 +104,8 @@ export const DistributionQuantitiesTable = ({
 
     onUpdateDistributionData(newData);
     toast({
-      title: "Success",
-      description: "Value updated successfully"
+      title: t("common.success") || "Success",
+      description: t("forecasting.valueUpdated") || "Value updated successfully"
     });
     setEditingCell(null);
   };
@@ -127,22 +129,22 @@ export const DistributionQuantitiesTable = ({
   return (
     <Card className="p-6 shadow-sm">
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Distribution Quantities</h3>
+        <h3 className="text-lg font-semibold">{t("forecasting.distributionQuantities") || "Distribution Quantities"}</h3>
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>SKU</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead className="text-right">Current Stock</TableHead>
-                <TableHead className="text-right">Min Quantity</TableHead>
-                <TableHead className="text-right">Optimal Quantity</TableHead>
-                <TableHead className="text-right">Max Quantity</TableHead>
-                <TableHead className="text-right">Lead Time (days)</TableHead>
-                <TableHead className="text-right">Safety Stock</TableHead>
-                <TableHead className="text-right">Forecast Accuracy (%)</TableHead>
-                <TableHead className="text-right">Service Level (%)</TableHead>
-                <TableHead>Last Updated</TableHead>
+                <TableHead>{t("common.sku") || "SKU"}</TableHead>
+                <TableHead>{t("forecasting.category") || "Category"}</TableHead>
+                <TableHead className="text-right">{t("forecasting.currentStock") || "Current Stock"}</TableHead>
+                <TableHead className="text-right">{t("forecasting.minQuantity") || "Min Quantity"}</TableHead>
+                <TableHead className="text-right">{t("forecasting.optimalQuantity") || "Optimal Quantity"}</TableHead>
+                <TableHead className="text-right">{t("forecasting.maxQuantity") || "Max Quantity"}</TableHead>
+                <TableHead className="text-right">{t("forecasting.leadTimeDays") || "Lead Time (days)"}</TableHead>
+                <TableHead className="text-right">{t("forecasting.safetyStock") || "Safety Stock"}</TableHead>
+                <TableHead className="text-right">{t("forecasting.forecastAccuracy") || "Forecast Accuracy (%)"}</TableHead>
+                <TableHead className="text-right">{t("forecasting.serviceLevel") || "Service Level (%)"}</TableHead>
+                <TableHead>{t("forecasting.lastUpdated") || "Last Updated"}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
