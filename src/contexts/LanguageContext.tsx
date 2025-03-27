@@ -1,5 +1,5 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import i18n from "@/translations"; // ✅ ضروري لربط الترجمة
 
 type LanguageContextType = {
   language: 'en' | 'ar';
@@ -21,8 +21,8 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
     localStorage.setItem('language', language);
     document.dir = isRTL ? 'rtl' : 'ltr';
     document.documentElement.lang = language;
-    
-    // Apply RTL class to body for global styling
+    i18n.changeLanguage(language); // ✅ يُفعّل اللغة على مستوى الترجمة
+
     if (isRTL) {
       document.body.classList.add('rtl');
     } else {
