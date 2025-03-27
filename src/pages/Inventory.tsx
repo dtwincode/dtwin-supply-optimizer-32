@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useState, useEffect } from "react";
@@ -89,6 +88,7 @@ const Inventory = () => {
   };
   
   const defaultTab = getDefaultTabFromPath();
+  console.log("Default tab from path:", defaultTab);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -228,7 +228,7 @@ const Inventory = () => {
     );
   }
 
-  console.log("Current tab from path:", defaultTab);
+  console.log("Rendering Inventory with tab:", defaultTab);
 
   return (
     <DashboardLayout>

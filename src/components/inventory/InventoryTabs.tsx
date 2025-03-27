@@ -1,8 +1,13 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useI18n } from "@/contexts/I18nContext";
 import { useNavigate, useLocation } from "react-router-dom";
+import { ClassificationTab } from "./ClassificationTab";
+import { DecouplingTab } from "./DecouplingTab";
+import { BufferManagementTab } from "./BufferManagementTab";
+import { NetFlowTab } from "./NetFlowTab";
+import { AIInsightsTab } from "./AIInsightsTab";
 
 interface InventoryTabsProps {
   defaultValue?: string;
@@ -14,6 +19,15 @@ export const InventoryTabs = ({ defaultValue = "inventory", children }: Inventor
   const navigate = useNavigate();
   const location = useLocation();
   
+  // Get the tab from URL query parameters
+  const getTabFromURL = () => {
+    const searchParams = new URLSearchParams(location.search);
+    return searchParams.get('tab') || defaultValue;
+  };
+  
+  // Set the initial tab value from URL
+  const initialTab = getTabFromURL();
+  
   const handleTabChange = (value: string) => {
     // Update the URL when tab changes
     const searchParams = new URLSearchParams(location.search);
@@ -21,8 +35,16 @@ export const InventoryTabs = ({ defaultValue = "inventory", children }: Inventor
     navigate(`/inventory?${searchParams.toString()}`, { replace: true });
   };
   
+  // Effect to sync URL with tab state
+  useEffect(() => {
+    const currentTab = getTabFromURL();
+    if (currentTab !== initialTab) {
+      handleTabChange(initialTab);
+    }
+  }, []);
+  
   return (
-    <Tabs defaultValue={defaultValue} onValueChange={handleTabChange} className="w-full">
+    <Tabs defaultValue={initialTab} onValueChange={handleTabChange} className="w-full">
       <div className="border-b px-4">
         <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="inventory">{t("common.inventory.inventoryLevels")}</TabsTrigger>
@@ -40,41 +62,31 @@ export const InventoryTabs = ({ defaultValue = "inventory", children }: Inventor
       
       <TabsContent value="buffer">
         <div className="p-6">
-          <h2 className="text-2xl font-bold mb-4">{t("common.inventory.bufferManagement")}</h2>
-          <p className="text-muted-foreground mb-6">{t("common.inventory.bufferManagementDesc")}</p>
-          {/* Buffer Management content will be loaded here */}
+          <BufferManagementTab />
         </div>
       </TabsContent>
       
       <TabsContent value="classification">
         <div className="p-6">
-          <h2 className="text-2xl font-bold mb-4">{t("common.inventory.skuClassification")}</h2>
-          <p className="text-muted-foreground mb-6">{t("common.inventory.classification.description")}</p>
-          {/* Classification content will be loaded here */}
+          <ClassificationTab />
         </div>
       </TabsContent>
       
       <TabsContent value="decoupling">
         <div className="p-6">
-          <h2 className="text-2xl font-bold mb-4">{t("common.inventory.decouplingPoints")}</h2>
-          <p className="text-muted-foreground mb-6">{t("common.inventory.configureDecouplingPoints")}</p>
-          {/* Decoupling points content will be loaded here */}
+          <DecouplingTab />
         </div>
       </TabsContent>
       
       <TabsContent value="netflow">
         <div className="p-6">
-          <h2 className="text-2xl font-bold mb-4">{t("common.inventory.netFlowPosition")}</h2>
-          <p className="text-muted-foreground mb-6">Analyze your inventory flow position and components</p>
-          {/* Net Flow content will be loaded here */}
+          <NetFlowTab />
         </div>
       </TabsContent>
       
       <TabsContent value="ai-insights">
         <div className="p-6">
-          <h2 className="text-2xl font-bold mb-4">AI-Powered Inventory Insights</h2>
-          <p className="text-muted-foreground mb-6">Machine learning predictions and anomaly detection for your supply chain</p>
-          {/* AI Insights content will be loaded here */}
+          <AIInsightsTab />
         </div>
       </TabsContent>
     </Tabs>
