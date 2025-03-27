@@ -39,6 +39,7 @@ const getRecommendationData = (locationId: string, weights: any) => {
   Object.keys(weights).forEach(key => {
     // Fix the type issue by ensuring we're using a number
     const score = mockScores[key as keyof typeof mockScores] || 0;
+    // Convert weights[key] to a number to avoid type errors
     weightedScore += (Number(score) * Number(weights[key]));
   });
   
