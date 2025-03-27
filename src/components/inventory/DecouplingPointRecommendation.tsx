@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -28,7 +27,15 @@ const generateScores = () => {
   };
 };
 
-const getRecommendationData = (locationId: string, weights: Record<string, number>) => {
+type WeightFactors = {
+  leadTime: number;
+  demandVariability: number;
+  supplyReliability: number;
+  inventoryCost: number;
+  customerService: number;
+};
+
+const getRecommendationData = (locationId: string, weights: WeightFactors) => {
   // In a real application, this would call an API or perform actual calculations
   const mockScores = generateScores();
   
@@ -37,10 +44,11 @@ const getRecommendationData = (locationId: string, weights: Record<string, numbe
   let weightedScore = 0;
   
   Object.keys(weights).forEach(key => {
+    const keyAsFactorName = key as keyof typeof mockScores;
     // Get the score from mockScores
-    const score = mockScores[key as keyof typeof mockScores] || 0;
+    const score = mockScores[keyAsFactorName] || 0;
     // Get the weight as a number
-    const weight = weights[key];
+    const weight = weights[key as keyof WeightFactors];
     // Calculate weighted score with proper number types
     weightedScore += (score * weight);
   });
@@ -80,7 +88,7 @@ export const DecouplingPointRecommendation = () => {
   const [analysisComplete, setAnalysisComplete] = useState(false);
   const [recommendation, setRecommendation] = useState<any>(null);
   
-  const [weights, setWeights] = useState({
+  const [weights, setWeights] = useState<WeightFactors>({
     leadTime: 7,
     demandVariability: 5,
     supplyReliability: 6,
@@ -88,7 +96,7 @@ export const DecouplingPointRecommendation = () => {
     customerService: 8
   });
   
-  const handleWeightChange = (name: keyof typeof weights, value: number[]) => {
+  const handleWeightChange = (name: keyof WeightFactors, value: number[]) => {
     setWeights(prev => ({ ...prev, [name]: value[0] }));
   };
   
