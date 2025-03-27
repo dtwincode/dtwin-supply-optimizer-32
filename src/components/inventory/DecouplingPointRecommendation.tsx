@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -32,14 +33,15 @@ const getRecommendationData = (locationId: string, weights: Record<string, numbe
   const mockScores = generateScores();
   
   // Calculate weighted score (this is simplified for demo)
-  const totalWeight = Object.values(weights).reduce((sum, val) => sum + Number(val), 0);
+  const totalWeight = Object.values(weights).reduce((sum, val) => sum + val, 0);
   let weightedScore = 0;
   
   Object.keys(weights).forEach(key => {
-    // Fix the type issue by ensuring we're using a number
+    // Get the score from mockScores
     const score = mockScores[key as keyof typeof mockScores] || 0;
-    // Create a variable with the correct type before using it in arithmetic
-    const weight = Number(weights[key]);
+    // Get the weight as a number
+    const weight = weights[key];
+    // Calculate weighted score with proper number types
     weightedScore += (score * weight);
   });
   
