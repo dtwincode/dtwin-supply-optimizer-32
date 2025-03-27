@@ -1,4 +1,3 @@
-
 export interface TranslationItem {
   en: string;
   ar: string;
@@ -33,7 +32,7 @@ export interface InventoryTranslations {
   loadingData: TranslationItem;
   loadingItem: TranslationItem;
   errorLoading: TranslationItem;
-  errorLoadingConfig: TranslationItem;  // Added the missing property
+  errorLoadingConfig: TranslationItem;
   leadTimeCategory: TranslationItem;
   variabilityLevel: TranslationItem;
   criticality: TranslationItem;
@@ -104,6 +103,35 @@ export interface InventoryTranslations {
   stock_pointDecouplingPoint: TranslationItem;
   intermediateDecouplingPoint: TranslationItem;
   totalItems: TranslationItem;
+  bufferManagement: TranslationItem;
+  bufferManagementDesc: TranslationItem;
+  createBufferProfile: TranslationItem;
+  bufferProfiles: TranslationItem;
+  bufferConfiguration: TranslationItem;
+  bufferSimulation: TranslationItem;
+  bufferSimulationDesc: TranslationItem;
+  noBufferProfiles: TranslationItem;
+  bufferProfileSaved: TranslationItem;
+  leadTimeFactors: TranslationItem;
+  leadTimeThresholds: TranslationItem;
+  otherFactors: TranslationItem;
+  replenishmentTime: TranslationItem;
+  industry: TranslationItem;
+  moq: TranslationItem;
+  lotSizeFactor: TranslationItem;
+  variabilityFactor: TranslationItem;
+  selectADU: TranslationItem;
+  selectLeadTime: TranslationItem;
+  selectVariability: TranslationItem;
+  simulatedBufferVisualization: TranslationItem;
+  unitsPerDay: TranslationItem;
+  days: TranslationItem;
+  high: TranslationItem;
+  medium: TranslationItem;
+  low: TranslationItem;
+  short: TranslationItem;
+  long: TranslationItem;
+  unknown: TranslationItem;
 }
 
 export type Language = 'en' | 'ar';

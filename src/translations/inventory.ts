@@ -1,4 +1,3 @@
-
 import { InventoryTranslations } from './types';
 
 export const inventoryTranslations: InventoryTranslations = {
@@ -103,6 +102,10 @@ export const inventoryTranslations: InventoryTranslations = {
   errorLoading: {
     en: "Error loading inventory data table",
     ar: "خطأ في تحميل جدول بيانات المخزون"
+  },
+  errorLoadingConfig: {
+    en: "Failed to load buffer configuration",
+    ar: "فشل في تحميل تكوين المخزون"
   },
   leadTimeCategory: {
     en: "Lead Time Category",
@@ -236,7 +239,6 @@ export const inventoryTranslations: InventoryTranslations = {
     en: "Network visualization helps you understand the relationships between different points in your supply chain",
     ar: "يساعدك تصور الشبكة على فهم العلاقات بين النقاط المختلفة في سلسلة التوريد الخاصة بك"
   },
-  // Add missing properties from the InventoryTranslations type
   decouplingPointRecommendation: {
     en: "Decoupling Point Recommendation",
     ar: "توصية نقطة الفصل"
@@ -247,7 +249,7 @@ export const inventoryTranslations: InventoryTranslations = {
   },
   decouplingPointRecommendationHelp: {
     en: "This tool analyzes supply chain factors to recommend the best locations for decoupling points and their types based on your specific characteristics.",
-    ar: "تحلل هذه الأداة عوامل سلسلة التوريد للتوصية بأفضل المواقع لنقاط الفصل وأنواعها بناءً على الخصائص المحددة الخاصة بك."
+    ar: "تحل�� هذه الأداة عوامل سلسلة التوريد للتوصية بأفضل المواقع لنقاط الفصل وأنواعها بناءً على الخصائص المحددة الخاصة بك."
   },
   locationSelection: {
     en: "Location Selection",
@@ -380,5 +382,121 @@ export const inventoryTranslations: InventoryTranslations = {
   totalItems: {
     en: "Total Items",
     ar: "إجمالي العناصر"
+  },
+  bufferManagement: {
+    en: "Buffer Management",
+    ar: "إدارة المخزون"
+  },
+  bufferManagementDesc: {
+    en: "Configure buffer profiles and manage buffer parameters",
+    ar: "تكوين ملفات تعريف المخزون وإدارة معلمات المخزون"
+  },
+  createBufferProfile: {
+    en: "Create Buffer Profile",
+    ar: "إنشاء ملف تعريف المخزون"
+  },
+  bufferProfiles: {
+    en: "Buffer Profiles",
+    ar: "ملفات تعريف المخزون"
+  },
+  bufferConfiguration: {
+    en: "Buffer Configuration",
+    ar: "تكوين المخزون"
+  },
+  bufferSimulation: {
+    en: "Buffer Simulation",
+    ar: "محاكاة المخزون"
+  },
+  bufferSimulationDesc: {
+    en: "Visualize buffer zones based on different parameters",
+    ar: "تصور مناطق المخزون بناءً على معلمات مختلفة"
+  },
+  noBufferProfiles: {
+    en: "No buffer profiles found. Create one to get started.",
+    ar: "لم يتم العثور على ملفات تعريف المخزون. قم بإنشاء واحد للبدء."
+  },
+  bufferProfileSaved: {
+    en: "Buffer profile saved successfully",
+    ar: "تم حفظ ملف تعريف المخزون بنجاح"
+  },
+  leadTimeFactors: {
+    en: "Lead Time Factors",
+    ar: "عوامل وقت التوريد"
+  },
+  leadTimeThresholds: {
+    en: "Lead Time Thresholds (days)",
+    ar: "عتبات وقت التوريد (أيام)"
+  },
+  otherFactors: {
+    en: "Other Factors",
+    ar: "عوامل أخرى"
+  },
+  replenishmentTime: {
+    en: "Replenishment Time",
+    ar: "وقت إعادة التزويد"
+  },
+  industry: {
+    en: "Industry",
+    ar: "الصناعة"
+  },
+  moq: {
+    en: "MOQ",
+    ar: "الحد الأدنى للطلب"
+  },
+  lotSizeFactor: {
+    en: "Lot Size Factor",
+    ar: "عامل حجم الدفعة"
+  },
+  variabilityFactor: {
+    en: "Variability Factor",
+    ar: "عامل التغير"
+  },
+  selectADU: {
+    en: "Select ADU",
+    ar: "اختر متوسط الاستخدام اليومي"
+  },
+  selectLeadTime: {
+    en: "Select Lead Time",
+    ar: "اختر وقت التوريد"
+  },
+  selectVariability: {
+    en: "Select Variability",
+    ar: "اختر التغير"
+  },
+  simulatedBufferVisualization: {
+    en: "Simulated Buffer Visualization",
+    ar: "تصور محاكاة المخزون"
+  },
+  unitsPerDay: {
+    en: "units/day",
+    ar: "وحدة/يوم"
+  },
+  days: {
+    en: "days",
+    ar: "أيام"
+  },
+  high: {
+    en: "High",
+    ar: "مرتفع"
+  },
+  medium: {
+    en: "Medium",
+    ar: "متوسط"
+  },
+  low: {
+    en: "Low",
+    ar: "منخفض"
+  },
+  short: {
+    en: "Short",
+    ar: "قصير"
+  },
+  long: {
+    en: "Long",
+    ar: "طويل"
+  },
+  unknown: {
+    en: "Unknown",
+    ar: "غير معروف"
   }
 };
