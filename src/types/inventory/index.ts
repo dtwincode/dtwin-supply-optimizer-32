@@ -32,7 +32,7 @@ export type {
 } from '../inventory';
 
 // Make sure all classification types are directly exported for easier access
-export {
+export type {
   Classification,
   SKUClassification,
   LeadTimeData,
