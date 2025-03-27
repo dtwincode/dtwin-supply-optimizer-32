@@ -20,4 +20,3 @@ export { BufferVisualizer } from './BufferVisualizer';
 export { DecouplingPointDialog } from './DecouplingPointDialog';
 export { DecouplingNetworkBoard } from './DecouplingNetworkBoard';
 export { InventoryTourGuide, TourButton } from './InventoryTourGuide';
-export { AILeadLink } from './AILeadLink';
