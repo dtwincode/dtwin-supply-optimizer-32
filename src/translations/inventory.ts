@@ -129,7 +129,7 @@ export const inventoryTranslations: InventoryTranslations = {
   },
   adu: {
     en: "ADU",
-    ar: "متوسط الاستخدام اليومي"
+    ar: "م.ا.ي"
   },
   turnover: {
     en: "Turnover",
@@ -498,5 +498,29 @@ export const inventoryTranslations: InventoryTranslations = {
   unknown: {
     en: "Unknown",
     ar: "غير معروف"
+  },
+  stock: {
+    en: "Stock",
+    ar: "المخزون"
+  },
+  buffer: {
+    en: "Buffer",
+    ar: "المخزون الاحتياطي"
+  },
+  classify: {
+    en: "Classify",
+    ar: "تصنيف"
+  },
+  decouple: {
+    en: "Decouple",
+    ar: "فصل"
+  },
+  netflow: {
+    en: "Net Flow",
+    ar: "التدفق"
+  },
+  ai: {
+    en: "AI",
+    ar: "ذ.ص"
   }
 };

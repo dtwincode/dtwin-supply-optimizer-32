@@ -50,13 +50,13 @@ export const InventoryTabs = ({ defaultValue = "inventory", children }: Inventor
     <Tabs defaultValue={initialTab} onValueChange={handleTabChange} className="w-full">
       <div className="border-b px-4">
         <TabsList className="grid w-full grid-cols-7">
-          <TabsTrigger value="inventory">{t("common.inventory.inventoryLevels")}</TabsTrigger>
-          <TabsTrigger value="buffer">{t("common.inventory.bufferManagement")}</TabsTrigger>
+          <TabsTrigger value="inventory">{t("common.inventory.stock")}</TabsTrigger>
+          <TabsTrigger value="buffer">{t("common.inventory.buffer")}</TabsTrigger>
           <TabsTrigger value="adu">{t("common.inventory.adu")}</TabsTrigger>
-          <TabsTrigger value="classification">{t("common.inventory.skuClassification")}</TabsTrigger>
-          <TabsTrigger value="decoupling">{t("common.inventory.decouplingPoints")}</TabsTrigger>
-          <TabsTrigger value="netflow">{t("common.inventory.netFlowPosition")}</TabsTrigger>
-          <TabsTrigger value="ai-insights">AI Insights</TabsTrigger>
+          <TabsTrigger value="classification">{t("common.inventory.classify")}</TabsTrigger>
+          <TabsTrigger value="decoupling">{t("common.inventory.decouple")}</TabsTrigger>
+          <TabsTrigger value="netflow">{t("common.inventory.netflow")}</TabsTrigger>
+          <TabsTrigger value="ai-insights">{t("common.inventory.ai")}</TabsTrigger>
         </TabsList>
       </div>
       
