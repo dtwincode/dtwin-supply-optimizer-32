@@ -2,9 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import Joyride, { CallBackProps, STATUS, Step } from 'react-joyride';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useI18n } from '@/contexts/I18nContext';
 import { Button } from '@/components/ui/button';
 import { InfoIcon, XCircle } from 'lucide-react';
-import { getTranslation } from '@/translations';
 
 interface InventoryTourGuideProps {
   run: boolean;
@@ -16,6 +16,7 @@ export const InventoryTourGuide: React.FC<InventoryTourGuideProps> = ({
   onFinish 
 }) => {
   const { language } = useLanguage();
+  const { t } = useI18n();
   const [steps, setSteps] = useState<Step[]>([]);
 
   useEffect(() => {
@@ -136,6 +137,7 @@ export const InventoryTourGuide: React.FC<InventoryTourGuideProps> = ({
 // Create a button component to trigger the tour
 export const TourButton: React.FC<{ onClick: () => void }> = ({ onClick }) => {
   const { language } = useLanguage();
+  const { t } = useI18n();
   
   return (
     <Button

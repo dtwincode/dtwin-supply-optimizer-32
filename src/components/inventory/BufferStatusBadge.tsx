@@ -1,14 +1,12 @@
 
-import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslation } from "@/translations";
-import { zonesTranslations } from "@/translations/common/zones";
+import { useI18n } from "@/contexts/I18nContext";
 
 interface BufferStatusBadgeProps {
   status: "green" | "yellow" | "red";
 }
 
 export const BufferStatusBadge = ({ status }: BufferStatusBadgeProps) => {
-  const { language } = useLanguage();
+  const { t } = useI18n();
   
   const getStatusClasses = () => {
     switch (status) {
@@ -24,7 +22,7 @@ export const BufferStatusBadge = ({ status }: BufferStatusBadgeProps) => {
   };
 
   const getStatusText = () => {
-    return zonesTranslations[status][language];
+    return t(`common.zones.${status}`);
   };
 
   return (

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslation } from "@/translations";
+import { useI18n } from "@/contexts/I18nContext";
 import { InventoryTableHeader } from "./InventoryTableHeader";
 import { BufferStatusBadge } from "./BufferStatusBadge";
 import { BufferVisualizer } from "./BufferVisualizer";
@@ -66,7 +66,7 @@ interface InventoryTabProps {
 }
 
 export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) => {
-  const { language } = useLanguage();
+  const { t } = useI18n();
   const { toast } = useToast();
   const [itemBuffers, setItemBuffers] = useState<Record<string, {
     bufferZones: { red: number; yellow: number; green: number; };
@@ -110,8 +110,8 @@ export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) =
         console.error("Error calculating buffer data:", error);
         setError("Failed to load buffer data");
         toast({
-          title: getTranslation("common.error", language),
-          description: getTranslation("common.inventory.errorLoading", language),
+          title: t("common.error"),
+          description: t("common.inventory.errorLoading"),
           variant: "destructive",
         });
       } finally {
@@ -126,10 +126,10 @@ export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) =
     }, 100);
     
     return () => clearTimeout(timer);
-  }, [paginatedData, toast, language]);
+  }, [paginatedData, toast, t]);
 
   if (loading) {
-    return <div className="p-6 text-center">{getTranslation("common.inventory.loadingData", language)}</div>;
+    return <div className="p-6 text-center">{t("common.inventory.loadingData")}</div>;
   }
 
   if (error) {
@@ -144,7 +144,7 @@ export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) =
     <div className="space-y-6 p-6">
       {!paginatedData || paginatedData.length === 0 ? (
         <div className="text-center py-10">
-          <p className="text-muted-foreground">{getTranslation("common.inventory.noItems", language)}</p>
+          <p className="text-muted-foreground">{t("common.inventory.noItems")}</p>
         </div>
       ) : (
         paginatedData.map((item) => {
@@ -155,7 +155,7 @@ export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) =
           const bufferData = itemBuffers[item.id];
           
           if (!bufferData) {
-            return <div key={item.id} className="text-muted-foreground">{getTranslation("common.inventory.loadingItem", language)}</div>;
+            return <div key={item.id} className="text-muted-foreground">{t("common.inventory.loadingItem")}</div>;
           }
 
           return (

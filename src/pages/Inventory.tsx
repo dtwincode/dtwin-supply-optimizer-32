@@ -1,9 +1,10 @@
+
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslation } from "@/translations";
+import { useI18n } from "@/contexts/I18nContext";
 import { Button } from "@/components/ui/button";
 import InventoryFilters from "@/components/inventory/InventoryFilters";
 import InventorySummaryCards from "@/components/inventory/InventorySummaryCards";
@@ -58,6 +59,7 @@ const mockClassifications: SKUClassification[] = [
 
 const Inventory = () => {
   const { language } = useLanguage();
+  const { t } = useI18n();
   const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
@@ -131,8 +133,8 @@ const Inventory = () => {
   const handleCreatePurchaseOrder = (item: InventoryItem) => {
     try {
       toast({
-        title: getTranslation("common.success", language),
-        description: getTranslation("common.purchaseOrderCreated", language),
+        title: t("common.success"),
+        description: t("common.purchaseOrderCreated"),
       });
     } catch (error) {
       console.error("Error creating purchase order:", error);
@@ -141,7 +143,7 @@ const Inventory = () => {
 
   const handleDecouplingPointSuccess = () => {
     toast({
-      title: getTranslation("common.success", language),
+      title: t("common.success"),
       description: language === 'ar' ? "تم تحديث إعدادات نقطة الفصل بنجاح" : "Decoupling point configuration updated successfully",
     });
     setDialogOpen(false);
@@ -151,7 +153,7 @@ const Inventory = () => {
     console.error("Inventory component error:", error, info);
     setHasError(true);
     toast({
-      title: getTranslation("common.error", language),
+      title: t("common.error"),
       description: language === 'ar' ? "حدث خطأ أثناء تحميل صفحة المخزون. يرجى المحاولة مرة أخرى لاحقًا." : "An error occurred while loading the inventory page. Please try again later.",
       variant: "destructive",
     });
@@ -200,7 +202,7 @@ const Inventory = () => {
       <DashboardLayout>
         <div className="flex items-center justify-center h-[80vh]">
           <div className="text-center">
-            <p className="text-muted-foreground">{getTranslation("common.inventory.loadingData", language)}</p>
+            <p className="text-muted-foreground">{t("common.inventory.loadingData")}</p>
           </div>
         </div>
       </DashboardLayout>
@@ -237,7 +239,7 @@ const Inventory = () => {
           <div className="flex justify-between items-center inventory-header">
             <div className="flex items-center gap-2">
               <p className="text-muted-foreground">
-                {getTranslation("common.inventory.manageAndTrack", language)}
+                {t("common.inventory.manageAndTrack")}
               </p>
               <TooltipProvider>
                 <Tooltip>
@@ -270,7 +272,7 @@ const Inventory = () => {
                 }}
                 className="decoupling-point-button"
               >
-                {getTranslation("common.inventory.addDecouplingPoint", language)}
+                {t("common.inventory.addDecouplingPoint")}
               </Button>
               <TourButton onClick={startTour} />
             </div>
@@ -287,7 +289,7 @@ const Inventory = () => {
           <ErrorBoundary fallback={<Card className="p-6 text-center">{language === 'ar' ? "خطأ في تحميل تصنيفات وحدات التخزين" : "Error loading SKU classifications"}</Card>} onError={handleError}>
             <Card className="p-4 inventory-classifications">
               <h3 className="text-lg font-semibold mb-3">
-                {getTranslation("common.inventory.skuClassifications", language)}
+                {t("common.inventory.skuClassifications")}
               </h3>
               <SKUClassifications classifications={mockClassifications} />
             </Card>
@@ -307,7 +309,7 @@ const Inventory = () => {
         </ErrorBoundary>
 
         <Card>
-          <ErrorBoundary fallback={<div className="p-6 text-center">{getTranslation("common.inventory.errorLoading", language)}</div>} onError={handleError}>
+          <ErrorBoundary fallback={<div className="p-6 text-center">{t("common.inventory.errorLoading")}</div>} onError={handleError}>
             <div className="inventory-tabs">
               <InventoryTabs defaultValue={defaultTab}>
                 <div className="space-y-4 p-5">
@@ -317,7 +319,7 @@ const Inventory = () => {
                   />
                   <div className="mt-3 flex justify-between items-center">
                     <div className="text-sm text-gray-500">
-                      {getTranslation("common.showing", language)} {filteredData.length > 0 ? startIndex + 1 : 0} {getTranslation("common.to", language)} {Math.min(endIndex, filteredData.length)} {getTranslation("common.of", language)} {filteredData.length} {getTranslation("common.items", language)}
+                      {t("common.showing")} {filteredData.length > 0 ? startIndex + 1 : 0} {t("common.to")} {Math.min(endIndex, filteredData.length)} {t("common.of")} {filteredData.length} {t("common.items")}
                     </div>
                     <div className="flex gap-2">
                       <Button
@@ -325,14 +327,14 @@ const Inventory = () => {
                         onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                         disabled={currentPage === 1}
                       >
-                        {getTranslation("common.previous", language)}
+                        {t("common.previous")}
                       </Button>
                       <Button
                         variant="outline"
                         onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredData.length / 10), p + 1))}
                         disabled={currentPage === Math.ceil(filteredData.length / 10) || filteredData.length === 0}
                       >
-                        {getTranslation("common.next", language)}
+                        {t("common.next")}
                       </Button>
                     </div>
                   </div>
