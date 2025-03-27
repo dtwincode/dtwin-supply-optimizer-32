@@ -1,3 +1,4 @@
+
 export interface TranslationItem {
   en: string;
   ar: string;
@@ -32,6 +33,7 @@ export interface InventoryTranslations {
   loadingData: TranslationItem;
   loadingItem: TranslationItem;
   errorLoading: TranslationItem;
+  errorLoadingConfig: TranslationItem;  // Added the missing property
   leadTimeCategory: TranslationItem;
   variabilityLevel: TranslationItem;
   criticality: TranslationItem;
