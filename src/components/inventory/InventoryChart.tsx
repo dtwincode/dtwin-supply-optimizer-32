@@ -25,6 +25,7 @@ type DDMRPMetricView = 'bufferZones' | 'netFlow' | 'aduTrends' | 'bufferPenetrat
 
 export const InventoryChart = ({ data }: InventoryChartProps) => {
   const { language } = useLanguage();
+  const { t } = getTranslation();
   const [chartType, setChartType] = useState<ChartType>('bar');
   const [fromDate, setFromDate] = useState<Date>(new Date());
   const [toDate, setToDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() + 30)));
@@ -243,7 +244,7 @@ export const InventoryChart = ({ data }: InventoryChartProps) => {
       <div className="flex flex-col space-y-4">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-semibold">
-            {getTranslation('common.chartTitles.bufferProfile', language)}
+            {t("common.inventory.bufferProfile")}
           </h3>
           <div className="flex gap-2">
             <Button

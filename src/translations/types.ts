@@ -138,6 +138,7 @@ export interface InventoryTranslations {
   decouple: TranslationItem;
   netflow: TranslationItem;
   ai: TranslationItem;
+  bufferProfile: TranslationItem;
 }
 
 export type Language = 'en' | 'ar';

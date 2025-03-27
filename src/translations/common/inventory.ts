@@ -1,3 +1,4 @@
+
 import { InventoryTranslations } from '../types';
 
 export const inventoryTranslations: InventoryTranslations = {
@@ -522,5 +523,9 @@ export const inventoryTranslations: InventoryTranslations = {
   totalItems: {
     en: "Total Items",
     ar: "إجمالي العناصر"
+  },
+  bufferProfile: {
+    en: "Buffer Profile",
+    ar: "ملف تعريف المخزون"
   }
 };
