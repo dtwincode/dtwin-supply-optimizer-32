@@ -1,5 +1,6 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import i18n from "@/translations"; // ✅ ضروري لربط الترجمة
+import { getTranslation, Language } from '@/translations'; // Fix the import - remove default import
 
 type LanguageContextType = {
   language: 'en' | 'ar';
@@ -21,8 +22,8 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
     localStorage.setItem('language', language);
     document.dir = isRTL ? 'rtl' : 'ltr';
     document.documentElement.lang = language;
-    i18n.changeLanguage(language); // ✅ يُفعّل اللغة على مستوى الترجمة
-
+    // Remove the i18n.changeLanguage call as it doesn't exist in the current setup
+    
     if (isRTL) {
       document.body.classList.add('rtl');
     } else {

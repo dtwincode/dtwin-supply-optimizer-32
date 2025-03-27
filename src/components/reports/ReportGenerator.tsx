@@ -61,8 +61,7 @@ export const ReportGenerator = () => {
       console.error('Error generating report description:', error);
       toast({
         title: t("common.error"),
-        description: t("reports.descriptionError") || "Failed to generate report description. Please try again.",
-        variant: "destructive",
+        description: t("reports.descriptionError")
       });
     } finally {
       setIsLoadingDescription(false);
@@ -80,9 +79,8 @@ export const ReportGenerator = () => {
 
   const handleGenerateReport = (format: "pdf" | "excel" | "ppt") => {
     toast({
-      title: t("reports.generated") || "Report Generated",
-      description: t("reports.generatedDesc", { report: selectedReport, timeFrame: selectedTimeFrame, format: format.toUpperCase() }) || 
-                  `${selectedReport} for ${selectedTimeFrame} has been generated in ${format.toUpperCase()} format.`,
+      title: t("reports.generated"),
+      description: t("reports.generatedDesc")
     });
   };
 
@@ -90,13 +88,13 @@ export const ReportGenerator = () => {
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">{t("reports.configuration") || "Report Configuration"}</h3>
+          <h3 className="text-lg font-semibold mb-4">{t("reports.configuration")}</h3>
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">{t("reports.type") || "Report Type"}</label>
+              <label className="text-sm font-medium">{t("reports.type")}</label>
               <Select onValueChange={handleReportChange} value={selectedReport}>
                 <SelectTrigger>
-                  <SelectValue placeholder={t("reports.selectType") || "Select report type"} />
+                  <SelectValue placeholder={t("reports.selectType")} />
                 </SelectTrigger>
                 <SelectContent>
                   {reportTypes.map((type) => (
@@ -107,7 +105,7 @@ export const ReportGenerator = () => {
                 </SelectContent>
               </Select>
               {isLoadingDescription && (
-                <p className="text-sm text-gray-500 mt-2">{t("reports.generatingDesc") || "Generating description..."}</p>
+                <p className="text-sm text-gray-500 mt-2">{t("reports.generatingDesc")}</p>
               )}
               {reportDescription && !isLoadingDescription && (
                 <p className="text-sm text-gray-600 mt-2 bg-gray-50 p-3 rounded-md">
@@ -116,10 +114,10 @@ export const ReportGenerator = () => {
               )}
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">{t("reports.timeFrame") || "Time Frame"}</label>
+              <label className="text-sm font-medium">{t("reports.timeFrame")}</label>
               <Select onValueChange={setSelectedTimeFrame} value={selectedTimeFrame}>
                 <SelectTrigger>
-                  <SelectValue placeholder={t("reports.selectTimeFrame") || "Select time frame"} />
+                  <SelectValue placeholder={t("reports.selectTimeFrame")} />
                 </SelectTrigger>
                 <SelectContent>
                   {timeFrames.map((frame) => (
@@ -134,7 +132,7 @@ export const ReportGenerator = () => {
         </Card>
 
         <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">{t("reports.exportOptions") || "Export Options"}</h3>
+          <h3 className="text-lg font-semibold mb-4">{t("reports.exportOptions")}</h3>
           <div className="grid grid-cols-1 gap-4">
             <Button
               variant="outline"
@@ -143,7 +141,7 @@ export const ReportGenerator = () => {
               disabled={!selectedReport || !selectedTimeFrame}
             >
               <FileText className="h-4 w-4" />
-              {t("reports.exportPDF") || "Export as PDF"}
+              {t("reports.exportPDF")}
             </Button>
             <Button
               variant="outline"
@@ -152,7 +150,7 @@ export const ReportGenerator = () => {
               disabled={!selectedReport || !selectedTimeFrame}
             >
               <FileText className="h-4 w-4" />
-              {t("reports.exportExcel") || "Export as Excel"}
+              {t("reports.exportExcel")}
             </Button>
             <Button
               variant="outline"
@@ -161,7 +159,7 @@ export const ReportGenerator = () => {
               disabled={!selectedReport || !selectedTimeFrame}
             >
               <FileText className="h-4 w-4" />
-              {t("reports.exportPPT") || "Export as PowerPoint"}
+              {t("reports.exportPPT")}
             </Button>
           </div>
         </Card>
@@ -170,17 +168,15 @@ export const ReportGenerator = () => {
       {selectedReport && selectedTimeFrame && (
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">{t("reports.preview") || "Report Preview"}</h3>
+            <h3 className="text-lg font-semibold">{t("reports.preview")}</h3>
             <Button variant="ghost" size="sm" className="gap-2">
               <Download className="h-4 w-4" />
-              {t("reports.downloadPreview") || "Download Preview"}
+              {t("reports.downloadPreview")}
             </Button>
           </div>
           <div className="bg-gray-50 rounded-lg p-4 min-h-[200px] flex items-center justify-center">
             <p className="text-gray-500">
-              {t("reports.previewText", { 
-                report: reportTypes.find(r => r.id === selectedReport)?.name 
-              }) || `Preview for ${reportTypes.find(r => r.id === selectedReport)?.name} will be displayed here`}
+              {t("reports.previewText")}
             </p>
           </div>
         </Card>
