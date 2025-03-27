@@ -1,99 +1,46 @@
 
-import { ExecutiveSummary } from '../types';
+import { DashboardMetrics, ExecutiveSummary } from '../types';
+
+export const dashboardTranslations: DashboardMetrics = {
+  title: {
+    en: "Key Metrics",
+    ar: "المقاييس الرئيسية"
+  },
+  totalSKUs: {
+    en: "Total SKUs",
+    ar: "إجمالي وحدات التخزين"
+  },
+  bufferPenetration: {
+    en: "Buffer Penetration",
+    ar: "اختراق المخزون"
+  },
+  orderStatus: {
+    en: "Order Status",
+    ar: "حالة الطلب"
+  },
+  flowIndex: {
+    en: "Flow Index",
+    ar: "مؤشر التدفق"
+  }
+};
 
 export const executiveSummaryTranslations: ExecutiveSummary = {
   title: {
     en: "Executive Summary",
     ar: "ملخص تنفيذي"
   },
-  totalRevenue: {
-    en: "Total Revenue",
-    ar: "إجمالي الإيرادات"
-  },
-  newCustomers: {
-    en: "New Customers",
-    ar: "عملاء جدد"
-  },
-  averageOrderValue: {
-    en: "Average Order Value",
-    ar: "متوسط ​​قيمة الطلب"
-  },
-  customerSatisfaction: {
-    en: "Customer Satisfaction",
-    ar: "رضا العملاء"
-  },
-  topSellingProducts: {
-    en: "Top Selling Products",
-    ar: "المنتجات الأكثر مبيعًا"
-  },
-  regionalSalesBreakdown: {
-    en: "Regional Sales Breakdown",
-    ar: "تقسيم المبيعات الإقليمية"
-  },
-  marketingCampaignPerformance: {
-    en: "Marketing Campaign Performance",
-    ar: "أداء الحملة التسويقية"
-  },
-  websiteTrafficTrends: {
-    en: "Website Traffic Trends",
-    ar: "اتجاهات حركة المرور على الموقع"
-  },
-  customerAcquisitionCost: {
-    en: "Customer Acquisition Cost",
-    ar: "تكلفة اكتساب العملاء"
-  },
-  customerLifetimeValue: {
-    en: "Customer Lifetime Value",
-    ar: "قيمة العميل مدى الحياة"
-  },
-  inventoryTurnoverRate: {
-    en: "Inventory Turnover Rate",
-    ar: "معدل دوران المخزون"
-  },
-  supplierLeadTime: {
-    en: "Supplier Lead Time",
-    ar: "وقت التسليم من المورد"
-  },
-  productionDefectRate: {
-    en: "Production Defect Rate",
-    ar: "معدل عيوب الإنتاج"
-  },
-  transportationCostPerMile: {
-    en: "Transportation Cost Per Mile",
-    ar: "تكلفة النقل لكل ميل"
-  },
-  ontimeDeliveryRate: {
-    en: "On-time Delivery Rate",
-    ar: "معدل التسليم في الوقت المحدد"
-  },
-  employeeEngagementScore: {
-    en: "Employee Engagement Score",
-    ar: "درجة مشاركة الموظف"
-  },
-  carbonFootprint: {
-    en: "Carbon Footprint",
-    ar: "البصمة الكربونية"
-  },
-  communityInvolvement: {
-    en: "Community Involvement",
-    ar: "المشاركة المجتمعية"
-  },
-  governanceComplianceScore: {
-    en: "Governance Compliance Score",
-    ar: "درجة الامتثال للحوكمة"
-  },
   lastUpdated: {
-    en: "Last Updated",
+    en: "Last updated",
     ar: "آخر تحديث"
   },
   kpis: {
     orderFulfillment: {
-      en: "Order Fulfillment",
-      ar: "إتمام الطلب"
+      en: "Order Fulfillment Rate",
+      ar: "معدل إتمام الطلبات"
     },
     inventoryTurnover: {
       en: "Inventory Turnover",
-      ar: "دوران المخزون"
+      ar: "معدل دوران المخزون"
     },
     stockoutRate: {
       en: "Stockout Rate",
@@ -105,20 +52,20 @@ export const executiveSummaryTranslations: ExecutiveSummary = {
     }
   },
   performanceTrend: {
-    en: "Performance Trend",
-    ar: "اتجاه الأداء"
+    en: "Supply Chain Performance",
+    ar: "أداء سلسلة التوريد"
   },
   performanceTrendDesc: {
-    en: "Performance compared to previous period",
-    ar: "الأداء مقارنة بالفترة السابقة"
+    en: "Actual vs Target performance over time",
+    ar: "الأداء الفعلي مقابل المستهدف على مدار الوقت"
   },
   bufferDistribution: {
     en: "Buffer Distribution",
-    ar: "توزيع المخزون الاحتياطي"
+    ar: "توزيع المخزون"
   },
   bufferDistributionDesc: {
-    en: "Distribution of inventory buffers across zones",
-    ar: "توزيع المخزون الاحتياطي عبر المناطق"
+    en: "Current buffer status across all SKUs",
+    ar: "حالة المخزون الحالية عبر جميع وحدات SKU"
   },
   criticalAlerts: {
     en: "Critical Alerts",
@@ -126,26 +73,26 @@ export const executiveSummaryTranslations: ExecutiveSummary = {
   },
   alerts: {
     lowBuffer: {
-      en: "Low Buffer",
-      ar: "مخزون احتياطي منخفض"
+      en: "Critical Low Buffer Levels Detected",
+      ar: "تم اكتشاف مستويات منخفضة حرجة للمخزون"
     },
     lowBufferDesc: {
-      en: "Multiple SKUs in red zone requiring immediate action",
-      ar: "وحدات تخزين متعددة في المنطقة الحمراء تتطلب إجراءً فوريًا"
+      en: "12 SKUs have reached critical buffer levels and require immediate attention",
+      ar: "وصلت 12 وحدة SKU إلى مستويات حرجة من المخزون وتتطلب اهتمامًا فوريًا"
     },
     demandSpike: {
-      en: "Demand Spike",
-      ar: "ارتفاع الطلب"
+      en: "Unexpected Demand Spike",
+      ar: "ارتفاع غير متوقع في الطلب"
     },
     demandSpikeDesc: {
-      en: "Unexpected increase in demand for high-value SKUs",
-      ar: "زيادة غير متوقعة في الطلب على وحدات التخزين ذات القيمة العالية"
+      en: "A 35% increase in demand has been detected for Product Category A in Region 3",
+      ar: "تم اكتشاف زيادة بنسبة 35٪ في الطلب على فئة المنتج أ في المنطقة 3"
     }
   },
   impact: {
     high: {
       en: "High Impact",
-      ar: "تأثير عالي"
+      ar: "تأثير مرتفع"
     },
     medium: {
       en: "Medium Impact",
@@ -158,15 +105,15 @@ export const executiveSummaryTranslations: ExecutiveSummary = {
   },
   noAlerts: {
     en: "No critical alerts at this time",
-    ar: "لا توجد تنبيهات حرجة في هذا الوقت"
+    ar: "لا توجد تنبيهات حرجة في الوقت الحالي"
   },
   moduleHealth: {
     en: "Module Health",
-    ar: "صحة الوحدة"
+    ar: "صحة الوحدات"
   },
   moduleHealthDesc: {
-    en: "Current status of supply chain modules",
-    ar: "الحالة الحالية لوحدات سلسلة التوريد"
+    en: "Current status of all system modules",
+    ar: "الحالة الحالية لجميع وحدات النظام"
   },
   status: {
     healthy: {
@@ -179,7 +126,7 @@ export const executiveSummaryTranslations: ExecutiveSummary = {
     },
     critical: {
       en: "Critical",
-      ar: "حرجة"
+      ar: "حرج"
     }
   },
   charts: {

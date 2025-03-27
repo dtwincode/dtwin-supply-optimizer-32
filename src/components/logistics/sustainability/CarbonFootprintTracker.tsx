@@ -47,6 +47,9 @@ export const CarbonFootprintTracker: React.FC = () => {
   const prevYearCO2 = 15500; // Simulated previous year total
   const co2Change = Math.round(((totalCO2 - prevYearCO2) / prevYearCO2) * 100);
   
+  // Helper function for translations
+  const t = (key: string) => getTranslation(`common.logistics.${key}`, language) || key;
+  
   return (
     <Card className="shadow-md">
       <CardHeader className="pb-2">
@@ -54,7 +57,7 @@ export const CarbonFootprintTracker: React.FC = () => {
           <div className="flex items-center space-x-2">
             <Leaf className="h-5 w-5 text-green-600" />
             <CardTitle className="text-xl">
-              {getTranslation("common.sustainability.carbonFootprint", language)}
+              {t('carbonFootprint')}
             </CardTitle>
           </div>
           <div className="flex items-center space-x-2">
@@ -70,7 +73,7 @@ export const CarbonFootprintTracker: React.FC = () => {
             </Select>
             <Button variant="outline" size="sm">
               <FileBarChart className="h-4 w-4 mr-2" />
-              {getTranslation("common.sustainability.exportReport", language)}
+              {t('exportReport')}
             </Button>
           </div>
         </div>
@@ -79,7 +82,7 @@ export const CarbonFootprintTracker: React.FC = () => {
           <Badge className={co2Change < 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
             <span className="flex items-center">
               {co2Change < 0 ? <TrendingDown className="h-3 w-3 mr-1" /> : null}
-              {co2Change}% {getTranslation("common.sustainability.vsLastYear", language)}
+              {co2Change}% {t('vsLastYear')}
             </span>
           </Badge>
         </CardDescription>
@@ -88,13 +91,13 @@ export const CarbonFootprintTracker: React.FC = () => {
         <Tabs defaultValue="trends">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="trends">
-              {getTranslation("common.sustainability.trends", language)}
+              {t('trends')}
             </TabsTrigger>
             <TabsTrigger value="breakdown">
-              {getTranslation("common.sustainability.breakdown", language)}
+              {t('breakdown')}
             </TabsTrigger>
             <TabsTrigger value="efficiency">
-              {getTranslation("common.sustainability.efficiency", language)}
+              {t('efficiency')}
             </TabsTrigger>
           </TabsList>
           
@@ -121,7 +124,7 @@ export const CarbonFootprintTracker: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h3 className="text-sm font-medium mb-2">
-                  {getTranslation("common.sustainability.transportTypes", language)}
+                  {t('transportTypes')}
                 </h3>
                 {transportTypes.map((transport) => (
                   <div key={transport.name} className="mb-4">
@@ -143,25 +146,25 @@ export const CarbonFootprintTracker: React.FC = () => {
               <div className="space-y-4">
                 <div className="border rounded-lg p-4">
                   <h3 className="text-sm font-medium mb-1">
-                    {getTranslation("common.sustainability.topReductions", language)}
+                    {t('topReductions')}
                   </h3>
                   <ul className="space-y-2 mt-3">
                     <li className="flex items-center">
                       <ArrowRight className="h-4 w-4 text-green-500 mr-2" />
                       <span className="text-sm">
-                        {getTranslation("common.sustainability.switchToRail", language)}
+                        {t('switchToRail')}
                       </span>
                     </li>
                     <li className="flex items-center">
                       <ArrowRight className="h-4 w-4 text-green-500 mr-2" />
                       <span className="text-sm">
-                        {getTranslation("common.sustainability.optimizeRoutes", language)}
+                        {t('optimizeRoutes')}
                       </span>
                     </li>
                     <li className="flex items-center">
                       <ArrowRight className="h-4 w-4 text-green-500 mr-2" />
                       <span className="text-sm">
-                        {getTranslation("common.sustainability.useEVs", language)}
+                        {t('useEVs')}
                       </span>
                     </li>
                   </ul>
@@ -169,12 +172,12 @@ export const CarbonFootprintTracker: React.FC = () => {
                 
                 <div className="border rounded-lg p-4">
                   <h3 className="text-sm font-medium mb-2">
-                    {getTranslation("common.sustainability.yearGoalProgress", language)}
+                    {t('yearGoalProgress')}
                   </h3>
                   <div className="flex items-end space-x-1">
                     <span className="text-2xl font-medium">{Math.round((totalCO2 / 14000) * 100)}%</span>
                     <span className="text-sm text-gray-500 mb-1">
-                      {getTranslation("common.sustainability.ofTarget", language)}
+                      {t('ofTarget')}
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
@@ -184,7 +187,7 @@ export const CarbonFootprintTracker: React.FC = () => {
                     ></div>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    {getTranslation("common.sustainability.yearTarget", language)}: 14,000 kg CO₂
+                    {t('yearTarget')}: 14,000 kg CO₂
                   </p>
                 </div>
               </div>
@@ -197,10 +200,10 @@ export const CarbonFootprintTracker: React.FC = () => {
                 <CardContent className="pt-6">
                   <div className="text-center">
                     <p className="text-sm text-gray-500">
-                      {getTranslation("common.sustainability.co2PerShipment", language)}
+                      {t('co2PerShipment')}
                     </p>
                     <p className="text-3xl font-medium mt-2">{co2PerShipment} kg</p>
-                    <Badge className="mt-2 bg-green-100 text-green-800">-4.2% {getTranslation("common.sustainability.yoy", language)}</Badge>
+                    <Badge className="mt-2 bg-green-100 text-green-800">-4.2% {t('yoy')}</Badge>
                   </div>
                 </CardContent>
               </Card>
@@ -209,10 +212,10 @@ export const CarbonFootprintTracker: React.FC = () => {
                 <CardContent className="pt-6">
                   <div className="text-center">
                     <p className="text-sm text-gray-500">
-                      {getTranslation("common.sustainability.co2PerKm", language)}
+                      {t('co2PerKm')}
                     </p>
                     <p className="text-3xl font-medium mt-2">{co2PerKm} kg</p>
-                    <Badge className="mt-2 bg-green-100 text-green-800">-2.7% {getTranslation("common.sustainability.yoy", language)}</Badge>
+                    <Badge className="mt-2 bg-green-100 text-green-800">-2.7% {t('yoy')}</Badge>
                   </div>
                 </CardContent>
               </Card>
@@ -221,10 +224,10 @@ export const CarbonFootprintTracker: React.FC = () => {
                 <CardContent className="pt-6">
                   <div className="text-center">
                     <p className="text-sm text-gray-500">
-                      {getTranslation("common.sustainability.carbonOffset", language)}
+                      {t('carbonOffset')}
                     </p>
                     <p className="text-3xl font-medium mt-2">3,450 kg</p>
-                    <Badge className="mt-2 bg-blue-100 text-blue-800">24.6% {getTranslation("common.sustainability.ofTotal", language)}</Badge>
+                    <Badge className="mt-2 bg-blue-100 text-blue-800">24.6% {t('ofTotal')}</Badge>
                   </div>
                 </CardContent>
               </Card>

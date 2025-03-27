@@ -1,45 +1,14 @@
+
 import { UITranslations } from '../types';
 
 export const uiTranslations: UITranslations = {
-  table: {
-    en: "Table",
-    ar: "جدول"
+  settings: {
+    en: "Settings",
+    ar: "الإعدادات"
   },
-  loading: {
-    en: "Loading...",
-    ar: "جار التحميل..."
-  },
-  filters: {
-    en: "Filters",
-    ar: "تصفية"
-  },
-  search: {
-    en: "Search",
-    ar: "بحث"
-  },
-  apply: {
-    en: "Apply",
-    ar: "تطبيق"
-  },
-  reset: {
-    en: "Reset",
-    ar: "إعادة تعيين"
-  },
-  edit: {
-    en: "Edit",
-    ar: "تعديل"
-  },
-  delete: {
-    en: "Delete",
-    ar: "حذف"
-  },
-  view: {
-    en: "View",
-    ar: "عرض"
-  },
-  create: {
-    en: "Create",
-    ar: "إنشاء"
+  logout: {
+    en: "Logout",
+    ar: "تسجيل الخروج"
   },
   cancel: {
     en: "Cancel",
@@ -49,29 +18,33 @@ export const uiTranslations: UITranslations = {
     en: "Save",
     ar: "حفظ"
   },
-  confirm: {
-    en: "Confirm",
-    ar: "تأكيد"
+  delete: {
+    en: "Delete",
+    ar: "حذف"
   },
-  back: {
-    en: "Back",
-    ar: "عودة"
+  edit: {
+    en: "Edit",
+    ar: "تعديل"
   },
-  next: {
-    en: "Next",
-    ar: "التالي"
+  create: {
+    en: "Create",
+    ar: "إنشاء"
   },
-  submit: {
-    en: "Submit",
-    ar: "إرسال"
+  search: {
+    en: "Search",
+    ar: "بحث"
   },
-  settings: {
-    en: "Settings",
-    ar: "إعدادات"
+  filter: {
+    en: "Filter",
+    ar: "تصفية"
   },
-  logout: {
-    en: "Logout",
-    ar: "تسجيل الخروج"
+  apply: {
+    en: "Apply",
+    ar: "تطبيق"
+  },
+  reset: {
+    en: "Reset",
+    ar: "إعادة تعيين"
   },
   viewDetails: {
     en: "View Details",
@@ -82,8 +55,8 @@ export const uiTranslations: UITranslations = {
     ar: "عدد وحدات التخزين"
   },
   accuracyLabel: {
-    en: "Accuracy",
-    ar: "الدقة"
+    en: "Forecast Accuracy",
+    ar: "دقة التنبؤ"
   },
   pipelineValue: {
     en: "Pipeline Value",
@@ -114,7 +87,7 @@ export const uiTranslations: UITranslations = {
     ar: "هذا الربع"
   },
   modules: {
-    en: "Modules",
-    ar: "الوحدات"
+    en: "Key Supply Chain Modules",
+    ar: "وحدات سلسلة التوريد الرئيسية"
   }
 };

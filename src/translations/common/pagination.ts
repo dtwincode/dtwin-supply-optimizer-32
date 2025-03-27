@@ -1,12 +1,14 @@
 
-export const paginationTranslations = {
-  previous: {
-    en: "Previous",
-    ar: "السابق"
-  },
+import { PaginationTranslations } from '../types';
+
+export const paginationTranslations: PaginationTranslations = {
   next: {
     en: "Next",
     ar: "التالي"
+  },
+  previous: {
+    en: "Previous",
+    ar: "السابق"
   },
   page: {
     en: "Page",
@@ -22,7 +24,7 @@ export const paginationTranslations = {
   },
   items: {
     en: "items",
-    ar: "عناصر"
+    ar: "العناصر"
   },
   showing: {
     en: "Showing",
@@ -31,5 +33,9 @@ export const paginationTranslations = {
   to: {
     en: "to",
     ar: "إلى"
+  },
+  viewDetails: {
+    en: "View Details",
+    ar: "عرض التفاصيل"
   }
 };

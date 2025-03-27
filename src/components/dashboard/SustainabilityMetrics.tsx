@@ -36,14 +36,14 @@ const SustainabilityMetrics = () => {
     <Card className="p-3">
       <h4 className="font-display text-md font-semibold mb-2 flex items-center">
         <Leaf className="h-4 w-4 mr-1 text-success-500" />
-        {getTranslation('common.sustainability.metrics', language)}
+        {getTranslation('sustainabilityMetrics.title', language)}
       </h4>
       <div className="grid grid-cols-1 gap-2">
         {sustainabilityMetrics.map((metric) => (
           <div key={metric.title} className="border-b last:border-b-0 pb-2 last:pb-0">
             <div className="flex justify-between items-center">
               <p className="text-xs text-gray-500 font-medium">
-                {getTranslation(`common.sustainability.${metric.title}`, language)}
+                {getTranslation(`sustainabilityMetrics.${metric.title}`, language)}
               </p>
               <div className="text-sm font-semibold">
                 <span>{language === 'ar' ? toArabicNumerals(metric.value) : metric.value}</span>
