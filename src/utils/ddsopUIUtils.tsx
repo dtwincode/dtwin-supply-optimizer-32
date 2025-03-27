@@ -1,7 +1,7 @@
-
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Language, getTranslation } from '@/translations';
+import { getTranslation } from '@/translations';
+import type { Language } from '@/translations/types';
 
 // Shared function to get status badges with consistent styling
 export const getStatusBadge = (status: string, language: Language) => {

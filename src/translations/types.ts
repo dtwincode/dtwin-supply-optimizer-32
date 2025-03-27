@@ -53,6 +53,7 @@ export interface ModulesSummary {
 }
 
 export interface ExecutiveSummary {
+  title: Translation;
   totalRevenue: Translation;
   newCustomers: Translation;
   averageOrderValue: Translation;
@@ -72,6 +73,41 @@ export interface ExecutiveSummary {
   carbonFootprint: Translation;
   communityInvolvement: Translation;
   governanceComplianceScore: Translation;
+  lastUpdated: Translation;
+  kpis: {
+    orderFulfillment: Translation;
+    inventoryTurnover: Translation;
+    stockoutRate: Translation;
+    planningCycleTime: Translation;
+  };
+  performanceTrend: Translation;
+  performanceTrendDesc: Translation;
+  bufferDistribution: Translation;
+  bufferDistributionDesc: Translation;
+  criticalAlerts: Translation;
+  alerts: {
+    lowBuffer: Translation;
+    lowBufferDesc: Translation;
+    demandSpike: Translation;
+    demandSpikeDesc: Translation;
+  };
+  impact: {
+    high: Translation;
+    medium: Translation;
+    low: Translation;
+  };
+  noAlerts: Translation;
+  moduleHealth: Translation;
+  moduleHealthDesc: Translation;
+  status: {
+    healthy: Translation;
+    warning: Translation;
+    critical: Translation;
+  };
+  charts: {
+    actual: Translation;
+    target: Translation;
+  };
 }
 
 export interface SalesTranslations {
@@ -202,10 +238,10 @@ export interface InventoryTranslations {
   stock_pointDecouplingPoint: Translation;
   intermediateDecouplingPoint: Translation;
   totalItems: Translation;
+  bufferStatus: Translation;
 }
 
 export interface UITranslations {
-  // Define UI-specific translations here
   table: Translation;
   loading: Translation;
   filters: Translation;
@@ -222,11 +258,22 @@ export interface UITranslations {
   back: Translation;
   next: Translation;
   submit: Translation;
-  settings?: Translation;
+  settings: Translation;
+  logout: Translation;
+  viewDetails: Translation;
+  skuCount: Translation;
+  accuracyLabel: Translation;
+  pipelineValue: Translation;
+  activeCampaigns: Translation;
+  onTimeDelivery: Translation;
+  reportCount: Translation;
+  fromLastMonth: Translation;
+  fromLastWeek: Translation;
+  thisQuarter: Translation;
+  modules: Translation;
 }
 
 export interface ChartTranslations {
-  // Define chart-specific translations here
   xAxis: Translation;
   yAxis: Translation;
   legend: Translation;
@@ -274,6 +321,117 @@ export interface SupplyPlanningTranslations {
   productionScheduleAdherence: Translation;
   supplyChainDisruptionFrequency: Translation;
   tabs?: any;
+  searchItems: Translation;
+  supplier: Translation;
+  status: Translation;
+  statusTypes: {
+    planned: Translation;
+    ordered: Translation;
+    confirmed: Translation;
+    shipped: Translation;
+    received: Translation;
+  };
+  priority: Translation;
+  priorityLevels: {
+    critical: Translation;
+    high: Translation;
+    medium: Translation;
+    low: Translation;
+  };
+  currentStock: Translation;
+  recommendedQty: Translation;
+  leadTime: Translation;
+  days: Translation;
+  creating: Translation;
+  createPO: Translation;
+  noRecommendedOrders: Translation;
+  notifications: {
+    poCreated: Translation;
+    poCreatedDesc: Translation;
+    poError: Translation;
+    poErrorDesc: Translation;
+    poUpdated: Translation;
+    poUpdatedDesc: Translation;
+  };
+  avgLeadTime: Translation;
+  leadTimeVariability: Translation;
+  leadTimeReliability: Translation;
+  acrossAllSuppliers: Translation;
+  standardDeviation: Translation;
+  ordersOnTime: Translation;
+  fromLastMonth: Translation;
+  generateRecommendations: Translation;
+  leadTimeCalculations: Translation;
+  leadTimeCalculationsDesc: Translation;
+  leadTimeCategories: Translation;
+  variabilityLevels: Translation;
+  ddmrpImpact: Translation;
+  moduleDescription: Translation;
+  recommendedOrders: Translation;
+  recommendedOrdersDesc: Translation;
+  all: Translation;
+  refresh: Translation;
+  purchaseOrdersDesc: Translation;
+  supplierManagementDesc: Translation;
+  leadTimeManagementDesc: Translation;
+  poNumber: Translation;
+  quantity: Translation;
+  orderDate: Translation;
+  deliveryDate: Translation;
+  actions: Translation;
+  noPurchaseOrders: Translation;
+  viewDetails: Translation;
+  trackShipment: Translation;
+  markAsReceived: Translation;
+  cancel: Translation;
+  reportIssue: Translation;
+  createPurchaseOrder: Translation;
+  editPurchaseOrder: Translation;
+  selectStatus: Translation;
+  selectDate: Translation;
+  notes: Translation;
+  notesPlaceholder: Translation;
+  update: Translation;
+  onTimeDelivery: Translation;
+  supplierPerformance: Translation;
+  qualityCompliance: Translation;
+  supplierQuality: Translation;
+  activeSuppliers: Translation;
+  totalSuppliers: Translation;
+  supplierPerformanceComparison: Translation;
+  supplierPerformanceDesc: Translation;
+  metrics: {
+    reliability: Translation;
+    leadTime: Translation;
+    quality: Translation;
+    cost: Translation;
+  };
+  supplierList: Translation;
+  supplierListDesc: Translation;
+  supplierName: Translation;
+  reliability: Translation;
+  leadTimeAdherence: Translation;
+  qualityScore: Translation;
+  costEfficiency: Translation;
+  viewPerformance: Translation;
+  contact: Translation;
+  leadTimeTrends: Translation;
+  sixMonthTrend: Translation;
+  minLeadTime: Translation;
+  maxLeadTime: Translation;
+  skuLeadTimes: Translation;
+  skuLeadTimesDesc: Translation;
+  leadTimeDays: Translation;
+  variability: Translation;
+  trend: Translation;
+  viewHistory: Translation;
+  leadTimeOptimization: Translation;
+  leadTimeOptimizationDesc: Translation;
+  riskAnalysis: Translation;
+  riskAnalysisDesc: Translation;
+  runAnalysis: Translation;
+  leadTimeReduction: Translation;
+  leadTimeReductionDesc: Translation;
 }
 
 export interface DDSOPTranslations {
@@ -315,7 +473,6 @@ export interface SustainabilityMetrics {
   sustainableSourcing: SustainabilityTranslation;
 }
 
-// Add new interface for our comprehensive sustainability translations
 export interface SustainabilityTranslations {
   [key: string]: SustainabilityTranslation;
 }
@@ -401,5 +558,40 @@ export interface MarketingTranslations {
   customerLoyalty: Translation;
   marketingCompliance: Translation;
   marketingEthics: Translation;
-  marketingModule?: Translation;
+  marketingModule: Translation;
+  dashboard: Translation;
+  calendar: Translation;
+  analytics: Translation;
+  forecastImpact: Translation;
+  averageROI: Translation;
+  avgDemandImpact: Translation;
+  conversionRate: Translation;
+  roi: Translation;
+  demandImpact: Translation;
+  customerAcquisition: Translation;
+  baselineForecast: Translation;
+  withCampaigns: Translation;
+  averageUplift: Translation;
+  campaignForecastDescription: Translation;
+  supplyChainIntegration: Translation;
+  inventory: Translation;
+  forecast: Translation;
+  supply: Translation;
+  inventoryAlerts: Translation;
+  forecastUpdates: Translation;
+  supplyRequirements: Translation;
+  leadTime: Translation;
+  marketingMetrics: {
+    campaignROI: Translation;
+    customerAcquisition: Translation;
+    conversionRate: Translation;
+    demandImpact: Translation;
+  };
+  percentageReturn: Translation;
+  percent: Translation;
+  target: Translation;
+  trend: Translation;
+  improving: Translation;
+  declining: Translation;
+  stable: Translation;
 }
