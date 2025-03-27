@@ -31,7 +31,7 @@ export type {
   BufferFactorConfig
 } from '../inventory';
 
-// Re-export classification types for use in components
+// Directly export classification types for easier access
 export type {
   Classification,
   SKUClassification,
