@@ -33,14 +33,14 @@ const getRecommendationData = (locationId: string, weights: any) => {
   const mockScores = generateScores();
   
   // Calculate weighted score (this is simplified for demo)
-  const totalWeight = Object.values(weights).reduce((sum: number, val: number) => sum + Number(val), 0);
+  const totalWeight = Object.values(weights).reduce((sum: number, val: any) => sum + Number(val), 0);
   let weightedScore = 0;
   
   Object.keys(weights).forEach(key => {
     // Fix the type issue by ensuring we're using a number
     const score = mockScores[key as keyof typeof mockScores] || 0;
     // Convert both score and weights[key] to numbers to avoid type errors
-    weightedScore += Number(score) * Number(weights[key]);
+    weightedScore += Number(score) * Number(weights[key as keyof typeof weights]);
   });
   
   const normalizedScore = (weightedScore / totalWeight) / 10 * 100;
