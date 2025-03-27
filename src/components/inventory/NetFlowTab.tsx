@@ -7,6 +7,22 @@ import { NetworkFlowVisualization } from "./NetworkFlowVisualization";
 export const NetFlowTab = () => {
   const { t } = useI18n();
 
+  // Mock data for the visualization
+  const mockBufferZones = {
+    red: 20,
+    yellow: 30,
+    green: 50
+  };
+
+  const mockNetFlowPosition = {
+    onHand: 40,
+    onOrder: 30,
+    qualifiedDemand: 15,
+    netFlowPosition: 55
+  };
+
+  const mockBufferPenetration = 45; // 45% penetration
+
   return (
     <Card className="col-span-2">
       <CardHeader>
@@ -23,7 +39,11 @@ export const NetFlowTab = () => {
           </p>
           
           <div className="mt-6">
-            <NetworkFlowVisualization />
+            <NetworkFlowVisualization 
+              netFlowPosition={mockNetFlowPosition} 
+              bufferZones={mockBufferZones}
+              bufferPenetration={mockBufferPenetration}
+            />
           </div>
         </div>
       </CardContent>

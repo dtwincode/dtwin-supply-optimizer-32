@@ -8,6 +8,7 @@ import { DecouplingTab } from "./DecouplingTab";
 import { BufferManagementTab } from "./BufferManagementTab";
 import { NetFlowTab } from "./NetFlowTab";
 import { AIInsightsTab } from "./AIInsightsTab";
+import { ADUTab } from "./ADUTab";
 
 interface InventoryTabsProps {
   defaultValue?: string;
@@ -33,6 +34,7 @@ export const InventoryTabs = ({ defaultValue = "inventory", children }: Inventor
     const searchParams = new URLSearchParams(location.search);
     searchParams.set('tab', value);
     navigate(`/inventory?${searchParams.toString()}`, { replace: true });
+    console.log("Tab changed to:", value);
   };
   
   // Effect to sync URL with tab state
@@ -41,14 +43,16 @@ export const InventoryTabs = ({ defaultValue = "inventory", children }: Inventor
     if (currentTab !== initialTab) {
       handleTabChange(initialTab);
     }
+    console.log("Initial tab from URL:", initialTab);
   }, []);
   
   return (
     <Tabs defaultValue={initialTab} onValueChange={handleTabChange} className="w-full">
       <div className="border-b px-4">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="inventory">{t("common.inventory.inventoryLevels")}</TabsTrigger>
           <TabsTrigger value="buffer">{t("common.inventory.bufferManagement")}</TabsTrigger>
+          <TabsTrigger value="adu">{t("common.inventory.adu")}</TabsTrigger>
           <TabsTrigger value="classification">{t("common.inventory.skuClassification")}</TabsTrigger>
           <TabsTrigger value="decoupling">{t("common.inventory.decouplingPoints")}</TabsTrigger>
           <TabsTrigger value="netflow">{t("common.inventory.netFlowPosition")}</TabsTrigger>
@@ -63,6 +67,12 @@ export const InventoryTabs = ({ defaultValue = "inventory", children }: Inventor
       <TabsContent value="buffer">
         <div className="p-6">
           <BufferManagementTab />
+        </div>
+      </TabsContent>
+      
+      <TabsContent value="adu">
+        <div className="p-6">
+          <ADUTab />
         </div>
       </TabsContent>
       
