@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 interface FileUploadProps {
   onUploadComplete: (data: any[], originalFileName: string) => void;
   onProgress?: (progress: number) => void;
+  onError?: (error: string) => void;
   allowedFileTypes?: string[];
   maxSize?: number;
 }
@@ -16,6 +17,7 @@ interface FileUploadProps {
 export function FileUpload({ 
   onUploadComplete, 
   onProgress,
+  onError,
   allowedFileTypes = ['.csv', '.xlsx'], 
   maxSize = 5 
 }: FileUploadProps) {
@@ -40,13 +42,15 @@ export function FileUpload({
         onUploadComplete(data, file.name);
       } else {
         console.error('onUploadComplete is not a function');
+        if (onError) onError('Upload handler is not properly configured');
       }
     } catch (error) {
       console.error('Error processing file:', error);
+      if (onError) onError(error instanceof Error ? error.message : 'Unknown error processing file');
     } finally {
       setIsLoading(false);
     }
-  }, [onUploadComplete, onProgress]);
+  }, [onUploadComplete, onProgress, onError]);
 
   const fileTypes: { [key: string]: string[] } = {
     'text/csv': ['.csv'],

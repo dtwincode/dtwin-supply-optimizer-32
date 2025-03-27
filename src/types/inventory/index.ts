@@ -32,4 +32,4 @@ export type {
 } from '../inventory';
 
 // Explicitly re-export classification types for easier access
-export { Classification, SKUClassification, LeadTimeData, LeadTimeAnomaly, ReplenishmentData } from './classificationTypes';
+export type { Classification, SKUClassification, LeadTimeData, LeadTimeAnomaly, ReplenishmentData } from './classificationTypes';
