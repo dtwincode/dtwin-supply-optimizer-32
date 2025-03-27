@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -37,8 +36,9 @@ const getRecommendationData = (locationId: string, weights: any) => {
   let weightedScore = 0;
   
   Object.keys(weights).forEach(key => {
-    // @ts-ignore - this is a mock function
-    weightedScore += (mockScores[key] * weights[key]);
+    // Fix the type issue by ensuring we're using a number
+    const score = mockScores[key as keyof typeof mockScores] || 0;
+    weightedScore += (score * weights[key]);
   });
   
   const normalizedScore = (weightedScore / totalWeight) / 10 * 100;
@@ -62,10 +62,8 @@ const getRecommendationData = (locationId: string, weights: any) => {
     suggestedType: types[typeIndex],
     confidence,
     factors: Object.keys(mockScores).map(key => ({
-      // @ts-ignore - this is a mock function
       name: key,
-      // @ts-ignore - this is a mock function
-      score: mockScores[key]
+      score: mockScores[key as keyof typeof mockScores] || 0
     }))
   };
 };
