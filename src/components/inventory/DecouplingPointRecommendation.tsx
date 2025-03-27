@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -39,8 +38,9 @@ const getRecommendationData = (locationId: string, weights: any) => {
   Object.keys(weights).forEach(key => {
     // Fix the type issue by ensuring we're using a number
     const score = mockScores[key as keyof typeof mockScores] || 0;
-    // Convert both score and weights[key] to numbers to avoid type errors
-    weightedScore += Number(score) * Number(weights[key as keyof typeof weights]);
+    // Create a variable with the correct type before using it in arithmetic
+    const weightValue = Number(weights[key as keyof typeof weights]);
+    weightedScore += Number(score) * weightValue;
   });
   
   const normalizedScore = (weightedScore / totalWeight) / 10 * 100;
