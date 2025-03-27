@@ -32,7 +32,6 @@ export type {
 } from '../inventory';
 
 // Explicitly re-export classification types for easier access
-// Using the 'export type' syntax to comply with isolatedModules
 export type { Classification } from './classificationTypes';
 export type { SKUClassification } from './classificationTypes';
 export type { LeadTimeData } from './classificationTypes';
