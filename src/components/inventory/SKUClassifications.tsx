@@ -1,7 +1,7 @@
 
 import { motion } from "framer-motion";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { SKUClassification } from "./types";
+import { SKUClassification } from "@/types/inventory";
 import { SKUCard } from "./classification/SKUCard";
 
 interface SKUClassificationsProps {

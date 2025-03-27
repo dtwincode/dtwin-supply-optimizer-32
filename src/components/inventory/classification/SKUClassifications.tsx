@@ -1,26 +1,43 @@
 
-// Move SKUClassifications to classification directory
-// This file is a placeholder as we don't have the original content
-import React from "react";
-import { SKUClassification } from "../types";
+import { motion } from "framer-motion";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { SKUClassification } from "@/types/inventory";
 import { SKUCard } from "./SKUCard";
 
 interface SKUClassificationsProps {
   classifications: SKUClassification[];
 }
 
-export const SKUClassifications: React.FC<SKUClassificationsProps> = ({ classifications }) => {
+export function SKUClassifications({ classifications }: SKUClassificationsProps) {
+  // Animation variants for container
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {classifications.map((classification, index) => (
-        <SKUCard
-          key={classification.sku}
-          sku={classification.sku}
-          classification={classification.classification}
-          lastUpdated={classification.lastUpdated}
-          index={index}
-        />
-      ))}
-    </div>
+    <TooltipProvider>
+      <motion.div 
+        className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2"
+        variants={container}
+        initial="hidden"
+        animate="show"
+      >
+        {classifications.map((classItem, index) => (
+          <SKUCard 
+            key={classItem.sku}
+            sku={classItem.sku}
+            classification={classItem.classification}
+            lastUpdated={classItem.lastUpdated}
+            index={index}
+          />
+        ))}
+      </motion.div>
+    </TooltipProvider>
   );
-};
+}

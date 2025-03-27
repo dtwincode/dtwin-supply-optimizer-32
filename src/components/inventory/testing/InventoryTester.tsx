@@ -29,12 +29,12 @@ import {
 
 import { InventoryChart } from "../InventoryChart";
 import { BufferVisualizer } from "../buffer/BufferVisualizer";
-import { SKUClassifications } from "../SKUClassifications";
+import { SKUClassifications } from "../classification/SKUClassifications";
 import { useToast } from "@/components/ui/use-toast";
 import { useI18n } from "@/contexts/I18nContext";
 import { 
   InventoryItem,
-  SKUClassification // Now correctly imported from types/inventory
+  SKUClassification
 } from "@/types/inventory";
 import { generateInventoryTestScenario } from "@/utils/testUtils/inventoryTestUtils";
 import { calculateBufferZones, getBufferStatus } from "@/utils/inventoryUtils";
