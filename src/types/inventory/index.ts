@@ -31,11 +31,9 @@ export type {
   BufferFactorConfig
 } from '../inventory';
 
-// Make sure all classification types are directly exported for easier access
-export type {
-  Classification,
-  SKUClassification,
-  LeadTimeData,
-  LeadTimeAnomaly,
-  ReplenishmentData
-} from './classificationTypes';
+// Explicitly re-export classification types for easier access
+export type { Classification } from './classificationTypes';
+export type { SKUClassification } from './classificationTypes';
+export type { LeadTimeData } from './classificationTypes';
+export type { LeadTimeAnomaly } from './classificationTypes';
+export type { ReplenishmentData } from './classificationTypes';
