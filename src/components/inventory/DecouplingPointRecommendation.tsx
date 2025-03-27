@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -38,7 +39,7 @@ const getRecommendationData = (locationId: string, weights: any) => {
   Object.keys(weights).forEach(key => {
     // Fix the type issue by ensuring we're using a number
     const score = mockScores[key as keyof typeof mockScores] || 0;
-    weightedScore += (score * weights[key]);
+    weightedScore += (Number(score) * Number(weights[key]));
   });
   
   const normalizedScore = (weightedScore / totalWeight) / 10 * 100;
@@ -111,8 +112,8 @@ export const DecouplingPointRecommendation = () => {
       setAnalysisComplete(true);
       
       toast({
-        title: getTranslation("common.inventory.analysisComplete", language),
-        description: getTranslation("common.inventory.decouplingRecommendationsReady", language)
+        title: getTranslation("inventory.analysisComplete", language),
+        description: getTranslation("inventory.decouplingRecommendationsReady", language)
       });
     }, 2000);
   };
@@ -123,9 +124,9 @@ export const DecouplingPointRecommendation = () => {
         {/* Location selection card */}
         <Card>
           <CardHeader>
-            <CardTitle>{getTranslation("common.inventory.locationSelection", language)}</CardTitle>
+            <CardTitle>{getTranslation("inventory.locationSelection", language)}</CardTitle>
             <CardDescription>
-              {getTranslation("common.inventory.selectLocation", language)}
+              {getTranslation("inventory.selectLocation", language)}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -147,7 +148,7 @@ export const DecouplingPointRecommendation = () => {
         {/* Weight factors card */}
         <Card className="col-span-1 lg:col-span-2">
           <CardHeader>
-            <CardTitle>{getTranslation("common.inventory.weightFactors", language)}</CardTitle>
+            <CardTitle>{getTranslation("inventory.weightFactors", language)}</CardTitle>
             <CardDescription>
               {language === 'ar' 
                 ? "قم بتعيين الأهمية النسبية لكل عامل في تحليلك"
@@ -160,7 +161,7 @@ export const DecouplingPointRecommendation = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <label className="text-sm font-medium">
-                      {getTranslation("common.inventory.leadTimeFactor", language)}
+                      {getTranslation("inventory.leadTimeFactor", language)}
                     </label>
                     <span className="text-sm text-muted-foreground">{weights.leadTime}</span>
                   </div>
@@ -172,14 +173,14 @@ export const DecouplingPointRecommendation = () => {
                     onValueChange={(value) => handleWeightChange('leadTime', value)} 
                   />
                   <p className="text-xs text-muted-foreground">
-                    {getTranslation("common.inventory.leadTimeFactorDesc", language)}
+                    {getTranslation("inventory.leadTimeFactorDesc", language)}
                   </p>
                 </div>
                 
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <label className="text-sm font-medium">
-                      {getTranslation("common.inventory.demandVariabilityFactor", language)}
+                      {getTranslation("inventory.demandVariabilityFactor", language)}
                     </label>
                     <span className="text-sm text-muted-foreground">{weights.demandVariability}</span>
                   </div>
@@ -191,14 +192,14 @@ export const DecouplingPointRecommendation = () => {
                     onValueChange={(value) => handleWeightChange('demandVariability', value)} 
                   />
                   <p className="text-xs text-muted-foreground">
-                    {getTranslation("common.inventory.demandVariabilityFactorDesc", language)}
+                    {getTranslation("inventory.demandVariabilityFactorDesc", language)}
                   </p>
                 </div>
                 
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <label className="text-sm font-medium">
-                      {getTranslation("common.inventory.supplyReliabilityFactor", language)}
+                      {getTranslation("inventory.supplyReliabilityFactor", language)}
                     </label>
                     <span className="text-sm text-muted-foreground">{weights.supplyReliability}</span>
                   </div>
@@ -210,14 +211,14 @@ export const DecouplingPointRecommendation = () => {
                     onValueChange={(value) => handleWeightChange('supplyReliability', value)} 
                   />
                   <p className="text-xs text-muted-foreground">
-                    {getTranslation("common.inventory.supplyReliabilityFactorDesc", language)}
+                    {getTranslation("inventory.supplyReliabilityFactorDesc", language)}
                   </p>
                 </div>
                 
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <label className="text-sm font-medium">
-                      {getTranslation("common.inventory.inventoryCostFactor", language)}
+                      {getTranslation("inventory.inventoryCostFactor", language)}
                     </label>
                     <span className="text-sm text-muted-foreground">{weights.inventoryCost}</span>
                   </div>
@@ -229,14 +230,14 @@ export const DecouplingPointRecommendation = () => {
                     onValueChange={(value) => handleWeightChange('inventoryCost', value)} 
                   />
                   <p className="text-xs text-muted-foreground">
-                    {getTranslation("common.inventory.inventoryCostFactorDesc", language)}
+                    {getTranslation("inventory.inventoryCostFactorDesc", language)}
                   </p>
                 </div>
                 
                 <div className="space-y-2 md:col-span-2">
                   <div className="flex justify-between">
                     <label className="text-sm font-medium">
-                      {getTranslation("common.inventory.customerServiceFactor", language)}
+                      {getTranslation("inventory.customerServiceFactor", language)}
                     </label>
                     <span className="text-sm text-muted-foreground">{weights.customerService}</span>
                   </div>
@@ -248,7 +249,7 @@ export const DecouplingPointRecommendation = () => {
                     onValueChange={(value) => handleWeightChange('customerService', value)} 
                   />
                   <p className="text-xs text-muted-foreground">
-                    {getTranslation("common.inventory.customerServiceFactorDesc", language)}
+                    {getTranslation("inventory.customerServiceFactorDesc", language)}
                   </p>
                 </div>
               </div>
@@ -256,8 +257,8 @@ export const DecouplingPointRecommendation = () => {
             
             <Button onClick={runAnalysis} disabled={isAnalyzing || !selectedLocation} className="w-full">
               {isAnalyzing 
-                ? getTranslation("common.inventory.analyzing", language) 
-                : getTranslation("common.inventory.analyzeDecouplingPoints", language)}
+                ? getTranslation("inventory.analyzing", language) 
+                : getTranslation("inventory.analyzeDecouplingPoints", language)}
             </Button>
           </CardContent>
         </Card>
@@ -267,9 +268,9 @@ export const DecouplingPointRecommendation = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>{getTranslation("common.inventory.recommendationScore", language)}</CardTitle>
+              <CardTitle>{getTranslation("inventory.recommendationScore", language)}</CardTitle>
               <CardDescription>
-                {getTranslation("common.inventory.scoreFor", language)} {
+                {getTranslation("inventory.scoreFor", language)} {
                   mockLocations.find(loc => loc.id === selectedLocation)?.name
                 }
               </CardDescription>
@@ -308,39 +309,39 @@ export const DecouplingPointRecommendation = () => {
               
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="font-medium">{getTranslation("common.inventory.recommendationStatus", language)}</span>
+                  <span className="font-medium">{getTranslation("inventory.recommendationStatus", language)}</span>
                   <span className={
                     recommendation.status === "highlyRecommended" ? "text-green-600" :
                     recommendation.status === "recommended" ? "text-blue-600" :
                     recommendation.status === "consider" ? "text-amber-600" :
                     "text-red-600"
                   }>
-                    {getTranslation(`common.inventory.${recommendation.status}`, language)}
+                    {getTranslation(`inventory.${recommendation.status}`, language)}
                   </span>
                 </div>
                 
                 <div className="flex justify-between text-sm">
-                  <span className="font-medium">{getTranslation("common.inventory.suggestedType", language)}</span>
+                  <span className="font-medium">{getTranslation("inventory.suggestedType", language)}</span>
                   <span>
-                    {getTranslation(`common.inventory.${recommendation.suggestedType}DecouplingPoint`, language)}
+                    {getTranslation(`inventory.${recommendation.suggestedType}DecouplingPoint`, language)}
                   </span>
                 </div>
                 
                 <div className="flex justify-between text-sm">
-                  <span className="font-medium">{getTranslation("common.inventory.confidence", language)}</span>
+                  <span className="font-medium">{getTranslation("inventory.confidence", language)}</span>
                   <span>{recommendation.confidence}%</span>
                 </div>
               </div>
               
               <Button variant="outline" className="w-full" onClick={() => {}}>
-                {getTranslation("common.inventory.viewDetailedAnalysis", language)}
+                {getTranslation("inventory.viewDetailedAnalysis", language)}
               </Button>
             </CardContent>
           </Card>
           
           <Card className="col-span-1 lg:col-span-2">
             <CardHeader>
-              <CardTitle>{getTranslation("common.inventory.locationFactorScores", language)}</CardTitle>
+              <CardTitle>{getTranslation("inventory.locationFactorScores", language)}</CardTitle>
               <CardDescription>
                 {language === 'ar' 
                   ? "كيف يؤدي هذا الموقع في كل عامل من عوامل التقييم"
@@ -355,11 +356,11 @@ export const DecouplingPointRecommendation = () => {
                     dataKey="name" 
                     tickFormatter={(value) => {
                       const shortNames = {
-                        'leadTime': getTranslation("common.inventory.leadTimeFactor", language),
-                        'demandVariability': getTranslation("common.inventory.demandVariabilityFactor", language),
-                        'supplyReliability': getTranslation("common.inventory.supplyReliabilityFactor", language),
-                        'inventoryCost': getTranslation("common.inventory.inventoryCostFactor", language),
-                        'customerService': getTranslation("common.inventory.customerServiceFactor", language)
+                        'leadTime': getTranslation("inventory.leadTimeFactor", language),
+                        'demandVariability': getTranslation("inventory.demandVariabilityFactor", language),
+                        'supplyReliability': getTranslation("inventory.supplyReliabilityFactor", language),
+                        'inventoryCost': getTranslation("inventory.inventoryCostFactor", language),
+                        'customerService': getTranslation("inventory.customerServiceFactor", language)
                       };
                       // @ts-ignore - this is simplified for the demo
                       return shortNames[value] || value;
@@ -371,14 +372,14 @@ export const DecouplingPointRecommendation = () => {
                   <Bar 
                     dataKey="score" 
                     fill="#3b82f6" 
-                    name={getTranslation("common.inventory.score", language)} 
+                    name={getTranslation("inventory.score", language)} 
                   />
                 </BarChart>
               </ResponsiveContainer>
               
               <Alert className="mt-4">
                 <AlertDescription>
-                  {getTranslation("common.inventory.decouplingPointRecommendationHelp", language)}
+                  {getTranslation("inventory.decouplingPointRecommendationHelp", language)}
                 </AlertDescription>
               </Alert>
             </CardContent>
