@@ -1,11 +1,10 @@
-
 import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { RefreshCw, Plus } from "lucide-react";
-import { SKUClassification } from "@/components/inventory/types";
+import { SKUClassification } from "@/types/inventory";
 
 // Sample mock data - In a real app, this would come from a hook or context
 const mockClassifications: SKUClassification[] = [
