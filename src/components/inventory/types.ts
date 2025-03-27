@@ -16,25 +16,6 @@ export interface LeadTimeAnomaly {
   detection_date: string;
 }
 
-export interface Classification {
-  leadTimeCategory: 'short' | 'medium' | 'long';
-  variabilityLevel: 'low' | 'medium' | 'high';
-  criticality: 'low' | 'medium' | 'high';
-  score?: number; // Added score property as optional
-}
-
-export interface SKUClassification {
-  sku: string;
-  classification: Classification;
-  lastUpdated: string;
-}
-
-export interface ReplenishmentData {
-  sku: string;
-  internalTransferTime: number;
-  replenishmentLeadTime: number;
-  totalCycleTime: number;
-  lastUpdated: string;
-  locationFrom: string;
-  locationTo: string;
-}
+// Import from the main types instead of redefining
+import { Classification, SKUClassification, ReplenishmentData } from "@/types/inventory";
+export type { Classification, SKUClassification, ReplenishmentData };
