@@ -132,6 +132,12 @@ export interface InventoryTranslations {
   short: TranslationItem;
   long: TranslationItem;
   unknown: TranslationItem;
+  stock: TranslationItem;
+  buffer: TranslationItem;
+  classify: TranslationItem;
+  decouple: TranslationItem;
+  netflow: TranslationItem;
+  ai: TranslationItem;
 }
 
 export type Language = 'en' | 'ar';
