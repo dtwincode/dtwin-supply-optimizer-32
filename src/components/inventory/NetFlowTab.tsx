@@ -2,7 +2,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useI18n } from "@/contexts/I18nContext";
-import { NetworkFlowVisualization } from "./NetworkFlowVisualization";
+import { NetworkFlowVisualization } from "./visualization/NetworkFlowVisualization";
 
 export const NetFlowTab = () => {
   const { t } = useI18n();

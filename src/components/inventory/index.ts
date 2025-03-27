@@ -28,3 +28,6 @@ export { BufferVisualizer } from './buffer/BufferVisualizer';
 export { DecouplingPointDialog } from './decoupling/DecouplingPointDialog';
 export { DecouplingNetworkBoard } from './decoupling/DecouplingNetworkBoard';
 export { NetworkDecouplingMap } from './decoupling/NetworkDecouplingMap';
+
+// Visualization components
+export { NetworkFlowVisualization } from './visualization/NetworkFlowVisualization';

@@ -1,5 +1,5 @@
 
-// NetworkFlowVisualization placeholder - this file would be created as part of the organization
+// NetworkFlowVisualization component
 import React from "react";
 
 interface NetworkFlowVisualizationProps {
