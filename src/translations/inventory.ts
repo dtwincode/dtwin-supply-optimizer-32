@@ -522,5 +522,9 @@ export const inventoryTranslations: InventoryTranslations = {
   ai: {
     en: "AI",
     ar: "ذ.ص"
+  },
+  bufferProfile: {
+    en: "Buffer Profile",
+    ar: "ملف تعريف المخزون"
   }
 };

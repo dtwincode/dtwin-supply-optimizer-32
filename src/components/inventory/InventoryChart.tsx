@@ -15,6 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Toggle } from "@/components/ui/toggle";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useI18n } from "@/contexts/I18nContext";
 
 interface InventoryChartProps {
   data: InventoryItem[];
@@ -25,7 +26,7 @@ type DDMRPMetricView = 'bufferZones' | 'netFlow' | 'aduTrends' | 'bufferPenetrat
 
 export const InventoryChart = ({ data }: InventoryChartProps) => {
   const { language } = useLanguage();
-  const { t } = getTranslation();
+  const { t } = useI18n();
   const [chartType, setChartType] = useState<ChartType>('bar');
   const [fromDate, setFromDate] = useState<Date>(new Date());
   const [toDate, setToDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() + 30)));
@@ -244,7 +245,7 @@ export const InventoryChart = ({ data }: InventoryChartProps) => {
       <div className="flex flex-col space-y-4">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-semibold">
-            {t("common.inventory.bufferProfile")}
+            {t("inventory.bufferProfile")}
           </h3>
           <div className="flex gap-2">
             <Button
