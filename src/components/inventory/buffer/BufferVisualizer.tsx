@@ -1,63 +1,84 @@
 
-// Buffer visualizer placeholder - this file would be created as part of the organization
-import React from "react";
+import React from 'react';
+import { BufferZones } from '@/types/inventory';
+import { Progress } from '@/components/ui/progress';
 
 interface BufferVisualizerProps {
   netFlowPosition: number;
-  bufferZones: {
-    red: number;
-    yellow: number;
-    green: number;
-  };
+  bufferZones: BufferZones;
   adu?: number;
+  showLabels?: boolean;
+  height?: string;
 }
 
-export const BufferVisualizer: React.FC<BufferVisualizerProps> = ({ 
-  netFlowPosition, 
+export const BufferVisualizer = ({
+  netFlowPosition,
   bufferZones,
-  adu 
-}) => {
-  const totalBuffer = bufferZones.red + bufferZones.yellow + bufferZones.green;
-  const bufferPenetration = totalBuffer > 0 
-    ? Math.max(0, Math.min(100, ((totalBuffer - netFlowPosition) / totalBuffer) * 100)) 
-    : 0;
+  adu,
+  showLabels = true,
+  height = 'h-20'
+}: BufferVisualizerProps) => {
+  const { red, yellow, green } = bufferZones;
+  const totalBuffer = red + yellow + green;
   
-  const redWidth = (bufferZones.red / totalBuffer) * 100;
-  const yellowWidth = (bufferZones.yellow / totalBuffer) * 100;
-  const greenWidth = (bufferZones.green / totalBuffer) * 100;
+  // Calculate the positions for the buffer zones
+  const redWidth = (red / totalBuffer) * 100;
+  const yellowWidth = (yellow / totalBuffer) * 100;
+  const greenWidth = (green / totalBuffer) * 100;
   
-  // Position indicator based on buffer penetration
-  const indicatorPosition = `${Math.min(98, Math.max(2, bufferPenetration))}%`;
+  // Calculate the net flow position
+  const netFlowPositionPercentage = (netFlowPosition / totalBuffer) * 100;
+  const clampedNetFlowPosition = Math.min(Math.max(netFlowPositionPercentage, 0), 100);
   
   return (
-    <div className="w-full">
-      {/* Buffer visualization */}
-      <div className="relative h-8 flex rounded-md overflow-hidden mb-2">
-        <div 
-          className="bg-red-500 h-full" 
-          style={{ width: `${redWidth}%` }}
-        ></div>
-        <div 
-          className="bg-yellow-400 h-full" 
-          style={{ width: `${yellowWidth}%` }}
-        ></div>
-        <div 
-          className="bg-green-500 h-full" 
-          style={{ width: `${greenWidth}%` }}
-        ></div>
+    <div className="w-full space-y-2">
+      {/* Buffer zones visualization */}
+      <div className={`relative w-full ${height} border rounded-md overflow-hidden bg-gray-50`}>
+        <div className="absolute bottom-0 left-0 h-full flex w-full">
+          {/* Red zone */}
+          <div 
+            className="bg-red-200 h-full" 
+            style={{ width: `${redWidth}%` }}
+          />
+          
+          {/* Yellow zone */}
+          <div 
+            className="bg-yellow-200 h-full" 
+            style={{ width: `${yellowWidth}%` }}
+          />
+          
+          {/* Green zone */}
+          <div 
+            className="bg-green-200 h-full" 
+            style={{ width: `${greenWidth}%` }}
+          />
+        </div>
         
-        {/* Indicator for current position */}
+        {/* Net flow position indicator */}
         <div 
-          className="absolute top-0 h-full w-1 bg-blue-600 shadow-lg"
-          style={{ left: indicatorPosition }}
-        ></div>
+          className="absolute bottom-0 h-full w-1 bg-blue-600 z-10"
+          style={{ left: `${clampedNetFlowPosition}%` }}
+        >
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-blue-600 shadow" />
+        </div>
+        
+        {/* Zone labels, if requested */}
+        {showLabels && (
+          <div className="absolute bottom-1 left-0 w-full flex text-xs px-2">
+            <div className="flex-1 text-center">Red</div>
+            <div className="flex-1 text-center">Yellow</div>
+            <div className="flex-1 text-center">Green</div>
+          </div>
+        )}
       </div>
       
-      {/* Metrics */}
-      <div className="flex justify-between text-xs text-gray-600 mt-1">
-        <div>Position: {netFlowPosition}</div>
-        {adu && <div>ADU: {adu}/day</div>}
-        <div>Total Buffer: {totalBuffer}</div>
+      {/* Buffer metrics */}
+      <div className="flex justify-between text-xs text-muted-foreground">
+        <div>Red: {red}</div>
+        <div>Yellow: {yellow}</div>
+        <div>Green: {green}</div>
+        <div>NFP: {netFlowPosition}</div>
+        {adu !== undefined && <div>ADU: {adu}/day</div>}
       </div>
     </div>
   );
