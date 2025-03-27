@@ -1,5 +1,9 @@
-
-import { InventoryItem, BufferZones, Classification, SKUClassification } from "@/types/inventory";
+import { 
+  InventoryItem, 
+  BufferZones, 
+  Classification, 
+  SKUClassification 
+} from "@/types/inventory";
 import { calculateBufferZones, calculateNetFlowPosition, calculateBufferPenetration } from "@/utils/inventoryUtils";
 
 /**

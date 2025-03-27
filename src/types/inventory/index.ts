@@ -16,3 +16,26 @@ export interface SortState {
   field: string;
   direction: 'asc' | 'desc';
 }
+
+// Re-export types from the root inventory.ts file
+export type {
+  BufferProfile,
+  DecouplingPoint,
+  PurchaseOrder,
+  InventoryItem,
+  InventoryFilters,
+  BufferZones,
+  NetFlowPosition,
+  DDMRPMetricsHistory,
+  IndustryType,
+  BufferFactorConfig
+} from '../inventory';
+
+// Re-export classification types for use in components
+export type {
+  Classification,
+  SKUClassification,
+  LeadTimeData,
+  LeadTimeAnomaly,
+  ReplenishmentData
+} from './classificationTypes';
