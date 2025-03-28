@@ -2,16 +2,32 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import FileUpload from "@/components/settings/upload/FileUpload";
-import { Button } from '@/components/ui/button';
+import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslation } from "@/translations";
 
 const LocationHierarchyUpload = () => {
+  const { toast } = useToast();
+  const { language } = useLanguage();
+  
   const handleUploadComplete = (files: File[]) => {
     console.log(`Uploaded ${files.length} files`);
-    // In a real implementation, you would process the files here
+    
+    if (files.length > 0) {
+      toast({
+        title: getTranslation('common.success', language),
+        description: "Location hierarchy uploaded successfully"
+      });
+    }
   };
 
   const handleError = (error: string) => {
     console.error("Upload error:", error);
+    toast({
+      variant: "destructive",
+      title: getTranslation('common.error', language),
+      description: error
+    });
   };
 
   return (

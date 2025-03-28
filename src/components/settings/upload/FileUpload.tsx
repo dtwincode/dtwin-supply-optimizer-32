@@ -1,11 +1,10 @@
-
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Button } from '@/components/ui/button';
 import { FileUp, X, FileCheck } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
-interface FileUploadProps {
+export interface FileUploadProps {
   onUploadComplete: (files: File[]) => void;
   onError?: (error: string) => void;
   allowedFileTypes?: string[];
@@ -30,7 +29,6 @@ const FileUpload: React.FC<FileUploadProps> = ({
   const [uploadProgress, setUploadProgress] = useState(0);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    // Filter files by allowed types if specified
     const filteredFiles = allowedFileTypes.length > 0
       ? acceptedFiles.filter(file => {
           const extension = file.name.split('.').pop()?.toLowerCase();
@@ -40,7 +38,6 @@ const FileUpload: React.FC<FileUploadProps> = ({
         })
       : acceptedFiles;
     
-    // Filter files by size
     const maxSizeBytes = maxSizeMB * 1024 * 1024;
     const sizeFilteredFiles = filteredFiles.filter(file => file.size <= maxSizeBytes);
     
@@ -53,7 +50,6 @@ const FileUpload: React.FC<FileUploadProps> = ({
     
     setFiles(prev => multiple ? [...prev, ...sizeFilteredFiles] : sizeFilteredFiles);
     
-    // Handle single file selection for backward compatibility
     if (onFileSelected && sizeFilteredFiles.length > 0) {
       onFileSelected(sizeFilteredFiles[0]);
     }
@@ -64,7 +60,6 @@ const FileUpload: React.FC<FileUploadProps> = ({
     multiple,
     accept: allowedFileTypes.length > 0 
       ? allowedFileTypes.reduce((acc, type) => {
-          // Convert file extensions to mime types
           if (type.startsWith('.')) {
             const ext = type.substring(1);
             if (ext === 'pdf') acc['application/pdf'] = [type];
@@ -88,7 +83,6 @@ const FileUpload: React.FC<FileUploadProps> = ({
     
     setUploading(true);
     
-    // Simulate progress
     const interval = setInterval(() => {
       setUploadProgress(prev => {
         if (prev >= 95) {
@@ -100,11 +94,8 @@ const FileUpload: React.FC<FileUploadProps> = ({
     }, 100);
     
     try {
-      // In a real implementation, you would upload the files here
-      // For demonstration, we'll just pass the files to the callback
       onUploadComplete(files);
       
-      // Simulate completion
       setTimeout(() => {
         setUploadProgress(100);
         

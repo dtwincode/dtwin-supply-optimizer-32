@@ -23,14 +23,42 @@ const allTranslations = {
     sales: salesTranslations.en,
     navigation: navigationTranslations.en,
     dashboard: dashboardMetricsTranslations.en,
-    utils: utils.en
+    utils: utils.en,
+    settings: {
+      title: "Settings",
+      dataUpload: "Data Upload",
+      preferences: "Preferences",
+      integration: "Integration",
+      users: "Users",
+      userPreferences: "User Preferences",
+      preferencesContent: "Configure your personal preferences and application settings here.",
+      apiIntegration: "API Integration",
+      apiIntegrationContent: "Set up and manage connections to external systems and APIs.",
+      userManagement: "User Management",
+      userManagementContent: "Manage user accounts, roles, and permissions.",
+      integratedData: "Integrated Data Preview"
+    }
   },
   ar: {
     common: commonTranslations.ar,
     sales: salesTranslations.ar,
     navigation: navigationTranslations.ar,
     dashboard: dashboardMetricsTranslations.ar,
-    utils: utils.ar
+    utils: utils.ar,
+    settings: {
+      title: "الإعدادات",
+      dataUpload: "تحميل البيانات",
+      preferences: "التفضيلات",
+      integration: "التكامل",
+      users: "المستخدمين",
+      userPreferences: "تفضيلات المستخدم",
+      preferencesContent: "قم بتكوين تفضيلاتك الشخصية وإعدادات التطبيق هنا.",
+      apiIntegration: "تكامل واجهة برمجة التطبيقات",
+      apiIntegrationContent: "إعداد وإدارة الاتصالات بالأنظمة الخارجية وواجهات برمجة التطبيقات.",
+      userManagement: "إدارة المستخدمين",
+      userManagementContent: "إدارة حسابات المستخدمين والأدوار والأذونات.",
+      integratedData: "معاينة البيانات المتكاملة"
+    }
   }
 };
 
