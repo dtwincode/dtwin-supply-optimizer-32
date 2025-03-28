@@ -16,6 +16,14 @@ export const getTranslation = (key: string, language: 'en' | 'ar' = 'en'): strin
           translations[language][module][property]) {
         return translations[language][module][property];
       }
+      
+      // Special case for common.chartTitles.X and common.zones.X
+      if (module === 'common' && (property === 'chartTitles' || property === 'zones') && keyParts.length > 2) {
+        const subProperty = keyParts[2];
+        if (translations[language]?.common?.[property]?.[subProperty]) {
+          return translations[language].common[property][subProperty];
+        }
+      }
     }
     
     // For non-nested keys or fallback

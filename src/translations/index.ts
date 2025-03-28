@@ -6,13 +6,18 @@ import { dashboardTranslations } from './dashboard';
 import { inventoryTranslations } from './inventory';
 import { marketingTranslations } from './marketing';
 import { salesTranslations } from './sales';
+import { chartTranslations } from './common/charts';
 
 // Export utility functions
 export { getTranslation, toArabicNumerals } from './utils';
 
 export const translations: TranslationsType = {
   en: {
-    common: commonTranslations.en,
+    common: {
+      ...commonTranslations.en,
+      chartTitles: chartTranslations.en.chartTitles,
+      zones: chartTranslations.en.zones
+    },
     navigation: navigationTranslations,
     dashboard: dashboardTranslations.en,
     inventory: inventoryTranslations,
@@ -20,7 +25,11 @@ export const translations: TranslationsType = {
     sales: salesTranslations
   },
   ar: {
-    common: commonTranslations.ar,
+    common: {
+      ...commonTranslations.ar,
+      chartTitles: chartTranslations.ar.chartTitles,
+      zones: chartTranslations.ar.zones
+    },
     navigation: navigationTranslations,
     dashboard: dashboardTranslations.ar,
     inventory: inventoryTranslations,
@@ -36,5 +45,6 @@ export {
   dashboardTranslations,
   inventoryTranslations,
   marketingTranslations,
-  salesTranslations
+  salesTranslations,
+  chartTranslations
 };
