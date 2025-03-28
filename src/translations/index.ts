@@ -1,36 +1,33 @@
 
-import { translations } from './types';
+import { Translations } from './types';
+import { commonTranslations } from './common';
 import { navigationTranslations } from './navigation';
 import { dashboardTranslations } from './dashboard';
-import { uiTranslations } from './common/ui';
-import { paginationTranslations } from './common/pagination';
-import { financialMetricsTranslations } from './common/financialMetrics';
-import { sustainabilityMetricsTranslations } from './common/sustainabilityMetrics';
-import { modulesSummaryTranslations } from './common/modules';
-import { commonTranslations } from './common';
-import { utilsTranslations } from './utilities';
-import { toArabicNumerals } from './utils';
+import { inventoryTranslations } from './inventory';
+import { marketingTranslations } from './marketing';
+import { salesTranslations } from './sales';
+import { dashboardMetricsTranslations } from './dashboard';
 
-// Full combined translations
-export const allTranslations: translations = {
+export const translations: Translations = {
   en: {
-    common: commonTranslations,
+    common: {
+      loading: "Loading...",
+      noData: "No data available",
+      error: "Error",
+      success: "Success",
+      confirm: "Confirm",
+      back: "Back",
+      next: "Next",
+      submit: "Submit",
+      skus: "SKUs",
+      create: "Create"
+    },
     sales: {
       title: "Sales",
-      orders: "Orders",
-      customers: "Customers",
-      quotes: "Quotes",
-      opportunities: "Opportunities",
-      pipeline: "Sales Pipeline",
-      forecasting: "Sales Forecasting",
-      performance: "Performance",
-      metrics: {
-        revenue: "Revenue",
-        orders: "Orders",
-        customers: "Customers",
-        avgOrderValue: "Avg Order Value",
-        returnRate: "Return Rate"
-      }
+      salesPlanning: "Sales Planning",
+      returnsManagement: "Returns Management",
+      newSalesPlan: "New Sales Plan",
+      viewReturns: "View Returns"
     },
     navigation: {
       dashboard: "Dashboard",
@@ -39,89 +36,33 @@ export const allTranslations: translations = {
       marketing: "Marketing",
       sales: "Sales",
       logistics: "Logistics",
-      reporting: "Reporting",
+      reports: "Reports",
+      tickets: "Tickets",
       settings: "Settings"
     },
     dashboard: dashboardTranslations,
-    utils: utilsTranslations.en,
-    inventory: {
-      title: "Inventory",
-      subtitle: "Manage your inventory",
-      metrics: {
-        onHand: "On Hand",
-        onOrder: "On Order",
-        allocated: "Allocated",
-        available: "Available",
-        stockouts: "Stockouts",
-        overstock: "Overstock",
-        turnover: "Turnover"
-      }
-    },
-    marketing: {
-      title: "Marketing",
-      subtitle: "Manage your marketing campaigns",
-      metrics: {
-        campaigns: "Campaigns",
-        leads: "Leads",
-        conversion: "Conversion Rate",
-        cac: "Customer Acquisition Cost",
-        roi: "ROI"
-      }
-    },
-    settings: {
-      title: "Data Management",
-      subtitle: "Upload and manage your data",
-      tabs: {
-        masterData: "Master Data",
-        historicalData: "Historical Data",
-        settings: "Settings"
-      },
-      masterData: {
-        title: "Master Data",
-        description: "Upload and manage your master data",
-        products: "Products",
-        locations: "Locations",
-        vendors: "Vendors",
-        productHierarchy: "Product Hierarchy",
-        locationHierarchy: "Location Hierarchy"
-      },
-      historicalData: {
-        title: "Historical Data",
-        description: "Upload and manage your historical data",
-        sales: "Sales",
-        inventory: "Inventory",
-        leadTime: "Lead Time",
-        replenishment: "Replenishment"
-      },
-      upload: {
-        title: "Upload Data",
-        description: "Upload your data in CSV or Excel format",
-        button: "Upload",
-        dragDrop: "Drag and drop files here or click to browse",
-        formats: "Supported formats",
-        success: "Data uploaded successfully",
-        error: "Error uploading data"
-      }
-    }
+    inventory: inventoryTranslations,
+    marketing: marketingTranslations
   },
   ar: {
-    common: commonTranslations,
+    common: {
+      loading: "جاري التحميل...",
+      noData: "لا توجد بيانات",
+      error: "خطأ",
+      success: "نجاح",
+      confirm: "تأكيد",
+      back: "رجوع",
+      next: "التالي",
+      submit: "إرسال",
+      skus: "الوحدات",
+      create: "إنشاء"
+    },
     sales: {
       title: "المبيعات",
-      orders: "الطلبات",
-      customers: "العملاء",
-      quotes: "عروض الأسعار",
-      opportunities: "الفرص",
-      pipeline: "خط أنابيب المبيعات",
-      forecasting: "التنبؤ بالمبيعات",
-      performance: "الأداء",
-      metrics: {
-        revenue: "الإيرادات",
-        orders: "الطلبات",
-        customers: "العملاء",
-        avgOrderValue: "متوسط قيمة الطلب",
-        returnRate: "معدل العودة"
-      }
+      salesPlanning: "تخطيط المبيعات",
+      returnsManagement: "إدارة المرتجعات",
+      newSalesPlan: "خطة مبيعات جديدة",
+      viewReturns: "عرض المرتجعات"
     },
     navigation: {
       dashboard: "لوحة القيادة",
@@ -130,88 +71,64 @@ export const allTranslations: translations = {
       marketing: "التسويق",
       sales: "المبيعات",
       logistics: "الخدمات اللوجستية",
-      reporting: "التقارير",
+      reports: "التقارير",
+      tickets: "التذاكر",
       settings: "الإعدادات"
     },
-    dashboard: dashboardTranslations,
-    utils: utilsTranslations.ar,
+    dashboard: {
+      title: "لوحة القيادة",
+      overview: "نظرة عامة",
+      recentActivity: "النشاط الأخير",
+      metrics: "المقاييس الرئيسية",
+      performance: "الأداء",
+      trends: "الاتجاهات",
+      alerts: "التنبيهات",
+      notifications: "الإشعارات"
+    },
     inventory: {
       title: "المخزون",
-      subtitle: "إدارة المخزون الخاص بك",
-      metrics: {
-        onHand: "في المتناول",
-        onOrder: "تحت الطلب",
-        allocated: "المخصص",
-        available: "المتاح",
-        stockouts: "نفاد المخزون",
-        overstock: "فائض المخزون",
-        turnover: "معدل الدوران"
-      }
+      overview: "نظرة عامة",
+      decoupling: "نقاط الفصل",
+      classification: "تصنيف الوحدات",
+      bufferManagement: "إدارة المخزون المؤقت",
+      netFlow: "وضع التدفق الصافي",
+      adu: "متوسط الاستخدام اليومي",
+      aiInsights: "رؤى الذكاء الاصطناعي",
+      itemCount: "عدد العناصر",
+      filterItems: "تصفية العناصر",
+      searchItems: "بحث العناصر",
+      addDecouplingPoint: "إضافة نقطة فصل",
+      configureBuffer: "تكوين ملف المخزون المؤقت",
+      manageClassification: "إدارة التصنيفات",
+      viewInsights: "عرض الرؤى",
+      reconfigureNetwork: "إعادة تكوين الشبكة",
+      optimizeBuffers: "تحسين المخزون المؤقت",
+      zoneStatus: "حالة المنطقة"
     },
     marketing: {
       title: "التسويق",
-      subtitle: "إدارة حملاتك التسويقية",
-      metrics: {
-        campaigns: "الحملات",
-        leads: "العملاء المحتملين",
-        conversion: "معدل التحويل",
-        cac: "تكلفة اكتساب العملاء",
-        roi: "العائد على الاستثمار"
-      }
-    },
-    settings: {
-      title: "إدارة البيانات",
-      subtitle: "تحميل وإدارة بياناتك",
-      tabs: {
-        masterData: "البيانات الرئيسية",
-        historicalData: "البيانات التاريخية",
-        settings: "الإعدادات"
-      },
-      masterData: {
-        title: "البيانات الرئيسية",
-        description: "تحميل وإدارة البيانات الرئيسية الخاصة بك",
-        products: "المنتجات",
-        locations: "المواقع",
-        vendors: "الموردين",
-        productHierarchy: "هيكل المنتجات",
-        locationHierarchy: "هيكل المواقع"
-      },
-      historicalData: {
-        title: "البيانات التاريخية",
-        description: "تحميل وإدارة البيانات التاريخية الخاصة بك",
-        sales: "المبيعات",
-        inventory: "المخزون",
-        leadTime: "وقت التسليم",
-        replenishment: "إعادة التزويد"
-      },
-      upload: {
-        title: "تحميل البيانات",
-        description: "قم بتحميل بياناتك بتنسيق CSV أو Excel",
-        button: "تحميل",
-        dragDrop: "اسحب وأفلت الملفات هنا أو انقر للتصفح",
-        formats: "التنسيقات المدعومة",
-        success: "تم تحميل البيانات بنجاح",
-        error: "خطأ في تحميل البيانات"
-      }
+      overview: "نظرة عامة",
+      campaigns: "الحملات",
+      analytics: "التحليلات",
+      forecastImpact: "تأثير التنبؤ",
+      integration: "التكامل",
+      createCampaign: "إنشاء حملة",
+      viewAnalytics: "عرض التحليلات",
+      optimizeCampaign: "تحسين الحملة",
+      reviewPerformance: "مراجعة الأداء",
+      campaignPlanner: "مخطط الحملة",
+      marketingCalendar: "تقويم التسويق"
     }
   }
 };
 
-// Helper function to get translation by key
-export const getTranslation = (key: string, language: 'en' | 'ar'): string => {
-  const parts = key.split('.');
-  let current: any = allTranslations[language];
-  
-  for (const part of parts) {
-    if (!current[part]) {
-      console.warn(`Translation not found for key: ${key} in ${language}`);
-      return key;
-    }
-    current = current[part];
-  }
-  
-  return current;
+// Re-export translations for more direct access
+export { 
+  commonTranslations,
+  navigationTranslations,
+  dashboardTranslations,
+  inventoryTranslations,
+  marketingTranslations,
+  salesTranslations,
+  dashboardMetricsTranslations
 };
-
-export { toArabicNumerals, commonTranslations };
-export { uiTranslations, financialMetricsTranslations, sustainabilityMetricsTranslations, modulesSummaryTranslations, paginationTranslations };

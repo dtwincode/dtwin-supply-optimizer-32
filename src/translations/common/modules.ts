@@ -28,5 +28,5 @@ export const modulesSummaryTranslations: ModulesSummary = {
   }
 };
 
-// Add the module translations export to fix the missing import
+// Add the module translations export
 export const moduleTranslations = modulesSummaryTranslations;

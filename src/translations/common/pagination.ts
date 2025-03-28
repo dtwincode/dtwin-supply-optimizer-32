@@ -30,7 +30,6 @@ export const paginationTranslations: PaginationTranslations = {
     en: "results",
     ar: "نتائج"
   },
-  // Add the missing properties
   previous: {
     en: "Previous",
     ar: "السابق"

@@ -22,14 +22,14 @@ export const commonTranslations: CommonTranslations = {
   skus: "SKUs",
   create: "Create",
   
-  // Zone translations - properly assigned
+  // Zone translations
   zones: {
     green: "Green Zone",
     yellow: "Yellow Zone",
     red: "Red Zone"
   },
   
-  // Individual inventory translations - using the correct format
+  // Individual inventory translations
   inventory: {
     lowStock: "Low Stock",
     outOfStock: "Out of Stock",
@@ -59,16 +59,18 @@ export const commonTranslations: CommonTranslations = {
     nodes: "Nodes",
     links: "Links",
     totalItems: "Total Items",
-    networkHelp: "Network Help"
+    networkHelp: "Network Help",
+    nodesDescription: "Network nodes represent locations in the supply chain",
+    linksDescription: "Links represent connections between nodes"
   },
   
-  // Chart translations correctly formatted
+  // Chart translations
   chartTitles: {
     bufferProfile: "Buffer Profile",
     demandVariability: "Demand Variability"
   },
   
-  // Add missing chart translations for replenishment and netFlow 
+  // Add missing chart translations
   replenishment: "Replenishment",
   netFlow: "Net Flow",
   inventoryTrends: "Inventory Trends",
@@ -107,7 +109,7 @@ export const commonTranslations: CommonTranslations = {
   purchaseOrderCreated: "Purchase order created successfully",
   refresh: "Refresh",
   
-  // Required by the interface but not populated
+  // Required by the interface
   warning: "Warning",
   info: "Information",
   clear: "Clear",

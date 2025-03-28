@@ -2,28 +2,28 @@
 import { UITranslations } from "../types";
 
 export const uiTranslations: UITranslations = {
-  darkMode: {
-    en: "Dark Mode",
-    ar: "الوضع الداكن"
+  save: {
+    en: "Save",
+    ar: "حفظ"
   },
-  lightMode: {
-    en: "Light Mode",
-    ar: "الوضع الفاتح"
+  cancel: {
+    en: "Cancel",
+    ar: "إلغاء"
   },
-  menu: {
-    en: "Menu",
-    ar: "القائمة"
+  delete: {
+    en: "Delete",
+    ar: "حذف"
+  },
+  edit: {
+    en: "Edit",
+    ar: "تعديل"
+  },
+  create: {
+    en: "Create",
+    ar: "إنشاء"
   },
   close: {
     en: "Close",
     ar: "إغلاق"
-  },
-  expand: {
-    en: "Expand",
-    ar: "توسيع"
-  },
-  collapse: {
-    en: "Collapse",
-    ar: "طي"
   }
 };
