@@ -21,7 +21,8 @@ const ForecastingContainer = () => {
     accuracy: 92.5,
     bias: 2.1,
     mape: 7.5,
-    rmse: 42.3
+    rmse: 42.3,
+    mae: 3.8  // Adding the missing mae property
   };
   
   // Mock handlers for ForecastingHeader

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Grid } from '@/components/ui/grid';
@@ -15,6 +15,7 @@ import { getTranslation } from '@/translations';
 const Settings = () => {
   const { language } = useLanguage();
   const t = (key: string) => getTranslation(`settings.${key}`, language);
+  const [isDataUploadOpen, setIsDataUploadOpen] = useState(false);
   
   return (
     <DashboardLayout>
@@ -82,7 +83,10 @@ const Settings = () => {
                 <CardTitle>Integration Settings</CardTitle>
               </CardHeader>
               <CardContent>
-                <DataUploadDialog />
+                <DataUploadDialog 
+                  open={isDataUploadOpen} 
+                  onOpenChange={setIsDataUploadOpen}
+                />
               </CardContent>
             </Card>
           </TabsContent>

@@ -3,60 +3,18 @@ import { NavigationItems } from './types';
 
 // Navigation items translations
 export const navigationTranslations: NavigationItems = {
-  dashboard: {
-    en: "Dashboard",
-    ar: "لوحة التحكم"
-  },
-  ddsop: {
-    en: "DD S&OP",
-    ar: "التخطيط الطلبي للمبيعات والعمليات"
-  },
-  forecasting: {
-    en: "Forecasting",
-    ar: "التنبؤ"
-  },
-  inventory: {
-    en: "Inventory",
-    ar: "المخزون"
-  },
-  inventoryClassification: {
-    en: "SKU Classification",
-    ar: "تصنيف وحدات التخزين"
-  },
-  supplyPlanning: {
-    en: "Supply Planning",
-    ar: "تخطيط الإمداد"
-  },
-  salesPlanning: {
-    en: "Sales Planning",
-    ar: "تخطيط المبيعات"
-  },
-  returnsManagement: {
-    en: "Returns Management",
-    ar: "إدارة المرتجعات"
-  },
-  marketing: {
-    en: "Marketing",
-    ar: "التسويق"
-  },
-  logistics: {
-    en: "Logistics",
-    ar: "الخدمات اللوجستية"
-  },
-  reports: {
-    en: "Reports",
-    ar: "التقارير"
-  },
-  askAI: {
-    en: "Ask AI",
-    ar: "اسأل الذكاء الاصطناعي"
-  },
-  data: {
-    en: "Data Management",
-    ar: "إدارة البيانات"
-  },
-  guidelines: {
-    en: "Guidelines",
-    ar: "الإرشادات"
-  }
+  dashboard: "Dashboard",
+  ddsop: "DD S&OP",
+  forecasting: "Forecasting",
+  inventory: "Inventory",
+  inventoryClassification: "SKU Classification",
+  supplyPlanning: "Supply Planning",
+  salesPlanning: "Sales Planning",
+  returnsManagement: "Returns Management",
+  marketing: "Marketing",
+  logistics: "Logistics",
+  reports: "Reports",
+  askAI: "Ask AI",
+  data: "Data Management",
+  guidelines: "Guidelines"
 };
