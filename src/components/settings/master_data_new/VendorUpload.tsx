@@ -1,54 +1,39 @@
-
 import React, { useState } from 'react';
-import { uploadVendor } from '@/lib/vendor.service';
-import FileUpload from "@/components/settings/upload/FileUpload";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { uploadVendor } from '@supabase/setting/vendor.service'; // Correct path
 
 const VendorUpload = () => {
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [status, setStatus] = useState('');
 
-  const handleUploadComplete = async (files: File[]) => {
-    if (files.length === 0) return;
-    
-    const file = files[0];
-    setUploading(true);
-    setError(null);
-    
-    try {
-      const success = await uploadVendor(file);
-      if (success) {
-        alert('Vendor file uploaded successfully!');
-      } else {
-        setError('Failed to upload vendor file.');
-      }
-    } catch (error) {
-      console.error('Error during vendor upload:', error);
-      setError('An error occurred during the upload process.');
-    } finally {
-      setUploading(false);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFile(e.target.files[0]);
     }
   };
 
-  const handleError = (errorMessage: string) => {
-    setError(errorMessage);
+  const handleUpload = async () => {
+    if (!file) {
+      setStatus('Please select a file.');
+      return;
+    }
+
+    setStatus('Uploading...');
+    const result = await uploadVendor(file);
+    setStatus(result ? '✅ Upload successful!' : '❌ Upload failed.');
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Upload Vendor Data</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <FileUpload
-          onUploadComplete={handleUploadComplete}
-          onError={handleError}
-          allowedFileTypes={[".csv", ".xlsx"]}
-        />
-        {uploading && <p>Uploading...</p>}
-        {error && <p>Error: {error}</p>}
-      </CardContent>
-    </Card>
+    <div className="p-4 border rounded-lg shadow-md">
+      <h2 className="text-lg font-semibold mb-2">Vendor Upload</h2>
+      <input type="file" accept=".csv" onChange={handleFileChange} />
+      <button
+        onClick={handleUpload}
+        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
+      >
+        Upload
+      </button>
+      <p className="mt-2 text-sm">{status}</p>
+    </div>
   );
 };
 

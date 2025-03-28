@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import FileUpload from "@/components/settings/upload/FileUpload";
+import { FileUpload } from "@/components/settings/upload/FileUpload";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -18,24 +18,17 @@ export function InventoryDataUpload({ onDataUploaded }: InventoryDataUploadProps
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const handleFileUpload = (files: File[]) => {
-    // This would normally process the files to extract data
-    // For now, we'll simulate with mock data
-    const mockData = [
-      { sku: "SKU001", name: "Product 1", currentStock: 100 },
-      { sku: "SKU002", name: "Product 2", currentStock: 150 },
-    ];
-    
-    setUploadedData(mockData);
+  const handleFileUpload = (data: any[], fileName: string) => {
+    setUploadedData(data);
     setError(null);
     
     toast({
       title: "Data upload success",
-      description: `Uploaded ${mockData.length} records from ${files[0]?.name || "file"}`,
+      description: `Uploaded ${data.length} records from ${fileName}`,
     });
     
     if (onDataUploaded) {
-      onDataUploaded(mockData, dataType);
+      onDataUploaded(data, dataType);
     }
   };
 

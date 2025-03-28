@@ -1,109 +1,129 @@
 
-import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/lib/supabaseClient";
-import { InventoryTransaction } from "@/types/inventory/shipmentTypes";
+import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
+import { calculateNetFlowPosition, calculateBufferPenetration } from '@/utils/inventoryUtils';
 
-export interface InventoryItem {
-  id: string;
+interface InventoryTransactionData {
   sku: string;
-  name: string;
-  category: string;
-  subcategory: string;
-  location: string;
-  currentStock: number;
-  onOrder: number;
-  qualifiedDemand: number;
-  productFamily: string;
-  bufferStatus?: string;
-  lastUpdated?: string;
+  quantity: number;
+  transactionType: 'inbound' | 'outbound';
+  referenceId?: string;
+  referenceType?: 'purchase_order' | 'sales_order' | 'shipment';
+  notes?: string;
 }
 
 export const useInventoryTransaction = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const processTransaction = async (transaction: Omit<InventoryTransaction, "id" | "timestamp">) => {
-    setIsLoading(true);
-    
+  const processTransaction = async (data: InventoryTransactionData) => {
     try {
-      console.log("Processing transaction:", transaction);
+      setLoading(true);
       
-      // In a real app, this would fetch the current inventory level first
-      const mockInventoryItem: InventoryItem = {
-        id: "INV-" + Math.floor(Math.random() * 1000),
-        sku: transaction.sku,
-        name: `Product ${transaction.sku}`,
-        category: "Category",
-        subcategory: "Subcategory",
-        location: "Warehouse A",
-        currentStock: 100,
-        onOrder: 20,
-        qualifiedDemand: 30,
-        productFamily: "Family A",
-        bufferStatus: "green",
-        lastUpdated: new Date().toISOString()
-      };
-      
-      let newStockLevel: number;
-      
-      if (transaction.transactionType === "inbound") {
-        newStockLevel = mockInventoryItem.currentStock + transaction.quantity;
-      } else {
-        newStockLevel = mockInventoryItem.currentStock - transaction.quantity;
+      // 1. Get current inventory data for the SKU
+      const { data: inventoryItem, error: inventoryError } = await supabase
+        .from('inventory_data')
+        .select('*')
+        .eq('sku', data.sku)
+        .single();
+
+      if (inventoryError) {
+        throw new Error(`Inventory data not found: ${inventoryError.message}`);
       }
+
+      // 2. Calculate updated values
+      const newOnHand = data.transactionType === 'inbound' 
+        ? inventoryItem.on_hand + data.quantity
+        : inventoryItem.on_hand - data.quantity;
       
-      console.log(`Stock level change: ${mockInventoryItem.currentStock} -> ${newStockLevel}`);
-      
-      // In a real app, this would update the inventory in the database
-      
-      // Create a transaction record
-      // In a production app, you'd use a database transaction
-      // to ensure both operations succeed or fail together
-      /* 
-      const { data, error } = await supabase
+      // For inbound, also reduce on_order
+      const newOnOrder = data.transactionType === 'inbound' && data.referenceType === 'purchase_order'
+        ? inventoryItem.on_order - data.quantity
+        : inventoryItem.on_order;
+
+      // 3. Recalculate net flow position - convert to compatible type for calculation
+      const netFlowPosition = calculateNetFlowPosition({
+        currentStock: newOnHand,
+        qualifiedDemand: inventoryItem.qualified_demand || 0,
+        plannedSupply: newOnOrder,
+        netFlowPosition: inventoryItem.net_flow_position || 0,
+        productFamily: inventoryItem.product_family || '',
+        sku: inventoryItem.sku,
+        name: inventoryItem.name || ''
+      });
+
+      // 4. Calculate buffer penetration if buffer zones exist
+      let bufferPenetration = inventoryItem.buffer_penetration;
+      if (inventoryItem.red_zone_size && inventoryItem.yellow_zone_size && inventoryItem.green_zone_size) {
+        const bufferZones = {
+          red: inventoryItem.red_zone_size,
+          yellow: inventoryItem.yellow_zone_size,
+          green: inventoryItem.green_zone_size
+        };
+        bufferPenetration = calculateBufferPenetration(
+          netFlowPosition.netFlowPosition,
+          bufferZones
+        );
+      }
+
+      // 5. Update inventory item
+      const { error: updateError } = await supabase
+        .from('inventory_data')
+        .update({
+          on_hand: newOnHand,
+          on_order: newOnOrder,
+          net_flow_position: netFlowPosition.netFlowPosition,
+          buffer_penetration: bufferPenetration,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', inventoryItem.id);
+
+      if (updateError) {
+        throw new Error(`Failed to update inventory: ${updateError.message}`);
+      }
+
+      // 6. Log the transaction
+      const { error: logError } = await (supabase as any)
         .from('inventory_transactions')
         .insert({
-          sku: transaction.sku,
-          quantity: transaction.quantity,
-          transaction_type: transaction.transactionType,
-          reference_id: transaction.referenceId,
-          reference_type: transaction.referenceType,
-          notes: transaction.notes,
-          previous_quantity: mockInventoryItem.currentStock,
-          new_quantity: newStockLevel
+          sku: data.sku,
+          quantity: data.quantity,
+          transaction_type: data.transactionType,
+          reference_id: data.referenceId,
+          reference_type: data.referenceType,
+          previous_on_hand: inventoryItem.on_hand,
+          new_on_hand: newOnHand,
+          notes: data.notes,
+          transaction_date: new Date().toISOString()
         });
-      
-      if (error) throw error;
-      */
-      
-      console.log("Transaction processed successfully");
-      
+
+      if (logError) {
+        console.error('Failed to log transaction:', logError);
+        // Continue even if logging fails
+      }
+
       toast({
-        title: `${transaction.transactionType === "inbound" ? "Inbound" : "Outbound"} processed`,
-        description: `${transaction.quantity} units of ${transaction.sku} processed.`,
+        title: 'Inventory Updated',
+        description: `${data.transactionType === 'inbound' ? 'Received' : 'Shipped'} ${data.quantity} units of ${data.sku}`,
       });
-      
-      return {
-        success: true,
-        previousQuantity: mockInventoryItem.currentStock,
-        newQuantity: newStockLevel
-      };
+
+      return true;
     } catch (error) {
-      console.error("Error processing transaction:", error);
+      console.error('Error processing inventory transaction:', error);
       toast({
-        variant: "destructive",
-        title: "Error processing transaction",
-        description: "There was an error processing the inventory transaction.",
+        variant: 'destructive',
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to process inventory transaction',
       });
-      return { success: false };
+      return false;
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
-  
+
   return {
     processTransaction,
-    isLoading
+    loading
   };
 };

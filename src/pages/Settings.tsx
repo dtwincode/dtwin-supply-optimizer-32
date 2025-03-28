@@ -1,96 +1,105 @@
 
-import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Grid } from '@/components/ui/grid';
-import LeadTimeUpload from '@/components/settings/lead-time/LeadTimeUpload';
-import ReplenishmentUpload from '@/components/settings/replenishment/ReplenishmentUpload';
-import LocationHierarchyUpload from '@/components/settings/location-hierarchy/LocationHierarchyUpload';
-import HistoricalSalesUpload from '@/components/settings/historical-sales/HistoricalSalesUpload';
-import { DataUploadDialog } from '@/components/settings/DataUploadDialog';
-import DashboardLayout from '@/components/DashboardLayout';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { getTranslation } from '@/translations';
+import { useEffect, useState } from "react";
+import DashboardLayout from "@/components/DashboardLayout";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LocationHierarchyUpload } from "@/components/settings/location-hierarchy/LocationHierarchyUpload";
+import { ProductHierarchyUpload } from "@/components/settings/product-hierarchy/ProductHierarchyUpload";
+import { HistoricalSalesUpload } from "@/components/settings/historical-sales/HistoricalSalesUpload";
+import { LeadTimeUpload } from "@/components/settings/lead-time/LeadTimeUpload";
+import { ReplenishmentUpload } from "@/components/settings/replenishment/ReplenishmentUpload";
+import { IntegratedDataPreview } from "@/components/settings/integrated-data/IntegratedDataPreview";
+import { Separator } from "@/components/ui/separator";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { Loader2 } from "lucide-react";
 
 const Settings = () => {
-  const { language } = useLanguage();
-  const t = (key: string) => getTranslation(`settings.${key}`, language);
-  const [isDataUploadOpen, setIsDataUploadOpen] = useState(false);
-  
+  const navigate = useNavigate();
+  const { user, isLoading } = useAuth();
+  const [activeTab, setActiveTab] = useState("integrated-data");
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      navigate('/auth');
+    }
+  }, [user, isLoading, navigate]);
+
+  // Add a handler for tab changes
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+  };
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[calc(100vh-150px)]">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">Loading data management...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <DashboardLayout>
-      <div className="space-y-6 p-4">
+      <div className="space-y-6 max-w-[1200px] mx-auto p-4 sm:p-6">
         <div>
-          <h1 className="text-2xl font-bold">{t('title')}</h1>
-          <p className="text-muted-foreground">{t('subtitle')}</p>
+          <h2 className="text-3xl font-bold tracking-tight">Data Management & Configuration</h2>
+          <p className="text-muted-foreground mt-2">
+            Configure system settings and manage data hierarchies across your organization
+          </p>
         </div>
+
+        <Separator className="my-6" />
         
-        <Tabs defaultValue="historical" className="w-full">
-          <TabsList className="w-full grid grid-cols-3 mb-4">
-            <TabsTrigger value="master">{t('tabs.masterData')}</TabsTrigger>
-            <TabsTrigger value="historical">{t('tabs.historicalData')}</TabsTrigger>
-            <TabsTrigger value="settings">{t('tabs.settings')}</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="master" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('masterData.title')}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="mb-4">{t('masterData.description')}</p>
-                <Grid className="gap-4 grid-cols-1 md:grid-cols-2">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>{t('masterData.productHierarchy')}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <LocationHierarchyUpload />
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>{t('masterData.locationHierarchy')}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <LocationHierarchyUpload />
-                    </CardContent>
-                  </Card>
-                </Grid>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="historical" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('historicalData.title')}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="mb-4">{t('historicalData.description')}</p>
-                <Grid className="gap-4 grid-cols-1 md:grid-cols-2">
-                  <HistoricalSalesUpload />
-                  <LeadTimeUpload />
-                  <ReplenishmentUpload />
-                </Grid>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="settings" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Integration Settings</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <DataUploadDialog 
-                  open={isDataUploadOpen} 
-                  onOpenChange={setIsDataUploadOpen}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        <Card className="p-4 sm:p-6">
+          <Tabs 
+            defaultValue={activeTab} 
+            value={activeTab}
+            onValueChange={handleTabChange} 
+            className="space-y-6"
+          >
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+              <TabsTrigger value="location">Location Hierarchy</TabsTrigger>
+              <TabsTrigger value="product">Product Hierarchy</TabsTrigger>
+              <TabsTrigger value="historical-sales">Historical Sales</TabsTrigger>
+              <TabsTrigger value="integrated-data">Integrated Data</TabsTrigger>
+              <TabsTrigger value="lead-time">Lead Time</TabsTrigger>
+              <TabsTrigger value="replenishment-time">Replenishment</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="location" className="space-y-4">
+              <LocationHierarchyUpload />
+            </TabsContent>
+
+            <TabsContent value="product" className="space-y-4">
+              <ProductHierarchyUpload />
+            </TabsContent>
+
+            <TabsContent value="historical-sales" className="space-y-4">
+              <HistoricalSalesUpload />
+            </TabsContent>
+
+            <TabsContent value="integrated-data" className="space-y-4">
+              <IntegratedDataPreview />
+            </TabsContent>
+
+            <TabsContent value="lead-time" className="space-y-4">
+              <LeadTimeUpload />
+            </TabsContent>
+
+            <TabsContent value="replenishment-time" className="space-y-4">
+              <ReplenishmentUpload />
+            </TabsContent>
+          </Tabs>
+        </Card>
       </div>
     </DashboardLayout>
   );

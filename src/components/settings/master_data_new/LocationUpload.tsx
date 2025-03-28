@@ -1,83 +1,40 @@
-
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { uploadLocation } from '@/lib/location.service';
-import FileUpload from "@/components/settings/upload/FileUpload";
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { getTranslation } from '@/translations';
+import { uploadLocation } from '@supabase/setting/location.service'; // Correct path
 
-const LocationHierarchyUpload = () => {
+const LocationUpload = () => {
   const [file, setFile] = useState<File | null>(null);
-  const { toast } = useToast();
-  const { language } = useLanguage();
+  const [status, setStatus] = useState('');
 
-  const handleUploadComplete = (files: File[]) => {
-    if (files.length > 0) {
-      setFile(files[0]);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFile(e.target.files[0]);
     }
-  };
-
-  const handleError = (error: string) => {
-    toast({
-      variant: "destructive",
-      title: getTranslation('common.error', language),
-      description: error
-    });
   };
 
   const handleUpload = async () => {
-    if (file) {
-      const success = await uploadLocation(file);
-      if (success) {
-        toast({
-          title: getTranslation('common.success', language),
-          description: 'Location uploaded successfully!'
-        });
-      } else {
-        toast({
-          variant: "destructive",
-          title: getTranslation('common.error', language),
-          description: 'Location upload failed.'
-        });
-      }
-    } else {
-      toast({
-        variant: "destructive",
-        title: getTranslation('common.warning', language),
-        description: 'Please select a file.'
-      });
+    if (!file) {
+      setStatus('Please select a file.');
+      return;
     }
+
+    setStatus('Uploading...');
+    const result = await uploadLocation(file);
+    setStatus(result ? '✅ Upload successful!' : '❌ Upload failed.');
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Upload Location Hierarchy</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <p className="text-sm text-muted-foreground">
-          Upload your location hierarchy data in CSV or Excel format.
-        </p>
-        
-        <FileUpload 
-          onUploadComplete={handleUploadComplete}
-          onError={handleError}
-          allowedFileTypes={[".csv", ".xlsx"]}
-          multiple={false}
-        />
-        
-        {file && (
-          <div className="flex justify-end">
-            <Button onClick={handleUpload}>
-              Upload Location
-            </Button>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+    <div className="p-4 border rounded-lg shadow-md">
+      <h2 className="text-lg font-semibold mb-2">Location Upload</h2>
+      <input type="file" accept=".csv" onChange={handleFileChange} />
+      <button
+        onClick={handleUpload}
+        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
+      >
+        Upload
+      </button>
+      <p className="mt-2 text-sm">{status}</p>
+    </div>
   );
 };
 
-export default LocationHierarchyUpload;
+export default LocationUpload;

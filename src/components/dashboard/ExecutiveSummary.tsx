@@ -1,10 +1,12 @@
+
 import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslation, toArabicNumerals } from "@/translations";
+import { getTranslation } from "@/translations";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { AlertCircle, ArrowDown, ArrowUp, BadgeCheck, BarChart3, Check, HeartPulse } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { toArabicNumerals } from "@/translations";
 
 // KPI data
 const kpiData = [

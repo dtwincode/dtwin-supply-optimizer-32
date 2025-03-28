@@ -1,10 +1,7 @@
 
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { getTranslation } from '@/translations';
-
-// Define the Language type locally
-type Language = 'en' | 'ar';
+import { Language, getTranslation } from '@/translations';
 
 // Shared function to get status badges with consistent styling
 export const getStatusBadge = (status: string, language: Language) => {

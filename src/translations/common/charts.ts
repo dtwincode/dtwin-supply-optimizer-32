@@ -1,31 +1,39 @@
 
 export const chartTranslations = {
-  en: {
-    chartTitles: {
-      bufferProfile: "Buffer Profile",
-      replenishment: "Replenishment",
-      netFlow: "Net Flow",
-      demandVariability: "Demand Variability",
-      inventoryTrends: "Inventory Trends"
+  chartTitles: {
+    bufferProfile: {
+      en: "Buffer Profile",
+      ar: "ملف المخزون"
     },
-    zones: {
-      red: "Red Zone",
-      yellow: "Yellow Zone",
-      green: "Green Zone"
+    replenishment: {
+      en: "Replenishment",
+      ar: "إعادة التزويد"
+    },
+    netFlow: {
+      en: "Net Flow",
+      ar: "التدفق الصافي"
+    },
+    demandVariability: {
+      en: "Demand Variability",
+      ar: "تغير الطلب"
+    },
+    inventoryTrends: {
+      en: "Inventory Trends",
+      ar: "اتجاهات المخزون"
     }
   },
-  ar: {
-    chartTitles: {
-      bufferProfile: "ملف المخزون",
-      replenishment: "إعادة التزويد",
-      netFlow: "التدفق الصافي",
-      demandVariability: "تغير الطلب",
-      inventoryTrends: "اتجاهات المخزون"
+  zones: {
+    red: {
+      en: "Red Zone",
+      ar: "المنطقة الحمراء"
     },
-    zones: {
-      red: "المنطقة الحمراء",
-      yellow: "المنطقة الصفراء",
-      green: "المنطقة الخضراء"
+    yellow: {
+      en: "Yellow Zone",
+      ar: "المنطقة الصفراء"
+    },
+    green: {
+      en: "Green Zone",
+      ar: "المنطقة الخضراء"
     }
   }
 };

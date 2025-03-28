@@ -12,11 +12,6 @@ export interface LogisticsDocument {
   created_at: string;
 }
 
-interface DocumentUploadResult {
-  success: boolean;
-  error?: string;
-}
-
 export const getDocuments = async (orderId: string) => {
   const { data, error } = await supabase
     .from('logistics_documents')
@@ -28,29 +23,42 @@ export const getDocuments = async (orderId: string) => {
   return data as LogisticsDocument[];
 };
 
-export const uploadDocument = async (file: File): Promise<DocumentUploadResult> => {
-  try {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `logistics-docs/${Date.now()}_${file.name}`;
-    
-    // Upload the file to storage
-    const { error: uploadError } = await supabase.storage
-      .from('documents')
-      .upload(fileName, file);
+export const uploadDocument = async (
+  orderId: string,
+  documentType: string,
+  file: File
+) => {
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${orderId}/${documentType}_${Date.now()}.${fileExt}`;
+  
+  // First, ensure the bucket exists
+  const { data: bucketData, error: bucketError } = await supabase
+    .storage
+    .createBucket('logistics-documents', { public: true });
 
-    if (uploadError) {
-      console.error('Error uploading file:', uploadError);
-      return { success: false, error: uploadError.message };
-    }
-
-    // For now, just return success since we don't have the actual database connection
-    // In a real app, you would also update the database with document metadata
-    return { success: true };
-  } catch (error) {
-    console.error('Error in document upload:', error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Unknown error during upload' 
-    };
+  if (bucketError && !bucketError.message.includes('already exists')) {
+    throw bucketError;
   }
+
+  const { error: uploadError } = await supabase.storage
+    .from('logistics-documents')
+    .upload(fileName, file);
+
+  if (uploadError) throw uploadError;
+
+  const { data: urlData } = supabase.storage
+    .from('logistics-documents')
+    .getPublicUrl(fileName);
+
+  const { error: dbError } = await supabase
+    .from('logistics_documents')
+    .insert({
+      order_id: orderId,
+      document_type: documentType,
+      file_url: urlData.publicUrl,
+      status: 'active',
+      metadata: { original_name: file.name }
+    });
+
+  if (dbError) throw dbError;
 };

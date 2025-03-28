@@ -1,14 +1,17 @@
+import { supabase } from './supabaseClient'; // Import the supabase client
 
-// Vendor service for handling vendor uploads
-export const uploadVendor = async (file: File): Promise<boolean> => {
-  try {
-    console.log(`Uploading vendor file: ${file.name}`);
-    // In a real implementation, this would send the file to a backend API
-    // For now, we'll just simulate a successful upload
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    return true;
-  } catch (error) {
-    console.error("Error uploading vendor:", error);
-    return false;
+// Function to handle vendor file upload
+export const uploadVendor = async (file: File) => {
+  const bucketName = 'vendors'; // Define your vendor bucket name
+  const { data, error } = await supabase.storage
+    .from(bucketName)
+    .upload(`vendor/${file.name}`, file);
+
+  if (error) {
+    console.error('Error uploading vendor file:', error.message);
+    return false; // Return false if there's an error
   }
+
+  console.log('Vendor uploaded successfully:', data);
+  return true; // Return true if the upload is successful
 };

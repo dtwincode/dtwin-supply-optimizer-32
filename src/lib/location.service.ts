@@ -1,14 +1,17 @@
+import { supabase } from './supabaseClient'; // Import the supabase client
 
-// Location service for handling location uploads
-export const uploadLocation = async (file: File): Promise<boolean> => {
-  try {
-    console.log(`Uploading location file: ${file.name}`);
-    // In a real implementation, this would send the file to a backend API
-    // For now, we'll just simulate a successful upload
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    return true;
-  } catch (error) {
-    console.error("Error uploading location:", error);
-    return false;
+// Function to handle location file upload
+export const uploadLocation = async (file: File) => {
+  const bucketName = 'locations'; // Define your location bucket name
+  const { data, error } = await supabase.storage
+    .from(bucketName)
+    .upload(`location/${file.name}`, file);
+
+  if (error) {
+    console.error('Error uploading location file:', error.message);
+    return false; // Return false if there's an error
   }
+
+  console.log('Location uploaded successfully:', data);
+  return true; // Return true if the upload is successful
 };

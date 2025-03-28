@@ -1,10 +1,10 @@
 
-import { SustainabilityMetrics } from "../types";
+import { SustainabilityMetrics } from '../types';
 
 export const sustainabilityMetricsTranslations: SustainabilityMetrics = {
   title: {
     en: "Sustainability Metrics",
-    ar: "مؤشرات الاستدامة"
+    ar: "مقاييس الاستدامة"
   },
   carbonFootprint: {
     en: "Carbon Footprint",
@@ -17,5 +17,17 @@ export const sustainabilityMetricsTranslations: SustainabilityMetrics = {
   greenSuppliers: {
     en: "Green Suppliers",
     ar: "الموردين الخضر"
+  },
+  yearlyReduction: {
+    en: "Yearly reduction",
+    ar: "تخفيض سنوي"
+  },
+  wasteEfficiency: {
+    en: "Waste efficiency",
+    ar: "كفاءة النفايات"
+  },
+  sustainableSourcing: {
+    en: "Sustainable sourcing",
+    ar: "التوريد المستدام"
   }
 };

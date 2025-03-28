@@ -54,7 +54,7 @@ const Index = () => {
         >
           <section className="transition-opacity duration-500">
             <h2 className="font-display text-xl font-semibold mb-2">
-              {getTranslation('dashboard.title', language)}
+              {getTranslation('dashboard', language)}
             </h2>
             
             <MemoizedMetrics />

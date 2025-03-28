@@ -1,10 +1,10 @@
 
-import { FinancialMetrics } from "../types";
+import { FinancialMetrics } from '../types';
 
 export const financialMetricsTranslations: FinancialMetrics = {
   title: {
     en: "Financial Metrics",
-    ar: "المؤشرات المالية"
+    ar: "المقاييس المالية"
   },
   revenue: {
     en: "Revenue",

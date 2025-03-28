@@ -1,50 +1,54 @@
 
-import { TranslationsType } from './types';
-import { commonTranslations } from './common';
+import { Translations, Language } from './types';
 import { navigationTranslations } from './navigation';
-import { dashboardTranslations } from './dashboard';
-import { inventoryTranslations } from './inventory';
-import { marketingTranslations } from './marketing';
-import { salesTranslations } from './sales';
+import { dashboardTranslations, executiveSummaryTranslations } from './common/dashboard';
+import { modulesSummaryTranslations } from './common/modules';
+import { uiTranslations } from './common/ui';
 import { chartTranslations } from './common/charts';
+import { inventoryTranslations } from './common/inventory';
+import { paginationTranslations } from './common/pagination';
+import { supplyPlanningTranslations } from './common/supplyPlanning';
+import { financialMetricsTranslations } from './common/financialMetrics';
+import { sustainabilityMetricsTranslations } from './common/sustainabilityMetrics';
+import { logisticsTranslations } from './common/logistics';
+import { ddsopTranslations } from './common/ddsop';
+import { toArabicNumerals } from './utils';
+import { commonTranslations } from './common';
+import { salesTranslations } from './sales';
+import { marketingTranslations } from './marketing';
 
-// Export utility functions
-export { getTranslation, toArabicNumerals } from './utils';
+export { toArabicNumerals };
+export type { Language };
 
-export const translations: TranslationsType = {
-  en: {
-    common: {
-      ...commonTranslations.en,
-      chartTitles: chartTranslations.en.chartTitles,
-      zones: chartTranslations.en.zones
-    },
-    navigation: navigationTranslations,
-    dashboard: dashboardTranslations.en,
-    inventory: inventoryTranslations,
-    marketing: marketingTranslations,
-    sales: salesTranslations
-  },
-  ar: {
-    common: {
-      ...commonTranslations.ar,
-      chartTitles: chartTranslations.ar.chartTitles,
-      zones: chartTranslations.ar.zones
-    },
-    navigation: navigationTranslations,
-    dashboard: dashboardTranslations.ar,
-    inventory: inventoryTranslations,
-    marketing: marketingTranslations,
-    sales: salesTranslations
+export const translations: Translations = {
+  navigationItems: navigationTranslations,
+  dashboardMetrics: dashboardTranslations,
+  financialMetrics: financialMetricsTranslations,
+  sustainabilityMetrics: sustainabilityMetricsTranslations,
+  modulesSummary: modulesSummaryTranslations,
+  common: commonTranslations,
+  executiveSummary: executiveSummaryTranslations,
+  sales: salesTranslations,
+  supplyPlanning: supplyPlanningTranslations,
+  ddsop: ddsopTranslations,
+  marketing: marketingTranslations,
+  inventory: inventoryTranslations,
+  ui: uiTranslations,
+  charts: chartTranslations,
+  pagination: paginationTranslations
+};
+
+export function getTranslation(key: string, language: Language) {
+  const keys = key.split('.');
+  let current: any = translations;
+
+  for (const k of keys) {
+    if (current[k] === undefined) {
+      console.warn(`Translation key not found: ${key}`);
+      return key; // Return the key as fallback instead of undefined
+    }
+    current = current[k];
   }
-};
 
-// Re-export translations for more direct access
-export { 
-  commonTranslations,
-  navigationTranslations,
-  dashboardTranslations,
-  inventoryTranslations,
-  marketingTranslations,
-  salesTranslations,
-  chartTranslations
-};
+  return current[language];
+}

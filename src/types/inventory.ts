@@ -1,4 +1,3 @@
-
 export interface BufferProfile {
   id: string;
   name: string;
@@ -154,11 +153,3 @@ export interface BufferFactorConfig {
   isBenchmarkBased?: boolean;
   metadata?: Record<string, any>;
 }
-
-// Import types correctly from sub-directories
-import { Classification, SKUClassification, ReplenishmentData } from './inventory/classificationTypes';
-import { DecouplingNetwork } from './inventory/decouplingTypes';
-import { BufferZones as BufferZonesType } from './inventory/bufferTypes';
-
-// Re-export the imported types
-export type { Classification, SKUClassification, ReplenishmentData, DecouplingNetwork };

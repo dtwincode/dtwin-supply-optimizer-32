@@ -1,16 +1,34 @@
 
-// Re-export all inventory types
+// Export all specialized type modules
 export * from './bufferTypes';
-export * from './databaseTypes';
-export * from './decouplingTypes';
 export * from './inventoryFilters';
+export * from './decouplingTypes';
+export * from './classificationTypes';
 export * from './leadTimeTypes';
 export * from './shipmentTypes';
-export * from './classificationTypes';
 
-// Export types explicitly
-export type { 
-  Classification, 
-  SKUClassification, 
-  ReplenishmentData 
-} from './classificationTypes';
+// Common utility types
+export interface PaginationState {
+  currentPage: number;
+  itemsPerPage: number;
+  totalItems: number;
+}
+
+export interface SortState {
+  field: string;
+  direction: 'asc' | 'desc';
+}
+
+// Re-export types from the root inventory.ts file
+export type {
+  BufferProfile,
+  DecouplingPoint,
+  PurchaseOrder,
+  InventoryItem,
+  InventoryFilters,
+  BufferZones,
+  NetFlowPosition,
+  DDMRPMetricsHistory,
+  IndustryType,
+  BufferFactorConfig
+} from '../inventory';
