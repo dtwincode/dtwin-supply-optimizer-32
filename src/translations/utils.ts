@@ -1,6 +1,5 @@
 
-// Helper function to convert numbers to Arabic numerals
-export const toArabicNumerals = (num: number | string): string => {
-  const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-  return num.toString().replace(/[0-9]/g, (d) => arabicNumerals[parseInt(d)]);
+// Remove the Arabic numeral function since we don't need it anymore
+export const formatNumber = (num: number | string): string => {
+  return num.toString();
 };

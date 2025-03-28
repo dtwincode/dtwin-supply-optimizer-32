@@ -1,6 +1,6 @@
+
 import React, { createContext, useContext } from 'react';
-import { getTranslation, Language } from '@/translations';
-import { useLanguage } from './LanguageContext';
+import { getTranslation } from '@/translations';
 
 type I18nContextType = {
   t: (key: string) => string;
@@ -9,9 +9,7 @@ type I18nContextType = {
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
 export const I18nProvider = ({ children }: { children: React.ReactNode }) => {
-  const { language } = useLanguage();
-
-  const t = (key: string) => getTranslation(key, language as Language);
+  const t = (key: string) => getTranslation(key, 'en');
 
   return (
     <I18nContext.Provider value={{ t }}>

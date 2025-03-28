@@ -1,168 +1,161 @@
-export interface TranslationItem {
-  en: string;
-  ar: string;
-}
+
+export type TranslationItem = string;
 
 export interface NestedTranslationItem {
-  title: TranslationItem;
-  description: TranslationItem;
+  title: string;
+  description: string;
 }
 
 export interface InventoryTranslations {
-  inventoryTitle: TranslationItem;
-  bufferZones: TranslationItem;
-  bufferStatus: TranslationItem;
-  skuClassification: TranslationItem;
-  leadTime: TranslationItem;
-  replenishmentOrders: TranslationItem;
-  netFlowPosition: TranslationItem;
-  inventorySummary: TranslationItem;
-  inventoryLevels: TranslationItem;
-  skuClassifications: TranslationItem;
-  decouplingPoint: TranslationItem;
-  addDecouplingPoint: TranslationItem;
-  manageAndTrack: TranslationItem;
-  currentStock: TranslationItem;
-  productFamily: TranslationItem;
-  location: TranslationItem;
-  name: TranslationItem;
-  sku: TranslationItem;
-  actions: TranslationItem;
-  noItems: TranslationItem;
-  loadingData: TranslationItem;
-  loadingItem: TranslationItem;
-  errorLoading: TranslationItem;
-  errorLoadingConfig: TranslationItem;
-  leadTimeCategory: TranslationItem;
-  variabilityLevel: TranslationItem;
-  criticality: TranslationItem;
-  score: TranslationItem;
-  lastUpdated: TranslationItem;
-  adu: TranslationItem;
-  turnover: TranslationItem;
-  decouplingPoints: TranslationItem;
-  decouplingNetwork: TranslationItem;
-  listView: TranslationItem;
-  locationId: TranslationItem;
-  type: TranslationItem;
-  description: TranslationItem;
-  edit: TranslationItem;
-  delete: TranslationItem;
-  noDecouplingPoints: TranslationItem;
-  confirmDelete: TranslationItem;
-  success: TranslationItem;
-  decouplingPointDeleted: TranslationItem;
-  decouplingPointSaved: TranslationItem;
-  refresh: TranslationItem;
-  networkVisualization: TranslationItem;
-  nodes: TranslationItem;
-  links: TranslationItem;
-  configureDecouplingPoints: TranslationItem;
-  strategicInfo: TranslationItem;
-  customerOrderInfo: TranslationItem;
-  stockPointInfo: TranslationItem;
-  intermediateInfo: TranslationItem;
-  bufferProfileInfo: TranslationItem;
-  nodesDescription: TranslationItem;
-  linksDescription: TranslationItem;
-  networkHelp: TranslationItem;
+  inventoryTitle: string;
+  bufferZones: string;
+  bufferStatus: string;
+  skuClassification: string;
+  leadTime: string;
+  replenishmentOrders: string;
+  netFlowPosition: string;
+  inventorySummary: string;
+  inventoryLevels: string;
+  skuClassifications: string;
+  decouplingPoint: string;
+  addDecouplingPoint: string;
+  manageAndTrack: string;
+  currentStock: string;
+  productFamily: string;
+  location: string;
+  name: string;
+  sku: string;
+  actions: string;
+  noItems: string;
+  loadingData: string;
+  loadingItem: string;
+  errorLoading: string;
+  errorLoadingConfig: string;
+  leadTimeCategory: string;
+  variabilityLevel: string;
+  criticality: string;
+  score: string;
+  lastUpdated: string;
+  adu: string;
+  turnover: string;
+  decouplingPoints: string;
+  decouplingNetwork: string;
+  listView: string;
+  locationId: string;
+  type: string;
+  description: string;
+  edit: string;
+  delete: string;
+  noDecouplingPoints: string;
+  confirmDelete: string;
+  success: string;
+  decouplingPointDeleted: string;
+  decouplingPointSaved: string;
+  refresh: string;
+  networkVisualization: string;
+  nodes: string;
+  links: string;
+  configureDecouplingPoints: string;
+  strategicInfo: string;
+  customerOrderInfo: string;
+  stockPointInfo: string;
+  intermediateInfo: string;
+  bufferProfileInfo: string;
+  nodesDescription: string;
+  linksDescription: string;
+  networkHelp: string;
   classification: NestedTranslationItem;
-  decouplingPointRecommendation: TranslationItem;
-  decouplingPointRecommendationDesc: TranslationItem;
-  decouplingPointRecommendationHelp: TranslationItem;
-  locationSelection: TranslationItem;
-  selectLocation: TranslationItem;
-  weightFactors: TranslationItem;
-  leadTimeFactor: TranslationItem;
-  demandVariabilityFactor: TranslationItem;
-  supplyReliabilityFactor: TranslationItem;
-  inventoryCostFactor: TranslationItem;
-  customerServiceFactor: TranslationItem;
-  leadTimeFactorDesc: TranslationItem;
-  demandVariabilityFactorDesc: TranslationItem;
-  supplyReliabilityFactorDesc: TranslationItem;
-  inventoryCostFactorDesc: TranslationItem;
-  customerServiceFactorDesc: TranslationItem;
-  locationFactorScores: TranslationItem;
-  scoreFor: TranslationItem;
-  analyzing: TranslationItem;
-  analyzeDecouplingPoints: TranslationItem;
-  recommendationScore: TranslationItem;
-  recommendationStatus: TranslationItem;
-  highlyRecommended: TranslationItem;
-  recommended: TranslationItem;
-  consider: TranslationItem;
-  notRecommended: TranslationItem;
-  suggestedType: TranslationItem;
-  confidence: TranslationItem;
-  viewDetailedAnalysis: TranslationItem;
-  analysisComplete: TranslationItem;
-  decouplingRecommendationsReady: TranslationItem;
-  strategicDecouplingPoint: TranslationItem;
-  customer_orderDecouplingPoint: TranslationItem;
-  stock_pointDecouplingPoint: TranslationItem;
-  intermediateDecouplingPoint: TranslationItem;
-  totalItems: TranslationItem;
-  bufferManagement: TranslationItem;
-  bufferManagementDesc: TranslationItem;
-  createBufferProfile: TranslationItem;
-  bufferProfiles: TranslationItem;
-  bufferConfiguration: TranslationItem;
-  bufferSimulation: TranslationItem;
-  bufferSimulationDesc: TranslationItem;
-  noBufferProfiles: TranslationItem;
-  bufferProfileSaved: TranslationItem;
-  leadTimeFactors: TranslationItem;
-  leadTimeThresholds: TranslationItem;
-  otherFactors: TranslationItem;
-  replenishmentTime: TranslationItem;
-  industry: TranslationItem;
-  moq: TranslationItem;
-  lotSizeFactor: TranslationItem;
-  variabilityFactor: TranslationItem;
-  selectADU: TranslationItem;
-  selectLeadTime: TranslationItem;
-  selectVariability: TranslationItem;
-  simulatedBufferVisualization: TranslationItem;
-  unitsPerDay: TranslationItem;
-  days: TranslationItem;
-  high: TranslationItem;
-  medium: TranslationItem;
-  low: TranslationItem;
-  short: TranslationItem;
-  long: TranslationItem;
-  unknown: TranslationItem;
-  stock: TranslationItem;
-  buffer: TranslationItem;
-  classify: TranslationItem;
-  decouple: TranslationItem;
-  netflow: TranslationItem;
-  ai: TranslationItem;
-  bufferProfile: TranslationItem;
+  decouplingPointRecommendation: string;
+  decouplingPointRecommendationDesc: string;
+  decouplingPointRecommendationHelp: string;
+  locationSelection: string;
+  selectLocation: string;
+  weightFactors: string;
+  leadTimeFactor: string;
+  demandVariabilityFactor: string;
+  supplyReliabilityFactor: string;
+  inventoryCostFactor: string;
+  customerServiceFactor: string;
+  leadTimeFactorDesc: string;
+  demandVariabilityFactorDesc: string;
+  supplyReliabilityFactorDesc: string;
+  inventoryCostFactorDesc: string;
+  customerServiceFactorDesc: string;
+  locationFactorScores: string;
+  scoreFor: string;
+  analyzing: string;
+  analyzeDecouplingPoints: string;
+  recommendationScore: string;
+  recommendationStatus: string;
+  highlyRecommended: string;
+  recommended: string;
+  consider: string;
+  notRecommended: string;
+  suggestedType: string;
+  confidence: string;
+  viewDetailedAnalysis: string;
+  analysisComplete: string;
+  decouplingRecommendationsReady: string;
+  strategicDecouplingPoint: string;
+  customer_orderDecouplingPoint: string;
+  stock_pointDecouplingPoint: string;
+  intermediateDecouplingPoint: string;
+  totalItems: string;
+  bufferManagement: string;
+  bufferManagementDesc: string;
+  createBufferProfile: string;
+  bufferProfiles: string;
+  bufferConfiguration: string;
+  bufferSimulation: string;
+  bufferSimulationDesc: string;
+  noBufferProfiles: string;
+  bufferProfileSaved: string;
+  leadTimeFactors: string;
+  leadTimeThresholds: string;
+  otherFactors: string;
+  replenishmentTime: string;
+  industry: string;
+  moq: string;
+  lotSizeFactor: string;
+  variabilityFactor: string;
+  selectADU: string;
+  selectLeadTime: string;
+  selectVariability: string;
+  simulatedBufferVisualization: string;
+  unitsPerDay: string;
+  days: string;
+  high: string;
+  medium: string;
+  low: string;
+  short: string;
+  long: string;
+  unknown: string;
+  stock: string;
+  buffer: string;
+  classify: string;
+  decouple: string;
+  netflow: string;
+  ai: string;
+  bufferProfile: string;
 }
 
-export type Language = 'en' | 'ar';
-
-export type TranslationValue = {
-  en: string;
-  ar: string;
-};
+export type Language = 'en';
 
 export type NavigationItems = {
-  dashboard: TranslationValue;
-  ddsop: TranslationValue;
-  forecasting: TranslationValue;
-  inventory: TranslationValue;
-  inventoryClassification: TranslationValue;
-  supplyPlanning: TranslationValue;
-  salesPlanning: TranslationValue;
-  returnsManagement: TranslationValue;
-  marketing: TranslationValue;
-  logistics: TranslationValue;
-  reports: TranslationValue;
-  askAI: TranslationValue;
-  data: TranslationValue;
-  guidelines: TranslationValue;
+  dashboard: string;
+  ddsop: string;
+  forecasting: string;
+  inventory: string;
+  inventoryClassification: string;
+  supplyPlanning: string;
+  salesPlanning: string;
+  returnsManagement: string;
+  marketing: string;
+  logistics: string;
+  reports: string;
+  askAI: string;
+  data: string;
+  guidelines: string;
 };
 
 export type Translations = {
@@ -184,41 +177,41 @@ export type Translations = {
 };
 
 export type CommonTranslations = {
-  [key: string]: TranslationValue | any;
+  [key: string]: string | any;
 };
 
 export type DashboardMetrics = {
-  [key: string]: TranslationValue;
+  [key: string]: string;
 };
 
 export type ExecutiveSummary = {
-  [key: string]: TranslationValue | any;
+  [key: string]: string | any;
 };
 
 export type FinancialMetrics = {
-  [key: string]: TranslationValue;
+  [key: string]: string;
 };
 
 export type PaginationTranslations = {
-  [key: string]: TranslationValue;
+  [key: string]: string;
 };
 
 export type SupplyPlanningTranslations = {
-  [key: string]: TranslationValue | any;
+  [key: string]: string | any;
 };
 
 export type SustainabilityMetrics = {
-  [key: string]: TranslationValue;
+  [key: string]: string;
 };
 
 export type UITranslations = {
-  [key: string]: TranslationValue;
+  [key: string]: string;
 };
 
 export type ModulesSummary = {
-  [key: string]: TranslationValue;
+  [key: string]: string;
 };
 
 export type MarketingTranslations = {
-  [key: string]: TranslationValue | any;
+  [key: string]: string | any;
 };
