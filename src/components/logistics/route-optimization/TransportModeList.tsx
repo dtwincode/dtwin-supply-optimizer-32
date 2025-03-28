@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { getTranslation, toArabicNumerals } from "@/translations";
+import { getTranslation } from "@/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Truck, Ship, Plane, Train } from "lucide-react";
 
@@ -56,7 +56,7 @@ const transportModes: TransportMode[] = [
   }
 ];
 
-const TransportModeList = () => {
+export const TransportModeList = () => {
   const { language } = useLanguage();
 
   const getTransportIcon = (type: string) => {
@@ -75,7 +75,7 @@ const TransportModeList = () => {
   };
 
   const formatNumber = (num: number): string => {
-    return language === 'ar' ? toArabicNumerals(num) : num.toString();
+    return num.toString();
   };
 
   return (
@@ -125,4 +125,5 @@ const TransportModeList = () => {
   );
 };
 
+// Default export (resolves the component import error in TrackingTab.tsx)
 export default TransportModeList;

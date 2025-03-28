@@ -9,7 +9,7 @@ import { LogisticsOrdersTable } from '@/components/logistics/orders/LogisticsOrd
 import { DocumentList } from '@/components/logistics/documents/DocumentList';
 import { DocumentUpload } from '@/components/logistics/documents/DocumentUpload';
 import { RouteOptimizationContainer } from '@/components/logistics/route-optimization/RouteOptimizationContainer';
-import { TransportModeList } from '@/components/logistics/route-optimization/TransportModeList';
+import TransportModeList from '@/components/logistics/route-optimization/TransportModeList';
 import { LogisticsMap } from '@/components/logistics/LogisticsMap';
 
 export const TrackingTab = () => {

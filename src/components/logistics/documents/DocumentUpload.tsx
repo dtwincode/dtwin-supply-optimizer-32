@@ -1,56 +1,58 @@
 
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { FileUpload } from '@/components/settings/upload/FileUpload';
+import { toast } from 'sonner';
+import FileUpload from '@/components/settings/upload/FileUpload';
 import { uploadDocument } from '@/services/logisticsDocumentService';
-import { useToast } from '@/hooks/use-toast';
 
-interface DocumentUploadProps {
-  orderId?: string;
-  onUploadComplete?: () => void;
-}
+export const DocumentUpload = () => {
+  const [uploading, setUploading] = useState(false);
 
-export const DocumentUpload = ({ orderId = '', onUploadComplete }: DocumentUploadProps) => {
-  const [documentType, setDocumentType] = useState('');
-  const { toast } = useToast();
-
-  const handleUpload = async (files: File[]) => {
+  const handleUploadComplete = async (files: File[]) => {
+    if (files.length === 0) return;
+    
+    setUploading(true);
     try {
-      const file = files[0];
-      await uploadDocument(orderId, documentType, file);
-      toast({
-        title: "Success",
-        description: "Document uploaded successfully"
-      });
-      onUploadComplete?.();
+      // Process each file
+      for (const file of files) {
+        const result = await uploadDocument(file);
+        if (result.success) {
+          toast.success(`Document ${file.name} uploaded successfully`);
+        } else {
+          toast.error(`Failed to upload ${file.name}: ${result.error}`);
+        }
+      }
     } catch (error) {
-      console.error('Upload error:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to upload document"
-      });
+      console.error('Error uploading documents:', error);
+      toast.error('An error occurred while uploading documents');
+    } finally {
+      setUploading(false);
     }
   };
 
   return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="documentType">Document Type</Label>
-        <Input
-          id="documentType"
-          value={documentType}
-          onChange={(e) => setDocumentType(e.target.value)}
-          placeholder="e.g., Invoice, Bill of Lading"
-        />
-      </div>
-      <FileUpload
-        onUploadComplete={handleUpload}
-        allowedFileTypes={['.pdf', '.doc', '.docx']}
-        maxSize={10}
-      />
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Upload Documents</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Upload shipping documents, invoices, certificates, and other logistics paperwork.
+          </p>
+          
+          <FileUpload 
+            onUploadComplete={handleUploadComplete}
+            allowedFileTypes={['.pdf', '.docx', '.xlsx', '.jpg', '.png']}
+            maxSizeMB={10}
+          />
+          
+          <div className="text-xs text-muted-foreground">
+            Supported formats: PDF, DOCX, XLSX, JPG, PNG (Max size: 10MB)
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };

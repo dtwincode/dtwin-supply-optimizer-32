@@ -5,7 +5,16 @@ import { salesTranslations } from './sales/index';
 import { navigationTranslations } from './navigation/index';
 import { dashboardMetricsTranslations } from './dashboard';
 import { utils } from './utilities';
-import { toArabicNumerals } from './utils';
+
+// Utility function to convert numbers to Arabic numerals
+export const toArabicNumerals = (num: number | string): string => {
+  const strNum = num.toString();
+  const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+  return strNum.replace(/[0-9]/g, (d) => arabicDigits[parseInt(d)]);
+};
+
+// Define Language type
+export type Language = 'en' | 'ar';
 
 // Combine all translations
 const allTranslations = {
@@ -14,17 +23,19 @@ const allTranslations = {
     sales: salesTranslations.en,
     navigation: navigationTranslations.en,
     dashboard: dashboardMetricsTranslations.en,
+    utils: utils.en
   },
   ar: {
     common: commonTranslations.ar,
     sales: salesTranslations.ar,
     navigation: navigationTranslations.ar,
     dashboard: dashboardMetricsTranslations.ar,
+    utils: utils.ar
   }
 };
 
 // Utility function to get translations based on the language and nested path
-export const getTranslation = (path: string, language = 'en') => {
+export const getTranslation = (path: string, language: Language = 'en') => {
   const keys = path.split('.');
   try {
     let result = allTranslations[language as keyof typeof allTranslations];
@@ -53,6 +64,5 @@ export {
   commonTranslations,
   salesTranslations,
   navigationTranslations,
-  dashboardMetricsTranslations,
-  toArabicNumerals
+  dashboardMetricsTranslations
 };
