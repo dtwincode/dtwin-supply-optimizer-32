@@ -135,7 +135,6 @@ export const inventoryTranslations: InventoryTranslations = {
   title: "Inventory",
   overview: "Overview",
   decoupling: "Decoupling Points",
-  bufferManagement: "Buffer Management",
   netFlow: "Net Flow Position", 
   aiInsights: "AI Insights",
   itemCount: "Item Count",
