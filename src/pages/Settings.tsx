@@ -1,85 +1,94 @@
 
-import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslation } from "@/translations";
-import LocationHierarchyUpload from "@/components/settings/location-hierarchy/LocationHierarchyUpload";
-import ProductHierarchyUpload from "@/components/settings/product-hierarchy/ProductHierarchyUpload";
-import HistoricalSalesUpload from "@/components/settings/historical-sales/HistoricalSalesUpload";
-import LeadTimeUpload from "@/components/settings/lead-time/LeadTimeUpload";
-import ReplenishmentUpload from "@/components/settings/replenishment/ReplenishmentUpload";
-import IntegratedDataPreview from "@/components/settings/integrated-data/IntegratedDataPreview";
+import React from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Grid } from '@/components/ui/grid';
+import LeadTimeUpload from '@/components/settings/lead-time/LeadTimeUpload';
+import ReplenishmentUpload from '@/components/settings/replenishment/ReplenishmentUpload';
+import LocationHierarchyUpload from '@/components/settings/location-hierarchy/LocationHierarchyUpload';
+import HistoricalSalesUpload from '@/components/settings/historical-sales/HistoricalSalesUpload';
+import { DataUploadDialog } from '@/components/settings/DataUploadDialog';
+import DashboardLayout from '@/components/DashboardLayout';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { getTranslation } from '@/translations';
 
 const Settings = () => {
-  const [activeTab, setActiveTab] = useState("data-upload");
   const { language } = useLanguage();
-
+  const t = (key: string) => getTranslation(`settings.${key}`, language);
+  
   return (
-    <div className="container mx-auto py-6">
-      <h1 className="text-2xl font-bold mb-6">{getTranslation('settings.title', language)}</h1>
-      
-      <Tabs defaultValue="data-upload" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-6">
-          <TabsTrigger value="data-upload">{getTranslation('settings.dataUpload', language)}</TabsTrigger>
-          <TabsTrigger value="preferences">{getTranslation('settings.preferences', language)}</TabsTrigger>
-          <TabsTrigger value="integration">{getTranslation('settings.integration', language)}</TabsTrigger>
-          <TabsTrigger value="users">{getTranslation('settings.users', language)}</TabsTrigger>
-        </TabsList>
+    <DashboardLayout>
+      <div className="space-y-6 p-4">
+        <div>
+          <h1 className="text-2xl font-bold">{t('title')}</h1>
+          <p className="text-muted-foreground">{t('subtitle')}</p>
+        </div>
         
-        <TabsContent value="data-upload" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <LocationHierarchyUpload />
-            <ProductHierarchyUpload />
-            <HistoricalSalesUpload />
-            <LeadTimeUpload />
-            <ReplenishmentUpload />
-          </div>
+        <Tabs defaultValue="historical" className="w-full">
+          <TabsList className="w-full grid grid-cols-3 mb-4">
+            <TabsTrigger value="master">{t('tabs.masterData')}</TabsTrigger>
+            <TabsTrigger value="historical">{t('tabs.historicalData')}</TabsTrigger>
+            <TabsTrigger value="settings">{t('tabs.settings')}</TabsTrigger>
+          </TabsList>
           
-          <Card>
-            <CardHeader>
-              <CardTitle>{getTranslation('settings.integratedData', language)}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <IntegratedDataPreview />
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="preferences">
-          <Card>
-            <CardHeader>
-              <CardTitle>{getTranslation('settings.userPreferences', language)}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>{getTranslation('settings.preferencesContent', language)}</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="integration">
-          <Card>
-            <CardHeader>
-              <CardTitle>{getTranslation('settings.apiIntegration', language)}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>{getTranslation('settings.apiIntegrationContent', language)}</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="users">
-          <Card>
-            <CardHeader>
-              <CardTitle>{getTranslation('settings.userManagement', language)}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>{getTranslation('settings.userManagementContent', language)}</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+          <TabsContent value="master" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>{t('masterData.title')}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="mb-4">{t('masterData.description')}</p>
+                <Grid className="gap-4 grid-cols-1 md:grid-cols-2">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>{t('masterData.productHierarchy')}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <LocationHierarchyUpload />
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>{t('masterData.locationHierarchy')}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <LocationHierarchyUpload />
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="historical" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>{t('historicalData.title')}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="mb-4">{t('historicalData.description')}</p>
+                <Grid className="gap-4 grid-cols-1 md:grid-cols-2">
+                  <HistoricalSalesUpload />
+                  <LeadTimeUpload />
+                  <ReplenishmentUpload />
+                </Grid>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="settings" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Integration Settings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <DataUploadDialog />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </DashboardLayout>
   );
 };
 

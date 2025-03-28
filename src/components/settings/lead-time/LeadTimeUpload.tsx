@@ -14,7 +14,7 @@ const LeadTimeUpload = () => {
     console.log(`Uploaded ${files.length} files`);
     if (files.length > 0) {
       toast({
-        title: getTranslation('common.success', language),
+        title: getTranslation('settings.upload.success', language),
         description: "Lead time data uploaded successfully"
       });
     }
@@ -24,7 +24,7 @@ const LeadTimeUpload = () => {
     console.error("Upload error:", error);
     toast({
       variant: "destructive",
-      title: getTranslation('common.error', language),
+      title: getTranslation('settings.upload.error', language),
       description: error
     });
   };
@@ -32,11 +32,11 @@ const LeadTimeUpload = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Lead Time Data Upload</CardTitle>
+        <CardTitle>{getTranslation('settings.historicalData.leadTime', language)}</CardTitle>
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground mb-4">
-          Upload your lead time data in CSV or Excel format.
+          {getTranslation('settings.upload.description', language)}
         </p>
         <FileUpload 
           onUploadComplete={handleUploadComplete}

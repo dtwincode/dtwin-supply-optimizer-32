@@ -1,96 +1,123 @@
 
-// Import individual translation modules
-import { commonTranslations } from './common/index';
-import { salesTranslations } from './sales/index';
-import { navigationTranslations } from './navigation/index';
-import { dashboardMetricsTranslations } from './dashboard';
-import { utils } from './utilities';
+import { translations } from './types';
+import { navigationTranslations } from './navigation';
+import { dashboardTranslations } from './dashboard';
+import { inventoryTranslations } from './inventory';
+import { salesTranslations } from './sales';
+import { marketingTranslations } from './marketing';
+import { commonTranslations } from './common';
+import { utilsTranslations } from './utilities';
 
-// Utility function to convert numbers to Arabic numerals
-export const toArabicNumerals = (num: number | string): string => {
-  const strNum = num.toString();
-  const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-  return strNum.replace(/[0-9]/g, (d) => arabicDigits[parseInt(d)]);
+// Settings translations
+const settingsTranslations = {
+  en: {
+    title: "Data Management",
+    subtitle: "Upload and manage your data",
+    tabs: {
+      masterData: "Master Data",
+      historicalData: "Historical Data",
+      settings: "Settings"
+    },
+    masterData: {
+      title: "Master Data",
+      description: "Upload and manage your master data",
+      products: "Products",
+      locations: "Locations",
+      vendors: "Vendors",
+      productHierarchy: "Product Hierarchy",
+      locationHierarchy: "Location Hierarchy"
+    },
+    historicalData: {
+      title: "Historical Data",
+      description: "Upload and manage your historical data",
+      sales: "Sales",
+      inventory: "Inventory",
+      leadTime: "Lead Time",
+      replenishment: "Replenishment"
+    },
+    upload: {
+      title: "Upload Data",
+      description: "Upload your data in CSV or Excel format",
+      button: "Upload",
+      dragDrop: "Drag and drop files here or click to browse",
+      formats: "Supported formats",
+      success: "Data uploaded successfully",
+      error: "Error uploading data"
+    }
+  },
+  ar: {
+    title: "إدارة البيانات",
+    subtitle: "تحميل وإدارة بياناتك",
+    tabs: {
+      masterData: "البيانات الرئيسية",
+      historicalData: "البيانات التاريخية",
+      settings: "الإعدادات"
+    },
+    masterData: {
+      title: "البيانات الرئيسية",
+      description: "تحميل وإدارة البيانات الرئيسية الخاصة بك",
+      products: "المنتجات",
+      locations: "المواقع",
+      vendors: "الموردين",
+      productHierarchy: "هيكل المنتجات",
+      locationHierarchy: "هيكل المواقع"
+    },
+    historicalData: {
+      title: "البيانات التاريخية",
+      description: "تحميل وإدارة البيانات التاريخية الخاصة بك",
+      sales: "المبيعات",
+      inventory: "المخزون",
+      leadTime: "وقت التسليم",
+      replenishment: "إعادة التزويد"
+    },
+    upload: {
+      title: "تحميل البيانات",
+      description: "قم بتحميل بياناتك بتنسيق CSV أو Excel",
+      button: "تحميل",
+      dragDrop: "اسحب وأفلت الملفات هنا أو انقر للتصفح",
+      formats: "التنسيقات المدعومة",
+      success: "تم تحميل البيانات بنجاح",
+      error: "خطأ في تحميل البيانات"
+    }
+  }
 };
 
-// Define Language type
-export type Language = 'en' | 'ar';
-
-// Combine all translations
-const allTranslations = {
+// Full combined translations
+export const allTranslations: translations = {
   en: {
     common: commonTranslations.en,
     sales: salesTranslations.en,
     navigation: navigationTranslations.en,
-    dashboard: dashboardMetricsTranslations.en,
-    utils: utils.en,
-    settings: {
-      title: "Settings",
-      dataUpload: "Data Upload",
-      preferences: "Preferences",
-      integration: "Integration",
-      users: "Users",
-      userPreferences: "User Preferences",
-      preferencesContent: "Configure your personal preferences and application settings here.",
-      apiIntegration: "API Integration",
-      apiIntegrationContent: "Set up and manage connections to external systems and APIs.",
-      userManagement: "User Management",
-      userManagementContent: "Manage user accounts, roles, and permissions.",
-      integratedData: "Integrated Data Preview"
-    }
+    dashboard: dashboardTranslations.en,
+    utils: utilsTranslations.en,
+    inventory: inventoryTranslations.en,
+    marketing: marketingTranslations.en,
+    settings: settingsTranslations.en
   },
   ar: {
     common: commonTranslations.ar,
     sales: salesTranslations.ar,
     navigation: navigationTranslations.ar,
-    dashboard: dashboardMetricsTranslations.ar,
-    utils: utils.ar,
-    settings: {
-      title: "الإعدادات",
-      dataUpload: "تحميل البيانات",
-      preferences: "التفضيلات",
-      integration: "التكامل",
-      users: "المستخدمين",
-      userPreferences: "تفضيلات المستخدم",
-      preferencesContent: "قم بتكوين تفضيلاتك الشخصية وإعدادات التطبيق هنا.",
-      apiIntegration: "تكامل واجهة برمجة التطبيقات",
-      apiIntegrationContent: "إعداد وإدارة الاتصالات بالأنظمة الخارجية وواجهات برمجة التطبيقات.",
-      userManagement: "إدارة المستخدمين",
-      userManagementContent: "إدارة حسابات المستخدمين والأدوار والأذونات.",
-      integratedData: "معاينة البيانات المتكاملة"
-    }
+    dashboard: dashboardTranslations.ar,
+    utils: utilsTranslations.ar,
+    inventory: inventoryTranslations.ar,
+    marketing: marketingTranslations.ar,
+    settings: settingsTranslations.ar
   }
 };
 
-// Utility function to get translations based on the language and nested path
-export const getTranslation = (path: string, language: Language = 'en') => {
-  const keys = path.split('.');
-  try {
-    let result = allTranslations[language as keyof typeof allTranslations];
-    for (const key of keys) {
-      if (result && key in result) {
-        result = result[key as keyof typeof result];
-      } else {
-        console.warn(`Translation missing for path: ${path} in ${language}`);
-        // Try to get the English version as fallback
-        if (language !== 'en') {
-          return getTranslation(path, 'en');
-        }
-        // If still not found, return the path as is
-        return path;
-      }
+// Helper function to get translation by key
+export const getTranslation = (key: string, language: 'en' | 'ar'): string => {
+  const parts = key.split('.');
+  let current: any = allTranslations[language];
+  
+  for (const part of parts) {
+    if (!current[part]) {
+      console.warn(`Translation not found for key: ${key} in ${language}`);
+      return key;
     }
-    return result;
-  } catch (error) {
-    console.error(`Error getting translation for path: ${path}`, error);
-    return path;
+    current = current[part];
   }
-};
-
-// Export all individual translation objects and utilities
-export {
-  commonTranslations,
-  salesTranslations,
-  navigationTranslations,
-  dashboardMetricsTranslations
+  
+  return current;
 };

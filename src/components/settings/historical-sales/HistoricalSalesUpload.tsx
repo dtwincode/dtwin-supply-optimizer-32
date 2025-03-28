@@ -2,29 +2,45 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import FileUpload from "@/components/settings/upload/FileUpload";
-import { Button } from '@/components/ui/button';
+import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslation } from "@/translations";
 
 const HistoricalSalesUpload = () => {
+  const { toast } = useToast();
+  const { language } = useLanguage();
+
   const handleUploadComplete = (files: File[]) => {
     console.log(`Uploaded ${files.length} files`);
-    // In a real implementation, you would process the files here
+    
+    if (files.length > 0) {
+      toast({
+        title: getTranslation('settings.upload.success', language),
+        description: "Historical sales data uploaded successfully"
+      });
+    }
   };
 
   const handleError = (error: string) => {
     console.error("Upload error:", error);
+    toast({
+      variant: "destructive",
+      title: getTranslation('settings.upload.error', language),
+      description: error
+    });
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Historical Sales Upload</CardTitle>
+        <CardTitle>{getTranslation('settings.historicalData.sales', language)}</CardTitle>
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground mb-4">
-          Upload your historical sales data in CSV or Excel format.
+          {getTranslation('settings.upload.description', language)}
         </p>
-        <FileUpload 
-          onUploadComplete={handleUploadComplete} 
+        <FileUpload
+          onUploadComplete={handleUploadComplete}
           onError={handleError}
           allowedFileTypes={[".csv", ".xlsx"]}
         />

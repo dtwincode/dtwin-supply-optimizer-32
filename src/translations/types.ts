@@ -1,224 +1,186 @@
-export interface TranslationItem {
-  en: string;
-  ar: string;
+
+export interface translations {
+  en: {
+    common: CommonTranslations;
+    sales: SalesTranslations;
+    navigation: NavigationTranslations;
+    dashboard: DashboardTranslations;
+    utils: UtilsTranslations;
+    inventory: InventoryTranslations;
+    marketing: MarketingTranslations;
+    settings: SettingsTranslations;
+  };
+  ar: {
+    common: CommonTranslations;
+    sales: SalesTranslations;
+    navigation: NavigationTranslations;
+    dashboard: DashboardTranslations;
+    utils: UtilsTranslations;
+    inventory: InventoryTranslations;
+    marketing: MarketingTranslations;
+    settings: SettingsTranslations;
+  };
 }
 
-export interface NestedTranslationItem {
-  title: TranslationItem;
-  description: TranslationItem;
+export interface CommonTranslations {
+  save: string;
+  cancel: string;
+  delete: string;
+  edit: string;
+  create: string;
+  update: string;
+  submit: string;
+  loading: string;
+  success: string;
+  error: string;
+  warning: string;
+  info: string;
+  confirm: string;
+  next: string;
+  previous: string;
+  back: string;
+  search: string;
+  filter: string;
+  clear: string;
+  all: string;
+  none: string;
+  select: string;
+  logout: string;
+  login: string;
+  register: string;
+  username: string;
+  password: string;
+  email: string;
+  phone: string;
+  address: string;
+  name: string;
+  description: string;
+  inventory: InventoryCommonTranslations;
+}
+
+export interface NavigationTranslations {
+  dashboard: string;
+  forecasting: string;
+  inventory: string;
+  marketing: string;
+  sales: string;
+  logistics: string;
+  reporting: string;
+  settings: string;
+}
+
+export interface NavigationItems {
+  [key: string]: {
+    en: string;
+    ar: string;
+  };
+}
+
+export interface DashboardTranslations {
+  title: string;
+  subtitle: string;
+  kpis: {
+    title: string;
+    inventory: string;
+    sales: string;
+    forecast: string;
+    logistics: string;
+  };
+}
+
+export interface UtilsTranslations {
+  dateTime: {
+    today: string;
+    yesterday: string;
+    tomorrow: string;
+    last7Days: string;
+    last30Days: string;
+    thisMonth: string;
+    lastMonth: string;
+    custom: string;
+  };
 }
 
 export interface InventoryTranslations {
-  inventoryTitle: TranslationItem;
-  bufferZones: TranslationItem;
-  bufferStatus: TranslationItem;
-  skuClassification: TranslationItem;
-  leadTime: TranslationItem;
-  replenishmentOrders: TranslationItem;
-  netFlowPosition: TranslationItem;
-  inventorySummary: TranslationItem;
-  inventoryLevels: TranslationItem;
-  skuClassifications: TranslationItem;
-  decouplingPoint: TranslationItem;
-  addDecouplingPoint: TranslationItem;
-  manageAndTrack: TranslationItem;
-  currentStock: TranslationItem;
-  productFamily: TranslationItem;
-  location: TranslationItem;
-  name: TranslationItem;
-  sku: TranslationItem;
-  actions: TranslationItem;
-  noItems: TranslationItem;
-  loadingData: TranslationItem;
-  loadingItem: TranslationItem;
-  errorLoading: TranslationItem;
-  errorLoadingConfig: TranslationItem;
-  leadTimeCategory: TranslationItem;
-  variabilityLevel: TranslationItem;
-  criticality: TranslationItem;
-  score: TranslationItem;
-  lastUpdated: TranslationItem;
-  adu: TranslationItem;
-  turnover: TranslationItem;
-  decouplingPoints: TranslationItem;
-  decouplingNetwork: TranslationItem;
-  listView: TranslationItem;
-  locationId: TranslationItem;
-  type: TranslationItem;
-  description: TranslationItem;
-  edit: TranslationItem;
-  delete: TranslationItem;
-  noDecouplingPoints: TranslationItem;
-  confirmDelete: TranslationItem;
-  success: TranslationItem;
-  decouplingPointDeleted: TranslationItem;
-  decouplingPointSaved: TranslationItem;
-  refresh: TranslationItem;
-  networkVisualization: TranslationItem;
-  nodes: TranslationItem;
-  links: TranslationItem;
-  configureDecouplingPoints: TranslationItem;
-  strategicInfo: TranslationItem;
-  customerOrderInfo: TranslationItem;
-  stockPointInfo: TranslationItem;
-  intermediateInfo: TranslationItem;
-  bufferProfileInfo: TranslationItem;
-  nodesDescription: TranslationItem;
-  linksDescription: TranslationItem;
-  networkHelp: TranslationItem;
-  classification: NestedTranslationItem;
-  decouplingPointRecommendation: TranslationItem;
-  decouplingPointRecommendationDesc: TranslationItem;
-  decouplingPointRecommendationHelp: TranslationItem;
-  locationSelection: TranslationItem;
-  selectLocation: TranslationItem;
-  weightFactors: TranslationItem;
-  leadTimeFactor: TranslationItem;
-  demandVariabilityFactor: TranslationItem;
-  supplyReliabilityFactor: TranslationItem;
-  inventoryCostFactor: TranslationItem;
-  customerServiceFactor: TranslationItem;
-  leadTimeFactorDesc: TranslationItem;
-  demandVariabilityFactorDesc: TranslationItem;
-  supplyReliabilityFactorDesc: TranslationItem;
-  inventoryCostFactorDesc: TranslationItem;
-  customerServiceFactorDesc: TranslationItem;
-  locationFactorScores: TranslationItem;
-  scoreFor: TranslationItem;
-  analyzing: TranslationItem;
-  analyzeDecouplingPoints: TranslationItem;
-  recommendationScore: TranslationItem;
-  recommendationStatus: TranslationItem;
-  highlyRecommended: TranslationItem;
-  recommended: TranslationItem;
-  consider: TranslationItem;
-  notRecommended: TranslationItem;
-  suggestedType: TranslationItem;
-  confidence: TranslationItem;
-  viewDetailedAnalysis: TranslationItem;
-  analysisComplete: TranslationItem;
-  decouplingRecommendationsReady: TranslationItem;
-  strategicDecouplingPoint: TranslationItem;
-  customer_orderDecouplingPoint: TranslationItem;
-  stock_pointDecouplingPoint: TranslationItem;
-  intermediateDecouplingPoint: TranslationItem;
-  totalItems: TranslationItem;
-  bufferManagement: TranslationItem;
-  bufferManagementDesc: TranslationItem;
-  createBufferProfile: TranslationItem;
-  bufferProfiles: TranslationItem;
-  bufferConfiguration: TranslationItem;
-  bufferSimulation: TranslationItem;
-  bufferSimulationDesc: TranslationItem;
-  noBufferProfiles: TranslationItem;
-  bufferProfileSaved: TranslationItem;
-  leadTimeFactors: TranslationItem;
-  leadTimeThresholds: TranslationItem;
-  otherFactors: TranslationItem;
-  replenishmentTime: TranslationItem;
-  industry: TranslationItem;
-  moq: TranslationItem;
-  lotSizeFactor: TranslationItem;
-  variabilityFactor: TranslationItem;
-  selectADU: TranslationItem;
-  selectLeadTime: TranslationItem;
-  selectVariability: TranslationItem;
-  simulatedBufferVisualization: TranslationItem;
-  unitsPerDay: TranslationItem;
-  days: TranslationItem;
-  high: TranslationItem;
-  medium: TranslationItem;
-  low: TranslationItem;
-  short: TranslationItem;
-  long: TranslationItem;
-  unknown: TranslationItem;
-  stock: TranslationItem;
-  buffer: TranslationItem;
-  classify: TranslationItem;
-  decouple: TranslationItem;
-  netflow: TranslationItem;
-  ai: TranslationItem;
-  bufferProfile: TranslationItem;
+  title: string;
+  subtitle: string;
+  metrics: {
+    onHand: string;
+    onOrder: string;
+    allocated: string;
+    available: string;
+    stockouts: string;
+    overstock: string;
+    turnover: string;
+  };
 }
 
-export type Language = 'en' | 'ar';
+export interface InventoryCommonTranslations {
+  lowStock: string;
+  outOfStock: string;
+  inStock: string;
+  overstock: string;
+  onOrder: string;
+  allocated: string;
+  available: string;
+}
 
-export type TranslationValue = {
-  en: string;
-  ar: string;
-};
+export interface SalesTranslations {
+  title: string;
+  subtitle: string;
+  metrics: {
+    revenue: string;
+    orders: string;
+    customers: string;
+    avgOrderValue: string;
+    returnRate: string;
+  };
+}
 
-export type NavigationItems = {
-  dashboard: TranslationValue;
-  ddsop: TranslationValue;
-  forecasting: TranslationValue;
-  inventory: TranslationValue;
-  inventoryClassification: TranslationValue;
-  supplyPlanning: TranslationValue;
-  salesPlanning: TranslationValue;
-  returnsManagement: TranslationValue;
-  marketing: TranslationValue;
-  logistics: TranslationValue;
-  reports: TranslationValue;
-  askAI: TranslationValue;
-  data: TranslationValue;
-  guidelines: TranslationValue;
-};
+export interface MarketingTranslations {
+  title: string;
+  subtitle: string;
+  metrics: {
+    campaigns: string;
+    leads: string;
+    conversion: string;
+    cac: string;
+    roi: string;
+  };
+}
 
-export type Translations = {
-  navigationItems: NavigationItems;
-  dashboardMetrics: any;
-  financialMetrics: any;
-  sustainabilityMetrics: any;
-  modulesSummary: any;
-  common: CommonTranslations;
-  executiveSummary: any;
-  sales: any;
-  supplyPlanning: any;
-  ddsop: any;
-  marketing: any;
-  inventory: InventoryTranslations;
-  ui: UITranslations;
-  charts: any;
-  pagination: PaginationTranslations;
-};
-
-export type CommonTranslations = {
-  [key: string]: TranslationValue | any;
-};
-
-export type DashboardMetrics = {
-  [key: string]: TranslationValue;
-};
-
-export type ExecutiveSummary = {
-  [key: string]: TranslationValue | any;
-};
-
-export type FinancialMetrics = {
-  [key: string]: TranslationValue;
-};
-
-export type PaginationTranslations = {
-  [key: string]: TranslationValue;
-};
-
-export type SupplyPlanningTranslations = {
-  [key: string]: TranslationValue | any;
-};
-
-export type SustainabilityMetrics = {
-  [key: string]: TranslationValue;
-};
-
-export type UITranslations = {
-  [key: string]: TranslationValue;
-};
-
-export type ModulesSummary = {
-  [key: string]: TranslationValue;
-};
-
-export type MarketingTranslations = {
-  [key: string]: TranslationValue | any;
-};
+export interface SettingsTranslations {
+  title: string;
+  subtitle: string;
+  tabs: {
+    masterData: string;
+    historicalData: string;
+    settings: string;
+  };
+  masterData: {
+    title: string;
+    description: string;
+    products: string;
+    locations: string;
+    vendors: string;
+    productHierarchy: string;
+    locationHierarchy: string;
+  };
+  historicalData: {
+    title: string;
+    description: string;
+    sales: string;
+    inventory: string;
+    leadTime: string;
+    replenishment: string;
+  };
+  upload: {
+    title: string;
+    description: string;
+    button: string;
+    dragDrop: string;
+    formats: string;
+    success: string;
+    error: string;
+  };
+}

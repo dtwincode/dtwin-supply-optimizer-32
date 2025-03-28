@@ -14,7 +14,7 @@ const ReplenishmentUpload = () => {
     console.log(`Uploaded ${files.length} files`);
     if (files.length > 0) {
       toast({
-        title: getTranslation('common.success', language),
+        title: getTranslation('settings.upload.success', language),
         description: "Replenishment data uploaded successfully"
       });
     }
@@ -24,7 +24,7 @@ const ReplenishmentUpload = () => {
     console.error("Upload error:", error);
     toast({
       variant: "destructive",
-      title: getTranslation('common.error', language),
+      title: getTranslation('settings.upload.error', language),
       description: error
     });
   };
@@ -32,11 +32,11 @@ const ReplenishmentUpload = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Replenishment Data Upload</CardTitle>
+        <CardTitle>{getTranslation('settings.historicalData.replenishment', language)}</CardTitle>
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground mb-4">
-          Upload your replenishment data in CSV or Excel format.
+          {getTranslation('settings.upload.description', language)}
         </p>
         <FileUpload 
           onUploadComplete={handleUploadComplete} 

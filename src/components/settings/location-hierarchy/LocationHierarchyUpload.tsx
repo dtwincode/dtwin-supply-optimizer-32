@@ -15,7 +15,7 @@ const LocationHierarchyUpload = () => {
     
     if (files.length > 0) {
       toast({
-        title: getTranslation('common.success', language),
+        title: getTranslation('settings.upload.success', language),
         description: "Location hierarchy uploaded successfully"
       });
     }
@@ -25,7 +25,7 @@ const LocationHierarchyUpload = () => {
     console.error("Upload error:", error);
     toast({
       variant: "destructive",
-      title: getTranslation('common.error', language),
+      title: getTranslation('settings.upload.error', language),
       description: error
     });
   };
@@ -33,11 +33,11 @@ const LocationHierarchyUpload = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Location Hierarchy Upload</CardTitle>
+        <CardTitle>{getTranslation('settings.masterData.locationHierarchy', language)}</CardTitle>
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground mb-4">
-          Upload your location hierarchy data in CSV or Excel format.
+          {getTranslation('settings.upload.description', language)}
         </p>
         <FileUpload 
           onUploadComplete={handleUploadComplete} 
