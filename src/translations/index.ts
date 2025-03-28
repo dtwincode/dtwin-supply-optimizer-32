@@ -12,12 +12,12 @@ import { financialMetricsTranslations } from './common/financialMetrics';
 import { sustainabilityMetricsTranslations } from './common/sustainabilityMetrics';
 import { logisticsTranslations } from './common/logistics';
 import { ddsopTranslations } from './common/ddsop';
-import { formatNumber } from './utils';
+import { toArabicNumerals } from './utils';
 import { commonTranslations } from './common';
 import { salesTranslations } from './sales';
 import { marketingTranslations } from './marketing';
 
-export { formatNumber };
+export { toArabicNumerals };
 export type { Language };
 
 export const translations: Translations = {
@@ -50,11 +50,5 @@ export function getTranslation(key: string, language: Language) {
     current = current[k];
   }
 
-  // If the current value is an object with language keys, return the value for the specified language
-  if (current && typeof current === 'object' && 'en' in current) {
-    return current['en'];
-  }
-  
-  // If the current value is already a string, return it directly
-  return current;
+  return current[language];
 }
