@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -53,7 +52,7 @@ export const ReceivingTab = () => {
   const [selectedPO, setSelectedPO] = useState<PurchaseOrder | null>(null);
   const [receiveDialogOpen, setReceiveDialogOpen] = useState(false);
   const [receiveQuantity, setReceiveQuantity] = useState<number>(0);
-  const { processTransaction, loading: processingTransaction } = useInventoryTransaction();
+  const { processTransaction, isLoading: processingTransaction } = useInventoryTransaction();
 
   const { data: purchaseOrders, isLoading, error, refetch } = useQuery({
     queryKey: ['purchase-orders-for-receiving'],
@@ -88,7 +87,6 @@ export const ReceivingTab = () => {
     });
 
     if (success) {
-      // Update PO status
       await supabase
         .from('purchase_orders')
         .update({

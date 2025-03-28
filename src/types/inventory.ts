@@ -153,3 +153,6 @@ export interface BufferFactorConfig {
   isBenchmarkBased?: boolean;
   metadata?: Record<string, any>;
 }
+
+// Re-export the types from classificationTypes.ts
+export { Classification, SKUClassification, ReplenishmentData } from './inventory/classificationTypes';
