@@ -1,16 +1,15 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ArrowUp, ArrowDown, FileText, Search, CalendarRange, FilterX } from "lucide-react";
+import { ArrowUp, ArrowDown, FileText, Search, FilterX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
 import { InventoryTransaction } from "@/types/inventory/shipmentTypes";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabaseClient";
 
 // Define an extended transaction type with required previousQuantity and newQuantity
 type EnrichedTransaction = InventoryTransaction & {
@@ -141,7 +140,6 @@ export const TransactionsTab = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full"
-                prefix={<Search className="h-4 w-4 text-muted-foreground" />}
               />
             </div>
             

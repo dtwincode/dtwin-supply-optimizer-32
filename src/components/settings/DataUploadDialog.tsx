@@ -1,35 +1,97 @@
 
-import React from "react";
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslation } from "@/translations";
+import FileUpload from "@/components/settings/upload/FileUpload";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
-interface DataUploadDialogProps {
+export interface DataUploadDialogProps {
   open: boolean;
   onClose: () => void;
   title: string;
-  children: React.ReactNode;
+  tableName: string;
+  module: string;
+  onDataUploaded: () => void;
 }
 
-const DataUploadDialog = ({ open, onClose, title, children }: DataUploadDialogProps) => {
-  const { language } = useLanguage();
+const DataUploadDialog = ({ 
+  open, 
+  onClose, 
+  title, 
+  tableName, 
+  module, 
+  onDataUploaded 
+}: DataUploadDialogProps) => {
+  const [uploadedData, setUploadedData] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleUploadComplete = (data: any[], fileName: string) => {
+    setUploadedData(data);
+    setError(null);
+    console.log(`Uploaded ${data.length} records from ${fileName} for ${module} module to ${tableName} table`);
+  };
+
+  const handleError = (errorMessage: string) => {
+    setError(errorMessage);
+  };
+
+  const handleSave = async () => {
+    if (uploadedData.length === 0) {
+      setError("No data to save. Please upload a file first.");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      // In a real application, you would send the data to your backend here
+      console.log(`Saving ${uploadedData.length} records to ${tableName}`);
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      onDataUploaded();
+      onClose();
+    } catch (err) {
+      setError("Failed to save data. Please try again.");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[625px]">
-        <DialogHeader className="flex flex-row items-center justify-between">
+    <Dialog open={open} onOpenChange={open => !open && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
-          <Button
-            variant="ghost"
-            className="h-6 w-6 p-0 rounded-full"
-            onClick={onClose}
-          >
-            <X className="h-4 w-4" />
-          </Button>
         </DialogHeader>
-        <div className="mt-4">{children}</div>
+        
+        <div className="space-y-4 py-4">
+          <FileUpload
+            onUploadComplete={handleUploadComplete}
+            onError={handleError}
+            allowedFileTypes={['.csv', '.xlsx']}
+          />
+          
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          
+          {uploadedData.length > 0 && (
+            <div>
+              <p className="text-sm mb-2">{uploadedData.length} records parsed successfully.</p>
+              <Button 
+                onClick={handleSave} 
+                disabled={uploading}
+                className="w-full"
+              >
+                {uploading ? "Saving..." : "Save Data"}
+              </Button>
+            </div>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );

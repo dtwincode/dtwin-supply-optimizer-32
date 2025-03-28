@@ -122,7 +122,7 @@ export function ForecastingContainer() {
       <ModelVersioning modelId="arima" />
       
       <DataUploadDialog
-        isOpen={isUploadDialogOpen}
+        open={isUploadDialogOpen}
         onClose={() => setIsUploadDialogOpen(false)}
         title="Upload Forecasting Data"
         tableName="forecasting_data"

@@ -1,107 +1,85 @@
 
-import { useEffect, useState } from "react";
-import DashboardLayout from "@/components/DashboardLayout";
-import { Card } from "@/components/ui/card";
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LocationHierarchyUpload } from "@/components/settings/location-hierarchy/LocationHierarchyUpload";
-import { ProductHierarchyUpload } from "@/components/settings/product-hierarchy/ProductHierarchyUpload";
-import { HistoricalSalesUpload } from "@/components/settings/historical-sales/HistoricalSalesUpload";
-import { LeadTimeUpload } from "@/components/settings/lead-time/LeadTimeUpload";
-import { ReplenishmentUpload } from "@/components/settings/replenishment/ReplenishmentUpload";
-import { IntegratedDataPreview } from "@/components/settings/integrated-data/IntegratedDataPreview";
-import { Separator } from "@/components/ui/separator";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-import { Loader2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslation } from "@/translations";
+import LocationHierarchyUpload from "@/components/settings/location-hierarchy/LocationHierarchyUpload";
+import ProductHierarchyUpload from "@/components/settings/product-hierarchy/ProductHierarchyUpload";
+import HistoricalSalesUpload from "@/components/settings/historical-sales/HistoricalSalesUpload";
+import LeadTimeUpload from "@/components/settings/lead-time/LeadTimeUpload";
+import ReplenishmentUpload from "@/components/settings/replenishment/ReplenishmentUpload";
+import IntegratedDataPreview from "@/components/settings/integrated-data/IntegratedDataPreview";
 
 const Settings = () => {
-  const navigate = useNavigate();
-  const { user, isLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState("integrated-data");
-
-  useEffect(() => {
-    if (!isLoading && !user) {
-      navigate('/auth');
-    }
-  }, [user, isLoading, navigate]);
-
-  // Add a handler for tab changes
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
-  };
-
-  if (isLoading) {
-    return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[calc(100vh-150px)]">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-muted-foreground">Loading data management...</p>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  if (!user) {
-    return null;
-  }
+  const [activeTab, setActiveTab] = useState("data-upload");
+  const { language } = useLanguage();
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6 max-w-[1200px] mx-auto p-4 sm:p-6">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Data Management & Configuration</h2>
-          <p className="text-muted-foreground mt-2">
-            Configure system settings and manage data hierarchies across your organization
-          </p>
-        </div>
-
-        <Separator className="my-6" />
+    <div className="container mx-auto py-6">
+      <h1 className="text-2xl font-bold mb-6">{getTranslation('settings.title', language)}</h1>
+      
+      <Tabs defaultValue="data-upload" value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="mb-6">
+          <TabsTrigger value="data-upload">{getTranslation('settings.dataUpload', language)}</TabsTrigger>
+          <TabsTrigger value="preferences">{getTranslation('settings.preferences', language)}</TabsTrigger>
+          <TabsTrigger value="integration">{getTranslation('settings.integration', language)}</TabsTrigger>
+          <TabsTrigger value="users">{getTranslation('settings.users', language)}</TabsTrigger>
+        </TabsList>
         
-        <Card className="p-4 sm:p-6">
-          <Tabs 
-            defaultValue={activeTab} 
-            value={activeTab}
-            onValueChange={handleTabChange} 
-            className="space-y-6"
-          >
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
-              <TabsTrigger value="location">Location Hierarchy</TabsTrigger>
-              <TabsTrigger value="product">Product Hierarchy</TabsTrigger>
-              <TabsTrigger value="historical-sales">Historical Sales</TabsTrigger>
-              <TabsTrigger value="integrated-data">Integrated Data</TabsTrigger>
-              <TabsTrigger value="lead-time">Lead Time</TabsTrigger>
-              <TabsTrigger value="replenishment-time">Replenishment</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="location" className="space-y-4">
-              <LocationHierarchyUpload />
-            </TabsContent>
-
-            <TabsContent value="product" className="space-y-4">
-              <ProductHierarchyUpload />
-            </TabsContent>
-
-            <TabsContent value="historical-sales" className="space-y-4">
-              <HistoricalSalesUpload />
-            </TabsContent>
-
-            <TabsContent value="integrated-data" className="space-y-4">
+        <TabsContent value="data-upload" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <LocationHierarchyUpload />
+            <ProductHierarchyUpload />
+            <HistoricalSalesUpload />
+            <LeadTimeUpload />
+            <ReplenishmentUpload />
+          </div>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>{getTranslation('settings.integratedData', language)}</CardTitle>
+            </CardHeader>
+            <CardContent>
               <IntegratedDataPreview />
-            </TabsContent>
-
-            <TabsContent value="lead-time" className="space-y-4">
-              <LeadTimeUpload />
-            </TabsContent>
-
-            <TabsContent value="replenishment-time" className="space-y-4">
-              <ReplenishmentUpload />
-            </TabsContent>
-          </Tabs>
-        </Card>
-      </div>
-    </DashboardLayout>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="preferences">
+          <Card>
+            <CardHeader>
+              <CardTitle>{getTranslation('settings.userPreferences', language)}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>{getTranslation('settings.preferencesContent', language)}</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="integration">
+          <Card>
+            <CardHeader>
+              <CardTitle>{getTranslation('settings.apiIntegration', language)}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>{getTranslation('settings.apiIntegrationContent', language)}</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="users">
+          <Card>
+            <CardHeader>
+              <CardTitle>{getTranslation('settings.userManagement', language)}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>{getTranslation('settings.userManagementContent', language)}</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 

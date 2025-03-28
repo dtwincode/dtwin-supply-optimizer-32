@@ -11,35 +11,35 @@ const IntegratedDataPreview = () => {
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground mb-4">
-          Preview your integrated data from all sources.
+          Preview integrated data sources and their relationships.
         </p>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>ID</TableHead>
-              <TableHead>Source</TableHead>
-              <TableHead>Type</TableHead>
+              <TableHead>Data Source</TableHead>
+              <TableHead>Last Update</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Records</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             <TableRow>
-              <TableCell>1</TableCell>
-              <TableCell>Product Data</TableCell>
-              <TableCell>Hierarchy</TableCell>
-              <TableCell>Integrated</TableCell>
+              <TableCell>Product Hierarchy</TableCell>
+              <TableCell>2023-06-15</TableCell>
+              <TableCell>Active</TableCell>
+              <TableCell>1,245</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>2</TableCell>
-              <TableCell>Location Data</TableCell>
-              <TableCell>Hierarchy</TableCell>
-              <TableCell>Integrated</TableCell>
+              <TableCell>Location Hierarchy</TableCell>
+              <TableCell>2023-06-10</TableCell>
+              <TableCell>Active</TableCell>
+              <TableCell>89</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>3</TableCell>
-              <TableCell>Sales Data</TableCell>
-              <TableCell>Historical</TableCell>
-              <TableCell>Integrated</TableCell>
+              <TableCell>Historical Sales</TableCell>
+              <TableCell>2023-06-01</TableCell>
+              <TableCell>Active</TableCell>
+              <TableCell>12,567</TableCell>
             </TableRow>
           </TableBody>
         </Table>

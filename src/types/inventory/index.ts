@@ -8,7 +8,7 @@ export * from './leadTimeTypes';
 export * from './shipmentTypes';
 export * from './classificationTypes';
 
-// Export types from classificationTypes explicitly
+// Export types explicitly
 export type { 
   Classification, 
   SKUClassification, 

@@ -5,14 +5,28 @@ import { Upload, File, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import * as XLSX from 'xlsx';
 
-interface FileUploadProps {
-  onUploadComplete: (data: any[], fileName: string) => void;
-  onError: (error: string) => void;
+export interface FileUploadProps {
+  onUploadComplete?: (data: any[], fileName: string) => void;
+  onError?: (error: string) => void;
   allowedFileTypes?: string[];
   maxSizeMB?: number;
+  // Add compatibility props for existing components
+  onFileSelected?: (file: File) => void;
+  acceptedFileTypes?: string;
+  label?: string;
+  supportedFormats?: string;
 }
 
-const FileUpload = ({ onUploadComplete, onError, allowedFileTypes = ['.csv', '.xlsx'], maxSizeMB = 10 }: FileUploadProps) => {
+const FileUpload = ({ 
+  onUploadComplete, 
+  onError, 
+  allowedFileTypes = ['.csv', '.xlsx'], 
+  maxSizeMB = 10,
+  onFileSelected,
+  acceptedFileTypes,
+  label,
+  supportedFormats
+}: FileUploadProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [fileName, setFileName] = useState("");
 
@@ -21,16 +35,28 @@ const FileUpload = ({ onUploadComplete, onError, allowedFileTypes = ['.csv', '.x
       const file = e.target.files?.[0];
       if (!file) return;
 
+      // Call onFileSelected if provided (for backward compatibility)
+      if (onFileSelected) {
+        onFileSelected(file);
+        return;
+      }
+
       // Validate file type
       const fileExtension = file.name.substring(file.name.lastIndexOf('.'));
-      if (!allowedFileTypes.includes(fileExtension.toLowerCase())) {
-        onError(`Invalid file type. Allowed types: ${allowedFileTypes.join(', ')}`);
+      const allowedTypes = Array.isArray(allowedFileTypes) ? allowedFileTypes : (acceptedFileTypes?.split(',') || ['.csv', '.xlsx']);
+      
+      if (!allowedTypes.includes(fileExtension.toLowerCase())) {
+        if (onError) {
+          onError(`Invalid file type. Allowed types: ${allowedTypes.join(', ')}`);
+        }
         return;
       }
 
       // Validate file size
       if (file.size > maxSizeMB * 1024 * 1024) {
-        onError(`File size exceeds the ${maxSizeMB}MB limit.`);
+        if (onError) {
+          onError(`File size exceeds the ${maxSizeMB}MB limit.`);
+        }
         return;
       }
 
@@ -40,10 +66,14 @@ const FileUpload = ({ onUploadComplete, onError, allowedFileTypes = ['.csv', '.x
       // Process file data
       const data = await parseFile(file);
       
-      onUploadComplete(data, file.name);
+      if (onUploadComplete) {
+        onUploadComplete(data, file.name);
+      }
     } catch (error) {
       console.error("Error processing file:", error);
-      onError("Failed to process the file. Please check the file format.");
+      if (onError) {
+        onError("Failed to process the file. Please check the file format.");
+      }
     } finally {
       setIsUploading(false);
     }
@@ -80,6 +110,9 @@ const FileUpload = ({ onUploadComplete, onError, allowedFileTypes = ['.csv', '.x
     });
   };
 
+  const displayLabel = label || "Click to upload or drag and drop";
+  const displaySupportedFormats = supportedFormats || (Array.isArray(allowedFileTypes) ? allowedFileTypes.join(', ') : acceptedFileTypes || '.csv, .xlsx');
+
   return (
     <div className="flex flex-col gap-4">
       <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
@@ -87,7 +120,7 @@ const FileUpload = ({ onUploadComplete, onError, allowedFileTypes = ['.csv', '.x
           type="file"
           id="file-upload"
           className="hidden"
-          accept={allowedFileTypes.join(',')}
+          accept={Array.isArray(allowedFileTypes) ? allowedFileTypes.join(',') : acceptedFileTypes}
           onChange={handleFileChange}
           disabled={isUploading}
         />
@@ -103,9 +136,9 @@ const FileUpload = ({ onUploadComplete, onError, allowedFileTypes = ['.csv', '.x
           ) : (
             <>
               <Upload className="h-12 w-12 text-gray-400 mb-2" />
-              <p className="text-sm font-medium mb-1">Click to upload or drag and drop</p>
+              <p className="text-sm font-medium mb-1">{displayLabel}</p>
               <p className="text-xs text-gray-500">
-                {allowedFileTypes.join(', ')} (Max {maxSizeMB}MB)
+                {displaySupportedFormats} (Max {maxSizeMB}MB)
               </p>
             </>
           )}
@@ -123,3 +156,4 @@ const FileUpload = ({ onUploadComplete, onError, allowedFileTypes = ['.csv', '.x
 };
 
 export default FileUpload;
+export { FileUpload };
