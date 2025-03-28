@@ -1,24 +1,48 @@
 
 /**
- * Converts Western Arabic numerals (0-9) to Eastern Arabic numerals (٠-٩)
+ * Utility functions for translations
  */
-export const toArabicNumerals = (input: string | number): string => {
-  const westernArabic = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-  const easternArabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-  
-  const inputStr = input.toString();
-  let result = '';
-  
-  for (let i = 0; i < inputStr.length; i++) {
-    const char = inputStr[i];
-    const index = westernArabic.indexOf(char);
+
+import { translations } from './index';
+
+/**
+ * Gets a translation by key and language
+ * @param key The translation key with dot notation (e.g., 'common.save')
+ * @param language The language code ('en' or 'ar')
+ * @returns The translated string or the key if not found
+ */
+export const getTranslation = (key: string, language: 'en' | 'ar'): string => {
+  try {
+    const keys = key.split('.');
+    let current: any = translations[language] || {};
     
-    if (index !== -1) {
-      result += easternArabic[index];
-    } else {
-      result += char;
+    for (const k of keys) {
+      if (current[k] === undefined) {
+        console.warn(`Translation key not found: ${key}`);
+        return key;
+      }
+      current = current[k];
     }
+    
+    return current || key;
+  } catch (error) {
+    console.error(`Error getting translation for key: ${key}`, error);
+    return key;
   }
+};
+
+/**
+ * Converts Western Arabic numerals to Eastern Arabic numerals for Arabic localization
+ * @param value The number or string to convert
+ * @returns The converted string
+ */
+export const toArabicNumerals = (value: number | string): string => {
+  if (value === undefined || value === null) return '';
   
-  return result;
+  const strValue = String(value);
+  const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+  
+  return strValue.replace(/[0-9]/g, (digit) => {
+    return arabicDigits[parseInt(digit)];
+  });
 };

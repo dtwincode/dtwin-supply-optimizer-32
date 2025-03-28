@@ -13,5 +13,6 @@ export const marketingTranslations: MarketingTranslations = {
   optimizeCampaign: "Optimize Campaign",
   reviewPerformance: "Review Performance",
   campaignPlanner: "Campaign Planner",
-  marketingCalendar: "Marketing Calendar"
+  marketingCalendar: "Marketing Calendar",
+  marketingModule: "Marketing Module"
 };

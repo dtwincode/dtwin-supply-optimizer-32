@@ -1,91 +1,120 @@
 
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useLanguage } from '@/contexts/LanguageContext';
-import { getTranslation } from '@/translations';
-import FileUpload from './upload/FileUpload';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { getTranslation } from '@/translations';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { Upload } from 'lucide-react';
 
-export interface DataUploadDialogProps {
-  onUploadComplete?: (data: any) => void;
+interface DataUploadDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title?: string;
+  description?: string;
+  acceptedFormats?: string;
+  onUpload?: (file: File) => Promise<void>;
 }
 
-export const DataUploadDialog: React.FC<DataUploadDialogProps> = ({ onUploadComplete }) => {
-  const [open, setOpen] = useState(false);
-  const [connectionName, setConnectionName] = useState('');
-  const { language } = useLanguage();
+export const DataUploadDialog: React.FC<DataUploadDialogProps> = ({
+  open,
+  onOpenChange,
+  title = 'Upload Data',
+  description = 'Upload your data file in CSV or Excel format.',
+  acceptedFormats = '.csv, .xlsx, .xls',
+  onUpload
+}) => {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
-
-  const handleUploadComplete = (files: File[]) => {
-    if (files.length > 0) {
-      toast({
-        title: getTranslation('settings.upload.success', language),
-        description: "Integration data uploaded successfully"
-      });
-      
-      if (onUploadComplete) {
-        onUploadComplete({
-          name: connectionName,
-          file: files[0].name,
-          timestamp: new Date().toISOString()
-        });
-      }
-      
-      setOpen(false);
+  const { language } = useLanguage();
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setSelectedFile(e.target.files[0]);
     }
   };
-
-  const handleError = (error: string) => {
-    toast({
-      variant: "destructive",
-      title: getTranslation('settings.upload.error', language),
-      description: error
-    });
+  
+  const handleUpload = async () => {
+    if (!selectedFile) {
+      toast({
+        title: getTranslation('common.error', language),
+        description: getTranslation('settings.selectFileFirst', language) || 'Please select a file first',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
+    setIsUploading(true);
+    
+    try {
+      if (onUpload) {
+        await onUpload(selectedFile);
+      }
+      
+      toast({
+        title: getTranslation('common.success', language),
+        description: getTranslation('settings.fileUploaded', language) || 'File uploaded successfully'
+      });
+      
+      onOpenChange(false);
+      setSelectedFile(null);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      toast({
+        title: getTranslation('common.error', language),
+        description: getTranslation('settings.uploadError', language) || 'Error uploading file',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
-
+  
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline">{getTranslation('settings.upload.title', language)}</Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle>{getTranslation('settings.upload.title', language)}</DialogTitle>
-          <DialogDescription>
-            {getTranslation('settings.upload.description', language)}
-          </DialogDescription>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
+        
         <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="connection-name" className="text-right">
-              Connection Name
-            </Label>
+          <div className="grid grid-cols-1 gap-2">
+            <Label htmlFor="file">{getTranslation('settings.selectFile', language) || 'Select File'}</Label>
             <Input
-              id="connection-name"
-              value={connectionName}
-              onChange={(e) => setConnectionName(e.target.value)}
-              className="col-span-3"
+              id="file"
+              type="file"
+              accept={acceptedFormats}
+              onChange={handleFileChange}
             />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">
-              File
-            </Label>
-            <div className="col-span-3">
-              <FileUpload
-                onUploadComplete={handleUploadComplete}
-                onError={handleError}
-                allowedFileTypes={[".csv", ".xlsx", ".json"]}
-              />
-            </div>
+            {selectedFile && (
+              <p className="text-sm text-muted-foreground">
+                {getTranslation('settings.selectedFile', language) || 'Selected'}: {selectedFile.name}
+              </p>
+            )}
           </div>
         </div>
+        
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-            {getTranslation('common.cancel', language)}
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isUploading}
+          >
+            {getTranslation('common.cancel', language) || 'Cancel'}
+          </Button>
+          <Button 
+            onClick={handleUpload} 
+            disabled={!selectedFile || isUploading}
+            className="gap-2"
+          >
+            <Upload className="h-4 w-4" />
+            {isUploading 
+              ? (getTranslation('settings.uploading', language) || 'Uploading...') 
+              : (getTranslation('settings.upload', language) || 'Upload')}
           </Button>
         </DialogFooter>
       </DialogContent>

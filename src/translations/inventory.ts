@@ -19,5 +19,6 @@ export const inventoryTranslations: InventoryTranslations = {
   viewInsights: "View Insights",
   reconfigureNetwork: "Reconfigure Network",
   optimizeBuffers: "Optimize Buffers",
-  zoneStatus: "Zone Status"
+  zoneStatus: "Zone Status",
+  inventoryTitle: "Inventory Management"
 };
