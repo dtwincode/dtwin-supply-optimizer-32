@@ -5,8 +5,9 @@ import FileUpload from "@/components/settings/upload/FileUpload";
 import { Button } from '@/components/ui/button';
 
 const ReplenishmentUpload = () => {
-  const handleUploadComplete = (data: any[], fileName: string) => {
-    console.log(`Uploaded ${data.length} records from ${fileName}`);
+  const handleUploadComplete = (files: File[]) => {
+    console.log(`Uploaded ${files.length} files`);
+    // In a real implementation, you would process the files here
   };
 
   const handleError = (error: string) => {
@@ -25,6 +26,7 @@ const ReplenishmentUpload = () => {
         <FileUpload 
           onUploadComplete={handleUploadComplete} 
           onError={handleError}
+          allowedFileTypes={[".csv", ".xlsx"]}
         />
       </CardContent>
     </Card>

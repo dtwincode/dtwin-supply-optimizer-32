@@ -31,6 +31,10 @@ export const DocumentUpload = () => {
     }
   };
 
+  const handleError = (error: string) => {
+    toast.error(error);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -44,6 +48,7 @@ export const DocumentUpload = () => {
           
           <FileUpload 
             onUploadComplete={handleUploadComplete}
+            onError={handleError}
             allowedFileTypes={['.pdf', '.docx', '.xlsx', '.jpg', '.png']}
             maxSizeMB={10}
           />
@@ -56,3 +61,5 @@ export const DocumentUpload = () => {
     </Card>
   );
 };
+
+export default DocumentUpload;

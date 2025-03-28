@@ -1,9 +1,19 @@
 
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import FileUpload from "@/components/settings/upload/FileUpload";
 import { Button } from '@/components/ui/button';
 
 const LeadTimeUpload = () => {
+  const handleUploadComplete = (files: File[]) => {
+    console.log(`Uploaded ${files.length} files`);
+    // In a real implementation, you would process the files here
+  };
+
+  const handleError = (error: string) => {
+    console.error("Upload error:", error);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -13,7 +23,11 @@ const LeadTimeUpload = () => {
         <p className="text-sm text-muted-foreground mb-4">
           Upload your lead time data in CSV or Excel format.
         </p>
-        <Button>Upload Files</Button>
+        <FileUpload 
+          onUploadComplete={handleUploadComplete}
+          onError={handleError}
+          allowedFileTypes={[".csv", ".xlsx"]}
+        />
       </CardContent>
     </Card>
   );

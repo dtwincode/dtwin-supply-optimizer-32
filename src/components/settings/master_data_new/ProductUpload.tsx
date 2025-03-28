@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { uploadProduct } from '@/lib/product.service';
 import FileUpload from "@/components/settings/upload/FileUpload";
@@ -8,24 +9,33 @@ const ProductUpload = () => {
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const handleFileSelected = async (file: File) => {
-    setUploading(true);
-    setUploadSuccess(false);
-    setUploadError(null);
+  const handleUploadComplete = async (files: File[]) => {
+    if (files.length > 0) {
+      setSelectedFile(files[0]);
+      
+      setUploading(true);
+      setUploadSuccess(false);
+      setUploadError(null);
 
-    try {
-      const success = await uploadProduct(file);
-      if (success) {
-        setUploadSuccess(true);
-      } else {
-        setUploadError('Failed to upload product data.');
+      try {
+        const success = await uploadProduct(files[0]);
+        if (success) {
+          setUploadSuccess(true);
+        } else {
+          setUploadError('Failed to upload product data.');
+        }
+      } catch (error: any) {
+        setUploadError(error.message || 'An unexpected error occurred.');
+      } finally {
+        setUploading(false);
       }
-    } catch (error: any) {
-      setUploadError(error.message || 'An unexpected error occurred.');
-    } finally {
-      setUploading(false);
     }
+  };
+
+  const handleError = (error: string) => {
+    setUploadError(error);
   };
 
   return (
@@ -35,8 +45,9 @@ const ProductUpload = () => {
       </CardHeader>
       <CardContent>
         <FileUpload
-          onFileSelected={handleFileSelected}
-          acceptedFileTypes=".csv,.xlsx"
+          onUploadComplete={handleUploadComplete}
+          onError={handleError}
+          allowedFileTypes={[".csv", ".xlsx"]}
         />
         {uploading && <p>Uploading...</p>}
         {uploadSuccess && <p>Upload successful!</p>}

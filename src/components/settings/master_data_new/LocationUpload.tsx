@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { uploadLocation } from '@/lib/location.service';
 import FileUpload from "@/components/settings/upload/FileUpload";
@@ -5,8 +6,10 @@ import FileUpload from "@/components/settings/upload/FileUpload";
 const LocationHierarchyUpload = () => {
   const [file, setFile] = useState<File | null>(null);
 
-  const handleFileSelected = (selectedFile: File) => {
-    setFile(selectedFile);
+  const handleUploadComplete = (files: File[]) => {
+    if (files.length > 0) {
+      setFile(files[0]);
+    }
   };
 
   const handleUpload = async () => {
@@ -25,7 +28,10 @@ const LocationHierarchyUpload = () => {
   return (
     <div>
       <h2>Upload Location Hierarchy</h2>
-      <FileUpload onFileSelected={handleFileSelected} />
+      <FileUpload 
+        onUploadComplete={handleUploadComplete}
+        allowedFileTypes={[".csv", ".xlsx"]}
+      />
       <button onClick={handleUpload} disabled={!file}>
         Upload Location
       </button>

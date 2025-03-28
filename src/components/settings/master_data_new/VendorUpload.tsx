@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { uploadVendor } from '@/lib/vendor.service';
 import FileUpload from "@/components/settings/upload/FileUpload";
@@ -5,22 +6,32 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 const VendorUpload = () => {
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleFileSelected = async (file: File) => {
+  const handleUploadComplete = async (files: File[]) => {
+    if (files.length === 0) return;
+    
+    const file = files[0];
     setUploading(true);
+    setError(null);
+    
     try {
       const success = await uploadVendor(file);
       if (success) {
         alert('Vendor file uploaded successfully!');
       } else {
-        alert('Failed to upload vendor file.');
+        setError('Failed to upload vendor file.');
       }
     } catch (error) {
       console.error('Error during vendor upload:', error);
-      alert('An error occurred during the upload process.');
+      setError('An error occurred during the upload process.');
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleError = (errorMessage: string) => {
+    setError(errorMessage);
   };
 
   return (
@@ -30,12 +41,12 @@ const VendorUpload = () => {
       </CardHeader>
       <CardContent>
         <FileUpload
-          onFileSelected={handleFileSelected}
-          acceptedFileTypes=".csv,.xlsx"
-          label="Upload a CSV or XLSX file containing vendor data."
-          supportedFormats="CSV, XLSX"
+          onUploadComplete={handleUploadComplete}
+          onError={handleError}
+          allowedFileTypes={[".csv", ".xlsx"]}
         />
         {uploading && <p>Uploading...</p>}
+        {error && <p>Error: {error}</p>}
       </CardContent>
     </Card>
   );

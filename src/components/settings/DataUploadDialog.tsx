@@ -26,10 +26,22 @@ const DataUploadDialog = ({
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  const handleUploadComplete = (data: any[], fileName: string) => {
-    setUploadedData(data);
+  // This function would normally process the file data
+  const processUploadedFiles = (files: File[]): any[] => {
+    // This is a placeholder. In a real app, you'd parse the file content
+    return files.map((file, index) => ({
+      id: index,
+      fileName: file.name,
+      fileSize: file.size,
+      status: 'processed'
+    }));
+  };
+
+  const handleUploadComplete = (files: File[]) => {
+    const processedData = processUploadedFiles(files);
+    setUploadedData(processedData);
     setError(null);
-    console.log(`Uploaded ${data.length} records from ${fileName} for ${module} module to ${tableName} table`);
+    console.log(`Uploaded ${files.length} files containing ${processedData.length} records for ${module} module to ${tableName} table`);
   };
 
   const handleError = (errorMessage: string) => {

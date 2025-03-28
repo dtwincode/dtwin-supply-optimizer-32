@@ -1,3 +1,4 @@
+
 export interface BufferProfile {
   id: string;
   name: string;
@@ -154,5 +155,5 @@ export interface BufferFactorConfig {
   metadata?: Record<string, any>;
 }
 
-// Re-export the types from classificationTypes.ts
-export { Classification, SKUClassification, ReplenishmentData } from './inventory/classificationTypes';
+// Re-export the types from classificationTypes.ts with 'export type'
+export type { Classification, SKUClassification, ReplenishmentData } from './inventory/classificationTypes';

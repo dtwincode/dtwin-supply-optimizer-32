@@ -7,16 +7,23 @@ import { Progress } from '@/components/ui/progress';
 
 interface FileUploadProps {
   onUploadComplete: (files: File[]) => void;
+  onError?: (error: string) => void;
   allowedFileTypes?: string[];
   maxSizeMB?: number;
   multiple?: boolean;
+  onFileSelected?: (file: File) => void;
+  acceptedFileTypes?: string;
+  label?: string;
+  supportedFormats?: string;
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({
   onUploadComplete,
+  onError,
   allowedFileTypes = [],
   maxSizeMB = 5,
   multiple = true,
+  onFileSelected,
 }) => {
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -39,10 +46,18 @@ const FileUpload: React.FC<FileUploadProps> = ({
     
     if (sizeFilteredFiles.length < filteredFiles.length) {
       console.warn(`${filteredFiles.length - sizeFilteredFiles.length} files exceeded the maximum size of ${maxSizeMB}MB`);
+      if (onError) {
+        onError(`${filteredFiles.length - sizeFilteredFiles.length} files exceeded the maximum size of ${maxSizeMB}MB`);
+      }
     }
     
     setFiles(prev => multiple ? [...prev, ...sizeFilteredFiles] : sizeFilteredFiles);
-  }, [allowedFileTypes, maxSizeMB, multiple]);
+    
+    // Handle single file selection for backward compatibility
+    if (onFileSelected && sizeFilteredFiles.length > 0) {
+      onFileSelected(sizeFilteredFiles[0]);
+    }
+  }, [allowedFileTypes, maxSizeMB, multiple, onFileSelected, onError]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
     onDrop,
@@ -101,6 +116,9 @@ const FileUpload: React.FC<FileUploadProps> = ({
       }, 1000);
     } catch (error) {
       console.error('Upload error:', error);
+      if (onError) {
+        onError('Upload failed. Please try again.');
+      }
       setUploading(false);
       setUploadProgress(0);
     } finally {
