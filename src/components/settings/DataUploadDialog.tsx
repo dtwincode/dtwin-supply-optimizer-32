@@ -1,112 +1,94 @@
 
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import FileUpload from "@/components/settings/upload/FileUpload";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useLanguage } from '@/contexts/LanguageContext';
+import { getTranslation } from '@/translations';
+import FileUpload from './upload/FileUpload';
+import { useToast } from '@/hooks/use-toast';
 
 export interface DataUploadDialogProps {
-  open: boolean;
-  onClose: () => void;
-  title: string;
-  tableName: string;
-  module: string;
-  onDataUploaded: () => void;
+  onUploadComplete?: (data: any) => void;
 }
 
-const DataUploadDialog = ({ 
-  open, 
-  onClose, 
-  title, 
-  tableName, 
-  module, 
-  onDataUploaded 
-}: DataUploadDialogProps) => {
-  const [uploadedData, setUploadedData] = useState<any[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
-
-  // This function would normally process the file data
-  const processUploadedFiles = (files: File[]): any[] => {
-    // This is a placeholder. In a real app, you'd parse the file content
-    return files.map((file, index) => ({
-      id: index,
-      fileName: file.name,
-      fileSize: file.size,
-      status: 'processed'
-    }));
-  };
+export const DataUploadDialog: React.FC<DataUploadDialogProps> = ({ onUploadComplete }) => {
+  const [open, setOpen] = useState(false);
+  const [connectionName, setConnectionName] = useState('');
+  const { language } = useLanguage();
+  const { toast } = useToast();
 
   const handleUploadComplete = (files: File[]) => {
-    const processedData = processUploadedFiles(files);
-    setUploadedData(processedData);
-    setError(null);
-    console.log(`Uploaded ${files.length} files containing ${processedData.length} records for ${module} module to ${tableName} table`);
+    if (files.length > 0) {
+      toast({
+        title: getTranslation('settings.upload.success', language),
+        description: "Integration data uploaded successfully"
+      });
+      
+      if (onUploadComplete) {
+        onUploadComplete({
+          name: connectionName,
+          file: files[0].name,
+          timestamp: new Date().toISOString()
+        });
+      }
+      
+      setOpen(false);
+    }
   };
 
-  const handleError = (errorMessage: string) => {
-    setError(errorMessage);
-  };
-
-  const handleSave = async () => {
-    if (uploadedData.length === 0) {
-      setError("No data to save. Please upload a file first.");
-      return;
-    }
-
-    setUploading(true);
-    try {
-      // In a real application, you would send the data to your backend here
-      console.log(`Saving ${uploadedData.length} records to ${tableName}`);
-      
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      onDataUploaded();
-      onClose();
-    } catch (err) {
-      setError("Failed to save data. Please try again.");
-    } finally {
-      setUploading(false);
-    }
+  const handleError = (error: string) => {
+    toast({
+      variant: "destructive",
+      title: getTranslation('settings.upload.error', language),
+      description: error
+    });
   };
 
   return (
-    <Dialog open={open} onOpenChange={open => !open && onClose()}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline">{getTranslation('settings.upload.title', language)}</Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+          <DialogTitle>{getTranslation('settings.upload.title', language)}</DialogTitle>
+          <DialogDescription>
+            {getTranslation('settings.upload.description', language)}
+          </DialogDescription>
         </DialogHeader>
-        
-        <div className="space-y-4 py-4">
-          <FileUpload
-            onUploadComplete={handleUploadComplete}
-            onError={handleError}
-            allowedFileTypes={['.csv', '.xlsx']}
-          />
-          
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-          
-          {uploadedData.length > 0 && (
-            <div>
-              <p className="text-sm mb-2">{uploadedData.length} records parsed successfully.</p>
-              <Button 
-                onClick={handleSave} 
-                disabled={uploading}
-                className="w-full"
-              >
-                {uploading ? "Saving..." : "Save Data"}
-              </Button>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="connection-name" className="text-right">
+              Connection Name
+            </Label>
+            <Input
+              id="connection-name"
+              value={connectionName}
+              onChange={(e) => setConnectionName(e.target.value)}
+              className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label className="text-right">
+              File
+            </Label>
+            <div className="col-span-3">
+              <FileUpload
+                onUploadComplete={handleUploadComplete}
+                onError={handleError}
+                allowedFileTypes={[".csv", ".xlsx", ".json"]}
+              />
             </div>
-          )}
+          </div>
         </div>
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            {getTranslation('common.cancel', language)}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 };
-
-export default DataUploadDialog;

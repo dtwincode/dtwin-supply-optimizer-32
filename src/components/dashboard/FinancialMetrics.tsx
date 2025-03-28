@@ -1,8 +1,6 @@
-
 import { Card } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslation } from "@/translations";
-import { toArabicNumerals } from "@/translations";
+import { getTranslation, toArabicNumerals } from "@/translations";
 import Image from "../ui/image";
 import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
 

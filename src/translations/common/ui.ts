@@ -1,93 +1,29 @@
 
-import { UITranslations } from '../types';
+import { UITranslations } from "../types";
 
 export const uiTranslations: UITranslations = {
-  settings: {
-    en: "Settings",
-    ar: "الإعدادات"
+  darkMode: {
+    en: "Dark Mode",
+    ar: "الوضع الداكن"
   },
-  logout: {
-    en: "Logout",
-    ar: "تسجيل الخروج"
+  lightMode: {
+    en: "Light Mode",
+    ar: "الوضع الفاتح"
   },
-  cancel: {
-    en: "Cancel",
-    ar: "إلغاء"
+  menu: {
+    en: "Menu",
+    ar: "القائمة"
   },
-  save: {
-    en: "Save",
-    ar: "حفظ"
+  close: {
+    en: "Close",
+    ar: "إغلاق"
   },
-  delete: {
-    en: "Delete",
-    ar: "حذف"
+  expand: {
+    en: "Expand",
+    ar: "توسيع"
   },
-  edit: {
-    en: "Edit",
-    ar: "تعديل"
-  },
-  create: {
-    en: "Create",
-    ar: "إنشاء"
-  },
-  search: {
-    en: "Search",
-    ar: "بحث"
-  },
-  filter: {
-    en: "Filter",
-    ar: "تصفية"
-  },
-  apply: {
-    en: "Apply",
-    ar: "تطبيق"
-  },
-  reset: {
-    en: "Reset",
-    ar: "إعادة تعيين"
-  },
-  viewDetails: {
-    en: "View Details",
-    ar: "عرض التفاصيل"
-  },
-  skuCount: {
-    en: "SKU Count",
-    ar: "عدد وحدات التخزين"
-  },
-  accuracyLabel: {
-    en: "Forecast Accuracy",
-    ar: "دقة التنبؤ"
-  },
-  pipelineValue: {
-    en: "Pipeline Value",
-    ar: "قيمة خط الأنابيب"
-  },
-  activeCampaigns: {
-    en: "Active Campaigns",
-    ar: "الحملات النشطة"
-  },
-  onTimeDelivery: {
-    en: "On-Time Delivery",
-    ar: "التسليم في الوقت المحدد"
-  },
-  reportCount: {
-    en: "Available Reports",
-    ar: "التقارير المتاحة"
-  },
-  fromLastMonth: {
-    en: "from last month",
-    ar: "من الشهر الماضي"
-  },
-  fromLastWeek: {
-    en: "from last week",
-    ar: "من الأسبوع الماضي"
-  },
-  thisQuarter: {
-    en: "this quarter",
-    ar: "هذا الربع"
-  },
-  modules: {
-    en: "Key Supply Chain Modules",
-    ar: "وحدات سلسلة التوريد الرئيسية"
+  collapse: {
+    en: "Collapse",
+    ar: "طي"
   }
 };

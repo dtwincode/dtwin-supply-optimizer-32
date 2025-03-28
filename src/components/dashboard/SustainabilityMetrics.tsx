@@ -1,9 +1,7 @@
-
 import { Card } from "@/components/ui/card";
 import { Leaf, TrendingUp, TrendingDown } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslation } from "@/translations";
-import { toArabicNumerals } from "@/translations";
+import { getTranslation, toArabicNumerals } from "@/translations";
 
 const sustainabilityMetrics = [
   {

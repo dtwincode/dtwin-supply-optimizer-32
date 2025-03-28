@@ -1,4 +1,3 @@
-
 export interface BufferProfile {
   id: string;
   name: string;
@@ -155,5 +154,9 @@ export interface BufferFactorConfig {
   metadata?: Record<string, any>;
 }
 
-// Re-export the types from classificationTypes.ts with 'export type'
+// Re-export types when 'isolatedModules' is enabled with proper syntax
+export type { DecouplingPoint, DecouplingPointType, DecouplingNetwork } from './inventory/decouplingTypes';
+export type { BufferProfile, BufferConfig, BufferZone, BufferStatus } from './inventory/bufferTypes';
+export type { InventoryClassification, ClassificationType } from './inventory/classificationTypes';
+
 export type { Classification, SKUClassification, ReplenishmentData } from './inventory/classificationTypes';

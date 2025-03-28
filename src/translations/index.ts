@@ -7,6 +7,12 @@ import { salesTranslations } from './sales';
 import { marketingTranslations } from './marketing';
 import { commonTranslations } from './common';
 import { utilsTranslations } from './utilities';
+import { financialMetricsTranslations } from './common/financialMetrics';
+import { sustainabilityMetricsTranslations } from './common/sustainabilityMetrics';
+import { modulesSummaryTranslations } from './common/modules';
+import { uiTranslations } from './common/ui';
+import { paginationTranslations } from './common/pagination';
+import { toArabicNumerals } from './utils';
 
 // Settings translations
 const settingsTranslations = {
@@ -82,10 +88,53 @@ const settingsTranslations = {
   }
 };
 
+// Common translations for custom modules and features
+const commonCustomTranslations = {
+  en: {
+    modules: "System Modules",
+    skuCount: "SKUs",
+    accuracyLabel: "Accuracy",
+    pipelineValue: "Pipeline Value",
+    activeCampaigns: "Active Campaigns",
+    onTimeDelivery: "On-Time Delivery",
+    reportCount: "Available Reports",
+    chartTitles: {
+      bufferProfile: "Buffer Profile by Category",
+      demandVariability: "Demand Variability vs Buffer Levels"
+    },
+    zones: {
+      green: "Green Zone",
+      yellow: "Yellow Zone",
+      red: "Red Zone"
+    }
+  },
+  ar: {
+    modules: "وحدات النظام",
+    skuCount: "وحدات التخزين",
+    accuracyLabel: "الدقة",
+    pipelineValue: "قيمة الأنابيب",
+    activeCampaigns: "الحملات النشطة",
+    onTimeDelivery: "التسليم في الوقت المحدد",
+    reportCount: "التقارير المتاحة",
+    chartTitles: {
+      bufferProfile: "ملف المخزون حسب الفئة",
+      demandVariability: "تباين الطلب مقابل مستويات المخزون"
+    },
+    zones: {
+      green: "المنطقة الخضراء",
+      yellow: "المنطقة الصفراء",
+      red: "المنطقة الحمراء"
+    }
+  }
+};
+
 // Full combined translations
 export const allTranslations: translations = {
   en: {
-    common: commonTranslations.en,
+    common: {
+      ...commonTranslations.en,
+      ...commonCustomTranslations.en
+    },
     sales: salesTranslations.en,
     navigation: navigationTranslations.en,
     dashboard: dashboardTranslations.en,
@@ -95,7 +144,10 @@ export const allTranslations: translations = {
     settings: settingsTranslations.en
   },
   ar: {
-    common: commonTranslations.ar,
+    common: {
+      ...commonTranslations.ar,
+      ...commonCustomTranslations.ar
+    },
     sales: salesTranslations.ar,
     navigation: navigationTranslations.ar,
     dashboard: dashboardTranslations.ar,
@@ -121,3 +173,5 @@ export const getTranslation = (key: string, language: 'en' | 'ar'): string => {
   
   return current;
 };
+
+export { toArabicNumerals };

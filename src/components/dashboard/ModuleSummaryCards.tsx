@@ -1,21 +1,9 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslation } from "@/translations";
-import { toArabicNumerals } from "@/translations";
+import { getTranslation, toArabicNumerals } from "@/translations";
 import Image from "../ui/image";
-import {
-  Boxes,
-  LineChart,
-  ShoppingBag,
-  Megaphone,
-  Truck,
-  FileText,
-  ChevronRight,
-  ChevronLeft
-} from "lucide-react";
 
 const modulesSummary = [
   {

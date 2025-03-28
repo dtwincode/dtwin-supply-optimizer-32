@@ -56,6 +56,22 @@ export interface CommonTranslations {
   name: string;
   description: string;
   inventory: InventoryCommonTranslations;
+  modules: string;
+  skuCount: string;
+  accuracyLabel: string;
+  pipelineValue: string;
+  activeCampaigns: string;
+  onTimeDelivery: string;
+  reportCount: string;
+  chartTitles: {
+    bufferProfile: string;
+    demandVariability: string;
+  };
+  zones: {
+    green: string;
+    yellow: string;
+    red: string;
+  };
 }
 
 export interface NavigationTranslations {
@@ -78,13 +94,190 @@ export interface NavigationItems {
 
 export interface DashboardTranslations {
   title: string;
-  subtitle: string;
+  overview: string;
+  recentActivity: string;
+  metrics: string;
+  performance: string;
+  trends: string;
+  alerts: string;
+  notifications: string;
+}
+
+export interface DashboardMetrics {
+  title: {
+    en: string;
+    ar: string;
+  };
+  totalSKUs: {
+    en: string;
+    ar: string;
+  };
+  bufferPenetration: {
+    en: string;
+    ar: string;
+  };
+  orderStatus: {
+    en: string;
+    ar: string;
+  };
+  flowIndex: {
+    en: string;
+    ar: string;
+  };
+}
+
+export interface ExecutiveSummary {
+  title: {
+    en: string;
+    ar: string;
+  };
+  lastUpdated: {
+    en: string;
+    ar: string;
+  };
   kpis: {
-    title: string;
-    inventory: string;
-    sales: string;
-    forecast: string;
-    logistics: string;
+    orderFulfillment: {
+      en: string;
+      ar: string;
+    };
+    inventoryTurnover: {
+      en: string;
+      ar: string;
+    };
+    stockoutRate: {
+      en: string;
+      ar: string;
+    };
+    planningCycleTime: {
+      en: string;
+      ar: string;
+    };
+  };
+  performanceTrend: {
+    en: string;
+    ar: string;
+  };
+  performanceTrendDesc: {
+    en: string;
+    ar: string;
+  };
+  bufferDistribution: {
+    en: string;
+    ar: string;
+  };
+  bufferDistributionDesc: {
+    en: string;
+    ar: string;
+  };
+  criticalAlerts: {
+    en: string;
+    ar: string;
+  };
+  alerts: {
+    lowBuffer: {
+      en: string;
+      ar: string;
+    };
+    lowBufferDesc: {
+      en: string;
+      ar: string;
+    };
+    demandSpike: {
+      en: string;
+      ar: string;
+    };
+    demandSpikeDesc: {
+      en: string;
+      ar: string;
+    };
+  };
+  impact: {
+    high: {
+      en: string;
+      ar: string;
+    };
+    medium: {
+      en: string;
+      ar: string;
+    };
+    low: {
+      en: string;
+      ar: string;
+    };
+  };
+  noAlerts: {
+    en: string;
+    ar: string;
+  };
+  moduleHealth: {
+    en: string;
+    ar: string;
+  };
+  moduleHealthDesc: {
+    en: string;
+    ar: string;
+  };
+  status: {
+    healthy: {
+      en: string;
+      ar: string;
+    };
+    warning: {
+      en: string;
+      ar: string;
+    };
+    critical: {
+      en: string;
+      ar: string;
+    };
+  };
+  charts: {
+    actual: {
+      en: string;
+      ar: string;
+    };
+    target: {
+      en: string;
+      ar: string;
+    };
+  };
+}
+
+export interface FinancialMetrics {
+  title: {
+    en: string;
+    ar: string;
+  };
+  revenue: {
+    en: string;
+    ar: string;
+  };
+  operatingCosts: {
+    en: string;
+    ar: string;
+  };
+  profitMargin: {
+    en: string;
+    ar: string;
+  };
+}
+
+export interface SustainabilityMetrics {
+  title: {
+    en: string;
+    ar: string;
+  };
+  carbonFootprint: {
+    en: string;
+    ar: string;
+  };
+  wasteReduction: {
+    en: string;
+    ar: string;
+  };
+  greenSuppliers: {
+    en: string;
+    ar: string;
   };
 }
 
@@ -123,6 +316,30 @@ export interface InventoryCommonTranslations {
   onOrder: string;
   allocated: string;
   available: string;
+  decouplingPoints: string;
+  configureDecouplingPoints: string;
+  refresh: string;
+  addDecouplingPoint: string;
+  decouplingNetwork: string;
+  listView: string;
+  locationId: string;
+  type: string;
+  description: string;
+  actions: string;
+  noDecouplingPoints: string;
+  edit: string;
+  delete: string;
+  confirmDelete: string;
+  success: string;
+  decouplingPointDeleted: string;
+  decouplingPointSaved: string;
+  networkVisualization: string;
+  nodes: string;
+  nodesDescription: string;
+  links: string;
+  linksDescription: string;
+  totalItems: string;
+  networkHelp: string;
 }
 
 export interface SalesTranslations {
@@ -135,6 +352,15 @@ export interface SalesTranslations {
     avgOrderValue: string;
     returnRate: string;
   };
+  salesTrends: string;
+  comparePlannedVsActual: string;
+  monthly: string;
+  quarterly: string;
+  yearly: string;
+  whatIfScenarios: string;
+  exploreSalesScenarios: string;
+  forecastIntegration: string;
+  integrationWithForecasts: string;
 }
 
 export interface MarketingTranslations {
@@ -182,5 +408,51 @@ export interface SettingsTranslations {
     formats: string;
     success: string;
     error: string;
+  };
+}
+
+export interface UITranslations {
+  darkMode: string;
+  lightMode: string;
+  menu: string;
+  close: string;
+  expand: string;
+  collapse: string;
+}
+
+export interface PaginationTranslations {
+  prev: string;
+  next: string;
+  page: string;
+  of: string;
+  showing: string;
+  to: string;
+  results: string;
+}
+
+export interface ModulesSummary {
+  inventoryManagement: {
+    en: string;
+    ar: string;
+  };
+  demandForecasting: {
+    en: string;
+    ar: string;
+  };
+  salesPlanning: {
+    en: string;
+    ar: string;
+  };
+  marketingCampaigns: {
+    en: string;
+    ar: string;
+  };
+  logistics: {
+    en: string;
+    ar: string;
+  };
+  reportsAnalytics: {
+    en: string;
+    ar: string;
   };
 }
