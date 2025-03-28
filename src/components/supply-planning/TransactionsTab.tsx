@@ -15,19 +15,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { ArrowDownRight, ArrowUpRight } from 'lucide-react';
-
-type InventoryTransaction = {
-  id: string;
-  sku: string;
-  quantity: number;
-  transaction_type: 'inbound' | 'outbound';
-  reference_id?: string;
-  reference_type?: string;
-  previous_on_hand: number;
-  new_on_hand: number;
-  notes?: string;
-  transaction_date: string;
-};
+import { InventoryTransaction } from '@/types/inventory/shipmentTypes';
 
 export const TransactionsTab = () => {
   const { language } = useLanguage();
@@ -35,7 +23,9 @@ export const TransactionsTab = () => {
   const { data: transactions, isLoading, error } = useQuery({
     queryKey: ['inventory-transactions'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Use any to override the type checking temporarily
+      // since the table might not exist yet in the supabase types
+      const { data, error } = await (supabase as any)
         .from('inventory_transactions')
         .select('*')
         .order('transaction_date', { ascending: false });

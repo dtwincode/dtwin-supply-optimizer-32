@@ -5,6 +5,7 @@ export * from './inventoryFilters';
 export * from './decouplingTypes';
 export * from './classificationTypes';
 export * from './leadTimeTypes';
+export * from './shipmentTypes';
 
 // Common utility types
 export interface PaginationState {
@@ -31,6 +32,3 @@ export type {
   IndustryType,
   BufferFactorConfig
 } from '../inventory';
-
-// Explicitly re-export classification types for easier access
-export type { Classification, SKUClassification, ReplenishmentData } from './classificationTypes';

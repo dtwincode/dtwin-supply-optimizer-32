@@ -9,7 +9,7 @@ interface InventoryTransactionData {
   quantity: number;
   transactionType: 'inbound' | 'outbound';
   referenceId?: string;
-  referenceType?: 'purchase_order' | 'sales_order';
+  referenceType?: 'purchase_order' | 'sales_order' | 'shipment';
   notes?: string;
 }
 
@@ -42,11 +42,15 @@ export const useInventoryTransaction = () => {
         ? inventoryItem.on_order - data.quantity
         : inventoryItem.on_order;
 
-      // 3. Recalculate net flow position
+      // 3. Recalculate net flow position - convert to compatible type for calculation
       const netFlowPosition = calculateNetFlowPosition({
-        ...inventoryItem,
-        onHand: newOnHand,
-        onOrder: newOnOrder
+        currentStock: newOnHand,
+        qualifiedDemand: inventoryItem.qualified_demand || 0,
+        plannedSupply: newOnOrder,
+        netFlowPosition: inventoryItem.net_flow_position || 0,
+        productFamily: inventoryItem.product_family || '',
+        sku: inventoryItem.sku,
+        name: inventoryItem.name || ''
       });
 
       // 4. Calculate buffer penetration if buffer zones exist
@@ -80,7 +84,7 @@ export const useInventoryTransaction = () => {
       }
 
       // 6. Log the transaction
-      const { error: logError } = await supabase
+      const { error: logError } = await (supabase as any)
         .from('inventory_transactions')
         .insert({
           sku: data.sku,

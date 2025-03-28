@@ -18,7 +18,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
 import {
@@ -29,186 +28,116 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { format } from 'date-fns';
 import { useInventoryTransaction } from '@/hooks/useInventoryTransaction';
-import { useToast } from '@/components/ui/use-toast';
 import { 
-  TruckFront, 
-  Plus, 
-  PackageCheck, 
+  Package, 
+  Truck, 
   MoreHorizontal, 
-  Edit, 
-  AlertCircle, 
-  FileCheck 
+  PackageCheck, 
+  AlertTriangle, 
+  Plus 
 } from 'lucide-react';
-
-type Shipment = {
-  id: string;
-  shipment_number: string;
-  sku: string;
-  quantity: number;
-  status: string;
-  customer?: string;
-  ship_date?: string;
-  expected_delivery_date?: string;
-  notes?: string;
-  created_at: string;
-  updated_at: string;
-  shipping_method?: string;
-  tracking_number?: string;
-};
+import { Shipment } from '@/types/inventory/shipmentTypes';
 
 export const ShipmentsTab = () => {
   const { language } = useLanguage();
-  const { toast } = useToast();
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [shipDialogOpen, setShipDialogOpen] = useState(false);
   const [selectedShipment, setSelectedShipment] = useState<Shipment | null>(null);
+  const [createShipmentOpen, setCreateShipmentOpen] = useState(false);
   const [newShipment, setNewShipment] = useState({
     sku: '',
     quantity: 1,
     customer: '',
-    notes: '',
-    shipping_method: '',
+    shipping_method: 'standard',
+    notes: ''
   });
   const { processTransaction, loading: processingTransaction } = useInventoryTransaction();
 
   const { data: shipments, isLoading, error, refetch } = useQuery({
     queryKey: ['shipments'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Use any to override the type checking temporarily
+      // since the table might not exist yet in the supabase types
+      const { data, error } = await (supabase as any)
         .from('shipments')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as Shipment[] || [];
+      return data as Shipment[];
     },
   });
 
-  const handleCreateShipment = async () => {
+  const handleShipmentCreate = async () => {
+    if (!newShipment.sku || !newShipment.quantity || !newShipment.customer) return;
+
     try {
-      // Check if SKU exists and has sufficient inventory
-      const { data: inventoryItem, error: inventoryError } = await supabase
-        .from('inventory_data')
-        .select('on_hand')
-        .eq('sku', newShipment.sku)
-        .single();
-
-      if (inventoryError) {
-        toast({
-          variant: 'destructive',
-          title: 'SKU not found',
-          description: 'Please verify the SKU entered',
-        });
-        return;
-      }
-
-      if (inventoryItem.on_hand < newShipment.quantity) {
-        toast({
-          variant: 'destructive',
-          title: 'Insufficient inventory',
-          description: `Only ${inventoryItem.on_hand} units available`,
-        });
-        return;
-      }
-
-      // Create shipment record
-      const shipmentNumber = `SHIP-${Date.now()}`;
-      const { data, error } = await supabase
+      // Generate a shipment number
+      const shipmentNumber = `SHP-${Date.now().toString().slice(-6)}`;
+      
+      // Create the shipment
+      const { data, error } = await (supabase as any)
         .from('shipments')
         .insert({
           shipment_number: shipmentNumber,
           sku: newShipment.sku,
           quantity: newShipment.quantity,
           customer: newShipment.customer,
-          notes: newShipment.notes,
+          ship_date: new Date().toISOString(),
+          status: 'pending',
           shipping_method: newShipment.shipping_method,
-          status: 'planned',
+          notes: newShipment.notes,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })
         .select();
 
-      if (error) {
-        toast({
-          variant: 'destructive',
-          title: 'Error',
-          description: 'Failed to create shipment',
-        });
-        return;
-      }
+      if (error) throw error;
 
-      toast({
-        title: 'Shipment Created',
-        description: `Shipment ${shipmentNumber} created successfully`,
+      // Process inventory reduction
+      await processTransaction({
+        sku: newShipment.sku,
+        quantity: newShipment.quantity,
+        transactionType: 'outbound',
+        referenceId: data[0].id,
+        referenceType: 'shipment',
+        notes: `Outbound shipment: ${shipmentNumber}`
       });
 
       refetch();
-      setCreateDialogOpen(false);
-      // Reset form
+      setCreateShipmentOpen(false);
       setNewShipment({
         sku: '',
         quantity: 1,
         customer: '',
-        notes: '',
-        shipping_method: '',
+        shipping_method: 'standard',
+        notes: ''
       });
-    } catch (error) {
-      console.error('Error creating shipment:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'An unexpected error occurred',
-      });
+    } catch (err) {
+      console.error("Error creating shipment:", err);
     }
   };
 
-  const handleShipClick = (shipment: Shipment) => {
-    setSelectedShipment(shipment);
-    setShipDialogOpen(true);
-  };
-
-  const handleShip = async () => {
-    if (!selectedShipment) return;
-
-    const success = await processTransaction({
-      sku: selectedShipment.sku,
-      quantity: selectedShipment.quantity,
-      transactionType: 'outbound',
-      referenceId: selectedShipment.id,
-      referenceType: 'sales_order',
-      notes: `Shipped: ${selectedShipment.shipment_number}`
-    });
-
-    if (success) {
-      // Update shipment status
-      await supabase
+  const handleStatusUpdate = async (shipment: Shipment, newStatus: 'shipped' | 'delivered') => {
+    try {
+      await (supabase as any)
         .from('shipments')
         .update({
-          status: 'shipped',
-          ship_date: new Date().toISOString(),
+          status: newStatus,
+          ...(newStatus === 'shipped' && { ship_date: new Date().toISOString() }),
+          ...(newStatus === 'delivered' && { delivery_date: new Date().toISOString() }),
           updated_at: new Date().toISOString()
         })
-        .eq('id', selectedShipment.id);
+        .eq('id', shipment.id);
 
       refetch();
-      setShipDialogOpen(false);
+    } catch (err) {
+      console.error("Error updating shipment status:", err);
     }
-  };
-
-  const getStatusBadge = (status: string) => {
-    const statusMap: Record<string, { variant: string, label: string }> = {
-      'planned': { variant: 'outline', label: getTranslation("supplyPlanning.statusTypes.planned", language) || 'Planned' },
-      'ready': { variant: 'secondary', label: getTranslation("supplyPlanning.statusTypes.ready", language) || 'Ready' },
-      'shipped': { variant: 'default', label: getTranslation("supplyPlanning.statusTypes.shipped", language) || 'Shipped' },
-      'delivered': { variant: 'outline', label: getTranslation("supplyPlanning.statusTypes.delivered", language) || 'Delivered' }
-    };
-
-    const config = statusMap[status] || { variant: 'outline', label: status };
-    return <Badge variant={config.variant as any}>{config.label}</Badge>;
   };
 
   if (isLoading) {
@@ -233,13 +162,13 @@ export const ShipmentsTab = () => {
         <div className="p-6 border-b flex justify-between items-center">
           <div>
             <h3 className="text-lg font-semibold">
-              {getTranslation("supplyPlanning.tabs.shipments", language) || "Outbound Shipments"}
+              {getTranslation("supplyPlanning.tabs.shipments", language) || "Shipments"}
             </h3>
             <p className="text-sm text-muted-foreground">
               {getTranslation("supplyPlanning.shipmentsDesc", language) || "Manage outbound shipments and track inventory reduction"}
             </p>
           </div>
-          <Button onClick={() => setCreateDialogOpen(true)} className="bg-dtwin-medium hover:bg-dtwin-dark">
+          <Button onClick={() => setCreateShipmentOpen(true)} className="bg-dtwin-medium hover:bg-dtwin-dark">
             <Plus className="mr-2 h-4 w-4" />
             {getTranslation("supplyPlanning.createShipment", language) || "Create Shipment"}
           </Button>
@@ -271,15 +200,25 @@ export const ShipmentsTab = () => {
                   <TableCell className="font-medium">{shipment.shipment_number}</TableCell>
                   <TableCell>{shipment.sku}</TableCell>
                   <TableCell>{shipment.quantity}</TableCell>
-                  <TableCell>{shipment.customer || "-"}</TableCell>
+                  <TableCell>{shipment.customer}</TableCell>
                   <TableCell>
                     {shipment.ship_date 
                       ? format(new Date(shipment.ship_date), 'MMM dd, yyyy')
                       : "-"
                     }
                   </TableCell>
-                  <TableCell>{shipment.shipping_method || "-"}</TableCell>
-                  <TableCell>{getStatusBadge(shipment.status)}</TableCell>
+                  <TableCell>{shipment.shipping_method || "Standard"}</TableCell>
+                  <TableCell>
+                    <Badge variant={
+                      shipment.status === 'delivered' 
+                        ? 'outline' 
+                        : shipment.status === 'shipped' 
+                          ? 'default'
+                          : 'secondary'
+                    }>
+                      {shipment.status}
+                    </Badge>
+                  </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -288,24 +227,20 @@ export const ShipmentsTab = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        {shipment.status === 'planned' && (
-                          <DropdownMenuItem onClick={() => handleShipClick(shipment)}>
-                            <TruckFront className="mr-2 h-4 w-4" />
+                        {shipment.status === 'pending' && (
+                          <DropdownMenuItem onClick={() => handleStatusUpdate(shipment, 'shipped')}>
+                            <Truck className="mr-2 h-4 w-4" />
                             {getTranslation("supplyPlanning.markAsShipped", language) || "Mark as Shipped"}
                           </DropdownMenuItem>
                         )}
                         {shipment.status === 'shipped' && (
-                          <DropdownMenuItem>
-                            <FileCheck className="mr-2 h-4 w-4" />
+                          <DropdownMenuItem onClick={() => handleStatusUpdate(shipment, 'delivered')}>
+                            <PackageCheck className="mr-2 h-4 w-4" />
                             {getTranslation("supplyPlanning.markAsDelivered", language) || "Mark as Delivered"}
                           </DropdownMenuItem>
                         )}
                         <DropdownMenuItem>
-                          <Edit className="mr-2 h-4 w-4" />
-                          {getTranslation("common.edit", language)}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <AlertCircle className="mr-2 h-4 w-4" />
+                          <AlertTriangle className="mr-2 h-4 w-4" />
                           {getTranslation("supplyPlanning.issueAlert", language) || "Issue Alert"}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -318,134 +253,93 @@ export const ShipmentsTab = () => {
         </Table>
       </Card>
 
-      {/* Create Shipment Dialog */}
-      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+      <Dialog open={createShipmentOpen} onOpenChange={setCreateShipmentOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
               {getTranslation("supplyPlanning.createShipment", language) || "Create Shipment"}
             </DialogTitle>
-            <DialogDescription>
-              {getTranslation("supplyPlanning.createShipmentDesc", language) || "Create a new outbound shipment"}
-            </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="sku">{getTranslation("common.inventory.sku", language)}</Label>
-              <Input 
-                id="sku" 
+            <p className="text-sm text-muted-foreground">
+              {getTranslation("supplyPlanning.createShipmentDesc", language) || "Create a new outbound shipment"}
+            </p>
+            
+            <div>
+              <Label htmlFor="sku">SKU</Label>
+              <Input
+                id="sku"
                 value={newShipment.sku}
                 onChange={(e) => setNewShipment({...newShipment, sku: e.target.value})}
-                required
+                placeholder="Enter SKU"
               />
             </div>
             
-            <div className="space-y-2">
+            <div>
               <Label htmlFor="quantity">{getTranslation("supplyPlanning.quantity", language)}</Label>
-              <Input 
-                id="quantity" 
+              <Input
+                id="quantity"
                 type="number"
                 value={newShipment.quantity}
-                onChange={(e) => setNewShipment({...newShipment, quantity: Number(e.target.value)})}
+                onChange={(e) => setNewShipment({...newShipment, quantity: parseInt(e.target.value)})}
                 min={1}
-                required
               />
             </div>
             
-            <div className="space-y-2">
+            <div>
               <Label htmlFor="customer">{getTranslation("supplyPlanning.customer", language) || "Customer"}</Label>
-              <Input 
-                id="customer" 
+              <Input
+                id="customer"
                 value={newShipment.customer}
                 onChange={(e) => setNewShipment({...newShipment, customer: e.target.value})}
+                placeholder="Customer name"
               />
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="shipping_method">{getTranslation("supplyPlanning.method", language) || "Shipping Method"}</Label>
-              <Input 
-                id="shipping_method" 
+            <div>
+              <Label htmlFor="shipping-method">{getTranslation("supplyPlanning.method", language) || "Shipping Method"}</Label>
+              <Select 
                 value={newShipment.shipping_method}
-                onChange={(e) => setNewShipment({...newShipment, shipping_method: e.target.value})}
-              />
+                onValueChange={(value) => setNewShipment({...newShipment, shipping_method: value})}
+              >
+                <SelectTrigger id="shipping-method">
+                  <SelectValue placeholder="Select shipping method" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="standard">Standard</SelectItem>
+                  <SelectItem value="express">Express</SelectItem>
+                  <SelectItem value="overnight">Overnight</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="notes">{getTranslation("supplyPlanning.notes", language) || "Notes"}</Label>
-              <Input 
-                id="notes" 
+            <div>
+              <Label htmlFor="notes">{getTranslation("supplyPlanning.notes", language)}</Label>
+              <Textarea
+                id="notes"
                 value={newShipment.notes}
                 onChange={(e) => setNewShipment({...newShipment, notes: e.target.value})}
+                placeholder="Optional notes"
               />
             </div>
+            
+            <p className="text-xs text-amber-600">
+              <AlertTriangle className="h-3 w-3 inline-block mr-1" />
+              {getTranslation("supplyPlanning.reduceInventoryWarning", language) || 
+                "This action will reduce inventory levels for the selected SKU."}
+            </p>
           </div>
           
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setCreateShipmentOpen(false)}>
               {getTranslation("common.cancel", language) || "Cancel"}
             </Button>
-            <Button onClick={handleCreateShipment}>
-              {getTranslation("common.create", language) || "Create"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Ship Items Dialog */}
-      <Dialog open={shipDialogOpen} onOpenChange={setShipDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {getTranslation("supplyPlanning.markAsShipped", language) || "Mark as Shipped"}
-            </DialogTitle>
-          </DialogHeader>
-          
-          {selectedShipment && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-muted-foreground">
-                    {getTranslation("supplyPlanning.shipmentNumber", language) || "Shipment #"}
-                  </Label>
-                  <p>{selectedShipment.shipment_number}</p>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">
-                    {getTranslation("common.inventory.sku", language)}
-                  </Label>
-                  <p>{selectedShipment.sku}</p>
-                </div>
-              </div>
-              
-              <div>
-                <Label className="text-muted-foreground">
-                  {getTranslation("supplyPlanning.quantity", language)}
-                </Label>
-                <p>{selectedShipment.quantity}</p>
-              </div>
-              
-              <div>
-                <Label className="text-muted-foreground">
-                  {getTranslation("supplyPlanning.customer", language) || "Customer"}
-                </Label>
-                <p>{selectedShipment.customer || "-"}</p>
-              </div>
-              
-              <p className="text-sm text-amber-600 bg-amber-50 p-2 rounded-md flex items-center">
-                <AlertCircle className="h-4 w-4 mr-2" />
-                {getTranslation("supplyPlanning.reduceInventoryWarning", language) || 
-                 "This action will reduce inventory levels for the selected SKU."}
-              </p>
-            </div>
-          )}
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShipDialogOpen(false)}>
-              {getTranslation("common.cancel", language) || "Cancel"}
-            </Button>
-            <Button onClick={handleShip} disabled={processingTransaction}>
-              {processingTransaction 
+            <Button 
+              onClick={handleShipmentCreate} 
+              disabled={!newShipment.sku || !newShipment.quantity || !newShipment.customer || processingTransaction}
+            >
+              {processingTransaction
                 ? getTranslation("supplyPlanning.processing", language) || "Processing..." 
                 : getTranslation("supplyPlanning.confirmShipment", language) || "Confirm Shipment"}
             </Button>

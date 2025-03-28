@@ -129,3 +129,6 @@ export const supplyPlanning = {
     outbound: "صادر"
   }
 };
+
+// Export with the name that's being imported in translations/index.ts
+export const supplyPlanningTranslations = supplyPlanning;
