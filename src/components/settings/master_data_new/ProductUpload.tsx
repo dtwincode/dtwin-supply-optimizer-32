@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { uploadProduct } from '@/supabase/setting/product.service';
+import { uploadProduct } from '@/lib/product.service';
 
 const ProductUpload = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -38,4 +39,3 @@ const ProductUpload = () => {
 };
 
 export default ProductUpload;
-

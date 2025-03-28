@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { uploadLocation } from '@supabase/setting/location.service'; // Correct path
+import { uploadLocation } from '@/lib/location.service';
 
 const LocationUpload = () => {
   const [file, setFile] = useState<File | null>(null);

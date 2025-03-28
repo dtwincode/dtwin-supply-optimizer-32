@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { uploadVendor } from '@supabase/setting/vendor.service'; // Correct path
+import { uploadVendor } from '@/lib/vendor.service'; 
 
 const VendorUpload = () => {
   const [file, setFile] = useState<File | null>(null);
