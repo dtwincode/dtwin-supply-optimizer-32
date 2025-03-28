@@ -14,7 +14,7 @@ import LocationUpload from "@/components/settings/master_data_new/LocationUpload
 const Settings = () => {
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState("master-data");
+  const [activeTab, setActiveTab] = useState("products");
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -50,7 +50,7 @@ const Settings = () => {
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Data Management & Configuration</h2>
           <p className="text-muted-foreground mt-2">
-            Configure system settings and manage data hierarchies across your organization
+            Manage master data for your supply chain system
           </p>
         </div>
 
@@ -64,31 +64,27 @@ const Settings = () => {
             className="space-y-6"
           >
             <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 gap-2">
-              <TabsTrigger value="master-data">Master Data</TabsTrigger>
-              <TabsTrigger value="system-settings">System Settings</TabsTrigger>
-              <TabsTrigger value="user-preferences">User Preferences</TabsTrigger>
+              <TabsTrigger value="products">Products</TabsTrigger>
+              <TabsTrigger value="vendors">Vendors</TabsTrigger>
+              <TabsTrigger value="locations">Locations</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="master-data" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <TabsContent value="products" className="space-y-6">
+              <div className="p-4">
                 <ProductUpload />
-                <VendorUpload />
-                <LocationUpload />
               </div>
             </TabsContent>
 
-            <TabsContent value="system-settings" className="space-y-4">
-              <Card className="p-4">
-                <h3 className="text-lg font-semibold mb-2">System Settings</h3>
-                <p className="text-muted-foreground">Configure global system settings and preferences.</p>
-              </Card>
+            <TabsContent value="vendors" className="space-y-4">
+              <div className="p-4">
+                <VendorUpload />
+              </div>
             </TabsContent>
 
-            <TabsContent value="user-preferences" className="space-y-4">
-              <Card className="p-4">
-                <h3 className="text-lg font-semibold mb-2">User Preferences</h3>
-                <p className="text-muted-foreground">Manage your personal preferences and settings.</p>
-              </Card>
+            <TabsContent value="locations" className="space-y-4">
+              <div className="p-4">
+                <LocationUpload />
+              </div>
             </TabsContent>
           </Tabs>
         </Card>

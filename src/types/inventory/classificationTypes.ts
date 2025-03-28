@@ -1,40 +1,30 @@
 
+export interface SKUClassification {
+  id: string;
+  sku: string;
+  leadTimeCategory: 'short' | 'medium' | 'long';
+  variabilityLevel: 'low' | 'medium' | 'high';
+  criticality: 'low' | 'medium' | 'high';
+  score: number;
+  lastUpdated: string;
+}
+
 export interface Classification {
   leadTimeCategory: 'short' | 'medium' | 'long';
   variabilityLevel: 'low' | 'medium' | 'high';
   criticality: 'low' | 'medium' | 'high';
-  score?: number;
-}
-
-export interface SKUClassification {
-  sku: string;
-  classification: Classification;
-  lastUpdated: string;
-}
-
-export interface LeadTimeData {
-  id: string;
-  sku: string;
-  supplier_id: string;
-  predicted_lead_time: number;
-  confidence_score: number;
-  prediction_date: string;
-}
-
-export interface LeadTimeAnomaly {
-  id: string;
-  sku: string;
-  anomaly_type: string;
-  anomaly_score: number;
-  detection_date: string;
 }
 
 export interface ReplenishmentData {
+  id: string;
   sku: string;
-  internalTransferTime: number;
-  replenishmentLeadTime: number;
-  totalCycleTime: number;
+  averageDailyUsage: number;
+  replenishmentTime: number;
+  minimumOrderQuantity: number;
+  orderMultiple: number;
+  currentStock: number;
+  safetyStock: number;
+  reorderPoint: number;
+  targetLevel: number;
   lastUpdated: string;
-  locationFrom: string;
-  locationTo: string;
 }

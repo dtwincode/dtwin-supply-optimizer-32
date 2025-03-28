@@ -85,19 +85,22 @@ export function PurchaseOrderDialog({
     setIsSubmitting(true);
 
     try {
+      // Ensure po_number is defined for new POs
+      const poNumber = isEdit ? formData.po_number : `PO-${Date.now()}`;
+      
       const poData = {
         ...formData,
+        po_number: poNumber, // Always provide a po_number
         expected_delivery_date: deliveryDate ? new Date(deliveryDate).toISOString() : null,
         updated_at: new Date().toISOString(),
       };
 
-      // For new POs, add creation metadata
+      // Add other fields for new POs
       if (!isEdit) {
-        poData.po_number = `PO-${Date.now()}`;
-        poData.status = formData.status || "planned";
         Object.assign(poData, {
           order_date: new Date().toISOString(),
           created_at: new Date().toISOString(),
+          status: formData.status || "planned",
         });
       }
 
@@ -118,6 +121,7 @@ export function PurchaseOrderDialog({
       });
 
       if (onSuccess) onSuccess();
+      onOpenChange(false);
     } catch (error) {
       console.error("Error saving purchase order:", error);
       toast({

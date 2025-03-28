@@ -1,8 +1,9 @@
+
 import { supabase } from './supabaseClient'; // Import the supabase client
 
 // Function to handle location file upload
 export const uploadLocation = async (file: File) => {
-  const bucketName = 'locations'; // Define your location bucket name
+  const bucketName = 'locations'; // Define your storage bucket name
   const { data, error } = await supabase.storage
     .from(bucketName)
     .upload(`location/${file.name}`, file);
