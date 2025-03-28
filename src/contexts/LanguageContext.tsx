@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getTranslation, Language } from '@/translations'; // Fix the import - remove default import
+import { getTranslation } from '@/translations';
 
 type LanguageContextType = {
   language: 'en' | 'ar';
@@ -22,7 +22,6 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
     localStorage.setItem('language', language);
     document.dir = isRTL ? 'rtl' : 'ltr';
     document.documentElement.lang = language;
-    // Remove the i18n.changeLanguage call as it doesn't exist in the current setup
     
     if (isRTL) {
       document.body.classList.add('rtl');

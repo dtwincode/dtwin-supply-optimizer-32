@@ -5,6 +5,22 @@ import { useToast } from '@/components/ui/use-toast';
 import { calculateNetFlowPosition, calculateBufferPenetration } from '@/utils/inventoryUtils';
 import { InventoryTransaction } from '@/types/inventory/shipmentTypes';
 
+interface InventoryItem {
+  id: string;
+  sku: string;
+  on_hand: number;
+  on_order: number;
+  net_flow_position?: number;
+  buffer_penetration?: number;
+  qualified_demand?: number;
+  product_family?: string;
+  name?: string;
+  red_zone_size?: number;
+  yellow_zone_size?: number;
+  green_zone_size?: number;
+  updated_at: string;
+}
+
 export const useInventoryTransaction = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -34,15 +50,14 @@ export const useInventoryTransaction = () => {
         ? inventoryItem.on_order - data.quantity
         : inventoryItem.on_order;
 
-      // 3. Recalculate net flow position - convert to compatible type for calculation
-      const netFlowPosition = calculateNetFlowPosition({
+      // 3. Recalculate net flow position
+      const calculatedNetFlow = calculateNetFlowPosition({
         currentStock: newOnHand,
         qualifiedDemand: inventoryItem.qualified_demand || 0,
-        plannedSupply: newOnOrder,
-        netFlowPosition: inventoryItem.net_flow_position || 0,
-        productFamily: inventoryItem.product_family || '',
+        plannedOrder: newOnOrder,
         sku: inventoryItem.sku,
-        name: inventoryItem.name || ''
+        name: inventoryItem.name || '',
+        productFamily: inventoryItem.product_family || ''
       });
 
       // 4. Calculate buffer penetration if buffer zones exist
@@ -54,7 +69,7 @@ export const useInventoryTransaction = () => {
           green: inventoryItem.green_zone_size
         };
         bufferPenetration = calculateBufferPenetration(
-          netFlowPosition.netFlowPosition,
+          calculatedNetFlow.netFlowPosition,
           bufferZones
         );
       }
@@ -65,7 +80,7 @@ export const useInventoryTransaction = () => {
         .update({
           on_hand: newOnHand,
           on_order: newOnOrder,
-          net_flow_position: netFlowPosition.netFlowPosition,
+          net_flow_position: calculatedNetFlow.netFlowPosition,
           buffer_penetration: bufferPenetration,
           updated_at: new Date().toISOString()
         })
@@ -76,7 +91,7 @@ export const useInventoryTransaction = () => {
       }
 
       // 6. Log the transaction
-      const { error: logError } = await (supabase as any)
+      const { error: logError } = await supabase
         .from('inventory_transactions')
         .insert({
           sku: data.sku,

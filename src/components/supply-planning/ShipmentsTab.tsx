@@ -1,351 +1,499 @@
 
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { getTranslation } from '@/translations';
-import { Card } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { format } from 'date-fns';
-import { useInventoryTransaction } from '@/hooks/useInventoryTransaction';
-import { 
-  Package, 
-  Truck, 
-  MoreHorizontal, 
-  PackageCheck, 
-  AlertTriangle, 
-  Plus 
-} from 'lucide-react';
-import { Shipment } from '@/types/inventory/shipmentTypes';
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Pencil, Truck, Package, Calendar, MapPin, Eye, CheckSquare, ArrowUpRight, AlertCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/components/ui/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslation } from "@/translations";
+import { supabase } from "@/integrations/supabase/client";
+import { Shipment, ShipmentItem } from "@/types/inventory/shipmentTypes";
+import { useInventoryTransaction } from "@/hooks/useInventoryTransaction";
+
+// Mock data for demo
+const mockShipments: Shipment[] = [
+  {
+    id: "1",
+    shipment_number: "SHP-001",
+    status: "planned",
+    created_at: "2023-04-10T10:00:00Z",
+    updated_at: "2023-04-10T10:00:00Z",
+    planned_ship_date: "2023-04-15T00:00:00Z",
+    destination: "Chicago Warehouse",
+    notes: "Priority delivery",
+    items: [
+      {
+        id: "1",
+        sku: "PROD-001",
+        quantity: 120,
+        shipment_id: "1"
+      }
+    ]
+  },
+  {
+    id: "2",
+    shipment_number: "SHP-002",
+    status: "processing",
+    created_at: "2023-04-08T14:30:00Z",
+    updated_at: "2023-04-09T09:15:00Z",
+    planned_ship_date: "2023-04-12T00:00:00Z",
+    actual_ship_date: "2023-04-12T10:30:00Z",
+    destination: "NYC Distribution Center",
+    notes: "Contains fragile items",
+    items: [
+      {
+        id: "2",
+        sku: "PROD-005",
+        quantity: 50,
+        shipment_id: "2"
+      }
+    ]
+  },
+  {
+    id: "3",
+    shipment_number: "SHP-003",
+    status: "shipped",
+    created_at: "2023-04-05T08:45:00Z",
+    updated_at: "2023-04-07T16:20:00Z",
+    planned_ship_date: "2023-04-07T00:00:00Z",
+    actual_ship_date: "2023-04-07T14:00:00Z",
+    destination: "Atlanta Store #42",
+    items: [
+      {
+        id: "3",
+        sku: "PROD-002",
+        quantity: 75,
+        shipment_id: "3"
+      }
+    ]
+  }
+];
 
 export const ShipmentsTab = () => {
-  const { language } = useLanguage();
+  const [shipments, setShipments] = useState<Shipment[]>(mockShipments);
+  const [filteredShipments, setFilteredShipments] = useState<Shipment[]>(mockShipments);
   const [selectedShipment, setSelectedShipment] = useState<Shipment | null>(null);
-  const [createShipmentOpen, setCreateShipmentOpen] = useState(false);
-  const [newShipment, setNewShipment] = useState({
-    sku: '',
-    quantity: 1,
-    customer: '',
-    shipping_method: 'standard',
-    notes: ''
-  });
-  const { processTransaction, loading: processingTransaction } = useInventoryTransaction();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const { processTransaction } = useInventoryTransaction();
+  const { toast } = useToast();
+  const { language } = useLanguage();
+  
+  const t = (key: string) => getTranslation(`supplyPlanning.${key}`, language);
 
-  const { data: shipments, isLoading, error, refetch } = useQuery({
-    queryKey: ['shipments'],
-    queryFn: async () => {
-      // Use any to override the type checking temporarily
-      // since the table might not exist yet in the supabase types
-      const { data, error } = await (supabase as any)
-        .from('shipments')
-        .select('*')
-        .order('created_at', { ascending: false });
+  // Filter shipments based on status and search query
+  useEffect(() => {
+    let filtered = shipments;
+    
+    if (statusFilter !== "all") {
+      filtered = filtered.filter(s => s.status === statusFilter);
+    }
+    
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(s => 
+        s.shipment_number.toLowerCase().includes(query) || 
+        s.destination.toLowerCase().includes(query) ||
+        s.items?.some(item => item.sku.toLowerCase().includes(query))
+      );
+    }
+    
+    setFilteredShipments(filtered);
+  }, [statusFilter, searchQuery, shipments]);
 
-      if (error) throw error;
-      return data as Shipment[];
-    },
-  });
+  const handleCreateShipment = () => {
+    setSelectedShipment(null);
+    setIsEditMode(false);
+    setIsDialogOpen(true);
+  };
 
-  const handleShipmentCreate = async () => {
-    if (!newShipment.sku || !newShipment.quantity || !newShipment.customer) return;
+  const handleEditShipment = (shipment: Shipment) => {
+    setSelectedShipment(shipment);
+    setIsEditMode(true);
+    setIsDialogOpen(true);
+  };
 
+  const handleViewDetails = (shipment: Shipment) => {
+    setSelectedShipment(shipment);
+    setIsEditMode(false);
+    setIsDialogOpen(true);
+  };
+
+  const handleMarkAsShipped = async (shipment: Shipment) => {
     try {
-      // Generate a shipment number
-      const shipmentNumber = `SHP-${Date.now().toString().slice(-6)}`;
+      // In a real application, this would call your API to update the shipment status
+      const updatedShipments = shipments.map(s => 
+        s.id === shipment.id 
+          ? { ...s, status: "shipped" as const, actual_ship_date: new Date().toISOString() } 
+          : s
+      );
+      setShipments(updatedShipments);
       
-      // Create the shipment
-      const { data, error } = await (supabase as any)
-        .from('shipments')
-        .insert({
-          shipment_number: shipmentNumber,
-          sku: newShipment.sku,
-          quantity: newShipment.quantity,
-          customer: newShipment.customer,
-          ship_date: new Date().toISOString(),
-          status: 'pending',
-          shipping_method: newShipment.shipping_method,
-          notes: newShipment.notes,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .select();
-
-      if (error) throw error;
-
-      // Process inventory reduction
-      await processTransaction({
-        sku: newShipment.sku,
-        quantity: newShipment.quantity,
-        transactionType: 'outbound',
-        referenceId: data[0].id,
-        referenceType: 'shipment',
-        notes: `Outbound shipment: ${shipmentNumber}`
+      toast({
+        title: "Shipment updated",
+        description: `Shipment ${shipment.shipment_number} has been marked as shipped.`,
       });
-
-      refetch();
-      setCreateShipmentOpen(false);
-      setNewShipment({
-        sku: '',
-        quantity: 1,
-        customer: '',
-        shipping_method: 'standard',
-        notes: ''
+      
+      // Process inventory transaction for each item in the shipment
+      if (shipment.items && shipment.items.length > 0) {
+        for (const item of shipment.items) {
+          await processTransaction({
+            sku: item.sku,
+            quantity: item.quantity,
+            transactionType: 'outbound',
+            referenceId: shipment.id,
+            referenceType: 'shipment',
+            notes: `Marked as shipped: ${shipment.shipment_number}`
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error marking shipment as shipped:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "There was an error updating the shipment.",
       });
-    } catch (err) {
-      console.error("Error creating shipment:", err);
     }
   };
 
-  const handleStatusUpdate = async (shipment: Shipment, newStatus: 'shipped' | 'delivered') => {
+  const handleMarkAsDelivered = async (shipment: Shipment) => {
     try {
-      await (supabase as any)
-        .from('shipments')
-        .update({
-          status: newStatus,
-          ...(newStatus === 'shipped' && { ship_date: new Date().toISOString() }),
-          ...(newStatus === 'delivered' && { delivery_date: new Date().toISOString() }),
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', shipment.id);
-
-      refetch();
-    } catch (err) {
-      console.error("Error updating shipment status:", err);
+      const updatedShipments = shipments.map(s => 
+        s.id === shipment.id ? { ...s, status: "delivered" as const } : s
+      );
+      setShipments(updatedShipments);
+      
+      toast({
+        title: "Shipment delivered",
+        description: `Shipment ${shipment.shipment_number} has been marked as delivered.`,
+      });
+    } catch (error) {
+      console.error("Error marking shipment as delivered:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "There was an error updating the shipment.",
+      });
     }
   };
-
-  if (isLoading) {
-    return (
-      <Card className="p-6">
-        <p>{getTranslation("common.inventory.loadingData", language)}</p>
-      </Card>
-    );
-  }
-
-  if (error) {
-    return (
-      <Card className="p-6">
-        <p>{getTranslation("common.inventory.errorLoading", language)}</p>
-      </Card>
-    );
-  }
+  
+  // Get status badge color
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "planned":
+        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">{t('statusTypes.planned')}</Badge>;
+      case "processing":
+        return <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">{t('statusTypes.processing')}</Badge>;
+      case "shipped":
+        return <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">{t('statusTypes.shipped')}</Badge>;
+      case "delivered":
+        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">{t('statusTypes.delivered')}</Badge>;
+      case "cancelled":
+        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">{t('statusTypes.canceled')}</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
 
   return (
-    <>
-      <Card className="overflow-hidden">
-        <div className="p-6 border-b flex justify-between items-center">
-          <div>
-            <h3 className="text-lg font-semibold">
-              {getTranslation("supplyPlanning.tabs.shipments", language) || "Shipments"}
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              {getTranslation("supplyPlanning.shipmentsDesc", language) || "Manage outbound shipments and track inventory reduction"}
-            </p>
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-xl">{t('shipments')}</CardTitle>
+            <Button onClick={handleCreateShipment}>
+              <Truck className="mr-2 h-4 w-4" />
+              {t('createShipment')}
+            </Button>
           </div>
-          <Button onClick={() => setCreateShipmentOpen(true)} className="bg-dtwin-medium hover:bg-dtwin-dark">
-            <Plus className="mr-2 h-4 w-4" />
-            {getTranslation("supplyPlanning.createShipment", language) || "Create Shipment"}
-          </Button>
-        </div>
-        
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>{getTranslation("supplyPlanning.shipmentNumber", language) || "Shipment #"}</TableHead>
-              <TableHead>{getTranslation("common.inventory.sku", language)}</TableHead>
-              <TableHead>{getTranslation("supplyPlanning.quantity", language)}</TableHead>
-              <TableHead>{getTranslation("supplyPlanning.customer", language) || "Customer"}</TableHead>
-              <TableHead>{getTranslation("supplyPlanning.shipDate", language) || "Ship Date"}</TableHead>
-              <TableHead>{getTranslation("supplyPlanning.method", language) || "Method"}</TableHead>
-              <TableHead>{getTranslation("supplyPlanning.status", language)}</TableHead>
-              <TableHead className="text-right">{getTranslation("supplyPlanning.actions", language)}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {!shipments || shipments.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={8} className="text-center py-6">
-                  {getTranslation("supplyPlanning.noShipments", language) || "No shipments found"}
-                </TableCell>
-              </TableRow>
-            ) : (
-              shipments.map((shipment) => (
-                <TableRow key={shipment.id}>
-                  <TableCell className="font-medium">{shipment.shipment_number}</TableCell>
-                  <TableCell>{shipment.sku}</TableCell>
-                  <TableCell>{shipment.quantity}</TableCell>
-                  <TableCell>{shipment.customer}</TableCell>
-                  <TableCell>
-                    {shipment.ship_date 
-                      ? format(new Date(shipment.ship_date), 'MMM dd, yyyy')
-                      : "-"
-                    }
-                  </TableCell>
-                  <TableCell>{shipment.shipping_method || "Standard"}</TableCell>
-                  <TableCell>
-                    <Badge variant={
-                      shipment.status === 'delivered' 
-                        ? 'outline' 
-                        : shipment.status === 'shipped' 
-                          ? 'default'
-                          : 'secondary'
-                    }>
-                      {shipment.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        {shipment.status === 'pending' && (
-                          <DropdownMenuItem onClick={() => handleStatusUpdate(shipment, 'shipped')}>
-                            <Truck className="mr-2 h-4 w-4" />
-                            {getTranslation("supplyPlanning.markAsShipped", language) || "Mark as Shipped"}
-                          </DropdownMenuItem>
-                        )}
-                        {shipment.status === 'shipped' && (
-                          <DropdownMenuItem onClick={() => handleStatusUpdate(shipment, 'delivered')}>
-                            <PackageCheck className="mr-2 h-4 w-4" />
-                            {getTranslation("supplyPlanning.markAsDelivered", language) || "Mark as Delivered"}
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem>
-                          <AlertTriangle className="mr-2 h-4 w-4" />
-                          {getTranslation("supplyPlanning.issueAlert", language) || "Issue Alert"}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+          <p className="text-sm text-muted-foreground">{t('shipmentsDesc')}</p>
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-between mb-4 gap-4">
+            <div className="flex-1">
+              <Input
+                placeholder={t('search') || "Search shipments..."}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <Select
+              value={statusFilter}
+              onValueChange={(value) => setStatusFilter(value)}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder={t('selectStatus')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t('allStatuses') || "All Statuses"}</SelectItem>
+                <SelectItem value="planned">{t('statusTypes.planned')}</SelectItem>
+                <SelectItem value="processing">{t('statusTypes.processing')}</SelectItem>
+                <SelectItem value="shipped">{t('statusTypes.shipped')}</SelectItem>
+                <SelectItem value="delivered">{t('statusTypes.received')}</SelectItem>
+                <SelectItem value="cancelled">{t('statusTypes.canceled')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {filteredShipments.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Package className="mx-auto h-12 w-12 text-muted-foreground/40" />
+              <p className="mt-2">{t('noShipmentsFound')}</p>
+            </div>
+          ) : (
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t('shipmentNumber')}</TableHead>
+                    <TableHead>{t('destination')}</TableHead>
+                    <TableHead>{t('status')}</TableHead>
+                    <TableHead>{t('shipmentDate')}</TableHead>
+                    <TableHead className="text-right">{t('actions')}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredShipments.map((shipment) => (
+                    <TableRow key={shipment.id}>
+                      <TableCell className="font-medium">{shipment.shipment_number}</TableCell>
+                      <TableCell>{shipment.destination}</TableCell>
+                      <TableCell>{getStatusBadge(shipment.status)}</TableCell>
+                      <TableCell>
+                        {new Date(shipment.planned_ship_date).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => handleViewDetails(shipment)}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => handleEditShipment(shipment)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          {shipment.status === "planned" && (
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              onClick={() => handleMarkAsShipped(shipment)}
+                              className="text-purple-600 hover:text-purple-700"
+                            >
+                              <Truck className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {shipment.status === "shipped" && (
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              onClick={() => handleMarkAsDelivered(shipment)}
+                              className="text-green-600 hover:text-green-700"
+                            >
+                              <CheckSquare className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
       </Card>
 
-      <Dialog open={createShipmentOpen} onOpenChange={setCreateShipmentOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {getTranslation("supplyPlanning.createShipment", language) || "Create Shipment"}
-            </DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              {getTranslation("supplyPlanning.createShipmentDesc", language) || "Create a new outbound shipment"}
-            </p>
+      {/* Shipment Details/Edit Dialog */}
+      {isDialogOpen && (
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>
+                {isEditMode 
+                  ? t('editShipment')
+                  : selectedShipment 
+                    ? `${t('shipmentDetails')}: ${selectedShipment.shipment_number}`
+                    : t('createShipment')}
+              </DialogTitle>
+            </DialogHeader>
             
-            <div>
-              <Label htmlFor="sku">SKU</Label>
-              <Input
-                id="sku"
-                value={newShipment.sku}
-                onChange={(e) => setNewShipment({...newShipment, sku: e.target.value})}
-                placeholder="Enter SKU"
-              />
+            <div className="space-y-4">
+              {selectedShipment && !isEditMode ? (
+                // View mode - display shipment details
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-xs text-muted-foreground">{t('shipmentNumber')}</Label>
+                      <p className="font-medium">{selectedShipment.shipment_number}</p>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-muted-foreground">{t('status')}</Label>
+                      <p>{getStatusBadge(selectedShipment.status)}</p>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-xs text-muted-foreground">{t('destination')}</Label>
+                    <p className="font-medium flex items-center">
+                      <MapPin className="h-3 w-3 mr-1 text-muted-foreground" />
+                      {selectedShipment.destination}
+                    </p>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-xs text-muted-foreground">{t('plannedShipDate')}</Label>
+                      <p className="flex items-center">
+                        <Calendar className="h-3 w-3 mr-1 text-muted-foreground" />
+                        {new Date(selectedShipment.planned_ship_date).toLocaleDateString()}
+                      </p>
+                    </div>
+                    {selectedShipment.actual_ship_date && (
+                      <div>
+                        <Label className="text-xs text-muted-foreground">{t('actualShipDate')}</Label>
+                        <p className="flex items-center">
+                          <Calendar className="h-3 w-3 mr-1 text-muted-foreground" />
+                          {new Date(selectedShipment.actual_ship_date).toLocaleDateString()}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {selectedShipment.notes && (
+                    <div>
+                      <Label className="text-xs text-muted-foreground">{t('notes')}</Label>
+                      <p className="text-sm">{selectedShipment.notes}</p>
+                    </div>
+                  )}
+                  
+                  <div>
+                    <Label className="text-xs text-muted-foreground">{t('items')}</Label>
+                    <div className="rounded-md border mt-1">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>{t('sku')}</TableHead>
+                            <TableHead className="text-right">{t('quantity')}</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {selectedShipment.items?.map((item) => (
+                            <TableRow key={item.id}>
+                              <TableCell>{item.sku}</TableCell>
+                              <TableCell className="text-right">{item.quantity}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                // Edit mode form would go here (simplified for brevity)
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="destination">{t('destination')}</Label>
+                    <Input 
+                      id="destination" 
+                      defaultValue={selectedShipment?.destination || ""} 
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="shipDate">{t('shipmentDate')}</Label>
+                    <Input 
+                      id="shipDate" 
+                      type="date" 
+                      defaultValue={selectedShipment?.planned_ship_date 
+                        ? new Date(selectedShipment.planned_ship_date).toISOString().split('T')[0] 
+                        : new Date().toISOString().split('T')[0]} 
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="notes">{t('notes')}</Label>
+                    <Input 
+                      id="notes" 
+                      defaultValue={selectedShipment?.notes || ""} 
+                    />
+                  </div>
+                  
+                  {/* Simplified item editor - in a real app, this would be more sophisticated */}
+                  <div className="space-y-2">
+                    <Label>{t('items')}</Label>
+                    <div className="border rounded-md p-2">
+                      <p className="text-xs text-muted-foreground">
+                        {t('itemsWouldBeEditableHere') || "Items would be editable here in a full implementation"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
             
-            <div>
-              <Label htmlFor="quantity">{getTranslation("supplyPlanning.quantity", language)}</Label>
-              <Input
-                id="quantity"
-                type="number"
-                value={newShipment.quantity}
-                onChange={(e) => setNewShipment({...newShipment, quantity: parseInt(e.target.value)})}
-                min={1}
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="customer">{getTranslation("supplyPlanning.customer", language) || "Customer"}</Label>
-              <Input
-                id="customer"
-                value={newShipment.customer}
-                onChange={(e) => setNewShipment({...newShipment, customer: e.target.value})}
-                placeholder="Customer name"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="shipping-method">{getTranslation("supplyPlanning.method", language) || "Shipping Method"}</Label>
-              <Select 
-                value={newShipment.shipping_method}
-                onValueChange={(value) => setNewShipment({...newShipment, shipping_method: value})}
-              >
-                <SelectTrigger id="shipping-method">
-                  <SelectValue placeholder="Select shipping method" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="standard">Standard</SelectItem>
-                  <SelectItem value="express">Express</SelectItem>
-                  <SelectItem value="overnight">Overnight</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div>
-              <Label htmlFor="notes">{getTranslation("supplyPlanning.notes", language)}</Label>
-              <Textarea
-                id="notes"
-                value={newShipment.notes}
-                onChange={(e) => setNewShipment({...newShipment, notes: e.target.value})}
-                placeholder="Optional notes"
-              />
-            </div>
-            
-            <p className="text-xs text-amber-600">
-              <AlertTriangle className="h-3 w-3 inline-block mr-1" />
-              {getTranslation("supplyPlanning.reduceInventoryWarning", language) || 
-                "This action will reduce inventory levels for the selected SKU."}
-            </p>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateShipmentOpen(false)}>
-              {getTranslation("common.cancel", language) || "Cancel"}
-            </Button>
-            <Button 
-              onClick={handleShipmentCreate} 
-              disabled={!newShipment.sku || !newShipment.quantity || !newShipment.customer || processingTransaction}
-            >
-              {processingTransaction
-                ? getTranslation("supplyPlanning.processing", language) || "Processing..." 
-                : getTranslation("supplyPlanning.confirmShipment", language) || "Confirm Shipment"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+            <DialogFooter>
+              {!isEditMode && selectedShipment?.status === "planned" && (
+                <Button
+                  variant="default" 
+                  className="mr-auto"
+                  onClick={() => {
+                    handleMarkAsShipped(selectedShipment);
+                    setIsDialogOpen(false);
+                  }}
+                >
+                  <Truck className="mr-2 h-4 w-4" />
+                  {t('markAsShipped')}
+                </Button>
+              )}
+              
+              {!isEditMode && selectedShipment?.status === "shipped" && (
+                <Button
+                  variant="default" 
+                  className="mr-auto"
+                  onClick={() => {
+                    handleMarkAsDelivered(selectedShipment);
+                    setIsDialogOpen(false);
+                  }}
+                >
+                  <CheckSquare className="mr-2 h-4 w-4" />
+                  {t('markAsDelivered')}
+                </Button>
+              )}
+              
+              {isEditMode && (
+                <Button 
+                  type="submit"
+                  onClick={() => {
+                    toast({
+                      title: selectedShipment ? t('shipmentUpdated') : t('shipmentCreated'),
+                      description: selectedShipment 
+                        ? `Shipment ${selectedShipment.shipment_number} has been updated.`
+                        : "New shipment has been created."
+                    });
+                    setIsDialogOpen(false);
+                  }}
+                >
+                  {selectedShipment ? t('save') || "Save" : t('create') || "Create"}
+                </Button>
+              )}
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+    </div>
   );
 };

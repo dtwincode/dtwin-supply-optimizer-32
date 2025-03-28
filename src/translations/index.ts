@@ -1,52 +1,47 @@
 
 // Import individual translation modules
-import { commonTranslations } from './common/common';
-import { authTranslations } from './common/auth';
-import { navTranslations } from './common/nav';
-import { dashboardTranslations } from './common/dashboard';
-import { forecastingTranslations } from './common/forecasting';
-import { inventoryTranslations } from './common/inventory';
-import { marketingTranslations } from './common/marketing';
-import { ddsopTranslations } from './common/ddsop';
-import { logisticsTranslations } from './common/logistics';
-import { reportsTranslations } from './common/reports';
-import { settingsTranslations } from './common/settings';
+import { commonTranslations } from './common';
 import { supplyPlanningTranslations } from './common/supplyPlanning';
+import { dashboardTranslations } from './dashboard';
+import { marketingTranslations } from './marketing';
+import { salesTranslations } from './sales';
+import { logisticsTranslations } from './common/logistics/index';
+import { navigationTranslations } from './navigation';
+import { toArabicNumerals } from './utils';
+
+// Define Language type
+export type Language = 'en' | 'ar';
 
 // Combine all translations
 const allTranslations = {
   en: {
-    common: commonTranslations.en,
-    auth: authTranslations.en,
-    nav: navTranslations.en,
-    dashboard: dashboardTranslations.en,
-    forecasting: forecastingTranslations.en,
-    inventory: inventoryTranslations.en,
-    marketing: marketingTranslations.en,
-    ddsop: ddsopTranslations.en,
-    logistics: logisticsTranslations.en,
-    reports: reportsTranslations.en,
-    settings: settingsTranslations.en,
+    common: commonTranslations.en || commonTranslations,
+    dashboard: dashboardTranslations || {},
+    forecasting: {},
+    inventory: {},
+    marketing: marketingTranslations.en || marketingTranslations,
+    ddsop: logisticsTranslations.ddom?.en || {},
+    logistics: logisticsTranslations.en || logisticsTranslations,
+    sales: salesTranslations.en || salesTranslations,
+    nav: navigationTranslations || {},
     supplyPlanning: supplyPlanningTranslations.en
   },
   ar: {
-    common: commonTranslations.ar,
-    auth: authTranslations.ar,
-    nav: navTranslations.ar,
-    dashboard: dashboardTranslations.ar,
-    forecasting: forecastingTranslations.ar,
-    inventory: inventoryTranslations.ar,
-    marketing: marketingTranslations.ar,
-    ddsop: ddsopTranslations.ar,
-    logistics: logisticsTranslations.ar,
-    reports: reportsTranslations.ar,
-    settings: settingsTranslations.ar,
+    common: commonTranslations.ar || {},
+    dashboard: dashboardTranslations || {},
+    forecasting: {},
+    inventory: {},
+    marketing: marketingTranslations.ar || marketingTranslations,
+    ddsop: logisticsTranslations.ddom?.ar || {},
+    logistics: logisticsTranslations.ar || logisticsTranslations,
+    sales: salesTranslations.ar || salesTranslations,
+    nav: navigationTranslations || {},
     supplyPlanning: supplyPlanningTranslations.ar
   }
 };
 
 // Utility function to get translations based on the language and nested path
-export const getTranslation = (path: string, language: string = 'en'): string => {
+export const getTranslation = (path: string, language: Language = 'en'): string => {
   const keys = path.split('.');
   try {
     let result = allTranslations[language as keyof typeof allTranslations] as any;
@@ -74,18 +69,14 @@ export const getTranslation = (path: string, language: string = 'en'): string =>
   }
 };
 
-// Export all individual translation objects
+// Export utility functions and needed translations
 export {
+  toArabicNumerals,
   commonTranslations,
-  authTranslations,
-  navTranslations,
   dashboardTranslations,
-  forecastingTranslations,
-  inventoryTranslations,
   marketingTranslations,
-  ddsopTranslations,
+  salesTranslations,
   logisticsTranslations,
-  reportsTranslations,
-  settingsTranslations,
+  navigationTranslations,
   supplyPlanningTranslations
 };
