@@ -1,54 +1,91 @@
 
-import { Translations, Language } from './types';
-import { navigationTranslations } from './navigation';
-import { dashboardTranslations, executiveSummaryTranslations } from './common/dashboard';
-import { modulesSummaryTranslations } from './common/modules';
-import { uiTranslations } from './common/ui';
-import { chartTranslations } from './common/charts';
+// Import individual translation modules
+import { commonTranslations } from './common/common';
+import { authTranslations } from './common/auth';
+import { navTranslations } from './common/nav';
+import { dashboardTranslations } from './common/dashboard';
+import { forecastingTranslations } from './common/forecasting';
 import { inventoryTranslations } from './common/inventory';
-import { paginationTranslations } from './common/pagination';
-import { supplyPlanningTranslations } from './common/supplyPlanning';
-import { financialMetricsTranslations } from './common/financialMetrics';
-import { sustainabilityMetricsTranslations } from './common/sustainabilityMetrics';
-import { logisticsTranslations } from './common/logistics';
+import { marketingTranslations } from './common/marketing';
 import { ddsopTranslations } from './common/ddsop';
-import { toArabicNumerals } from './utils';
-import { commonTranslations } from './common';
-import { salesTranslations } from './sales';
-import { marketingTranslations } from './marketing';
+import { logisticsTranslations } from './common/logistics';
+import { reportsTranslations } from './common/reports';
+import { settingsTranslations } from './common/settings';
+import { supplyPlanningTranslations } from './common/supplyPlanning';
 
-export { toArabicNumerals };
-export type { Language };
-
-export const translations: Translations = {
-  navigationItems: navigationTranslations,
-  dashboardMetrics: dashboardTranslations,
-  financialMetrics: financialMetricsTranslations,
-  sustainabilityMetrics: sustainabilityMetricsTranslations,
-  modulesSummary: modulesSummaryTranslations,
-  common: commonTranslations,
-  executiveSummary: executiveSummaryTranslations,
-  sales: salesTranslations,
-  supplyPlanning: supplyPlanningTranslations,
-  ddsop: ddsopTranslations,
-  marketing: marketingTranslations,
-  inventory: inventoryTranslations,
-  ui: uiTranslations,
-  charts: chartTranslations,
-  pagination: paginationTranslations
+// Combine all translations
+const allTranslations = {
+  en: {
+    common: commonTranslations.en,
+    auth: authTranslations.en,
+    nav: navTranslations.en,
+    dashboard: dashboardTranslations.en,
+    forecasting: forecastingTranslations.en,
+    inventory: inventoryTranslations.en,
+    marketing: marketingTranslations.en,
+    ddsop: ddsopTranslations.en,
+    logistics: logisticsTranslations.en,
+    reports: reportsTranslations.en,
+    settings: settingsTranslations.en,
+    supplyPlanning: supplyPlanningTranslations.en
+  },
+  ar: {
+    common: commonTranslations.ar,
+    auth: authTranslations.ar,
+    nav: navTranslations.ar,
+    dashboard: dashboardTranslations.ar,
+    forecasting: forecastingTranslations.ar,
+    inventory: inventoryTranslations.ar,
+    marketing: marketingTranslations.ar,
+    ddsop: ddsopTranslations.ar,
+    logistics: logisticsTranslations.ar,
+    reports: reportsTranslations.ar,
+    settings: settingsTranslations.ar,
+    supplyPlanning: supplyPlanningTranslations.ar
+  }
 };
 
-export function getTranslation(key: string, language: Language) {
-  const keys = key.split('.');
-  let current: any = translations;
-
-  for (const k of keys) {
-    if (current[k] === undefined) {
-      console.warn(`Translation key not found: ${key}`);
-      return key; // Return the key as fallback instead of undefined
+// Utility function to get translations based on the language and nested path
+export const getTranslation = (path: string, language: string = 'en'): string => {
+  const keys = path.split('.');
+  try {
+    let result = allTranslations[language as keyof typeof allTranslations] as any;
+    
+    for (const key of keys) {
+      if (result && key in result) {
+        result = result[key];
+      } else {
+        console.warn(`Translation missing for path: ${path} in ${language}`);
+        
+        // Try to get the English version as fallback
+        if (language !== 'en') {
+          return getTranslation(path, 'en');
+        }
+        
+        // If still not found, return the path as is
+        return path;
+      }
     }
-    current = current[k];
+    
+    return result as string;
+  } catch (error) {
+    console.error(`Error getting translation for path: ${path}`, error);
+    return path;
   }
+};
 
-  return current[language];
-}
+// Export all individual translation objects
+export {
+  commonTranslations,
+  authTranslations,
+  navTranslations,
+  dashboardTranslations,
+  forecastingTranslations,
+  inventoryTranslations,
+  marketingTranslations,
+  ddsopTranslations,
+  logisticsTranslations,
+  reportsTranslations,
+  settingsTranslations,
+  supplyPlanningTranslations
+};

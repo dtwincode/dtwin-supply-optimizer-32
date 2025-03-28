@@ -1024,6 +1024,63 @@ export type Database = {
         }
         Relationships: []
       }
+      inventory: {
+        Row: {
+          buffer_penetration: number | null
+          created_at: string | null
+          current_stock: number
+          inventory_id: string
+          lead_time_days: number | null
+          location_id: string
+          max_stock: number | null
+          min_stock: number | null
+          product_id: string
+          safety_stock: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          buffer_penetration?: number | null
+          created_at?: string | null
+          current_stock: number
+          inventory_id?: string
+          lead_time_days?: number | null
+          location_id: string
+          max_stock?: number | null
+          min_stock?: number | null
+          product_id: string
+          safety_stock?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          buffer_penetration?: number | null
+          created_at?: string | null
+          current_stock?: number
+          inventory_id?: string
+          lead_time_days?: number | null
+          location_id?: string
+          max_stock?: number | null
+          min_stock?: number | null
+          product_id?: string
+          safety_stock?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_location"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "location_master"
+            referencedColumns: ["location_id"]
+          },
+          {
+            foreignKeyName: "fk_product"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "product_master"
+            referencedColumns: ["product_id"]
+          },
+        ]
+      }
       inventory_data: {
         Row: {
           adu: number | null
@@ -1411,6 +1468,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      location_master: {
+        Row: {
+          channel: string | null
+          city: string | null
+          created_at: string | null
+          location_id: string
+          region: string | null
+          updated_at: string | null
+          warehouse: string
+        }
+        Insert: {
+          channel?: string | null
+          city?: string | null
+          created_at?: string | null
+          location_id?: string
+          region?: string | null
+          updated_at?: string | null
+          warehouse: string
+        }
+        Update: {
+          channel?: string | null
+          city?: string | null
+          created_at?: string | null
+          location_id?: string
+          region?: string | null
+          updated_at?: string | null
+          warehouse?: string
+        }
+        Relationships: []
       }
       logistics_analytics: {
         Row: {
@@ -2136,6 +2223,45 @@ export type Database = {
         }
         Relationships: []
       }
+      product_master: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          name: string
+          notes: string | null
+          planning_priority: string | null
+          product_family: string | null
+          product_id: string
+          sku: string
+          subcategory: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          name: string
+          notes?: string | null
+          planning_priority?: string | null
+          product_family?: string | null
+          product_id?: string
+          sku: string
+          subcategory?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          name?: string
+          notes?: string | null
+          planning_priority?: string | null
+          product_family?: string | null
+          product_id?: string
+          sku?: string
+          subcategory?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -2487,6 +2613,57 @@ export type Database = {
           sample_data?: Json | null
           status?: string
           storage_path?: string
+        }
+        Relationships: []
+      }
+      vendor_master: {
+        Row: {
+          city: string | null
+          contact_email: string | null
+          contact_person: string | null
+          country: string | null
+          created_at: string | null
+          is_active: boolean | null
+          payment_terms: string | null
+          phone_number: string | null
+          region: string | null
+          tax_number: string | null
+          updated_at: string | null
+          vendor_code: string
+          vendor_id: string
+          vendor_name: string
+        }
+        Insert: {
+          city?: string | null
+          contact_email?: string | null
+          contact_person?: string | null
+          country?: string | null
+          created_at?: string | null
+          is_active?: boolean | null
+          payment_terms?: string | null
+          phone_number?: string | null
+          region?: string | null
+          tax_number?: string | null
+          updated_at?: string | null
+          vendor_code: string
+          vendor_id?: string
+          vendor_name: string
+        }
+        Update: {
+          city?: string | null
+          contact_email?: string | null
+          contact_person?: string | null
+          country?: string | null
+          created_at?: string | null
+          is_active?: boolean | null
+          payment_terms?: string | null
+          phone_number?: string | null
+          region?: string | null
+          tax_number?: string | null
+          updated_at?: string | null
+          vendor_code?: string
+          vendor_id?: string
+          vendor_name?: string
         }
         Relationships: []
       }

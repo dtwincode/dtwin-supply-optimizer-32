@@ -3,21 +3,13 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import { calculateNetFlowPosition, calculateBufferPenetration } from '@/utils/inventoryUtils';
-
-interface InventoryTransactionData {
-  sku: string;
-  quantity: number;
-  transactionType: 'inbound' | 'outbound';
-  referenceId?: string;
-  referenceType?: 'purchase_order' | 'sales_order' | 'shipment';
-  notes?: string;
-}
+import { InventoryTransaction } from '@/types/inventory/shipmentTypes';
 
 export const useInventoryTransaction = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const processTransaction = async (data: InventoryTransactionData) => {
+  const processTransaction = async (data: InventoryTransaction) => {
     try {
       setLoading(true);
       

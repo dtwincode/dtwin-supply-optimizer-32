@@ -1,28 +1,31 @@
 
+export interface ShipmentItem {
+  id: string;
+  sku: string;
+  quantity: number;
+  shipment_id: string;
+}
+
 export interface Shipment {
   id: string;
   shipment_number: string;
-  sku: string;
-  quantity: number;
-  customer: string;
-  ship_date: string;
-  delivery_date?: string;
-  status: 'pending' | 'shipped' | 'delivered' | 'cancelled';
-  shipping_method?: string;
-  notes?: string;
+  status: 'planned' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   created_at: string;
   updated_at: string;
+  planned_ship_date: string;
+  actual_ship_date?: string;
+  destination: string;
+  notes?: string;
+  items?: ShipmentItem[];
 }
 
 export interface InventoryTransaction {
-  id: string;
+  id?: string;
   sku: string;
   quantity: number;
-  transaction_type: 'inbound' | 'outbound';
-  reference_id?: string;
-  reference_type?: string;
-  previous_on_hand: number;
-  new_on_hand: number;
+  transactionType: 'inbound' | 'outbound';
+  referenceId?: string;
+  referenceType?: 'purchase_order' | 'sales_order' | 'shipment';
   notes?: string;
-  transaction_date: string;
+  timestamp?: string;
 }
