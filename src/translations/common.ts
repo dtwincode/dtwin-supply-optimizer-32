@@ -1,4 +1,3 @@
-
 import { CommonTranslations } from './types';
 import { uiTranslations } from './common/ui';
 import { inventoryTranslations } from './common/inventory';
@@ -23,13 +22,6 @@ export const commonTranslations = {
     skus: "SKUs",
     create: "Create",
     
-    // Zone translations
-    zones: {
-      green: "Green Zone",
-      yellow: "Yellow Zone",
-      red: "Red Zone"
-    },
-    
     // Individual inventory translations
     inventory: {
       lowStock: "Low Stock",
@@ -43,38 +35,8 @@ export const commonTranslations = {
       configureDecouplingPoints: "Configure Decoupling Points",
       refresh: "Refresh",
       addDecouplingPoint: "Add Decoupling Point",
-      decouplingNetwork: "Network View",
-      listView: "List View",
-      locationId: "Location ID",
-      type: "Type",
-      description: "Description",
-      actions: "Actions",
-      noDecouplingPoints: "No Decoupling Points",
-      edit: "Edit",
-      delete: "Delete",
-      confirmDelete: "Confirm Delete",
-      success: "Success",
-      decouplingPointDeleted: "Decoupling Point Deleted",
-      decouplingPointSaved: "Decoupling Point Saved",
-      networkVisualization: "Network Visualization",
-      nodes: "Nodes",
-      links: "Links",
-      totalItems: "Total Items",
-      networkHelp: "Network Help",
-      nodesDescription: "Network nodes represent locations in the supply chain",
-      linksDescription: "Links represent connections between nodes"
+      errorLoading: "Error loading inventory data"
     },
-    
-    // Chart translations
-    chartTitles: {
-      bufferProfile: "Buffer Profile",
-      demandVariability: "Demand Variability"
-    },
-    
-    // Add missing chart translations
-    replenishment: "Replenishment",
-    netFlow: "Net Flow",
-    inventoryTrends: "Inventory Trends",
     
     // Pagination translations 
     previous: "Previous",
@@ -140,13 +102,6 @@ export const commonTranslations = {
     skus: "وحدات التخزين",
     create: "إنشاء",
     
-    // Zone translations
-    zones: {
-      green: "المنطقة الخضراء",
-      yellow: "المنطقة الصفراء",
-      red: "المنطقة الحمراء"
-    },
-    
     // Individual inventory translations
     inventory: {
       lowStock: "مخزون منخفض",
@@ -160,38 +115,8 @@ export const commonTranslations = {
       configureDecouplingPoints: "تكوين نقاط الفصل",
       refresh: "تحديث",
       addDecouplingPoint: "إضافة نقطة فصل",
-      decouplingNetwork: "عرض الشبكة",
-      listView: "عرض القائمة",
-      locationId: "معرف الموقع",
-      type: "النوع",
-      description: "الوصف",
-      actions: "إجراءات",
-      noDecouplingPoints: "لا توجد نقاط فصل",
-      edit: "تعديل",
-      delete: "حذف",
-      confirmDelete: "تأكيد الحذف",
-      success: "نجاح",
-      decouplingPointDeleted: "تم حذف نقطة الفصل",
-      decouplingPointSaved: "تم حفظ نقطة الفصل",
-      networkVisualization: "تصور الشبكة",
-      nodes: "النقاط",
-      links: "الروابط",
-      totalItems: "إجمالي العناصر",
-      networkHelp: "مساعدة الشبكة",
-      nodesDescription: "عقد الشبكة تمثل المواقع في سلسلة التوريد",
-      linksDescription: "الروابط تمثل الاتصالات بين النقاط"
+      errorLoading: "خطأ في تحميل بيانات المخزون"
     },
-    
-    // Chart translations
-    chartTitles: {
-      bufferProfile: "ملف تعريف المخزون",
-      demandVariability: "تغير الطلب"
-    },
-    
-    // Add missing chart translations
-    replenishment: "إعادة التزويد",
-    netFlow: "التدفق الصافي",
-    inventoryTrends: "اتجاهات المخزون",
     
     // Pagination translations 
     previous: "السابق",
