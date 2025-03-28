@@ -29,5 +29,18 @@ export const paginationTranslations: PaginationTranslations = {
   results: {
     en: "results",
     ar: "نتائج"
+  },
+  // Add the missing properties
+  previous: {
+    en: "Previous",
+    ar: "السابق"
+  },
+  perPage: {
+    en: "Per Page",
+    ar: "لكل صفحة"
+  },
+  items: {
+    en: "items",
+    ar: "عناصر"
   }
 };

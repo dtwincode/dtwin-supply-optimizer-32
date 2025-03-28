@@ -27,3 +27,6 @@ export const modulesSummaryTranslations: ModulesSummary = {
     ar: "التقارير والتحليلات"
   }
 };
+
+// Add the module translations export to fix the missing import
+export const moduleTranslations = modulesSummaryTranslations;

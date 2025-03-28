@@ -1,3 +1,4 @@
+
 export interface BufferProfile {
   id: string;
   name: string;
@@ -154,9 +155,10 @@ export interface BufferFactorConfig {
   metadata?: Record<string, any>;
 }
 
-// Re-export types when 'isolatedModules' is enabled with proper syntax
-export type { DecouplingPoint, DecouplingPointType, DecouplingNetwork } from './inventory/decouplingTypes';
-export type { BufferProfile, BufferConfig, BufferZone, BufferStatus } from './inventory/bufferTypes';
-export type { InventoryClassification, ClassificationType } from './inventory/classificationTypes';
+// Import types correctly from sub-directories
+import { Classification, SKUClassification, ReplenishmentData } from './inventory/classificationTypes';
+import { DecouplingNetwork } from './inventory/decouplingTypes';
+import { BufferZones as BufferZonesType } from './inventory/bufferTypes';
 
-export type { Classification, SKUClassification, ReplenishmentData } from './inventory/classificationTypes';
+// Re-export the imported types
+export type { Classification, SKUClassification, ReplenishmentData, DecouplingNetwork };

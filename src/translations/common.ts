@@ -2,74 +2,126 @@
 import { CommonTranslations } from './types';
 import { uiTranslations } from './common/ui';
 import { inventoryTranslations } from './common/inventory';
-import { moduleTranslations } from './common/modules';
+import { modulesSummaryTranslations, moduleTranslations } from './common/modules';
 import { chartTranslations } from './common/charts';
 import { paginationTranslations } from './common/pagination';
 import { logisticsTranslations } from './common/logistics';
 import { ddsopTranslations } from './common/ddsop';
 import { zonesTranslations } from './common/zones';
 
+// Creating a proper CommonTranslations object that matches the interface
 export const commonTranslations: CommonTranslations = {
-  // UI translations
-  ...uiTranslations,
+  loading: "Loading...",
+  noData: "No data available",
+  error: "Error",
+  success: "Success",
+  confirm: "Confirm",
+  back: "Back",
+  next: "Next",
+  submit: "Submit",
+  skus: "SKUs",
+  create: "Create",
   
-  // Basic common translations that were missing
-  loading: { en: "Loading...", ar: "جار التحميل..." },
-  noData: { en: "No data available", ar: "لا توجد بيانات" },
-  error: { en: "Error", ar: "خطأ" },
-  success: { en: "Success", ar: "نجاح" },
-  confirm: { en: "Confirm", ar: "تأكيد" },
-  back: { en: "Back", ar: "رجوع" },
-  next: { en: "Next", ar: "التالي" },
-  submit: { en: "Submit", ar: "إرسال" },
-  skus: { en: "SKUs", ar: "وحدات التخزين" },
-  create: { en: "Create", ar: "إنشاء" },
+  // Zone translations - properly assigned
+  zones: {
+    green: "Green Zone",
+    yellow: "Yellow Zone",
+    red: "Red Zone"
+  },
   
-  // Zone translations
-  zones: zonesTranslations,
+  // Individual inventory translations - using the correct format
+  inventory: {
+    lowStock: "Low Stock",
+    outOfStock: "Out of Stock",
+    inStock: "In Stock",
+    overstock: "Overstock",
+    onOrder: "On Order",
+    allocated: "Allocated",
+    available: "Available",
+    decouplingPoints: "Decoupling Points",
+    configureDecouplingPoints: "Configure Decoupling Points",
+    refresh: "Refresh",
+    addDecouplingPoint: "Add Decoupling Point",
+    decouplingNetwork: "Network View",
+    listView: "List View",
+    locationId: "Location ID",
+    type: "Type",
+    description: "Description",
+    actions: "Actions",
+    noDecouplingPoints: "No Decoupling Points",
+    edit: "Edit",
+    delete: "Delete",
+    confirmDelete: "Confirm Delete",
+    success: "Success",
+    decouplingPointDeleted: "Decoupling Point Deleted",
+    decouplingPointSaved: "Decoupling Point Saved",
+    networkVisualization: "Network Visualization",
+    nodes: "Nodes",
+    links: "Links",
+    totalItems: "Total Items",
+    networkHelp: "Network Help"
+  },
   
-  // Individual inventory translations
-  inventory: inventoryTranslations,
-  
-  // Chart translations
-  chartTitles: { en: "Chart Titles", ar: "عناوين الرسوم البيانية" },
+  // Chart translations correctly formatted
+  chartTitles: {
+    bufferProfile: "Buffer Profile",
+    demandVariability: "Demand Variability"
+  },
   
   // Add missing chart translations for replenishment and netFlow 
-  replenishment: { en: "Replenishment", ar: "إعادة التزويد" },
-  netFlow: { en: "Net Flow", ar: "التدفق الصافي" },
-  inventoryTrends: { en: "Inventory Trends", ar: "اتجاهات المخزون" },
+  replenishment: "Replenishment",
+  netFlow: "Net Flow",
+  inventoryTrends: "Inventory Trends",
   
-  // Pagination translations
-  previous: paginationTranslations.previous,
-  page: paginationTranslations.page,
-  of: paginationTranslations.of,
-  perPage: paginationTranslations.perPage,
-  items: paginationTranslations.items,
-  showing: paginationTranslations.showing,
-  to: paginationTranslations.to,
+  // Pagination translations 
+  previous: "Previous",
+  page: "Page",
+  of: "of",
+  perPage: "Per Page",
+  items: "Items",
+  showing: "Showing",
+  to: "to",
   
   // Add other required common translations
-  settings: { en: "Settings", ar: "الإعدادات" },
-  logout: { en: "Logout", ar: "تسجيل الخروج" },
-  cancel: { en: "Cancel", ar: "إلغاء" },
-  save: { en: "Save", ar: "حفظ" },
-  delete: { en: "Delete", ar: "حذف" },
-  edit: { en: "Edit", ar: "تعديل" },
-  search: { en: "Search", ar: "بحث" },
-  filter: { en: "Filter", ar: "تصفية" },
-  apply: { en: "Apply", ar: "تطبيق" },
-  reset: { en: "Reset", ar: "إعادة ضبط" },
-  modules: { en: "Modules", ar: "الوحدات" },
-  skuCount: { en: "SKU Count", ar: "عدد وحدات التخزين" },
-  accuracyLabel: { en: "Accuracy", ar: "الدقة" },
-  pipelineValue: { en: "Pipeline Value", ar: "قيمة خط الأنابيب" },
-  activeCampaigns: { en: "Active Campaigns", ar: "الحملات النشطة" },
-  onTimeDelivery: { en: "On-Time Delivery", ar: "التسليم في الوقت المحدد" },
-  reportCount: { en: "Available Reports", ar: "التقارير المتاحة" },
-  thisQuarter: { en: "this quarter", ar: "هذا الربع" },
-  fromLastMonth: { en: "from last month", ar: "من الشهر الماضي" },
-  fromLastWeek: { en: "from last week", ar: "من الأسبوع الماضي" },
-  viewDetails: { en: "View Details", ar: "عرض التفاصيل" },
-  purchaseOrderCreated: { en: "Purchase order created successfully", ar: "تم إنشاء طلب الشراء بنجاح" },
-  refresh: { en: "Refresh", ar: "تحديث" }
+  settings: "Settings",
+  logout: "Logout",
+  cancel: "Cancel",
+  save: "Save",
+  delete: "Delete",
+  edit: "Edit",
+  search: "Search",
+  filter: "Filter",
+  apply: "Apply",
+  reset: "Reset",
+  modules: "Modules",
+  skuCount: "SKU Count",
+  accuracyLabel: "Accuracy",
+  pipelineValue: "Pipeline Value",
+  activeCampaigns: "Active Campaigns",
+  onTimeDelivery: "On-Time Delivery",
+  reportCount: "Available Reports",
+  thisQuarter: "this quarter",
+  fromLastMonth: "from last month",
+  fromLastWeek: "from last week",
+  viewDetails: "View Details",
+  purchaseOrderCreated: "Purchase order created successfully",
+  refresh: "Refresh",
+  
+  // Required by the interface but not populated
+  warning: "Warning",
+  info: "Information",
+  clear: "Clear",
+  all: "All",
+  none: "None",
+  select: "Select",
+  login: "Login",
+  register: "Register",
+  username: "Username",
+  password: "Password",
+  email: "Email",
+  phone: "Phone",
+  address: "Address",
+  name: "Name",
+  description: "Description",
+  update: "Update"
 };
