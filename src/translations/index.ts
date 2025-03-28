@@ -14,7 +14,7 @@ export const translations: TranslationsType = {
   en: {
     common: commonTranslations.en,
     navigation: navigationTranslations,
-    dashboard: dashboardTranslations,
+    dashboard: dashboardTranslations.en, // Fixed: Use the language-specific property
     inventory: inventoryTranslations,
     marketing: marketingTranslations,
     sales: salesTranslations
@@ -22,7 +22,7 @@ export const translations: TranslationsType = {
   ar: {
     common: commonTranslations.ar,
     navigation: navigationTranslations,
-    dashboard: dashboardTranslations,
+    dashboard: dashboardTranslations.ar, // Fixed: Use the language-specific property 
     inventory: inventoryTranslations,
     marketing: marketingTranslations,
     sales: salesTranslations

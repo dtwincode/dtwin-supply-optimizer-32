@@ -1,4 +1,5 @@
 
+// Export dashboard translations with proper structure
 export const dashboardTranslations = {
   en: {
     title: "Dashboard",
