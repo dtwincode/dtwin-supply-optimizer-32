@@ -7,6 +7,9 @@ import { PurchaseOrdersTab } from "./PurchaseOrdersTab";
 import { SupplierManagementTab } from "./SupplierManagementTab";
 import { LeadTimeManagementTab } from "./LeadTimeManagementTab";
 import { RecommendedOrdersTab } from "./RecommendedOrdersTab";
+import { ReceivingTab } from "./ReceivingTab";
+import { ShipmentsTab } from "./ShipmentsTab";
+import { TransactionsTab } from "./TransactionsTab";
 import { SupplyPlanningFilters } from "./SupplyPlanningFilters";
 import { SupplyPlanningMetrics } from "./SupplyPlanningMetrics";
 
@@ -21,7 +24,7 @@ export const SupplyPlanningTabs = () => {
       {activeTab === "lead-time-management" && <SupplyPlanningMetrics />}
       
       <Tabs defaultValue="recommended-orders" onValueChange={setActiveTab} value={activeTab}>
-        <TabsList className="grid grid-cols-4 mb-6 bg-background/80 p-1 backdrop-blur-sm">
+        <TabsList className="grid grid-cols-7 mb-6 bg-background/80 p-1 backdrop-blur-sm">
           <TabsTrigger 
             value="recommended-orders" 
             className="data-[state=active]:bg-dtwin-medium data-[state=active]:text-white"
@@ -33,6 +36,24 @@ export const SupplyPlanningTabs = () => {
             className="data-[state=active]:bg-dtwin-medium data-[state=active]:text-white"
           >
             {getTranslation("supplyPlanning.tabs.purchaseOrders", language)}
+          </TabsTrigger>
+          <TabsTrigger 
+            value="receiving"
+            className="data-[state=active]:bg-dtwin-medium data-[state=active]:text-white"
+          >
+            {getTranslation("supplyPlanning.tabs.receiving", language) || "Receiving"}
+          </TabsTrigger>
+          <TabsTrigger 
+            value="shipments"
+            className="data-[state=active]:bg-dtwin-medium data-[state=active]:text-white"
+          >
+            {getTranslation("supplyPlanning.tabs.shipments", language) || "Shipments"}
+          </TabsTrigger>
+          <TabsTrigger 
+            value="transactions"
+            className="data-[state=active]:bg-dtwin-medium data-[state=active]:text-white"
+          >
+            {getTranslation("supplyPlanning.tabs.transactions", language) || "Transactions"}
           </TabsTrigger>
           <TabsTrigger 
             value="supplier-management"
@@ -54,6 +75,18 @@ export const SupplyPlanningTabs = () => {
 
         <TabsContent value="purchase-orders" className="space-y-4">
           <PurchaseOrdersTab />
+        </TabsContent>
+        
+        <TabsContent value="receiving" className="space-y-4">
+          <ReceivingTab />
+        </TabsContent>
+        
+        <TabsContent value="shipments" className="space-y-4">
+          <ShipmentsTab />
+        </TabsContent>
+        
+        <TabsContent value="transactions" className="space-y-4">
+          <TransactionsTab />
         </TabsContent>
         
         <TabsContent value="supplier-management" className="space-y-4">

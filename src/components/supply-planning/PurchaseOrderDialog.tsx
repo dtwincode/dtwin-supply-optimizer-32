@@ -1,353 +1,268 @@
 
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { supabase } from '@/integrations/supabase/client';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { getTranslation } from '@/translations';
-import { useToast } from '@/hooks/use-toast';
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Calendar } from '@/components/ui/calendar';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
-import { CalendarIcon } from 'lucide-react';
+} from "@/components/ui/select";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslation } from "@/translations";
+import { format } from "date-fns";
+
+interface PurchaseOrderData {
+  id?: string;
+  po_number?: string;
+  sku: string;
+  quantity: number;
+  status: string;
+  supplier?: string;
+  expected_delivery_date?: string;
+  notes?: string;
+}
 
 interface PurchaseOrderDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  purchaseOrder: any | null;
-  onSuccess: () => void;
+  purchaseOrder?: PurchaseOrderData | null;
+  onSuccess?: () => void;
 }
 
-const formSchema = z.object({
-  po_number: z.string().min(1, { message: "PO number is required" }),
-  sku: z.string().min(1, { message: "SKU is required" }),
-  quantity: z.coerce.number().positive({ message: "Quantity must be positive" }),
-  supplier: z.string().optional(),
-  status: z.enum(['planned', 'ordered', 'confirmed', 'shipped', 'received']),
-  notes: z.string().optional(),
-  expected_delivery_date: z.date().optional(),
-});
-
-export const PurchaseOrderDialog = ({
+export function PurchaseOrderDialog({
   open,
   onOpenChange,
   purchaseOrder,
-  onSuccess
-}: PurchaseOrderDialogProps) => {
+  onSuccess,
+}: PurchaseOrderDialogProps) {
   const { language } = useLanguage();
   const { toast } = useToast();
+  const isEdit = !!purchaseOrder?.id;
   
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      po_number: '',
-      sku: '',
+  const [formData, setFormData] = useState<PurchaseOrderData>(
+    purchaseOrder || {
+      sku: "",
       quantity: 0,
-      supplier: '',
-      status: 'planned' as const,
-      notes: '',
-      expected_delivery_date: undefined,
-    },
-  });
-
-  useEffect(() => {
-    if (purchaseOrder) {
-      form.reset({
-        po_number: purchaseOrder.po_number,
-        sku: purchaseOrder.sku,
-        quantity: purchaseOrder.quantity,
-        supplier: purchaseOrder.supplier || '',
-        status: purchaseOrder.status as any,
-        notes: purchaseOrder.notes || '',
-        expected_delivery_date: purchaseOrder.expected_delivery_date 
-          ? new Date(purchaseOrder.expected_delivery_date) 
-          : undefined,
-      });
-    } else {
-      form.reset({
-        po_number: `PO-${Date.now()}`,
-        sku: '',
-        quantity: 0,
-        supplier: '',
-        status: 'planned',
-        notes: '',
-        expected_delivery_date: undefined,
-      });
+      status: "planned",
     }
-  }, [purchaseOrder, form]);
+  );
+  const [deliveryDate, setDeliveryDate] = useState<string>(
+    purchaseOrder?.expected_delivery_date
+      ? format(new Date(purchaseOrder.expected_delivery_date), "yyyy-MM-dd")
+      : ""
+  );
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === "quantity" ? Number(value) : value,
+    }));
+  };
+
+  const handleStatusChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      status: value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
     try {
-      if (purchaseOrder) {
-        // Update existing purchase order
-        const { error } = await supabase
-          .from('purchase_orders')
-          .update({
-            po_number: values.po_number,
-            sku: values.sku,
-            quantity: values.quantity,
-            supplier: values.supplier || null,
-            status: values.status,
-            notes: values.notes || null,
-            expected_delivery_date: values.expected_delivery_date?.toISOString() || null,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', purchaseOrder.id);
+      const poData = {
+        ...formData,
+        expected_delivery_date: deliveryDate ? new Date(deliveryDate).toISOString() : null,
+        updated_at: new Date().toISOString(),
+      };
 
-        if (error) throw error;
-
-        toast({
-          title: getTranslation("supplyPlanning.notifications.poUpdated", language),
-          description: getTranslation("supplyPlanning.notifications.poUpdatedDesc", language),
-        });
-      } else {
-        // Create new purchase order
-        const { error } = await supabase
-          .from('purchase_orders')
-          .insert({
-            po_number: values.po_number,
-            sku: values.sku,
-            quantity: values.quantity,
-            supplier: values.supplier || null,
-            status: values.status,
-            notes: values.notes || null,
-            order_date: new Date().toISOString(),
-            expected_delivery_date: values.expected_delivery_date?.toISOString() || null,
-          });
-
-        if (error) throw error;
-
-        toast({
-          title: getTranslation("supplyPlanning.notifications.poCreated", language),
-          description: getTranslation("supplyPlanning.notifications.poCreatedDesc", language),
+      // For new POs, add creation metadata
+      if (!isEdit) {
+        poData.po_number = `PO-${Date.now()}`;
+        poData.status = formData.status || "planned";
+        Object.assign(poData, {
+          order_date: new Date().toISOString(),
+          created_at: new Date().toISOString(),
         });
       }
 
-      onSuccess();
-    } catch (error) {
-      console.error('Error saving purchase order:', error);
+      const { error } = isEdit
+        ? await supabase
+            .from("purchase_orders")
+            .update(poData)
+            .eq("id", purchaseOrder.id!)
+        : await supabase.from("purchase_orders").insert(poData);
+
+      if (error) throw error;
+
       toast({
-        title: getTranslation("supplyPlanning.notifications.poError", language),
-        description: getTranslation("supplyPlanning.notifications.poErrorDesc", language),
-        variant: "destructive",
+        title: isEdit ? "Purchase Order Updated" : "Purchase Order Created",
+        description: isEdit
+          ? `PO ${purchaseOrder.po_number} has been updated`
+          : "A new purchase order has been created",
       });
+
+      if (onSuccess) onSuccess();
+    } catch (error) {
+      console.error("Error saving purchase order:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description:
+          "There was a problem saving your purchase order. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px]">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
-            {purchaseOrder 
+            {isEdit
               ? getTranslation("supplyPlanning.editPurchaseOrder", language)
-              : getTranslation("supplyPlanning.createPurchaseOrder", language)
-            }
+              : getTranslation("supplyPlanning.createPurchaseOrder", language)}
           </DialogTitle>
         </DialogHeader>
-
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="po_number"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{getTranslation("supplyPlanning.poNumber", language)}</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="sku"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{getTranslation("inventory.sku", language)}</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="quantity"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{getTranslation("supplyPlanning.quantity", language)}</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="supplier"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{getTranslation("supplyPlanning.supplier", language)}</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{getTranslation("supplyPlanning.status", language)}</FormLabel>
-                    <Select 
-                      onValueChange={field.onChange} 
-                      defaultValue={field.value}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder={getTranslation("supplyPlanning.selectStatus", language)} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="planned">
-                          {getTranslation("supplyPlanning.status.planned", language)}
-                        </SelectItem>
-                        <SelectItem value="ordered">
-                          {getTranslation("supplyPlanning.status.ordered", language)}
-                        </SelectItem>
-                        <SelectItem value="confirmed">
-                          {getTranslation("supplyPlanning.status.confirmed", language)}
-                        </SelectItem>
-                        <SelectItem value="shipped">
-                          {getTranslation("supplyPlanning.status.shipped", language)}
-                        </SelectItem>
-                        <SelectItem value="received">
-                          {getTranslation("supplyPlanning.status.received", language)}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="expected_delivery_date"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>{getTranslation("supplyPlanning.deliveryDate", language)}</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, "PPP")
-                            ) : (
-                              <span>{getTranslation("supplyPlanning.selectDate", language)}</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{getTranslation("supplyPlanning.notes", language)}</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      {...field} 
-                      placeholder={getTranslation("supplyPlanning.notesPlaceholder", language)}
-                      className="min-h-[80px]"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="sku">
+              {getTranslation("common.inventory.sku", language)}
+            </Label>
+            <Input
+              id="sku"
+              name="sku"
+              value={formData.sku}
+              onChange={handleInputChange}
+              required
             />
+          </div>
 
-            <DialogFooter>
-              <Button type="submit">
-                {purchaseOrder 
-                  ? getTranslation("common.update", language)
-                  : getTranslation("common.create", language)
-                }
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+          <div className="space-y-2">
+            <Label htmlFor="quantity">
+              {getTranslation("supplyPlanning.quantity", language)}
+            </Label>
+            <Input
+              id="quantity"
+              name="quantity"
+              type="number"
+              min="1"
+              value={formData.quantity}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="supplier">
+              {getTranslation("supplyPlanning.supplier", language)}
+            </Label>
+            <Input
+              id="supplier"
+              name="supplier"
+              value={formData.supplier || ""}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="status">
+              {getTranslation("supplyPlanning.status", language)}
+            </Label>
+            <Select
+              value={formData.status}
+              onValueChange={handleStatusChange}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="planned">
+                  {getTranslation(
+                    "supplyPlanning.statusTypes.planned",
+                    language
+                  )}
+                </SelectItem>
+                <SelectItem value="ordered">
+                  {getTranslation(
+                    "supplyPlanning.statusTypes.ordered",
+                    language
+                  )}
+                </SelectItem>
+                <SelectItem value="confirmed">
+                  {getTranslation(
+                    "supplyPlanning.statusTypes.confirmed",
+                    language
+                  )}
+                </SelectItem>
+                <SelectItem value="shipped">
+                  {getTranslation(
+                    "supplyPlanning.statusTypes.shipped",
+                    language
+                  )}
+                </SelectItem>
+                <SelectItem value="received">
+                  {getTranslation(
+                    "supplyPlanning.statusTypes.received",
+                    language
+                  )}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="expected_delivery_date">
+              {getTranslation("supplyPlanning.deliveryDate", language)}
+            </Label>
+            <Input
+              id="expected_delivery_date"
+              type="date"
+              value={deliveryDate}
+              onChange={(e) => setDeliveryDate(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="notes">
+              {getTranslation("supplyPlanning.notes", language) || "Notes"}
+            </Label>
+            <Input
+              id="notes"
+              name="notes"
+              value={formData.notes || ""}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <DialogFooter>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting
+                ? getTranslation("common.saving", language)
+                : isEdit
+                ? getTranslation("common.save", language)
+                : getTranslation("common.create", language)}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
-};
+}
