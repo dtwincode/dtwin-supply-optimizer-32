@@ -1,40 +1,36 @@
 import React, { useState } from 'react';
-import { uploadLocation } from '@supabase/setting/location.service'; // Correct path
+import { uploadLocation } from '@/lib/location.service';
+import FileUpload from "@/components/settings/upload/FileUpload";
 
-const LocationUpload = () => {
+const LocationHierarchyUpload = () => {
   const [file, setFile] = useState<File | null>(null);
-  const [status, setStatus] = useState('');
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
-    }
+  const handleFileSelected = (selectedFile: File) => {
+    setFile(selectedFile);
   };
 
   const handleUpload = async () => {
-    if (!file) {
-      setStatus('Please select a file.');
-      return;
+    if (file) {
+      const success = await uploadLocation(file);
+      if (success) {
+        alert('Location uploaded successfully!');
+      } else {
+        alert('Location upload failed.');
+      }
+    } else {
+      alert('Please select a file.');
     }
-
-    setStatus('Uploading...');
-    const result = await uploadLocation(file);
-    setStatus(result ? '✅ Upload successful!' : '❌ Upload failed.');
   };
 
   return (
-    <div className="p-4 border rounded-lg shadow-md">
-      <h2 className="text-lg font-semibold mb-2">Location Upload</h2>
-      <input type="file" accept=".csv" onChange={handleFileChange} />
-      <button
-        onClick={handleUpload}
-        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
-      >
-        Upload
+    <div>
+      <h2>Upload Location Hierarchy</h2>
+      <FileUpload onFileSelected={handleFileSelected} />
+      <button onClick={handleUpload} disabled={!file}>
+        Upload Location
       </button>
-      <p className="mt-2 text-sm">{status}</p>
     </div>
   );
 };
 
-export default LocationUpload;
+export default LocationHierarchyUpload;

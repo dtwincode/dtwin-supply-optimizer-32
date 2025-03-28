@@ -1,24 +1,4 @@
 
-export interface ShipmentItem {
-  id: string;
-  sku: string;
-  quantity: number;
-  shipment_id: string;
-}
-
-export interface Shipment {
-  id: string;
-  shipment_number: string;
-  status: 'planned' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  created_at: string;
-  updated_at: string;
-  planned_ship_date: string;
-  actual_ship_date?: string;
-  destination: string;
-  notes?: string;
-  items?: ShipmentItem[];
-}
-
 export interface InventoryTransaction {
   id?: string;
   sku: string;
@@ -28,4 +8,36 @@ export interface InventoryTransaction {
   referenceType?: 'purchase_order' | 'sales_order' | 'shipment';
   notes?: string;
   timestamp?: string;
+}
+
+export interface Shipment {
+  id: string;
+  shipmentNumber: string;
+  status: 'pending' | 'in_transit' | 'delivered' | 'cancelled';
+  origin: string;
+  destination: string;
+  scheduledDate: string;
+  estimatedArrivalDate: string;
+  actualArrivalDate?: string;
+  carrierId?: string;
+  trackingNumber?: string;
+  notes?: string;
+  items: ShipmentItem[];
+}
+
+export interface ShipmentItem {
+  id: string;
+  shipmentId: string;
+  sku: string;
+  quantity: number;
+  description?: string;
+}
+
+export interface ShipmentTracking {
+  id: string;
+  shipmentId: string;
+  status: string;
+  location: string;
+  timestamp: string;
+  notes?: string;
 }

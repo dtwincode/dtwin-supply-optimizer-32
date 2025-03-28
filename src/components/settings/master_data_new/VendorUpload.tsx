@@ -1,39 +1,43 @@
 import React, { useState } from 'react';
-import { uploadVendor } from '@supabase/setting/vendor.service'; // Correct path
+import { uploadVendor } from '@/lib/vendor.service';
+import FileUpload from "@/components/settings/upload/FileUpload";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 const VendorUpload = () => {
-  const [file, setFile] = useState<File | null>(null);
-  const [status, setStatus] = useState('');
+  const [uploading, setUploading] = useState(false);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
+  const handleFileSelected = async (file: File) => {
+    setUploading(true);
+    try {
+      const success = await uploadVendor(file);
+      if (success) {
+        alert('Vendor file uploaded successfully!');
+      } else {
+        alert('Failed to upload vendor file.');
+      }
+    } catch (error) {
+      console.error('Error during vendor upload:', error);
+      alert('An error occurred during the upload process.');
+    } finally {
+      setUploading(false);
     }
-  };
-
-  const handleUpload = async () => {
-    if (!file) {
-      setStatus('Please select a file.');
-      return;
-    }
-
-    setStatus('Uploading...');
-    const result = await uploadVendor(file);
-    setStatus(result ? '✅ Upload successful!' : '❌ Upload failed.');
   };
 
   return (
-    <div className="p-4 border rounded-lg shadow-md">
-      <h2 className="text-lg font-semibold mb-2">Vendor Upload</h2>
-      <input type="file" accept=".csv" onChange={handleFileChange} />
-      <button
-        onClick={handleUpload}
-        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
-      >
-        Upload
-      </button>
-      <p className="mt-2 text-sm">{status}</p>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Upload Vendor Data</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <FileUpload
+          onFileSelected={handleFileSelected}
+          acceptedFileTypes=".csv,.xlsx"
+          label="Upload a CSV or XLSX file containing vendor data."
+          supportedFormats="CSV, XLSX"
+        />
+        {uploading && <p>Uploading...</p>}
+      </CardContent>
+    </Card>
   );
 };
 

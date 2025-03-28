@@ -7,7 +7,6 @@ import { marketingTranslations } from './marketing';
 import { salesTranslations } from './sales';
 import { logisticsTranslations } from './common/logistics/index';
 import { navigationTranslations } from './navigation';
-import { toArabicNumerals } from './utils';
 
 // Define Language type
 export type Language = 'en' | 'ar';
@@ -15,27 +14,27 @@ export type Language = 'en' | 'ar';
 // Combine all translations
 const allTranslations = {
   en: {
-    common: commonTranslations.en || commonTranslations,
-    dashboard: dashboardTranslations || {},
+    common: commonTranslations.en,
+    dashboard: dashboardTranslations.en,
     forecasting: {},
     inventory: {},
-    marketing: marketingTranslations.en || marketingTranslations,
+    marketing: marketingTranslations.en,
     ddsop: logisticsTranslations.ddom?.en || {},
-    logistics: logisticsTranslations.en || logisticsTranslations,
-    sales: salesTranslations.en || salesTranslations,
-    nav: navigationTranslations || {},
+    logistics: logisticsTranslations.en,
+    sales: salesTranslations.en,
+    nav: navigationTranslations.en,
     supplyPlanning: supplyPlanningTranslations.en
   },
   ar: {
-    common: commonTranslations.ar || {},
-    dashboard: dashboardTranslations || {},
+    common: commonTranslations.ar,
+    dashboard: dashboardTranslations.ar,
     forecasting: {},
     inventory: {},
-    marketing: marketingTranslations.ar || marketingTranslations,
+    marketing: marketingTranslations.ar,
     ddsop: logisticsTranslations.ddom?.ar || {},
-    logistics: logisticsTranslations.ar || logisticsTranslations,
-    sales: salesTranslations.ar || salesTranslations,
-    nav: navigationTranslations || {},
+    logistics: logisticsTranslations.ar,
+    sales: salesTranslations.ar,
+    nav: navigationTranslations.ar,
     supplyPlanning: supplyPlanningTranslations.ar
   }
 };
@@ -71,7 +70,6 @@ export const getTranslation = (path: string, language: Language = 'en'): string 
 
 // Export utility functions and needed translations
 export {
-  toArabicNumerals,
   commonTranslations,
   dashboardTranslations,
   marketingTranslations,

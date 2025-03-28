@@ -1,142 +1,123 @@
 
-import React, { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Upload, FileUp, Check, AlertCircle } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
-import { getTranslation } from "@/translations";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { Upload, File, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import * as XLSX from 'xlsx';
 
 interface FileUploadProps {
-  onFileSelected: (file: File) => void;
-  acceptedFileTypes?: string;
-  maxFileSize?: number; // in bytes
-  label?: string;
-  supportedFormats?: string;
+  onUploadComplete: (data: any[], fileName: string) => void;
+  onError: (error: string) => void;
+  allowedFileTypes?: string[];
+  maxSizeMB?: number;
 }
 
-const FileUpload = ({
-  onFileSelected,
-  acceptedFileTypes = ".csv,.xlsx",
-  maxFileSize = 5 * 1024 * 1024, // 5MB default
-  label,
-  supportedFormats = "CSV, XLSX",
-}: FileUploadProps) => {
-  const [file, setFile] = useState<File | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const { toast } = useToast();
-  const { language } = useLanguage();
+const FileUpload = ({ onUploadComplete, onError, allowedFileTypes = ['.csv', '.xlsx'], maxSizeMB = 10 }: FileUploadProps) => {
+  const [isUploading, setIsUploading] = useState(false);
+  const [fileName, setFileName] = useState("");
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const selectedFile = e.target.files[0];
-      validateAndSetFile(selectedFile);
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      // Validate file type
+      const fileExtension = file.name.substring(file.name.lastIndexOf('.'));
+      if (!allowedFileTypes.includes(fileExtension.toLowerCase())) {
+        onError(`Invalid file type. Allowed types: ${allowedFileTypes.join(', ')}`);
+        return;
+      }
+
+      // Validate file size
+      if (file.size > maxSizeMB * 1024 * 1024) {
+        onError(`File size exceeds the ${maxSizeMB}MB limit.`);
+        return;
+      }
+
+      setIsUploading(true);
+      setFileName(file.name);
+
+      // Process file data
+      const data = await parseFile(file);
+      
+      onUploadComplete(data, file.name);
+    } catch (error) {
+      console.error("Error processing file:", error);
+      onError("Failed to process the file. Please check the file format.");
+    } finally {
+      setIsUploading(false);
     }
   };
 
-  const validateAndSetFile = (selectedFile: File) => {
-    setError(null);
-    
-    // Check file type
-    const fileExtension = selectedFile.name.split('.').pop()?.toLowerCase();
-    const isValidType = acceptedFileTypes.includes(fileExtension || '');
-    
-    if (!isValidType) {
-      setError(`Invalid file type. Supported formats: ${supportedFormats}`);
-      return;
-    }
-    
-    // Check file size
-    if (selectedFile.size > maxFileSize) {
-      setError(`File is too large. Maximum size is ${maxFileSize / (1024 * 1024)}MB`);
-      return;
-    }
-    
-    setFile(selectedFile);
-    onFileSelected(selectedFile);
-    toast({
-      title: "File selected",
-      description: `${selectedFile.name} has been selected.`,
+  const parseFile = async (file: File): Promise<any[]> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      
+      reader.onload = (event) => {
+        try {
+          const data = event.target?.result;
+          if (!data) {
+            reject(new Error("No data found in file"));
+            return;
+          }
+          
+          const workbook = XLSX.read(data, { type: 'binary' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          const jsonData = XLSX.utils.sheet_to_json(worksheet);
+          
+          resolve(jsonData);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      
+      reader.onerror = (error) => {
+        reject(error);
+      };
+      
+      reader.readAsBinaryString(file);
     });
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-    
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      validateAndSetFile(e.dataTransfer.files[0]);
-    }
-  };
-
   return (
-    <div>
-      <div
-        className={`border-2 border-dashed rounded-lg p-6 text-center ${
-          isDragging ? "border-primary bg-primary/5" : "border-gray-300"
-        } ${error ? "border-red-500" : ""}`}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-      >
+    <div className="flex flex-col gap-4">
+      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
         <input
           type="file"
           id="file-upload"
           className="hidden"
+          accept={allowedFileTypes.join(',')}
           onChange={handleFileChange}
-          accept={acceptedFileTypes}
+          disabled={isUploading}
         />
-        
-        <div className="space-y-4">
-          <div className="flex justify-center">
-            {file ? (
-              <Check className="h-10 w-10 text-green-500" />
-            ) : (
-              <Upload className="h-10 w-10 text-gray-400" />
-            )}
-          </div>
-          
-          <div>
-            <p className="text-sm font-medium">
-              {label || getTranslation('common.dragAndDrop', language) || "Drag and drop your file here"}
-            </p>
-            <p className="text-xs text-gray-500 mt-1">
-              {getTranslation('common.or', language) || "or"}
-            </p>
-          </div>
-          
-          <Button
-            variant="outline"
-            onClick={() => document.getElementById("file-upload")?.click()}
-            disabled={!!file}
-          >
-            <FileUp className="mr-2 h-4 w-4" />
-            {file ? file.name : getTranslation('common.browse', language) || "Browse files"}
-          </Button>
-          
-          {error && (
-            <div className="flex items-center text-red-500 text-sm mt-2">
-              <AlertCircle className="h-4 w-4 mr-1" />
-              {error}
+        <label 
+          htmlFor="file-upload" 
+          className="cursor-pointer flex flex-col items-center justify-center"
+        >
+          {isUploading ? (
+            <div className="animate-pulse">
+              <File className="h-12 w-12 text-gray-400 mb-2" />
+              <p className="text-sm text-gray-500">Processing {fileName}...</p>
             </div>
+          ) : (
+            <>
+              <Upload className="h-12 w-12 text-gray-400 mb-2" />
+              <p className="text-sm font-medium mb-1">Click to upload or drag and drop</p>
+              <p className="text-xs text-gray-500">
+                {allowedFileTypes.join(', ')} (Max {maxSizeMB}MB)
+              </p>
+            </>
           )}
-          
-          <div className="text-xs text-gray-500">
-            {getTranslation('common.supportedFiles', language) || "Supported formats"}: {supportedFormats}
-          </div>
-        </div>
+        </label>
       </div>
+      
+      {fileName && !isUploading && (
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>File "{fileName}" uploaded successfully.</AlertDescription>
+        </Alert>
+      )}
     </div>
   );
 };

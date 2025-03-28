@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabaseClient';
 import { useToast } from '@/components/ui/use-toast';
 import { calculateNetFlowPosition, calculateBufferPenetration } from '@/utils/inventoryUtils';
 import { InventoryTransaction } from '@/types/inventory/shipmentTypes';
@@ -54,7 +54,7 @@ export const useInventoryTransaction = () => {
       const calculatedNetFlow = calculateNetFlowPosition({
         currentStock: newOnHand,
         qualifiedDemand: inventoryItem.qualified_demand || 0,
-        plannedOrder: newOnOrder,
+        onOrder: newOnOrder,
         sku: inventoryItem.sku,
         name: inventoryItem.name || '',
         productFamily: inventoryItem.product_family || ''
@@ -90,10 +90,9 @@ export const useInventoryTransaction = () => {
         throw new Error(`Failed to update inventory: ${updateError.message}`);
       }
 
-      // 6. Log the transaction
-      const { error: logError } = await supabase
-        .from('inventory_transactions')
-        .insert({
+      // 6. Log the transaction in the inventory_transactions table if it exists
+      try {
+        await supabase.from('inventory_transactions').insert({
           sku: data.sku,
           quantity: data.quantity,
           transaction_type: data.transactionType,
@@ -104,8 +103,7 @@ export const useInventoryTransaction = () => {
           notes: data.notes,
           transaction_date: new Date().toISOString()
         });
-
-      if (logError) {
+      } catch (logError) {
         console.error('Failed to log transaction:', logError);
         // Continue even if logging fails
       }

@@ -12,6 +12,12 @@ import { getTranslation } from "@/translations";
 import { InventoryTransaction } from "@/types/inventory/shipmentTypes";
 import { supabase } from "@/integrations/supabase/client";
 
+// Define an extended transaction type with required previousQuantity and newQuantity
+type EnrichedTransaction = InventoryTransaction & {
+  previousQuantity: number; 
+  newQuantity: number;
+};
+
 // Mock data for demonstration
 const mockTransactions: InventoryTransaction[] = [
   {
@@ -58,7 +64,7 @@ const mockTransactions: InventoryTransaction[] = [
 
 // For a real app, we would fetch from API
 // This is a mock function to simulate database previous and new values
-const enrichTransactions = (transactions: InventoryTransaction[]) => {
+const enrichTransactions = (transactions: InventoryTransaction[]): EnrichedTransaction[] => {
   return transactions.map((t, index) => ({
     ...t,
     previousQuantity: t.transactionType === "inbound" ? 100 + index * 10 : 200 + index * 10,
@@ -69,16 +75,18 @@ const enrichTransactions = (transactions: InventoryTransaction[]) => {
 };
 
 export const TransactionsTab = () => {
-  const [transactions, setTransactions] = useState<(InventoryTransaction & { previousQuantity?: number, newQuantity?: number })[]>(
+  const [transactions, setTransactions] = useState<EnrichedTransaction[]>(
     enrichTransactions(mockTransactions)
   );
-  const [filteredTransactions, setFilteredTransactions] = useState(enrichTransactions(mockTransactions));
+  const [filteredTransactions, setFilteredTransactions] = useState<EnrichedTransaction[]>(
+    enrichTransactions(mockTransactions)
+  );
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [dateRange, setDateRange] = useState<{ from?: string; to?: string }>({});
   const { language } = useLanguage();
   
-  const t = (key: string) => getTranslation(`supplyPlanning.${key}`, language);
+  const t = (key: string): string => getTranslation(`supplyPlanning.${key}`, language);
 
   // Filter transactions based on type, search query, and date range
   useEffect(() => {

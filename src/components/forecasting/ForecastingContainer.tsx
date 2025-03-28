@@ -7,7 +7,7 @@ import { ForecastMetricsCards } from "./ForecastMetricsCards";
 import { ForecastingHeader } from "./ForecastingHeader";
 import { ScenarioManagement } from "./ScenarioManagement";
 import { ModelVersioning } from "./ModelVersioning";
-import { DataUploadDialog } from "../settings/DataUploadDialog";
+import DataUploadDialog from "../settings/DataUploadDialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { ModelParameter } from "@/types/modelParameters";
 
