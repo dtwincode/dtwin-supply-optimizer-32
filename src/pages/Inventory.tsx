@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useState, useEffect } from "react";
@@ -12,7 +11,6 @@ import { InventoryTabs } from "@/components/inventory/InventoryTabs";
 import { InventoryTab } from "@/components/inventory/InventoryTab";
 import { InventoryChart } from "@/components/inventory/InventoryChart";
 import { NetworkDecouplingMap } from "@/components/inventory/NetworkDecouplingMap";
-import { inventoryData } from "@/data/inventoryData";
 import { InventoryItem, SKUClassification } from "@/types/inventory";
 import { SKUClassifications } from "@/components/inventory/classification/SKUClassifications";
 import { DecouplingPointDialog } from "@/components/inventory/DecouplingPointDialog";
@@ -22,39 +20,7 @@ import { InventoryTourGuide, TourButton } from "@/components/inventory/Inventory
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { HelpCircle } from "lucide-react";
-
-const mockClassifications: SKUClassification[] = [
-  {
-    sku: "SKU001",
-    classification: {
-      leadTimeCategory: "long",
-      variabilityLevel: "medium",
-      criticality: "high",
-      score: 85
-    },
-    lastUpdated: "2024-05-15T10:30:00Z"
-  },
-  {
-    sku: "SKU002",
-    classification: {
-      leadTimeCategory: "medium",
-      variabilityLevel: "low",
-      criticality: "medium",
-      score: 65
-    },
-    lastUpdated: "2024-05-14T14:20:00Z"
-  },
-  {
-    sku: "SKU003",
-    classification: {
-      leadTimeCategory: "short",
-      variabilityLevel: "high",
-      criticality: "low",
-      score: 45
-    },
-    lastUpdated: "2024-05-13T08:45:00Z"
-  }
-];
+import { supabase } from "@/lib/supabaseClient";
 
 const Inventory = () => {
   const { language } = useLanguage();
@@ -66,6 +32,7 @@ const Inventory = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [inventoryData, setInventoryData] = useState<InventoryItem[]>([]);
   const location = useLocation();
   const params = useParams();
   
@@ -90,6 +57,36 @@ const Inventory = () => {
   const defaultTab = getDefaultTabFromPath();
   console.log("Default tab from path:", defaultTab);
 
+  const fetchInventoryData = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from("inventory_data")
+        .select(`
+          inventory_id,
+          product_id,
+          location_id,
+          quantity_on_hand,
+          reserved_qty,
+          last_updated,
+          buffer_profile_id,
+          decoupling_point
+        `);
+
+      if (error) {
+        console.error("Fetch error:", error);
+        setHasError(true);
+      } else {
+        setInventoryData(data || []);
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      setHasError(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -106,6 +103,10 @@ const Inventory = () => {
     
     return () => clearTimeout(timer);
   }, [hasTakenTour]);
+
+  useEffect(() => {
+    fetchInventoryData();
+  }, []);
 
   useEffect(() => {
     const originalConsoleError = console.error;
@@ -147,6 +148,7 @@ const Inventory = () => {
       description: language === 'ar' ? "تم تحديث إعدادات نقطة الفصل بنجاح" : "Decoupling point configuration updated successfully",
     });
     setDialogOpen(false);
+    fetchInventoryData();
   };
 
   const handleError = (error: Error, info: { componentStack: string }) => {
@@ -291,7 +293,7 @@ const Inventory = () => {
               <h3 className="text-lg font-semibold mb-3">
                 {t("common.inventory.skuClassifications")}
               </h3>
-              <SKUClassifications classifications={mockClassifications} />
+              <SKUClassifications classifications={[]} />
             </Card>
           </ErrorBoundary>
           
