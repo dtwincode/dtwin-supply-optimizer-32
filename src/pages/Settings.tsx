@@ -12,6 +12,7 @@ import VendorUpload from "@/components/settings/master_data_new/VendorUpload";
 import LocationUpload from "@/components/settings/master_data_new/LocationUpload";
 import HistoricalSalesUpload from "@/components/settings/master_data_new/HistoricalSalesUpload";
 import ProductPricingUpload from "@/components/settings/master_data_new/ProductPricingUpload";
+import InventoryDataUpload from "@/components/settings/master_data_new/InventoryDataUpload";
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -65,12 +66,13 @@ const Settings = () => {
             onValueChange={handleTabChange} 
             className="space-y-6"
           >
-            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-5 gap-2">
+            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-6 gap-2">
               <TabsTrigger value="products">Products</TabsTrigger>
               <TabsTrigger value="vendors">Vendors</TabsTrigger>
               <TabsTrigger value="locations">Locations</TabsTrigger>
               <TabsTrigger value="historical-sales">Historical Sales</TabsTrigger>
               <TabsTrigger value="product-pricing">Product Pricing</TabsTrigger>
+              <TabsTrigger value="inventory-data">Inventory Data</TabsTrigger>
             </TabsList>
 
             <TabsContent value="products" className="space-y-6">
@@ -100,6 +102,12 @@ const Settings = () => {
             <TabsContent value="product-pricing" className="space-y-4">
               <div className="p-4">
                 <ProductPricingUpload />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="inventory-data" className="space-y-4">
+              <div className="p-4">
+                <InventoryDataUpload />
               </div>
             </TabsContent>
           </Tabs>
