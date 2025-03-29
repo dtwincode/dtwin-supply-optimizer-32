@@ -3,23 +3,35 @@ import React, { useState } from 'react';
 import { uploadInventoryData } from '@/lib/inventory-data.service';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Upload, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const InventoryDataUpload = () => {
   const [file, setFile] = useState<File | null>(null);
-  const [status, setStatus] = useState('');
+  const [status, setStatus] = useState<{
+    message: string;
+    type: 'idle' | 'loading' | 'success' | 'error';
+    details?: string;
+  }>({ message: '', type: 'idle' });
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setFile(e.target.files[0]);
+      setStatus({ 
+        message: `Selected file: ${e.target.files[0].name}`, 
+        type: 'idle' 
+      });
     }
   };
 
   const handleUpload = async () => {
     if (!file) {
-      setStatus('Please select a file.');
+      setStatus({ 
+        message: 'Please select a file.', 
+        type: 'error' 
+      });
       toast({
         title: "Error",
         description: "Please select a file.",
@@ -28,30 +40,44 @@ const InventoryDataUpload = () => {
       return;
     }
 
-    setStatus('Uploading...');
     setIsUploading(true);
+    setStatus({ 
+      message: 'Uploading...', 
+      type: 'loading' 
+    });
     
     try {
       const result = await uploadInventoryData(file);
       
-      if (result) {
-        setStatus('✅ Upload successful!');
+      if (result.success) {
+        setStatus({ 
+          message: `Upload successful! ${result.count || ''} records processed.`, 
+          type: 'success' 
+        });
         toast({
           title: "Success",
-          description: "Inventory data uploaded successfully!",
+          description: result.message,
           variant: "default"
         });
       } else {
-        setStatus('❌ Upload failed.');
+        setStatus({ 
+          message: 'Upload failed', 
+          type: 'error',
+          details: result.message
+        });
         toast({
           title: "Error",
-          description: "Failed to upload inventory data. Please check console for details.",
+          description: result.message,
           variant: "destructive"
         });
       }
     } catch (error) {
       console.error('Error uploading inventory data:', error);
-      setStatus('❌ Upload failed.');
+      setStatus({ 
+        message: 'Upload failed', 
+        type: 'error',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
       toast({
         title: "Error",
         description: `Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -62,11 +88,24 @@ const InventoryDataUpload = () => {
     }
   };
 
+  const getStatusIcon = () => {
+    switch (status.type) {
+      case 'loading':
+        return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
+      case 'success':
+        return <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />;
+      case 'error':
+        return <AlertCircle className="mr-2 h-4 w-4 text-red-500" />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="border rounded-lg shadow-sm p-3">
       <h2 className="text-base font-medium mb-2">Inventory Data Upload</h2>
       <p className="mb-3 text-xs text-muted-foreground">
-        Upload your inventory data using CSV format. Include columns: sku, name, current_stock, location, etc.
+        Upload your inventory data using CSV format. Required columns: sku, name, current_stock
       </p>
       <div className="space-y-3">
         <div>
@@ -84,11 +123,12 @@ const InventoryDataUpload = () => {
                     hover:file:bg-blue-100"
           />
         </div>
+        
         <Button
           onClick={handleUpload}
-          disabled={isUploading}
+          disabled={isUploading || !file}
           size="sm"
-          className="w-full"
+          className="w-full flex items-center justify-center"
         >
           {isUploading ? (
             <>
@@ -96,14 +136,39 @@ const InventoryDataUpload = () => {
               Uploading...
             </>
           ) : (
-            'Upload Inventory Data'
+            <>
+              <Upload className="mr-2 h-3 w-3" />
+              Upload Inventory Data
+            </>
           )}
         </Button>
-        {status && (
-          <div className={`mt-2 p-1.5 rounded text-xs ${status.includes('✅') ? 'bg-green-50 text-green-700' : status.includes('❌') ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-700'}`}>
-            {status}
-          </div>
+
+        {status.message && (
+          <Alert variant={status.type === 'error' ? "destructive" : 
+                         status.type === 'success' ? "default" : "outline"} 
+                className="mt-2 py-2">
+            <div className="flex items-center text-xs">
+              {getStatusIcon()}
+              <AlertDescription className="text-xs">
+                {status.message}
+                {status.details && (
+                  <div className="mt-1 text-xs opacity-80 overflow-auto max-h-20">
+                    {status.details}
+                  </div>
+                )}
+              </AlertDescription>
+            </div>
+          </Alert>
         )}
+
+        <div className="text-xs text-muted-foreground mt-3">
+          <p className="font-medium">CSV Format Requirements:</p>
+          <ul className="list-disc list-inside ml-2 space-y-0.5 mt-1">
+            <li>Required: sku, name, current_stock</li>
+            <li>Optional: min_stock, max_stock, location, category, subcategory, product_family, etc.</li>
+            <li>Numeric fields: current_stock, min_stock, max_stock, lead_time_days, adu, etc.</li>
+          </ul>
+        </div>
       </div>
     </div>
   );

@@ -18,7 +18,7 @@ export const uploadInventoryData = async (file: File) => {
     // Check if data was successfully parsed
     if (!parseResult.data || parseResult.data.length === 0) {
       console.error('No data found in the CSV file');
-      return false;
+      return { success: false, message: 'No data found in the CSV file' };
     }
 
     console.log('Parsed inventory data:', parseResult.data);
@@ -40,23 +40,30 @@ export const uploadInventoryData = async (file: File) => {
       warehouse: row.warehouse || null,
       lead_time_days: parseInt(row.lead_time_days) || null,
       adu: parseFloat(row.adu) || null,
-      variability_factor: parseFloat(row.variability_factor) || null
+      variability_factor: parseFloat(row.variability_factor) || null,
+      on_hand: parseInt(row.current_stock) || 0,  // Set on_hand equal to current_stock
+      on_order: parseInt(row.on_order) || 0,
+      qualified_demand: parseInt(row.qualified_demand) || 0,
+      net_flow_position: parseInt(row.net_flow_position) || 0,
     }));
 
     // Insert data into the inventory_data table
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('inventory_data')
       .insert(inventoryData);
 
     if (error) {
       console.error('Error inserting inventory data:', error.message);
-      return false;
+      return { success: false, message: `Error inserting data: ${error.message}` };
     }
 
     console.log('Inventory data inserted successfully');
-    return true;
+    return { success: true, message: 'Inventory data uploaded successfully', count: inventoryData.length };
   } catch (error) {
     console.error('Error processing inventory file:', error);
-    return false;
+    return { 
+      success: false, 
+      message: `Error processing file: ${error instanceof Error ? error.message : 'Unknown error'}`
+    };
   }
 };

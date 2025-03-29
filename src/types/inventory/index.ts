@@ -11,9 +11,15 @@ export * from './shipmentTypes';
 export interface SKUClassification {
   id: string;
   sku: string;
-  classification: string;
-  value: number;
+  classification: {
+    leadTimeCategory?: 'short' | 'medium' | 'long';
+    variabilityLevel?: 'low' | 'medium' | 'high';
+    criticality?: 'low' | 'medium' | 'high';
+    score?: number;
+  };
+  value?: number;
   score?: number;
+  lastUpdated?: string;
 }
 
 export interface Classification {

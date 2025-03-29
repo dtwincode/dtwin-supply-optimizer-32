@@ -46,7 +46,8 @@ export const useInventoryTransaction = () => {
       const netFlowPosition = calculateNetFlowPosition({
         currentStock: newOnHand,
         qualifiedDemand: inventoryItem.qualified_demand || 0,
-        plannedSupply: newOnOrder,
+        onOrder: newOnOrder,
+        onHand: newOnHand,
         netFlowPosition: inventoryItem.net_flow_position || 0,
         productFamily: inventoryItem.product_family || '',
         sku: inventoryItem.sku,
