@@ -2,12 +2,32 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ReplenishmentData } from "@/types/inventory";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ReplenishmentTimesProps {
   data: ReplenishmentData[];
+  loading?: boolean;
 }
 
-export const ReplenishmentTimes = ({ data }: ReplenishmentTimesProps) => {
+export const ReplenishmentTimes = ({ data, loading = false }: ReplenishmentTimesProps) => {
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Replenishment Times</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -27,21 +47,22 @@ export const ReplenishmentTimes = ({ data }: ReplenishmentTimesProps) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>{item.sku}</TableCell>
-                <TableCell>{item.lastUpdated ? new Date(item.lastUpdated).toLocaleDateString() : "N/A"}</TableCell>
-                <TableCell>{item.locationFrom || item.source || "N/A"}</TableCell>
-                <TableCell>{item.locationTo || item.destination || "N/A"}</TableCell>
-                <TableCell>{item.internalTransferTime || "N/A"}</TableCell>
-                <TableCell>{item.replenishmentLeadTime || "N/A"}</TableCell>
-                <TableCell>{item.totalCycleTime || "N/A"}</TableCell>
-              </TableRow>
-            ))}
-            {data.length === 0 && (
+            {data.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-4">No replenishment data available</TableCell>
               </TableRow>
+            ) : (
+              data.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>{item.sku}</TableCell>
+                  <TableCell>{item.lastUpdated ? new Date(item.lastUpdated).toLocaleDateString() : "N/A"}</TableCell>
+                  <TableCell>{item.locationFrom || item.source || "N/A"}</TableCell>
+                  <TableCell>{item.locationTo || item.destination || "N/A"}</TableCell>
+                  <TableCell>{item.internalTransferTime || "N/A"}</TableCell>
+                  <TableCell>{item.replenishmentLeadTime || "N/A"}</TableCell>
+                  <TableCell>{item.totalCycleTime || "N/A"}</TableCell>
+                </TableRow>
+              ))
             )}
           </TableBody>
         </Table>

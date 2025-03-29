@@ -2396,39 +2396,6 @@ export type Database = {
         }
         Relationships: []
       }
-      sku_classification_history: {
-        Row: {
-          change_reason: string | null
-          changed_at: string | null
-          created_at: string | null
-          id: string
-          new_classification: Json | null
-          previous_classification: Json | null
-          sku: string
-          updated_at: string | null
-        }
-        Insert: {
-          change_reason?: string | null
-          changed_at?: string | null
-          created_at?: string | null
-          id?: string
-          new_classification?: Json | null
-          previous_classification?: Json | null
-          sku: string
-          updated_at?: string | null
-        }
-        Update: {
-          change_reason?: string | null
-          changed_at?: string | null
-          created_at?: string | null
-          id?: string
-          new_classification?: Json | null
-          previous_classification?: Json | null
-          sku?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       temp_hierarchy_uploads: {
         Row: {
           created_at: string

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { useI18n } from "@/contexts/I18nContext";
@@ -8,8 +7,10 @@ import { BufferVisualizer } from "./BufferVisualizer";
 import { CreatePODialog } from "./CreatePODialog";
 import { InventoryItem } from "@/types/inventory";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
+import { useInventoryData } from "@/hooks/useInventoryData";
 
-// Simplified buffer calculation functions for fallback
 const simplifiedCalculateBufferZones = (item: InventoryItem) => {
   try {
     const redZone = item.redZoneSize || (item.adu && item.leadTimeDays ? Math.round(item.adu * (item.leadTimeDays * 0.33)) : 0);
@@ -62,9 +63,10 @@ const simplifiedGetBufferStatus = (bufferPenetration: number): 'green' | 'yellow
 interface InventoryTabProps {
   paginatedData: InventoryItem[];
   onCreatePO: (item: InventoryItem) => void;
+  onRefresh?: () => Promise<void>;
 }
 
-export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) => {
+export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: InventoryTabProps) => {
   const { t } = useI18n();
   const { toast } = useToast();
   const [itemBuffers, setItemBuffers] = useState<Record<string, {
@@ -75,6 +77,7 @@ export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) =
   }>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     const loadBufferData = () => {
@@ -119,13 +122,33 @@ export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) =
     };
 
     setLoading(true);
-    // Use a short timeout to allow the component to mount properly
     const timer = setTimeout(() => {
       loadBufferData();
     }, 100);
     
     return () => clearTimeout(timer);
   }, [paginatedData, toast, t]);
+
+  const handleRefresh = async () => {
+    if (onRefresh) {
+      setIsRefreshing(true);
+      try {
+        await onRefresh();
+        toast({
+          title: "Data refreshed",
+          description: "Inventory data has been updated.",
+        });
+      } catch (error) {
+        toast({
+          title: "Refresh failed",
+          description: "Could not refresh inventory data. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsRefreshing(false);
+      }
+    }
+  };
 
   if (loading) {
     return <div className="p-6 text-center">{t("common.inventory.loadingData")}</div>;
@@ -141,6 +164,18 @@ export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) =
 
   return (
     <div className="space-y-6 p-6">
+      <div className="flex justify-end mb-4">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+        >
+          <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+          Refresh Data
+        </Button>
+      </div>
+
       {!paginatedData || paginatedData.length === 0 ? (
         <div className="text-center py-10">
           <p className="text-muted-foreground">{t("common.inventory.noItems")}</p>
