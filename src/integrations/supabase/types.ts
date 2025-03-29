@@ -1821,13 +1821,6 @@ export type Database = {
             referencedRelation: "model_versions"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "model_version_applications_product_code_fkey"
-            columns: ["product_code"]
-            isOneToOne: false
-            referencedRelation: "product_hierarchy"
-            referencedColumns: ["code"]
-          },
         ]
       }
       model_versions: {
@@ -2100,75 +2093,6 @@ export type Database = {
             referencedColumns: ["product_id"]
           },
         ]
-      }
-      product_hierarchy: {
-        Row: {
-          active: boolean | null
-          code: string
-          created_at: string
-          id: string
-          l1_main_prod: string | null
-          l2_prod_line: string | null
-          l3_prod_category: string | null
-          l4_device_make: string | null
-          l5_prod_sub_category: string | null
-          l6_device_model: string | null
-          l7_device_color: string | null
-          l8_device_storage: string | null
-          level: number
-          level_name: string
-          name: string
-          npi_product: boolean | null
-          parent_code: string | null
-          planning_desc: string | null
-          sku: string
-          updated_at: string
-        }
-        Insert: {
-          active?: boolean | null
-          code: string
-          created_at?: string
-          id?: string
-          l1_main_prod?: string | null
-          l2_prod_line?: string | null
-          l3_prod_category?: string | null
-          l4_device_make?: string | null
-          l5_prod_sub_category?: string | null
-          l6_device_model?: string | null
-          l7_device_color?: string | null
-          l8_device_storage?: string | null
-          level: number
-          level_name: string
-          name: string
-          npi_product?: boolean | null
-          parent_code?: string | null
-          planning_desc?: string | null
-          sku: string
-          updated_at?: string
-        }
-        Update: {
-          active?: boolean | null
-          code?: string
-          created_at?: string
-          id?: string
-          l1_main_prod?: string | null
-          l2_prod_line?: string | null
-          l3_prod_category?: string | null
-          l4_device_make?: string | null
-          l5_prod_sub_category?: string | null
-          l6_device_model?: string | null
-          l7_device_color?: string | null
-          l8_device_storage?: string | null
-          level?: number
-          level_name?: string
-          name?: string
-          npi_product?: boolean | null
-          parent_code?: string | null
-          planning_desc?: string | null
-          sku?: string
-          updated_at?: string
-        }
-        Relationships: []
       }
       product_master: {
         Row: {

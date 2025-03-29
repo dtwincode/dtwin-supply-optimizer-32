@@ -11,7 +11,8 @@ export const uploadProduct = async (file: File) => {
         header: true,
         complete: resolve,
         error: reject,
-        skipEmptyLines: true
+        skipEmptyLines: true,
+        transformHeader: (header) => header.trim().toLowerCase(),
       });
     });
 
@@ -23,7 +24,7 @@ export const uploadProduct = async (file: File) => {
 
     console.log('Parsed product data:', parseResult.data);
 
-    // Map CSV data to the product_master table structure
+    // Map CSV data to the product_master table structure using exact field names
     const products = parseResult.data.map(row => ({
       sku: row.sku || '',
       name: row.name || '',
