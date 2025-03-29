@@ -43,7 +43,7 @@ export default function Settings() {
           <div className="relative pt-6 px-6 border-b">
             <div className="flex items-center mb-4">
               <button 
-                className="absolute left-0 top-1/2 -translate-y-1/2 p-1 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 ml-2"
+                className="absolute left-0 top-1/2 -translate-y-1/2 p-1 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 ml-2 z-10"
                 onClick={() => {
                   const currentIndex = tabs.findIndex(tab => tab.id === dataTab);
                   const prevIndex = (currentIndex - 1 + tabs.length) % tabs.length;
@@ -53,28 +53,28 @@ export default function Settings() {
                 <ChevronLeft className="w-5 h-5" />
               </button>
               
-              <div className="mx-auto overflow-hidden relative w-[calc(100%-80px)]">
-                <div className="flex gap-3 justify-center overflow-x-auto no-scrollbar py-2">
+              <div className="mx-auto px-10 overflow-hidden relative w-full">
+                <div className="flex gap-4 justify-center md:justify-start overflow-x-auto py-2 no-scrollbar px-2">
                   {tabs.map((tab) => (
                     <button
                       key={tab.id}
                       onClick={() => handleDataTabChange(tab.id)}
                       className={cn(
-                        "flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-all",
+                        "flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-all min-w-max",
                         dataTab === tab.id
                           ? `${tab.color} shadow-sm`
                           : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
                       )}
                     >
                       <tab.icon className="w-4 h-4" />
-                      {tab.label}
+                      <span className="whitespace-nowrap">{tab.label}</span>
                     </button>
                   ))}
                 </div>
               </div>
               
               <button 
-                className="absolute right-0 top-1/2 -translate-y-1/2 p-1 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 mr-2"
+                className="absolute right-0 top-1/2 -translate-y-1/2 p-1 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 mr-2 z-10"
                 onClick={() => {
                   const currentIndex = tabs.findIndex(tab => tab.id === dataTab);
                   const nextIndex = (currentIndex + 1) % tabs.length;
