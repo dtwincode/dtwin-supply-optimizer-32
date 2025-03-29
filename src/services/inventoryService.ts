@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { 
   InventoryItem,
@@ -97,6 +96,100 @@ export const updateBufferProfile = async (profile: BufferProfile): Promise<Buffe
     moq: data.moq || undefined,
     lotSizeFactor: data.lot_size_factor || undefined
   };
+};
+
+// Decoupling Point functions
+export const getDecouplingPoints = async (): Promise<DecouplingPoint[]> => {
+  const { data, error } = await supabase
+    .from('decoupling_points')
+    .select('*');
+
+  if (error) {
+    console.error('Error fetching decoupling points:', error);
+    throw error;
+  }
+
+  // Map the database format to our frontend model
+  return (data || []).map(point => ({
+    id: point.id,
+    locationId: point.location_id,
+    type: point.type,
+    description: point.description || undefined,
+    bufferProfileId: point.buffer_profile_id
+  }));
+};
+
+export const createDecouplingPoint = async (point: Omit<DecouplingPoint, 'id'>): Promise<DecouplingPoint> => {
+  // Convert from our frontend model to the database format
+  const dbPoint = {
+    location_id: point.locationId,
+    type: point.type,
+    description: point.description,
+    buffer_profile_id: point.bufferProfileId
+  };
+
+  const { data, error } = await supabase
+    .from('decoupling_points')
+    .insert(dbPoint)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating decoupling point:', error);
+    throw error;
+  }
+
+  // Map back to our frontend model
+  return {
+    id: data.id,
+    locationId: data.location_id,
+    type: data.type,
+    description: data.description || undefined,
+    bufferProfileId: data.buffer_profile_id
+  };
+};
+
+export const updateDecouplingPoint = async (point: Partial<DecouplingPoint> & { id: string }): Promise<DecouplingPoint> => {
+  // Convert from our frontend model to the database format
+  const dbPoint: Record<string, any> = {};
+  
+  if (point.locationId !== undefined) dbPoint.location_id = point.locationId;
+  if (point.type !== undefined) dbPoint.type = point.type;
+  if (point.description !== undefined) dbPoint.description = point.description;
+  if (point.bufferProfileId !== undefined) dbPoint.buffer_profile_id = point.bufferProfileId;
+
+  const { data, error } = await supabase
+    .from('decoupling_points')
+    .update(dbPoint)
+    .eq('id', point.id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating decoupling point:', error);
+    throw error;
+  }
+
+  // Map back to our frontend model
+  return {
+    id: data.id,
+    locationId: data.location_id,
+    type: data.type,
+    description: data.description || undefined,
+    bufferProfileId: data.buffer_profile_id
+  };
+};
+
+export const deleteDecouplingPoint = async (id: string): Promise<void> => {
+  const { error } = await supabase
+    .from('decoupling_points')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting decoupling point:', error);
+    throw error;
+  }
 };
 
 // Get all inventory items

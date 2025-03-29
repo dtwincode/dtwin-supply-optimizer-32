@@ -27,8 +27,8 @@ export interface DecouplingNetworkLink {
 }
 
 export interface DecouplingNetwork {
-  nodes: DecouplingNetworkNode[];
-  links: DecouplingNetworkLink[];
+  nodes: DecouplingNode[];
+  links: DecouplingLink[];
 }
 
 // Adding missing types used in useDecouplingPoints.ts
