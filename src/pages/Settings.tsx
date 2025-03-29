@@ -11,6 +11,7 @@ import ProductUpload from "@/components/settings/master_data_new/ProductUpload";
 import VendorUpload from "@/components/settings/master_data_new/VendorUpload";
 import { ChevronLeft, ChevronRight, Database, BarChart3, Package, MapPin, Tag, Warehouse, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Settings() {
   const [dataTab, setDataTab] = useState("products");
@@ -25,10 +26,6 @@ export default function Settings() {
     { id: "buffer-profiles", label: "Buffer Profiles", icon: Shield, color: "bg-cyan-400/10 text-cyan-600 dark:text-cyan-400" },
   ];
 
-  const handleDataTabChange = (value: string) => {
-    setDataTab(value);
-  };
-
   return <DashboardLayout>
       <div className="flex-1 space-y-6 p-6 md:p-8 pt-6">
         <Card className="border-none shadow-md overflow-hidden">
@@ -39,55 +36,32 @@ export default function Settings() {
             </CardDescription>
           </CardHeader>
           
-          {/* Improved Tab Navigation - fixing the visibility issues */}
-          <div className="relative pt-6 px-6 border-b">
-            <div className="flex items-center mb-4">
-              <button 
-                className="absolute left-0 top-1/2 -translate-y-1/2 p-1 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 ml-2 z-10"
-                onClick={() => {
-                  const currentIndex = tabs.findIndex(tab => tab.id === dataTab);
-                  const prevIndex = (currentIndex - 1 + tabs.length) % tabs.length;
-                  handleDataTabChange(tabs[prevIndex].id);
-                }}
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              
-              {/* Modified tab container to better display all tabs */}
-              <div className="w-full px-12 md:px-14 mx-auto overflow-hidden">
-                <div className="flex gap-4 justify-start overflow-x-auto scrollbar-hide py-2 px-1">
+          {/* Completely redesigned tab navigation for better visibility */}
+          <div className="border-b">
+            <div className="px-6 py-4">
+              <Tabs value={dataTab} onValueChange={setDataTab} className="w-full">
+                <TabsList className="w-full h-auto p-1 bg-gray-100 dark:bg-gray-800 grid grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2">
                   {tabs.map((tab) => (
-                    <button
+                    <TabsTrigger
                       key={tab.id}
-                      onClick={() => handleDataTabChange(tab.id)}
+                      value={tab.id}
                       className={cn(
-                        "flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-all shrink-0",
-                        dataTab === tab.id
-                          ? `${tab.color} shadow-sm`
-                          : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+                        "flex items-center gap-1.5 py-2 px-3 h-auto data-[state=active]:shadow-sm",
+                        dataTab === tab.id ? tab.color : "text-gray-600 dark:text-gray-300"
                       )}
                     >
                       <tab.icon className="w-4 h-4 flex-shrink-0" />
-                      <span className="whitespace-nowrap">{tab.label}</span>
-                    </button>
+                      <span className="whitespace-nowrap text-xs md:text-sm">
+                        {tab.label}
+                      </span>
+                    </TabsTrigger>
                   ))}
-                </div>
-              </div>
-              
-              <button 
-                className="absolute right-0 top-1/2 -translate-y-1/2 p-1 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 mr-2 z-10"
-                onClick={() => {
-                  const currentIndex = tabs.findIndex(tab => tab.id === dataTab);
-                  const nextIndex = (currentIndex + 1) % tabs.length;
-                  handleDataTabChange(tabs[nextIndex].id);
-                }}
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
+                </TabsList>
+              </Tabs>
             </div>
             
-            {/* Tab Indicator */}
-            <div className="w-full bg-gray-200 dark:bg-gray-700 h-1 rounded-full overflow-hidden">
+            {/* Optional progress indicator */}
+            <div className="w-full bg-gray-200 dark:bg-gray-700 h-1">
               <div 
                 className="h-full bg-blue-500 transition-all duration-300"
                 style={{
