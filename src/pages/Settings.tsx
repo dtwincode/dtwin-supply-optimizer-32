@@ -4,12 +4,25 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { BufferProfilesTab } from "@/components/settings/BufferProfilesTab";
+import BufferProfilesUpload from "@/components/settings/master_data_new/BufferProfilesUpload";
+import HistoricalSalesUpload from "@/components/settings/master_data_new/HistoricalSalesUpload";
+import InventoryDataUpload from "@/components/settings/master_data_new/InventoryDataUpload";
+import LocationUpload from "@/components/settings/master_data_new/LocationUpload";
+import ProductPricingUpload from "@/components/settings/master_data_new/ProductPricingUpload";
+import ProductUpload from "@/components/settings/master_data_new/ProductUpload";
+import VendorUpload from "@/components/settings/master_data_new/VendorUpload";
+import BufferProfilesTab from "@/components/settings/master_data_new/BufferProfilesTab";
 
 export default function Settings() {
   const [currentTab, setCurrentTab] = useState("buffer-profiles");
+  const [dataTab, setDataTab] = useState("products");
   
   const handleTabChange = (value: string) => {
     setCurrentTab(value);
+  };
+
+  const handleDataTabChange = (value: string) => {
+    setDataTab(value);
   };
 
   return (
@@ -72,7 +85,39 @@ export default function Settings() {
                 <CardDescription>Manage your uploaded data</CardDescription>
               </CardHeader>
               <CardContent>
-                <p>Data management functionality will be implemented soon.</p>
+                <Tabs value={dataTab} onValueChange={handleDataTabChange} className="space-y-4">
+                  <TabsList className="mb-4 flex flex-wrap">
+                    <TabsTrigger value="products" className="rounded-md px-3">Products</TabsTrigger>
+                    <TabsTrigger value="vendors" className="rounded-md px-3">Vendors</TabsTrigger>
+                    <TabsTrigger value="locations" className="rounded-md px-3">Locations</TabsTrigger>
+                    <TabsTrigger value="historical-sales" className="rounded-md px-3">Historical Sales</TabsTrigger>
+                    <TabsTrigger value="product-pricing" className="rounded-md px-3">Product Pricing</TabsTrigger>
+                    <TabsTrigger value="inventory-data" className="rounded-md px-3">Inventory Data</TabsTrigger>
+                    <TabsTrigger value="buffer-profiles" className="rounded-md px-3">Buffer Profiles</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="products">
+                    <ProductUpload />
+                  </TabsContent>
+                  <TabsContent value="vendors">
+                    <VendorUpload />
+                  </TabsContent>
+                  <TabsContent value="locations">
+                    <LocationUpload />
+                  </TabsContent>
+                  <TabsContent value="historical-sales">
+                    <HistoricalSalesUpload />
+                  </TabsContent>
+                  <TabsContent value="product-pricing">
+                    <ProductPricingUpload />
+                  </TabsContent>
+                  <TabsContent value="inventory-data">
+                    <InventoryDataUpload />
+                  </TabsContent>
+                  <TabsContent value="buffer-profiles">
+                    <BufferProfilesTab />
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
           </TabsContent>
