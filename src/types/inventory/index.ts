@@ -52,3 +52,18 @@ export interface InventoryTransactionData {
   referenceType?: 'purchase_order' | 'sales_order' | 'shipment';
   notes?: string;
 }
+
+// Inventory Item interface
+export interface InventoryItem {
+  inventory_id: string;
+  product_id: string;
+  current_stock: number;
+  min_stock?: number;
+  max_stock?: number;
+  safety_stock?: number;
+  lead_time_days?: number;
+  location_id?: string;
+  buffer_penetration?: number;
+  created_at?: string;
+  updated_at?: string;
+}

@@ -40,7 +40,6 @@ export const uploadInventoryData = async (file: File) => {
     // Map CSV data to the inventory table structure
     const inventoryData = parseResult.data.map(row => ({
       product_id: row.product_id,
-      inventory_id: row.inventory_id || null,
       current_stock: parseInt(row.current_stock) || 0,
       min_stock: parseInt(row.min_stock) || 0,
       max_stock: parseInt(row.max_stock) || 0,
