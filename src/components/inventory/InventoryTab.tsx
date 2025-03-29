@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { useI18n } from "@/contexts/I18nContext";
@@ -178,6 +177,10 @@ export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) =
                     </TableCell>
                     <TableCell>{item.location || "N/A"}</TableCell>
                     <TableCell>{item.productFamily || "N/A"}</TableCell>
+                    <TableCell>{item.classification?.lead_time_category || "N/A"}</TableCell>
+                    <TableCell>{item.classification?.variability_level || "N/A"}</TableCell>
+                    <TableCell>{item.classification?.criticality || "N/A"}</TableCell>
+                    <TableCell>{item.classification?.score ?? "N/A"}</TableCell>
                     <TableCell>
                       <CreatePODialog 
                         item={item}
@@ -194,4 +197,4 @@ export const InventoryTab = ({ paginatedData, onCreatePO }: InventoryTabProps) =
       )}
     </div>
   );
-};
+}; check 
