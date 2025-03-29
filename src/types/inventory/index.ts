@@ -1,4 +1,3 @@
-
 export * from './bufferTypes';
 export * from './decouplingTypes';
 export * from './classificationTypes';
@@ -53,17 +52,13 @@ export interface InventoryTransactionData {
   notes?: string;
 }
 
-// Inventory Item interface
+// Inventory Item interface to match the new inventory_data table
 export interface InventoryItem {
   inventory_id: string;
   product_id: string;
-  current_stock: number;
-  min_stock?: number;
-  max_stock?: number;
-  safety_stock?: number;
-  lead_time_days?: number;
+  quantity_on_hand: number;
+  available_qty?: number;
+  reserved_qty?: number;
   location_id?: string;
-  buffer_penetration?: number;
-  created_at?: string;
-  updated_at?: string;
+  last_updated?: string;
 }

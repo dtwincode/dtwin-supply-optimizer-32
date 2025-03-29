@@ -23,35 +23,32 @@ export const uploadInventoryData = async (file: File) => {
 
     console.log('Parsed inventory data:', parseResult.data);
 
-    // Validate required fields - product_id and current_stock are required
+    // Validate required fields - product_id and quantity_on_hand are required
     const invalidRows = parseResult.data.filter(
-      row => !row.product_id || row.product_id.trim() === '' || isNaN(row.current_stock)
+      row => !row.product_id || row.product_id.trim() === '' || isNaN(row.quantity_on_hand)
     );
 
     if (invalidRows.length > 0) {
       console.error('Invalid rows found:', invalidRows);
       return { 
         success: false, 
-        message: `${invalidRows.length} row(s) missing required fields (product_id, current_stock)`,
-        details: 'Each row must have valid values for the required fields: product_id and current_stock'
+        message: `${invalidRows.length} row(s) missing required fields (product_id, quantity_on_hand)`,
+        details: 'Each row must have valid values for the required fields: product_id and quantity_on_hand'
       };
     }
 
-    // Map CSV data to the inventory table structure
+    // Map CSV data to the inventory_data table structure
     const inventoryData = parseResult.data.map(row => ({
       product_id: row.product_id,
-      current_stock: parseInt(row.current_stock) || 0,
-      min_stock: parseInt(row.min_stock) || 0,
-      max_stock: parseInt(row.max_stock) || 0,
-      safety_stock: parseInt(row.safety_stock) || 0,
-      lead_time_days: parseInt(row.lead_time_days) || null,
-      location_id: row.location_id || null,
-      buffer_penetration: parseFloat(row.buffer_penetration) || null
+      quantity_on_hand: parseInt(row.quantity_on_hand) || 0,
+      available_qty: parseInt(row.available_qty) || parseInt(row.quantity_on_hand) || 0,
+      reserved_qty: parseInt(row.reserved_qty) || 0,
+      location_id: row.location_id || null
     }));
 
-    // Insert data into the inventory table
+    // Insert data into the inventory_data table
     const { data, error } = await supabase
-      .from('inventory')
+      .from('inventory_data')
       .insert(inventoryData);
 
     if (error) {
@@ -74,7 +71,7 @@ export const uploadInventoryData = async (file: File) => {
 export const getInventoryData = async () => {
   try {
     const { data, error } = await supabase
-      .from('inventory')
+      .from('inventory_data')
       .select('*');
     
     if (error) {
@@ -97,7 +94,7 @@ export const getInventoryData = async () => {
 export const updateInventoryItem = async (id: string, updates: any) => {
   try {
     const { data, error } = await supabase
-      .from('inventory')
+      .from('inventory_data')
       .update(updates)
       .eq('inventory_id', id)
       .select();
@@ -121,7 +118,7 @@ export const updateInventoryItem = async (id: string, updates: any) => {
 export const deleteInventoryItem = async (id: string) => {
   try {
     const { error } = await supabase
-      .from('inventory')
+      .from('inventory_data')
       .delete()
       .eq('inventory_id', id);
     

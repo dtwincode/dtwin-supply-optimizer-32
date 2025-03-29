@@ -105,7 +105,7 @@ const InventoryDataUpload = () => {
     <div className="border rounded-lg shadow-sm p-3">
       <h2 className="text-base font-medium mb-2">Inventory Data Upload</h2>
       <p className="mb-3 text-xs text-muted-foreground">
-        Upload your inventory data using CSV format. Required columns: product_id, current_stock
+        Upload your inventory data using CSV format. Required columns: product_id, quantity_on_hand
       </p>
       <div className="space-y-3">
         <div>
@@ -165,9 +165,9 @@ const InventoryDataUpload = () => {
         <div className="text-xs text-muted-foreground mt-3">
           <p className="font-medium">CSV Format Requirements:</p>
           <ul className="list-disc list-inside ml-2 space-y-0.5 mt-1">
-            <li>Required: product_id, current_stock</li>
-            <li>Optional: min_stock, max_stock, safety_stock, lead_time_days, location_id, buffer_penetration</li>
-            <li>Numeric fields: current_stock, min_stock, max_stock, safety_stock, lead_time_days</li>
+            <li>Required: product_id, quantity_on_hand</li>
+            <li>Optional: available_qty, reserved_qty, location_id</li>
+            <li>Numeric fields: quantity_on_hand, available_qty, reserved_qty</li>
             <li>Ensure that all rows have values for the required fields</li>
           </ul>
         </div>

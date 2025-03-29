@@ -196,15 +196,7 @@ export type Database = {
           sku?: string | null
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "buffer_factor_configs_sku_fkey"
-            columns: ["sku"]
-            isOneToOne: false
-            referencedRelation: "inventory_data"
-            referencedColumns: ["sku"]
-          },
-        ]
+        Relationships: []
       }
       buffer_profiles: {
         Row: {
@@ -388,15 +380,7 @@ export type Database = {
           recorded_at?: string
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "ddmrp_metrics_history_inventory_item_id_fkey"
-            columns: ["inventory_item_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_data"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       decoupling_points: {
         Row: {
@@ -1090,215 +1074,48 @@ export type Database = {
         }
         Relationships: []
       }
-      inventory: {
+      inventory_data: {
         Row: {
-          buffer_penetration: number | null
-          created_at: string | null
-          current_stock: number
+          available_qty: number | null
           inventory_id: string
-          lead_time_days: number | null
+          last_updated: string | null
           location_id: string
-          max_stock: number | null
-          min_stock: number | null
           product_id: string
-          safety_stock: number | null
-          updated_at: string | null
+          quantity_on_hand: number
+          reserved_qty: number | null
         }
         Insert: {
-          buffer_penetration?: number | null
-          created_at?: string | null
-          current_stock: number
+          available_qty?: number | null
           inventory_id?: string
-          lead_time_days?: number | null
+          last_updated?: string | null
           location_id: string
-          max_stock?: number | null
-          min_stock?: number | null
           product_id: string
-          safety_stock?: number | null
-          updated_at?: string | null
+          quantity_on_hand: number
+          reserved_qty?: number | null
         }
         Update: {
-          buffer_penetration?: number | null
-          created_at?: string | null
-          current_stock?: number
+          available_qty?: number | null
           inventory_id?: string
-          lead_time_days?: number | null
+          last_updated?: string | null
           location_id?: string
-          max_stock?: number | null
-          min_stock?: number | null
           product_id?: string
-          safety_stock?: number | null
-          updated_at?: string | null
+          quantity_on_hand?: number
+          reserved_qty?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "fk_location"
+            foreignKeyName: "inventory_data_location_id_fkey"
             columns: ["location_id"]
             isOneToOne: false
             referencedRelation: "location_master"
             referencedColumns: ["location_id"]
           },
           {
-            foreignKeyName: "fk_product"
+            foreignKeyName: "inventory_data_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "product_master"
             referencedColumns: ["product_id"]
-          },
-        ]
-      }
-      inventory_data: {
-        Row: {
-          adu: number | null
-          adu_calculation: Json | null
-          buffer_health_assessment: number | null
-          buffer_penetration: number | null
-          category: string | null
-          channel: string | null
-          city: string | null
-          created_at: string
-          current_stock: number
-          decoupled_lead_time: number | null
-          decoupling_point_id: string | null
-          demand_driven_fill_rate: number | null
-          demand_sensing_accuracy: number | null
-          demand_variability_factor: number | null
-          dynamic_adjustments: Json | null
-          economic_order_qty: number | null
-          green_zone_size: number | null
-          id: string
-          inventory_carrying_cost: number | null
-          inventory_turns_ratio: number | null
-          lead_time_compression_index: number | null
-          lead_time_days: number | null
-          location: string | null
-          max_stock: number
-          min_stock: number
-          name: string
-          net_flow_position: number | null
-          notes: string | null
-          on_hand: number | null
-          on_order: number | null
-          order_spike_threshold: number | null
-          original_lead_time: number | null
-          planning_priority: string | null
-          product_family: string | null
-          qualified_demand: number | null
-          red_zone_size: number | null
-          region: string | null
-          service_level: number | null
-          sku: string
-          subcategory: string | null
-          supply_signals: Json | null
-          supply_variability_factor: number | null
-          updated_at: string
-          variability_factor: number | null
-          warehouse: string | null
-          yellow_zone_size: number | null
-        }
-        Insert: {
-          adu?: number | null
-          adu_calculation?: Json | null
-          buffer_health_assessment?: number | null
-          buffer_penetration?: number | null
-          category?: string | null
-          channel?: string | null
-          city?: string | null
-          created_at?: string
-          current_stock: number
-          decoupled_lead_time?: number | null
-          decoupling_point_id?: string | null
-          demand_driven_fill_rate?: number | null
-          demand_sensing_accuracy?: number | null
-          demand_variability_factor?: number | null
-          dynamic_adjustments?: Json | null
-          economic_order_qty?: number | null
-          green_zone_size?: number | null
-          id?: string
-          inventory_carrying_cost?: number | null
-          inventory_turns_ratio?: number | null
-          lead_time_compression_index?: number | null
-          lead_time_days?: number | null
-          location?: string | null
-          max_stock: number
-          min_stock: number
-          name: string
-          net_flow_position?: number | null
-          notes?: string | null
-          on_hand?: number | null
-          on_order?: number | null
-          order_spike_threshold?: number | null
-          original_lead_time?: number | null
-          planning_priority?: string | null
-          product_family?: string | null
-          qualified_demand?: number | null
-          red_zone_size?: number | null
-          region?: string | null
-          service_level?: number | null
-          sku: string
-          subcategory?: string | null
-          supply_signals?: Json | null
-          supply_variability_factor?: number | null
-          updated_at?: string
-          variability_factor?: number | null
-          warehouse?: string | null
-          yellow_zone_size?: number | null
-        }
-        Update: {
-          adu?: number | null
-          adu_calculation?: Json | null
-          buffer_health_assessment?: number | null
-          buffer_penetration?: number | null
-          category?: string | null
-          channel?: string | null
-          city?: string | null
-          created_at?: string
-          current_stock?: number
-          decoupled_lead_time?: number | null
-          decoupling_point_id?: string | null
-          demand_driven_fill_rate?: number | null
-          demand_sensing_accuracy?: number | null
-          demand_variability_factor?: number | null
-          dynamic_adjustments?: Json | null
-          economic_order_qty?: number | null
-          green_zone_size?: number | null
-          id?: string
-          inventory_carrying_cost?: number | null
-          inventory_turns_ratio?: number | null
-          lead_time_compression_index?: number | null
-          lead_time_days?: number | null
-          location?: string | null
-          max_stock?: number
-          min_stock?: number
-          name?: string
-          net_flow_position?: number | null
-          notes?: string | null
-          on_hand?: number | null
-          on_order?: number | null
-          order_spike_threshold?: number | null
-          original_lead_time?: number | null
-          planning_priority?: string | null
-          product_family?: string | null
-          qualified_demand?: number | null
-          red_zone_size?: number | null
-          region?: string | null
-          service_level?: number | null
-          sku?: string
-          subcategory?: string | null
-          supply_signals?: Json | null
-          supply_variability_factor?: number | null
-          updated_at?: string
-          variability_factor?: number | null
-          warehouse?: string | null
-          yellow_zone_size?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "inventory_data_decoupling_point_id_fkey"
-            columns: ["decoupling_point_id"]
-            isOneToOne: false
-            referencedRelation: "decoupling_points"
-            referencedColumns: ["id"]
           },
         ]
       }
