@@ -6,44 +6,64 @@ import * as XLSX from 'xlsx';
 // Function to handle historical sales data upload from CSV or Excel
 export const uploadHistoricalSales = async (file: File) => {
   try {
+    console.log('Starting to process file:', file.name, 'size:', file.size);
     // Parse the file based on its type
     let parsedData;
 
     if (file.name.endsWith('.csv')) {
-      // Parse CSV file
+      // Parse CSV file with more explicit options
+      const csvContent = await readFileAsText(file);
+      console.log('CSV content sample:', csvContent.substring(0, 200) + '...');
+      
       const parseResult = await new Promise<Papa.ParseResult<any>>((resolve, reject) => {
-        Papa.parse(file, {
+        Papa.parse(csvContent, {
           header: true,
           complete: resolve,
           error: reject,
-          skipEmptyLines: true
+          skipEmptyLines: true,
+          transformHeader: (header) => header.trim().toLowerCase(),
+          delimiter: '', // auto-detect delimiter
+          preview: 5, // Log a preview for debugging
+          step: (results, parser) => {
+            console.log('Parsing row:', results.data);
+          }
         });
       });
 
-      if (!parseResult.data || parseResult.data.length === 0) {
-        console.error('No data found in the CSV file');
-        return { success: false, error: 'No data found in the CSV file' };
+      console.log('Parse result:', parseResult);
+      
+      if (!parseResult.data || parseResult.data.length === 0 || Object.keys(parseResult.data[0]).length === 0) {
+        console.error('No data found in the CSV file or invalid format');
+        return { success: false, error: 'No data found in the CSV file or invalid format. Please check the file structure.' };
       }
 
       parsedData = parseResult.data;
+      console.log('First row of parsed data:', parsedData[0]);
+      console.log('Headers:', Object.keys(parsedData[0]));
+      
     } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
       // Parse Excel file
-      const data = await file.arrayBuffer();
-      const workbook = XLSX.read(data, { type: 'array' });
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
-      parsedData = XLSX.utils.sheet_to_json(worksheet);
+      try {
+        const data = await file.arrayBuffer();
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        parsedData = XLSX.utils.sheet_to_json(worksheet);
 
-      if (!parsedData || parsedData.length === 0) {
-        console.error('No data found in the Excel file');
-        return { success: false, error: 'No data found in the Excel file' };
+        if (!parsedData || parsedData.length === 0) {
+          console.error('No data found in the Excel file');
+          return { success: false, error: 'No data found in the Excel file' };
+        }
+      } catch (excelError) {
+        console.error('Error parsing Excel file:', excelError);
+        return { success: false, error: 'Error parsing Excel file: ' + (excelError instanceof Error ? excelError.message : String(excelError)) };
       }
     } else {
       console.error('Unsupported file format');
       return { success: false, error: 'Unsupported file format. Please upload CSV or Excel files only.' };
     }
 
-    console.log('Parsed historical sales data:', parsedData);
+    console.log('Parsed historical sales data:', parsedData.slice(0, 2));
 
     // Map data to the historical_sales_data table structure
     const salesData = parsedData.map(row => {
@@ -59,27 +79,55 @@ export const uploadHistoricalSales = async (file: File) => {
         return null;
       };
 
+      // Get primary fields needed for database insert
+      const salesDate = getField(['sales_date', 'date', 'DATE', 'sale_date', 'transaction_date']);
+      const productId = getField(['product_id', 'PRODUCT_ID', 'product', 'sku', 'product_sku', 'product_code']);
+      const locationId = getField(['location_id', 'LOCATION_ID', 'location', 'store_id', 'warehouse_id']);
+      const quantitySold = getField(['quantity_sold', 'quantity', 'qty', 'QUANTITY', 'units_sold', 'sales_qty']);
+      const revenue = getField(['revenue', 'REVENUE', 'total_revenue', 'sales_amount', 'amount', 'sales_value']);
+      const vendorId = getField(['vendor_id', 'VENDOR_ID', 'vendor', 'supplier_id', 'supplier']);
+      
+      // Log each field to help with debugging
+      console.log('Field mapping for row:', {
+        salesDate,
+        productId,
+        locationId,
+        quantitySold,
+        revenue,
+        vendorId,
+        rawRow: row
+      });
+
+      // Validate required fields
+      if (!salesDate || !productId || !locationId || !quantitySold || !revenue) {
+        console.warn('Missing required fields in row:', row);
+        return null; // Skip this row
+      }
+
       // Calculate unit price if quantity sold is provided and not zero
-      const quantitySold = parseFloat(getField(['quantity_sold', 'quantity', 'qty', 'QUANTITY'])) || 0;
-      const revenue = parseFloat(getField(['revenue', 'REVENUE', 'total_revenue'])) || 0;
-      const unitPrice = quantitySold > 0 ? revenue / quantitySold : 
-        parseFloat(getField(['unit_price', 'price', 'UNIT_PRICE'])) || null;
+      const quantitySoldNum = parseFloat(quantitySold) || 0;
+      const revenueNum = parseFloat(revenue) || 0;
+      const unitPrice = quantitySoldNum > 0 ? revenueNum / quantitySoldNum : 
+        parseFloat(getField(['unit_price', 'price', 'UNIT_PRICE', 'price_per_unit'])) || null;
 
       return {
-        sales_date: getField(['sales_date', 'date', 'DATE', 'sale_date']) || new Date().toISOString().split('T')[0],
-        product_id: getField(['product_id', 'PRODUCT_ID', 'product', 'sku']),
-        location_id: getField(['location_id', 'LOCATION_ID', 'location']),
-        quantity_sold: quantitySold,
-        revenue: revenue,
-        vendor_id: getField(['vendor_id', 'VENDOR_ID', 'vendor']),
+        sales_date: salesDate || new Date().toISOString().split('T')[0],
+        product_id: productId,
+        location_id: locationId,
+        quantity_sold: quantitySoldNum,
+        revenue: revenueNum,
+        vendor_id: vendorId,
         unit_price: unitPrice
       };
-    });
+    }).filter(item => item !== null); // Remove null items (invalid rows)
 
     if (salesData.length === 0) {
       console.error('No valid data could be extracted from the file');
-      return { success: false, error: 'No valid data could be extracted from the file' };
+      return { success: false, error: 'No valid data could be extracted from the file. Please check the file format and column headers.' };
     }
+
+    console.log('Mapped sales data:', salesData.slice(0, 2));
+    console.log('Total rows to insert:', salesData.length);
 
     // Insert data into the historical_sales_data table
     const { data, error } = await supabase
@@ -97,4 +145,14 @@ export const uploadHistoricalSales = async (file: File) => {
     console.error('Error processing historical sales file:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error processing file' };
   }
+};
+
+// Helper function to read file as text
+const readFileAsText = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => resolve(e.target?.result as string);
+    reader.onerror = (error) => reject(error);
+    reader.readAsText(file);
+  });
 };
