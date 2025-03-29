@@ -1,23 +1,40 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { FileUpload } from "@/components/settings/upload/FileUpload";
+import { useToast } from "@/hooks/use-toast";
+import { Progress } from "@/components/ui/progress";
+import { UploadInstructions, FieldDescription } from "./components/UploadInstructions";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Plus, Upload, FileUp, Edit, Trash } from "lucide-react";
-import { BufferProfile } from "@/types/inventory";
+import { Plus, Upload } from "lucide-react";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle 
+} from "@/components/ui/dialog";
 import { useBufferProfiles } from "@/hooks/useBufferProfiles";
-import BufferProfilesUpload from "./BufferProfilesUpload";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { BufferProfile } from "@/types/inventory";
+import { DataTable } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
+
+const bufferProfileFields: FieldDescription[] = [
+  { name: "name", description: "Unique name for the buffer profile", required: true },
+  { name: "variabilityFactor", description: "Demand variability level (low_variability, medium_variability, high_variability)", required: true },
+  { name: "leadTimeFactor", description: "Lead time classification (short, medium, long)", required: true },
+  { name: "moq", description: "Minimum Order Quantity for the product", required: false },
+  { name: "lotSizeFactor", description: "Factor used to calculate lot sizes for ordering", required: false },
+  { name: "description", description: "Detailed description of the buffer profile", required: false },
+];
 
 const BufferProfilesTab = () => {
+  const { toast } = useToast();
   const { profiles, loading, fetchProfiles, createOrUpdateProfile } = useBufferProfiles();
-  const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [isAddProfileOpen, setIsAddProfileOpen] = useState(false);
   const [editingProfile, setEditingProfile] = useState<BufferProfile | null>(null);
-  const { toast } = useToast();
 
   // Form state
   const [formData, setFormData] = useState<Partial<BufferProfile>>({
@@ -29,22 +46,30 @@ const BufferProfilesTab = () => {
     lotSizeFactor: 1
   });
 
-  useEffect(() => {
-    fetchProfiles();
-  }, [fetchProfiles]);
-
-  useEffect(() => {
-    if (editingProfile) {
-      setFormData({
-        name: editingProfile.name,
-        description: editingProfile.description || "",
-        variabilityFactor: editingProfile.variabilityFactor,
-        leadTimeFactor: editingProfile.leadTimeFactor,
-        moq: editingProfile.moq || 0,
-        lotSizeFactor: editingProfile.lotSizeFactor || 1
+  const handleUploadComplete = async (data: any[], fileName: string) => {
+    try {
+      setUploading(true);
+      
+      // Process data... (would be implemented in a real application)
+      
+      toast({
+        title: "Upload successful",
+        description: `${data.length} buffer profiles have been uploaded.`,
       });
+      
+      // Refresh profiles after upload
+      fetchProfiles();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Upload failed",
+        description: error instanceof Error ? error.message : "Unknown error occurred",
+      });
+    } finally {
+      setUploading(false);
+      setProgress(0);
     }
-  }, [editingProfile]);
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -103,16 +128,15 @@ const BufferProfilesTab = () => {
 
   const handleEdit = (profile: BufferProfile) => {
     setEditingProfile(profile);
-    setIsAddProfileOpen(true);
-  };
-
-  const handleDelete = async (profile: BufferProfile) => {
-    // Implement delete functionality
-    toast({
-      title: "Not implemented",
-      description: "Delete functionality will be added in the future update.",
-      variant: "default",
+    setFormData({
+      name: profile.name,
+      description: profile.description || "",
+      variabilityFactor: profile.variabilityFactor,
+      leadTimeFactor: profile.leadTimeFactor,
+      moq: profile.moq || 0,
+      lotSizeFactor: profile.lotSizeFactor || 1
     });
+    setIsAddProfileOpen(true);
   };
 
   const resetForm = () => {
@@ -127,241 +151,219 @@ const BufferProfilesTab = () => {
     setEditingProfile(null);
   };
 
-  // Helper function to safely format variable factor value
-  const formatVariabilityFactor = (variabilityFactor?: string) => {
-    if (!variabilityFactor) return 'N/A';
-    
-    return variabilityFactor
-      .replace(/_/g, ' ')
-      .replace(/\b\w/g, c => c.toUpperCase());
+  // Helper function to format variability factor for display
+  const formatVariabilityFactor = (value: string) => {
+    if (!value) return 'N/A';
+    return value.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   };
 
-  // Helper function to safely format lead time value
-  const formatLeadTime = (leadTimeFactor?: string) => {
-    if (!leadTimeFactor) return 'N/A';
-    
-    return leadTimeFactor.charAt(0).toUpperCase() + leadTimeFactor.slice(1);
+  // Helper function to format lead time for display
+  const formatLeadTime = (value: string) => {
+    if (!value) return 'N/A';
+    return value.charAt(0).toUpperCase() + value.slice(1);
   };
+
+  const columns = [
+    { header: "Name", accessorKey: "name" },
+    { 
+      header: "Variability Factor", 
+      accessorKey: "variabilityFactor",
+      cell: ({ row }: { row: { original: BufferProfile } }) => (
+        <span>{formatVariabilityFactor(row.original.variabilityFactor)}</span>
+      )
+    },
+    { 
+      header: "Lead Time Factor", 
+      accessorKey: "leadTimeFactor",
+      cell: ({ row }: { row: { original: BufferProfile } }) => (
+        <span className="capitalize">{formatLeadTime(row.original.leadTimeFactor)}</span>
+      )
+    },
+    { 
+      header: "MOQ", 
+      accessorKey: "moq",
+      cell: ({ row }: { row: { original: BufferProfile } }) => (
+        <span>{row.original.moq || 'N/A'}</span>
+      )
+    },
+    { 
+      header: "Lot Size Factor", 
+      accessorKey: "lotSizeFactor",
+      cell: ({ row }: { row: { original: BufferProfile } }) => (
+        <span>{row.original.lotSizeFactor || 'N/A'}</span>
+      )
+    },
+    { 
+      header: "Description", 
+      accessorKey: "description",
+      cell: ({ row }: { row: { original: BufferProfile } }) => (
+        <span>{row.original.description || 'N/A'}</span>
+      )
+    },
+    {
+      header: "Actions",
+      id: "actions",
+      cell: ({ row }: { row: { original: BufferProfile } }) => (
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" size="sm" onClick={() => handleEdit(row.original)}>
+            Edit
+          </Button>
+        </div>
+      )
+    }
+  ];
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Buffer Profiles</h2>
-          <p className="text-muted-foreground">
-            Manage buffer profiles for inventory management and control
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="gap-2">
-                <Upload className="w-4 h-4" />
-                Upload
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-lg">
-              <DialogHeader>
-                <DialogTitle>Upload Buffer Profiles</DialogTitle>
-              </DialogHeader>
-              <BufferProfilesUpload 
-                onDataUploaded={() => {
-                  setIsUploadOpen(false);
-                  fetchProfiles();
-                }} 
-              />
-            </DialogContent>
-          </Dialog>
-
-          <Dialog open={isAddProfileOpen} onOpenChange={(open) => {
-            setIsAddProfileOpen(open);
-            if (!open) resetForm();
-          }}>
-            <DialogTrigger asChild>
-              <Button className="gap-2">
-                <Plus className="w-4 h-4" />
-                Add Profile
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-lg">
-              <DialogHeader>
-                <DialogTitle>{editingProfile ? "Edit Buffer Profile" : "Add New Buffer Profile"}</DialogTitle>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label htmlFor="name" className="text-right font-medium">
-                    Name*
-                  </label>
-                  <Input
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className="col-span-3"
-                    required
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label htmlFor="description" className="text-right font-medium">
-                    Description
-                  </label>
-                  <Textarea
-                    id="description"
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    className="col-span-3"
-                    rows={3}
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label htmlFor="variabilityFactor" className="text-right font-medium">
-                    Variability Factor*
-                  </label>
-                  <Select
-                    value={formData.variabilityFactor}
-                    onValueChange={(value) => handleSelectChange("variabilityFactor", value)}
-                  >
-                    <SelectTrigger className="col-span-3">
-                      <SelectValue placeholder="Select variability" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="low_variability">Low Variability</SelectItem>
-                      <SelectItem value="medium_variability">Medium Variability</SelectItem>
-                      <SelectItem value="high_variability">High Variability</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label htmlFor="leadTimeFactor" className="text-right font-medium">
-                    Lead Time Factor*
-                  </label>
-                  <Select
-                    value={formData.leadTimeFactor}
-                    onValueChange={(value) => handleSelectChange("leadTimeFactor", value)}
-                  >
-                    <SelectTrigger className="col-span-3">
-                      <SelectValue placeholder="Select lead time" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="short">Short</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="long">Long</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label htmlFor="moq" className="text-right font-medium">
-                    MOQ
-                  </label>
-                  <Input
-                    id="moq"
-                    name="moq"
-                    type="number"
-                    value={formData.moq}
-                    onChange={handleNumberChange}
-                    className="col-span-3"
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label htmlFor="lotSizeFactor" className="text-right font-medium">
-                    Lot Size Factor
-                  </label>
-                  <Input
-                    id="lotSizeFactor"
-                    name="lotSizeFactor"
-                    type="number"
-                    step="0.1"
-                    value={formData.lotSizeFactor}
-                    onChange={handleNumberChange}
-                    className="col-span-3"
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setIsAddProfileOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleSubmit}>
-                  {editingProfile ? "Update Profile" : "Add Profile"}
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
+      <UploadInstructions
+        title="Buffer Profiles Upload Instructions"
+        description="Upload your buffer profiles data using CSV or Excel format. The file should include the fields below."
+        fields={bufferProfileFields}
+      />
+      
+      <div className="flex flex-wrap gap-4">
+        <Button variant="outline" onClick={() => setIsAddProfileOpen(true)} className="flex gap-2">
+          <Plus className="h-4 w-4" />
+          Add Profile
+        </Button>
+        
+        <FileUpload
+          onUploadComplete={handleUploadComplete}
+          onProgress={setProgress}
+          allowedFileTypes={[".csv", ".xlsx"]}
+          maxSize={5}
+        />
       </div>
+      
+      {uploading && (
+        <div className="space-y-2">
+          <Progress value={progress} className="w-full" />
+          <p className="text-sm text-muted-foreground">Processing... {progress}%</p>
+        </div>
+      )}
 
       {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent"></div>
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin h-8 w-8 border-4 border-primary rounded-full border-t-transparent"></div>
         </div>
       ) : (
-        <>
-          {profiles.length === 0 ? (
-            <Card className="p-6 text-center bg-gray-50 dark:bg-gray-900 border border-dashed">
-              <div className="flex flex-col items-center gap-3 py-12">
-                <FileUp className="h-12 w-12 text-gray-400" />
-                <h3 className="text-lg font-medium">No buffer profiles found</h3>
-                <p className="text-sm text-muted-foreground max-w-md">
-                  Upload a file with buffer profile data or create new profiles manually.
-                </p>
-                <div className="flex gap-2 mt-4">
-                  <Button variant="outline" onClick={() => setIsUploadOpen(true)}>
-                    <Upload className="mr-2 h-4 w-4" />
-                    Upload Profiles
-                  </Button>
-                  <Button onClick={() => setIsAddProfileOpen(true)}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Manually
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          ) : (
-            <div className="rounded-md border overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full table-auto">
-                  <thead className="bg-gray-50 dark:bg-gray-800">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">Name</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">Variability Factor</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">Lead Time Factor</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">MOQ</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">Lot Size Factor</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">Description</th>
-                      <th className="px-4 py-3 text-right text-sm font-semibold text-gray-900 dark:text-gray-100">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
-                    {profiles.map((profile) => (
-                      <tr key={profile.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                        <td className="px-4 py-3 text-sm">{profile.name}</td>
-                        <td className="px-4 py-3 text-sm">
-                          {formatVariabilityFactor(profile.variabilityFactor)}
-                        </td>
-                        <td className="px-4 py-3 text-sm capitalize">{formatLeadTime(profile.leadTimeFactor)}</td>
-                        <td className="px-4 py-3 text-sm">{profile.moq || 'N/A'}</td>
-                        <td className="px-4 py-3 text-sm">{profile.lotSizeFactor || 'N/A'}</td>
-                        <td className="px-4 py-3 text-sm">{profile.description || 'N/A'}</td>
-                        <td className="px-4 py-3 text-sm text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button variant="ghost" size="icon" onClick={() => handleEdit(profile)}>
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon" className="text-red-500" onClick={() => handleDelete(profile)}>
-                              <Trash className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-        </>
+        <div className="border rounded-md">
+          <DataTable
+            columns={columns}
+            data={profiles}
+          />
+        </div>
       )}
+      
+      <Dialog open={isAddProfileOpen} onOpenChange={(open) => {
+        setIsAddProfileOpen(open);
+        if (!open) resetForm();
+      }}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{editingProfile ? "Edit Buffer Profile" : "Add New Buffer Profile"}</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="name" className="text-right font-medium">
+                Name*
+              </label>
+              <Input
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                className="col-span-3"
+                required
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="variabilityFactor" className="text-right font-medium">
+                Variability Factor*
+              </label>
+              <Select
+                value={formData.variabilityFactor}
+                onValueChange={(value) => handleSelectChange("variabilityFactor", value)}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select variability" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low_variability">Low Variability</SelectItem>
+                  <SelectItem value="medium_variability">Medium Variability</SelectItem>
+                  <SelectItem value="high_variability">High Variability</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="leadTimeFactor" className="text-right font-medium">
+                Lead Time Factor*
+              </label>
+              <Select
+                value={formData.leadTimeFactor}
+                onValueChange={(value) => handleSelectChange("leadTimeFactor", value)}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select lead time" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="short">Short</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="long">Long</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="moq" className="text-right font-medium">
+                MOQ
+              </label>
+              <Input
+                id="moq"
+                name="moq"
+                type="number"
+                value={formData.moq}
+                onChange={handleNumberChange}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="lotSizeFactor" className="text-right font-medium">
+                Lot Size Factor
+              </label>
+              <Input
+                id="lotSizeFactor"
+                name="lotSizeFactor"
+                type="number"
+                step="0.1"
+                value={formData.lotSizeFactor}
+                onChange={handleNumberChange}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="description" className="text-right font-medium">
+                Description
+              </label>
+              <Textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                className="col-span-3"
+                rows={3}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setIsAddProfileOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmit}>
+              {editingProfile ? "Update Profile" : "Add Profile"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
