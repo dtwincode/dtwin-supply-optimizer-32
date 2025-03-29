@@ -15,6 +15,11 @@ const historicalSalesFields: FieldDescription[] = [
   { name: "revenue", description: "Total revenue amount", required: true },
   { name: "vendor_id", description: "Vendor identifier (UUID)", required: false },
   { name: "unit_price", description: "Price per unit (calculated if not provided)", required: false },
+  { name: "channel", description: "Sales channel (e.g., online, retail)", required: false },
+  { name: "customer_segment", description: "Customer segment/type", required: false },
+  { name: "promotion_id", description: "Identifier for any active promotion", required: false },
+  { name: "discount_amount", description: "Discount amount applied", required: false },
+  { name: "cost_of_goods", description: "Cost of goods sold", required: false },
 ];
 
 const HistoricalSalesUpload = () => {
@@ -28,11 +33,11 @@ const HistoricalSalesUpload = () => {
       setUploading(true);
       setUploadStatus('idle');
       
-      const success = await uploadHistoricalSales(new File(
-        [new Blob([JSON.stringify(data)])], 
-        fileName, 
-        { type: 'application/json' }
-      ));
+      // Create a file object from the parsed data
+      const fileContent = data.length > 0 ? new Blob([JSON.stringify(data)]) : new Blob();
+      const file = new File([fileContent], fileName, { type: fileName.endsWith('.csv') ? 'text/csv' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      
+      const success = await uploadHistoricalSales(file);
       
       if (success) {
         setUploadStatus('success');
