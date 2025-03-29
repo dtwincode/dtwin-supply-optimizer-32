@@ -2,18 +2,11 @@
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card } from "@/components/ui/card";
-import { FileUploadTab } from "@/components/settings/FileUploadTab";
-import { DataManagementTab } from "@/components/settings/DataManagementTab";
-import { ApiKeysTab } from "@/components/settings/ApiKeysTab";
-import { UsersTab } from "@/components/settings/UsersTab";
-import { IntegrationsTab } from "@/components/settings/IntegrationsTab";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { BufferProfilesTab } from "@/components/settings/BufferProfilesTab";
-import { UserSettingsTab } from "@/components/settings/UserSettingsTab";
-import { SystemSettingsTab } from "@/components/settings/SystemSettingsTab";
 
 export default function Settings() {
-  const [currentTab, setCurrentTab] = useState("data-upload");
+  const [currentTab, setCurrentTab] = useState("buffer-profiles");
   
   const handleTabChange = (value: string) => {
     setCurrentTab(value);
@@ -29,14 +22,14 @@ export default function Settings() {
         <Tabs value={currentTab} onValueChange={handleTabChange} className="space-y-4">
           <div className="overflow-auto">
             <TabsList className="inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground w-auto">
+              <TabsTrigger value="buffer-profiles" className="rounded-md px-3">
+                Buffer Profiles
+              </TabsTrigger>
               <TabsTrigger value="data-upload" className="rounded-md px-3">
                 Data Upload
               </TabsTrigger>
               <TabsTrigger value="data-management" className="rounded-md px-3">
                 Data Management
-              </TabsTrigger>
-              <TabsTrigger value="buffer-profiles" className="rounded-md px-3">
-                Buffer Profiles
               </TabsTrigger>
               <TabsTrigger value="api-keys" className="rounded-md px-3">
                 API Keys
@@ -56,36 +49,92 @@ export default function Settings() {
             </TabsList>
           </div>
           
-          <TabsContent value="data-upload" className="space-y-4">
-            <FileUploadTab />
-          </TabsContent>
-          
-          <TabsContent value="data-management" className="space-y-4">
-            <DataManagementTab />
-          </TabsContent>
-          
           <TabsContent value="buffer-profiles" className="space-y-4">
             <BufferProfilesTab />
           </TabsContent>
           
+          <TabsContent value="data-upload" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Data Upload</CardTitle>
+                <CardDescription>Upload your data files here</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p>Data upload functionality will be implemented soon.</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="data-management" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Data Management</CardTitle>
+                <CardDescription>Manage your uploaded data</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p>Data management functionality will be implemented soon.</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
           <TabsContent value="api-keys" className="space-y-4">
-            <ApiKeysTab />
+            <Card>
+              <CardHeader>
+                <CardTitle>API Keys</CardTitle>
+                <CardDescription>Manage your API keys</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p>API key management functionality will be implemented soon.</p>
+              </CardContent>
+            </Card>
           </TabsContent>
           
           <TabsContent value="users" className="space-y-4">
-            <UsersTab />
+            <Card>
+              <CardHeader>
+                <CardTitle>Users</CardTitle>
+                <CardDescription>Manage users and permissions</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p>User management functionality will be implemented soon.</p>
+              </CardContent>
+            </Card>
           </TabsContent>
           
           <TabsContent value="integrations" className="space-y-4">
-            <IntegrationsTab />
+            <Card>
+              <CardHeader>
+                <CardTitle>Integrations</CardTitle>
+                <CardDescription>Manage your integrations</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p>Integration management functionality will be implemented soon.</p>
+              </CardContent>
+            </Card>
           </TabsContent>
           
           <TabsContent value="user-settings" className="space-y-4">
-            <UserSettingsTab />
+            <Card>
+              <CardHeader>
+                <CardTitle>User Settings</CardTitle>
+                <CardDescription>Manage your user settings</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p>User settings functionality will be implemented soon.</p>
+              </CardContent>
+            </Card>
           </TabsContent>
           
           <TabsContent value="system-settings" className="space-y-4">
-            <SystemSettingsTab />
+            <Card>
+              <CardHeader>
+                <CardTitle>System Settings</CardTitle>
+                <CardDescription>Manage your system settings</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p>System settings functionality will be implemented soon.</p>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
