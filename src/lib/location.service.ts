@@ -23,13 +23,21 @@ export const uploadLocation = async (file: File) => {
 
     console.log('Parsed location data:', parseResult.data);
 
-    // Map CSV data to the location_master table structure
-    const locations = parseResult.data.map(row => ({
-      warehouse: row.warehouse || '',
-      region: row.region || null,
-      city: row.city || null,
-      channel: row.channel || null
-    }));
+    // Deduplicate data based on warehouse field
+    const uniqueLocations = new Map();
+    parseResult.data.forEach(row => {
+      if (row.warehouse) {
+        uniqueLocations.set(row.warehouse, {
+          warehouse: row.warehouse || '',
+          region: row.region || null,
+          city: row.city || null,
+          channel: row.channel || null
+        });
+      }
+    });
+
+    // Convert Map to array of unique location objects
+    const locations = Array.from(uniqueLocations.values());
 
     // Insert data into the location_master table
     const { error } = await supabase
