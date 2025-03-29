@@ -1,5 +1,4 @@
 
-export * from './inventoryTypes';
 export * from './bufferTypes';
 export * from './decouplingTypes';
 export * from './classificationTypes';

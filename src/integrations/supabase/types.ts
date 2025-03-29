@@ -960,28 +960,37 @@ export type Database = {
       }
       historical_sales_data: {
         Row: {
-          created_at: string
-          created_by: string | null
-          data: Json
-          id: string
-          is_active: boolean | null
-          version: number | null
+          created_at: string | null
+          location_id: string
+          product_id: string
+          quantity_sold: number
+          revenue: number
+          sales_date: string
+          sales_id: string
+          updated_at: string | null
+          vendor_id: string | null
         }
         Insert: {
-          created_at?: string
-          created_by?: string | null
-          data: Json
-          id?: string
-          is_active?: boolean | null
-          version?: number | null
+          created_at?: string | null
+          location_id: string
+          product_id: string
+          quantity_sold: number
+          revenue: number
+          sales_date: string
+          sales_id?: string
+          updated_at?: string | null
+          vendor_id?: string | null
         }
         Update: {
-          created_at?: string
-          created_by?: string | null
-          data?: Json
-          id?: string
-          is_active?: boolean | null
-          version?: number | null
+          created_at?: string | null
+          location_id?: string
+          product_id?: string
+          quantity_sold?: number
+          revenue?: number
+          sales_date?: string
+          sales_id?: string
+          updated_at?: string | null
+          vendor_id?: string | null
         }
         Relationships: []
       }
@@ -2259,6 +2268,42 @@ export type Database = {
           sku?: string
           subcategory?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      product_pricing: {
+        Row: {
+          created_at: string | null
+          currency: string | null
+          effective_date: string
+          location_id: string | null
+          price: number
+          pricing_id: string
+          product_id: string
+          updated_at: string | null
+          vendor_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          currency?: string | null
+          effective_date: string
+          location_id?: string | null
+          price: number
+          pricing_id?: string
+          product_id: string
+          updated_at?: string | null
+          vendor_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          currency?: string | null
+          effective_date?: string
+          location_id?: string | null
+          price?: number
+          pricing_id?: string
+          product_id?: string
+          updated_at?: string | null
+          vendor_id?: string | null
         }
         Relationships: []
       }
