@@ -104,6 +104,17 @@ export const uploadHistoricalSales = async (file: File) => {
         return null; // Skip this row
       }
 
+      // Handle Excel date format (convert to ISO date string if numeric)
+      let formattedSalesDate = salesDate;
+      if (typeof salesDate === 'number') {
+        // Convert Excel date number to JavaScript date
+        const excelEpoch = new Date(1899, 11, 30);
+        const days = salesDate;
+        const milliseconds = days * 24 * 60 * 60 * 1000;
+        const date = new Date(excelEpoch.getTime() + milliseconds);
+        formattedSalesDate = date.toISOString().split('T')[0];
+      }
+
       // Calculate unit price if quantity sold is provided and not zero
       const quantitySoldNum = parseFloat(quantitySold) || 0;
       const revenueNum = parseFloat(revenue) || 0;
@@ -111,7 +122,7 @@ export const uploadHistoricalSales = async (file: File) => {
         parseFloat(getField(['unit_price', 'price', 'UNIT_PRICE', 'price_per_unit'])) || null;
 
       return {
-        sales_date: salesDate || new Date().toISOString().split('T')[0],
+        sales_date: formattedSalesDate || new Date().toISOString().split('T')[0],
         product_id: productId,
         location_id: locationId,
         quantity_sold: quantitySoldNum,
@@ -129,18 +140,54 @@ export const uploadHistoricalSales = async (file: File) => {
     console.log('Mapped sales data:', salesData.slice(0, 2));
     console.log('Total rows to insert:', salesData.length);
 
-    // Insert data into the historical_sales_data table
-    const { data, error } = await supabase
-      .from('historical_sales_data')
-      .insert(salesData);
+    // Set a timeout for the operation (30 seconds)
+    const timeout = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Database operation timed out. The operation might still complete in the background.')), 30000)
+    );
 
-    if (error) {
-      console.error('Error inserting historical sales data:', error.message);
-      return { success: false, error: error.message };
+    // Insert data into the historical_sales_data table with batching
+    // Process in batches of 50 records to avoid overwhelming the database
+    const BATCH_SIZE = 50;
+    let successCount = 0;
+    
+    for (let i = 0; i < salesData.length; i += BATCH_SIZE) {
+      const batch = salesData.slice(i, i + BATCH_SIZE);
+      
+      try {
+        // Race the database operation against the timeout
+        const insertPromise = supabase
+          .from('historical_sales_data')
+          .insert(batch);
+          
+        const result = await Promise.race([insertPromise, timeout]);
+        
+        if (result.error) {
+          console.error('Error inserting batch starting at index', i, ':', result.error.message);
+          // Continue with the next batch instead of failing completely
+        } else {
+          successCount += batch.length;
+          console.log(`Inserted batch ${i/BATCH_SIZE + 1}/${Math.ceil(salesData.length/BATCH_SIZE)}, total success: ${successCount}`);
+        }
+      } catch (err) {
+        console.error('Batch insert error:', err);
+        if (err instanceof Error && err.message.includes('timed out')) {
+          return { 
+            success: false, 
+            error: 'Operation timed out. Please check the database for partial data or try with a smaller file.'
+          };
+        }
+        // Continue with the next batch
+      }
     }
 
-    console.log('Historical sales data inserted successfully:', salesData.length, 'records');
-    return { success: true, recordCount: salesData.length };
+    console.log('Historical sales data insert complete:', successCount, 'of', salesData.length, 'records');
+    return { 
+      success: true, 
+      recordCount: successCount,
+      message: successCount < salesData.length 
+        ? `Partially completed: ${successCount} of ${salesData.length} records inserted.` 
+        : `All ${successCount} records inserted successfully.`
+    };
   } catch (error) {
     console.error('Error processing historical sales file:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error processing file' };
