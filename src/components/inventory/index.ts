@@ -1,7 +1,7 @@
 
 // Main components
 export { InventoryTabs } from './InventoryTabs';
-export { InventoryTab } from './InventoryTab';
+export { InventoryTab } from './tabs/InventoryTab';
 export { InventoryTableHeader } from './InventoryTableHeader';
 export type { InventoryFiltersProps } from './InventoryFilters';
 export { default as InventoryFilters } from './InventoryFilters';
@@ -16,6 +16,7 @@ export { BufferManagementTab } from './tabs/BufferManagementTab';
 export { NetFlowTab } from './tabs/NetFlowTab';
 export { AIInsightsTab } from './tabs/AIInsightsTab';
 export { ADUTab } from './tabs/ADUTab';
+export { ReplenishmentTab } from './tabs/ReplenishmentTab';
 
 // Classification related components
 export { SKUClassifications } from './classification/SKUClassifications';
@@ -31,3 +32,6 @@ export { NetworkDecouplingMap } from './decoupling/NetworkDecouplingMap';
 
 // Visualization components
 export { NetworkFlowVisualization } from './visualization/NetworkFlowVisualization';
+
+// Replenishment components
+export { ReplenishmentTimes } from './ReplenishmentTimes';

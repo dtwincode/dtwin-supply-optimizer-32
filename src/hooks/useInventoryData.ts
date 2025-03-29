@@ -4,7 +4,8 @@ import { supabase } from '@/lib/supabaseClient';
 import { 
   InventoryItem, 
   SKUClassification,
-  PaginationState 
+  PaginationState,
+  ReplenishmentData
 } from '@/types/inventory';
 
 interface UseInventoryDataProps {
@@ -17,7 +18,7 @@ interface UseInventoryDataProps {
 interface InventoryDataResult {
   items: InventoryItem[];
   skuClassifications: SKUClassification[];
-  replenishmentData: any[]; // Will be typed properly later
+  replenishmentData: ReplenishmentData[]; 
   loading: boolean;
   error: Error | null;
   pagination: PaginationState;
@@ -33,7 +34,7 @@ export const useInventoryData = ({
 }: UseInventoryDataProps = {}): InventoryDataResult => {
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [skuClassifications, setSkuClassifications] = useState<SKUClassification[]>([]);
-  const [replenishmentData, setReplenishmentData] = useState<any[]>([]);
+  const [replenishmentData, setReplenishmentData] = useState<ReplenishmentData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [pagination, setPagination] = useState<PaginationState>({
@@ -142,7 +143,25 @@ export const useInventoryData = ({
 
       if (error) throw error;
       
-      setReplenishmentData(data || []);
+      // Map the database response to our ReplenishmentData type
+      const mappedData: ReplenishmentData[] = data ? data.map(item => ({
+        id: item.id,
+        sku: item.sku || '',
+        quantity: item.quantity || 0,
+        replenishmentType: item.replenishment_type || '',
+        source: item.source_location || '',
+        destination: item.destination_location || '',
+        status: item.status || 'pending',
+        expectedDate: item.expected_date || new Date().toISOString(),
+        internalTransferTime: item.internal_transfer_time,
+        totalCycleTime: item.total_cycle_time,
+        lastUpdated: item.last_updated,
+        locationFrom: item.location_from,
+        locationTo: item.location_to,
+        replenishmentLeadTime: item.replenishment_lead_time
+      })) : [];
+      
+      setReplenishmentData(mappedData);
     } catch (err) {
       console.error("Error fetching replenishment data:", err);
       // We don't set the main error state here, just log it

@@ -45,6 +45,16 @@ export interface ReplenishmentData {
   replenishmentLeadTime?: number;
 }
 
+// PaginationState interface
+export interface PaginationState {
+  page: number;
+  limit: number;
+  total: number;
+  currentPage: number;
+  itemsPerPage: number;
+  totalItems: number;
+}
+
 // InventoryItem interface to match the updated structure
 export interface InventoryItem {
   inventory_id: string;
