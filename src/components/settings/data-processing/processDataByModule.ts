@@ -1,6 +1,4 @@
-
 import { supabase } from "@/integrations/supabase/client";
-import { Database } from "@/integrations/supabase/types";
 import { ValidationError } from "../validation/types";
 
 export const processInventoryData = async (processedData: any[]) => {
@@ -89,7 +87,7 @@ export const processBufferProfilesData = async (processedData: any[]) => {
 
 // Process data based on module type
 export const processDataByModule = async (
-  module: Database["public"]["Enums"]["module_type"],
+  module: string,
   processedData: any[],
   validationErrors: ValidationError[]
 ): Promise<{ success: boolean; message: string }> => {

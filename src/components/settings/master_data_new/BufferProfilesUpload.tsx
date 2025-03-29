@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { FileUpload } from "@/components/settings/upload/FileUpload";
 import { processDataByModule } from "@/components/settings/data-processing/processDataByModule";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/integrations/supabase/client";
 import { DataTable } from "@/components/ui/data-table";
 import { 
   BufferProfile 

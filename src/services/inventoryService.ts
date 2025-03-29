@@ -1,38 +1,101 @@
 
-import { supabase } from "@/lib/supabaseClient";
-import { DBInventoryItem, InventoryItemUI } from "@/types/inventory";
+import { supabase } from "@/integrations/supabase/client";
+import { 
+  InventoryItem,
+  BufferProfile,
+  DecouplingPoint
+} from "@/types/inventory";
+import { Database } from "@/integrations/supabase/types";
 
-// Helper function to transform database items to UI format if needed
-const transformToUIItem = (item: any): InventoryItemUI => {
+// Buffer Profile functions
+export const getBufferProfiles = async (): Promise<BufferProfile[]> => {
+  const { data, error } = await supabase
+    .from('buffer_profiles')
+    .select('*');
+
+  if (error) {
+    console.error('Error fetching buffer profiles:', error);
+    throw error;
+  }
+
+  // Map the database format to our frontend model
+  return (data || []).map(profile => ({
+    id: profile.id,
+    name: profile.name,
+    description: profile.description || undefined,
+    variabilityFactor: profile.variability_factor,
+    leadTimeFactor: profile.lead_time_factor,
+    moq: profile.moq || undefined,
+    lotSizeFactor: profile.lot_size_factor || undefined
+  }));
+};
+
+export const createBufferProfile = async (profile: Omit<BufferProfile, 'id'>): Promise<BufferProfile> => {
+  // Convert from our frontend model to the database format
+  const dbProfile = {
+    name: profile.name,
+    description: profile.description,
+    variability_factor: profile.variabilityFactor,
+    lead_time_factor: profile.leadTimeFactor,
+    moq: profile.moq,
+    lot_size_factor: profile.lotSizeFactor
+  };
+
+  const { data, error } = await supabase
+    .from('buffer_profiles')
+    .insert(dbProfile)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating buffer profile:', error);
+    throw error;
+  }
+
+  // Map back to our frontend model
   return {
-    id: item.inventory_id || item.id || '',
-    sku: item.sku || '',
-    name: item.name || '',
-    current_stock: item.quantity_on_hand || 0,
-    category: item.category || '',
-    subcategory: item.subcategory || '',
-    location: item.location_id || item.location || '',
-    product_family: item.product_family || '',
-    region: item.region || '',
-    city: item.city || '',
-    channel: item.channel || '',
-    warehouse: item.warehouse || '',
-    decoupling_point_id: item.decoupling_point_id || '',
-    adu: item.adu || 0,
-    lead_time_days: item.lead_time_days || 0,
-    variability_factor: item.variability_factor || 0,
-    red_zone_size: item.red_zone_size || 0,
-    yellow_zone_size: item.yellow_zone_size || 0,
-    green_zone_size: item.green_zone_size || 0,
-    on_hand: item.quantity_on_hand || 0,
-    on_order: item.on_order || 0,
-    qualified_demand: item.qualified_demand || 0,
-    net_flow_position: (item.quantity_on_hand || 0) + (item.on_order || 0) - (item.qualified_demand || 0),
-    planning_priority: item.planning_priority || '',
-    created_at: item.created_at || '',
-    updated_at: item.updated_at || '',
-    max_stock: item.max_stock || 0,
-    min_stock: item.min_stock || 0
+    id: data.id,
+    name: data.name,
+    description: data.description || undefined,
+    variabilityFactor: data.variability_factor,
+    leadTimeFactor: data.lead_time_factor,
+    moq: data.moq || undefined,
+    lotSizeFactor: data.lot_size_factor || undefined
+  };
+};
+
+export const updateBufferProfile = async (profile: BufferProfile): Promise<BufferProfile> => {
+  // Convert from our frontend model to the database format
+  const dbProfile = {
+    name: profile.name,
+    description: profile.description,
+    variability_factor: profile.variabilityFactor,
+    lead_time_factor: profile.leadTimeFactor,
+    moq: profile.moq,
+    lot_size_factor: profile.lotSizeFactor
+  };
+
+  const { data, error } = await supabase
+    .from('buffer_profiles')
+    .update(dbProfile)
+    .eq('id', profile.id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating buffer profile:', error);
+    throw error;
+  }
+
+  // Map back to our frontend model
+  return {
+    id: data.id,
+    name: data.name,
+    description: data.description || undefined,
+    variabilityFactor: data.variability_factor,
+    leadTimeFactor: data.lead_time_factor,
+    moq: data.moq || undefined,
+    lotSizeFactor: data.lot_size_factor || undefined
   };
 };
 

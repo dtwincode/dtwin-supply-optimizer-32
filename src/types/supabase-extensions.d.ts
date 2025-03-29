@@ -42,7 +42,7 @@ declare module "@/integrations/supabase/types" {
         };
       };
       Enums: OriginalDatabase["public"]["Enums"] & {
-        module_type: OriginalDatabase["public"]["Enums"]["module_type"] | 'buffer_profiles';
+        module_type: 'forecasting' | 'inventory' | 'sales' | 'marketing' | 'logistics' | 'location_hierarchy' | 'product_hierarchy' | 'buffer_profiles';
       };
     };
   }

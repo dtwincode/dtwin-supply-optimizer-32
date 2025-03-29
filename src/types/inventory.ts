@@ -1,3 +1,4 @@
+
 export interface BufferProfile {
   id: string;
   name: string;
@@ -152,4 +153,32 @@ export interface BufferFactorConfig {
   industry?: IndustryType;
   isBenchmarkBased?: boolean;
   metadata?: Record<string, any>;
+}
+
+export interface SKUClassification {
+  id: string;
+  sku: string;
+  category: string;
+  subcategory?: string;
+  classification: string;
+  score?: number;
+}
+
+export interface Classification {
+  id: string;
+  name: string;
+  description?: string;
+  criteria: string;
+  score: number;
+}
+
+export interface ReplenishmentData {
+  id: string;
+  sku: string;
+  quantity: number;
+  replenishmentType: string;
+  source: string;
+  destination: string;
+  status: string;
+  expectedDate: string;
 }
