@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,19 +9,15 @@ import LocationUpload from "@/components/settings/master_data_new/LocationUpload
 import ProductPricingUpload from "@/components/settings/master_data_new/ProductPricingUpload";
 import ProductUpload from "@/components/settings/master_data_new/ProductUpload";
 import VendorUpload from "@/components/settings/master_data_new/VendorUpload";
-
 export default function Settings() {
   const [dataTab, setDataTab] = useState("products");
-  
   const handleDataTabChange = (value: string) => {
     setDataTab(value);
   };
-
-  return (
-    <DashboardLayout>
+  return <DashboardLayout>
       <div className="flex-1 space-y-6 p-6 md:p-8 pt-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Settings</h2>
+          
         </div>
         
         <Card className="border-none shadow-md overflow-hidden">
@@ -37,46 +32,25 @@ export default function Settings() {
               <div className="border-b">
                 <TabsList className="w-full justify-start rounded-none bg-transparent h-auto p-0">
                   <div className="flex overflow-x-auto no-scrollbar py-2 px-4 gap-1">
-                    <TabsTrigger 
-                      value="products" 
-                      className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-gray-800 dark:data-[state=active]:text-blue-400 rounded-full px-4 py-2"
-                    >
+                    <TabsTrigger value="products" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-gray-800 dark:data-[state=active]:text-blue-400 rounded-full px-4 py-2">
                       Products
                     </TabsTrigger>
-                    <TabsTrigger 
-                      value="vendors" 
-                      className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-gray-800 dark:data-[state=active]:text-blue-400 rounded-full px-4 py-2"
-                    >
+                    <TabsTrigger value="vendors" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-gray-800 dark:data-[state=active]:text-blue-400 rounded-full px-4 py-2">
                       Vendors
                     </TabsTrigger>
-                    <TabsTrigger 
-                      value="locations" 
-                      className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-gray-800 dark:data-[state=active]:text-blue-400 rounded-full px-4 py-2"
-                    >
+                    <TabsTrigger value="locations" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-gray-800 dark:data-[state=active]:text-blue-400 rounded-full px-4 py-2">
                       Locations
                     </TabsTrigger>
-                    <TabsTrigger 
-                      value="historical-sales" 
-                      className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-gray-800 dark:data-[state=active]:text-blue-400 rounded-full px-4 py-2"
-                    >
+                    <TabsTrigger value="historical-sales" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-gray-800 dark:data-[state=active]:text-blue-400 rounded-full px-4 py-2">
                       Historical Sales
                     </TabsTrigger>
-                    <TabsTrigger 
-                      value="product-pricing" 
-                      className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-gray-800 dark:data-[state=active]:text-blue-400 rounded-full px-4 py-2"
-                    >
+                    <TabsTrigger value="product-pricing" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-gray-800 dark:data-[state=active]:text-blue-400 rounded-full px-4 py-2">
                       Product Pricing
                     </TabsTrigger>
-                    <TabsTrigger 
-                      value="inventory-data" 
-                      className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-gray-800 dark:data-[state=active]:text-blue-400 rounded-full px-4 py-2"
-                    >
+                    <TabsTrigger value="inventory-data" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-gray-800 dark:data-[state=active]:text-blue-400 rounded-full px-4 py-2">
                       Inventory Data
                     </TabsTrigger>
-                    <TabsTrigger 
-                      value="buffer-profiles" 
-                      className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-gray-800 dark:data-[state=active]:text-blue-400 rounded-full px-4 py-2"
-                    >
+                    <TabsTrigger value="buffer-profiles" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-gray-800 dark:data-[state=active]:text-blue-400 rounded-full px-4 py-2">
                       Buffer Profiles
                     </TabsTrigger>
                   </div>
@@ -110,6 +84,5 @@ export default function Settings() {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
-  );
+    </DashboardLayout>;
 }
