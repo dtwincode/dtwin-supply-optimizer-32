@@ -9,7 +9,7 @@ import { AlertCircle, CheckCircle, FileType } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
 
-// Updated to exactly match the product_master table field names
+// Field definitions exactly matching the product_master table schema
 const productFields: FieldDescription[] = [
   { name: "sku", description: "Unique product identifier", required: true },
   { name: "name", description: "Product name", required: true },
