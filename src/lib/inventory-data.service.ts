@@ -37,33 +37,22 @@ export const uploadInventoryData = async (file: File) => {
       };
     }
 
-    // Map CSV data to the inventory_data table structure
+    // Map CSV data to the inventory table structure
     const inventoryData = parseResult.data.map(row => ({
-      sku: row.sku.trim(),
-      name: row.name,
+      product_id: row.product_id || null,
+      inventory_id: row.inventory_id || null,
       current_stock: parseInt(row.current_stock) || 0,
       min_stock: parseInt(row.min_stock) || 0,
       max_stock: parseInt(row.max_stock) || 0,
-      location: row.location || null,
-      category: row.category || null,
-      subcategory: row.subcategory || null,
-      product_family: row.product_family || null,
-      region: row.region || null,
-      city: row.city || null,
-      channel: row.channel || null,
-      warehouse: row.warehouse || null,
+      safety_stock: parseInt(row.safety_stock) || 0,
       lead_time_days: parseInt(row.lead_time_days) || null,
-      adu: parseFloat(row.adu) || null,
-      variability_factor: parseFloat(row.variability_factor) || null,
-      on_hand: parseInt(row.current_stock) || 0,  // Set on_hand equal to current_stock
-      on_order: parseInt(row.on_order) || 0,
-      qualified_demand: parseInt(row.qualified_demand) || 0,
-      net_flow_position: parseInt(row.net_flow_position) || 0,
+      location_id: row.location_id || null,
+      buffer_penetration: parseFloat(row.buffer_penetration) || null
     }));
 
-    // Insert data into the inventory_data table
+    // Insert data into the inventory table
     const { data, error } = await supabase
-      .from('inventory_data')
+      .from('inventory')
       .insert(inventoryData);
 
     if (error) {
@@ -86,7 +75,7 @@ export const uploadInventoryData = async (file: File) => {
 export const getInventoryData = async () => {
   try {
     const { data, error } = await supabase
-      .from('inventory_data')
+      .from('inventory')
       .select('*');
     
     if (error) {
@@ -109,9 +98,9 @@ export const getInventoryData = async () => {
 export const updateInventoryItem = async (id: string, updates: any) => {
   try {
     const { data, error } = await supabase
-      .from('inventory_data')
+      .from('inventory')
       .update(updates)
-      .eq('id', id)
+      .eq('inventory_id', id)
       .select();
     
     if (error) {
@@ -133,9 +122,9 @@ export const updateInventoryItem = async (id: string, updates: any) => {
 export const deleteInventoryItem = async (id: string) => {
   try {
     const { error } = await supabase
-      .from('inventory_data')
+      .from('inventory')
       .delete()
-      .eq('id', id);
+      .eq('inventory_id', id);
     
     if (error) {
       console.error('Error deleting inventory item:', error.message);

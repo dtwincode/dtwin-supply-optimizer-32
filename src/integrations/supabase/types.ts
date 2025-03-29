@@ -45,6 +45,63 @@ export type Database = {
         }
         Relationships: []
       }
+      buffer_configuration: {
+        Row: {
+          adu: number
+          buffer_id: string
+          created_at: string | null
+          green_zone_size: number
+          location_id: string
+          product_id: string
+          red_zone_size: number
+          service_level: number | null
+          updated_at: string | null
+          variability_factor: number | null
+          yellow_zone_size: number
+        }
+        Insert: {
+          adu: number
+          buffer_id?: string
+          created_at?: string | null
+          green_zone_size: number
+          location_id: string
+          product_id: string
+          red_zone_size: number
+          service_level?: number | null
+          updated_at?: string | null
+          variability_factor?: number | null
+          yellow_zone_size: number
+        }
+        Update: {
+          adu?: number
+          buffer_id?: string
+          created_at?: string | null
+          green_zone_size?: number
+          location_id?: string
+          product_id?: string
+          red_zone_size?: number
+          service_level?: number | null
+          updated_at?: string | null
+          variability_factor?: number | null
+          yellow_zone_size?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buffer_configuration_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "location_master"
+            referencedColumns: ["location_id"]
+          },
+          {
+            foreignKeyName: "buffer_configuration_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "product_master"
+            referencedColumns: ["product_id"]
+          },
+        ]
+      }
       buffer_factor_benchmarks: {
         Row: {
           created_at: string
