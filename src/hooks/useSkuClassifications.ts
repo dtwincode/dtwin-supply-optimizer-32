@@ -1,99 +1,82 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { SKUClassification } from '@/types/inventory';
+import { useToast } from './use-toast';
 
-export const useSkuClassifications = () => {
+interface UseSkuClassificationsResult {
+  classifications: SKUClassification[];
+  loading: boolean;
+  error: Error | null;
+  refreshClassifications: () => Promise<void>;
+}
+
+export const useSkuClassifications = (): UseSkuClassificationsResult => {
   const [classifications, setClassifications] = useState<SKUClassification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const { toast } = useToast();
 
-  useEffect(() => {
-    const fetchClassifications = async () => {
-      try {
-        setLoading(true);
-        const { data, error } = await supabase
-          .from("sku_classification")
-          .select("*");
-
-        if (error) throw error;
-        setClassifications(data || []);
-      } catch (err) {
-        console.error("Error fetching SKU classifications:", err);
-        setError(err instanceof Error ? err : new Error('Failed to fetch SKU classifications'));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchClassifications();
-  }, []);
-
-  const refreshClassifications = async () => {
-    setLoading(true);
+  const fetchClassifications = useCallback(async () => {
     try {
-      const { data, error } = await supabase
-        .from("sku_classification")
-        .select("*");
+      setLoading(true);
+      const { data, error: fetchError } = await supabase
+        .from('sku_classification')
+        .select('*');
 
-      if (error) throw error;
-      setClassifications(data || []);
+      if (fetchError) throw fetchError;
+
+      // Map the response to our SKUClassification type
+      const mappedClassifications: SKUClassification[] = data?.map(item => ({
+        id: item.id || undefined,
+        sku: item.sku,
+        lead_time_category: item.lead_time_category || undefined,
+        variability_level: item.variability_level || undefined,
+        criticality: item.criticality || undefined,
+        score: item.score || undefined,
+        last_updated: item.last_updated || undefined,
+        category: item.category || undefined
+      })) || [];
+
+      setClassifications(mappedClassifications);
       setError(null);
     } catch (err) {
-      console.error("Error refreshing SKU classifications:", err);
-      setError(err instanceof Error ? err : new Error('Failed to refresh SKU classifications'));
+      console.error('Error fetching SKU classifications:', err);
+      setError(err instanceof Error ? err : new Error('Unknown error occurred'));
+      toast({
+        title: 'Error',
+        description: 'Failed to load classification data',
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
-  const updateClassification = async (sku: string, updates: Partial<SKUClassification>) => {
+  useEffect(() => {
+    fetchClassifications();
+  }, [fetchClassifications]);
+
+  const refreshClassifications = async () => {
     try {
-      const { error } = await supabase
-        .from("sku_classification")
-        .update(updates)
-        .eq('sku', sku);
-
-      if (error) throw error;
-      
-      // Refresh data after update
-      await refreshClassifications();
-      return { success: true };
+      await fetchClassifications();
+      toast({
+        title: 'Success',
+        description: 'Classification data refreshed successfully',
+      });
     } catch (err) {
-      console.error("Error updating SKU classification:", err);
-      return { 
-        success: false, 
-        error: err instanceof Error ? err.message : 'Failed to update classification'
-      };
+      toast({
+        title: 'Error',
+        description: 'Failed to refresh classification data',
+        variant: 'destructive',
+      });
     }
   };
 
-  const createClassification = async (classification: Omit<SKUClassification, 'id'>) => {
-    try {
-      const { error } = await supabase
-        .from("sku_classification")
-        .insert([classification]);
-
-      if (error) throw error;
-      
-      // Refresh data after create
-      await refreshClassifications();
-      return { success: true };
-    } catch (err) {
-      console.error("Error creating SKU classification:", err);
-      return { 
-        success: false, 
-        error: err instanceof Error ? err.message : 'Failed to create classification'
-      };
-    }
-  };
-
-  return { 
-    classifications, 
-    loading, 
-    error, 
-    refreshClassifications,
-    updateClassification,
-    createClassification
+  return {
+    classifications,
+    loading,
+    error,
+    refreshClassifications
   };
 };

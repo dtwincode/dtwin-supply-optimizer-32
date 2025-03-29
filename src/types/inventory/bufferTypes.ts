@@ -5,24 +5,15 @@ export interface BufferZones {
   green: number;
 }
 
-export interface NetFlowPosition {
-  onHand: number;
-  onOrder: number;
-  qualifiedDemand: number;
-  netFlowPosition: number;
-}
-
 export interface BufferProfile {
   id: string;
   name: string;
   description?: string;
-  variabilityFactor: 'high_variability' | 'medium_variability' | 'low_variability';
-  leadTimeFactor: 'short' | 'medium' | 'long';
+  variabilityFactor: number;
+  leadTimeFactor: number;
   moq?: number;
   lotSizeFactor?: number;
 }
-
-export type IndustryType = 'manufacturing' | 'retail' | 'distribution' | 'electronics' | 'automotive' | 'consumer_goods' | 'pharmaceuticals';
 
 export interface BufferFactorConfig {
   id: string;
@@ -35,7 +26,7 @@ export interface BufferFactorConfig {
   greenZoneFactor: number;
   description?: string;
   isActive: boolean;
-  industry?: IndustryType;
+  industry?: string;
   isBenchmarkBased?: boolean;
   metadata?: Record<string, any>;
 }
