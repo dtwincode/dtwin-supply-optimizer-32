@@ -1,17 +1,14 @@
-
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { BufferProfilesTab } from "@/components/settings/BufferProfilesTab";
-import BufferProfilesUpload from "@/components/settings/master_data_new/BufferProfilesUpload";
+import BufferProfilesTab from "@/components/settings/master_data_new/BufferProfilesTab";
 import HistoricalSalesUpload from "@/components/settings/master_data_new/HistoricalSalesUpload";
 import InventoryDataUpload from "@/components/settings/master_data_new/InventoryDataUpload";
 import LocationUpload from "@/components/settings/master_data_new/LocationUpload";
 import ProductPricingUpload from "@/components/settings/master_data_new/ProductPricingUpload";
 import ProductUpload from "@/components/settings/master_data_new/ProductUpload";
 import VendorUpload from "@/components/settings/master_data_new/VendorUpload";
-import BufferProfilesTab from "@/components/settings/master_data_new/BufferProfilesTab";
 
 export default function Settings() {
   const [currentTab, setCurrentTab] = useState("buffer-profiles");
