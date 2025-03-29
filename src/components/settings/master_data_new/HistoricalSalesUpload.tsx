@@ -5,7 +5,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 import { UploadInstructions, FieldDescription } from "./components/UploadInstructions";
 import { uploadHistoricalSales } from "@/lib/historical-sales.service";
-import { AlertCircle, CheckCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, Info } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 const historicalSalesFields: FieldDescription[] = [
   { name: "sales_date", description: "Sale date (YYYY-MM-DD format)", required: true },
@@ -22,40 +23,45 @@ const HistoricalSalesUpload = () => {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleUploadComplete = async (data: any[], fileName: string) => {
     try {
       setUploading(true);
       setUploadStatus('idle');
+      setErrorMessage(null);
       
       // Create a file object from the parsed data
       const fileContent = data.length > 0 ? new Blob([JSON.stringify(data)]) : new Blob();
       const file = new File([fileContent], fileName, { type: fileName.endsWith('.csv') ? 'text/csv' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       
-      const success = await uploadHistoricalSales(file);
+      const result = await uploadHistoricalSales(file);
       
-      if (success) {
+      if (result.success) {
         setUploadStatus('success');
         toast({
           title: "Upload successful",
-          description: `${data.length} historical sales records have been uploaded.`,
+          description: `${result.recordCount} historical sales records have been uploaded.`,
         });
         return true;
       } else {
         setUploadStatus('error');
+        setErrorMessage(result.error || "Unknown error occurred");
         toast({
           variant: "destructive",
           title: "Upload failed",
-          description: "There was an error processing your historical sales data.",
+          description: result.error || "There was an error processing your historical sales data.",
         });
         return false;
       }
     } catch (error) {
       setUploadStatus('error');
+      const errorMsg = error instanceof Error ? error.message : "Unknown error occurred";
+      setErrorMessage(errorMsg);
       toast({
         variant: "destructive",
         title: "Upload failed",
-        description: error instanceof Error ? error.message : "Unknown error occurred",
+        description: errorMsg,
       });
       return false;
     } finally {
@@ -71,6 +77,21 @@ const HistoricalSalesUpload = () => {
         description="Upload your historical sales data using CSV or Excel format. The file should include the fields below."
         fields={historicalSalesFields}
       />
+      
+      <Card className="bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-700">
+        <CardContent className="p-4">
+          <div className="flex items-start gap-2">
+            <Info className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <h4 className="font-medium text-amber-800 dark:text-amber-300">Important Note</h4>
+              <p className="text-sm text-amber-700 dark:text-amber-400">
+                Make sure your CSV or Excel file contains the exact field names listed above to ensure proper data mapping. 
+                The product_id and location_id fields must contain valid UUIDs that exist in your product and location tables.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
       
       <FileUpload
         onUploadComplete={handleUploadComplete}
@@ -94,7 +115,7 @@ const HistoricalSalesUpload = () => {
           <AlertCircle className="h-5 w-5 flex-shrink-0" />
           <div>
             <h4 className="font-medium">Upload failed</h4>
-            <p className="text-sm">There was an error processing your data. Please check the file format and try again.</p>
+            <p className="text-sm">{errorMessage || "There was an error processing your data. Please check the file format and try again."}</p>
           </div>
         </div>
       )}

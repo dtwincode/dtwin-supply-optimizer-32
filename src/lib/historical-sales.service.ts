@@ -22,7 +22,7 @@ export const uploadHistoricalSales = async (file: File) => {
 
       if (!parseResult.data || parseResult.data.length === 0) {
         console.error('No data found in the CSV file');
-        return false;
+        return { success: false, error: 'No data found in the CSV file' };
       }
 
       parsedData = parseResult.data;
@@ -36,11 +36,11 @@ export const uploadHistoricalSales = async (file: File) => {
 
       if (!parsedData || parsedData.length === 0) {
         console.error('No data found in the Excel file');
-        return false;
+        return { success: false, error: 'No data found in the Excel file' };
       }
     } else {
       console.error('Unsupported file format');
-      return false;
+      return { success: false, error: 'Unsupported file format. Please upload CSV or Excel files only.' };
     }
 
     console.log('Parsed historical sales data:', parsedData);
@@ -78,23 +78,23 @@ export const uploadHistoricalSales = async (file: File) => {
 
     if (salesData.length === 0) {
       console.error('No valid data could be extracted from the file');
-      return false;
+      return { success: false, error: 'No valid data could be extracted from the file' };
     }
 
     // Insert data into the historical_sales_data table
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('historical_sales_data')
       .insert(salesData);
 
     if (error) {
       console.error('Error inserting historical sales data:', error.message);
-      return false;
+      return { success: false, error: error.message };
     }
 
     console.log('Historical sales data inserted successfully:', salesData.length, 'records');
-    return true;
+    return { success: true, recordCount: salesData.length };
   } catch (error) {
     console.error('Error processing historical sales file:', error);
-    return false;
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error processing file' };
   }
 };
