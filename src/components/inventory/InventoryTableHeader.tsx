@@ -1,4 +1,3 @@
-
 import { TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useI18n } from "@/contexts/I18nContext";
 
@@ -15,6 +14,11 @@ export const InventoryTableHeader = () => {
         <TableHead>{t("common.inventory.bufferZones")}</TableHead>
         <TableHead>{t("common.inventory.location")}</TableHead>
         <TableHead>{t("common.inventory.productFamily")}</TableHead>
+        {/* New classification fields */}
+        <TableHead>{t("common.inventory.leadTimeCategory")}</TableHead>
+        <TableHead>{t("common.inventory.variabilityLevel")}</TableHead>
+        <TableHead>{t("common.inventory.criticality")}</TableHead>
+        <TableHead>{t("common.inventory.score")}</TableHead>
         <TableHead>{t("common.inventory.actions")}</TableHead>
       </TableRow>
     </TableHeader>
