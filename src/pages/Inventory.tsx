@@ -33,6 +33,7 @@ const Inventory = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [inventoryData, setInventoryData] = useState<InventoryItem[]>([]);
+  const [skuClassifications, setSkuClassifications] = useState<SKUClassification[]>([]);
   const location = useLocation();
   const params = useParams();
   
@@ -87,26 +88,41 @@ const Inventory = () => {
     }
   };
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-      console.log("Inventory page loaded successfully");
+  const fetchSKUClassifications = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("sku_classification")
+        .select("*");
       
-      if (!hasTakenTour) {
-        const tourDelay = setTimeout(() => {
-          setIsTourRunning(true);
-        }, 1500);
-        
-        return () => clearTimeout(tourDelay);
+      if (error) {
+        console.error("Fetch classification error:", error);
+        setHasError(true);
+      } else {
+        setSkuClassifications(data || []);
       }
-    }, 500);
-    
-    return () => clearTimeout(timer);
-  }, [hasTakenTour]);
+    } catch (err) {
+      console.error("Unexpected classification fetch error:", err);
+      setHasError(true);
+    }
+  };
 
+  // Fetch data when component mounts
   useEffect(() => {
     fetchInventoryData();
+    fetchSKUClassifications();
   }, []);
+  
+  // Show tour after data is loaded
+  useEffect(() => {
+    if (!isLoading && !hasError && !hasTakenTour) {
+      const tourDelay = setTimeout(() => {
+        setIsTourRunning(true);
+        console.log("Starting tour");
+      }, 1500);
+      
+      return () => clearTimeout(tourDelay);
+    }
+  }, [isLoading, hasError, hasTakenTour]);
 
   useEffect(() => {
     const originalConsoleError = console.error;
@@ -170,7 +186,7 @@ const Inventory = () => {
         (item.sku && item.sku.toLowerCase().includes(queryLower)) ||
         (item.name && item.name.toLowerCase().includes(queryLower)) ||
         (item.productFamily && item.productFamily.toLowerCase().includes(queryLower)) ||
-        (item.location && item.location.toLowerCase().includes(queryLower))
+        (item.location_id && item.location_id.toLowerCase().includes(queryLower))
       );
     } catch (error) {
       console.error("Error filtering inventory item:", error);
@@ -178,7 +194,16 @@ const Inventory = () => {
     }
   };
 
-  const filteredData = inventoryData.filter(item => safeFilter(item, searchQuery));
+  // Enrich inventory data with classification information
+  const enrichedInventory = inventoryData.map(item => ({ 
+    ...item, 
+    classification: skuClassifications.find(sku => sku.sku === item.product_id) || null 
+  }));
+  
+  const filteredData = enrichedInventory.filter(
+    (item) => safeFilter(item, searchQuery) && 
+    (selectedLocationId === "" || item.location_id === selectedLocationId)
+  );
 
   const startIndex = Math.max(0, (currentPage - 1) * 10);
   const endIndex = Math.min(startIndex + 10, filteredData.length);
@@ -265,6 +290,8 @@ const Inventory = () => {
               <InventoryFilters
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
+                selectedLocationId={selectedLocationId}
+                setSelectedLocationId={setSelectedLocationId}
               />
               <Button
                 variant="outline"
@@ -281,37 +308,37 @@ const Inventory = () => {
           </div>
         </div>
 
-        <ErrorBoundary fallback={<Card className="p-6 text-center">Error loading summary cards</Card>} onError={handleError}>
+        <ErrorBoundary fallback={<Card className="p-6 text-center"><p>{t("common.inventory.errorLoading")}</p></Card>} onError={handleError}>
           <div className="inventory-summary-cards">
             <InventorySummaryCards />
           </div>
         </ErrorBoundary>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <ErrorBoundary fallback={<Card className="p-6 text-center">{language === 'ar' ? "خطأ في تحميل تصنيفات وحدات التخزين" : "Error loading SKU classifications"}</Card>} onError={handleError}>
+          <ErrorBoundary fallback={<Card className="p-6 text-center"><p>{t("common.inventory.errorLoading")}</p></Card>} onError={handleError}>
             <Card className="p-4 inventory-classifications">
               <h3 className="text-lg font-semibold mb-3">
                 {t("common.inventory.skuClassifications")}
               </h3>
-              <SKUClassifications classifications={[]} />
+              <SKUClassifications classifications={skuClassifications} />
             </Card>
           </ErrorBoundary>
           
-          <ErrorBoundary fallback={<Card className="p-6 text-center">{language === 'ar' ? "عرض الخريطة غير متوفر حاليًا" : "Map visualization currently unavailable"}</Card>} onError={handleError}>
+          <ErrorBoundary fallback={<Card className="p-6 text-center"><p>{t("common.inventory.errorLoading")}</p></Card>} onError={handleError}>
             <div className="inventory-map">
               <NetworkDecouplingMap />
             </div>
           </ErrorBoundary>
         </div>
         
-        <ErrorBoundary fallback={<Card className="p-6 text-center">{language === 'ar' ? "خطأ في تحميل رسم بياني للمخزون" : "Error loading inventory chart"}</Card>} onError={handleError}>
+        <ErrorBoundary fallback={<Card className="p-6 text-center"><p>{t("common.inventory.errorLoading")}</p></Card>} onError={handleError}>
           <div className="inventory-chart">
             <InventoryChart data={filteredData} />
           </div>
         </ErrorBoundary>
 
         <Card>
-          <ErrorBoundary fallback={<div className="p-6 text-center">{t("common.inventory.errorLoading")}</div>} onError={handleError}>
+          <ErrorBoundary fallback={<div className="p-6 text-center"><p>{t("common.inventory.errorLoading")}</p></div>} onError={handleError}>
             <div className="inventory-tabs">
               <InventoryTabs defaultValue={defaultTab}>
                 <div className="space-y-4 p-5">
