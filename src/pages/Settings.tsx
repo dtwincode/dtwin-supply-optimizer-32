@@ -39,7 +39,7 @@ export default function Settings() {
             </CardDescription>
           </CardHeader>
           
-          {/* Improved Tab Navigation */}
+          {/* Improved Tab Navigation - fixing the visibility issues */}
           <div className="relative pt-6 px-6 border-b">
             <div className="flex items-center mb-4">
               <button 
@@ -53,20 +53,21 @@ export default function Settings() {
                 <ChevronLeft className="w-5 h-5" />
               </button>
               
-              <div className="mx-auto px-10 overflow-hidden relative w-full">
-                <div className="flex gap-4 justify-center md:justify-start overflow-x-auto py-2 no-scrollbar px-2">
+              {/* Modified tab container to better display all tabs */}
+              <div className="w-full px-12 md:px-14 mx-auto overflow-hidden">
+                <div className="flex gap-4 justify-start overflow-x-auto scrollbar-hide py-2 px-1">
                   {tabs.map((tab) => (
                     <button
                       key={tab.id}
                       onClick={() => handleDataTabChange(tab.id)}
                       className={cn(
-                        "flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-all min-w-max",
+                        "flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-all shrink-0",
                         dataTab === tab.id
                           ? `${tab.color} shadow-sm`
                           : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
                       )}
                     >
-                      <tab.icon className="w-4 h-4" />
+                      <tab.icon className="w-4 h-4 flex-shrink-0" />
                       <span className="whitespace-nowrap">{tab.label}</span>
                     </button>
                   ))}
