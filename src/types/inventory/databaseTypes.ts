@@ -1,10 +1,11 @@
+
 // This file defines database schema types that match the actual Supabase tables
 
 export interface DBInventoryItem {
   inventory_id: string;
   product_id: string;
   quantity_on_hand: number;
-  available_qty?: number;
+  available_qty?: number; // Made optional since it has a default value in the database
   reserved_qty?: number;
   location_id?: string;
   last_updated?: string;
@@ -69,7 +70,7 @@ export interface DBPurchaseOrder {
   po_number: string;
   sku: string;
   quantity: number;
-  created_by?: string; // Made optional to fix the type error
+  created_by?: string;
   status: string;
   supplier?: string;
   expected_delivery_date?: string;

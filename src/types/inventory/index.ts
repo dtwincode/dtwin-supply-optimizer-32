@@ -58,7 +58,7 @@ export interface InventoryItem {
   inventory_id: string;
   product_id: string;
   quantity_on_hand: number;
-  available_qty?: number;
+  available_qty?: number; // Made optional since it has a default value in the database
   reserved_qty?: number;
   location_id?: string;
   last_updated?: string;

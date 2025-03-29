@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useToast } from '@/components/ui/use-toast';
@@ -28,18 +27,25 @@ export const useInventoryTransaction = () => {
         ? inventoryItem.quantity_on_hand + data.quantity
         : inventoryItem.quantity_on_hand - data.quantity;
       
-      const newAvailableQty = data.transactionType === 'inbound' 
-        ? inventoryItem.available_qty + data.quantity
-        : inventoryItem.available_qty - data.quantity;
+      // If available_qty exists in the database record, update it
+      // Otherwise, let the database handle its default value
+      let updateData: any = {
+        quantity_on_hand: newQuantityOnHand,
+        last_updated: new Date().toISOString()
+      };
+      
+      if (inventoryItem.available_qty !== undefined && inventoryItem.available_qty !== null) {
+        const newAvailableQty = data.transactionType === 'inbound' 
+          ? inventoryItem.available_qty + data.quantity
+          : inventoryItem.available_qty - data.quantity;
+        
+        updateData.available_qty = newAvailableQty;
+      }
       
       // 3. Update inventory item
       const { error: updateError } = await supabase
         .from('inventory_data')
-        .update({
-          quantity_on_hand: newQuantityOnHand,
-          available_qty: newAvailableQty,
-          last_updated: new Date().toISOString()
-        })
+        .update(updateData)
         .eq('inventory_id', inventoryItem.inventory_id);
 
       if (updateError) {
@@ -56,7 +62,7 @@ export const useInventoryTransaction = () => {
         previous_quantity: inventoryItem.quantity_on_hand,
         new_quantity: newQuantityOnHand,
         previous_available: inventoryItem.available_qty,
-        new_available: newAvailableQty,
+        new_available: updateData.available_qty || 'using default',
         notes: data.notes,
         transaction_date: new Date().toISOString()
       });
