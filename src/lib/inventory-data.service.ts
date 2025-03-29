@@ -1,3 +1,4 @@
+
 import { supabase } from './supabaseClient';
 import Papa from 'papaparse';
 
@@ -37,24 +38,28 @@ export const uploadInventoryData = async (file: File) => {
     }
 
     // Map CSV data to the inventory_data table structure
-    // IMPORTANT: Let the database provide the default value for available_qty if not specified
     const inventoryData = parseResult.data.map(row => {
+      // Start with the required fields
       const baseData = {
         product_id: row.product_id,
         quantity_on_hand: parseInt(row.quantity_on_hand) || 0,
-        reserved_qty: parseInt(row.reserved_qty) || 0,
-        location_id: row.location_id || null,
-        buffer_profile_id: row.buffer_profile_id || null
       };
       
-      // Only include available_qty if it's explicitly provided in the CSV
-      // Otherwise let the database use its default value
-      if (row.available_qty !== undefined && row.available_qty !== null && row.available_qty !== '') {
-        return {
-          ...baseData,
-          available_qty: parseInt(row.available_qty) || 0
-        };
+      // Only add optional fields if they are provided in the CSV
+      if (row.reserved_qty !== undefined && row.reserved_qty !== null && row.reserved_qty !== '') {
+        baseData['reserved_qty'] = parseInt(row.reserved_qty) || 0;
       }
+      
+      if (row.location_id !== undefined && row.location_id !== null && row.location_id !== '') {
+        baseData['location_id'] = row.location_id;
+      }
+      
+      if (row.buffer_profile_id !== undefined && row.buffer_profile_id !== null && row.buffer_profile_id !== '') {
+        baseData['buffer_profile_id'] = row.buffer_profile_id;
+      }
+      
+      // Explicitly AVOID including available_qty in the insert
+      // Let the database handle this with its default value or calculation
       
       return baseData;
     });

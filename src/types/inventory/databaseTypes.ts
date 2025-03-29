@@ -12,7 +12,8 @@ export interface DBInventoryItem {
   buffer_profile_id?: string;
 }
 
-export interface DBInventoryItem {
+// Interface mapping to our frontend component model
+export interface InventoryItemUI {
   id: string;
   sku: string;
   name: string;

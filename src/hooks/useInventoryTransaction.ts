@@ -1,7 +1,17 @@
+
 import { useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useToast } from '@/components/ui/use-toast';
-import { InventoryTransactionData } from '@/types/inventory';
+
+// Interface for inventory transaction data
+export interface InventoryTransactionData {
+  product_id: string;
+  quantity: number;
+  transactionType: 'inbound' | 'outbound';
+  referenceId?: string;
+  referenceType?: 'purchase_order' | 'sales_order' | 'shipment';
+  notes?: string;
+}
 
 export const useInventoryTransaction = () => {
   const [loading, setLoading] = useState(false);
@@ -27,20 +37,13 @@ export const useInventoryTransaction = () => {
         ? inventoryItem.quantity_on_hand + data.quantity
         : inventoryItem.quantity_on_hand - data.quantity;
       
-      // If available_qty exists in the database record, update it
-      // Otherwise, let the database handle its default value
+      // Create update payload, only including what we need to change
       let updateData: any = {
         quantity_on_hand: newQuantityOnHand,
         last_updated: new Date().toISOString()
       };
       
-      if (inventoryItem.available_qty !== undefined && inventoryItem.available_qty !== null) {
-        const newAvailableQty = data.transactionType === 'inbound' 
-          ? inventoryItem.available_qty + data.quantity
-          : inventoryItem.available_qty - data.quantity;
-        
-        updateData.available_qty = newAvailableQty;
-      }
+      // NEVER update available_qty directly, let the database handle this with triggers or defaults
       
       // 3. Update inventory item
       const { error: updateError } = await supabase
@@ -52,7 +55,7 @@ export const useInventoryTransaction = () => {
         throw new Error(`Failed to update inventory: ${updateError.message}`);
       }
 
-      // 4. Log the transaction - commented out as the table doesn't exist yet
+      // 4. Log the transaction
       console.log('Transaction processed:', {
         product_id: data.product_id,
         quantity: data.quantity,
@@ -61,8 +64,6 @@ export const useInventoryTransaction = () => {
         reference_type: data.referenceType,
         previous_quantity: inventoryItem.quantity_on_hand,
         new_quantity: newQuantityOnHand,
-        previous_available: inventoryItem.available_qty,
-        new_available: updateData.available_qty || 'using default',
         notes: data.notes,
         transaction_date: new Date().toISOString()
       });

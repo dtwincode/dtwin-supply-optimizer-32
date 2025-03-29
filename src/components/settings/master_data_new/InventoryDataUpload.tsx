@@ -167,7 +167,7 @@ const InventoryDataUpload = () => {
           <ul className="list-disc list-inside ml-2 space-y-0.5 mt-1">
             <li>Required: product_id, quantity_on_hand</li>
             <li>Optional: reserved_qty, location_id, buffer_profile_id</li>
-            <li>Note: Do not include available_qty column unless necessary (it has a default value in the database)</li>
+            <li>Do not include available_qty column - it will be managed by the database</li>
             <li>Numeric fields: quantity_on_hand, reserved_qty</li>
             <li>Ensure that all rows have values for the required fields</li>
           </ul>
