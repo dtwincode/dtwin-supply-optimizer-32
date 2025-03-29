@@ -1,8 +1,9 @@
+
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { BufferProfilesTab as OldBufferProfilesTab } from "@/components/settings/BufferProfilesTab";
+import { BufferProfilesTab } from "@/components/settings/BufferProfilesTab";
 import BufferProfilesUpload from "@/components/settings/master_data_new/BufferProfilesUpload";
 import HistoricalSalesUpload from "@/components/settings/master_data_new/HistoricalSalesUpload";
 import InventoryDataUpload from "@/components/settings/master_data_new/InventoryDataUpload";
@@ -62,7 +63,7 @@ export default function Settings() {
           </div>
           
           <TabsContent value="buffer-profiles" className="space-y-4">
-            <OldBufferProfilesTab />
+            <BufferProfilesTab />
           </TabsContent>
           
           <TabsContent value="data-upload" className="space-y-4">
