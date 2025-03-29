@@ -44,14 +44,22 @@ export const useInventoryTransaction = () => {
 
       // 3. Recalculate net flow position - convert to compatible type for calculation
       const netFlowPosition = calculateNetFlowPosition({
-        currentStock: newOnHand,
-        qualifiedDemand: inventoryItem.qualified_demand || 0,
-        onOrder: newOnOrder,
-        onHand: newOnHand,
-        netFlowPosition: inventoryItem.net_flow_position || 0,
-        productFamily: inventoryItem.product_family || '',
+        id: inventoryItem.id,
         sku: inventoryItem.sku,
-        name: inventoryItem.name || ''
+        name: inventoryItem.name || '',
+        currentStock: newOnHand,
+        category: inventoryItem.category || '',
+        subcategory: inventoryItem.subcategory || '',
+        location: inventoryItem.location || '',
+        productFamily: inventoryItem.product_family || '',
+        region: inventoryItem.region || '',
+        city: inventoryItem.city || '',
+        channel: inventoryItem.channel || '',
+        warehouse: inventoryItem.warehouse || '',
+        onHand: newOnHand,
+        onOrder: newOnOrder,
+        qualifiedDemand: inventoryItem.qualified_demand || 0,
+        netFlowPosition: inventoryItem.net_flow_position || 0
       });
 
       // 4. Calculate buffer penetration if buffer zones exist
@@ -85,7 +93,7 @@ export const useInventoryTransaction = () => {
       }
 
       // 6. Log the transaction
-      const { error: logError } = await (supabase as any)
+      const { error: logError } = await supabase
         .from('inventory_transactions')
         .insert({
           sku: data.sku,

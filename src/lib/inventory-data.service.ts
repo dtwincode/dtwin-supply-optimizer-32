@@ -67,3 +67,73 @@ export const uploadInventoryData = async (file: File) => {
     };
   }
 };
+
+// Function to retrieve inventory data from the Supabase table
+export const getInventoryData = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('inventory_data')
+      .select('*');
+    
+    if (error) {
+      console.error('Error fetching inventory data:', error.message);
+      return { success: false, message: error.message, data: [] };
+    }
+    
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error in getInventoryData:', error);
+    return { 
+      success: false, 
+      message: error instanceof Error ? error.message : 'Unknown error',
+      data: [] 
+    };
+  }
+};
+
+// Function to update inventory item in the Supabase table
+export const updateInventoryItem = async (id: string, updates: any) => {
+  try {
+    const { data, error } = await supabase
+      .from('inventory_data')
+      .update(updates)
+      .eq('id', id)
+      .select();
+    
+    if (error) {
+      console.error('Error updating inventory item:', error.message);
+      return { success: false, message: error.message };
+    }
+    
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error in updateInventoryItem:', error);
+    return { 
+      success: false, 
+      message: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+};
+
+// Function to delete inventory item from the Supabase table
+export const deleteInventoryItem = async (id: string) => {
+  try {
+    const { error } = await supabase
+      .from('inventory_data')
+      .delete()
+      .eq('id', id);
+    
+    if (error) {
+      console.error('Error deleting inventory item:', error.message);
+      return { success: false, message: error.message };
+    }
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error in deleteInventoryItem:', error);
+    return { 
+      success: false, 
+      message: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+};

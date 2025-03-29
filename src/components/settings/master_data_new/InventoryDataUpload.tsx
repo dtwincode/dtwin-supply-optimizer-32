@@ -144,9 +144,10 @@ const InventoryDataUpload = () => {
         </Button>
 
         {status.message && (
-          <Alert variant={status.type === 'error' ? "destructive" : 
-                         status.type === 'success' ? "default" : "outline"} 
-                className="mt-2 py-2">
+          <Alert 
+            variant={status.type === 'error' ? "destructive" : 
+                   status.type === 'success' ? "default" : "default"} 
+            className="mt-2 py-2">
             <div className="flex items-center text-xs">
               {getStatusIcon()}
               <AlertDescription className="text-xs">
