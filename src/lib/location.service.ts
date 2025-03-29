@@ -1,18 +1,50 @@
 
-import { supabase } from './supabaseClient'; // Import the supabase client
+import { supabase } from './supabaseClient'; 
+import Papa from 'papaparse';
 
-// Function to handle location file upload
+// Function to handle location data upload from CSV
 export const uploadLocation = async (file: File) => {
-  const bucketName = 'locations'; // Define your storage bucket name
-  const { data, error } = await supabase.storage
-    .from(bucketName)
-    .upload(`location/${file.name}`, file);
+  try {
+    // Parse the CSV file
+    const parseResult = await new Promise<Papa.ParseResult<any>>((resolve, reject) => {
+      Papa.parse(file, {
+        header: true,
+        complete: resolve,
+        error: reject,
+        skipEmptyLines: true
+      });
+    });
 
-  if (error) {
-    console.error('Error uploading location file:', error.message);
-    return false; // Return false if there's an error
+    // Check if data was successfully parsed
+    if (!parseResult.data || parseResult.data.length === 0) {
+      console.error('No data found in the CSV file');
+      return false;
+    }
+
+    console.log('Parsed location data:', parseResult.data);
+
+    // Map CSV data to the location_master table structure
+    const locations = parseResult.data.map(row => ({
+      warehouse: row.warehouse || '',
+      region: row.region || null,
+      city: row.city || null,
+      channel: row.channel || null
+    }));
+
+    // Insert data into the location_master table
+    const { data, error } = await supabase
+      .from('location_master')
+      .insert(locations);
+
+    if (error) {
+      console.error('Error inserting location data:', error.message);
+      return false;
+    }
+
+    console.log('Locations inserted successfully:', data);
+    return true;
+  } catch (error) {
+    console.error('Error processing location file:', error);
+    return false;
   }
-
-  console.log('Location uploaded successfully:', data);
-  return true; // Return true if the upload is successful
 };
