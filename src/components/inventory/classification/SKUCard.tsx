@@ -4,7 +4,7 @@ import { Award, Tag } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { ClassificationItem } from "./ClassificationItem";
-import { Classification } from "@/types/inventory/classificationTypes";
+import { Classification } from "@/types/inventory";
 
 interface SKUCardProps {
   sku: string;
@@ -15,7 +15,8 @@ interface SKUCardProps {
 
 export function SKUCard({ sku, classification, lastUpdated, index }: SKUCardProps) {
   // Get score color based on value
-  const getScoreColor = (score: number) => {
+  const getScoreColor = (score: number | undefined) => {
+    if (!score) return "text-gray-600";
     if (score >= 80) return "text-blue-600";
     if (score >= 60) return "text-indigo-600";
     if (score >= 40) return "text-purple-600";
@@ -30,12 +31,13 @@ export function SKUCard({ sku, classification, lastUpdated, index }: SKUCardProp
   ];
 
   // Helper function to map leadTimeCategory to high/medium/low for visual consistency
-  const mapLeadTimeCategoryToLevel = (category: 'short' | 'medium' | 'long'): 'low' | 'medium' | 'high' => {
+  const mapLeadTimeCategoryToLevel = (category: 'short' | 'medium' | 'long' | undefined): 'low' | 'medium' | 'high' => {
+    if (!category) return 'medium';
     switch (category) {
       case 'short': return 'low';
       case 'medium': return 'medium';
       case 'long': return 'high';
-      default: return 'medium' as 'medium';
+      default: return 'medium';
     }
   };
 
@@ -56,8 +58,8 @@ export function SKUCard({ sku, classification, lastUpdated, index }: SKUCardProp
           </div>
           <div className="flex items-center gap-1">
             <Award className="w-3 h-3 text-amber-500" />
-            <span className={cn("text-sm font-bold", getScoreColor(classification.score || 0))}>
-              {classification.score || 'N/A'}
+            <span className={cn("text-sm font-bold", getScoreColor(classification?.score))}>
+              {classification?.score || 'N/A'}
             </span>
           </div>
         </div>
@@ -66,26 +68,26 @@ export function SKUCard({ sku, classification, lastUpdated, index }: SKUCardProp
         <div className="p-2 space-y-1.5">
           <ClassificationItem 
             title="Lead Time"
-            level={mapLeadTimeCategoryToLevel(classification.leadTimeCategory)}
+            level={mapLeadTimeCategoryToLevel(classification?.leadTimeCategory)}
             type="leadTime"
           />
           
           <ClassificationItem 
             title="Variability"
-            level={classification.variabilityLevel}
+            level={classification?.variabilityLevel || 'medium'}
             type="variability"
           />
           
           <ClassificationItem 
             title="Criticality"
-            level={classification.criticality}
+            level={classification?.criticality || 'medium'}
             type="criticality"
           />
         </div>
         
         {/* Footer */}
         <div className="px-2 py-1 bg-white/50 text-[10px] text-gray-500 text-right">
-          {new Date(lastUpdated).toLocaleDateString()}
+          {lastUpdated ? new Date(lastUpdated).toLocaleDateString() : 'N/A'}
         </div>
       </Card>
     </motion.div>

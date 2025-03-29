@@ -7,31 +7,24 @@ export * from './databaseTypes';
 export * from './inventoryFilters';
 export * from './shipmentTypes';
 
-// SKU Classification interface
+// SKU Classification interface - updated to match the database structure
 export interface SKUClassification {
   id?: string;
   sku: string;
-  classification: {
-    leadTimeCategory?: 'short' | 'medium' | 'long';
-    variabilityLevel?: 'low' | 'medium' | 'high';
-    criticality?: 'low' | 'medium' | 'high';
-    score?: number;
-  };
-  value?: number;
+  lead_time_category?: 'short' | 'medium' | 'long';
+  variability_level?: 'low' | 'medium' | 'high';
+  criticality?: 'low' | 'medium' | 'high';
   score?: number;
-  lastUpdated?: string;
+  last_updated?: string;
+  category?: string;
 }
 
-// Classification interface
+// Classification interface (used internally by components)
 export interface Classification {
-  id?: string;
-  name?: string;
-  description?: string;
-  criteria?: string;
-  score?: number;
   leadTimeCategory?: 'short' | 'medium' | 'long';
-  variabilityLevel?: 'low' | 'medium' | 'high';
+  variabilityLevel?: 'low' | 'medium' | 'high'; 
   criticality?: 'low' | 'medium' | 'high';
+  score?: number;
 }
 
 // ReplenishmentData interface
@@ -39,28 +32,55 @@ export interface ReplenishmentData {
   id: string;
   sku: string;
   quantity: number;
-  date: string;
-  location: string;
+  replenishmentType: string;
+  source: string;
+  destination: string;
+  status: string;
+  expectedDate: string;
+  internalTransferTime?: number;
+  totalCycleTime?: number;
+  lastUpdated?: string;
+  locationFrom?: string;
+  locationTo?: string;
+  replenishmentLeadTime?: number;
 }
 
-// Inventory Transaction interface for use with hooks
-export interface InventoryTransactionData {
-  product_id: string;
-  quantity: number;
-  transactionType: 'inbound' | 'outbound';
-  referenceId?: string;
-  referenceType?: 'purchase_order' | 'sales_order' | 'shipment';
-  notes?: string;
-}
-
-// Inventory Item interface to match the new inventory_data table
+// InventoryItem interface to match the updated structure
 export interface InventoryItem {
   inventory_id: string;
   product_id: string;
   quantity_on_hand: number;
-  available_qty?: number; // Made optional since it has a default value in the database
+  available_qty?: number;
   reserved_qty?: number;
   location_id?: string;
   last_updated?: string;
   buffer_profile_id?: string;
+  decoupling_point?: boolean;
+  
+  // UI enhancements
+  id?: string;
+  sku?: string;
+  name?: string;
+  currentStock?: number;
+  category?: string;
+  subcategory?: string;
+  location?: string;
+  productFamily?: string;
+  region?: string;
+  city?: string;
+  channel?: string;
+  warehouse?: string;
+  decouplingPointId?: string;
+  adu?: number;
+  leadTimeDays?: number;
+  variabilityFactor?: number;
+  redZoneSize?: number;
+  yellowZoneSize?: number;
+  greenZoneSize?: number;
+  onHand?: number;
+  onOrder?: number;
+  qualifiedDemand?: number;
+  netFlowPosition?: number;
+  planningPriority?: string;
+  classification?: Classification;
 }

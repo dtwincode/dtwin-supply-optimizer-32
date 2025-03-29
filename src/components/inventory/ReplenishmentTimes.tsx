@@ -1,51 +1,51 @@
 
-// ReplenishmentTimes placeholder - this file would be created as part of the organization
-import React from "react";
-import { ReplenishmentData } from "./types";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ReplenishmentData } from "@/types/inventory";
 
 interface ReplenishmentTimesProps {
   data: ReplenishmentData[];
 }
 
-export const ReplenishmentTimes: React.FC<ReplenishmentTimesProps> = ({ data }) => {
+export const ReplenishmentTimes = ({ data }: ReplenishmentTimesProps) => {
   return (
-    <div className="space-y-4">
-      {data.length === 0 ? (
-        <p className="text-muted-foreground">No replenishment data available.</p>
-      ) : (
-        data.map((item) => (
-          <div key={item.sku} className="border rounded-md p-3">
-            <div className="flex justify-between">
-              <span className="font-medium">{item.sku}</span>
-              <span className="text-sm text-muted-foreground">
-                {new Date(item.lastUpdated).toLocaleDateString()}
-              </span>
-            </div>
-            <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
-              <div>
-                <span className="block text-muted-foreground">From</span>
-                <span>{item.locationFrom}</span>
-              </div>
-              <div>
-                <span className="block text-muted-foreground">To</span>
-                <span>{item.locationTo}</span>
-              </div>
-              <div>
-                <span className="block text-muted-foreground">Internal Transfer</span>
-                <span>{item.internalTransferTime} days</span>
-              </div>
-              <div>
-                <span className="block text-muted-foreground">Lead Time</span>
-                <span>{item.replenishmentLeadTime} days</span>
-              </div>
-              <div className="col-span-2">
-                <span className="block text-muted-foreground">Total Cycle Time</span>
-                <span className="font-medium">{item.totalCycleTime} days</span>
-              </div>
-            </div>
-          </div>
-        ))
-      )}
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Replenishment Times</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>SKU</TableHead>
+              <TableHead>Last Updated</TableHead>
+              <TableHead>From</TableHead>
+              <TableHead>To</TableHead>
+              <TableHead>Internal Transfer (days)</TableHead>
+              <TableHead>Lead Time (days)</TableHead>
+              <TableHead>Total Cycle Time (days)</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell>{item.sku}</TableCell>
+                <TableCell>{item.lastUpdated ? new Date(item.lastUpdated).toLocaleDateString() : "N/A"}</TableCell>
+                <TableCell>{item.locationFrom || item.source || "N/A"}</TableCell>
+                <TableCell>{item.locationTo || item.destination || "N/A"}</TableCell>
+                <TableCell>{item.internalTransferTime || "N/A"}</TableCell>
+                <TableCell>{item.replenishmentLeadTime || "N/A"}</TableCell>
+                <TableCell>{item.totalCycleTime || "N/A"}</TableCell>
+              </TableRow>
+            ))}
+            {data.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-4">No replenishment data available</TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 };

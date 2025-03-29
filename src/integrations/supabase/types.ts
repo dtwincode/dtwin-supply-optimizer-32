@@ -204,49 +204,36 @@ export type Database = {
           description: string | null
           id: string
           lead_time_category: string | null
-          lead_time_factor: Database["public"]["Enums"]["lead_time_type"] | null
+          lead_time_factor: number | null
           lot_size_factor: number | null
-          moq: number | null
           name: string
           updated_at: string
           variability_category: string | null
-          variability_factor:
-            | Database["public"]["Enums"]["variability_type"]
-            | null
+          variability_factor: number | null
         }
         Insert: {
           created_at?: string
           description?: string | null
           id?: string
           lead_time_category?: string | null
-          lead_time_factor?:
-            | Database["public"]["Enums"]["lead_time_type"]
-            | null
+          lead_time_factor?: number | null
           lot_size_factor?: number | null
-          moq?: number | null
           name: string
           updated_at?: string
           variability_category?: string | null
-          variability_factor?:
-            | Database["public"]["Enums"]["variability_type"]
-            | null
+          variability_factor?: number | null
         }
         Update: {
           created_at?: string
           description?: string | null
           id?: string
           lead_time_category?: string | null
-          lead_time_factor?:
-            | Database["public"]["Enums"]["lead_time_type"]
-            | null
+          lead_time_factor?: number | null
           lot_size_factor?: number | null
-          moq?: number | null
           name?: string
           updated_at?: string
           variability_category?: string | null
-          variability_factor?:
-            | Database["public"]["Enums"]["variability_type"]
-            | null
+          variability_factor?: number | null
         }
         Relationships: []
       }
@@ -1087,6 +1074,7 @@ export type Database = {
         Row: {
           available_qty: number | null
           buffer_profile_id: string | null
+          decoupling_point: boolean | null
           inventory_id: string
           last_updated: string | null
           location_id: string
@@ -1097,6 +1085,7 @@ export type Database = {
         Insert: {
           available_qty?: number | null
           buffer_profile_id?: string | null
+          decoupling_point?: boolean | null
           inventory_id?: string
           last_updated?: string | null
           location_id: string
@@ -1107,6 +1096,7 @@ export type Database = {
         Update: {
           available_qty?: number | null
           buffer_profile_id?: string | null
+          decoupling_point?: boolean | null
           inventory_id?: string
           last_updated?: string | null
           location_id?: string
@@ -2376,6 +2366,33 @@ export type Database = {
           name?: string
           updated_at?: string | null
           value?: string
+        }
+        Relationships: []
+      }
+      sku_classification: {
+        Row: {
+          criticality: string | null
+          last_updated: string | null
+          lead_time_category: string | null
+          score: number | null
+          sku: string
+          variability_level: string | null
+        }
+        Insert: {
+          criticality?: string | null
+          last_updated?: string | null
+          lead_time_category?: string | null
+          score?: number | null
+          sku: string
+          variability_level?: string | null
+        }
+        Update: {
+          criticality?: string | null
+          last_updated?: string | null
+          lead_time_category?: string | null
+          score?: number | null
+          sku?: string
+          variability_level?: string | null
         }
         Relationships: []
       }

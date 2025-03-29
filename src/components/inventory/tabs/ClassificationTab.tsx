@@ -6,45 +6,34 @@ import { SKUClassifications } from "../classification/SKUClassifications";
 import { ClassificationManager } from "../classification/ClassificationManager";
 import { useEffect, useState } from "react";
 import { SKUClassification } from "@/types/inventory";
+import { supabase } from "@/lib/supabaseClient";
 
 export function ClassificationTab() {
   const { language } = useLanguage();
   const [classifications, setClassifications] = useState<SKUClassification[]>([]);
+  const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    // In a real app, this would fetch from an API
-    setClassifications([
-      {
-        sku: "SKU001",
-        classification: {
-          leadTimeCategory: "long",
-          variabilityLevel: "medium",
-          criticality: "high",
-          score: 85
-        },
-        lastUpdated: new Date().toISOString()
-      },
-      {
-        sku: "SKU002",
-        classification: {
-          leadTimeCategory: "medium",
-          variabilityLevel: "low",
-          criticality: "medium",
-          score: 65
-        },
-        lastUpdated: new Date().toISOString()
-      },
-      {
-        sku: "SKU003",
-        classification: {
-          leadTimeCategory: "short",
-          variabilityLevel: "high",
-          criticality: "low",
-          score: 45
-        },
-        lastUpdated: new Date().toISOString()
+    async function fetchClassifications() {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from("sku_classification")
+          .select("*");
+          
+        if (error) {
+          console.error("Error fetching classifications:", error);
+        } else if (data) {
+          setClassifications(data);
+        }
+      } catch (err) {
+        console.error("Unexpected error:", err);
+      } finally {
+        setLoading(false);
       }
-    ]);
+    }
+    
+    fetchClassifications();
   }, []);
 
   return (
@@ -59,7 +48,11 @@ export function ClassificationTab() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <SKUClassifications classifications={classifications} />
+          {loading ? (
+            <div className="text-center p-4">Loading classifications...</div>
+          ) : (
+            <SKUClassifications classifications={classifications} />
+          )}
         </CardContent>
       </Card>
       

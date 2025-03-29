@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { getInventoryItems } from '@/services/inventoryService';
+import { supabase } from '@/lib/supabaseClient';
 import { InventoryItem } from '@/types/inventory';
 import { PaginationState } from '@/types/inventory/databaseTypes';
 
@@ -21,18 +21,23 @@ export const useInventory = (initialPage = 1, initialLimit = 10) => {
     const fetchItems = async () => {
       try {
         setLoading(true);
-        const data = await getInventoryItems();
-        setItems(data);
+        const { data, error } = await supabase
+          .from("inventory_data")
+          .select("*");
+
+        if (error) throw error;
         
-        setPagination({
-          page: pagination.page,
-          limit: pagination.limit,
-          total: data.length,
-          currentPage: pagination.page,
-          itemsPerPage: pagination.limit,
-          totalItems: data.length
-        });
-        
+        if (data) {
+          setItems(data as InventoryItem[]);
+          setPagination({
+            page: pagination.page,
+            limit: pagination.limit,
+            total: data.length,
+            currentPage: pagination.page,
+            itemsPerPage: pagination.limit,
+            totalItems: data.length
+          });
+        }
       } catch (err) {
         setError(err instanceof Error ? err : new Error('An unknown error occurred'));
       } finally {

@@ -32,8 +32,13 @@ export function SKUClassifications({ classifications }: SKUClassificationsProps)
           <SKUCard 
             key={classItem.sku}
             sku={classItem.sku}
-            classification={classItem.classification}
-            lastUpdated={classItem.lastUpdated}
+            classification={{
+              leadTimeCategory: classItem.lead_time_category,
+              variabilityLevel: classItem.variability_level,
+              criticality: classItem.criticality,
+              score: classItem.score
+            }}
+            lastUpdated={classItem.last_updated || new Date().toISOString()}
             index={index}
           />
         ))}
