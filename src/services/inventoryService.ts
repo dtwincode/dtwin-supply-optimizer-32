@@ -99,6 +99,100 @@ export const updateBufferProfile = async (profile: BufferProfile): Promise<Buffe
   };
 };
 
+// Decoupling Point functions
+export const getDecouplingPoints = async (): Promise<DecouplingPoint[]> => {
+  const { data, error } = await supabase
+    .from('decoupling_points')
+    .select('*');
+
+  if (error) {
+    console.error('Error fetching decoupling points:', error);
+    throw error;
+  }
+
+  // Map the database format to our frontend model
+  return (data || []).map(point => ({
+    id: point.id,
+    locationId: point.location_id,
+    type: point.type,
+    description: point.description || undefined,
+    bufferProfileId: point.buffer_profile_id
+  }));
+};
+
+export const createDecouplingPoint = async (point: Omit<DecouplingPoint, 'id'>): Promise<DecouplingPoint> => {
+  // Convert from our frontend model to the database format
+  const dbPoint = {
+    location_id: point.locationId,
+    type: point.type,
+    description: point.description,
+    buffer_profile_id: point.bufferProfileId
+  };
+
+  const { data, error } = await supabase
+    .from('decoupling_points')
+    .insert(dbPoint)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating decoupling point:', error);
+    throw error;
+  }
+
+  // Map back to our frontend model
+  return {
+    id: data.id,
+    locationId: data.location_id,
+    type: data.type,
+    description: data.description || undefined,
+    bufferProfileId: data.buffer_profile_id
+  };
+};
+
+export const updateDecouplingPoint = async (point: DecouplingPoint): Promise<DecouplingPoint> => {
+  // Convert from our frontend model to the database format
+  const dbPoint = {
+    location_id: point.locationId,
+    type: point.type,
+    description: point.description,
+    buffer_profile_id: point.bufferProfileId
+  };
+
+  const { data, error } = await supabase
+    .from('decoupling_points')
+    .update(dbPoint)
+    .eq('id', point.id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating decoupling point:', error);
+    throw error;
+  }
+
+  // Map back to our frontend model
+  return {
+    id: data.id,
+    locationId: data.location_id,
+    type: data.type,
+    description: data.description || undefined,
+    bufferProfileId: data.buffer_profile_id
+  };
+};
+
+export const deleteDecouplingPoint = async (id: string): Promise<void> => {
+  const { error } = await supabase
+    .from('decoupling_points')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting decoupling point:', error);
+    throw error;
+  }
+};
+
 // Get all inventory items
 export const getAllInventoryItems = async () => {
   try {
@@ -108,8 +202,8 @@ export const getAllInventoryItems = async () => {
 
     if (error) throw error;
 
-    // Map to UI format if needed
-    return { data: data.map(transformToUIItem), error: null };
+    // Return data directly without transformation
+    return { data, error: null };
   } catch (error) {
     console.error("Error fetching inventory items:", error);
     return { data: null, error };
@@ -134,8 +228,8 @@ export const getInventoryItems = async (filters: any = {}) => {
 
     if (error) throw error;
 
-    // Map to UI format if needed
-    return { data: data.map(transformToUIItem), error: null };
+    // Return data directly without transformation
+    return { data, error: null };
   } catch (error) {
     console.error("Error fetching inventory items:", error);
     return { data: null, error };
@@ -153,8 +247,8 @@ export const getInventoryItemById = async (id: string) => {
 
     if (error) throw error;
 
-    // Map to UI format if needed
-    return { data: transformToUIItem(data), error: null };
+    // Return data directly
+    return { data, error: null };
   } catch (error) {
     console.error(`Error fetching inventory item with ID ${id}:`, error);
     return { data: null, error };
@@ -162,7 +256,7 @@ export const getInventoryItemById = async (id: string) => {
 };
 
 // Create a new inventory item
-export const createInventoryItem = async (item: Partial<DBInventoryItem>) => {
+export const createInventoryItem = async (item: Partial<InventoryItem>) => {
   try {
     // Make sure we're not including available_qty which has a default value constraint
     const { available_qty, ...itemData } = item;
@@ -182,7 +276,7 @@ export const createInventoryItem = async (item: Partial<DBInventoryItem>) => {
 };
 
 // Update an existing inventory item
-export const updateInventoryItem = async (id: string, updates: Partial<DBInventoryItem>) => {
+export const updateInventoryItem = async (id: string, updates: Partial<InventoryItem>) => {
   try {
     // Make sure we're not including available_qty which has a default value constraint
     const { available_qty, ...updateData } = updates;
