@@ -4,14 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { FileUp, AlertCircle, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { FileUpload } from "@/components/settings/upload/FileUpload";
 import { processDataByModule } from "@/components/settings/data-processing/processDataByModule";
 import { supabase } from "@/integrations/supabase/client";
-import { DataTable } from "@/components/ui/data-table";
-import { 
-  BufferProfile 
-} from "@/types/inventory";
+import { BufferProfile } from "@/types/inventory";
 
 export interface BufferProfilesUploadProps {
   onDataUploaded?: (data: any) => void;
@@ -21,33 +19,7 @@ const BufferProfilesUpload: React.FC<BufferProfilesUploadProps> = ({ onDataUploa
   const [uploadedData, setUploadedData] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [existingProfiles, setExistingProfiles] = useState<BufferProfile[]>([]);
   const { toast } = useToast();
-
-  React.useEffect(() => {
-    fetchExistingProfiles();
-  }, []);
-
-  const fetchExistingProfiles = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('buffer_profiles')
-        .select('*');
-
-      if (error) {
-        throw error;
-      }
-
-      setExistingProfiles(data || []);
-    } catch (error) {
-      console.error('Error fetching buffer profiles:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to load existing buffer profiles",
-      });
-    }
-  };
 
   const handleFileUpload = (data: any[], fileName: string) => {
     setUploadedData(data);
@@ -93,8 +65,6 @@ const BufferProfilesUpload: React.FC<BufferProfilesUploadProps> = ({ onDataUploa
           title: "Success",
           description: result.message,
         });
-        // Refresh the existing profiles
-        fetchExistingProfiles();
         // Clear uploaded data
         setUploadedData([]);
       } else {
@@ -116,143 +86,95 @@ const BufferProfilesUpload: React.FC<BufferProfilesUploadProps> = ({ onDataUploa
     }
   };
 
-  const columns = [
-    {
-      accessorKey: "name",
-      header: "Name",
-    },
-    {
-      accessorKey: "description",
-      header: "Description",
-    },
-    {
-      accessorKey: "variability_factor",
-      header: "Variability",
-      cell: ({ row }: { row: any }) => {
-        const value = row.original.variability_factor;
-        return (
-          <Badge variant={value === "high_variability" ? "destructive" : value === "low_variability" ? "success" : "secondary"}>
-            {value?.replace("_variability", "") || ""}
-          </Badge>
-        );
-      }
-    },
-    {
-      accessorKey: "lead_time_factor",
-      header: "Lead Time",
-      cell: ({ row }: { row: any }) => {
-        const value = row.original.lead_time_factor;
-        return (
-          <Badge variant={value === "long" ? "destructive" : value === "short" ? "success" : "secondary"}>
-            {value || ""}
-          </Badge>
-        );
-      }
-    },
-    {
-      accessorKey: "moq",
-      header: "MOQ",
-    },
-    {
-      accessorKey: "lot_size_factor",
-      header: "Lot Size Factor",
-    },
-    {
-      accessorKey: "created_at",
-      header: "Created At",
-      cell: ({ row }: { row: any }) => {
-        return new Date(row.original.created_at).toLocaleDateString();
-      }
-    },
-  ];
-
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Buffer Profiles Management</CardTitle>
-        <CardDescription>
-          Upload and manage buffer profiles for inventory management
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <Alert>
-            <AlertDescription>
-              Upload buffer profiles with required fields:
-              <div className="mt-2 flex flex-wrap gap-2">
-                <Badge variant="outline">name</Badge>
-                <Badge variant="outline">variability_factor</Badge>
-                <Badge variant="outline">lead_time_factor</Badge>
-              </div>
-              <div className="mt-2">
-                Optional fields:
-                <div className="mt-1 flex flex-wrap gap-2">
-                  <Badge variant="secondary">description</Badge>
-                  <Badge variant="secondary">moq</Badge>
-                  <Badge variant="secondary">lot_size_factor</Badge>
+    <div className="space-y-6">
+      <Alert className="bg-blue-50 border-blue-200 dark:bg-gray-800 dark:border-gray-700">
+        <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+        <AlertDescription className="ml-2">
+          <div className="font-medium mb-2">Upload buffer profiles with required fields:</div>
+          <div className="flex flex-wrap gap-2 mb-2">
+            <Badge variant="outline" className="bg-white dark:bg-gray-700">name</Badge>
+            <Badge variant="outline" className="bg-white dark:bg-gray-700">variability_factor</Badge>
+            <Badge variant="outline" className="bg-white dark:bg-gray-700">lead_time_factor</Badge>
+          </div>
+          <div className="text-sm">
+            <p className="mb-1"><strong>Optional fields:</strong></p>
+            <div className="flex flex-wrap gap-2 mb-2">
+              <Badge variant="secondary">description</Badge>
+              <Badge variant="secondary">moq</Badge>
+              <Badge variant="secondary">lot_size_factor</Badge>
+            </div>
+          </div>
+          <div className="mt-2 text-xs text-muted-foreground">
+            <p><strong>variability_factor:</strong> 'low_variability', 'medium_variability', or 'high_variability'</p>
+            <p><strong>lead_time_factor:</strong> 'short', 'medium', or 'long'</p>
+          </div>
+        </AlertDescription>
+      </Alert>
+
+      <Card className="bg-white dark:bg-gray-900 border-none shadow-sm overflow-hidden">
+        <CardHeader className="bg-gray-50 dark:bg-gray-800 border-b">
+          <CardTitle className="text-lg">Upload Buffer Profiles</CardTitle>
+          <CardDescription>
+            Upload CSV or Excel file with buffer profile data
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="space-y-4">
+            <FileUpload
+              onUploadComplete={handleFileUpload}
+              onError={handleUploadError}
+              allowedFileTypes={[".csv", ".xlsx"]}
+            />
+
+            {uploadedData.length > 0 && (
+              <div className="mt-6 space-y-4">
+                <Alert className="bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800">
+                  <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  <AlertDescription className="ml-2">
+                    Successfully uploaded {uploadedData.length} buffer profiles
+                  </AlertDescription>
+                </Alert>
+                
+                <div className="border rounded-md p-4 max-h-60 overflow-auto bg-gray-50 dark:bg-gray-800">
+                  <div className="text-sm font-medium mb-2">Preview of uploaded data:</div>
+                  <pre className="text-xs whitespace-pre-wrap overflow-x-auto">
+                    {JSON.stringify(uploadedData.slice(0, 5), null, 2)}
+                    {uploadedData.length > 5 && '...'}
+                  </pre>
+                </div>
+                
+                <div className="flex justify-end">
+                  <Button 
+                    onClick={handleSaveData}
+                    disabled={isLoading}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    {isLoading ? (
+                      <>
+                        <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <FileUp className="w-4 h-4 mr-2" />
+                        Save Buffer Profiles
+                      </>
+                    )}
+                  </Button>
                 </div>
               </div>
-              <div className="mt-2">
-                <p className="text-xs text-muted-foreground">
-                  <strong>variability_factor:</strong> 'low_variability', 'medium_variability', or 'high_variability'<br />
-                  <strong>lead_time_factor:</strong> 'short', 'medium', or 'long'
-                </p>
-              </div>
-            </AlertDescription>
-          </Alert>
+            )}
 
-          <FileUpload
-            onUploadComplete={handleFileUpload}
-            onError={handleUploadError}
-            allowedFileTypes={[".csv", ".xlsx"]}
-          />
-
-          {uploadedData.length > 0 && (
-            <div className="mt-4">
-              <div className="text-sm text-muted-foreground mb-2">
-                Preview of uploaded data ({uploadedData.length} records):
-              </div>
-              <div className="border rounded-md p-4 max-h-60 overflow-auto">
-                <pre className="text-xs whitespace-pre-wrap">
-                  {JSON.stringify(uploadedData.slice(0, 5), null, 2)}
-                  {uploadedData.length > 5 && '...'}
-                </pre>
-              </div>
-              <div className="mt-4 flex justify-end">
-                <Button 
-                  onClick={handleSaveData}
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Saving..." : "Save Buffer Profiles"}
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {error && (
-            <Alert variant="destructive" className="mt-4">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          {existingProfiles.length > 0 && (
-            <div className="mt-6">
-              <h3 className="text-lg font-medium mb-2">Existing Buffer Profiles</h3>
-              <DataTable
-                columns={columns}
-                data={existingProfiles}
-                pagination={{
-                  pageIndex: 0,
-                  pageSize: 10,
-                  pageCount: Math.ceil(existingProfiles.length / 10),
-                  onPageChange: () => {}
-                }}
-              />
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+            {error && (
+              <Alert variant="destructive" className="mt-4">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
