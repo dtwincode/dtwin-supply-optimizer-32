@@ -1014,6 +1014,7 @@ export type Database = {
           revenue: number
           sales_date: string
           sales_id: string
+          unit_price: number | null
           updated_at: string | null
           vendor_id: string | null
         }
@@ -1025,6 +1026,7 @@ export type Database = {
           revenue: number
           sales_date: string
           sales_id?: string
+          unit_price?: number | null
           updated_at?: string | null
           vendor_id?: string | null
         }
@@ -1036,6 +1038,7 @@ export type Database = {
           revenue?: number
           sales_date?: string
           sales_id?: string
+          unit_price?: number | null
           updated_at?: string | null
           vendor_id?: string | null
         }

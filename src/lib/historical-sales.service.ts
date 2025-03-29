@@ -24,14 +24,22 @@ export const uploadHistoricalSales = async (file: File) => {
     console.log('Parsed historical sales data:', parseResult.data);
 
     // Map CSV data to the historical_sales_data table structure
-    const salesData = parseResult.data.map(row => ({
-      sales_date: row.sales_date || new Date().toISOString().split('T')[0],
-      product_id: row.product_id || null,
-      location_id: row.location_id || null,
-      quantity_sold: parseInt(row.quantity_sold) || 0,
-      revenue: parseFloat(row.revenue) || 0,
-      vendor_id: row.vendor_id || null
-    }));
+    const salesData = parseResult.data.map(row => {
+      // Calculate unit price if quantity_sold is provided and not zero
+      const quantitySold = parseInt(row.quantity_sold) || 0;
+      const revenue = parseFloat(row.revenue) || 0;
+      const unitPrice = quantitySold > 0 ? revenue / quantitySold : null;
+
+      return {
+        sales_date: row.sales_date || new Date().toISOString().split('T')[0],
+        product_id: row.product_id || null,
+        location_id: row.location_id || null,
+        quantity_sold: quantitySold,
+        revenue: revenue,
+        vendor_id: row.vendor_id || null,
+        unit_price: row.unit_price || unitPrice
+      };
+    });
 
     // Insert data into the historical_sales_data table
     const { error } = await supabase
