@@ -43,7 +43,8 @@ export const uploadInventoryData = async (file: File) => {
       quantity_on_hand: parseInt(row.quantity_on_hand) || 0,
       available_qty: parseInt(row.available_qty) || parseInt(row.quantity_on_hand) || 0,
       reserved_qty: parseInt(row.reserved_qty) || 0,
-      location_id: row.location_id || null
+      location_id: row.location_id || null,
+      buffer_profile_id: row.buffer_profile_id || null
     }));
 
     // Insert data into the inventory_data table

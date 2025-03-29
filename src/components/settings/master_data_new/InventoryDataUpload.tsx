@@ -166,7 +166,7 @@ const InventoryDataUpload = () => {
           <p className="font-medium">CSV Format Requirements:</p>
           <ul className="list-disc list-inside ml-2 space-y-0.5 mt-1">
             <li>Required: product_id, quantity_on_hand</li>
-            <li>Optional: available_qty, reserved_qty, location_id</li>
+            <li>Optional: available_qty, reserved_qty, location_id, buffer_profile_id</li>
             <li>Numeric fields: quantity_on_hand, available_qty, reserved_qty</li>
             <li>Ensure that all rows have values for the required fields</li>
           </ul>

@@ -8,6 +8,7 @@ export interface DBInventoryItem {
   reserved_qty?: number;
   location_id?: string;
   last_updated?: string;
+  buffer_profile_id?: string;
 }
 
 export interface DBInventoryItem {
