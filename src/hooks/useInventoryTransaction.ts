@@ -92,25 +92,20 @@ export const useInventoryTransaction = () => {
         throw new Error(`Failed to update inventory: ${updateError.message}`);
       }
 
-      // 6. Log the transaction
-      const { error: logError } = await supabase
-        .from('inventory_transactions')
-        .insert({
-          sku: data.sku,
-          quantity: data.quantity,
-          transaction_type: data.transactionType,
-          reference_id: data.referenceId,
-          reference_type: data.referenceType,
-          previous_on_hand: inventoryItem.on_hand,
-          new_on_hand: newOnHand,
-          notes: data.notes,
-          transaction_date: new Date().toISOString()
-        });
-
-      if (logError) {
-        console.error('Failed to log transaction:', logError);
-        // Continue even if logging fails
-      }
+      // 6. Log the transaction - commented out as the table doesn't exist yet
+      // Create the transaction log record in a different function or table
+      // For now, we'll log to console instead
+      console.log('Transaction processed:', {
+        sku: data.sku,
+        quantity: data.quantity,
+        transaction_type: data.transactionType,
+        reference_id: data.referenceId,
+        reference_type: data.referenceType,
+        previous_on_hand: inventoryItem.on_hand,
+        new_on_hand: newOnHand,
+        notes: data.notes,
+        transaction_date: new Date().toISOString()
+      });
 
       toast({
         title: 'Inventory Updated',

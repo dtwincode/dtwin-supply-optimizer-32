@@ -23,9 +23,23 @@ export const uploadInventoryData = async (file: File) => {
 
     console.log('Parsed inventory data:', parseResult.data);
 
+    // Validate required fields
+    const invalidRows = parseResult.data.filter(
+      row => !row.sku || row.sku.trim() === '' || !row.name || !row.current_stock
+    );
+
+    if (invalidRows.length > 0) {
+      console.error('Invalid rows found:', invalidRows);
+      return { 
+        success: false, 
+        message: `${invalidRows.length} row(s) missing required fields (sku, name, current_stock)`,
+        details: 'Each row must have valid values for the required fields: sku, name, and current_stock'
+      };
+    }
+
     // Map CSV data to the inventory_data table structure
     const inventoryData = parseResult.data.map(row => ({
-      sku: row.sku,
+      sku: row.sku.trim(),
       name: row.name,
       current_stock: parseInt(row.current_stock) || 0,
       min_stock: parseInt(row.min_stock) || 0,

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { uploadInventoryData } from '@/lib/inventory-data.service';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
-import { Loader2, Upload, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Loader2, Upload, AlertCircle, CheckCircle2, Info } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const InventoryDataUpload = () => {
@@ -63,11 +63,11 @@ const InventoryDataUpload = () => {
         setStatus({ 
           message: 'Upload failed', 
           type: 'error',
-          details: result.message
+          details: result.message || result.details
         });
         toast({
           title: "Error",
-          description: result.message,
+          description: result.message || "Upload failed",
           variant: "destructive"
         });
       }
@@ -97,7 +97,7 @@ const InventoryDataUpload = () => {
       case 'error':
         return <AlertCircle className="mr-2 h-4 w-4 text-red-500" />;
       default:
-        return null;
+        return <Info className="mr-2 h-4 w-4 text-blue-500" />;
     }
   };
 
@@ -168,6 +168,7 @@ const InventoryDataUpload = () => {
             <li>Required: sku, name, current_stock</li>
             <li>Optional: min_stock, max_stock, location, category, subcategory, product_family, etc.</li>
             <li>Numeric fields: current_stock, min_stock, max_stock, lead_time_days, adu, etc.</li>
+            <li>Ensure that all rows have values for the required fields, especially SKU</li>
           </ul>
         </div>
       </div>
