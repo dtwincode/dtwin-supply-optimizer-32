@@ -49,66 +49,84 @@ const Settings = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 max-w-[1200px] mx-auto p-4 sm:p-6">
+      <div className="space-y-4 max-w-[1200px] mx-auto p-4">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Data Management & Configuration</h2>
-          <p className="text-muted-foreground mt-2">
+          <h2 className="text-2xl font-bold tracking-tight">Data Management & Configuration</h2>
+          <p className="text-muted-foreground mt-1 text-sm">
             Manage master data for your supply chain system
           </p>
         </div>
 
-        <Separator className="my-6" />
+        <Separator className="my-4" />
         
-        <Card className="p-4 sm:p-6">
+        <Card className="p-4">
           <Tabs 
             defaultValue={activeTab} 
             value={activeTab}
             onValueChange={handleTabChange} 
-            className="space-y-6"
+            className="space-y-4"
           >
-            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-6 gap-2">
-              <TabsTrigger value="products">Products</TabsTrigger>
-              <TabsTrigger value="vendors">Vendors</TabsTrigger>
-              <TabsTrigger value="locations">Locations</TabsTrigger>
-              <TabsTrigger value="historical-sales">Historical Sales</TabsTrigger>
-              <TabsTrigger value="product-pricing">Product Pricing</TabsTrigger>
-              <TabsTrigger value="inventory-data">Inventory Data</TabsTrigger>
+            <TabsList className="flex w-full flex-wrap h-auto p-1 gap-1">
+              <TabsTrigger 
+                value="products" 
+                className="text-xs h-8 px-2 py-1 flex-grow sm:flex-grow-0"
+              >
+                Products
+              </TabsTrigger>
+              <TabsTrigger 
+                value="vendors" 
+                className="text-xs h-8 px-2 py-1 flex-grow sm:flex-grow-0"
+              >
+                Vendors
+              </TabsTrigger>
+              <TabsTrigger 
+                value="locations" 
+                className="text-xs h-8 px-2 py-1 flex-grow sm:flex-grow-0"
+              >
+                Locations
+              </TabsTrigger>
+              <TabsTrigger 
+                value="historical-sales" 
+                className="text-xs h-8 px-2 py-1 flex-grow sm:flex-grow-0"
+              >
+                Historical Sales
+              </TabsTrigger>
+              <TabsTrigger 
+                value="product-pricing" 
+                className="text-xs h-8 px-2 py-1 flex-grow sm:flex-grow-0"
+              >
+                Product Pricing
+              </TabsTrigger>
+              <TabsTrigger 
+                value="inventory-data" 
+                className="text-xs h-8 px-2 py-1 flex-grow sm:flex-grow-0"
+              >
+                Inventory Data
+              </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="products" className="space-y-6">
-              <div className="p-4">
-                <ProductUpload />
-              </div>
+            <TabsContent value="products" className="space-y-4 pt-2">
+              <ProductUpload />
             </TabsContent>
 
-            <TabsContent value="vendors" className="space-y-4">
-              <div className="p-4">
-                <VendorUpload />
-              </div>
+            <TabsContent value="vendors" className="space-y-4 pt-2">
+              <VendorUpload />
             </TabsContent>
 
-            <TabsContent value="locations" className="space-y-4">
-              <div className="p-4">
-                <LocationUpload />
-              </div>
+            <TabsContent value="locations" className="space-y-4 pt-2">
+              <LocationUpload />
             </TabsContent>
 
-            <TabsContent value="historical-sales" className="space-y-4">
-              <div className="p-4">
-                <HistoricalSalesUpload />
-              </div>
+            <TabsContent value="historical-sales" className="space-y-4 pt-2">
+              <HistoricalSalesUpload />
             </TabsContent>
 
-            <TabsContent value="product-pricing" className="space-y-4">
-              <div className="p-4">
-                <ProductPricingUpload />
-              </div>
+            <TabsContent value="product-pricing" className="space-y-4 pt-2">
+              <ProductPricingUpload />
             </TabsContent>
 
-            <TabsContent value="inventory-data" className="space-y-4">
-              <div className="p-4">
-                <InventoryDataUpload />
-              </div>
+            <TabsContent value="inventory-data" className="space-y-4 pt-2">
+              <InventoryDataUpload />
             </TabsContent>
           </Tabs>
         </Card>

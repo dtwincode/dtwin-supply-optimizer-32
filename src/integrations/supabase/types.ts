@@ -2163,6 +2163,51 @@ export type Database = {
         }
         Relationships: []
       }
+      pricing: {
+        Row: {
+          created_at: string | null
+          effective_date: string
+          location_id: string
+          price: number
+          price_id: string
+          product_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          effective_date: string
+          location_id: string
+          price: number
+          price_id?: string
+          product_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          effective_date?: string
+          location_id?: string
+          price?: number
+          price_id?: string
+          product_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "location_master"
+            referencedColumns: ["location_id"]
+          },
+          {
+            foreignKeyName: "pricing_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "product_master"
+            referencedColumns: ["product_id"]
+          },
+        ]
+      }
       product_hierarchy: {
         Row: {
           active: boolean | null
