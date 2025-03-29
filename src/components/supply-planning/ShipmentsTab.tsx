@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   Table,
@@ -20,7 +21,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { DotsHorizontalIcon } from '@radix-ui/react-icons';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,9 +29,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Edit, Copy, Trash } from 'lucide-react';
+import { Edit, Copy, Trash, MoreHorizontal } from 'lucide-react';
 import { Badge } from "@/components/ui/badge"
-import { toast } from "@/components/ui/use-toast"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -63,7 +62,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Calendar } from "@/components/ui/calendar"
-import { CalendarIcon } from "@radix-ui/react-icons"
+import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -325,7 +324,7 @@ const ShipmentsTab = () => {
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="h-8 w-8 p-0">
                       <span className="sr-only">Open menu</span>
-                      <DotsHorizontalIcon className="h-4 w-4" />
+                      <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">

@@ -8,7 +8,7 @@ import { SupplierManagementTab } from "./SupplierManagementTab";
 import { LeadTimeManagementTab } from "./LeadTimeManagementTab";
 import { RecommendedOrdersTab } from "./RecommendedOrdersTab";
 import { ReceivingTab } from "./ReceivingTab";
-import { ShipmentsTab } from "./ShipmentsTab";
+import ShipmentsTab from "./ShipmentsTab";
 import { TransactionsTab } from "./TransactionsTab";
 import { SupplyPlanningFilters } from "./SupplyPlanningFilters";
 import { SupplyPlanningMetrics } from "./SupplyPlanningMetrics";
