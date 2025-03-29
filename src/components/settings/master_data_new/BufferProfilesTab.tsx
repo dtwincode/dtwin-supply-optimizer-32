@@ -23,10 +23,10 @@ const BufferProfilesTab = () => {
   const [formData, setFormData] = useState<Partial<BufferProfile>>({
     name: "",
     description: "",
-    variability_factor: "medium_variability",
-    lead_time_factor: "medium",
+    variabilityFactor: "medium_variability",
+    leadTimeFactor: "medium",
     moq: 0,
-    lot_size_factor: 1
+    lotSizeFactor: 1
   });
 
   useEffect(() => {
@@ -38,10 +38,10 @@ const BufferProfilesTab = () => {
       setFormData({
         name: editingProfile.name,
         description: editingProfile.description || "",
-        variability_factor: editingProfile.variability_factor,
-        lead_time_factor: editingProfile.lead_time_factor,
+        variabilityFactor: editingProfile.variabilityFactor,
+        leadTimeFactor: editingProfile.leadTimeFactor,
         moq: editingProfile.moq || 0,
-        lot_size_factor: editingProfile.lot_size_factor || 1
+        lotSizeFactor: editingProfile.lotSizeFactor || 1
       });
     }
   }, [editingProfile]);
@@ -61,7 +61,7 @@ const BufferProfilesTab = () => {
   };
 
   const handleSubmit = async () => {
-    if (!formData.name || !formData.variability_factor || !formData.lead_time_factor) {
+    if (!formData.name || !formData.variabilityFactor || !formData.leadTimeFactor) {
       toast({
         title: "Missing required fields",
         description: "Please fill in all required fields.",
@@ -75,8 +75,8 @@ const BufferProfilesTab = () => {
         ...(editingProfile || {}),
         ...formData,
         name: formData.name!,
-        variability_factor: formData.variability_factor!,
-        lead_time_factor: formData.lead_time_factor!,
+        variabilityFactor: formData.variabilityFactor!,
+        leadTimeFactor: formData.leadTimeFactor!,
       } as BufferProfile;
 
       await createOrUpdateProfile(profileToSave);
@@ -85,10 +85,10 @@ const BufferProfilesTab = () => {
       setFormData({
         name: "",
         description: "",
-        variability_factor: "medium_variability",
-        lead_time_factor: "medium",
+        variabilityFactor: "medium_variability",
+        leadTimeFactor: "medium",
         moq: 0,
-        lot_size_factor: 1
+        lotSizeFactor: 1
       });
       
       setIsAddProfileOpen(false);
@@ -119,12 +119,28 @@ const BufferProfilesTab = () => {
     setFormData({
       name: "",
       description: "",
-      variability_factor: "medium_variability",
-      lead_time_factor: "medium",
+      variabilityFactor: "medium_variability",
+      leadTimeFactor: "medium",
       moq: 0,
-      lot_size_factor: 1
+      lotSizeFactor: 1
     });
     setEditingProfile(null);
+  };
+
+  // Helper function to safely format variable factor value
+  const formatVariabilityFactor = (variabilityFactor?: string) => {
+    if (!variabilityFactor) return 'N/A';
+    
+    return variabilityFactor
+      .replace('_', ' ')
+      .replace(/\b\w/g, c => c.toUpperCase());
+  };
+
+  // Helper function to safely format lead time value
+  const formatLeadTime = (leadTimeFactor?: string) => {
+    if (!leadTimeFactor) return 'N/A';
+    
+    return leadTimeFactor.charAt(0).toUpperCase() + leadTimeFactor.slice(1);
   };
 
   return (
@@ -199,12 +215,12 @@ const BufferProfilesTab = () => {
                   />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <label htmlFor="variability_factor" className="text-right font-medium">
+                  <label htmlFor="variabilityFactor" className="text-right font-medium">
                     Variability Factor*
                   </label>
                   <Select
-                    value={formData.variability_factor}
-                    onValueChange={(value) => handleSelectChange("variability_factor", value)}
+                    value={formData.variabilityFactor}
+                    onValueChange={(value) => handleSelectChange("variabilityFactor", value)}
                   >
                     <SelectTrigger className="col-span-3">
                       <SelectValue placeholder="Select variability" />
@@ -217,12 +233,12 @@ const BufferProfilesTab = () => {
                   </Select>
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <label htmlFor="lead_time_factor" className="text-right font-medium">
+                  <label htmlFor="leadTimeFactor" className="text-right font-medium">
                     Lead Time Factor*
                   </label>
                   <Select
-                    value={formData.lead_time_factor}
-                    onValueChange={(value) => handleSelectChange("lead_time_factor", value)}
+                    value={formData.leadTimeFactor}
+                    onValueChange={(value) => handleSelectChange("leadTimeFactor", value)}
                   >
                     <SelectTrigger className="col-span-3">
                       <SelectValue placeholder="Select lead time" />
@@ -248,15 +264,15 @@ const BufferProfilesTab = () => {
                   />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <label htmlFor="lot_size_factor" className="text-right font-medium">
+                  <label htmlFor="lotSizeFactor" className="text-right font-medium">
                     Lot Size Factor
                   </label>
                   <Input
-                    id="lot_size_factor"
-                    name="lot_size_factor"
+                    id="lotSizeFactor"
+                    name="lotSizeFactor"
                     type="number"
                     step="0.1"
-                    value={formData.lot_size_factor}
+                    value={formData.lotSizeFactor}
                     onChange={handleNumberChange}
                     className="col-span-3"
                   />
@@ -321,11 +337,11 @@ const BufferProfilesTab = () => {
                       <tr key={profile.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                         <td className="px-4 py-3 text-sm">{profile.name}</td>
                         <td className="px-4 py-3 text-sm">
-                          {profile.variability_factor.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                          {formatVariabilityFactor(profile.variabilityFactor)}
                         </td>
-                        <td className="px-4 py-3 text-sm capitalize">{profile.lead_time_factor}</td>
+                        <td className="px-4 py-3 text-sm capitalize">{formatLeadTime(profile.leadTimeFactor)}</td>
                         <td className="px-4 py-3 text-sm">{profile.moq || 'N/A'}</td>
-                        <td className="px-4 py-3 text-sm">{profile.lot_size_factor || 'N/A'}</td>
+                        <td className="px-4 py-3 text-sm">{profile.lotSizeFactor || 'N/A'}</td>
                         <td className="px-4 py-3 text-sm">{profile.description || 'N/A'}</td>
                         <td className="px-4 py-3 text-sm text-right">
                           <div className="flex justify-end gap-2">
