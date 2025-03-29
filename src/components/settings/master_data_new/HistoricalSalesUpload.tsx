@@ -4,18 +4,16 @@ import { FileUpload } from "@/components/settings/upload/FileUpload";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 import { UploadInstructions, FieldDescription } from "./components/UploadInstructions";
+import { uploadHistoricalSales } from "@/lib/historical-sales.service";
 
 const historicalSalesFields: FieldDescription[] = [
-  { name: "date", description: "Sale date (YYYY-MM-DD format)", required: true },
-  { name: "product_id", description: "Product identifier (SKU)", required: true },
-  { name: "location_id", description: "Location identifier", required: true },
-  { name: "quantity", description: "Quantity sold", required: true },
+  { name: "sales_date", description: "Sale date (YYYY-MM-DD format)", required: true },
+  { name: "product_id", description: "Product identifier (UUID)", required: true },
+  { name: "location_id", description: "Location identifier (UUID)", required: true },
+  { name: "quantity_sold", description: "Quantity sold", required: true },
   { name: "revenue", description: "Total revenue amount", required: true },
-  { name: "channel", description: "Sales channel (e.g., online, retail, wholesale)", required: false },
-  { name: "customer_segment", description: "Customer segment/type", required: false },
-  { name: "promotion_id", description: "Identifier for any active promotion", required: false },
-  { name: "discount_amount", description: "Discount amount applied", required: false },
-  { name: "cost_of_goods", description: "Cost of goods sold", required: false },
+  { name: "vendor_id", description: "Vendor identifier (UUID)", required: false },
+  { name: "unit_price", description: "Price per unit (calculated if not provided)", required: false },
 ];
 
 const HistoricalSalesUpload = () => {
@@ -28,12 +26,24 @@ const HistoricalSalesUpload = () => {
       setUploading(true);
       
       // Process data...
-      // This would typically include validation and API calls to save the data
+      const success = await uploadHistoricalSales(new File(
+        [new Blob([JSON.stringify(data)])], 
+        fileName, 
+        { type: 'application/json' }
+      ));
       
-      toast({
-        title: "Upload successful",
-        description: `${data.length} historical sales records have been uploaded.`,
-      });
+      if (success) {
+        toast({
+          title: "Upload successful",
+          description: `${data.length} historical sales records have been uploaded.`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Upload failed",
+          description: "There was an error processing your historical sales data.",
+        });
+      }
     } catch (error) {
       toast({
         variant: "destructive",
