@@ -2329,66 +2329,6 @@ export type Database = {
         }
         Relationships: []
       }
-      sales_data: {
-        Row: {
-          category: string | null
-          channel: string | null
-          city: string | null
-          created_at: string
-          customer: string | null
-          date: string
-          id: string
-          notes: string | null
-          payment_method: string | null
-          price: number
-          quantity: number
-          region: string | null
-          sku: string
-          subcategory: string | null
-          total: number
-          updated_at: string
-          warehouse: string | null
-        }
-        Insert: {
-          category?: string | null
-          channel?: string | null
-          city?: string | null
-          created_at?: string
-          customer?: string | null
-          date: string
-          id?: string
-          notes?: string | null
-          payment_method?: string | null
-          price: number
-          quantity: number
-          region?: string | null
-          sku: string
-          subcategory?: string | null
-          total: number
-          updated_at?: string
-          warehouse?: string | null
-        }
-        Update: {
-          category?: string | null
-          channel?: string | null
-          city?: string | null
-          created_at?: string
-          customer?: string | null
-          date?: string
-          id?: string
-          notes?: string | null
-          payment_method?: string | null
-          price?: number
-          quantity?: number
-          region?: string | null
-          sku?: string
-          subcategory?: string | null
-          total?: number
-          updated_at?: string
-          warehouse?: string | null
-        }
-        Relationships: []
-      }
       saved_model_configs: {
         Row: {
           auto_run: boolean | null

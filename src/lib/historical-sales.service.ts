@@ -72,13 +72,7 @@ export const uploadHistoricalSales = async (file: File) => {
         quantity_sold: quantitySold,
         revenue: revenue,
         vendor_id: getField(['vendor_id', 'VENDOR_ID', 'vendor']),
-        unit_price: unitPrice,
-        // Additional fields for analytics
-        channel: getField(['channel', 'CHANNEL', 'sales_channel']),
-        customer_segment: getField(['customer_segment', 'CUSTOMER_SEGMENT', 'segment']),
-        promotion_id: getField(['promotion_id', 'PROMOTION_ID', 'promotion']),
-        discount_amount: parseFloat(getField(['discount_amount', 'DISCOUNT_AMOUNT', 'discount'])) || 0,
-        cost_of_goods: parseFloat(getField(['cost_of_goods', 'COST_OF_GOODS', 'cogs'])) || 0
+        unit_price: unitPrice
       };
     });
 

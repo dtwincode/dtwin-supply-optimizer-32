@@ -15,11 +15,6 @@ const historicalSalesFields: FieldDescription[] = [
   { name: "revenue", description: "Total revenue amount", required: true },
   { name: "vendor_id", description: "Vendor identifier (UUID)", required: false },
   { name: "unit_price", description: "Price per unit (calculated if not provided)", required: false },
-  { name: "channel", description: "Sales channel (e.g., online, retail)", required: false },
-  { name: "customer_segment", description: "Customer segment/type", required: false },
-  { name: "promotion_id", description: "Identifier for any active promotion", required: false },
-  { name: "discount_amount", description: "Discount amount applied", required: false },
-  { name: "cost_of_goods", description: "Cost of goods sold", required: false },
 ];
 
 const HistoricalSalesUpload = () => {
