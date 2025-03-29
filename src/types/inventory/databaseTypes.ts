@@ -1,5 +1,14 @@
-
 // This file defines database schema types that match the actual Supabase tables
+
+export interface DBInventoryItem {
+  inventory_id: string;
+  product_id: string;
+  quantity_on_hand: number;
+  available_qty?: number;
+  reserved_qty?: number;
+  location_id?: string;
+  last_updated?: string;
+}
 
 export interface DBInventoryItem {
   id: string;

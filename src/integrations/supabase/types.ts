@@ -203,11 +203,13 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          lead_time_category: string | null
           lead_time_factor: Database["public"]["Enums"]["lead_time_type"] | null
           lot_size_factor: number | null
           moq: number | null
           name: string
           updated_at: string
+          variability_category: string | null
           variability_factor:
             | Database["public"]["Enums"]["variability_type"]
             | null
@@ -216,6 +218,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          lead_time_category?: string | null
           lead_time_factor?:
             | Database["public"]["Enums"]["lead_time_type"]
             | null
@@ -223,6 +226,7 @@ export type Database = {
           moq?: number | null
           name: string
           updated_at?: string
+          variability_category?: string | null
           variability_factor?:
             | Database["public"]["Enums"]["variability_type"]
             | null
@@ -231,6 +235,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          lead_time_category?: string | null
           lead_time_factor?:
             | Database["public"]["Enums"]["lead_time_type"]
             | null
@@ -238,6 +243,7 @@ export type Database = {
           moq?: number | null
           name?: string
           updated_at?: string
+          variability_category?: string | null
           variability_factor?:
             | Database["public"]["Enums"]["variability_type"]
             | null
@@ -1077,6 +1083,7 @@ export type Database = {
       inventory_data: {
         Row: {
           available_qty: number | null
+          buffer_profile_id: string | null
           inventory_id: string
           last_updated: string | null
           location_id: string
@@ -1086,6 +1093,7 @@ export type Database = {
         }
         Insert: {
           available_qty?: number | null
+          buffer_profile_id?: string | null
           inventory_id?: string
           last_updated?: string | null
           location_id: string
@@ -1095,6 +1103,7 @@ export type Database = {
         }
         Update: {
           available_qty?: number | null
+          buffer_profile_id?: string | null
           inventory_id?: string
           last_updated?: string | null
           location_id?: string
@@ -1103,6 +1112,13 @@ export type Database = {
           reserved_qty?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "inventory_data_buffer_profile_id_fkey"
+            columns: ["buffer_profile_id"]
+            isOneToOne: false
+            referencedRelation: "buffer_profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "inventory_data_location_id_fkey"
             columns: ["location_id"]
