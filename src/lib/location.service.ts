@@ -32,16 +32,19 @@ export const uploadLocation = async (file: File) => {
     }));
 
     // Insert data into the location_master table
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('location_master')
-      .insert(locations);
+      .upsert(locations, {
+        onConflict: 'warehouse',
+        ignoreDuplicates: false
+      });
 
     if (error) {
       console.error('Error inserting location data:', error.message);
       return false;
     }
 
-    console.log('Locations inserted successfully:', data);
+    console.log('Locations inserted successfully');
     return true;
   } catch (error) {
     console.error('Error processing location file:', error);

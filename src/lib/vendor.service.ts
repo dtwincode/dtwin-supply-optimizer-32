@@ -39,7 +39,7 @@ export const uploadVendor = async (file: File) => {
     }));
 
     // Insert data into the vendor_master table
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('vendor_master')
       .upsert(vendors, { 
         onConflict: 'vendor_code',
@@ -51,7 +51,7 @@ export const uploadVendor = async (file: File) => {
       return false;
     }
 
-    console.log('Vendors inserted successfully:', data);
+    console.log('Vendors inserted successfully');
     return true;
   } catch (error) {
     console.error('Error processing vendor file:', error);

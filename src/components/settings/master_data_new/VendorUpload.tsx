@@ -64,7 +64,7 @@ const VendorUpload = () => {
     <div className="p-4 border rounded-lg shadow-md">
       <h2 className="text-lg font-semibold mb-4">Vendor Data Upload</h2>
       <p className="mb-4 text-sm text-gray-600">
-        Upload your vendor data using CSV format. File should include the following columns: vendor_code, vendor_name, contact_person, contact_email, phone_number.
+        Upload your vendor data using CSV format. File should include the following columns: vendor_code, vendor_name, contact_person, contact_email, etc.
       </p>
       <div className="space-y-4">
         <div>

@@ -35,7 +35,7 @@ export const uploadProduct = async (file: File) => {
     }));
 
     // Insert data into the product_master table
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('product_master')
       .upsert(products, { 
         onConflict: 'sku',
@@ -47,7 +47,7 @@ export const uploadProduct = async (file: File) => {
       return false;
     }
 
-    console.log('Products inserted successfully:', data);
+    console.log('Products inserted successfully');
     return true;
   } catch (error) {
     console.error('Error processing product file:', error);
