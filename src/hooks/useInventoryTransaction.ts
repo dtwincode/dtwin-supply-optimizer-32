@@ -1,16 +1,8 @@
 
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabaseClient';
 import { useToast } from '@/components/ui/use-toast';
-
-interface InventoryTransactionData {
-  product_id: string;
-  quantity: number;
-  transactionType: 'inbound' | 'outbound';
-  referenceId?: string;
-  referenceType?: 'purchase_order' | 'sales_order' | 'shipment';
-  notes?: string;
-}
+import { InventoryTransactionData } from '@/types/inventory';
 
 export const useInventoryTransaction = () => {
   const [loading, setLoading] = useState(false);

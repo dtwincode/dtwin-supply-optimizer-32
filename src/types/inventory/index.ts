@@ -42,3 +42,13 @@ export interface ReplenishmentData {
   date: string;
   location: string;
 }
+
+// Inventory Transaction interface for use with hooks
+export interface InventoryTransactionData {
+  product_id: string;
+  quantity: number;
+  transactionType: 'inbound' | 'outbound';
+  referenceId?: string;
+  referenceType?: 'purchase_order' | 'sales_order' | 'shipment';
+  notes?: string;
+}

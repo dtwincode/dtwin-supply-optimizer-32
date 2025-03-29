@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -75,20 +74,19 @@ export const ReceivingTab = () => {
     setReceiveDialogOpen(true);
   };
 
-  const handleReceive = async () => {
-    if (!selectedPO || receiveQuantity <= 0) return;
-
+  const handleReceiveOrder = async (order: any) => {
+    if (!order) return;
+    
     const success = await processTransaction({
-      sku: selectedPO.sku,
-      quantity: receiveQuantity,
+      product_id: order.product_id,
+      quantity: parseInt(order.quantity),
       transactionType: 'inbound',
-      referenceId: selectedPO.id,
+      referenceId: order.po_number,
       referenceType: 'purchase_order',
-      notes: `Received from PO: ${selectedPO.po_number}`
+      notes: `Received PO: ${order.po_number}`
     });
 
     if (success) {
-      // Update PO status
       await supabase
         .from('purchase_orders')
         .update({
@@ -249,7 +247,7 @@ export const ReceivingTab = () => {
             <Button variant="outline" onClick={() => setReceiveDialogOpen(false)}>
               {getTranslation("common.cancel", language) || "Cancel"}
             </Button>
-            <Button onClick={handleReceive} disabled={processingTransaction}>
+            <Button onClick={handleReceiveOrder} disabled={processingTransaction}>
               {processingTransaction 
                 ? getTranslation("supplyPlanning.processing", language) || "Processing..." 
                 : getTranslation("supplyPlanning.confirmReceive", language) || "Confirm Receipt"}
