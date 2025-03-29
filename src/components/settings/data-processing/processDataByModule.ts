@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
 import { ValidationError } from "../validation/types";
@@ -30,6 +31,55 @@ export const processInventoryData = async (processedData: any[]) => {
     return { success: true, message: `Inserted ${inventoryItems.length} inventory records` };
   } catch (error) {
     console.error('Error in processInventoryData:', error);
+    return { 
+      success: false, 
+      message: `Processing error: ${error instanceof Error ? error.message : 'Unknown error'}`
+    };
+  }
+};
+
+export const processBufferProfilesData = async (processedData: any[]) => {
+  if (!processedData || processedData.length === 0) {
+    return { success: false, message: 'No data to process' };
+  }
+
+  try {
+    // Map the processed data to match buffer_profiles table structure
+    const bufferProfiles = processedData.map(item => {
+      // Validate variability_factor
+      let variabilityFactor = item.variability_factor || 'medium_variability';
+      if (!['low_variability', 'medium_variability', 'high_variability'].includes(variabilityFactor)) {
+        variabilityFactor = 'medium_variability';
+      }
+
+      // Validate lead_time_factor
+      let leadTimeFactor = item.lead_time_factor || 'medium';
+      if (!['short', 'medium', 'long'].includes(leadTimeFactor)) {
+        leadTimeFactor = 'medium';
+      }
+
+      return {
+        name: item.name,
+        description: item.description || null,
+        variability_factor: variabilityFactor,
+        lead_time_factor: leadTimeFactor,
+        moq: item.moq ? parseInt(item.moq) : null,
+        lot_size_factor: item.lot_size_factor ? parseFloat(item.lot_size_factor) : null
+      };
+    });
+
+    const { data, error } = await supabase
+      .from('buffer_profiles')
+      .insert(bufferProfiles);
+
+    if (error) {
+      console.error('Error inserting buffer profiles:', error);
+      return { success: false, message: `Error inserting data: ${error.message}` };
+    }
+
+    return { success: true, message: `Inserted ${bufferProfiles.length} buffer profile records` };
+  } catch (error) {
+    console.error('Error in processBufferProfilesData:', error);
     return { 
       success: false, 
       message: `Processing error: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -76,6 +126,10 @@ export const processDataByModule = async (
     case 'product_pricing':
       // Process product pricing data
       return { success: true, message: 'Product pricing processed' };
+      
+    case 'buffer_profiles':
+      // Process buffer profiles data
+      return processBufferProfilesData(processedData);
 
     default:
       return { success: false, message: `Unknown module type: ${module}` };

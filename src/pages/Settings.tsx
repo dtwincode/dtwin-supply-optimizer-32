@@ -13,6 +13,7 @@ import LocationUpload from "@/components/settings/master_data_new/LocationUpload
 import HistoricalSalesUpload from "@/components/settings/master_data_new/HistoricalSalesUpload";
 import ProductPricingUpload from "@/components/settings/master_data_new/ProductPricingUpload";
 import InventoryDataUpload from "@/components/settings/master_data_new/InventoryDataUpload";
+import BufferProfilesUpload from "@/components/settings/master_data_new/BufferProfilesUpload";
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -103,6 +104,12 @@ const Settings = () => {
               >
                 Inventory Data
               </TabsTrigger>
+              <TabsTrigger 
+                value="buffer-profiles" 
+                className="text-xs h-8 px-2 py-1 flex-grow sm:flex-grow-0"
+              >
+                Buffer Profiles
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="products" className="space-y-4 pt-2">
@@ -127,6 +134,10 @@ const Settings = () => {
 
             <TabsContent value="inventory-data" className="space-y-4 pt-2">
               <InventoryDataUpload />
+            </TabsContent>
+
+            <TabsContent value="buffer-profiles" className="space-y-4 pt-2">
+              <BufferProfilesUpload />
             </TabsContent>
           </Tabs>
         </Card>
