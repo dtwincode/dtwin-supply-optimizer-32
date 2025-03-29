@@ -1,149 +1,94 @@
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-import { Loader2 } from "lucide-react";
-import ProductUpload from "@/components/settings/master_data_new/ProductUpload";
-import VendorUpload from "@/components/settings/master_data_new/VendorUpload";
-import LocationUpload from "@/components/settings/master_data_new/LocationUpload";
-import HistoricalSalesUpload from "@/components/settings/master_data_new/HistoricalSalesUpload";
-import ProductPricingUpload from "@/components/settings/master_data_new/ProductPricingUpload";
-import InventoryDataUpload from "@/components/settings/master_data_new/InventoryDataUpload";
-import BufferProfilesUpload from "@/components/settings/master_data_new/BufferProfilesUpload";
+import { Card } from "@/components/ui/card";
+import { FileUploadTab } from "@/components/settings/FileUploadTab";
+import { DataManagementTab } from "@/components/settings/DataManagementTab";
+import { ApiKeysTab } from "@/components/settings/ApiKeysTab";
+import { UsersTab } from "@/components/settings/UsersTab";
+import { IntegrationsTab } from "@/components/settings/IntegrationsTab";
+import { BufferProfilesTab } from "@/components/settings/BufferProfilesTab";
+import { UserSettingsTab } from "@/components/settings/UserSettingsTab";
+import { SystemSettingsTab } from "@/components/settings/SystemSettingsTab";
 
-const Settings = () => {
-  const navigate = useNavigate();
-  const { user, isLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState("products");
-
-  useEffect(() => {
-    if (!isLoading && !user) {
-      navigate('/auth');
-    }
-  }, [user, isLoading, navigate]);
-
-  // Add a handler for tab changes
+export default function Settings() {
+  const [currentTab, setCurrentTab] = useState("data-upload");
+  
   const handleTabChange = (value: string) => {
-    setActiveTab(value);
+    setCurrentTab(value);
   };
-
-  if (isLoading) {
-    return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[calc(100vh-150px)]">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-muted-foreground">Loading data management...</p>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  if (!user) {
-    return null;
-  }
 
   return (
     <DashboardLayout>
-      <div className="space-y-4 max-w-[1200px] mx-auto p-4">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Data Management & Configuration</h2>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Manage master data for your supply chain system
-          </p>
+      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-3xl font-bold tracking-tight">Settings</h2>
         </div>
-
-        <Separator className="my-4" />
         
-        <Card className="p-4">
-          <Tabs 
-            defaultValue={activeTab} 
-            value={activeTab}
-            onValueChange={handleTabChange} 
-            className="space-y-4"
-          >
-            <TabsList className="flex w-full flex-wrap h-auto p-1 gap-1">
-              <TabsTrigger 
-                value="products" 
-                className="text-xs h-8 px-2 py-1 flex-grow sm:flex-grow-0"
-              >
-                Products
+        <Tabs value={currentTab} onValueChange={handleTabChange} className="space-y-4">
+          <div className="overflow-auto">
+            <TabsList className="inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground w-auto">
+              <TabsTrigger value="data-upload" className="rounded-md px-3">
+                Data Upload
               </TabsTrigger>
-              <TabsTrigger 
-                value="vendors" 
-                className="text-xs h-8 px-2 py-1 flex-grow sm:flex-grow-0"
-              >
-                Vendors
+              <TabsTrigger value="data-management" className="rounded-md px-3">
+                Data Management
               </TabsTrigger>
-              <TabsTrigger 
-                value="locations" 
-                className="text-xs h-8 px-2 py-1 flex-grow sm:flex-grow-0"
-              >
-                Locations
-              </TabsTrigger>
-              <TabsTrigger 
-                value="historical-sales" 
-                className="text-xs h-8 px-2 py-1 flex-grow sm:flex-grow-0"
-              >
-                Historical Sales
-              </TabsTrigger>
-              <TabsTrigger 
-                value="product-pricing" 
-                className="text-xs h-8 px-2 py-1 flex-grow sm:flex-grow-0"
-              >
-                Product Pricing
-              </TabsTrigger>
-              <TabsTrigger 
-                value="inventory-data" 
-                className="text-xs h-8 px-2 py-1 flex-grow sm:flex-grow-0"
-              >
-                Inventory Data
-              </TabsTrigger>
-              <TabsTrigger 
-                value="buffer-profiles" 
-                className="text-xs h-8 px-2 py-1 flex-grow sm:flex-grow-0"
-              >
+              <TabsTrigger value="buffer-profiles" className="rounded-md px-3">
                 Buffer Profiles
               </TabsTrigger>
+              <TabsTrigger value="api-keys" className="rounded-md px-3">
+                API Keys
+              </TabsTrigger>
+              <TabsTrigger value="users" className="rounded-md px-3">
+                Users
+              </TabsTrigger>
+              <TabsTrigger value="integrations" className="rounded-md px-3">
+                Integrations
+              </TabsTrigger>
+              <TabsTrigger value="user-settings" className="rounded-md px-3">
+                User Settings
+              </TabsTrigger>
+              <TabsTrigger value="system-settings" className="rounded-md px-3">
+                System Settings
+              </TabsTrigger>
             </TabsList>
-
-            <TabsContent value="products" className="space-y-4 pt-2">
-              <ProductUpload />
-            </TabsContent>
-
-            <TabsContent value="vendors" className="space-y-4 pt-2">
-              <VendorUpload />
-            </TabsContent>
-
-            <TabsContent value="locations" className="space-y-4 pt-2">
-              <LocationUpload />
-            </TabsContent>
-
-            <TabsContent value="historical-sales" className="space-y-4 pt-2">
-              <HistoricalSalesUpload />
-            </TabsContent>
-
-            <TabsContent value="product-pricing" className="space-y-4 pt-2">
-              <ProductPricingUpload />
-            </TabsContent>
-
-            <TabsContent value="inventory-data" className="space-y-4 pt-2">
-              <InventoryDataUpload />
-            </TabsContent>
-
-            <TabsContent value="buffer-profiles" className="space-y-4 pt-2">
-              <BufferProfilesUpload />
-            </TabsContent>
-          </Tabs>
-        </Card>
+          </div>
+          
+          <TabsContent value="data-upload" className="space-y-4">
+            <FileUploadTab />
+          </TabsContent>
+          
+          <TabsContent value="data-management" className="space-y-4">
+            <DataManagementTab />
+          </TabsContent>
+          
+          <TabsContent value="buffer-profiles" className="space-y-4">
+            <BufferProfilesTab />
+          </TabsContent>
+          
+          <TabsContent value="api-keys" className="space-y-4">
+            <ApiKeysTab />
+          </TabsContent>
+          
+          <TabsContent value="users" className="space-y-4">
+            <UsersTab />
+          </TabsContent>
+          
+          <TabsContent value="integrations" className="space-y-4">
+            <IntegrationsTab />
+          </TabsContent>
+          
+          <TabsContent value="user-settings" className="space-y-4">
+            <UserSettingsTab />
+          </TabsContent>
+          
+          <TabsContent value="system-settings" className="space-y-4">
+            <SystemSettingsTab />
+          </TabsContent>
+        </Tabs>
       </div>
     </DashboardLayout>
   );
-};
-
-export default Settings;
+}
