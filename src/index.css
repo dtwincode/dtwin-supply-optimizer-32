@@ -85,3 +85,16 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom utility classes for the data management section */
+.data-field-tag {
+  @apply bg-primary/10 text-primary px-2 py-1 rounded text-xs font-medium uppercase;
+}
+
+.data-upload-section {
+  @apply space-y-6;
+}
+
+.data-instructions {
+  @apply bg-muted/20 p-6 rounded-lg border border-muted mb-6;
+}

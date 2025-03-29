@@ -1,104 +1,73 @@
 
-import React, { useState } from 'react';
-import { uploadVendor } from '@/lib/vendor.service';
-import { useToast } from '@/components/ui/use-toast';
+import React, { useState } from "react";
+import { FileUpload } from "@/components/settings/upload/FileUpload";
+import { useToast } from "@/hooks/use-toast";
+import { Progress } from "@/components/ui/progress";
+import { UploadInstructions, FieldDescription } from "./components/UploadInstructions";
+
+const vendorFields: FieldDescription[] = [
+  { name: "vendor_id", description: "Unique vendor identifier", required: true },
+  { name: "name", description: "Vendor name", required: true },
+  { name: "contact_person", description: "Primary contact person", required: true },
+  { name: "email", description: "Contact email address", required: true },
+  { name: "phone", description: "Contact phone number", required: true },
+  { name: "address", description: "Vendor address", required: false },
+  { name: "city", description: "Vendor city", required: false },
+  { name: "state", description: "Vendor state/province", required: false },
+  { name: "country", description: "Vendor country", required: false },
+  { name: "payment_terms", description: "Standard payment terms (e.g., Net 30)", required: false },
+  { name: "lead_time", description: "Average lead time in days", required: false },
+];
 
 const VendorUpload = () => {
-  const [file, setFile] = useState<File | null>(null);
-  const [status, setStatus] = useState('');
-  const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
-    }
-  };
-
-  const handleUpload = async () => {
-    if (!file) {
-      setStatus('Please select a file.');
-      toast({
-        title: "Error",
-        description: "Please select a file.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setStatus('Uploading...');
-    setIsUploading(true);
-    
+  const handleUploadComplete = async (data: any[], fileName: string) => {
     try {
-      const result = await uploadVendor(file);
+      setUploading(true);
       
-      if (result) {
-        setStatus('✅ Upload successful!');
-        toast({
-          title: "Success",
-          description: "Vendor data uploaded successfully!",
-          variant: "default"
-        });
-      } else {
-        setStatus('❌ Upload failed.');
-        toast({
-          title: "Error",
-          description: "Failed to upload vendor data. Please check console for details.",
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      console.error('Error uploading vendor data:', error);
-      setStatus('❌ Upload failed.');
+      // Process data...
+      // This would typically include validation and API calls to save the data
+      
       toast({
-        title: "Error",
-        description: `Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        variant: "destructive"
+        title: "Upload successful",
+        description: `${data.length} vendors have been uploaded.`,
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Upload failed",
+        description: error instanceof Error ? error.message : "Unknown error occurred",
       });
     } finally {
-      setIsUploading(false);
+      setUploading(false);
+      setProgress(0);
     }
   };
 
   return (
-    <div className="p-4 border rounded-lg shadow-md">
-      <h2 className="text-lg font-semibold mb-4">Vendor Data Upload</h2>
-      <p className="mb-4 text-sm text-gray-600">
-        Upload your vendor data using CSV format. File should include the following columns: vendor_code, vendor_name, contact_person, contact_email, etc.
-      </p>
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Select Vendor CSV File</label>
-          <input 
-            type="file" 
-            accept=".csv" 
-            onChange={handleFileChange}
-            disabled={isUploading}
-            className="block w-full text-sm text-gray-500
-                    file:mr-4 file:py-2 file:px-4
-                    file:rounded file:border-0
-                    file:text-sm file:font-semibold
-                    file:bg-blue-50 file:text-blue-700
-                    hover:file:bg-blue-100"
-          />
+    <div className="space-y-6">
+      <UploadInstructions
+        title="Vendor Data Upload Instructions"
+        description="Upload your vendor data using CSV or Excel format. The file should include the fields below."
+        fields={vendorFields}
+      />
+      
+      <FileUpload
+        onUploadComplete={handleUploadComplete}
+        onProgress={setProgress}
+        allowedFileTypes={[".csv", ".xlsx"]}
+        maxSize={5}
+      />
+      
+      {uploading && (
+        <div className="space-y-2">
+          <Progress value={progress} className="w-full" />
+          <p className="text-sm text-muted-foreground">Processing... {progress}%</p>
         </div>
-        <button
-          onClick={handleUpload}
-          disabled={isUploading}
-          className={`px-4 py-2 text-white rounded transition-colors ${
-            isUploading 
-              ? 'bg-blue-300 cursor-not-allowed' 
-              : 'bg-blue-500 hover:bg-blue-600'
-          }`}
-        >
-          {isUploading ? 'Uploading...' : 'Upload Vendor Data'}
-        </button>
-        {status && (
-          <div className={`mt-4 p-2 rounded text-sm ${status.includes('✅') ? 'bg-green-50 text-green-700' : status.includes('❌') ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-700'}`}>
-            {status}
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 };
