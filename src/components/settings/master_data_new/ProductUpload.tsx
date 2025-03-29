@@ -13,14 +13,14 @@ import { Card, CardContent } from "@/components/ui/card";
 const productFields: FieldDescription[] = [
   { name: "sku", description: "Unique product identifier", required: true },
   { name: "name", description: "Product name", required: true },
-  { name: "category", description: "Main product category", required: true },
-  { name: "subcategory", description: "Product subcategory", required: true },
-  { name: "product_family", description: "Product family grouping", required: true },
+  { name: "category", description: "Main product category", required: false },
+  { name: "subcategory", description: "Product subcategory", required: false },
+  { name: "product_family", description: "Product family grouping", required: false },
   { name: "planning_priority", description: "Planning priority", required: false },
   { name: "notes", description: "Additional product notes", required: false },
 ];
 
-// Sample CSV content for download
+// Sample CSV content for download - exactly matching the field names in database
 const sampleCSVContent = `sku,name,category,subcategory,product_family,planning_priority,notes
 PROD001,Premium Smartphone,Electronics,Mobile Phones,Smartphones,High,Latest flagship model
 PROD002,Wireless Earbuds,Electronics,Audio,Accessories,Medium,Noise cancelling

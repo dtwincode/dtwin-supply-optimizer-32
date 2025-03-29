@@ -29,7 +29,7 @@ export const UploadInstructions = ({ title, description, fields }: UploadInstruc
           </div>
 
           <div className="mt-4">
-            <h4 className="font-medium mb-2">Required Fields:</h4>
+            <h4 className="font-medium mb-2">Fields:</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {fields.map((field) => (
                 <div key={field.name} className="flex items-start gap-2">
