@@ -18,46 +18,49 @@ export const useDecouplingPoints = () => {
     try {
       setLoading(true);
 
-      // Fetch items from inventory_planning_view that are marked as decoupling points
+      // Fetch automatically generated decoupling points from inventory_planning_view
       const { data: planningViewData, error: viewError } = await supabase
         .from('inventory_planning_view')
-        .select('*')
-        .eq('decoupling_point', true);
+        .select('*');
 
       if (viewError) throw viewError;
 
-      // Fetch overrides from buffer_profile_override table that set decoupling_point to true or false
+      // Fetch overrides from buffer_profile_override table
       const { data: overrideData, error: overrideError } = await supabase
         .from('buffer_profile_override')
-        .select('*')
-        .filter('decoupling_point', 'in', '(true,false)');
+        .select('*');
 
       if (overrideError) throw overrideError;
 
       // Create a map of overrides for quick lookup
-      const overrideMap: Record<string, boolean> = {};
+      const overrideMap: Record<string, any> = {};
       overrideData?.forEach(override => {
         const key = `${override.product_id}-${override.location_id}`;
-        overrideMap[key] = override.decoupling_point;
+        overrideMap[key] = override;
       });
 
       if (planningViewData) {
         // Format the decoupling points data
         const formatted: DecouplingPoint[] = planningViewData
-          // Filter out any points that have been explicitly overridden to false
           .filter(item => {
+            // Check if this is automatically generated as a decoupling point OR has a manual override
             const key = `${item.product_id}-${item.location_id}`;
-            return overrideMap[key] !== false;
+            const hasOverride = !!overrideMap[key] && overrideMap[key].decoupling_point !== undefined;
+            
+            // Include if it's auto-generated as a decoupling point and not explicitly overridden to false
+            // OR if it's manually overridden to true
+            return (item.decoupling_point === true && (!hasOverride || overrideMap[key].decoupling_point !== false)) || 
+                   (hasOverride && overrideMap[key].decoupling_point === true);
           })
           .map(item => {
             const key = `${item.product_id}-${item.location_id}`;
-            const isOverride = overrideMap[key] === true;
+            const isOverride = !!overrideMap[key] && overrideMap[key].decoupling_point !== undefined;
             
             return {
-              id: `${item.product_id}-${item.location_id}`,
+              id: key,
               locationId: item.location_id,
               type: determineDecouplingType(item.lead_time_days, item.demand_variability),
-              bufferProfileId: item.buffer_profile_id,
+              bufferProfileId: item.buffer_profile_id || 'default-profile',
               description: isOverride 
                 ? `Manually overridden decoupling point` 
                 : `Auto-generated decoupling point based on thresholds`,
@@ -69,7 +72,7 @@ export const useDecouplingPoints = () => {
             };
           });
 
-        // Add any points that were explicitly set via override but don't appear in the view
+        // Add any explicit manual overrides that aren't in the planning view
         overrideData?.forEach(override => {
           if (override.decoupling_point === true) {
             const key = `${override.product_id}-${override.location_id}`;
@@ -80,7 +83,7 @@ export const useDecouplingPoints = () => {
                 id: key,
                 locationId: override.location_id,
                 type: 'strategic', // Default type for manual overrides
-                bufferProfileId: override.buffer_profile_id || 'BP001',
+                bufferProfileId: override.buffer_profile_id || 'default-profile',
                 description: 'Manually created decoupling point',
                 leadTimeAdjustment: 0,
                 variabilityFactor: 0.5, // Default value
@@ -146,14 +149,15 @@ export const useDecouplingPoints = () => {
         .upsert({
           product_id: productId,
           location_id: locationId,
-          decoupling_point: false
+          decoupling_point: false,
+          buffer_profile_id: 'default-profile' // Default profile ID
         });
 
       if (error) throw error;
       
       toast({
         title: "Success",
-        description: "Decoupling point override applied successfully.",
+        description: "Decoupling point removed successfully",
       });
       
       // Refresh the data
@@ -162,7 +166,7 @@ export const useDecouplingPoints = () => {
       console.error('Error deleting decoupling point:', err);
       toast({
         title: "Error",
-        description: "Failed to update decoupling point",
+        description: "Failed to remove decoupling point",
         variant: "destructive",
       });
     } finally {
@@ -192,11 +196,12 @@ export const useDecouplingPoints = () => {
       
       toast({
         title: "Success",
-        description: "Decoupling point created successfully.",
+        description: "Decoupling point created successfully",
       });
       
       // Refresh the data
       fetchDecouplingPoints();
+      return { success: true };
     } catch (err) {
       console.error('Error creating decoupling point:', err);
       toast({
@@ -204,13 +209,14 @@ export const useDecouplingPoints = () => {
         description: "Failed to create decoupling point",
         variant: "destructive",
       });
+      return { success: false, error: err };
     } finally {
       setLoading(false);
     }
   }, [fetchDecouplingPoints, toast]);
 
   // Function to determine decoupling point type based on characteristics
-  const determineDecouplingType = (leadTimeDays?: number, demandVariability?: number): 'strategic' | 'customer_order' | 'stock_point' | 'intermediate' => {
+  const determineDecouplingType = (leadTimeDays?: number, demandVariability?: number): DecouplingPoint['type'] => {
     if (!leadTimeDays || !demandVariability) return 'intermediate';
     
     // Strategic points have high lead time and high variability

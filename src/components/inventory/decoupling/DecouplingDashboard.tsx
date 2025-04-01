@@ -11,6 +11,7 @@ import { useDecouplingPoints } from "@/hooks/useDecouplingPoints";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export function DecouplingDashboard() {
   const { 
@@ -25,6 +26,18 @@ export function DecouplingDashboard() {
     locationId: string;
   } | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("all");
+
+  // Calculate stats for the decoupling points
+  const autoPoints = decouplingPoints.filter(point => !point.isOverride);
+  const manualPoints = decouplingPoints.filter(point => point.isOverride);
+  
+  // Filter points based on active tab
+  const filteredPoints = activeTab === "auto" 
+    ? autoPoints 
+    : activeTab === "manual" 
+      ? manualPoints 
+      : decouplingPoints;
 
   const handleOpenDialog = (productId: string, locationId: string) => {
     setSelectedPoint({ productId, locationId });
@@ -59,7 +72,46 @@ export function DecouplingDashboard() {
 
   return (
     <div className="grid grid-cols-1 gap-4 p-4">
-      {/* Summary Board */}
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">All Decoupling Points</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{decouplingPoints.length}</div>
+            <p className="text-xs text-muted-foreground">
+              Total decoupling points in your network
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Auto-Generated</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{autoPoints.length}</div>
+            <p className="text-xs text-muted-foreground">
+              Points created automatically based on thresholds
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Manual Overrides</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{manualPoints.length}</div>
+            <p className="text-xs text-muted-foreground">
+              Points manually created or overridden
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Main Board */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="flex flex-col space-y-1.5">
@@ -80,21 +132,32 @@ export function DecouplingDashboard() {
           </div>
         </CardHeader>
         <CardContent>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+            <TabsList>
+              <TabsTrigger value="all">All Points</TabsTrigger>
+              <TabsTrigger value="auto">Auto-Generated</TabsTrigger>
+              <TabsTrigger value="manual">Manual Overrides</TabsTrigger>
+            </TabsList>
+          </Tabs>
+
           {loading ? (
             <div className="flex items-center justify-center h-40">
               <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
-          ) : decouplingPoints.length === 0 ? (
+          ) : filteredPoints.length === 0 ? (
             <div className="flex items-center justify-center h-40 text-muted-foreground">
-              No decoupling points have been defined. Decoupling points are automatically generated
-              based on lead time and demand variability thresholds.
+              {activeTab === "auto" 
+                ? "No automatically generated decoupling points found. They are generated based on lead time and demand variability thresholds."
+                : activeTab === "manual"
+                  ? "No manual decoupling point overrides found. You can add them using the 'Add Manual Override' button."
+                  : "No decoupling points have been defined. Decoupling points are automatically generated based on lead time and demand variability thresholds."}
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Location ID</TableHead>
                   <TableHead>Product ID</TableHead>
+                  <TableHead>Location ID</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Buffer Profile</TableHead>
                   <TableHead>Source</TableHead>
@@ -102,10 +165,10 @@ export function DecouplingDashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {decouplingPoints.map((point) => (
+                {filteredPoints.map((point) => (
                   <TableRow key={point.id}>
-                    <TableCell>{point.locationId}</TableCell>
                     <TableCell>{point.id.split('-')[0]}</TableCell>
+                    <TableCell>{point.locationId}</TableCell>
                     <TableCell>
                       <Badge className={getDecouplingTypeColor(point.type)}>
                         {getDecouplingTypeLabel(point.type)}

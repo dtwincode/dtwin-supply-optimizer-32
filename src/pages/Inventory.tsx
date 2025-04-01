@@ -18,14 +18,13 @@ import { Separator } from "@/components/ui/separator";
 import { Package, Pin, Clock, BarChart } from "lucide-react";
 import { fetchLocationWithNames } from "@/lib/inventory-planning.service";
 import InventoryFilters from "@/components/inventory/InventoryFilters";
+import { DecouplingDashboard } from "@/components/inventory/decoupling/DecouplingDashboard";
 
 // Function to merge item properties
 const mergeInventoryData = (items: InventoryItem[]): InventoryItem[] => {
   return items.map(item => {
-    // Generate a unique ID if not available
     const id = item.id || `${item.product_id}-${item.location_id}`;
 
-    // Create classification if not available
     const classification = item.classification || {
       leadTimeCategory: item.lead_time_days && item.lead_time_days > 30 ? "long" : item.lead_time_days && item.lead_time_days > 15 ? "medium" : "short",
       variabilityLevel: item.demand_variability && item.demand_variability > 1 ? "high" : item.demand_variability && item.demand_variability > 0.5 ? "medium" : "low",
@@ -35,18 +34,16 @@ const mergeInventoryData = (items: InventoryItem[]): InventoryItem[] => {
     return {
       ...item,
       id,
-      // Ensure sku and name are set
       sku: item.sku || item.product_id || "",
       name: item.name || item.product_id || "",
-      // Ensure stock values are set
       onHand: item.onHand || item.quantity_on_hand || 0,
       currentStock: item.currentStock || item.quantity_on_hand || 0,
-      // Standardize location
       location: item.location || item.location_id || "",
       classification
     };
   });
 };
+
 function Inventory() {
   const {
     t
@@ -64,7 +61,6 @@ function Inventory() {
     name: string;
   }[]>([]);
 
-  // Use the custom hook with default values
   const {
     items,
     loading,
@@ -75,7 +71,6 @@ function Inventory() {
   } = useInventory(1, 10, searchQuery, locationFilter);
   const [paginatedData, setPaginatedData] = useState<InventoryItem[]>([]);
 
-  // Load locations for filter dropdown
   useEffect(() => {
     const loadLocations = async () => {
       try {
@@ -91,7 +86,6 @@ function Inventory() {
     loadLocations();
   }, []);
 
-  // Process and format inventory data
   useEffect(() => {
     if (items && items.length > 0) {
       const processedItems = mergeInventoryData(items);
@@ -102,24 +96,28 @@ function Inventory() {
       setPaginatedData([]);
     }
   }, [items, loading]);
+
   const handleCreatePO = useCallback((item: InventoryItem) => {
     toast({
       title: "Purchase Order Created",
       description: `A new purchase order has been created for ${item.sku || item.product_id}`
     });
   }, [toast]);
+
   const handleTabChange = (value: string) => {
-    // Update the URL query parameters
     setSearchParams({
       tab: value
     });
   };
+
   const handleLocationChange = (location: string) => {
     setLocationFilter(location);
   };
+
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
   };
+
   const handleRefresh = async () => {
     try {
       await refreshData();
@@ -135,6 +133,7 @@ function Inventory() {
       });
     }
   };
+
   return <DashboardLayout>
       <div className="container mx-auto py-6 space-y-8">
         <PageHeader title={t("navigation.inventory")} description="Manage and monitor inventory across all your locations using inventory buffers and decoupling points.">
@@ -174,7 +173,9 @@ function Inventory() {
           </TabsContent>
 
           <TabsContent value="decoupling">
-            
+            <Card className="p-6">
+              <DecouplingDashboard />
+            </Card>
           </TabsContent>
 
           <TabsContent value="classification">
@@ -192,4 +193,5 @@ function Inventory() {
       </div>
     </DashboardLayout>;
 }
+
 export default Inventory;

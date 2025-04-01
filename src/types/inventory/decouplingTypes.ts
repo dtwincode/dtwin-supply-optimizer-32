@@ -5,7 +5,6 @@ export interface DecouplingPoint {
   type: 'strategic' | 'customer_order' | 'stock_point' | 'intermediate';
   description?: string;
   bufferProfileId: string;
-  // Adding missing properties used in DecouplingPointDialog.tsx
   replenishmentStrategy?: 'min-max' | 'top-of-green' | 'top-of-yellow';
   leadTimeAdjustment?: number;
   variabilityFactor?: number;

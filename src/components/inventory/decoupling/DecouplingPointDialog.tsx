@@ -115,14 +115,16 @@ export function DecouplingPointDialog({
       setLoading(true);
       
       // Call createDecouplingPoint from the hook
-      await createDecouplingPoint({
+      const result = await createDecouplingPoint({
         productId: formData.productId,
         locationId: formData.locationId,
         bufferProfileId: formData.bufferProfileId
       });
       
-      if (onSuccess) onSuccess();
-      onClose();
+      if (result && result.success) {
+        if (onSuccess) onSuccess();
+        onClose();
+      }
     } catch (error) {
       console.error('Error saving decoupling point:', error);
       toast({
