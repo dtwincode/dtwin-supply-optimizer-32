@@ -19,8 +19,9 @@ import { useLocation, useParams } from "react-router-dom";
 import { InventoryTourGuide, TourButton } from "@/components/inventory/InventoryTourGuide";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, Settings } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
+import { ThresholdManagement } from "@/components/inventory/ThresholdManagement";
 
 const Inventory = () => {
   const { language } = useLanguage();
@@ -106,13 +107,11 @@ const Inventory = () => {
     }
   };
 
-  // Fetch data when component mounts
   useEffect(() => {
     fetchInventoryData();
     fetchSKUClassifications();
   }, []);
   
-  // Show tour after data is loaded
   useEffect(() => {
     if (!isLoading && !hasError && !hasTakenTour) {
       const tourDelay = setTimeout(() => {
@@ -194,7 +193,6 @@ const Inventory = () => {
     }
   };
 
-  // Enrich inventory data with classification information
   const enrichedInventory = inventoryData.map(item => ({ 
     ...item, 
     classification: skuClassifications.find(sku => sku.sku === item.product_id) || null 
@@ -312,6 +310,10 @@ const Inventory = () => {
           <div className="inventory-summary-cards">
             <InventorySummaryCards />
           </div>
+        </ErrorBoundary>
+        
+        <ErrorBoundary fallback={<Card className="p-6 text-center"><p>{t("common.inventory.errorLoading")}</p></Card>} onError={handleError}>
+          <ThresholdManagement />
         </ErrorBoundary>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
