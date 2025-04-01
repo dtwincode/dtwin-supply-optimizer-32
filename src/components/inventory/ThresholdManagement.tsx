@@ -61,13 +61,17 @@ export function ThresholdManagement() {
     try {
       setUpdating(true);
       
+      // Get the current session
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token || '';
+      
       const response = await fetch(
         "https://mttzjxktvbsixjaqiuxq.supabase.co/functions/v1/manual_threshold_update",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${supabase.auth.session()?.access_token || ''}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify({
             demand_variability_threshold: demandVariability,
@@ -88,7 +92,7 @@ export function ThresholdManagement() {
       
       // Refresh thresholds after update
       fetchThresholds();
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error updating thresholds:", err);
       toast({
         title: "Error",

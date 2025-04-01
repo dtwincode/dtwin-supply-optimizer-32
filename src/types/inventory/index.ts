@@ -1,4 +1,3 @@
-
 export * from './bufferTypes';
 export * from './decouplingTypes';
 export * from './classificationTypes';
@@ -6,6 +5,14 @@ export * from './leadTimeTypes';
 export * from './databaseTypes';
 export * from './inventoryFilters';
 export * from './shipmentTypes';
+
+// Updated Classification interface to match our components
+export interface Classification {
+  leadTimeCategory?: 'short' | 'medium' | 'long';
+  variabilityLevel?: 'low' | 'medium' | 'high'; 
+  criticality?: 'low' | 'medium' | 'high';
+  score?: number;
+}
 
 // SKU Classification interface - updated to match the database structure
 export interface SKUClassification {
@@ -17,14 +24,7 @@ export interface SKUClassification {
   score?: number;
   last_updated?: string;
   category?: string;
-}
-
-// Classification interface (used internally by components)
-export interface Classification {
-  leadTimeCategory?: 'short' | 'medium' | 'long';
-  variabilityLevel?: 'low' | 'medium' | 'high'; 
-  criticality?: 'low' | 'medium' | 'high';
-  score?: number;
+  classification?: Classification;
 }
 
 // ReplenishmentData interface
@@ -55,11 +55,13 @@ export interface PaginationState {
   totalItems: number;
 }
 
-// InventoryItem interface to match the updated structure
+// InventoryItem interface to match both database and UI needs
 export interface InventoryItem {
-  inventory_id: string;
-  product_id: string;
-  quantity_on_hand: number;
+  // Core fields that correspond to database
+  id: string;
+  inventory_id?: string;
+  product_id?: string;
+  quantity_on_hand?: number;
   available_qty?: number;
   reserved_qty?: number;
   location_id?: string;
@@ -68,7 +70,6 @@ export interface InventoryItem {
   decoupling_point?: boolean;
   
   // UI enhancements
-  id?: string;
   sku?: string;
   name?: string;
   currentStock?: number;

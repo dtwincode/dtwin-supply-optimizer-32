@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { useI18n } from "@/contexts/I18nContext";
@@ -5,13 +6,25 @@ import { InventoryTableHeader } from "./InventoryTableHeader";
 import { BufferStatusBadge } from "./BufferStatusBadge";
 import { BufferVisualizer } from "./BufferVisualizer";
 import { CreatePODialog } from "./CreatePODialog";
-import { InventoryItem } from "@/types/inventory";
+import { InventoryItem, Classification } from "@/types/inventory";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
-import { useInventoryData } from "@/hooks/useInventoryData";
 
-const simplifiedCalculateBufferZones = (item: InventoryItem) => {
+interface BufferZones {
+  red: number;
+  yellow: number;
+  green: number;
+}
+
+interface NetFlowPosition {
+  onHand: number;
+  onOrder: number;
+  qualifiedDemand: number;
+  netFlowPosition: number;
+}
+
+const simplifiedCalculateBufferZones = (item: InventoryItem): BufferZones => {
   try {
     const redZone = item.redZoneSize || (item.adu && item.leadTimeDays ? Math.round(item.adu * (item.leadTimeDays * 0.33)) : 0);
     const yellowZone = item.yellowZoneSize || (item.adu && item.leadTimeDays ? Math.round(item.adu * item.leadTimeDays) : 0);
@@ -24,7 +37,7 @@ const simplifiedCalculateBufferZones = (item: InventoryItem) => {
   }
 };
 
-const simplifiedCalculateNetFlowPosition = (item: InventoryItem) => {
+const simplifiedCalculateNetFlowPosition = (item: InventoryItem): NetFlowPosition => {
   try {
     const onHand = item.onHand || 0;
     const onOrder = item.onOrder || 0;
@@ -38,7 +51,7 @@ const simplifiedCalculateNetFlowPosition = (item: InventoryItem) => {
   }
 };
 
-const simplifiedCalculateBufferPenetration = (netFlowPosition: number, bufferZones: { red: number; yellow: number; green: number; }) => {
+const simplifiedCalculateBufferPenetration = (netFlowPosition: number, bufferZones: BufferZones): number => {
   try {
     const totalBuffer = bufferZones.red + bufferZones.yellow + bufferZones.green;
     const penetration = totalBuffer > 0 ? ((totalBuffer - netFlowPosition) / totalBuffer) * 100 : 0;
@@ -70,8 +83,8 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
   const { t } = useI18n();
   const { toast } = useToast();
   const [itemBuffers, setItemBuffers] = useState<Record<string, {
-    bufferZones: { red: number; yellow: number; green: number; };
-    netFlow: { netFlowPosition: number; onHand: number; onOrder: number; qualifiedDemand: number; };
+    bufferZones: BufferZones;
+    netFlow: NetFlowPosition;
     bufferPenetration: number;
     status: 'green' | 'yellow' | 'red';
   }>>({});
@@ -182,7 +195,7 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
         </div>
       ) : (
         paginatedData.map((item) => {
-          const itemId = item.inventory_id || item.id || "";
+          const itemId = item.id || "";
           if (!itemId) {
             return null;
           }
@@ -199,9 +212,9 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
                 <InventoryTableHeader />
                 <TableBody>
                   <TableRow>
-                    <TableCell className="font-medium">{item.sku || item.product_id || "N/A"}</TableCell>
+                    <TableCell className="font-medium">{item.sku || "N/A"}</TableCell>
                     <TableCell>{item.name || "N/A"}</TableCell>
-                    <TableCell>{typeof item.quantity_on_hand === 'number' ? item.quantity_on_hand : (item.onHand || "N/A")}</TableCell>
+                    <TableCell>{typeof item.onHand === 'number' ? item.onHand : "N/A"}</TableCell>
                     <TableCell>
                       <BufferStatusBadge status={bufferData.status} />
                     </TableCell>
@@ -212,7 +225,7 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
                         adu={item.adu}
                       />
                     </TableCell>
-                    <TableCell>{item.location || item.location_id || "N/A"}</TableCell>
+                    <TableCell>{item.location || "N/A"}</TableCell>
                     <TableCell>{item.productFamily || "N/A"}</TableCell>
                     <TableCell>{item.classification?.leadTimeCategory || "N/A"}</TableCell>
                     <TableCell>{item.classification?.variabilityLevel || "N/A"}</TableCell>
