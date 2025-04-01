@@ -4,6 +4,7 @@ import Auth from "./pages/Auth";
 import Marketing from "./pages/Marketing";
 import Forecasting from "./pages/Forecasting";
 import Inventory from "./pages/Inventory";
+import InventoryPlanning from "./pages/InventoryPlanning";
 import SalesAndReturns from "./pages/SalesAndReturns";
 import Reports from "./pages/Reports";
 import Logistics from "./pages/Logistics";
@@ -24,7 +25,7 @@ import { FilterProvider } from "./contexts/FilterContext";
 import { Suspense, useEffect } from "react";
 import PageLoading from "./components/PageLoading";
 import { toast } from "sonner";
-import { I18nProvider } from "@/contexts/I18nContext"; // ✅ مضافة حديثًا
+import { I18nProvider } from "@/contexts/I18nContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -102,6 +103,7 @@ function App() {
                       <Route path="/inventory/classification" element={<Navigate to="/inventory?tab=classification" replace />} />
                       <Route path="/inventory/buffer-zones" element={<Navigate to="/inventory?tab=buffers" replace />} />
                       <Route path="/inventory/decoupling-point" element={<Navigate to="/inventory?tab=decoupling" replace />} />
+                      <Route path="/inventory-planning" element={<InventoryPlanning />} />
                       <Route path="/supply-planning" element={<SupplyPlanning />} />
                       <Route path="/sales-and-returns" element={<SalesAndReturns />} />
                       <Route path="/sales-planning" element={<Navigate to="/sales-and-returns" replace />} />
