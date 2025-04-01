@@ -1,9 +1,10 @@
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext } from 'react';
 import { getTranslation } from '@/translations';
 import { useLanguage } from './LanguageContext';
 
-type Language = 'en' | 'ar';
+// Define Language type here since it's not properly exported from translations
+export type Language = 'en' | 'ar';
 
 interface I18nContextType {
   t: (key: string) => string;

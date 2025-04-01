@@ -24,6 +24,9 @@ export interface InventoryPlanningItem {
   onOrder?: number;
   qualifiedDemand?: number;
   buffer_status?: 'green' | 'yellow' | 'red';
+  available_qty?: number;
+  reserved_qty?: number;
+  id?: string;
 }
 
 export interface Classification {
