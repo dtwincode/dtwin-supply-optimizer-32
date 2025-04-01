@@ -90,11 +90,11 @@ const transformDatabaseItems = (items: any[]): InventoryItem[] => {
     safety_stock: item.safety_stock || 0,
     min_stock_level: item.min_stock_level || 0,
     // Classification data
-    classification: item.classification || {
-      leadTimeCategory: item.leadTimeCategory || "medium",
-      variabilityLevel: item.variabilityLevel || "medium",
-      criticality: item.criticality || "medium",
-      score: item.score || 50
+    classification: {
+      leadTimeCategory: item.leadTimeCategory || item.classification?.leadTimeCategory || "medium",
+      variabilityLevel: item.variabilityLevel || item.classification?.variabilityLevel || "medium",
+      criticality: item.criticality || item.classification?.criticality || "medium",
+      score: item.score || item.classification?.score || 50
     }
   }));
 };
@@ -177,17 +177,16 @@ function Inventory() {
         <PageHeader
           title={t("navigation.inventory")}
           description="Manage and monitor inventory across all your locations using inventory buffers and decoupling points."
-          actions={
-            <motion.div variants={itemVariants}>
-              <Badge
-                className="bg-green-600 text-white ml-2"
-                variant="outline"
-              >
-                Phase 7
-              </Badge>
-            </motion.div>
-          }
-        />
+        >
+          <motion.div variants={itemVariants}>
+            <Badge
+              className="bg-green-600 text-white ml-2"
+              variant="outline"
+            >
+              Phase 7
+            </Badge>
+          </motion.div>
+        </PageHeader>
 
         <Separator className="my-6" />
 
@@ -237,7 +236,7 @@ function Inventory() {
 
           <TabsContent value="classification">
             <Card className="p-6">
-              <SKUClassifications classifications={[]} />
+              <SKUClassifications />
             </Card>
           </TabsContent>
 

@@ -6,13 +6,26 @@ import { InventoryTableHeader } from "../InventoryTableHeader";
 import { BufferStatusBadge } from "../BufferStatusBadge";
 import { BufferVisualizer } from "../BufferVisualizer";
 import { CreatePODialog } from "../CreatePODialog";
-import { InventoryItem } from "@/types/inventory";
+import { InventoryItem, Classification } from "@/types/inventory";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 import { InventoryInsightsCard } from "../InventoryInsightsCard";
 
-const simplifiedCalculateBufferZones = (item: InventoryItem) => {
+interface BufferZones {
+  red: number;
+  yellow: number;
+  green: number;
+}
+
+interface NetFlowPosition {
+  onHand: number;
+  onOrder: number;
+  qualifiedDemand: number;
+  netFlowPosition: number;
+}
+
+const simplifiedCalculateBufferZones = (item: InventoryItem): BufferZones => {
   try {
     // First try to use fields from inventory_planning_view
     if (item.min_stock_level && item.safety_stock) {
@@ -39,7 +52,7 @@ const simplifiedCalculateBufferZones = (item: InventoryItem) => {
   }
 };
 
-const simplifiedCalculateNetFlowPosition = (item: InventoryItem) => {
+const simplifiedCalculateNetFlowPosition = (item: InventoryItem): NetFlowPosition => {
   try {
     const onHand = item.onHand || item.quantity_on_hand || 0;
     const onOrder = item.onOrder || 0;
@@ -53,7 +66,7 @@ const simplifiedCalculateNetFlowPosition = (item: InventoryItem) => {
   }
 };
 
-const simplifiedCalculateBufferPenetration = (netFlowPosition: number, bufferZones: { red: number; yellow: number; green: number; }) => {
+const simplifiedCalculateBufferPenetration = (netFlowPosition: number, bufferZones: { red: number; yellow: number; green: number; }): number => {
   try {
     const totalBuffer = bufferZones.red + bufferZones.yellow + bufferZones.green;
     const penetration = totalBuffer > 0 ? ((totalBuffer - netFlowPosition) / totalBuffer) * 100 : 0;
@@ -85,8 +98,8 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
   const { t } = useI18n();
   const { toast } = useToast();
   const [itemBuffers, setItemBuffers] = useState<Record<string, {
-    bufferZones: { red: number; yellow: number; green: number; };
-    netFlow: { netFlowPosition: number; onHand: number; onOrder: number; qualifiedDemand: number; };
+    bufferZones: BufferZones;
+    netFlow: NetFlowPosition;
     bufferPenetration: number;
     status: 'green' | 'yellow' | 'red';
   }>>({});

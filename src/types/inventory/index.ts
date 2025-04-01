@@ -17,17 +17,25 @@ export interface PaginationState {
   totalItems: number;
 }
 
+// Classification interface for inventory items
+export interface Classification {
+  leadTimeCategory: "short" | "medium" | "long";
+  variabilityLevel: "low" | "medium" | "high";
+  criticality: "low" | "medium" | "high";
+  score: number;
+}
+
 // InventoryItem interface to match both database and UI needs
 export interface InventoryItem {
   // Core fields that correspond to database
   id: string;
   inventory_id?: string;
-  product_id: string;
+  product_id?: string;
   sku?: string;
-  quantity_on_hand: number;
+  quantity_on_hand?: number;
   available_qty?: number;
   reserved_qty?: number;
-  location_id: string;
+  location_id?: string;
   location?: string;
   last_updated?: string;
   buffer_profile_id?: string;
@@ -69,11 +77,4 @@ export interface InventoryItem {
   planningPriority?: string;
   bufferPenetration?: number;
   classification?: Classification;
-  
-  // Supply chain attributes
-  preferredSupplier?: string;
-  minimumOrderQuantity?: number;
 }
-
-// Import Classification from classificationTypes
-import { Classification } from './classificationTypes';
