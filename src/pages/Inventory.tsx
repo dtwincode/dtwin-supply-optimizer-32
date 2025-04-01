@@ -44,6 +44,7 @@ const transformDatabaseItems = (items: any[]): InventoryItem[] => {
       category: item.category || "",
       subcategory: item.subcategory || "",
       location: item.location || item.location_id || "",
+      location_id: item.location_id || "",
       productFamily: item.productFamily || "",
       region: item.region || "",
       city: item.city || "",
@@ -54,8 +55,11 @@ const transformDatabaseItems = (items: any[]): InventoryItem[] => {
       qualifiedDemand: item.qualifiedDemand || 0,
       netFlowPosition: item.netFlowPosition || 0,
       adu: item.adu || item.average_daily_usage || 0,
+      average_daily_usage: item.average_daily_usage || item.adu || 0,
       leadTimeDays: item.leadTimeDays || item.lead_time_days || 0,
+      lead_time_days: item.lead_time_days || item.leadTimeDays || 0,
       variabilityFactor: item.variabilityFactor || item.demand_variability || 0,
+      demand_variability: item.demand_variability || item.variabilityFactor || 0,
       redZoneSize: item.redZoneSize || 0,
       yellowZoneSize: item.yellowZoneSize || 0,
       greenZoneSize: item.greenZoneSize || 0,
@@ -66,7 +70,6 @@ const transformDatabaseItems = (items: any[]): InventoryItem[] => {
       // Additional properties for database compatibility
       inventory_id: item.inventory_id || "",
       product_id: item.product_id || "",
-      location_id: item.location_id || "",
       quantity_on_hand: item.quantity_on_hand || 0,
       reserved_qty: item.reserved_qty || 0,
       available_qty: item.available_qty || 0,
@@ -77,6 +80,7 @@ const transformDatabaseItems = (items: any[]): InventoryItem[] => {
       // Safety stock and min_stock_level from inventory_planning_view
       safety_stock: item.safety_stock || 0,
       min_stock_level: item.min_stock_level || 0,
+      max_stock_level: item.max_stock_level || 0,
       
       // Classification data
       classification

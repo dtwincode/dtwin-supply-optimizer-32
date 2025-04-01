@@ -1,33 +1,41 @@
 
-import { useI18n } from "@/contexts/I18nContext";
+import { Badge } from "@/components/ui/badge";
 
 interface BufferStatusBadgeProps {
-  status: "green" | "yellow" | "red";
+  status: 'green' | 'yellow' | 'red';
 }
 
-export const BufferStatusBadge = ({ status }: BufferStatusBadgeProps) => {
-  const { t } = useI18n();
-  
-  const getStatusClasses = () => {
+export function BufferStatusBadge({ status }: BufferStatusBadgeProps) {
+  const getStatusConfig = () => {
     switch (status) {
-      case "green":
-        return "bg-success-50 text-success-700";
-      case "yellow":
-        return "bg-warning-50 text-warning-700";
-      case "red":
-        return "bg-danger-50 text-danger-700";
+      case 'green':
+        return {
+          label: 'OK',
+          className: 'bg-green-100 text-green-800 hover:bg-green-100'
+        };
+      case 'yellow':
+        return {
+          label: 'Warning',
+          className: 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100'
+        };
+      case 'red':
+        return {
+          label: 'Critical',
+          className: 'bg-red-100 text-red-800 hover:bg-red-100'
+        };
       default:
-        return "bg-gray-50 text-gray-700";
+        return {
+          label: 'Unknown',
+          className: 'bg-gray-100 text-gray-800 hover:bg-gray-100'
+        };
     }
   };
 
-  const getStatusText = () => {
-    return t(`common.zones.${status}`);
-  };
+  const { label, className } = getStatusConfig();
 
   return (
-    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClasses()}`}>
-      {getStatusText()}
-    </span>
+    <Badge variant="outline" className={className}>
+      {label}
+    </Badge>
   );
-};
+}

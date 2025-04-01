@@ -1,26 +1,26 @@
+
 import { TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useI18n } from "@/contexts/I18nContext";
 
-export const InventoryTableHeader = () => {
+export function InventoryTableHeader() {
   const { t } = useI18n();
   
   return (
     <TableHeader>
       <TableRow>
-        <TableHead>{t("common.inventory.sku")}</TableHead>
+        <TableHead className="w-[100px]">{t("common.inventory.sku")}</TableHead>
         <TableHead>{t("common.inventory.name")}</TableHead>
-        <TableHead>{t("common.inventory.currentStock")}</TableHead>
-        <TableHead>{t("common.inventory.bufferStatus")}</TableHead>
-        <TableHead>{t("common.inventory.bufferZones")}</TableHead>
+        <TableHead>{t("common.inventory.onHand")}</TableHead>
+        <TableHead>{t("common.inventory.status")}</TableHead>
+        <TableHead className="w-[300px]">{t("common.inventory.buffer")}</TableHead>
         <TableHead>{t("common.inventory.location")}</TableHead>
         <TableHead>{t("common.inventory.productFamily")}</TableHead>
-        {/* New classification fields */}
-        <TableHead>{t("common.inventory.leadTimeCategory")}</TableHead>
-        <TableHead>{t("common.inventory.variabilityLevel")}</TableHead>
+        <TableHead>{t("common.inventory.leadTime")}</TableHead>
+        <TableHead>{t("common.inventory.variability")}</TableHead>
         <TableHead>{t("common.inventory.criticality")}</TableHead>
         <TableHead>{t("common.inventory.score")}</TableHead>
-        <TableHead>{t("common.inventory.actions")}</TableHead>
+        <TableHead className="text-right">{t("common.inventory.actions")}</TableHead>
       </TableRow>
     </TableHeader>
   );
-};
+}

@@ -204,8 +204,6 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
         </Button>
       </div>
 
-      <InventoryInsightsCard />
-
       {!paginatedData || paginatedData.length === 0 ? (
         <div className="text-center py-10">
           <p className="text-muted-foreground">{t("common.inventory.noItems")}</p>

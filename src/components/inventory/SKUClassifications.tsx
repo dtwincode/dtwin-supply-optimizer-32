@@ -42,7 +42,7 @@ export function SKUClassifications() {
     <TooltipProvider>
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2">
         {classifications.map((item, index) => {
-          // Determine classification based on data
+          // Create a Classification object from the data
           const classification: Classification = {
             leadTimeCategory:
               item.lead_time_days && item.lead_time_days > 30
