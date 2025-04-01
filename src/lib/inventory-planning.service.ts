@@ -1,6 +1,6 @@
 
 import { supabase } from "./supabaseClient";
-import { InventoryItem } from "@/types/inventory/planningTypes";
+import { InventoryItem } from "@/types/inventory";
 
 export async function fetchInventoryPlanningView(filters?: {
   searchQuery?: string;
@@ -10,7 +10,7 @@ export async function fetchInventoryPlanningView(filters?: {
 }): Promise<InventoryItem[]> {
   let query = supabase
     .from("inventory_planning_view")
-    .select("*, location_master(warehouse, city, region, channel)");
+    .select("*");
 
   // Apply filters if provided
   if (filters) {
@@ -39,21 +39,27 @@ export async function fetchInventoryPlanningView(filters?: {
   }
 
   // Transform the data to match the InventoryItem interface
-  const transformedData = data.map(item => {
-    // Extract location data from the joined location_master
-    const locationData = item.location_master || {};
+  const transformedData: InventoryItem[] = [];
+  
+  for (const item of data || []) {
+    // Get location data from separate query to avoid relationship issues
+    const { data: locationData } = await supabase
+      .from("location_master")
+      .select("*")
+      .eq('location_id', item.location_id)
+      .maybeSingle();
     
-    return {
+    transformedData.push({
       id: `${item.product_id}-${item.location_id}`,
       product_id: item.product_id,
       sku: item.product_id, // Use product_id as sku if not available
       name: item.product_id, // Use product_id as name if not available
       location: item.location_id,
       location_id: item.location_id,
-      warehouse: locationData.warehouse,
-      city: locationData.city,
-      region: locationData.region,
-      channel: locationData.channel,
+      warehouse: locationData?.warehouse || '',
+      city: locationData?.city || '',
+      region: locationData?.region || '',
+      channel: locationData?.channel || '',
       
       // Planning view specific fields
       lead_time_days: item.lead_time_days,
@@ -79,8 +85,8 @@ export async function fetchInventoryPlanningView(filters?: {
         criticality: item.decoupling_point ? "high" : "low",
         score: item.max_stock_level || 0
       }
-    };
-  });
+    });
+  }
 
   return transformedData;
 }
@@ -166,7 +172,8 @@ export async function fetchInventoryData(productIds: string[] = [], locationIds:
       currentStock: item.quantity_on_hand,
       available_qty: item.available_qty,
       reserved_qty: item.reserved_qty,
-      last_updated: item.last_updated
+      last_updated: item.last_updated,
+      decoupling_point: item.decoupling_point
     };
   });
 
