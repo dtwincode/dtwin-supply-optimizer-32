@@ -44,18 +44,35 @@ export interface InventoryItem {
   channel?: string;
   warehouse?: string;
   decouplingPointId?: string;
+  
+  // Fields from inventory_planning_view
   adu?: number;
+  average_daily_usage?: number;
   leadTimeDays?: number;
+  lead_time_days?: number;
   variabilityFactor?: number;
+  demand_variability?: number;
+  min_stock_level?: number;
+  safety_stock?: number;
+  max_stock_level?: number;
+  
+  // Buffer zones
   redZoneSize?: number;
   yellowZoneSize?: number;
   greenZoneSize?: number;
+  
+  // Flow metrics
   onHand?: number;
   onOrder?: number;
   qualifiedDemand?: number;
   netFlowPosition?: number;
   planningPriority?: string;
+  bufferPenetration?: number;
   classification?: Classification;
+  
+  // Supply chain attributes
+  preferredSupplier?: string;
+  minimumOrderQuantity?: number;
 }
 
 // BufferFactorConfig for inventory buffer calculations
@@ -105,3 +122,4 @@ export interface DecouplingPoint {
   description?: string;
   bufferProfileId: string;
 }
+

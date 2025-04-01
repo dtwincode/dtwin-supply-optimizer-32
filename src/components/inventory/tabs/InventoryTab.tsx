@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { useI18n } from "@/contexts/I18nContext";
@@ -13,6 +14,20 @@ import { InventoryInsightsCard } from "../InventoryInsightsCard";
 
 const simplifiedCalculateBufferZones = (item: InventoryItem) => {
   try {
+    // First try to use fields from inventory_planning_view
+    if (item.min_stock_level && item.safety_stock) {
+      // In DDMRP terminology:
+      // Red Zone = safety_stock
+      // Yellow Zone = min_stock_level (~ replenishment zone)
+      // Green Zone is often calculated as a portion of yellow zone
+      const redZone = Math.round(item.safety_stock);
+      const yellowZone = Math.round(item.min_stock_level);
+      const greenZone = Math.round(yellowZone * 0.5); // If not available, estimate as 50% of yellow zone
+      
+      return { red: redZone, yellow: yellowZone, green: greenZone };
+    }
+    
+    // Fallback to legacy calculation if planning view fields aren't available
     const redZone = item.redZoneSize || (item.adu && item.leadTimeDays ? Math.round(item.adu * (item.leadTimeDays * 0.33)) : 0);
     const yellowZone = item.yellowZoneSize || (item.adu && item.leadTimeDays ? Math.round(item.adu * item.leadTimeDays) : 0);
     const greenZone = item.greenZoneSize || (item.adu && item.leadTimeDays ? Math.round(item.adu * (item.leadTimeDays * 0.5)) : 0);
@@ -211,7 +226,7 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
                       <BufferVisualizer 
                         netFlowPosition={bufferData.netFlow.netFlowPosition}
                         bufferZones={bufferData.bufferZones}
-                        adu={item.adu}
+                        adu={item.adu || item.average_daily_usage}
                       />
                     </TableCell>
                     <TableCell>{item.location || "N/A"}</TableCell>

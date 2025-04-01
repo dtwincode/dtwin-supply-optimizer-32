@@ -61,7 +61,6 @@ export const useInventoryData = ({
           reserved_qty,
           available_qty,
           last_updated,
-          buffer_profile_id,
           decoupling_point
         `)
         .order('last_updated', { ascending: false })
@@ -74,10 +73,17 @@ export const useInventoryData = ({
 
       // Fetch SKU classifications separately
       const { data: classificationsData, error: classificationError } = await supabase
-        .from("sku_classification")
+        .from("product_classification")
         .select("*");
 
       if (classificationError) throw classificationError;
+      
+      // Fetch inventory planning data
+      const { data: planningData, error: planningError } = await supabase
+        .from("inventory_planning_view")
+        .select("*");
+        
+      if (planningError) throw planningError;
 
       // Get count of total inventory items for pagination
       const { count, error: countError } = await supabase
@@ -89,7 +95,11 @@ export const useInventoryData = ({
       // Transform inventory data to match our frontend model
       const enrichedItems = inventoryData?.map(item => {
         const matchingClassification = classificationsData?.find(
-          c => c.sku === item.product_id
+          c => c.product_id === item.product_id && c.location_id === item.location_id
+        );
+        
+        const matchingPlanningData = planningData?.find(
+          p => p.product_id === item.product_id && p.location_id === item.location_id
         );
         
         return {
@@ -102,10 +112,22 @@ export const useInventoryData = ({
           reserved_qty: item.reserved_qty || 0,
           available_qty: item.available_qty || (item.quantity_on_hand - (item.reserved_qty || 0)),
           last_updated: item.last_updated,
-          buffer_profile_id: item.buffer_profile_id,
-          decoupling_point: item.decoupling_point,
+          decoupling_point: item.decoupling_point || matchingPlanningData?.decoupling_point || false,
           currentStock: item.quantity_on_hand,
           onHand: item.quantity_on_hand,
+          
+          // Planning data from inventory_planning_view
+          buffer_profile_id: matchingPlanningData?.buffer_profile_id,
+          adu: matchingPlanningData?.average_daily_usage,
+          average_daily_usage: matchingPlanningData?.average_daily_usage,
+          leadTimeDays: matchingPlanningData?.lead_time_days,
+          lead_time_days: matchingPlanningData?.lead_time_days,
+          variabilityFactor: matchingPlanningData?.demand_variability,
+          demand_variability: matchingPlanningData?.demand_variability,
+          min_stock_level: matchingPlanningData?.min_stock_level,
+          safety_stock: matchingPlanningData?.safety_stock,
+          max_stock_level: matchingPlanningData?.max_stock_level,
+          
           classification: matchingClassification ? {
             leadTimeCategory: matchingClassification.lead_time_category,
             variabilityLevel: matchingClassification.variability_level,
