@@ -1,5 +1,6 @@
+
 import { useState } from 'react';
-import { DecouplingNetwork } from '@/types/inventory/decouplingTypes';
+import { DecouplingNetwork, DecouplingPoint } from '@/types/inventory/decouplingTypes';
 
 export const useDecouplingPoints = () => {
   // Empty placeholder - will be implemented later with actual data

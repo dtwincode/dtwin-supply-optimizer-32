@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useI18n } from "@/contexts/I18nContext";
-import { supabase } from "@/lib/supabaseClient";
+import { fetchLocationWithNames } from "@/lib/inventory-planning.service";
 
 export interface InventoryFiltersProps {
   searchQuery: string;
@@ -25,33 +25,13 @@ const InventoryFilters = ({
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        // Use the location_master table
-        const { data, error } = await supabase
-          .from('location_master')
-          .select('location_id, warehouse')
-          .order('warehouse', { ascending: true });
-
-        if (error) {
-          console.error("Error fetching locations:", error);
-          setLocations([
-            { id: 'all', name: 'All Locations' }
-          ]);
-        } else if (data && data.length > 0) {
-          // Map data to expected format
-          const locationData = [
-            { id: 'all', name: 'All Locations' },
-            ...data.map(loc => ({
-              id: loc.location_id,
-              name: loc.warehouse || loc.location_id
-            }))
-          ];
-          setLocations(locationData);
-        } else {
-          // No locations found in database
-          setLocations([
-            { id: 'all', name: 'All Locations' }
-          ]);
-        }
+        setLoading(true);
+        const locationData = await fetchLocationWithNames();
+        
+        setLocations([
+          { id: 'all', name: 'All Locations' },
+          ...locationData
+        ]);
       } catch (err) {
         console.error("Error fetching locations:", err);
         setLocations([
@@ -77,9 +57,10 @@ const InventoryFilters = ({
       <Select
         value={selectedLocationId}
         onValueChange={setSelectedLocationId}
+        disabled={loading}
       >
         <SelectTrigger className="w-40">
-          <SelectValue placeholder={t("common.inventory.allLocations")} />
+          <SelectValue placeholder={loading ? "Loading..." : t("common.inventory.allLocations")} />
         </SelectTrigger>
         <SelectContent>
           {locations.map((location) => (

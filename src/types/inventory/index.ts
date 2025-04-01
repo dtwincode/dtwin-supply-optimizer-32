@@ -20,16 +20,16 @@ export interface PaginationState {
 
 // Classification interface for inventory items
 export interface Classification {
-  leadTimeCategory: "short" | "medium" | "long";
-  variabilityLevel: "low" | "medium" | "high";
-  criticality: "low" | "medium" | "high";
-  score: number;
+  leadTimeCategory?: "short" | "medium" | "long";
+  variabilityLevel?: "low" | "medium" | "high";
+  criticality?: "low" | "medium" | "high";
+  score?: number;
 }
 
 // InventoryItem interface to match both database and UI needs
 export interface InventoryItem {
   // Core fields that correspond to database
-  id: string;
+  id?: string;
   inventory_id?: string;
   product_id?: string;
   sku?: string;
@@ -86,12 +86,12 @@ export interface InventoryItem {
 export interface ReplenishmentData {
   id: string;
   sku: string;
-  quantity: number;
+  quantity?: number;
   replenishmentType: string;
-  source: string;
-  destination: string;
-  status: string;
-  expectedDate: string;
+  source?: string;
+  destination?: string;
+  status?: string;
+  expectedDate?: string;
   internalTransferTime?: number;
   totalCycleTime?: number;
   lastUpdated?: string;

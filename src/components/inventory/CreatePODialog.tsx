@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,75 +12,76 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { InventoryItem } from "@/types/inventory";
-import { ShoppingCart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { InventoryItem } from '@/types/inventory';
+import { supabase } from '@/lib/supabaseClient';
+
+interface BufferZones {
+  red: number;
+  yellow: number;
+  green: number;
+}
 
 interface CreatePODialogProps {
   item: InventoryItem;
-  bufferZones: {
-    red: number;
-    yellow: number;
-    green: number;
-  };
-  onSuccess?: () => void;
+  bufferZones: BufferZones;
+  onSuccess: () => void;
 }
 
-export function CreatePODialog({ item, bufferZones, onSuccess }: CreatePODialogProps) {
+export const CreatePODialog = ({ item, bufferZones, onSuccess }: CreatePODialogProps) => {
   const [open, setOpen] = useState(false);
-  const [quantity, setQuantity] = useState<number>(0);
+  const [quantity, setQuantity] = useState(bufferZones.red + bufferZones.yellow);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const getTotalBuffer = () => {
-    return bufferZones.red + bufferZones.yellow + bufferZones.green;
+  const calculateDefaultQuantity = () => {
+    return bufferZones.red + bufferZones.yellow;
   };
 
-  const calculateSuggestedOrderQuantity = () => {
-    const totalBuffer = getTotalBuffer();
-    const netFlowPosition = item.onHand || 0;
-    let suggestedQuantity = Math.max(0, totalBuffer - netFlowPosition);
-    
-    // Round to nearest 5
-    suggestedQuantity = Math.ceil(suggestedQuantity / 5) * 5;
-    
-    return suggestedQuantity;
+  const handleOpen = () => {
+    setQuantity(calculateDefaultQuantity());
+    setOpen(true);
   };
 
-  // Set initial quantity based on buffer calculation
-  useState(() => {
-    setQuantity(calculateSuggestedOrderQuantity());
-  });
-
-  const handleSubmit = async () => {
-    if (!quantity || quantity <= 0) {
-      toast({
-        title: "Invalid quantity",
-        description: "Please enter a valid order quantity",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsSubmitting(true);
+
     try {
-      // Here you would typically make an API call to create the purchase order
-      // For now, we'll just simulate success
-      
-      toast({
-        title: "Purchase order created",
-        description: `Order for ${quantity} units of ${item.sku || item.product_id} has been created.`,
-      });
-      
-      if (onSuccess) {
-        onSuccess();
+      // Generate a PO number with format PO-{product}-{timestamp}
+      const timestamp = new Date().getTime();
+      const productId = item.product_id || item.sku || 'unknown';
+      const poNumber = `PO-${productId.substring(0, 8)}-${timestamp}`;
+
+      // Create a new PO record
+      const { data, error } = await supabase
+        .from('purchase_orders')
+        .insert({
+          po_number: poNumber,
+          sku: item.product_id || item.sku,
+          quantity: parseInt(quantity.toString()),
+          status: 'draft',
+          order_date: new Date().toISOString()
+        });
+
+      if (error) {
+        throw error;
       }
-      
+
+      // Close dialog and show success message
       setOpen(false);
-    } catch (error) {
       toast({
-        title: "Error creating purchase order",
-        description: "An unexpected error occurred. Please try again.",
+        title: "Purchase Order Created",
+        description: `Created PO: ${poNumber} for ${quantity} units`,
+      });
+
+      // Call success callback
+      onSuccess();
+    } catch (error) {
+      console.error('Error creating purchase order:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create purchase order. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -91,52 +92,58 @@ export function CreatePODialog({ item, bufferZones, onSuccess }: CreatePODialogP
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="h-8">
-          <ShoppingCart className="h-4 w-4 mr-2" />
-          Create PO
-        </Button>
+        <Button variant="outline" size="sm" onClick={handleOpen}>Create PO</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Create Purchase Order</DialogTitle>
           <DialogDescription>
-            Create a new purchase order for {item.sku || item.product_id}
+            Generate a purchase order for {item.product_id || item.sku}
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="sku" className="text-right">
-              SKU
-            </Label>
-            <Input id="sku" value={item.sku || item.product_id} className="col-span-3" readOnly />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="quantity" className="text-right">
-              Quantity
-            </Label>
-            <Input
-              id="quantity"
-              type="number"
-              min="1"
-              value={quantity}
-              onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
-              className="col-span-3"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Suggestion</Label>
-            <div className="col-span-3 text-sm text-muted-foreground">
-              Suggested order: {calculateSuggestedOrderQuantity()} units
-              (based on buffer levels)
+        <form onSubmit={handleSubmit}>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="sku" className="text-right">
+                SKU
+              </Label>
+              <Input
+                id="sku"
+                value={item.product_id || item.sku || ''}
+                className="col-span-3"
+                readOnly
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="quantity" className="text-right">
+                Quantity
+              </Label>
+              <Input
+                id="quantity"
+                type="number"
+                value={quantity}
+                onChange={(e) => setQuantity(parseInt(e.target.value))}
+                className="col-span-3"
+                min={1}
+                required
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <div className="text-right text-sm text-muted-foreground">
+                Suggested
+              </div>
+              <div className="col-span-3 text-sm">
+                {calculateDefaultQuantity()} units (Red + Yellow zones)
+              </div>
             </div>
           </div>
-        </div>
-        <DialogFooter>
-          <Button type="submit" onClick={handleSubmit} disabled={isSubmitting}>
-            {isSubmitting ? "Creating..." : "Create Order"}
-          </Button>
-        </DialogFooter>
+          <DialogFooter>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Creating..." : "Create Purchase Order"}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
-}
+};

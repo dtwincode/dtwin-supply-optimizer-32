@@ -27,7 +27,7 @@ interface NetFlowPosition {
 const calculateBufferZones = (item: InventoryItem): BufferZones => {
   try {
     // Use values directly from inventory_planning_view if available
-    if (item.safety_stock && item.min_stock_level) {
+    if (item.safety_stock !== undefined && item.min_stock_level !== undefined) {
       const redZone = Math.round(item.safety_stock);
       const yellowZone = Math.round(item.min_stock_level - item.safety_stock);
       const greenZone = Math.round(item.max_stock_level ? item.max_stock_level - item.min_stock_level : yellowZone * 0.5);
@@ -123,9 +123,9 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
         const bufferData: Record<string, any> = {};
         
         for (const item of paginatedData) {
-          if (!item || !item.id) continue;
-          
           const uniqueKey = item.id || `${item.product_id}-${item.location_id}`;
+          if (!uniqueKey) continue;
+          
           const bufferZones = calculateBufferZones(item);
           const netFlow = calculateNetFlowPosition(item);
           const bufferPenetration = calculateBufferPenetration(netFlow.netFlowPosition, bufferZones);
@@ -241,11 +241,18 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
             
           const criticality = item.decoupling_point ? "high" : "low";
           
+          // Create classification object
           const classification: Classification = {
             leadTimeCategory,
             variabilityLevel,
             criticality,
             score: item.max_stock_level || 0
+          };
+
+          // Apply classification if not already set
+          const itemWithClassification = {
+            ...item,
+            classification: item.classification || classification
           };
 
           return (
@@ -269,15 +276,15 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
                     </TableCell>
                     <TableCell>{item.location || item.location_id || "N/A"}</TableCell>
                     <TableCell>{item.productFamily || "N/A"}</TableCell>
-                    <TableCell>{classification.leadTimeCategory || "N/A"}</TableCell>
-                    <TableCell>{classification.variabilityLevel || "N/A"}</TableCell>
-                    <TableCell>{classification.criticality || "N/A"}</TableCell>
-                    <TableCell>{classification.score ?? "N/A"}</TableCell>
+                    <TableCell>{itemWithClassification.classification?.leadTimeCategory || "N/A"}</TableCell>
+                    <TableCell>{itemWithClassification.classification?.variabilityLevel || "N/A"}</TableCell>
+                    <TableCell>{itemWithClassification.classification?.criticality || "N/A"}</TableCell>
+                    <TableCell>{itemWithClassification.classification?.score ?? "N/A"}</TableCell>
                     <TableCell>
                       <CreatePODialog 
-                        item={item}
+                        item={itemWithClassification}
                         bufferZones={bufferData.bufferZones}
-                        onSuccess={() => onCreatePO(item)}
+                        onSuccess={() => onCreatePO(itemWithClassification)}
                       />
                     </TableCell>
                   </TableRow>

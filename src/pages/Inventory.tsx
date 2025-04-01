@@ -5,7 +5,7 @@ import { useI18n } from "@/contexts/I18nContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSearchParams } from "react-router-dom";
 import { Card } from "@/components/ui/card";
-import { InventoryItem, Classification } from "@/types/inventory";
+import { InventoryItem } from "@/types/inventory";
 import { useInventory } from "@/hooks/useInventory";
 import { DecouplingNetworkBoard } from "@/components/inventory/DecouplingNetworkBoard";
 import { InventoryTab } from "@/components/inventory/tabs/InventoryTab";
@@ -17,71 +17,42 @@ import { ThresholdManagement } from "@/components/inventory/ThresholdManagement"
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Package, Pin, Clock, BarChart } from "lucide-react";
-import { supabase } from "@/lib/supabaseClient";
+import { fetchLocationWithNames } from "@/lib/inventory-planning.service";
 import InventoryFilters from "@/components/inventory/InventoryFilters";
 
-// Function to transform database items to match InventoryItem interface
-const transformDatabaseItems = (items: any[]): InventoryItem[] => {
+// Function to merge item properties
+const mergeInventoryData = (items: InventoryItem[]): InventoryItem[] => {
   return items.map(item => {
-    // Create the classification object if data is available
-    const classification: Classification | undefined = 
-      item.classification || 
-      (item.leadTimeCategory || item.variabilityLevel || item.criticality) 
-        ? {
-            leadTimeCategory: item.leadTimeCategory || "medium",
-            variabilityLevel: item.variabilityLevel || "medium",
-            criticality: item.criticality || "medium",
-            score: item.score || 50
-          }
-        : undefined;
-        
+    // Generate a unique ID if not available
+    const id = item.id || `${item.product_id}-${item.location_id}`;
+    
+    // Create classification if not available
+    const classification = item.classification || {
+      leadTimeCategory: item.lead_time_days && item.lead_time_days > 30 
+        ? "long" 
+        : item.lead_time_days && item.lead_time_days > 15 
+        ? "medium" 
+        : "short",
+      variabilityLevel: item.demand_variability && item.demand_variability > 1 
+        ? "high" 
+        : item.demand_variability && item.demand_variability > 0.5 
+        ? "medium" 
+        : "low",
+      criticality: item.decoupling_point ? "high" : "low",
+      score: item.max_stock_level || 0
+    };
+    
     return {
-      id: item.id || item.inventory_id || "",
+      ...item,
+      id,
+      // Ensure sku and name are set
       sku: item.sku || item.product_id || "",
       name: item.name || item.product_id || "",
-      currentStock: item.quantity_on_hand || 0,
-      category: item.category || "",
-      subcategory: item.subcategory || "",
-      location: item.location || item.location_id || "",
-      location_id: item.location_id || "",
-      productFamily: item.productFamily || "",
-      region: item.region || "",
-      city: item.city || "",
-      channel: item.channel || "",
-      warehouse: item.warehouse || "",
+      // Ensure stock values are set
       onHand: item.onHand || item.quantity_on_hand || 0,
-      onOrder: item.onOrder || 0,
-      qualifiedDemand: item.qualifiedDemand || 0,
-      netFlowPosition: item.netFlowPosition || 0,
-      adu: item.adu || item.average_daily_usage || 0,
-      average_daily_usage: item.average_daily_usage || item.adu || 0,
-      leadTimeDays: item.leadTimeDays || item.lead_time_days || 0,
-      lead_time_days: item.lead_time_days || item.leadTimeDays || 0,
-      variabilityFactor: item.variabilityFactor || item.demand_variability || 0,
-      demand_variability: item.demand_variability || item.variabilityFactor || 0,
-      redZoneSize: item.redZoneSize || 0,
-      yellowZoneSize: item.yellowZoneSize || 0,
-      greenZoneSize: item.greenZoneSize || 0,
-      bufferPenetration: item.bufferPenetration || 0,
-      planningPriority: item.planningPriority || "",
-      decouplingPointId: item.decouplingPointId || "",
-      
-      // Additional properties for database compatibility
-      inventory_id: item.inventory_id || "",
-      product_id: item.product_id || "",
-      quantity_on_hand: item.quantity_on_hand || 0,
-      reserved_qty: item.reserved_qty || 0,
-      available_qty: item.available_qty || 0,
-      last_updated: item.last_updated || "",
-      buffer_profile_id: item.buffer_profile_id || "",
-      decoupling_point: item.decoupling_point || false,
-      
-      // Safety stock and min_stock_level from inventory_planning_view
-      safety_stock: item.safety_stock || 0,
-      min_stock_level: item.min_stock_level || 0,
-      max_stock_level: item.max_stock_level || 0,
-      
-      // Classification data
+      currentStock: item.currentStock || item.quantity_on_hand || 0,
+      // Standardize location
+      location: item.location || item.location_id || "",
       classification
     };
   });
@@ -92,22 +63,39 @@ function Inventory() {
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = searchParams.get("tab") || "buffer";
   const { toast } = useToast();
-  const [tourOpen, setTourOpen] = useState(false);
   const [classified, setClassified] = useState<InventoryItem[]>([]);
   const [locationFilter, setLocationFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [locations, setLocations] = useState<{id: string, name: string}[]>([]);
   
   // Use the custom hook with default values
-  const { items, loading, error, pagination, paginate, refreshData } = useInventory();
+  const { items, loading, error, pagination, paginate, refreshData } = useInventory(1, 10, searchQuery, locationFilter);
   const [paginatedData, setPaginatedData] = useState<InventoryItem[]>([]);
 
-  // Transform database items and classify them
+  // Load locations for filter dropdown
+  useEffect(() => {
+    const loadLocations = async () => {
+      try {
+        const locationData = await fetchLocationWithNames();
+        setLocations([
+          { id: 'all', name: 'All Locations' },
+          ...locationData
+        ]);
+      } catch (err) {
+        console.error('Error loading locations:', err);
+      }
+    };
+    
+    loadLocations();
+  }, []);
+
+  // Process and format inventory data
   useEffect(() => {
     if (items && items.length > 0) {
-      const transformedItems = transformDatabaseItems(items);
-      setClassified(transformedItems);
-      setPaginatedData(transformedItems);
+      const processedItems = mergeInventoryData(items);
+      setClassified(processedItems);
+      setPaginatedData(processedItems);
     } else if (!loading && items.length === 0) {
-      // No fallback to mock data - just show empty state
       setClassified([]);
       setPaginatedData([]);
     }
@@ -127,16 +115,10 @@ function Inventory() {
 
   const handleLocationChange = (location: string) => {
     setLocationFilter(location);
-    
-    // Filter the data based on the selected location
-    if (location) {
-      const filtered = classified.filter(item => 
-        item.location === location || item.location_id === location
-      );
-      setPaginatedData(filtered);
-    } else {
-      setPaginatedData(classified);
-    }
+  };
+
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
   };
 
   const handleRefresh = async () => {
@@ -174,8 +156,8 @@ function Inventory() {
 
         <div className="mb-6">
           <InventoryFilters 
-            searchQuery=""
-            setSearchQuery={() => {}}
+            searchQuery={searchQuery}
+            setSearchQuery={handleSearchChange}
             selectedLocationId={locationFilter}
             setSelectedLocationId={handleLocationChange}
           />
