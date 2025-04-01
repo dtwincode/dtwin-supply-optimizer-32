@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,6 +21,7 @@ import { useThresholdConfig } from "@/hooks/useThresholdConfig";
 import { useInventoryData } from "@/hooks/useInventoryData";
 import { InventoryItem } from "@/types/inventory";
 import { ArrowUpCircle, ArrowDownCircle, AlertTriangle, Info } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
 
 export const InventoryInsightsCard = () => {
   const { theme } = useTheme();
@@ -31,12 +31,35 @@ export const InventoryInsightsCard = () => {
   
   const [bufferDistribution, setBufferDistribution] = useState<any[]>([]);
   const [serviceDistribution, setServiceDistribution] = useState<any[]>([]);
+  const [performanceData, setPerformanceData] = useState<any[]>([]);
+  const [isLoadingPerformance, setIsLoadingPerformance] = useState(true);
   
-  // Calculate insights from the inventory data
+  useEffect(() => {
+    const fetchPerformanceData = async () => {
+      try {
+        setIsLoadingPerformance(true);
+        const { data, error } = await supabase
+          .from('performance_tracking')
+          .select('*')
+          .order('period_month', { ascending: false })
+          .limit(6);
+          
+        if (error) throw error;
+        
+        setPerformanceData(data || []);
+      } catch (err) {
+        console.error("Error fetching performance data:", err);
+      } finally {
+        setIsLoadingPerformance(false);
+      }
+    };
+    
+    fetchPerformanceData();
+  }, []);
+  
   useEffect(() => {
     if (itemsLoading || !items) return;
     
-    // Calculate buffer penetration distribution
     const bufferGroups = {
       critical: 0,
       high: 0,
@@ -54,7 +77,6 @@ export const InventoryInsightsCard = () => {
     };
     
     items.forEach((item: InventoryItem) => {
-      // Buffer classification
       if (item.bufferPenetration) {
         if (item.bufferPenetration > 90) bufferGroups.critical++;
         else if (item.bufferPenetration > 70) bufferGroups.high++;
@@ -65,7 +87,6 @@ export const InventoryInsightsCard = () => {
         bufferGroups.unknown++;
       }
       
-      // Service level classification
       if (item.serviceLevel) {
         if (item.serviceLevel > 98) serviceGroups.excellent++;
         else if (item.serviceLevel > 95) serviceGroups.good++;
@@ -98,7 +119,6 @@ export const InventoryInsightsCard = () => {
     
     const recommendations = [];
     
-    // Count items with high buffer penetration
     const criticalItems = items.filter(item => 
       item.bufferPenetration && item.bufferPenetration > 80
     );
@@ -111,24 +131,28 @@ export const InventoryInsightsCard = () => {
       });
     }
     
-    // Get low service level items
-    const lowServiceItems = items.filter(item => 
-      item.serviceLevel && item.serviceLevel < 90
+    const lowServiceLevelLocations = performanceData.filter(item => 
+      item.service_level && item.service_level < 90
     );
     
-    if (lowServiceItems.length > 0) {
+    if (lowServiceLevelLocations.length > 0) {
       recommendations.push({
         type: "warning",
-        message: `${lowServiceItems.length} items have service levels below target. Consider buffer adjustments.`,
+        message: `${lowServiceLevelLocations.length} locations have service levels below target. Consider buffer adjustments.`,
         icon: <ArrowUpCircle className="h-5 w-5 text-amber-500" />
       });
     }
     
-    // Add Bayesian threshold recommendation
     if (config && config.first_time_adjusted) {
       recommendations.push({
         type: "info",
-        message: `Bayesian threshold values updated. Variability threshold: ${config.demand_variability_threshold}, Decoupling threshold: ${config.decoupling_threshold}`,
+        message: `Bayesian threshold values updated. Variability threshold: ${config.demand_variability_threshold.toFixed(2)}, Decoupling threshold: ${config.decoupling_threshold.toFixed(2)}`,
+        icon: <Info className="h-5 w-5 text-blue-500" />
+      });
+    } else if (config) {
+      recommendations.push({
+        type: "info",
+        message: `Using default threshold values. Variability: ${config.demand_variability_threshold.toFixed(2)}, Decoupling: ${config.decoupling_threshold.toFixed(2)}. Run Bayesian updating to optimize.`,
         icon: <Info className="h-5 w-5 text-blue-500" />
       });
     }
@@ -146,7 +170,17 @@ export const InventoryInsightsCard = () => {
     gray: theme === 'dark' ? '#9ca3af' : '#6b7280'
   };
   
-  // Sample simulated Monte Carlo data
+  const getPerformanceData = () => {
+    if (!performanceData || performanceData.length === 0) return [];
+    
+    return performanceData.map(item => ({
+      month: new Date(item.period_month).toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
+      serviceLevel: item.service_level,
+      stockouts: item.stockout_count,
+      overstocks: item.overstock_count
+    })).reverse();
+  };
+  
   const monteCarloData = [
     { name: 'P10', sku1: 120, sku2: 180, sku3: 220 },
     { name: 'P25', sku1: 150, sku2: 200, sku3: 250 },
@@ -155,7 +189,7 @@ export const InventoryInsightsCard = () => {
     { name: 'P90', sku1: 250, sku2: 300, sku3: 410 },
   ];
   
-  if (itemsLoading || configLoading) {
+  if (itemsLoading || configLoading || isLoadingPerformance) {
     return (
       <Card>
         <CardHeader>
@@ -201,7 +235,7 @@ export const InventoryInsightsCard = () => {
         <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="mt-2">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="buffer">Buffer Analysis</TabsTrigger>
-            <TabsTrigger value="monte-carlo">Monte Carlo</TabsTrigger>
+            <TabsTrigger value="performance">Performance</TabsTrigger>
             <TabsTrigger value="thresholds">Bayesian Thresholds</TabsTrigger>
           </TabsList>
           
@@ -229,40 +263,40 @@ export const InventoryInsightsCard = () => {
             </div>
           </TabsContent>
           
-          <TabsContent value="monte-carlo" className="pt-4">
-            <h3 className="text-sm font-medium mb-3">Monte Carlo Safety Stock Simulation</h3>
+          <TabsContent value="performance" className="pt-4">
+            <h3 className="text-sm font-medium mb-3">Service Level Performance</h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
-                  data={monteCarloData}
+                  data={getPerformanceData()}
                   margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                  <XAxis dataKey="name" />
+                  <XAxis dataKey="month" />
                   <YAxis />
                   <Tooltip />
                   <Legend />
                   <Line 
                     type="monotone" 
-                    dataKey="sku1" 
-                    name="High Var SKU" 
+                    dataKey="serviceLevel" 
+                    name="Service Level %" 
+                    stroke={chartColors.green} 
+                    strokeWidth={2} 
+                    dot={{ r: 4 }} 
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="stockouts" 
+                    name="Stockouts" 
                     stroke={chartColors.red} 
                     strokeWidth={2} 
                     dot={{ r: 4 }} 
                   />
                   <Line 
                     type="monotone" 
-                    dataKey="sku2" 
-                    name="Medium Var SKU" 
+                    dataKey="overstocks" 
+                    name="Overstocks" 
                     stroke={chartColors.yellow} 
-                    strokeWidth={2} 
-                    dot={{ r: 4 }} 
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="sku3" 
-                    name="Low Var SKU" 
-                    stroke={chartColors.green} 
                     strokeWidth={2} 
                     dot={{ r: 4 }} 
                   />

@@ -6,10 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useThresholdConfig } from "@/hooks/useThresholdConfig";
+import { RefreshCw } from "lucide-react";
 
 export function ThresholdManagement() {
   const { toast } = useToast();
-  const { config, loading, updateThresholdConfig } = useThresholdConfig();
+  const { config, loading, updateThresholdConfig, triggerBayesianUpdate } = useThresholdConfig();
   
   const [demandVariabilityThreshold, setDemandVariabilityThreshold] = useState<number>(
     config?.demand_variability_threshold || 0.6
@@ -18,6 +19,7 @@ export function ThresholdManagement() {
     config?.decoupling_threshold || 0.75
   );
   const [isSaving, setIsSaving] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   // Update local state when config loads
   if (config && !loading && demandVariabilityThreshold === 0.6 && config.demand_variability_threshold !== 0.6) {
@@ -55,6 +57,32 @@ export function ThresholdManagement() {
       });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleBayesianUpdate = async () => {
+    try {
+      setIsUpdating(true);
+      
+      const success = await triggerBayesianUpdate();
+      
+      if (success) {
+        toast({
+          title: "Bayesian Update Complete",
+          description: "Thresholds have been updated based on performance data.",
+        });
+      } else {
+        throw new Error("Failed to run Bayesian update");
+      }
+    } catch (error) {
+      console.error("Error running Bayesian update:", error);
+      toast({
+        title: "Error",
+        description: "Failed to run Bayesian update. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -105,13 +133,31 @@ export function ThresholdManagement() {
           </p>
         </div>
 
-        <Button 
-          onClick={handleSaveThresholds} 
-          className="w-full"
-          disabled={loading || isSaving}
-        >
-          {isSaving ? "Saving..." : "Save Thresholds"}
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Button 
+            onClick={handleSaveThresholds} 
+            className="flex-1"
+            disabled={loading || isSaving || isUpdating}
+          >
+            {isSaving ? "Saving..." : "Save Thresholds"}
+          </Button>
+          
+          <Button 
+            onClick={handleBayesianUpdate}
+            variant="outline"
+            className="flex-1"
+            disabled={loading || isSaving || isUpdating}
+          >
+            {isUpdating ? (
+              <>
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                Updating...
+              </>
+            ) : (
+              "Run Bayesian Update"
+            )}
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

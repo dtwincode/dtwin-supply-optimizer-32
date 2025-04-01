@@ -32,7 +32,6 @@ export const useThresholdConfig = () => {
         if (data && data.length > 0) {
           setConfig(data[0] as ThresholdConfig);
         } else {
-          // No config exists yet, we could create a default one
           console.log('No threshold config found');
         }
         
@@ -98,5 +97,40 @@ export const useThresholdConfig = () => {
     }
   };
 
-  return { config, loading, error, updateThresholdConfig };
+  // Function to trigger the Bayesian update using the existing performance_tracking table
+  const triggerBayesianUpdate = async () => {
+    try {
+      setLoading(true);
+      
+      // Call a stored procedure or edge function that will update thresholds
+      // based on performance_tracking data instead of inventory_performance_metrics
+      const { error } = await supabase.rpc('update_threshold_bayesian');
+      
+      if (error) throw error;
+      
+      // Refetch the updated config
+      const { data, error: fetchError } = await supabase
+        .from('threshold_config')
+        .select('*')
+        .order('id', { ascending: false })
+        .limit(1);
+        
+      if (fetchError) throw fetchError;
+      
+      if (data && data.length > 0) {
+        setConfig(data[0] as ThresholdConfig);
+      }
+      
+      setError(null);
+      return true;
+    } catch (err) {
+      console.error('Error triggering Bayesian update:', err);
+      setError(err instanceof Error ? err : new Error('Unknown error occurred'));
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { config, loading, error, updateThresholdConfig, triggerBayesianUpdate };
 };
