@@ -1,6 +1,11 @@
-import { supabase } from "./supabaseClient";
+import { createClient } from "@supabase/supabase-js";
+import { InventoryPlanningItem } from "@/types/inventory/planningTypes";
 
-export async function fetchInventoryPlanningView() {
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+export async function fetchInventoryPlanningView(): Promise<InventoryPlanningItem[]> {
   const { data, error } = await supabase
     .from("inventory_planning_view")
     .select("*");
@@ -10,5 +15,5 @@ export async function fetchInventoryPlanningView() {
     return [];
   }
 
-  return data;
+  return data as InventoryPlanningItem[];
 }
