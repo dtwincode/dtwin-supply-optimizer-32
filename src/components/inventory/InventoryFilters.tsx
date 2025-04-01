@@ -4,12 +4,17 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useI18n } from "@/contexts/I18nContext";
 import { fetchLocationWithNames } from "@/lib/inventory-planning.service";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { AlertTriangle } from "lucide-react";
 
 export interface InventoryFiltersProps {
   searchQuery: string;
   setSearchQuery: (value: string) => void;
   selectedLocationId: string;
   setSelectedLocationId: (value: string) => void;
+  priorityOnly?: boolean;
+  setPriorityOnly?: (value: boolean) => void;
 }
 
 const InventoryFilters = ({
@@ -17,6 +22,8 @@ const InventoryFilters = ({
   setSearchQuery,
   selectedLocationId,
   setSelectedLocationId,
+  priorityOnly = false,
+  setPriorityOnly
 }: InventoryFiltersProps) => {
   const { t } = useI18n();
   const [locations, setLocations] = useState<{ id: string; name: string }[]>([]);
@@ -46,7 +53,7 @@ const InventoryFilters = ({
   }, []);
 
   return (
-    <div className="flex gap-2 items-center">
+    <div className="flex flex-wrap gap-4 items-center">
       <Input
         placeholder={t("common.inventory.searchProducts")}
         value={searchQuery}
@@ -70,6 +77,20 @@ const InventoryFilters = ({
           ))}
         </SelectContent>
       </Select>
+
+      {setPriorityOnly && (
+        <div className="flex items-center space-x-2">
+          <Switch 
+            id="priority-filter" 
+            checked={priorityOnly}
+            onCheckedChange={setPriorityOnly}
+          />
+          <Label htmlFor="priority-filter" className="flex items-center cursor-pointer">
+            <AlertTriangle className="h-4 w-4 mr-1 text-amber-500" />
+            Show Priority Items Only
+          </Label>
+        </div>
+      )}
     </div>
   );
 };

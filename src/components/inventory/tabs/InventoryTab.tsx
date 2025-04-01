@@ -4,20 +4,29 @@ import { useI18n } from "@/contexts/I18nContext";
 import { InventoryItem } from "@/types/inventory";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Download, Filter } from "lucide-react";
+import { RefreshCw, Download, Filter, AlertTriangle } from "lucide-react";
 import { EnhancedInventoryTable } from "../EnhancedInventoryTable";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Pagination } from "@/components/Pagination";
 
 interface InventoryTabProps {
   paginatedData: InventoryItem[];
   onRefresh?: () => Promise<void>;
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
+  };
 }
 
-export const InventoryTab = ({ paginatedData, onRefresh }: InventoryTabProps) => {
+export const InventoryTab = ({ paginatedData, onRefresh, pagination }: InventoryTabProps) => {
   const { t } = useI18n();
   const { toast } = useToast();
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showPriorityOnly, setShowPriorityOnly] = useState(false);
   const [activeView, setActiveView] = useState<'table' | 'card'>('table');
 
   const handleRefresh = async () => {
@@ -100,6 +109,15 @@ export const InventoryTab = ({ paginatedData, onRefresh }: InventoryTabProps) =>
     }
   };
 
+  const getPriorityCount = () => {
+    return paginatedData.filter(item => {
+      const stockRatio = item.quantity_on_hand && item.max_stock_level 
+        ? item.quantity_on_hand / item.max_stock_level 
+        : 1;
+      return stockRatio < 0.5;  
+    }).length;
+  };
+
   if (!paginatedData || paginatedData.length === 0) {
     return (
       <Card>
@@ -125,6 +143,8 @@ export const InventoryTab = ({ paginatedData, onRefresh }: InventoryTabProps) =>
       </Card>
     );
   }
+
+  const priorityCount = getPriorityCount();
 
   return (
     <Card>
@@ -162,7 +182,7 @@ export const InventoryTab = ({ paginatedData, onRefresh }: InventoryTabProps) =>
               <Filter className="h-4 w-4 mr-1" />
               Buffer Visualization Guide
             </h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
               <div className="flex items-center">
                 <div className="w-4 h-4 rounded bg-red-200 mr-2"></div>
                 <span className="text-gray-700">Red Zone (Safety Stock)</span>
@@ -175,17 +195,46 @@ export const InventoryTab = ({ paginatedData, onRefresh }: InventoryTabProps) =>
                 <div className="w-4 h-4 rounded bg-green-200 mr-2"></div>
                 <span className="text-gray-700">Green Zone (Max-Min)</span>
               </div>
+              <div className="flex items-center justify-end">
+                <div className="flex items-center space-x-2">
+                  <Switch 
+                    id="priority-mode" 
+                    checked={showPriorityOnly} 
+                    onCheckedChange={(checked) => setShowPriorityOnly(checked)}
+                  />
+                  <Label htmlFor="priority-mode" className="flex items-center">
+                    <AlertTriangle className="h-4 w-4 mr-1 text-amber-500" />
+                    Priority Mode
+                    {priorityCount > 0 && (
+                      <span className="ml-1 text-xs bg-amber-500 text-white px-1.5 py-0.5 rounded-full">
+                        {priorityCount}
+                      </span>
+                    )}
+                  </Label>
+                </div>
+              </div>
             </div>
           </div>
 
           <Separator />
           
-          <EnhancedInventoryTable data={paginatedData} />
+          <EnhancedInventoryTable data={paginatedData} priorityHighlight={showPriorityOnly} />
+          
+          {pagination && pagination.totalPages > 1 && (
+            <div className="flex justify-center mt-4">
+              <Pagination
+                currentPage={pagination.currentPage}
+                totalPages={pagination.totalPages}
+                onPageChange={pagination.onPageChange}
+              />
+            </div>
+          )}
         </div>
       </CardContent>
       <CardFooter className="border-t flex justify-between py-4">
         <div className="text-sm text-muted-foreground">
           Showing {paginatedData.length} items
+          {showPriorityOnly && priorityCount > 0 && ` (${priorityCount} priority items)`}
         </div>
       </CardFooter>
     </Card>

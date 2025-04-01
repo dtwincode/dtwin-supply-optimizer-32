@@ -57,6 +57,7 @@ function Inventory() {
   const [classified, setClassified] = useState<InventoryItem[]>([]);
   const [locationFilter, setLocationFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [priorityOnly, setPriorityOnly] = useState(false);
   const [locations, setLocations] = useState<{
     id: string;
     name: string;
@@ -69,7 +70,7 @@ function Inventory() {
     pagination,
     paginate,
     refreshData
-  } = useInventory(1, 10, searchQuery, locationFilter);
+  } = useInventory(1, 25, searchQuery, locationFilter, priorityOnly);
   const [paginatedData, setPaginatedData] = useState<InventoryItem[]>([]);
 
   useEffect(() => {
@@ -112,6 +113,10 @@ function Inventory() {
     setSearchQuery(query);
   };
 
+  const handlePriorityChange = (showPriority: boolean) => {
+    setPriorityOnly(showPriority);
+  };
+
   const handleRefresh = async () => {
     try {
       await refreshData();
@@ -128,6 +133,13 @@ function Inventory() {
     }
   };
 
+  // Calculate pagination details for the InventoryTab
+  const paginationProps = {
+    currentPage: pagination.page,
+    totalPages: pagination.total,
+    onPageChange: paginate
+  };
+
   return <DashboardLayout>
       <div className="container mx-auto py-6 space-y-8">
         <PageHeader title={t("navigation.inventory")} description="Manage and monitor inventory across all your locations using inventory buffers and decoupling points.">
@@ -139,7 +151,14 @@ function Inventory() {
         <Separator className="my-6" />
 
         <div className="mb-6">
-          <InventoryFilters searchQuery={searchQuery} setSearchQuery={handleSearchChange} selectedLocationId={locationFilter} setSelectedLocationId={handleLocationChange} />
+          <InventoryFilters 
+            searchQuery={searchQuery} 
+            setSearchQuery={handleSearchChange} 
+            selectedLocationId={locationFilter} 
+            setSelectedLocationId={handleLocationChange}
+            priorityOnly={priorityOnly}
+            setPriorityOnly={handlePriorityChange}
+          />
         </div>
 
         <Tabs value={tab} onValueChange={handleTabChange}>
@@ -163,7 +182,11 @@ function Inventory() {
           </TabsList>
 
           <TabsContent value="buffer">
-            <InventoryTab paginatedData={paginatedData} onRefresh={handleRefresh} />
+            <InventoryTab 
+              paginatedData={paginatedData} 
+              onRefresh={handleRefresh} 
+              pagination={paginationProps}
+            />
           </TabsContent>
 
           <TabsContent value="decoupling">

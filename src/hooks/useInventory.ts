@@ -5,7 +5,13 @@ import { PaginationState } from '@/types/inventory/index';
 import { fetchInventoryPlanningView } from '@/lib/inventory-planning.service';
 import { useToast } from '@/hooks/use-toast';
 
-export const useInventory = (initialPage = 1, initialLimit = 10, searchQuery = '', locationId = '') => {
+export const useInventory = (
+  initialPage = 1, 
+  initialLimit = 10, 
+  searchQuery = '', 
+  locationId = '',
+  priorityOnly = false
+) => {
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -27,7 +33,8 @@ export const useInventory = (initialPage = 1, initialLimit = 10, searchQuery = '
         // Fetch items from the inventory_planning_view
         const filters = {
           searchQuery: searchQuery,
-          locationId: locationId !== 'all' ? locationId : undefined
+          locationId: locationId !== 'all' ? locationId : undefined,
+          priorityOnly: priorityOnly
         };
         
         console.log("Fetching inventory data with filters:", filters);
@@ -36,17 +43,32 @@ export const useInventory = (initialPage = 1, initialLimit = 10, searchQuery = '
         if (planningViewData.length > 0) {
           console.log("Successfully fetched inventory data:", planningViewData.length, "items");
           
+          // Sort by priority if needed
+          let sortedData = [...planningViewData];
+          if (priorityOnly) {
+            // Sort by buffer penetration level (highest penetration first)
+            sortedData = sortedData.sort((a, b) => {
+              const aPenetration = a.quantity_on_hand && a.max_stock_level 
+                ? (a.quantity_on_hand / a.max_stock_level) 
+                : 1;
+              const bPenetration = b.quantity_on_hand && b.max_stock_level 
+                ? (b.quantity_on_hand / b.max_stock_level) 
+                : 1;
+              return aPenetration - bPenetration;
+            });
+          }
+          
           // Handle pagination
           const startIndex = (pagination.page - 1) * pagination.limit;
           const endIndex = startIndex + pagination.limit;
-          const paginatedItems = planningViewData.slice(startIndex, endIndex);
+          const paginatedItems = sortedData.slice(startIndex, endIndex);
           
           setItems(paginatedItems);
           
           setPagination(prev => ({
             ...prev,
-            total: Math.ceil(planningViewData.length / pagination.limit),
-            totalItems: planningViewData.length
+            total: Math.ceil(sortedData.length / pagination.limit),
+            totalItems: sortedData.length
           }));
         } else {
           console.log("No inventory data found");
@@ -72,7 +94,7 @@ export const useInventory = (initialPage = 1, initialLimit = 10, searchQuery = '
     };
 
     fetchItems();
-  }, [pagination.page, pagination.limit, searchQuery, locationId, toast]);
+  }, [pagination.page, pagination.limit, searchQuery, locationId, priorityOnly, toast]);
 
   const paginate = (page: number, limit: number = pagination.limit) => {
     setPagination({
@@ -89,26 +111,42 @@ export const useInventory = (initialPage = 1, initialLimit = 10, searchQuery = '
     try {
       const planningViewData = await fetchInventoryPlanningView({
         searchQuery,
-        locationId: locationId !== 'all' ? locationId : undefined
+        locationId: locationId !== 'all' ? locationId : undefined,
+        priorityOnly
       });
       
-      if (planningViewData.length > 0) {
+      // Sort by priority if needed
+      let sortedData = [...planningViewData];
+      if (priorityOnly) {
+        // Sort by buffer penetration level (highest penetration first)
+        sortedData = sortedData.sort((a, b) => {
+          const aPenetration = a.quantity_on_hand && a.max_stock_level 
+            ? (a.quantity_on_hand / a.max_stock_level) 
+            : 1;
+          const bPenetration = b.quantity_on_hand && b.max_stock_level 
+            ? (b.quantity_on_hand / b.max_stock_level) 
+            : 1;
+          return aPenetration - bPenetration;
+        });
+      }
+      
+      if (sortedData.length > 0) {
         // Handle pagination
         const startIndex = (pagination.page - 1) * pagination.limit;
         const endIndex = startIndex + pagination.limit;
-        const paginatedItems = planningViewData.slice(startIndex, endIndex);
+        const paginatedItems = sortedData.slice(startIndex, endIndex);
         
         setItems(paginatedItems);
         
         setPagination(prev => ({
           ...prev,
-          total: Math.ceil(planningViewData.length / prev.limit),
-          totalItems: planningViewData.length
+          total: Math.ceil(sortedData.length / prev.limit),
+          totalItems: sortedData.length
         }));
         
         toast({
           title: "Data refreshed",
-          description: `Loaded ${planningViewData.length} inventory items.`,
+          description: `Loaded ${sortedData.length} inventory items.`,
         });
       } else {
         setItems([]);

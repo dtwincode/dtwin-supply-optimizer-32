@@ -33,12 +33,7 @@ import { supabase } from "@/lib/supabaseClient";
 interface EnhancedInventoryTableProps {
   data: InventoryItem[];
   className?: string;
-}
-
-interface ProductDetails {
-  product_id: string;
-  name: string;
-  product_family: string;
+  priorityHighlight?: boolean;
 }
 
 const BufferVisualizer = ({ 
@@ -129,8 +124,8 @@ const formatScore = (score: number) => {
   return { text: "Low", color: "text-green-500" };
 };
 
-export function EnhancedInventoryTable({ data, className }: EnhancedInventoryTableProps) {
-  const [productDetails, setProductDetails] = useState<Record<string, ProductDetails>>({});
+export function EnhancedInventoryTable({ data, className, priorityHighlight = false }: EnhancedInventoryTableProps) {
+  const [productDetails, setProductDetails] = useState<Record<string, { product_id: string, name: string, product_family: string }>>({});
   
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -148,7 +143,7 @@ export function EnhancedInventoryTable({ data, className }: EnhancedInventoryTab
         if (error) throw error;
         
         // Create a lookup map for easy access
-        const productMap: Record<string, ProductDetails> = {};
+        const productMap: Record<string, { product_id: string, name: string, product_family: string }> = {};
         products.forEach(product => {
           productMap[product.product_id] = product;
         });
@@ -172,6 +167,13 @@ export function EnhancedInventoryTable({ data, className }: EnhancedInventoryTab
     );
   }
   
+  const isPriority = (item: InventoryItem) => {
+    const stockRatio = item.quantity_on_hand && item.max_stock_level 
+      ? item.quantity_on_hand / item.max_stock_level 
+      : 1;
+    return stockRatio < 0.5;
+  };
+  
   return (
     <TooltipProvider>
       <div className={`rounded-md border ${className}`}>
@@ -179,6 +181,7 @@ export function EnhancedInventoryTable({ data, className }: EnhancedInventoryTab
           <Table>
             <TableHeader className="bg-gray-50">
               <TableRow className="hover:bg-gray-50">
+                <TableHead className="font-semibold">Status</TableHead>
                 <TableHead className="font-semibold">SKU / Name</TableHead>
                 <TableHead className="font-semibold">
                   <div className="flex items-center gap-1">
@@ -210,22 +213,40 @@ export function EnhancedInventoryTable({ data, className }: EnhancedInventoryTab
                     <span>Variability</span>
                   </div>
                 </TableHead>
-                <TableHead className="font-semibold">Safety Stock</TableHead>
-                <TableHead className="font-semibold">Min Level</TableHead>
-                <TableHead className="font-semibold">Max Level</TableHead>
                 <TableHead className="font-semibold">Location</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data.map((item, index) => {
-                const productDetail = productDetails[item.product_id] || { name: 'Unknown', product_family: 'Unknown' };
+                const productDetail = productDetails[item.product_id] || { name: 'Unknown', product_family: 'Unknown', product_id: item.product_id };
                 const hasProductDetail = item.product_id in productDetails;
+                const itemIsPriority = isPriority(item);
+                const rowHighlightClass = priorityHighlight && itemIsPriority ? 'bg-amber-50' : (index % 2 === 0 ? 'bg-white' : 'bg-gray-50');
                 
                 return (
                   <TableRow 
                     key={item.id || index} 
-                    className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} transition-colors hover:bg-blue-50`}
+                    className={`${rowHighlightClass} transition-colors hover:bg-blue-50`}
                   >
+                    <TableCell>
+                      {itemIsPriority ? (
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300 flex items-center gap-1">
+                              <AlertTriangle className="h-3 w-3" />
+                              <span>Priority</span>
+                            </Badge>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>This item needs attention - stock level is below 50%</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      ) : (
+                        <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
+                          Normal
+                        </Badge>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <div>
                         <div className="font-medium">{item.product_id}</div>
@@ -237,7 +258,7 @@ export function EnhancedInventoryTable({ data, className }: EnhancedInventoryTab
                     <TableCell>
                       {hasProductDetail ? (
                         <Badge variant="outline" className="bg-blue-50">
-                          {productDetail.product_family}
+                          {productDetail.product_family || item.productFamily || "Unknown"}
                         </Badge>
                       ) : (
                         <span className="text-gray-400">Loading...</span>
@@ -304,21 +325,6 @@ export function EnhancedInventoryTable({ data, className }: EnhancedInventoryTab
                           : "Low"} 
                         ({item.demand_variability?.toFixed(2) || 0})
                       </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <span className="font-medium">
-                        {item.safety_stock || 0}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="font-medium">
-                        {item.min_stock_level || 0}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="font-medium">
-                        {item.max_stock_level || 0}
-                      </span>
                     </TableCell>
                     <TableCell>
                       <Badge>

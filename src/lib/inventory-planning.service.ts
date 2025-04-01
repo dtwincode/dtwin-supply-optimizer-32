@@ -7,6 +7,7 @@ export async function fetchInventoryPlanningView(filters?: {
   locationId?: string;
   bufferProfileId?: string;
   decouplingPointsOnly?: boolean;
+  priorityOnly?: boolean;
 }): Promise<InventoryItem[]> {
   try {
     console.log("Fetching inventory planning view with filters:", filters);
@@ -68,6 +69,17 @@ export async function fetchInventoryPlanningView(filters?: {
         .eq('product_id', item.product_id)
         .eq('location_id', item.location_id)
         .maybeSingle();
+
+      // Calculate buffer penetration for priority filtering
+      const currentStock = inventoryData?.quantity_on_hand || 0;
+      const maxLevel = item.max_stock_level || 1;
+      const bufferPenetration = (currentStock / maxLevel) * 100;
+      const isPriority = bufferPenetration < 50; // Items below 50% buffer level are considered priority
+
+      // Skip non-priority items if priorityOnly filter is active
+      if (filters?.priorityOnly && !isPriority) {
+        continue;
+      }
       
       // Create the transformed item with all required fields
       const inventoryItem: InventoryItem = {
@@ -102,13 +114,20 @@ export async function fetchInventoryPlanningView(filters?: {
         available_qty: inventoryData?.available_qty || 0,
         reserved_qty: inventoryData?.reserved_qty || 0,
         
+        // Priority data
+        bufferPenetration: bufferPenetration,
+        planningPriority: isPriority ? 'high' : 'normal',
+        
         // Classification 
         classification: {
           leadTimeCategory: item.lead_time_days > 30 ? "long" : item.lead_time_days > 15 ? "medium" : "short",
           variabilityLevel: item.demand_variability > 1 ? "high" : item.demand_variability > 0.5 ? "medium" : "low",
           criticality: item.decoupling_point ? "high" : "low",
           score: item.max_stock_level || 0
-        }
+        },
+        
+        // Product details
+        productFamily: productData?.product_family || ''
       };
       
       transformedData.push(inventoryItem);
