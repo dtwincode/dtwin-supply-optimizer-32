@@ -12,7 +12,8 @@ import {
   Database, 
   BookOpen, 
   ShoppingCart,
-  Gift
+  Gift,
+  BadgeCheck
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -23,7 +24,13 @@ const navigationItems = [
   { name: "navigationItems.dashboard", icon: Home, href: "/" },
   { name: "navigationItems.ddsop", icon: Layers, href: "/ddsop" },
   { name: "navigationItems.forecasting", icon: TrendingUp, href: "/forecasting" },
-  { name: "navigationItems.inventory", icon: Package, href: "/inventory" },
+  { 
+    name: "navigationItems.inventory", 
+    icon: Package, 
+    href: "/inventory",
+    badge: "Phase 7", 
+    badgeColor: "bg-green-600"
+  },
   { name: "navigationItems.supplyPlanning", icon: ShoppingCart, href: "/supply-planning" },
   { name: "navigationItems.salesPlanning", icon: LineChart, href: "/sales-and-returns" },
   { name: "navigationItems.marketing", icon: Gift, href: "/marketing" },
@@ -57,7 +64,12 @@ const Navigation = memo(({ language, isRTL }: NavigationProps) => {
           )}
         >
           <item.icon className={`h-4 w-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
-          {t(item.name)}
+          <span className="flex-1">{t(item.name)}</span>
+          {item.badge && (
+            <span className={`text-[10px] px-1.5 py-0.5 rounded-full text-white ${item.badgeColor || 'bg-dtwin-medium'} ml-2`}>
+              {item.badge}
+            </span>
+          )}
         </Link>
       ))}
     </nav>

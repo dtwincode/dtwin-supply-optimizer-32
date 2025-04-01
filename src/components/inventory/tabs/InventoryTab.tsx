@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { useI18n } from "@/contexts/I18nContext";
@@ -10,8 +9,8 @@ import { InventoryItem } from "@/types/inventory";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
+import { InventoryInsightsCard } from "../InventoryInsightsCard";
 
-// Simple calculation functions that don't rely on external services
 const simplifiedCalculateBufferZones = (item: InventoryItem) => {
   try {
     const redZone = item.redZoneSize || (item.adu && item.leadTimeDays ? Math.round(item.adu * (item.leadTimeDays * 0.33)) : 0);
@@ -176,6 +175,8 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
           Refresh Data
         </Button>
       </div>
+
+      <InventoryInsightsCard />
 
       {!paginatedData || paginatedData.length === 0 ? (
         <div className="text-center py-10">
