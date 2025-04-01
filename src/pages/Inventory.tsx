@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,10 +8,11 @@ import { PageHeader } from "@/components/PageHeader";
 import { Pagination } from "@/components/Pagination";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { InventoryItem, SKUClassification } from "@/types/inventory";
+import { InventoryItem } from "@/types/inventory";
 import { EnhancedInventoryTab } from "@/components/inventory/tabs/EnhancedInventoryTab";
 import { ClassificationTab } from "@/components/inventory/tabs/ClassificationTab";
 import { AIInsightsTab } from "@/components/inventory/tabs/AIInsightsTab";
+import { DecouplingTab } from "@/components/inventory/tabs/DecouplingTab";
 import { DecouplingAnalytics } from "@/components/inventory/decoupling/DecouplingAnalytics";
 import { EnhancedBufferVisualizer } from "@/components/inventory/buffer/EnhancedBufferVisualizer";
 import { InventoryInsightsCard } from "@/components/inventory/InventoryInsightsCard";
@@ -19,7 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import InventoryFilters from "@/components/inventory/InventoryFilters";
 import { supabase } from "@/lib/supabaseClient";
 import { useSkuClassifications } from "@/hooks/useSkuClassifications";
-import { RefreshCw, BarChart, Layers, Grid3X3, TrendingUp, Filter } from "lucide-react";
+import { RefreshCw, BarChart, Layers, Grid3X3, TrendingUp, Filter, Network } from "lucide-react";
 
 function Inventory() {
   const { toast } = useToast();
@@ -33,7 +35,7 @@ function Inventory() {
   const [itemsPerPage] = useState(12);
   const { classifications, loading: classificationsLoading } = useSkuClassifications();
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("inventory");
 
   useEffect(() => {
     const fetchInventoryData = async () => {
@@ -191,7 +193,7 @@ function Inventory() {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   return (
-    <div className="flex flex-col space-y-6">
+    <div className="flex flex-col space-y-4">
       <div className="flex justify-between items-center">
         <PageHeader title="Inventory Management" />
         
@@ -233,24 +235,25 @@ function Inventory() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <InventoryInsightsCard />
         <DecouplingAnalytics items={inventoryData} />
+        <InventoryPlanningInsights items={inventoryData} />
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
-        <Card className="col-span-2">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        <Card className="lg:col-span-3 overflow-hidden">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center">
               <BarChart className="h-5 w-5 mr-2 text-primary" />
-              Inventory Data Analysis
+              Inventory Management
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <Tabs defaultValue="data" className="w-full">
+            <Tabs defaultValue="inventory" value={activeTab} onValueChange={setActiveTab} className="w-full">
               <div className="px-6 pt-2">
-                <TabsList className="grid grid-cols-4 w-full">
-                  <TabsTrigger value="data" className="flex items-center">
+                <TabsList className="grid grid-cols-5 w-full">
+                  <TabsTrigger value="inventory" className="flex items-center">
                     <Grid3X3 className="h-4 w-4 mr-2" />
                     Inventory Data
                   </TabsTrigger>
@@ -259,8 +262,12 @@ function Inventory() {
                     Classification
                   </TabsTrigger>
                   <TabsTrigger value="decoupling" className="flex items-center">
+                    <Network className="h-4 w-4 mr-2" />
+                    Decoupling Points
+                  </TabsTrigger>
+                  <TabsTrigger value="analysis" className="flex items-center">
                     <TrendingUp className="h-4 w-4 mr-2" />
-                    Decoupling Analysis
+                    Analysis
                   </TabsTrigger>
                   <TabsTrigger value="ai-insights" className="flex items-center">
                     <BarChart className="h-4 w-4 mr-2" />
@@ -269,7 +276,7 @@ function Inventory() {
                 </TabsList>
               </div>
 
-              <TabsContent value="data" className="m-0 py-4">
+              <TabsContent value="inventory" className="m-0 py-4">
                 <EnhancedInventoryTab
                   paginatedData={inventoryData}
                   onCreatePO={handleCreatePO}
@@ -290,29 +297,33 @@ function Inventory() {
               </TabsContent>
 
               <TabsContent value="decoupling" className="m-0 p-4">
+                <DecouplingTab />
+              </TabsContent>
+              
+              <TabsContent value="analysis" className="m-0 p-4">
                 <div className="space-y-4">
                   <p className="text-sm text-muted-foreground">
-                    Decoupling point analysis determines strategic positioning of inventory buffers
-                    based on demand variability and lead time factors.
+                    Inventory analysis provides insights into buffer management, replenishment strategies,
+                    and optimization opportunities based on historical patterns.
                   </p>
                   
-                  {selectedItem ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Card className="p-4">
-                      <div className="flex justify-between">
-                        <div>
-                          <h3 className="text-sm font-medium">{selectedItem.product_id}</h3>
-                          <p className="text-xs text-muted-foreground">{selectedItem.name || 'No product name'}</p>
-                        </div>
-                        <Badge variant={selectedItem.decoupling_point ? "default" : "outline"}>
-                          {selectedItem.decoupling_point ? 'Decoupling Point' : 'Regular Point'}
-                        </Badge>
-                      </div>
+                      <CardTitle className="text-sm mb-2">Buffer Analysis</CardTitle>
+                      <p className="text-xs text-muted-foreground mb-4">
+                        Analysis of current buffer levels across inventory locations.
+                      </p>
+                      {/* Buffer analysis content */}
                     </Card>
-                  ) : (
-                    <Card className="p-4 text-center text-sm text-muted-foreground">
-                      Select an inventory item to view detailed decoupling analysis
+                    
+                    <Card className="p-4">
+                      <CardTitle className="text-sm mb-2">Replenishment Analysis</CardTitle>
+                      <p className="text-xs text-muted-foreground mb-4">
+                        Analysis of replenishment patterns and optimization opportunities.
+                      </p>
+                      {/* Replenishment analysis content */}
                     </Card>
-                  )}
+                  </div>
                 </div>
               </TabsContent>
 
@@ -332,7 +343,7 @@ function Inventory() {
           </CardHeader>
           <CardContent>
             {selectedItem ? (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <div>
                   <h3 className="text-sm font-medium">{selectedItem.product_id}</h3>
                   <p className="text-xs text-muted-foreground">{selectedItem.name || 'No product name'}</p>

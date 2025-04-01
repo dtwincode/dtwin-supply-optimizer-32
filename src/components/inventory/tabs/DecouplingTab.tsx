@@ -7,7 +7,15 @@ import { useToast } from "@/hooks/use-toast";
 import { useDecouplingPoints } from "@/hooks/useDecouplingPoints";
 import { DecouplingPointDialog } from "../decoupling/DecouplingPointDialog";
 import { DecouplingNetworkBoard } from "../decoupling/DecouplingNetworkBoard";
-import { Loader2, Plus, PlusCircle, RefreshCw } from "lucide-react";
+import { 
+  Loader2, 
+  PlusCircle, 
+  RefreshCw, 
+  Network, 
+  List, 
+  Settings,
+  Map
+} from "lucide-react";
 import { 
   Table, 
   TableBody, 
@@ -17,16 +25,22 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { DecouplingPoint } from "@/types/inventory/decouplingTypes";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslation } from "@/translations";
+import { NetworkDecouplingMap } from "../decoupling/NetworkDecouplingMap";
 
 export const DecouplingTab = () => {
-  const { decouplingPoints, decouplingNetwork, isLoading, refreshDecouplingPoints, deleteDecouplingPoint } = useDecouplingPoints();
+  const { 
+    decouplingPoints, 
+    decouplingNetwork, 
+    isLoading, 
+    refreshDecouplingPoints, 
+    deleteDecouplingPoint 
+  } = useDecouplingPoints();
+  
   const { toast } = useToast();
   const [selectedLocation, setSelectedLocation] = useState<string>("");
   const [selectedPoint, setSelectedPoint] = useState<DecouplingPoint | undefined>(undefined);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const { language } = useLanguage();
+  const [activeView, setActiveView] = useState<"network" | "map" | "list" | "settings">("network");
 
   const handleCreateDecouplingPoint = (locationId: string) => {
     setSelectedLocation(locationId);
@@ -41,14 +55,14 @@ export const DecouplingTab = () => {
   };
 
   const handleDeleteDecouplingPoint = async (point: DecouplingPoint) => {
-    const confirmed = window.confirm(getTranslation('common.inventory.confirmDelete', language));
+    const confirmed = window.confirm("Are you sure you want to delete this decoupling point?");
     if (!confirmed) return;
 
     const result = await deleteDecouplingPoint(point.id);
     if (result.success) {
       toast({
-        title: getTranslation('common.inventory.success', language),
-        description: getTranslation('common.inventory.decouplingPointDeleted', language),
+        title: "Success",
+        description: "Decoupling point has been deleted",
       });
     }
   };
@@ -56,19 +70,19 @@ export const DecouplingTab = () => {
   const handleSuccess = () => {
     refreshDecouplingPoints();
     toast({
-      title: getTranslation('common.inventory.success', language),
-      description: getTranslation('common.inventory.decouplingPointSaved', language),
+      title: "Success",
+      description: "Decoupling point has been saved",
     });
   };
 
   return (
-    <Card className="col-span-2">
-      <CardHeader className="flex flex-row items-center justify-between">
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
         <div>
-          <CardTitle>{getTranslation('common.inventory.decouplingPoints', language)}</CardTitle>
-          <CardDescription>
-            {getTranslation('common.inventory.configureDecouplingPoints', language)}
-          </CardDescription>
+          <h2 className="text-xl font-semibold">Decoupling Points</h2>
+          <p className="text-sm text-muted-foreground">
+            Configure and manage decoupling points in your supply chain network
+          </p>
         </div>
         <div className="flex gap-2">
           <Button 
@@ -77,99 +91,183 @@ export const DecouplingTab = () => {
             onClick={() => refreshDecouplingPoints()}
           >
             <RefreshCw className="h-4 w-4 mr-2" />
-            {getTranslation('common.inventory.refresh', language)}
+            Refresh
           </Button>
           <Button 
             size="sm" 
             onClick={() => handleCreateDecouplingPoint("loc-main-warehouse")}
           >
             <PlusCircle className="h-4 w-4 mr-2" />
-            {getTranslation('common.inventory.addDecouplingPoint', language)}
+            Add Decoupling Point
           </Button>
         </div>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="network" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="network">{getTranslation('common.inventory.decouplingNetwork', language)}</TabsTrigger>
-            <TabsTrigger value="list">{getTranslation('common.inventory.listView', language)}</TabsTrigger>
-          </TabsList>
+      </div>
+      
+      <Card className="overflow-hidden">
+        <CardHeader className="pb-0 border-b">
+          <div className="flex justify-between">
+            <CardTitle>Supply Chain Network</CardTitle>
+            <div className="flex gap-1 mb-2">
+              <Button 
+                variant={activeView === "network" ? "default" : "ghost"} 
+                size="sm" 
+                onClick={() => setActiveView("network")}
+              >
+                <Network className="h-4 w-4 mr-1" />
+                Network
+              </Button>
+              <Button 
+                variant={activeView === "map" ? "default" : "ghost"} 
+                size="sm" 
+                onClick={() => setActiveView("map")}
+              >
+                <Map className="h-4 w-4 mr-1" />
+                Map
+              </Button>
+              <Button 
+                variant={activeView === "list" ? "default" : "ghost"} 
+                size="sm" 
+                onClick={() => setActiveView("list")}
+              >
+                <List className="h-4 w-4 mr-1" />
+                List
+              </Button>
+              <Button 
+                variant={activeView === "settings" ? "default" : "ghost"} 
+                size="sm" 
+                onClick={() => setActiveView("settings")}
+              >
+                <Settings className="h-4 w-4 mr-1" />
+                Settings
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          {activeView === "network" && (
+            <div className="p-4">
+              {isLoading ? (
+                <div className="flex h-[400px] items-center justify-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : (
+                <DecouplingNetworkBoard network={decouplingNetwork} />
+              )}
+            </div>
+          )}
           
-          <TabsContent value="network" className="space-y-4">
-            {isLoading ? (
-              <div className="flex h-[400px] items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : (
-              <DecouplingNetworkBoard network={decouplingNetwork} />
-            )}
-          </TabsContent>
+          {activeView === "map" && (
+            <div className="p-0">
+              <NetworkDecouplingMap />
+            </div>
+          )}
           
-          <TabsContent value="list">
-            {isLoading ? (
-              <div className="flex h-[400px] items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{getTranslation('common.inventory.locationId', language)}</TableHead>
-                    <TableHead>{getTranslation('common.inventory.type', language)}</TableHead>
-                    <TableHead>{getTranslation('common.inventory.description', language)}</TableHead>
-                    <TableHead>{getTranslation('common.inventory.actions', language)}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {decouplingPoints.length === 0 ? (
+          {activeView === "list" && (
+            <div className="overflow-hidden">
+              {isLoading ? (
+                <div className="flex h-[400px] items-center justify-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                        {getTranslation('common.inventory.noDecouplingPoints', language)}
-                      </TableCell>
+                      <TableHead>Location ID</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Lead Time</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
-                  ) : (
-                    decouplingPoints.map((point) => (
-                      <TableRow key={point.id}>
-                        <TableCell>{point.locationId}</TableCell>
-                        <TableCell className="capitalize">
-                          {point.type.replace('_', ' ')}
-                        </TableCell>
-                        <TableCell>{point.description || "-"}</TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              onClick={() => handleEditDecouplingPoint(point)}
-                            >
-                              {getTranslation('common.inventory.edit', language)}
-                            </Button>
-                            <Button 
-                              variant="destructive" 
-                              size="sm" 
-                              onClick={() => handleDeleteDecouplingPoint(point)}
-                            >
-                              {getTranslation('common.inventory.delete', language)}
-                            </Button>
-                          </div>
+                  </TableHeader>
+                  <TableBody>
+                    {decouplingPoints.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                          No decoupling points configured yet
                         </TableCell>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            )}
-          </TabsContent>
-        </Tabs>
-        
-        <DecouplingPointDialog
-          locationId={selectedLocation}
-          existingPoint={selectedPoint}
-          onSuccess={handleSuccess}
-          open={dialogOpen}
-          onOpenChange={setDialogOpen}
-        />
-      </CardContent>
-    </Card>
+                    ) : (
+                      decouplingPoints.map((point) => (
+                        <TableRow key={point.id}>
+                          <TableCell className="font-medium">{point.locationId}</TableCell>
+                          <TableCell className="capitalize">
+                            {point.type.replace('_', ' ')}
+                          </TableCell>
+                          <TableCell>{point.description || "-"}</TableCell>
+                          <TableCell>{point.leadTimeAdjustment || "-"}</TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => handleEditDecouplingPoint(point)}
+                              >
+                                Edit
+                              </Button>
+                              <Button 
+                                variant="destructive" 
+                                size="sm" 
+                                onClick={() => handleDeleteDecouplingPoint(point)}
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              )}
+            </div>
+          )}
+          
+          {activeView === "settings" && (
+            <div className="p-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Decoupling Point Settings</CardTitle>
+                  <CardDescription>
+                    Configure global settings for decoupling points
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-sm font-medium mb-2">Buffer Profile Assignment</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Configure which buffer profiles are used for different decoupling point types
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-sm font-medium mb-2">Default Parameters</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Set default parameters for lead time adjustments and variability factors
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-sm font-medium mb-2">Replenishment Strategies</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Configure default replenishment strategies for different decoupling point types
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+      
+      <DecouplingPointDialog
+        locationId={selectedLocation}
+        existingPoint={selectedPoint}
+        onSuccess={handleSuccess}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+      />
+    </div>
   );
 };
