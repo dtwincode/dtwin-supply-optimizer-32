@@ -149,6 +149,13 @@ export function DecouplingAnalytics() {
               Auto-generated points are calculated based on demand variability and lead time thresholds from the <code>inventory_planning_view</code> database view.
               Manual overrides are stored in the <code>buffer_profile_override</code> table.
             </p>
+            <div className="mt-3 p-3 bg-blue-50 rounded border border-blue-200">
+              <p className="text-xs text-blue-800">
+                <strong>Note:</strong> All data shown is from actual database records. Auto-generated points are derived from 
+                real inventory data where variability and lead time metrics exceed configured thresholds. Manual overrides 
+                represent user-created points stored in the database.
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>
