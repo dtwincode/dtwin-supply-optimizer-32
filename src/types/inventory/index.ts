@@ -94,3 +94,51 @@ export interface InventoryItem {
   planningPriority?: string;
   classification?: Classification;
 }
+
+// BufferFactorConfig for inventory buffer calculations
+export interface BufferFactorConfig {
+  id: string;
+  shortLeadTimeFactor: number;
+  mediumLeadTimeFactor: number;
+  longLeadTimeFactor: number;
+  shortLeadTimeThreshold: number;
+  mediumLeadTimeThreshold: number;
+  replenishmentTimeFactor: number;
+  greenZoneFactor: number;
+  isActive: boolean;
+  industry?: 'manufacturing' | 'retail' | 'distribution' | 'electronics' | 'automotive' | 'consumer_goods' | 'pharmaceuticals';
+  isBenchmarkBased?: boolean;
+  metadata?: Record<string, any>;
+}
+
+// BufferFactorBenchmark for comparison settings
+export interface BufferFactorBenchmark {
+  id: string;
+  industry: string;
+  short_lead_time_factor: number;
+  medium_lead_time_factor: number;
+  long_lead_time_factor: number;
+  replenishment_time_factor: number;
+  green_zone_factor: number;
+  description?: string;
+}
+
+// Buffer Profile interface
+export interface BufferProfile {
+  id: string;
+  name: string;
+  description?: string;
+  variabilityFactor: "high_variability" | "medium_variability" | "low_variability";
+  leadTimeFactor: "short" | "medium" | "long";
+  moq?: number;
+  lotSizeFactor?: number;
+}
+
+// Decoupling Point interface
+export interface DecouplingPoint {
+  id: string;
+  locationId: string;
+  type: "strategic" | "customer_order" | "stock_point" | "intermediate";
+  description?: string;
+  bufferProfileId: string;
+}
