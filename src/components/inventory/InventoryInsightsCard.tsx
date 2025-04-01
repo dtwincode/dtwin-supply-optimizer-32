@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,13 +21,13 @@ import { useState, useEffect } from "react";
 import { useThresholdConfig } from "@/hooks/useThresholdConfig";
 import { useInventoryData } from "@/hooks/useInventoryData";
 import { InventoryItem } from "@/types/inventory";
-import { ArrowUpCircle, ArrowDownCircle, AlertTriangle, Info } from "lucide-react";
+import { ArrowUpCircle, ArrowDownCircle, AlertTriangle, Info, Calendar } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 
 export const InventoryInsightsCard = () => {
   const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState("buffer");
-  const { config, loading: configLoading } = useThresholdConfig();
+  const { config, updateConfig, loading: configLoading } = useThresholdConfig();
   const { items, loading: itemsLoading } = useInventoryData();
   
   const [bufferDistribution, setBufferDistribution] = useState<any[]>([]);
@@ -154,6 +155,15 @@ export const InventoryInsightsCard = () => {
         type: "info",
         message: `Using default threshold values. Variability: ${config.demand_variability_threshold.toFixed(2)}, Decoupling: ${config.decoupling_threshold.toFixed(2)}. Run Bayesian updating to optimize.`,
         icon: <Info className="h-5 w-5 text-blue-500" />
+      });
+    }
+    
+    if (updateConfig && updateConfig.next_run_at) {
+      const nextRun = new Date(updateConfig.next_run_at);
+      recommendations.push({
+        type: "info",
+        message: `Next automatic threshold update scheduled for ${nextRun.toLocaleDateString()}.`,
+        icon: <Calendar className="h-5 w-5 text-blue-500" />
       });
     }
     
@@ -343,6 +353,24 @@ export const InventoryInsightsCard = () => {
                 <p className="text-xs text-muted-foreground mt-1">
                   Data source: Performance Tracking ({performanceData.length} records)
                 </p>
+                {updateConfig && (
+                  <div className="mt-2 border-t border-muted pt-2">
+                    <h4 className="text-xs font-medium mb-1">Automatic Updates</h4>
+                    <p className="text-xs text-muted-foreground">
+                      Frequency: {updateConfig.preferred_frequency || 'Not configured'}
+                    </p>
+                    {updateConfig.last_run_at && (
+                      <p className="text-xs text-muted-foreground">
+                        Last update: {new Date(updateConfig.last_run_at).toLocaleDateString()}
+                      </p>
+                    )}
+                    {updateConfig.next_run_at && (
+                      <p className="text-xs text-muted-foreground">
+                        Next update: {new Date(updateConfig.next_run_at).toLocaleDateString()}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </TabsContent>

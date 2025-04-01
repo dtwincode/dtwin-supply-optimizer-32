@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,6 +11,7 @@ import { InventoryTab } from "@/components/inventory/tabs/InventoryTab";
 import { ClassificationTab } from "@/components/inventory/tabs/ClassificationTab";
 import { AIInsightsTab } from "@/components/inventory/tabs/AIInsightsTab";
 import { ThresholdManagement } from "@/components/inventory/ThresholdManagement";
+import { ThresholdScheduler } from "@/components/inventory/ThresholdScheduler";
 import { SKUClassifications } from "@/components/inventory/classification/SKUClassifications";
 import { useToast } from "@/hooks/use-toast";
 import InventoryFilters from "@/components/inventory/InventoryFilters";
@@ -290,7 +292,10 @@ function Inventory() {
         </CardContent>
       </Card>
 
-      <ThresholdManagement />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <ThresholdManagement />
+        <ThresholdScheduler />
+      </div>
     </div>
   );
 }
