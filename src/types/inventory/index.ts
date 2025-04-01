@@ -1,3 +1,4 @@
+
 export * from './bufferTypes';
 export * from './decouplingTypes';
 export * from './classificationTypes';
@@ -8,9 +9,9 @@ export * from './shipmentTypes';
 
 // Classification interface
 export interface Classification {
-  leadTimeCategory?: 'short' | 'medium' | 'long';
-  variabilityLevel?: 'low' | 'medium' | 'high'; 
-  criticality?: 'low' | 'medium' | 'high';
+  leadTimeCategory: 'short' | 'medium' | 'long';
+  variabilityLevel: 'low' | 'medium' | 'high'; 
+  criticality: 'low' | 'medium' | 'high';
   score?: number;
 }
 
@@ -18,7 +19,9 @@ export interface Classification {
 export interface SKUClassification {
   id?: string;
   sku: string;
-  classification?: Classification;
+  product_id?: string;
+  location_id?: string;
+  classification: Classification;
   category?: string;
   last_updated?: string;
 }
@@ -33,12 +36,12 @@ export interface ReplenishmentData {
   destination: string;
   status: string;
   expectedDate: string;
-  internalTransferTime?: number;
-  totalCycleTime?: number;
   lastUpdated?: string;
   locationFrom?: string;
   locationTo?: string;
   replenishmentLeadTime?: number;
+  totalCycleTime?: number;
+  internalTransferTime?: number;
 }
 
 // PaginationState interface
@@ -56,22 +59,22 @@ export interface InventoryItem {
   // Core fields that correspond to database
   id: string;
   inventory_id?: string;
-  product_id?: string;
-  quantity_on_hand?: number;
+  product_id: string;
+  sku?: string;
+  quantity_on_hand: number;
   available_qty?: number;
   reserved_qty?: number;
-  location_id?: string;
+  location_id: string;
+  location?: string;
   last_updated?: string;
   buffer_profile_id?: string;
   decoupling_point?: boolean;
   
   // UI enhancements
-  sku?: string;
   name?: string;
   currentStock?: number;
   category?: string;
   subcategory?: string;
-  location?: string;
   productFamily?: string;
   region?: string;
   city?: string;

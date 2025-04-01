@@ -1,472 +1,299 @@
 
-import { Card } from "@/components/ui/card";
-import DashboardLayout from "@/components/DashboardLayout";
 import { useState, useEffect } from "react";
-import { useToast } from "@/components/ui/use-toast";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { useI18n } from "@/contexts/I18nContext";
-import { Button } from "@/components/ui/button";
-import InventoryFilters from "@/components/inventory/InventoryFilters";
-import InventorySummaryCards from "@/components/inventory/InventorySummaryCards";
-import { InventoryTabs } from "@/components/inventory/InventoryTabs";
-import { InventoryTab } from "@/components/inventory/InventoryTab";
-import { InventoryChart } from "@/components/inventory/InventoryChart";
-import { NetworkDecouplingMap } from "@/components/inventory/NetworkDecouplingMap";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { PageHeader } from "@/components/PageHeader";
+import { Pagination } from "@/components/Pagination";
 import { InventoryItem, SKUClassification } from "@/types/inventory";
-import { SKUClassifications } from "@/components/inventory/classification/SKUClassifications";
-import { DecouplingPointDialog } from "@/components/inventory/DecouplingPointDialog";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { useLocation, useParams } from "react-router-dom";
-import { InventoryTourGuide, TourButton } from "@/components/inventory/InventoryTourGuide";
-import { useLocalStorage } from "@/hooks/use-local-storage";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { HelpCircle } from "lucide-react";
-import { supabase } from "@/lib/supabaseClient";
+import { InventoryTab } from "@/components/inventory/tabs/InventoryTab";
+import { ClassificationTab } from "@/components/inventory/tabs/ClassificationTab";
+import { AIInsightsTab } from "@/components/inventory/tabs/AIInsightsTab";
 import { ThresholdManagement } from "@/components/inventory/ThresholdManagement";
+import { SKUClassifications } from "@/components/inventory/classification/SKUClassifications";
+import { useToast } from "@/hooks/use-toast";
+import InventoryFilters from "@/components/inventory/InventoryFilters";
+import { supabase } from "@/lib/supabaseClient";
+import { useSkuClassifications } from "@/hooks/useSkuClassifications";
 
-const Inventory = () => {
-  const { language } = useLanguage();
-  const { t } = useI18n();
+function Inventory() {
   const { toast } = useToast();
-  const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedLocationId, setSelectedLocationId] = useState<string>("all");
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
+  const [selectedLocationId, setSelectedLocationId] = useState("all");
+  const [autoRefresh, setAutoRefresh] = useState(false);
   const [inventoryData, setInventoryData] = useState<InventoryItem[]>([]);
-  const [skuClassifications, setSkuClassifications] = useState<SKUClassification[]>([]);
-  const location = useLocation();
-  const params = useParams();
-  
-  const [isTourRunning, setIsTourRunning] = useState(false);
-  const [hasTakenTour, setHasTakenTour] = useLocalStorage('inventory-tour-completed', false);
-  
-  const getDefaultTabFromPath = () => {
-    if (params.tab) {
-      return params.tab;
-    }
-    
-    const queryParams = new URLSearchParams(location.search);
-    const tabParam = queryParams.get('tab');
-    
-    if (tabParam) {
-      return tabParam;
-    }
-    
-    return 'inventory';
-  };
-  
-  const defaultTab = getDefaultTabFromPath();
-  console.log("Default tab from path:", defaultTab);
+  const [filteredInventory, setFilteredInventory] = useState<InventoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [itemsPerPage] = useState(10);
+  const { classifications, loading: classificationsLoading } = useSkuClassifications();
 
-  const fetchInventoryData = async () => {
-    try {
-      setIsLoading(true);
-      
-      // Fetch inventory data (simplified to handle missing columns)
-      const { data, error } = await supabase
-        .from("inventory_data")
-        .select("*");
-
-      if (error) {
-        console.error("Fetch error:", error);
-        setHasError(true);
-        return;
-      }
-      
-      // Transform to match our expected structure
-      const transformedData: InventoryItem[] = data.map(item => ({
-        id: item.inventory_id || '',
-        inventory_id: item.inventory_id,
-        product_id: item.product_id,
-        sku: item.product_id, // Using product_id as sku
-        quantity_on_hand: item.quantity_on_hand,
-        onHand: item.quantity_on_hand,
-        reserved_qty: item.reserved_qty,
-        location_id: item.location_id,
-        location: item.location_id, // Using location_id as location
-        last_updated: item.last_updated,
-        decoupling_point: item.decoupling_point,
-      }));
-      
-      setInventoryData(transformedData);
-    } catch (err) {
-      console.error("Unexpected error:", err);
-      setHasError(true);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchSKUClassifications = async () => {
-    try {
-      // Check if the table exists by performing a simple query
-      const tableCheck = await supabase
-        .from("sku_classification")
-        .select("sku")
-        .limit(1);
-        
-      if (tableCheck.error) {
-        // Table doesn't exist or error occurred - create mock data
-        console.log("sku_classification table issue:", tableCheck.error);
-        const mockData: SKUClassification[] = [
-          { 
-            id: "1", 
-            sku: "SKU001", 
-            classification: {
-              leadTimeCategory: "short", 
-              variabilityLevel: "low", 
-              criticality: "high",
-              score: 85
-            },
-            category: "Electronics"
-          },
-          { 
-            id: "2", 
-            sku: "SKU002", 
-            classification: {
-              leadTimeCategory: "medium", 
-              variabilityLevel: "medium", 
-              criticality: "medium",
-              score: 65
-            },
-            category: "Furniture"
-          },
-          { 
-            id: "3", 
-            sku: "SKU003", 
-            classification: {
-              leadTimeCategory: "long", 
-              variabilityLevel: "high", 
-              criticality: "low",
-              score: 45
-            },
-            category: "Apparel"
-          }
-        ];
-        setSkuClassifications(mockData);
-        return;
-      }
-      
-      const { data, error } = await supabase
-        .from("sku_classification")
-        .select("*");
-      
-      if (error) {
-        console.error("Fetch classification error:", error);
-        setHasError(true);
-      } else {
-        // Transform the data to match our expected structure
-        const transformedData: SKUClassification[] = data?.map(item => ({
-          id: item.id,
-          sku: item.sku,
-          classification: {
-            leadTimeCategory: item.lead_time_category,
-            variabilityLevel: item.variability_level,
-            criticality: item.criticality,
-            score: item.score
-          },
-          category: item.category
-        })) || [];
-        
-        setSkuClassifications(transformedData);
-      }
-    } catch (err) {
-      console.error("Unexpected classification fetch error:", err);
-      setHasError(true);
-    }
-  };
-
+  // Fetch inventory data from the database
   useEffect(() => {
-    fetchInventoryData();
-    fetchSKUClassifications();
-  }, []);
-  
-  useEffect(() => {
-    if (!isLoading && !hasError && !hasTakenTour) {
-      const tourDelay = setTimeout(() => {
-        setIsTourRunning(true);
-        console.log("Starting tour");
-      }, 1500);
-      
-      return () => clearTimeout(tourDelay);
-    }
-  }, [isLoading, hasError, hasTakenTour]);
+    const fetchInventoryData = async () => {
+      setLoading(true);
+      try {
+        let query = supabase.from('inventory_data').select(`
+          inventory_id,
+          product_id, 
+          quantity_on_hand,
+          reserved_qty,
+          location_id,
+          last_updated,
+          buffer_profile_id,
+          decoupling_point
+        `);
 
-  useEffect(() => {
-    const originalConsoleError = console.error;
-    console.error = (...args) => {
-      if (args[0] && typeof args[0] === 'string' && args[0].includes('Mapbox')) {
-        console.log("MapBox error suppressed:", args[0]);
-      } else {
-        const errorDetected = args.some(arg => 
-          (arg && typeof arg === 'object' && arg._type === 'Error') ||
-          (arg instanceof Error)
-        );
-        
-        if (errorDetected) {
-          setHasError(true);
+        if (searchQuery) {
+          query = query.ilike('product_id', `%${searchQuery}%`);
         }
+
+        if (selectedLocationId && selectedLocationId !== 'all') {
+          query = query.eq('location_id', selectedLocationId);
+        }
+
+        const { data, error, count } = await query
+          .order('last_updated', { ascending: false })
+          .range((page - 1) * itemsPerPage, page * itemsPerPage - 1)
+          .select('*', { count: 'exact' });
+
+        if (error) throw error;
+
+        // Get additional product info
+        const productIds = (data || []).map(item => item.product_id);
+        
+        const { data: productData, error: productError } = await supabase
+          .from('product_master')
+          .select('*')
+          .in('product_id', productIds);
+
+        if (productError) throw productError;
+
+        // Get location info
+        const locationIds = (data || []).map(item => item.location_id);
+        
+        const { data: locationData, error: locationError } = await supabase
+          .from('location_master')
+          .select('*')
+          .in('location_id', locationIds);
+
+        if (locationError) throw locationError;
+
+        // Transform inventory data with joined info
+        const transformedItems: InventoryItem[] = (data || []).map(item => {
+          const product = productData?.find(p => p.product_id === item.product_id);
+          const location = locationData?.find(l => l.location_id === item.location_id);
+          
+          return {
+            id: item.inventory_id,
+            inventory_id: item.inventory_id,
+            product_id: item.product_id,
+            sku: item.product_id,
+            quantity_on_hand: item.quantity_on_hand,
+            onHand: item.quantity_on_hand,
+            reserved_qty: item.reserved_qty,
+            location_id: item.location_id,
+            location: location?.warehouse,
+            last_updated: item.last_updated,
+            decoupling_point: item.decoupling_point,
+            name: product?.name,
+            category: product?.category,
+            subcategory: product?.subcategory,
+            productFamily: product?.product_family,
+            currentStock: item.quantity_on_hand,
+            // Classification data will be added in the next step
+          };
+        });
+
+        // Get SKU classifications for these products
+        const { data: classData, error: classError } = await supabase
+          .from('product_classification')
+          .select('*')
+          .in('product_id', productIds);
+
+        if (classError) throw classError;
+
+        // Add classification data to inventory items
+        const finalItems = transformedItems.map(item => {
+          const classification = classData?.find(c => c.product_id === item.product_id && 
+            (c.location_id === item.location_id || !c.location_id));
+          
+          if (classification) {
+            return {
+              ...item,
+              classification: {
+                leadTimeCategory: classification.lead_time_category as 'short' | 'medium' | 'long',
+                variabilityLevel: classification.variability_level as 'low' | 'medium' | 'high',
+                criticality: classification.criticality as 'low' | 'medium' | 'high',
+                score: classification.score
+              }
+            };
+          }
+          
+          return item;
+        });
+
+        setInventoryData(finalItems);
+        setTotalItems(count || 0);
+      } catch (err) {
+        console.error('Error fetching inventory data:', err);
+        toast({
+          title: "Error",
+          description: "Failed to load inventory data",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
       }
-      originalConsoleError.apply(console, args);
     };
+
+    fetchInventoryData();
+    
+    // Set up auto-refresh if enabled
+    let interval: NodeJS.Timeout;
+    if (autoRefresh) {
+      interval = setInterval(() => {
+        fetchInventoryData();
+      }, 30000); // Refresh every 30 seconds
+    }
     
     return () => {
-      console.error = originalConsoleError;
+      if (interval) clearInterval(interval);
     };
-  }, []);
+  }, [searchQuery, selectedLocationId, page, itemsPerPage, autoRefresh, toast]);
 
-  const handleCreatePurchaseOrder = (item: InventoryItem) => {
+  // Sample SKU classifications for the card view
+  const sampleClassifications: SKUClassification[] = [
+    {
+      id: "1",
+      sku: "SKU001",
+      classification: {
+        leadTimeCategory: "short",
+        variabilityLevel: "low",
+        criticality: "high",
+        score: 85
+      },
+      category: "Electronics",
+      last_updated: "2023-11-01"
+    },
+    {
+      id: "2",
+      sku: "SKU002",
+      classification: {
+        leadTimeCategory: "medium",
+        variabilityLevel: "medium",
+        criticality: "medium",
+        score: 65
+      },
+      category: "Appliances",
+      last_updated: "2023-11-02"
+    },
+    {
+      id: "3",
+      sku: "SKU003",
+      classification: {
+        leadTimeCategory: "long",
+        variabilityLevel: "high",
+        criticality: "low",
+        score: 45
+      },
+      category: "Furniture",
+      last_updated: "2023-11-03"
+    }
+  ];
+
+  const handleCreatePO = (item: InventoryItem) => {
+    console.log("Creating PO for item:", item);
+    toast({
+      title: "Purchase Order Created",
+      description: `Created new PO for ${item.sku || item.product_id}`,
+    });
+  };
+
+  const refreshData = async () => {
+    setLoading(true);
     try {
-      toast({
-        title: t("common.success"),
-        description: t("common.purchaseOrderCreated"),
-      });
+      // Refresh will be implemented by triggering the useEffect that loads data
+      setPage(page); // This should trigger a reload with the same page
     } catch (error) {
-      console.error("Error creating purchase order:", error);
+      console.error("Error refreshing data:", error);
+      throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDecouplingPointSuccess = () => {
-    toast({
-      title: t("common.success"),
-      description: language === 'ar' ? "تم تحديث إعدادات نقطة الفصل بنجاح" : "Decoupling point configuration updated successfully",
-    });
-    setDialogOpen(false);
-    fetchInventoryData();
-  };
-
-  const handleError = (error: Error, info: { componentStack: string }) => {
-    console.error("Inventory component error:", error, info);
-    setHasError(true);
-    toast({
-      title: t("common.error"),
-      description: language === 'ar' ? "حدث خطأ أثناء تحميل صفحة المخزون. يرجى المحاولة مرة أخرى لاحقًا." : "An error occurred while loading the inventory page. Please try again later.",
-      variant: "destructive",
-    });
-  };
-
-  const safeFilter = (item: InventoryItem, query: string): boolean => {
-    try {
-      if (!query) return true;
-      
-      const queryLower = query.toLowerCase();
-      return (
-        (item.sku && item.sku.toLowerCase().includes(queryLower)) ||
-        (item.name && item.name.toLowerCase().includes(queryLower)) ||
-        (item.productFamily && item.productFamily.toLowerCase().includes(queryLower)) ||
-        (item.location && item.location.toLowerCase().includes(queryLower))
-      );
-    } catch (error) {
-      console.error("Error filtering inventory item:", error);
-      return true; // Show the item if filtering fails
-    }
-  };
-
-  // Enhance inventory data with classifications
-  const enrichedInventory = inventoryData.map(item => {
-    // Find matching classification
-    const classification = skuClassifications.find(sku => 
-      sku.sku === item.sku || sku.sku === item.product_id
-    );
-    
-    if (classification) {
-      return {
-        ...item,
-        classification: classification.classification
-      };
-    }
-    
-    return item;
-  });
-  
-  const filteredData = enrichedInventory.filter(
-    (item) => safeFilter(item, searchQuery) && 
-    (selectedLocationId === "all" || item.location === selectedLocationId)
-  );
-
-  const startIndex = Math.max(0, (currentPage - 1) * 10);
-  const endIndex = Math.min(startIndex + 10, filteredData.length);
-  const paginatedData = filteredData.slice(startIndex, endIndex);
-
-  const handleTourFinish = () => {
-    setIsTourRunning(false);
-    setHasTakenTour(true);
-    toast({
-      title: language === 'ar' ? "اكتملت الجولة!" : "Tour Completed!",
-      description: language === 'ar' 
-        ? "يمكنك دائمًا إعادة تشغيل الجولة من خلال النقر على زر المساعدة."
-        : "You can always restart the tour by clicking the help button.",
-    });
-  };
-
-  const startTour = () => {
-    setIsTourRunning(true);
-  };
-
-  if (isLoading) {
-    return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center h-[80vh]">
-          <div className="text-center">
-            <p className="text-muted-foreground">{t("common.inventory.loadingData")}</p>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  if (hasError) {
-    return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center h-[80vh]">
-          <div className="text-center">
-            <h3 className="text-xl font-semibold text-red-600 mb-2">{language === 'ar' ? "حدث خطأ ما" : "Something went wrong"}</h3>
-            <p className="text-muted-foreground mb-4">{language === 'ar' ? "واجهنا خطأً أثناء تحميل صفحة المخزون." : "We encountered an error while loading the inventory page."}</p>
-            <Button 
-              onClick={() => window.location.reload()} 
-              variant="default"
-            >
-              {language === 'ar' ? "إعادة تحميل الصفحة" : "Reload Page"}
-            </Button>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  console.log("Rendering Inventory with tab:", defaultTab);
+  // Calculate total pages
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   return (
-    <DashboardLayout>
-      <InventoryTourGuide run={isTourRunning} onFinish={handleTourFinish} />
-      
-      <div className="space-y-4">
-        <div className="flex flex-col gap-3">
-          <div className="flex justify-between items-center inventory-header">
-            <div className="flex items-center gap-2">
-              <p className="text-muted-foreground">
-                {t("common.inventory.manageAndTrack")}
-              </p>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-8 w-8"
-                      onClick={startTour}
-                    >
-                      <HelpCircle className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {language === 'ar' ? 'بدء جولة مرشدة' : 'Start guided tour'}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <div className="flex gap-2 inventory-filters">
-              <InventoryFilters
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                selectedLocationId={selectedLocationId}
-                setSelectedLocationId={setSelectedLocationId}
-              />
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setSelectedLocationId("loc-main-warehouse");
-                  setDialogOpen(true);
-                }}
-                className="decoupling-point-button"
-              >
-                {t("common.inventory.addDecouplingPoint")}
-              </Button>
-              <TourButton onClick={startTour} />
-            </div>
-          </div>
-        </div>
+    <div className="space-y-6">
+      <PageHeader title="Inventory Management" />
 
-        <ErrorBoundary fallback={<Card className="p-6 text-center"><p>{t("common.inventory.errorLoading")}</p></Card>} onError={handleError}>
-          <div className="inventory-summary-cards">
-            <InventorySummaryCards />
-          </div>
-        </ErrorBoundary>
-        
-        <ErrorBoundary fallback={<Card className="p-6 text-center"><p>{t("common.inventory.errorLoading")}</p></Card>} onError={handleError}>
-          <ThresholdManagement />
-        </ErrorBoundary>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <ErrorBoundary fallback={<Card className="p-6 text-center"><p>{t("common.inventory.errorLoading")}</p></Card>} onError={handleError}>
-            <Card className="p-4 inventory-classifications">
-              <h3 className="text-lg font-semibold mb-3">
-                {t("common.inventory.skuClassifications")}
-              </h3>
-              <SKUClassifications classifications={skuClassifications} />
-            </Card>
-          </ErrorBoundary>
-          
-          <ErrorBoundary fallback={<Card className="p-6 text-center"><p>{t("common.inventory.errorLoading")}</p></Card>} onError={handleError}>
-            <div className="inventory-map">
-              <NetworkDecouplingMap />
-            </div>
-          </ErrorBoundary>
-        </div>
-        
-        <ErrorBoundary fallback={<Card className="p-6 text-center"><p>{t("common.inventory.errorLoading")}</p></Card>} onError={handleError}>
-          <div className="inventory-chart">
-            <InventoryChart data={filteredData} />
-          </div>
-        </ErrorBoundary>
-
-        <Card>
-          <ErrorBoundary fallback={<div className="p-6 text-center"><p>{t("common.inventory.errorLoading")}</p></div>} onError={handleError}>
-            <div className="inventory-tabs">
-              <InventoryTabs defaultValue={defaultTab}>
-                <div className="space-y-4 p-5">
-                  <InventoryTab 
-                    paginatedData={paginatedData}
-                    onCreatePO={handleCreatePurchaseOrder}
-                  />
-                  <div className="mt-3 flex justify-between items-center">
-                    <div className="text-sm text-gray-500">
-                      {t("common.showing")} {filteredData.length > 0 ? startIndex + 1 : 0} {t("common.to")} {Math.min(endIndex, filteredData.length)} {t("common.of")} {filteredData.length} {t("common.items")}
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                        disabled={currentPage === 1}
-                      >
-                        {t("common.previous")}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredData.length / 10), p + 1))}
-                        disabled={currentPage === Math.ceil(filteredData.length / 10) || filteredData.length === 0}
-                      >
-                        {t("common.next")}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </InventoryTabs>
-            </div>
-          </ErrorBoundary>
-        </Card>
-        
-        <DecouplingPointDialog
-          locationId={selectedLocationId}
-          onSuccess={handleDecouplingPointSuccess}
-          open={dialogOpen}
-          onOpenChange={setDialogOpen}
+      <div className="flex justify-between items-center">
+        <InventoryFilters
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          selectedLocationId={selectedLocationId}
+          setSelectedLocationId={setSelectedLocationId}
         />
+
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="auto-refresh"
+            checked={autoRefresh}
+            onCheckedChange={setAutoRefresh}
+          />
+          <Label htmlFor="auto-refresh">Auto-refresh</Label>
+        </div>
       </div>
-    </DashboardLayout>
+
+      <Card>
+        <CardContent className="p-6">
+          <SKUClassifications classifications={classifications} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="p-0">
+          <Tabs defaultValue="inventory">
+            <TabsList className="bg-background p-0 pl-6 pt-2">
+              <TabsTrigger value="inventory">Inventory Data</TabsTrigger>
+              <TabsTrigger value="classification">Classification</TabsTrigger>
+              <TabsTrigger value="ai-insights">AI Insights</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="inventory" className="m-0">
+              <InventoryTab
+                paginatedData={inventoryData}
+                onCreatePO={handleCreatePO}
+                onRefresh={refreshData}
+              />
+              <div className="p-6 flex justify-center">
+                <Pagination
+                  currentPage={page}
+                  totalPages={totalPages}
+                  onPageChange={setPage}
+                />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="classification" className="m-0">
+              <ClassificationTab classifications={classifications || sampleClassifications} />
+            </TabsContent>
+
+            <TabsContent value="ai-insights" className="m-0">
+              <AIInsightsTab />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+
+      <ThresholdManagement />
+    </div>
   );
-};
+}
 
 export default Inventory;

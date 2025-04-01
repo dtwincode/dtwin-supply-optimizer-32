@@ -27,7 +27,7 @@ const simplifiedCalculateBufferZones = (item: InventoryItem) => {
 
 const simplifiedCalculateNetFlowPosition = (item: InventoryItem) => {
   try {
-    const onHand = item.onHand || 0;
+    const onHand = item.onHand || item.quantity_on_hand || 0;
     const onOrder = item.onOrder || 0;
     const qualifiedDemand = item.qualifiedDemand || 0;
     const netFlowPosition = onHand + onOrder - qualifiedDemand;
@@ -200,9 +200,9 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
                 <InventoryTableHeader />
                 <TableBody>
                   <TableRow>
-                    <TableCell className="font-medium">{item.sku || "N/A"}</TableCell>
+                    <TableCell className="font-medium">{item.sku || item.product_id || "N/A"}</TableCell>
                     <TableCell>{item.name || "N/A"}</TableCell>
-                    <TableCell>{typeof item.quantity_on_hand === 'number' ? item.quantity_on_hand : (item.onHand || "N/A")}</TableCell>
+                    <TableCell>{item.quantity_on_hand || (item.onHand || "N/A")}</TableCell>
                     <TableCell>
                       <BufferStatusBadge status={bufferData.status} />
                     </TableCell>

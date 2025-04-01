@@ -1,159 +1,117 @@
 
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
+import { useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/lib/supabaseClient";
+import { useToast } from "@/hooks/use-toast";
+import { useThresholdConfig } from "@/hooks/useThresholdConfig";
 
 export function ThresholdManagement() {
-  const [demandVariabilityThreshold, setDemandVariabilityThreshold] = useState(60);
-  const [decouplingThreshold, setDecouplingThreshold] = useState(75);
-  const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState(false);
   const { toast } = useToast();
+  const { config, loading, updateThresholdConfig } = useThresholdConfig();
+  
+  const [demandVariabilityThreshold, setDemandVariabilityThreshold] = useState<number>(
+    config?.demand_variability_threshold || 0.6
+  );
+  const [decouplingThreshold, setDecouplingThreshold] = useState<number>(
+    config?.decoupling_threshold || 0.75
+  );
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Fetch threshold values from database
-  useEffect(() => {
-    const fetchThresholds = async () => {
-      setLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('threshold_config')
-          .select('*')
-          .order('updated_at', { ascending: false })
-          .limit(1);
+  // Update local state when config loads
+  if (config && !loading && demandVariabilityThreshold === 0.6 && config.demand_variability_threshold !== 0.6) {
+    setDemandVariabilityThreshold(config.demand_variability_threshold);
+  }
+  
+  if (config && !loading && decouplingThreshold === 0.75 && config.decoupling_threshold !== 0.75) {
+    setDecouplingThreshold(config.decoupling_threshold);
+  }
 
-        if (error) {
-          console.error('Error fetching thresholds:', error);
-          throw error;
-        }
-
-        if (data && data.length > 0) {
-          setDemandVariabilityThreshold(Math.round(data[0].demand_variability_threshold * 100));
-          setDecouplingThreshold(Math.round(data[0].decoupling_threshold * 100));
-        }
-      } catch (err) {
-        console.error('Failed to fetch threshold values:', err);
-        toast({
-          variant: "destructive",
-          title: "Failed to load thresholds",
-          description: "Could not load threshold configuration values."
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchThresholds();
-  }, [toast]);
-
-  // Update threshold values in database
   const handleSaveThresholds = async () => {
-    setUpdating(true);
     try {
-      const { error } = await supabase
-        .from('threshold_config')
-        .update({
-          demand_variability_threshold: demandVariabilityThreshold / 100,
-          decoupling_threshold: decouplingThreshold / 100,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', 1);
-
-      if (error) {
-        console.error('Error updating thresholds:', error);
-        
-        // Try inserting if update failed (might be first time setup)
-        const { error: insertError } = await supabase
-          .from('threshold_config')
-          .insert({
-            demand_variability_threshold: demandVariabilityThreshold / 100,
-            decoupling_threshold: decouplingThreshold / 100,
-            first_time_adjusted: true
-          });
-          
-        if (insertError) {
-          console.error('Error inserting thresholds:', insertError);
-          throw insertError;
-        }
-      }
-
-      toast({
-        title: "Thresholds Updated",
-        description: "Threshold values have been saved successfully."
+      setIsSaving(true);
+      
+      const success = await updateThresholdConfig({
+        demand_variability_threshold: demandVariabilityThreshold,
+        decoupling_threshold: decouplingThreshold,
+        first_time_adjusted: true
       });
-    } catch (err) {
-      console.error('Failed to update threshold values:', err);
+      
+      if (success) {
+        toast({
+          title: "Thresholds Saved",
+          description: "Classification thresholds have been updated successfully.",
+        });
+      } else {
+        throw new Error("Failed to update thresholds");
+      }
+    } catch (error) {
+      console.error("Error saving thresholds:", error);
       toast({
+        title: "Error",
+        description: "Failed to update thresholds. Please try again.",
         variant: "destructive",
-        title: "Failed to update thresholds",
-        description: "Could not save threshold configuration values."
       });
     } finally {
-      setUpdating(false);
+      setIsSaving(false);
     }
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Classification Thresholds</CardTitle>
+        <CardTitle>Classification Thresholds</CardTitle>
+        <CardDescription>
+          Adjust thresholds used for automatic SKU classification
+        </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-8">
-          <div className="space-y-4">
-            <div className="flex justify-between">
-              <Label htmlFor="demand-variability-threshold">
-                Demand Variability Threshold
-              </Label>
-              <span className="text-sm font-medium">{demandVariabilityThreshold}%</span>
-            </div>
-            <Slider
-              id="demand-variability-threshold"
-              disabled={loading}
-              value={[demandVariabilityThreshold]}
-              onValueChange={(values) => setDemandVariabilityThreshold(values[0])}
-              min={0}
-              max={100}
-              step={1}
-            />
-            <p className="text-xs text-muted-foreground">
-              Items with variability above this threshold will be classified as high variability.
-            </p>
+      <CardContent className="space-y-6">
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <Label htmlFor="demand-variability">Demand Variability Threshold</Label>
+            <span className="text-sm font-medium">{(demandVariabilityThreshold * 100).toFixed(0)}%</span>
           </div>
-          
-          <div className="space-y-4">
-            <div className="flex justify-between">
-              <Label htmlFor="decoupling-threshold">
-                Decoupling Point Threshold
-              </Label>
-              <span className="text-sm font-medium">{decouplingThreshold}%</span>
-            </div>
-            <Slider
-              id="decoupling-threshold"
-              disabled={loading}
-              value={[decouplingThreshold]}
-              onValueChange={(values) => setDecouplingThreshold(values[0])}
-              min={0}
-              max={100}
-              step={1}
-            />
-            <p className="text-xs text-muted-foreground">
-              Locations with lead time variability above this threshold are candidates for decoupling points.
-            </p>
-          </div>
-          
-          <div className="flex justify-end">
-            <Button 
-              onClick={handleSaveThresholds} 
-              disabled={loading || updating}
-            >
-              {updating ? "Saving..." : "Save Thresholds"}
-            </Button>
-          </div>
+          <Slider
+            id="demand-variability"
+            min={0}
+            max={1}
+            step={0.01}
+            value={[demandVariabilityThreshold]}
+            onValueChange={(values) => setDemandVariabilityThreshold(values[0])}
+            disabled={loading || isSaving}
+          />
+          <p className="text-sm text-muted-foreground">
+            Items with demand variation coefficient above this threshold will be classified as high variability.
+          </p>
         </div>
+
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <Label htmlFor="decoupling-threshold">Decoupling Point Threshold</Label>
+            <span className="text-sm font-medium">{(decouplingThreshold * 100).toFixed(0)}%</span>
+          </div>
+          <Slider
+            id="decoupling-threshold"
+            min={0}
+            max={1}
+            step={0.01}
+            value={[decouplingThreshold]}
+            onValueChange={(values) => setDecouplingThreshold(values[0])}
+            disabled={loading || isSaving}
+          />
+          <p className="text-sm text-muted-foreground">
+            Supply chain locations with strategic importance above this threshold will be considered decoupling points.
+          </p>
+        </div>
+
+        <Button 
+          onClick={handleSaveThresholds} 
+          className="w-full"
+          disabled={loading || isSaving}
+        >
+          {isSaving ? "Saving..." : "Save Thresholds"}
+        </Button>
       </CardContent>
     </Card>
   );

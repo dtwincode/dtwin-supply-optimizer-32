@@ -25,34 +25,33 @@ const InventoryFilters = ({
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        // Check if location_master table exists
+        // Use the location_master table as shown in the schema
         const { data, error } = await supabase
           .from('location_master')
           .select('location_id, warehouse');
 
         if (error) {
           console.error("Error fetching locations:", error);
-          // Use mock data
+          // Use minimal mock data as fallback
           setLocations([
-            { id: 'loc-main-warehouse', name: 'Main Warehouse' },
-            { id: 'loc-distribution-center', name: 'Distribution Center' },
-            { id: 'loc-retail-store', name: 'Retail Store' }
+            { id: 'all', name: 'All Locations' }
           ]);
         } else if (data) {
           // Map data to expected format
-          const locationData = data.map(loc => ({
-            id: loc.location_id,
-            name: loc.warehouse || loc.location_id
-          }));
+          const locationData = [
+            { id: 'all', name: 'All Locations' },
+            ...data.map(loc => ({
+              id: loc.location_id,
+              name: loc.warehouse || loc.location_id
+            }))
+          ];
           setLocations(locationData);
         }
       } catch (err) {
         console.error("Error fetching locations:", err);
-        // Fallback to mock data
+        // Fallback to minimal mock data
         setLocations([
-          { id: 'loc-main-warehouse', name: 'Main Warehouse' },
-          { id: 'loc-distribution-center', name: 'Distribution Center' },
-          { id: 'loc-retail-store', name: 'Retail Store' }
+          { id: 'all', name: 'All Locations' }
         ]);
       } finally {
         setLoading(false);
@@ -79,9 +78,6 @@ const InventoryFilters = ({
           <SelectValue placeholder={t("common.inventory.allLocations")} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">
-            {t("common.inventory.allLocations")}
-          </SelectItem>
           {locations.map((location) => (
             <SelectItem key={location.id} value={location.id}>
               {location.name}
