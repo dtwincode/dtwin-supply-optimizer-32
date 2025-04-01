@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { SKUClassification } from "@/types/inventory";
+import { SKUClassification } from "@/types/inventory/classificationTypes"; // Direct import
 import { format } from 'date-fns';
 
 interface SKUClassificationsProps {

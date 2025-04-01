@@ -3,10 +3,10 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { 
   InventoryItem, 
-  SKUClassification,
   PaginationState,
   ReplenishmentData
 } from '@/types/inventory';
+import { SKUClassification } from '@/types/inventory/classificationTypes';
 
 interface UseInventoryDataProps {
   initialPage?: number;

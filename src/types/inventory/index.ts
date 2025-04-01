@@ -123,3 +123,5 @@ export interface DecouplingPoint {
   bufferProfileId: string;
 }
 
+// Import Classification from classificationTypes
+import { Classification } from './classificationTypes';

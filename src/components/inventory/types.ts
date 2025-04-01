@@ -16,5 +16,6 @@ export interface LeadTimeAnomaly {
   detection_date: string;
 }
 
-// Re-export types from the main types
-export type { Classification, SKUClassification, ReplenishmentData } from "@/types/inventory";
+// Re-export types from the main types explicitly from classificationTypes
+import { Classification, SKUClassification, ReplenishmentData } from "@/types/inventory/classificationTypes";
+export type { Classification, SKUClassification, ReplenishmentData };
