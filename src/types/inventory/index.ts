@@ -76,5 +76,25 @@ export interface InventoryItem {
   netFlowPosition?: number;
   planningPriority?: string;
   bufferPenetration?: number;
+  
+  // Classification data
   classification?: Classification;
+}
+
+// Define ReplenishmentData interface with additional fields needed by components
+export interface ReplenishmentData {
+  id: string;
+  sku: string;
+  quantity: number;
+  replenishmentType: string;
+  source: string;
+  destination: string;
+  status: string;
+  expectedDate: string;
+  internalTransferTime?: number;
+  totalCycleTime?: number;
+  lastUpdated?: string;
+  locationFrom?: string;
+  locationTo?: string;
+  replenishmentLeadTime?: number;
 }
