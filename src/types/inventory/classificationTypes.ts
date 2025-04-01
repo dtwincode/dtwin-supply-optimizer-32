@@ -1,5 +1,4 @@
 
-
 export interface SKUClassification {
   id?: string;
   sku: string;
@@ -41,4 +40,3 @@ export interface ReplenishmentData {
   reorderPoint?: number;
   targetLevel?: number;
 }
-
