@@ -7,43 +7,6 @@ export * from './databaseTypes';
 export * from './inventoryFilters';
 export * from './shipmentTypes';
 
-// Classification interface
-export interface Classification {
-  leadTimeCategory: 'short' | 'medium' | 'long';
-  variabilityLevel: 'low' | 'medium' | 'high'; 
-  criticality: 'low' | 'medium' | 'high';
-  score?: number;
-}
-
-// SKU Classification interface - updated to match the database structure
-export interface SKUClassification {
-  id?: string;
-  sku: string;
-  product_id?: string;
-  location_id?: string;
-  classification: Classification;
-  category?: string;
-  last_updated?: string;
-}
-
-// ReplenishmentData interface
-export interface ReplenishmentData {
-  id: string;
-  sku: string;
-  quantity: number;
-  replenishmentType: string;
-  source: string;
-  destination: string;
-  status: string;
-  expectedDate: string;
-  lastUpdated?: string;
-  locationFrom?: string;
-  locationTo?: string;
-  replenishmentLeadTime?: number;
-  totalCycleTime?: number;
-  internalTransferTime?: number;
-}
-
 // PaginationState interface
 export interface PaginationState {
   page: number;
