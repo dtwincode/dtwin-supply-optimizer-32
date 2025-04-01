@@ -1,114 +1,42 @@
+"use client";
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { InventoryItem, PurchaseOrder } from "@/types/inventory";
-import { createPurchaseOrder } from "@/services/inventoryService";
-import { DataTable } from "@/components/ui/data-table";
-import { PaginationState } from "@/types/inventory/databaseTypes";
+import { ClassificationManager } from "./classification/ClassificationManager";
+import { DecouplingDashboard } from "./decoupling/DecouplingDashboard";
+import { BufferingDashboard } from "./buffer/BufferingDashboard";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
-interface InventoryDashboardProps {
-  items: InventoryItem[];
-  pagination: PaginationState;
-  onPageChange: (page: number) => void;
-}
-
-export const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
-  items,
-  pagination,
-  onPageChange
-}) => {
-  const { toast } = useToast();
-  const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({});
-
-  const handleCreatePO = async (item: InventoryItem) => {
-    setLoadingItems(prev => ({ ...prev, [item.id]: true }));
-    
-    try {
-      const order: Omit<PurchaseOrder, 'id'> = {
-        poNumber: `PO-${Date.now().toString().slice(-6)}`,
-        sku: item.sku,
-        quantity: Math.max(item.redZoneSize || 100, 10),
-        createdBy: 'system',
-        status: 'pending',
-        orderDate: new Date().toISOString()
-      };
-      
-      await createPurchaseOrder(order);
-      
-      toast({
-        title: "Success",
-        description: `Purchase order created successfully`,
-      });
-    } catch (error) {
-      console.error('Error creating purchase order:', error);
-      toast({
-        title: "Error",
-        description: "Failed to create purchase order",
-        variant: "destructive",
-      });
-    } finally {
-      setLoadingItems(prev => ({ ...prev, [item.id]: false }));
-    }
-  };
-
-  const columns = [
-    {
-      accessorKey: 'sku',
-      header: 'SKU',
-    },
-    {
-      accessorKey: 'name',
-      header: 'Name',
-    },
-    {
-      accessorKey: 'currentStock',
-      header: 'Current Stock',
-    },
-    {
-      accessorKey: 'netFlowPosition',
-      header: 'Net Flow Position',
-    },
-    {
-      id: 'actions',
-      header: 'Actions',
-      cell: ({ row }: any) => {
-        const item = row.original;
-        const isLoading = loadingItems[item.id] || false;
-        
-        return (
-          <Button 
-            variant="outline" 
-            size="sm"
-            disabled={isLoading}
-            onClick={() => handleCreatePO(item)}
-          >
-            {isLoading ? 'Creating...' : 'Create PO'}
-          </Button>
-        );
-      }
-    },
-  ];
-
+export function InventoryDashboard() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Inventory Dashboard</CardTitle>
-        <CardDescription>Monitor and manage your inventory items</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <DataTable 
-          columns={columns} 
-          data={items} 
-          pagination={{
-            pageSize: pagination.itemsPerPage,
-            pageIndex: pagination.currentPage - 1,
-            pageCount: Math.ceil(pagination.totalItems / pagination.itemsPerPage),
-            onPageChange: (page) => onPageChange(page + 1)
-          }}
-        />
-      </CardContent>
-    </Card>
+    <div className="grid grid-cols-1 gap-4 p-4">
+      {/* Classification Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>SKU Classification</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ClassificationManager />
+        </CardContent>
+      </Card>
+
+      {/* Decoupling Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Decoupling Point Analysis</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <DecouplingDashboard />
+        </CardContent>
+      </Card>
+
+      {/* Buffering Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Buffer Stock Profiles</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <BufferingDashboard />
+        </CardContent>
+      </Card>
+    </div>
   );
-};
+}
