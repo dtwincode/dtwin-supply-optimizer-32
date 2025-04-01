@@ -22,47 +22,99 @@ export const useInventory = (initialPage = 1, initialLimit = 10, searchQuery = '
       try {
         setLoading(true);
         
-        // Build query with filters
-        let query = supabase
-          .from("inventory_data")
-          .select("*");
+        // First, check if inventory_planning_view exists and has data
+        const { data: planningViewData, error: planningViewError, count: planningViewCount } = await supabase
+          .from("inventory_planning_view")
+          .select("*", { count: 'exact' });
         
-        // Apply search filter if provided
-        if (searchQuery && searchQuery.trim() !== '') {
-          query = query.ilike('product_id', `%${searchQuery}%`);
+        if (planningViewError) {
+          console.error('Error checking inventory_planning_view:', planningViewError);
+          throw planningViewError;
         }
         
-        // Apply location filter if provided
-        if (locationId && locationId.trim() !== '') {
-          query = query.eq('location_id', locationId);
-        }
-        
-        // Apply pagination
-        const from = (pagination.page - 1) * pagination.limit;
-        const to = pagination.page * pagination.limit - 1;
-        
-        const { data, error: fetchError, count } = await query
-          .order('last_updated', { ascending: false })
-          .range(from, to)
-          .select('*', { count: 'exact' });
+        // If we have data in inventory_planning_view, use it
+        if (planningViewData && planningViewData.length > 0) {
+          // Apply filters if provided
+          let query = supabase
+            .from("inventory_planning_view")
+            .select("*, location_master!inner(warehouse, city, region, channel)");
+          
+          // Apply search filter if provided
+          if (searchQuery && searchQuery.trim() !== '') {
+            query = query.ilike('product_id', `%${searchQuery}%`);
+          }
+          
+          // Apply location filter if provided
+          if (locationId && locationId.trim() !== '' && locationId !== 'all') {
+            query = query.eq('location_id', locationId);
+          }
+          
+          // Apply pagination
+          const from = (pagination.page - 1) * pagination.limit;
+          const to = pagination.page * pagination.limit - 1;
+          
+          const { data, error: fetchError, count } = await query
+            .order('product_id', { ascending: true })
+            .range(from, to)
+            .select('*', { count: 'exact' });
 
-        if (fetchError) throw fetchError;
-        
-        // Get the total count for pagination
-        const totalCount = count || 0;
-        
-        if (data) {
-          setItems(data as InventoryItem[]);
-          setPagination({
-            page: pagination.page,
-            limit: pagination.limit,
-            total: Math.ceil(totalCount / pagination.limit),
-            currentPage: pagination.page,
-            itemsPerPage: pagination.limit,
-            totalItems: totalCount
-          });
+          if (fetchError) throw fetchError;
+          
+          // Get the total count for pagination
+          const totalCount = count || 0;
+          
+          if (data) {
+            setItems(data as InventoryItem[]);
+            setPagination({
+              page: pagination.page,
+              limit: pagination.limit,
+              total: Math.ceil(totalCount / pagination.limit),
+              currentPage: pagination.page,
+              itemsPerPage: pagination.limit,
+              totalItems: totalCount
+            });
+          }
+        } else {
+          // Fall back to inventory_data
+          let query = supabase
+            .from("inventory_data")
+            .select("*, location_master!inner(warehouse, city, region, channel)");
+          
+          // Apply filters
+          if (searchQuery && searchQuery.trim() !== '') {
+            query = query.ilike('product_id', `%${searchQuery}%`);
+          }
+          
+          if (locationId && locationId.trim() !== '' && locationId !== 'all') {
+            query = query.eq('location_id', locationId);
+          }
+          
+          const from = (pagination.page - 1) * pagination.limit;
+          const to = pagination.page * pagination.limit - 1;
+          
+          const { data, error: fetchError, count } = await query
+            .order('last_updated', { ascending: false })
+            .range(from, to)
+            .select('*', { count: 'exact' });
+
+          if (fetchError) throw fetchError;
+          
+          const totalCount = count || 0;
+          
+          if (data) {
+            setItems(data as InventoryItem[]);
+            setPagination({
+              page: pagination.page,
+              limit: pagination.limit,
+              total: Math.ceil(totalCount / pagination.limit),
+              currentPage: pagination.page,
+              itemsPerPage: pagination.limit,
+              totalItems: totalCount
+            });
+          }
         }
       } catch (err) {
+        console.error('Error fetching inventory data:', err);
         setError(err instanceof Error ? err : new Error('An unknown error occurred'));
       } finally {
         setLoading(false);
@@ -85,14 +137,25 @@ export const useInventory = (initialPage = 1, initialLimit = 10, searchQuery = '
   const refreshData = async () => {
     setLoading(true);
     try {
-      const { data, error: fetchError } = await supabase
-        .from("inventory_data")
+      const { data: planningViewData, error: planningViewError } = await supabase
+        .from("inventory_planning_view")
         .select("*");
-
-      if (fetchError) throw fetchError;
       
-      if (data) {
-        setItems(data as InventoryItem[]);
+      if (planningViewError) {
+        console.error('Error checking inventory_planning_view:', planningViewError);
+        
+        // Fall back to inventory_data
+        const { data, error: fetchError } = await supabase
+          .from("inventory_data")
+          .select("*");
+
+        if (fetchError) throw fetchError;
+        
+        if (data) {
+          setItems(data as InventoryItem[]);
+        }
+      } else if (planningViewData && planningViewData.length > 0) {
+        setItems(planningViewData as InventoryItem[]);
       }
     } catch (err) {
       setError(err instanceof Error ? err : new Error('An unknown error occurred'));

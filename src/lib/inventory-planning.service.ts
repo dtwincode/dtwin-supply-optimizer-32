@@ -1,10 +1,6 @@
 
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "./supabaseClient";
 import { InventoryPlanningItem } from "@/types/inventory/planningTypes";
-
-const supabaseUrl = import.meta.env.NEXT_PUBLIC_SUPABASE_URL || 'https://mttzjxktvbsixjaqiuxq.supabase.co';
-const supabaseKey = import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im10dHpqeGt0dmJzaXhqYXFpdXhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkxNjk4NDEsImV4cCI6MjA1NDc0NTg0MX0.-6wiezDQfeFz3ecyuHP4A6QkcRRxBG4j8pxyAp7hkx8';
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function fetchInventoryPlanningView(filters?: {
   searchQuery?: string;
@@ -47,7 +43,7 @@ export async function fetchInventoryPlanningView(filters?: {
 
 export async function fetchLocations(): Promise<string[]> {
   const { data, error } = await supabase
-    .from("inventory_planning_view")
+    .from("location_master")
     .select("location_id")
     .order("location_id");
 
@@ -63,9 +59,9 @@ export async function fetchLocations(): Promise<string[]> {
 
 export async function fetchBufferProfiles(): Promise<string[]> {
   const { data, error } = await supabase
-    .from("inventory_planning_view")
-    .select("buffer_profile_id")
-    .order("buffer_profile_id");
+    .from("buffer_profiles")
+    .select("id")
+    .order("id");
 
   if (error) {
     console.error("Error fetching buffer profiles:", error.message);
@@ -73,6 +69,6 @@ export async function fetchBufferProfiles(): Promise<string[]> {
   }
 
   // Extract unique buffer profile IDs and ensure they are strings
-  const profiles = [...new Set(data.map(item => String(item.buffer_profile_id)))].filter(Boolean);
+  const profiles = [...new Set(data.map(item => String(item.id)))].filter(Boolean);
   return profiles as string[];
 }

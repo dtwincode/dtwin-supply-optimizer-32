@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Classification } from "@/types/inventory";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SKUCard } from "./classification/SKUCard";
-import { fetchInventoryPlanningView } from "@/lib/inventory-planning.service";
+import { supabase } from "@/lib/supabaseClient";
 
 interface SKUClassificationItem {
   product_id: string;
@@ -21,8 +21,13 @@ export function SKUClassifications() {
   const loadClassifications = async () => {
     setIsLoading(true);
     try {
-      const data = await fetchInventoryPlanningView();
-      setClassifications(data);
+      const { data, error } = await supabase
+        .from('inventory_planning_view')
+        .select('*');
+      
+      if (error) throw error;
+      
+      setClassifications(data || []);
     } catch (error) {
       console.error("Error loading classifications:", error);
     } finally {
@@ -41,35 +46,46 @@ export function SKUClassifications() {
   return (
     <TooltipProvider>
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2">
-        {classifications.map((item, index) => {
-          // Create a Classification object from the data
-          const classification: Classification = {
-            leadTimeCategory:
-              item.lead_time_days && item.lead_time_days > 30
-                ? "long"
-                : item.lead_time_days && item.lead_time_days > 15
-                ? "medium"
-                : "short",
-            variabilityLevel:
-              item.demand_variability && item.demand_variability > 1
-                ? "high"
-                : item.demand_variability && item.demand_variability > 0.5
-                ? "medium"
-                : "low",
-            criticality: item.decoupling_point ? "high" : "low",
-            score: item.max_stock_level || 0,
-          };
+        {classifications.length === 0 ? (
+          <div className="col-span-full p-6 text-center text-gray-500">
+            No classification data available. Check your inventory planning data.
+          </div>
+        ) : (
+          classifications.map((item, index) => {
+            // Determine classification categories based on database values
+            const leadTimeCategory = item.lead_time_days && item.lead_time_days > 30
+              ? "long"
+              : item.lead_time_days && item.lead_time_days > 15
+              ? "medium"
+              : "short";
+              
+            const variabilityLevel = item.demand_variability && item.demand_variability > 1
+              ? "high"
+              : item.demand_variability && item.demand_variability > 0.5
+              ? "medium"
+              : "low";
+              
+            const criticality = item.decoupling_point ? "high" : "low";
+            
+            // Create a Classification object from the data
+            const classification: Classification = {
+              leadTimeCategory,
+              variabilityLevel,
+              criticality,
+              score: item.max_stock_level || 0,
+            };
 
-          return (
-            <SKUCard
-              key={`${item.product_id}-${item.location_id}`}
-              sku={item.product_id}
-              classification={classification}
-              lastUpdated={new Date().toISOString()}
-              index={index}
-            />
-          );
-        })}
+            return (
+              <SKUCard
+                key={`${item.product_id}-${item.location_id}`}
+                sku={item.product_id}
+                classification={classification}
+                lastUpdated={new Date().toISOString()}
+                index={index}
+              />
+            );
+          })
+        )}
       </div>
     </TooltipProvider>
   );

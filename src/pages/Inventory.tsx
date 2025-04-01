@@ -5,7 +5,6 @@ import { useI18n } from "@/contexts/I18nContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSearchParams } from "react-router-dom";
 import { Card } from "@/components/ui/card";
-import { inventoryData } from "@/data/inventoryData";
 import { InventoryItem, Classification } from "@/types/inventory";
 import { useInventory } from "@/hooks/useInventory";
 import { DecouplingNetworkBoard } from "@/components/inventory/DecouplingNetworkBoard";
@@ -20,7 +19,6 @@ import { Separator } from "@/components/ui/separator";
 import { Package, Pin, Clock, BarChart } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import InventoryFilters from "@/components/inventory/InventoryFilters";
-import { useDecouplingPoints } from "@/hooks/useDecouplingPoints";
 
 // Function to transform database items to match InventoryItem interface
 const transformDatabaseItems = (items: any[]): InventoryItem[] => {
@@ -100,10 +98,6 @@ function Inventory() {
   
   // Use the custom hook with default values
   const { items, loading, error, pagination, paginate, refreshData } = useInventory();
-  
-  // Fetch decoupling points data
-  const { decouplingNetwork } = useDecouplingPoints();
-  
   const [paginatedData, setPaginatedData] = useState<InventoryItem[]>([]);
 
   // Transform database items and classify them
@@ -113,9 +107,9 @@ function Inventory() {
       setClassified(transformedItems);
       setPaginatedData(transformedItems);
     } else if (!loading && items.length === 0) {
-      // If no data from API, use mock data
-      setClassified(inventoryData);
-      setPaginatedData(inventoryData);
+      // No fallback to mock data - just show empty state
+      setClassified([]);
+      setPaginatedData([]);
     }
   }, [items, loading]);
 
@@ -218,7 +212,7 @@ function Inventory() {
           <TabsContent value="decoupling">
             <Card className="p-6">
               <NetworkDecouplingMap />
-              <DecouplingNetworkBoard network={decouplingNetwork} />
+              <DecouplingNetworkBoard />
             </Card>
           </TabsContent>
 

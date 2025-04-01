@@ -25,18 +25,18 @@ const InventoryFilters = ({
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        // Use the location_master table as shown in the schema
+        // Use the location_master table
         const { data, error } = await supabase
           .from('location_master')
-          .select('location_id, warehouse');
+          .select('location_id, warehouse')
+          .order('warehouse', { ascending: true });
 
         if (error) {
           console.error("Error fetching locations:", error);
-          // Use minimal mock data as fallback
           setLocations([
             { id: 'all', name: 'All Locations' }
           ]);
-        } else if (data) {
+        } else if (data && data.length > 0) {
           // Map data to expected format
           const locationData = [
             { id: 'all', name: 'All Locations' },
@@ -46,10 +46,14 @@ const InventoryFilters = ({
             }))
           ];
           setLocations(locationData);
+        } else {
+          // No locations found in database
+          setLocations([
+            { id: 'all', name: 'All Locations' }
+          ]);
         }
       } catch (err) {
         console.error("Error fetching locations:", err);
-        // Fallback to minimal mock data
         setLocations([
           { id: 'all', name: 'All Locations' }
         ]);
