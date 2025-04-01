@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SKUCard } from "./SKUCard";
 import { fetchInventoryPlanningView } from "@/lib/inventory-planning.service";
-import { Classification } from "@/types/inventory";
+import { Classification } from "@/types/inventory/classificationTypes";
 
 interface SKUClassificationItem {
   product_id: string;
@@ -23,7 +23,8 @@ export function SKUClassifications() {
     setIsLoading(true);
     try {
       const data = await fetchInventoryPlanningView();
-      setClassifications(data);
+      // Type assertion to match the expected type
+      setClassifications(data as unknown as SKUClassificationItem[]);
     } catch (error) {
       console.error("Error loading classifications:", error);
     } finally {

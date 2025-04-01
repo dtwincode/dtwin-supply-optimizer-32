@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,74 +12,81 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { InventoryItem } from "@/types/inventory";
-import { supabase } from "@/lib/supabaseClient";
+import { InventoryItem, BufferZones } from "@/types/inventory";
+import { calculateOrderQuantity } from "@/utils/inventoryUtils";
 import { useToast } from "@/hooks/use-toast";
-
-interface BufferZones {
-  red: number;
-  yellow: number;
-  green: number;
-}
+import { supabase } from "@/integrations/supabase/client";
 
 interface CreatePODialogProps {
   item: InventoryItem;
   bufferZones: BufferZones;
-  onSuccess: () => void;
+  onSuccess?: () => void;
 }
 
 export function CreatePODialog({ item, bufferZones, onSuccess }: CreatePODialogProps) {
-  const [open, setOpen] = useState(false);
-  const [quantity, setQuantity] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const [poNumber, setPoNumber] = useState("");
+  const [quantity, setQuantity] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const suggestedQuantity = Math.max(
-    bufferZones.red + bufferZones.yellow + bufferZones.green - (item.onHand || item.quantity_on_hand || 0),
-    0
-  );
+  const handleOpen = () => {
+    // Calculate recommended order quantity
+    const netFlowPosition = 
+      (item.onHand || item.currentStock || 0) + 
+      (item.onOrder || 0) - 
+      (item.qualifiedDemand || 0);
+    
+    const recommendedQty = calculateOrderQuantity(
+      netFlowPosition,
+      bufferZones,
+      item.minimumOrderQuantity
+    );
+    
+    setQuantity(recommendedQty);
+    setPoNumber(`PO-${item.sku}-${new Date().getTime().toString().substr(-6)}`);
+    setIsOpen(true);
+  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!quantity) {
-      toast({
-        title: "Quantity required",
-        description: "Please enter a quantity for the purchase order",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setIsSubmitting(true);
-    
+  const handleSubmit = async () => {
     try {
-      // Generate a unique PO number
-      const poNumber = `PO-${item.product_id}-${Date.now()}`;
+      setIsSubmitting(true);
       
-      // Create the purchase order in the database
-      const { error } = await supabase
-        .from("purchase_orders")
+      if (!poNumber || quantity <= 0) {
+        toast({
+          title: "Invalid Input",
+          description: "Please provide a valid PO number and quantity",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Create purchase order in database
+      const { data, error } = await supabase
+        .from('purchase_orders')
         .insert({
           po_number: poNumber,
-          sku: item.sku || item.product_id,
-          quantity: parseInt(quantity),
-          status: "draft",
+          sku: item.sku,
+          quantity: quantity,
+          status: 'draft',
           order_date: new Date().toISOString(),
+          created_by: 'system'
         });
       
       if (error) throw error;
       
       toast({
-        title: "Purchase order created",
-        description: `Purchase order ${poNumber} has been created successfully`,
+        title: "Purchase Order Created",
+        description: `Successfully created PO ${poNumber} for ${quantity} units of ${item.sku}`,
       });
       
-      setOpen(false);
-      onSuccess();
+      setIsOpen(false);
       
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error) {
-      console.error("Error creating purchase order:", error);
+      console.error('Error creating purchase order:', error);
       toast({
         title: "Error",
         description: "Failed to create purchase order. Please try again.",
@@ -91,75 +98,49 @@ export function CreatePODialog({ item, bufferZones, onSuccess }: CreatePODialogP
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button size="sm">Create PO</Button>
+        <Button variant="outline" size="sm" onClick={handleOpen}>
+          Create PO
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Create Purchase Order</DialogTitle>
           <DialogDescription>
-            Create a purchase order for {item.sku || item.product_id}
+            Create a new purchase order for {item.sku} at {item.location}.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="sku" className="text-right">
-                SKU
-              </Label>
-              <Input
-                id="sku"
-                value={item.sku || item.product_id || ""}
-                readOnly
-                className="col-span-3 bg-muted"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="suggestedQty" className="text-right">
-                Suggested Qty
-              </Label>
-              <Input
-                id="suggestedQty"
-                value={suggestedQuantity}
-                className="col-span-3 bg-muted"
-                readOnly
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="quantity" className="text-right">
-                Quantity *
-              </Label>
-              <Input
-                id="quantity"
-                type="number"
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                min="1"
-                className="col-span-3"
-                placeholder="Enter quantity"
-                required
-              />
-            </div>
-            
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="location" className="text-right">
-                Location
-              </Label>
-              <Input
-                id="location"
-                value={item.location || item.location_id || ""}
-                readOnly
-                className="col-span-3 bg-muted"
-              />
-            </div>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="poNumber" className="text-right">
+              PO Number
+            </Label>
+            <Input
+              id="poNumber"
+              value={poNumber}
+              onChange={(e) => setPoNumber(e.target.value)}
+              className="col-span-3"
+            />
           </div>
-          <DialogFooter>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Creating..." : "Create Purchase Order"}
-            </Button>
-          </DialogFooter>
-        </form>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="quantity" className="text-right">
+              Quantity
+            </Label>
+            <Input
+              id="quantity"
+              type="number"
+              value={quantity}
+              onChange={(e) => setQuantity(Number(e.target.value))}
+              className="col-span-3"
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button onClick={handleSubmit} disabled={isSubmitting}>
+            {isSubmitting ? "Creating..." : "Create Order"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -156,12 +156,13 @@ export interface BufferFactorConfig {
 }
 
 export interface SKUClassification {
-  id: string;
+  id?: string;
   sku: string;
-  category: string;
+  category?: string;
   subcategory?: string;
   classification: string;
   score?: number;
+  last_updated: string;
 }
 
 export interface Classification {

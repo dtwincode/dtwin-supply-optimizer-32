@@ -1,5 +1,5 @@
 
-import { TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { TableHead, TableRow, TableHeader } from "@/components/ui/table";
 
 export function InventoryTableHeader() {
   return (
@@ -8,7 +8,7 @@ export function InventoryTableHeader() {
         <TableHead>SKU</TableHead>
         <TableHead>Name</TableHead>
         <TableHead>On Hand</TableHead>
-        <TableHead>Status</TableHead>
+        <TableHead>Buffer Status</TableHead>
         <TableHead>Buffer</TableHead>
         <TableHead>Location</TableHead>
         <TableHead>Product Family</TableHead>
@@ -16,7 +16,7 @@ export function InventoryTableHeader() {
         <TableHead>Variability</TableHead>
         <TableHead>Criticality</TableHead>
         <TableHead>Score</TableHead>
-        <TableHead>Actions</TableHead>
+        <TableHead className="text-right">Actions</TableHead>
       </TableRow>
     </TableHeader>
   );

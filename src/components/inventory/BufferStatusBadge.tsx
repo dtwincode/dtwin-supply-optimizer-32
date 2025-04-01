@@ -6,36 +6,35 @@ interface BufferStatusBadgeProps {
 }
 
 export function BufferStatusBadge({ status }: BufferStatusBadgeProps) {
-  const getStatusConfig = () => {
+  const getStatusStyles = () => {
     switch (status) {
       case 'green':
-        return {
-          label: 'OK',
-          className: 'bg-green-100 text-green-800 hover:bg-green-100'
-        };
+        return 'bg-green-100 text-green-800 hover:bg-green-200';
       case 'yellow':
-        return {
-          label: 'Warning',
-          className: 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100'
-        };
+        return 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200';
       case 'red':
-        return {
-          label: 'Critical',
-          className: 'bg-red-100 text-red-800 hover:bg-red-100'
-        };
+        return 'bg-red-100 text-red-800 hover:bg-red-200';
       default:
-        return {
-          label: 'Unknown',
-          className: 'bg-gray-100 text-gray-800 hover:bg-gray-100'
-        };
+        return 'bg-gray-100 text-gray-800 hover:bg-gray-200';
     }
   };
 
-  const { label, className } = getStatusConfig();
+  const getStatusLabel = () => {
+    switch (status) {
+      case 'green':
+        return 'Green Zone';
+      case 'yellow':
+        return 'Yellow Zone';
+      case 'red':
+        return 'Red Zone';
+      default:
+        return 'Unknown';
+    }
+  };
 
   return (
-    <Badge variant="outline" className={className}>
-      {label}
+    <Badge className={getStatusStyles()} variant="outline">
+      {getStatusLabel()}
     </Badge>
   );
 }

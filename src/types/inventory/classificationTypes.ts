@@ -1,24 +1,39 @@
 
 export interface Classification {
-  leadTimeCategory?: 'short' | 'medium' | 'long';
-  variabilityLevel?: 'low' | 'medium' | 'high';
-  criticality?: 'low' | 'medium' | 'high';
-  score?: number;
+  id?: string;
+  name?: string;
+  description?: string;
+  criteria?: string;
+  score: number;
+  leadTimeCategory: 'short' | 'medium' | 'long';
+  variabilityLevel: 'low' | 'medium' | 'high';
+  criticality: 'low' | 'medium' | 'high';
 }
 
 export interface SKUClassification {
+  id?: string;
   sku: string;
+  category?: string;
+  subcategory?: string;
   classification: Classification;
   last_updated: string;
+  product_id?: string;
+  location_id?: string;
 }
 
 export interface ReplenishmentData {
-  id: string; 
+  id: string;
   sku: string;
+  quantity: number;
   replenishmentType: string;
-  supplier?: string;
+  source: string;
+  destination: string;
+  status: string;
+  expectedDate: string;
   internalTransferTime?: number;
-  replenishmentLeadTime?: number;
   totalCycleTime?: number;
   lastUpdated?: string;
+  locationFrom?: string;
+  locationTo?: string;
+  replenishmentLeadTime?: number;
 }

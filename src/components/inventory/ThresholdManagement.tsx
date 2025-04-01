@@ -1,164 +1,203 @@
 
-import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Slider } from "@/components/ui/slider";
-import { Label } from "@/components/ui/label";
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RefreshCw, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useThresholdConfig } from "@/hooks/useThresholdConfig";
-import { RefreshCw } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+
+interface ThresholdConfig {
+  id: number;
+  demand_variability_threshold: number;
+  decoupling_threshold: number;
+  updated_at: string;
+  first_time_adjusted: boolean;
+}
 
 export function ThresholdManagement() {
-  const { toast } = useToast();
-  const { config, loading, updateThresholdConfig, triggerBayesianUpdate } = useThresholdConfig();
-  
-  const [demandVariabilityThreshold, setDemandVariabilityThreshold] = useState<number>(
-    config?.demand_variability_threshold || 0.6
-  );
-  const [decouplingThreshold, setDecouplingThreshold] = useState<number>(
-    config?.decoupling_threshold || 0.75
-  );
+  const [config, setConfig] = useState<ThresholdConfig | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [demandVariabilityThreshold, setDemandVariabilityThreshold] = useState<number>(0.6);
+  const [decouplingThreshold, setDecouplingThreshold] = useState<number>(0.75);
+  const { toast } = useToast();
 
-  // Update local state when config loads
-  if (config && !loading && demandVariabilityThreshold === 0.6 && config.demand_variability_threshold !== 0.6) {
-    setDemandVariabilityThreshold(config.demand_variability_threshold);
-  }
-  
-  if (config && !loading && decouplingThreshold === 0.75 && config.decoupling_threshold !== 0.75) {
-    setDecouplingThreshold(config.decoupling_threshold);
-  }
+  useEffect(() => {
+    fetchThresholdConfig();
+  }, []);
 
-  const handleSaveThresholds = async () => {
+  const fetchThresholdConfig = async () => {
     try {
-      setIsSaving(true);
-      
-      const success = await updateThresholdConfig({
-        demand_variability_threshold: demandVariabilityThreshold,
-        decoupling_threshold: decouplingThreshold,
-        first_time_adjusted: true
-      });
-      
-      if (success) {
-        toast({
-          title: "Thresholds Saved",
-          description: "Classification thresholds have been updated successfully.",
-        });
-      } else {
-        throw new Error("Failed to update thresholds");
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('threshold_config')
+        .select('*')
+        .order('id', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        setConfig(data);
+        setDemandVariabilityThreshold(data.demand_variability_threshold);
+        setDecouplingThreshold(data.decoupling_threshold);
       }
     } catch (error) {
-      console.error("Error saving thresholds:", error);
+      console.error('Error fetching threshold config:', error);
       toast({
         title: "Error",
-        description: "Failed to update thresholds. Please try again.",
-        variant: "destructive",
+        description: "Failed to load threshold configuration. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const saveThresholdConfig = async () => {
+    try {
+      setIsSaving(true);
+
+      if (config) {
+        // Update existing config
+        const { error } = await supabase
+          .from('threshold_config')
+          .update({
+            demand_variability_threshold: demandVariabilityThreshold,
+            decoupling_threshold: decouplingThreshold,
+            first_time_adjusted: true
+          })
+          .eq('id', config.id);
+
+        if (error) throw error;
+      } else {
+        // Create new config
+        const { error } = await supabase
+          .from('threshold_config')
+          .insert({
+            demand_variability_threshold: demandVariabilityThreshold,
+            decoupling_threshold: decouplingThreshold,
+            first_time_adjusted: true
+          });
+
+        if (error) throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: "Threshold configuration has been saved.",
+      });
+
+      // Refresh the data
+      fetchThresholdConfig();
+    } catch (error) {
+      console.error('Error saving threshold config:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save threshold configuration. Please try again.",
+        variant: "destructive"
       });
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleBayesianUpdate = async () => {
-    try {
-      setIsUpdating(true);
-      
-      const success = await triggerBayesianUpdate();
-      
-      if (success) {
-        toast({
-          title: "Bayesian Update Complete",
-          description: "Thresholds have been updated based on performance data.",
-        });
-      } else {
-        throw new Error("Failed to run Bayesian update");
-      }
-    } catch (error) {
-      console.error("Error running Bayesian update:", error);
-      toast({
-        title: "Error",
-        description: "Failed to run Bayesian update. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Classification Thresholds</CardTitle>
-        <CardDescription>
-          Adjust thresholds used for automatic SKU classification
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <Label htmlFor="demand-variability">Demand Variability Threshold</Label>
-            <span className="text-sm font-medium">{(demandVariabilityThreshold * 100).toFixed(0)}%</span>
-          </div>
-          <Slider
-            id="demand-variability"
-            min={0}
-            max={1}
-            step={0.01}
-            value={[demandVariabilityThreshold]}
-            onValueChange={(values) => setDemandVariabilityThreshold(values[0])}
-            disabled={loading || isSaving}
-          />
-          <p className="text-sm text-muted-foreground">
-            Items with demand variation coefficient above this threshold will be classified as high variability.
-          </p>
-        </div>
-
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <Label htmlFor="decoupling-threshold">Decoupling Point Threshold</Label>
-            <span className="text-sm font-medium">{(decouplingThreshold * 100).toFixed(0)}%</span>
-          </div>
-          <Slider
-            id="decoupling-threshold"
-            min={0}
-            max={1}
-            step={0.01}
-            value={[decouplingThreshold]}
-            onValueChange={(values) => setDecouplingThreshold(values[0])}
-            disabled={loading || isSaving}
-          />
-          <p className="text-sm text-muted-foreground">
-            Supply chain locations with strategic importance above this threshold will be considered decoupling points.
-          </p>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-3">
-          <Button 
-            onClick={handleSaveThresholds} 
-            className="flex-1"
-            disabled={loading || isSaving || isUpdating}
-          >
-            {isSaving ? "Saving..." : "Save Thresholds"}
-          </Button>
-          
-          <Button 
-            onClick={handleBayesianUpdate}
-            variant="outline"
-            className="flex-1"
-            disabled={loading || isSaving || isUpdating}
-          >
-            {isUpdating ? (
-              <>
-                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                Updating...
-              </>
-            ) : (
-              "Run Bayesian Update"
-            )}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Inventory Thresholds Configuration</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="flex justify-center">
+              <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <div>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Configure thresholds that determine how inventory items are classified and when decoupling points are created.
+                </p>
+                
+                <div className="grid gap-6">
+                  <div className="grid gap-2">
+                    <Label htmlFor="demandVariabilityThreshold">
+                      Demand Variability Threshold
+                    </Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        id="demandVariabilityThreshold"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        max="2"
+                        value={demandVariabilityThreshold}
+                        onChange={(e) => setDemandVariabilityThreshold(parseFloat(e.target.value))}
+                      />
+                      <div className="flex items-center">
+                        <span className="text-sm text-muted-foreground">
+                          Values &gt; {demandVariabilityThreshold} considered high variability
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid gap-2">
+                    <Label htmlFor="decouplingThreshold">
+                      Decoupling Point Threshold
+                    </Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        id="decouplingThreshold"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        max="1"
+                        value={decouplingThreshold}
+                        onChange={(e) => setDecouplingThreshold(parseFloat(e.target.value))}
+                      />
+                      <div className="flex items-center">
+                        <span className="text-sm text-muted-foreground">
+                          Score &gt; {decouplingThreshold} creates decoupling point
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {config && (
+                    <div className="text-xs text-muted-foreground">
+                      Last updated: {new Date(config.updated_at).toLocaleString()}
+                    </div>
+                  )}
+                  
+                  <div className="flex justify-end">
+                    <Button 
+                      onClick={saveThresholdConfig} 
+                      disabled={isSaving}
+                    >
+                      {isSaving ? (
+                        <>
+                          <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="mr-2 h-4 w-4" />
+                          Save Thresholds
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
