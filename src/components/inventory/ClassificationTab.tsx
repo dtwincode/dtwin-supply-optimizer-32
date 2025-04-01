@@ -3,9 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
 import { SKUClassifications } from "./classification/SKUClassifications";
-import { ClassificationManager } from "./classification/ClassificationManager"; // Updated import path
+import { ClassificationManager } from "./classification/ClassificationManager";
 import { useEffect, useState } from "react";
-import { SKUClassification } from "@/types/inventory/classificationTypes"; // Direct import from classificationTypes
+import { SKUClassification } from "@/types/inventory/classificationTypes";
 
 export function ClassificationTab() {
   const { language } = useLanguage();
@@ -22,7 +22,7 @@ export function ClassificationTab() {
           criticality: "high",
           score: 85
         },
-        lastUpdated: new Date().toISOString()
+        last_updated: new Date().toISOString()
       },
       {
         sku: "SKU002",
@@ -32,7 +32,7 @@ export function ClassificationTab() {
           criticality: "medium",
           score: 65
         },
-        lastUpdated: new Date().toISOString()
+        last_updated: new Date().toISOString()
       },
       {
         sku: "SKU003",
@@ -42,7 +42,7 @@ export function ClassificationTab() {
           criticality: "low",
           score: 45
         },
-        lastUpdated: new Date().toISOString()
+        last_updated: new Date().toISOString()
       }
     ]);
   }, []);

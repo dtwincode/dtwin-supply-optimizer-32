@@ -3,10 +3,9 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { 
   InventoryItem, 
-  PaginationState,
-  ReplenishmentData
+  PaginationState
 } from '@/types/inventory';
-import { SKUClassification } from '@/types/inventory/classificationTypes';
+import { SKUClassification, ReplenishmentData } from '@/types/inventory/classificationTypes';
 
 interface UseInventoryDataProps {
   initialPage?: number;
@@ -101,6 +100,14 @@ export const useInventoryData = ({
         const matchingPlanningData = planningData?.find(
           p => p.product_id === item.product_id && p.location_id === item.location_id
         );
+
+        // Transform the classification data to match our Classification interface
+        const classification = matchingClassification ? {
+          leadTimeCategory: matchingClassification.lead_time_category as 'short' | 'medium' | 'long',
+          variabilityLevel: matchingClassification.variability_level as 'low' | 'medium' | 'high',
+          criticality: matchingClassification.criticality as 'low' | 'medium' | 'high',
+          score: matchingClassification.score
+        } : undefined;
         
         return {
           id: item.inventory_id,
@@ -128,17 +135,28 @@ export const useInventoryData = ({
           safety_stock: matchingPlanningData?.safety_stock,
           max_stock_level: matchingPlanningData?.max_stock_level,
           
-          classification: matchingClassification ? {
-            leadTimeCategory: matchingClassification.lead_time_category,
-            variabilityLevel: matchingClassification.variability_level,
-            criticality: matchingClassification.criticality,
-            score: matchingClassification.score
-          } : undefined
+          classification
         } as InventoryItem;
       }) || [];
 
+      // Transform classifications data to match our SKUClassification interface
+      const transformedClassifications: SKUClassification[] = classificationsData?.map(c => ({
+        id: `${c.product_id}-${c.location_id}`,
+        sku: c.product_id,
+        product_id: c.product_id,
+        location_id: c.location_id,
+        category: c.classification_label,
+        last_updated: c.created_at,
+        classification: {
+          leadTimeCategory: c.lead_time_category as 'short' | 'medium' | 'long',
+          variabilityLevel: c.variability_level as 'low' | 'medium' | 'high',
+          criticality: c.criticality as 'low' | 'medium' | 'high',
+          score: c.score
+        }
+      })) || [];
+
       setItems(enrichedItems);
-      setSkuClassifications(classificationsData || []);
+      setSkuClassifications(transformedClassifications);
       
       setPagination({
         ...pagination,

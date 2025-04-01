@@ -1,10 +1,11 @@
+
 import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { RefreshCw, Plus } from "lucide-react";
-import { SKUClassification } from "@/types/inventory";
+import { SKUClassification } from "@/types/inventory/classificationTypes";
 
 // Sample mock data - In a real app, this would come from a hook or context
 const mockClassifications: SKUClassification[] = [
@@ -16,7 +17,7 @@ const mockClassifications: SKUClassification[] = [
       criticality: "high",
       score: 85
     },
-    lastUpdated: "2024-05-15T10:30:00Z"
+    last_updated: "2024-05-15T10:30:00Z"
   },
   {
     sku: "SKU002",
@@ -26,7 +27,7 @@ const mockClassifications: SKUClassification[] = [
       criticality: "medium",
       score: 65
     },
-    lastUpdated: "2024-05-14T14:20:00Z"
+    last_updated: "2024-05-14T14:20:00Z"
   },
   {
     sku: "SKU003",
@@ -36,7 +37,7 @@ const mockClassifications: SKUClassification[] = [
       criticality: "low",
       score: 45
     },
-    lastUpdated: "2024-05-13T08:45:00Z"
+    last_updated: "2024-05-13T08:45:00Z"
   }
 ];
 
@@ -111,7 +112,7 @@ export function ClassificationManager() {
                 </TableCell>
                 <TableCell>{item.classification.score}</TableCell>
                 <TableCell className="text-xs text-muted-foreground">
-                  {new Date(item.lastUpdated).toLocaleString()}
+                  {new Date(item.last_updated || '').toLocaleString()}
                 </TableCell>
               </TableRow>
             ))}
