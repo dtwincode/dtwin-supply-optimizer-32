@@ -6,7 +6,7 @@ import { InventoryTableHeader } from "./InventoryTableHeader";
 import { BufferStatusBadge } from "./BufferStatusBadge";
 import { BufferVisualizer } from "./BufferVisualizer";
 import { CreatePODialog } from "./CreatePODialog";
-import { InventoryItem, Classification } from "@/types/inventory";
+import { InventoryItem } from "@/types/inventory";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
@@ -24,33 +24,28 @@ interface NetFlowPosition {
   netFlowPosition: number;
 }
 
-const simplifiedCalculateBufferZones = (item: InventoryItem): BufferZones => {
+const calculateBufferZones = (item: InventoryItem): BufferZones => {
   try {
-    const redZone = item.redZoneSize || 
-                   item.safety_stock || 
-                   (item.adu && item.leadTimeDays 
-                    ? Math.round(item.adu * (item.leadTimeDays * 0.33)) 
-                    : (item.average_daily_usage && item.lead_time_days 
-                      ? Math.round(item.average_daily_usage * (item.lead_time_days * 0.33)) 
-                      : 0));
-                      
-    const yellowZone = item.yellowZoneSize || 
-                      (item.min_stock_level && item.safety_stock 
-                        ? item.min_stock_level - item.safety_stock 
-                        : (item.adu && item.leadTimeDays 
-                          ? Math.round(item.adu * item.leadTimeDays) 
-                          : (item.average_daily_usage && item.lead_time_days 
-                            ? Math.round(item.average_daily_usage * item.lead_time_days) 
-                            : 0)));
-                            
-    const greenZone = item.greenZoneSize || 
-                     (item.max_stock_level && item.min_stock_level 
-                      ? item.max_stock_level - item.min_stock_level 
-                      : (item.adu && item.leadTimeDays 
-                        ? Math.round(item.adu * (item.leadTimeDays * 0.5)) 
-                        : (item.average_daily_usage && item.lead_time_days 
-                          ? Math.round(item.average_daily_usage * (item.lead_time_days * 0.5)) 
-                          : 0)));
+    // Use values directly from inventory_planning_view if available
+    if (item.safety_stock !== undefined && item.min_stock_level !== undefined) {
+      const redZone = Math.round(item.safety_stock);
+      const yellowZone = Math.round(item.min_stock_level - item.safety_stock);
+      const greenZone = Math.round(item.max_stock_level ? item.max_stock_level - item.min_stock_level : yellowZone * 0.5);
+      
+      return { red: redZone, yellow: yellowZone, green: greenZone };
+    }
+    
+    // Fallback to calculation if planning view fields aren't available
+    const adu = item.adu || item.average_daily_usage || 0;
+    const leadTimeDays = item.leadTimeDays || item.lead_time_days || 0;
+    
+    if (!adu || !leadTimeDays) {
+      return { red: 0, yellow: 0, green: 0 };
+    }
+    
+    const redZone = Math.round(adu * (leadTimeDays * 0.33));
+    const yellowZone = Math.round(adu * leadTimeDays);
+    const greenZone = Math.round(adu * (leadTimeDays * 0.5));
     
     return { red: redZone, yellow: yellowZone, green: greenZone };
   } catch (error) {
@@ -59,7 +54,7 @@ const simplifiedCalculateBufferZones = (item: InventoryItem): BufferZones => {
   }
 };
 
-const simplifiedCalculateNetFlowPosition = (item: InventoryItem): NetFlowPosition => {
+const calculateNetFlowPosition = (item: InventoryItem): NetFlowPosition => {
   try {
     const onHand = item.onHand || item.quantity_on_hand || 0;
     const onOrder = item.onOrder || 0;
@@ -73,10 +68,12 @@ const simplifiedCalculateNetFlowPosition = (item: InventoryItem): NetFlowPositio
   }
 };
 
-const simplifiedCalculateBufferPenetration = (netFlowPosition: number, bufferZones: BufferZones): number => {
+const calculateBufferPenetration = (netFlowPosition: number, bufferZones: BufferZones): number => {
   try {
     const totalBuffer = bufferZones.red + bufferZones.yellow + bufferZones.green;
-    const penetration = totalBuffer > 0 ? ((totalBuffer - netFlowPosition) / totalBuffer) * 100 : 0;
+    if (totalBuffer <= 0) return 0;
+    
+    const penetration = ((totalBuffer - netFlowPosition) / totalBuffer) * 100;
     return Math.max(0, Math.min(100, penetration));
   } catch (error) {
     console.error("Error calculating buffer penetration:", error);
@@ -84,7 +81,7 @@ const simplifiedCalculateBufferPenetration = (netFlowPosition: number, bufferZon
   }
 };
 
-const simplifiedGetBufferStatus = (bufferPenetration: number): 'green' | 'yellow' | 'red' => {
+const getBufferStatus = (bufferPenetration: number): 'green' | 'yellow' | 'red' => {
   try {
     if (bufferPenetration <= 33) return 'green';
     if (bufferPenetration <= 66) return 'yellow';
@@ -126,17 +123,15 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
         const bufferData: Record<string, any> = {};
         
         for (const item of paginatedData) {
-          if (!item || !item.id) continue;
+          const uniqueKey = item.id || `${item.product_id}-${item.location_id}`;
+          if (!uniqueKey) continue;
           
-          // Generate a unique key using product_id and location_id if id is not available
-          const itemKey = item.id || `${item.product_id}-${item.location_id}`;
+          const bufferZones = calculateBufferZones(item);
+          const netFlow = calculateNetFlowPosition(item);
+          const bufferPenetration = calculateBufferPenetration(netFlow.netFlowPosition, bufferZones);
+          const status = getBufferStatus(bufferPenetration);
           
-          const bufferZones = simplifiedCalculateBufferZones(item);
-          const netFlow = simplifiedCalculateNetFlowPosition(item);
-          const bufferPenetration = simplifiedCalculateBufferPenetration(netFlow.netFlowPosition, bufferZones);
-          const status = simplifiedGetBufferStatus(bufferPenetration);
-          
-          bufferData[itemKey] = {
+          bufferData[uniqueKey] = {
             bufferZones,
             netFlow,
             bufferPenetration,
@@ -150,8 +145,8 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
         console.error("Error calculating buffer data:", error);
         setError("Failed to load buffer data");
         toast({
-          title: t("common.error"),
-          description: t("common.inventory.errorLoading"),
+          title: t("common.error") || "Error",
+          description: t("common.inventory.errorLoading") || "Failed to load inventory data",
           variant: "destructive",
         });
       } finally {
@@ -189,7 +184,7 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
   };
 
   if (loading) {
-    return <div className="p-6 text-center">{t("common.inventory.loadingData")}</div>;
+    return <div className="p-6 text-center">{t("common.inventory.loadingData") || "Loading inventory data..."}</div>;
   }
 
   if (error) {
@@ -216,23 +211,23 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
 
       {!paginatedData || paginatedData.length === 0 ? (
         <div className="text-center py-10">
-          <p className="text-muted-foreground">{t("common.inventory.noItems")}</p>
+          <p className="text-muted-foreground">{t("common.inventory.noItems") || "No inventory items found"}</p>
         </div>
       ) : (
         paginatedData.map((item) => {
-          const itemId = item.id || `${item.product_id}-${item.location_id}`;
-          if (!itemId) {
+          const uniqueKey = item.id || `${item.product_id}-${item.location_id}`;
+          if (!uniqueKey) {
             return null;
           }
           
-          const bufferData = itemBuffers[itemId];
+          const bufferData = itemBuffers[uniqueKey];
           
           if (!bufferData) {
-            return <div key={itemId} className="text-muted-foreground">{t("common.inventory.loadingItem")}</div>;
+            return <div key={uniqueKey} className="text-muted-foreground">{t("common.inventory.loadingItem") || "Loading item..."}</div>;
           }
 
           return (
-            <div key={itemId} className="space-y-4">
+            <div key={uniqueKey} className="space-y-4">
               <Table>
                 <InventoryTableHeader />
                 <TableBody>
@@ -252,21 +247,10 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
                     </TableCell>
                     <TableCell>{item.location || item.location_id || "N/A"}</TableCell>
                     <TableCell>{item.productFamily || "N/A"}</TableCell>
-                    <TableCell>{item.classification?.leadTimeCategory || 
-                                (item.lead_time_days ? 
-                                  (item.lead_time_days > 30 ? "long" : 
-                                   item.lead_time_days > 15 ? "medium" : "short") : 
-                                  "N/A")}</TableCell>
-                    <TableCell>{item.classification?.variabilityLevel || 
-                                (item.demand_variability ? 
-                                  (item.demand_variability > 1 ? "high" : 
-                                   item.demand_variability > 0.5 ? "medium" : "low") : 
-                                  "N/A")}</TableCell>
-                    <TableCell>{item.classification?.criticality || 
-                                (item.decoupling_point ? "high" : "low")}</TableCell>
-                    <TableCell>{item.classification?.score || 
-                                item.max_stock_level || 
-                                "N/A"}</TableCell>
+                    <TableCell>{item.classification?.leadTimeCategory || "N/A"}</TableCell>
+                    <TableCell>{item.classification?.variabilityLevel || "N/A"}</TableCell>
+                    <TableCell>{item.classification?.criticality || "N/A"}</TableCell>
+                    <TableCell>{item.classification?.score ?? "N/A"}</TableCell>
                     <TableCell>
                       <CreatePODialog 
                         item={item}

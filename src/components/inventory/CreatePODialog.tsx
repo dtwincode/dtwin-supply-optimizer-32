@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,9 +12,9 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { InventoryItem } from "@/types/inventory";
+import { supabase } from "@/lib/supabaseClient";
 import { useToast } from "@/hooks/use-toast";
-import { InventoryItem } from '@/types/inventory';
-import { supabase } from '@/lib/supabaseClient';
 
 interface BufferZones {
   red: number;
@@ -28,57 +28,58 @@ interface CreatePODialogProps {
   onSuccess: () => void;
 }
 
-export const CreatePODialog = ({ item, bufferZones, onSuccess }: CreatePODialogProps) => {
+export function CreatePODialog({ item, bufferZones, onSuccess }: CreatePODialogProps) {
   const [open, setOpen] = useState(false);
-  const [quantity, setQuantity] = useState(bufferZones.red + bufferZones.yellow);
+  const [quantity, setQuantity] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const calculateDefaultQuantity = () => {
-    return bufferZones.red + bufferZones.yellow;
-  };
-
-  const handleOpen = () => {
-    setQuantity(calculateDefaultQuantity());
-    setOpen(true);
-  };
+  const suggestedQuantity = Math.max(
+    bufferZones.red + bufferZones.yellow + bufferZones.green - (item.onHand || item.quantity_on_hand || 0),
+    0
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!quantity) {
+      toast({
+        title: "Quantity required",
+        description: "Please enter a quantity for the purchase order",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
-
+    
     try {
-      // Generate a PO number with format PO-{product}-{timestamp}
-      const timestamp = new Date().getTime();
-      const productId = item.product_id || item.sku || 'unknown';
-      const poNumber = `PO-${productId.substring(0, 8)}-${timestamp}`;
-
-      // Create a new PO record
-      const { data, error } = await supabase
-        .from('purchase_orders')
+      // Generate a unique PO number
+      const poNumber = `PO-${item.product_id}-${Date.now()}`;
+      
+      // Create the purchase order in the database
+      const { error } = await supabase
+        .from("purchase_orders")
         .insert({
           po_number: poNumber,
-          sku: item.product_id || item.sku,
-          quantity: parseInt(quantity.toString()),
-          status: 'draft',
-          order_date: new Date().toISOString()
+          sku: item.sku || item.product_id,
+          quantity: parseInt(quantity),
+          status: "draft",
+          order_date: new Date().toISOString(),
         });
-
-      if (error) {
-        throw error;
-      }
-
-      // Close dialog and show success message
-      setOpen(false);
+      
+      if (error) throw error;
+      
       toast({
-        title: "Purchase Order Created",
-        description: `Created PO: ${poNumber} for ${quantity} units`,
+        title: "Purchase order created",
+        description: `Purchase order ${poNumber} has been created successfully`,
       });
-
-      // Call success callback
+      
+      setOpen(false);
       onSuccess();
+      
     } catch (error) {
-      console.error('Error creating purchase order:', error);
+      console.error("Error creating purchase order:", error);
       toast({
         title: "Error",
         description: "Failed to create purchase order. Please try again.",
@@ -92,13 +93,13 @@ export const CreatePODialog = ({ item, bufferZones, onSuccess }: CreatePODialogP
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" onClick={handleOpen}>Create PO</Button>
+        <Button size="sm">Create PO</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Create Purchase Order</DialogTitle>
           <DialogDescription>
-            Generate a purchase order for {item.product_id || item.sku}
+            Create a purchase order for {item.sku || item.product_id}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
@@ -109,32 +110,48 @@ export const CreatePODialog = ({ item, bufferZones, onSuccess }: CreatePODialogP
               </Label>
               <Input
                 id="sku"
-                value={item.product_id || item.sku || ''}
-                className="col-span-3"
+                value={item.sku || item.product_id || ""}
+                readOnly
+                className="col-span-3 bg-muted"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="suggestedQty" className="text-right">
+                Suggested Qty
+              </Label>
+              <Input
+                id="suggestedQty"
+                value={suggestedQuantity}
+                className="col-span-3 bg-muted"
                 readOnly
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="quantity" className="text-right">
-                Quantity
+                Quantity *
               </Label>
               <Input
                 id="quantity"
                 type="number"
                 value={quantity}
-                onChange={(e) => setQuantity(parseInt(e.target.value))}
+                onChange={(e) => setQuantity(e.target.value)}
+                min="1"
                 className="col-span-3"
-                min={1}
+                placeholder="Enter quantity"
                 required
               />
             </div>
+            
             <div className="grid grid-cols-4 items-center gap-4">
-              <div className="text-right text-sm text-muted-foreground">
-                Suggested
-              </div>
-              <div className="col-span-3 text-sm">
-                {calculateDefaultQuantity()} units (Red + Yellow zones)
-              </div>
+              <Label htmlFor="location" className="text-right">
+                Location
+              </Label>
+              <Input
+                id="location"
+                value={item.location || item.location_id || ""}
+                readOnly
+                className="col-span-3 bg-muted"
+              />
             </div>
           </div>
           <DialogFooter>
@@ -146,4 +163,4 @@ export const CreatePODialog = ({ item, bufferZones, onSuccess }: CreatePODialogP
       </DialogContent>
     </Dialog>
   );
-};
+}

@@ -28,11 +28,12 @@ export interface Classification {
 
 // InventoryItem interface to match both database and UI needs
 export interface InventoryItem {
-  // Core fields that correspond to database
+  // Core fields that match the database structure
   id?: string;
   inventory_id?: string;
   product_id?: string;
   sku?: string;
+  name?: string;
   quantity_on_hand?: number;
   available_qty?: number;
   reserved_qty?: number;
@@ -42,8 +43,7 @@ export interface InventoryItem {
   buffer_profile_id?: string;
   decoupling_point?: boolean;
   
-  // UI enhancements
-  name?: string;
+  // UI enhancements and derived fields
   currentStock?: number;
   category?: string;
   subcategory?: string;
@@ -60,6 +60,7 @@ export interface InventoryItem {
   leadTimeDays?: number;
   lead_time_days?: number;
   variabilityFactor?: number;
+  demandVariabilityFactor?: number;
   demand_variability?: number;
   min_stock_level?: number;
   safety_stock?: number;
