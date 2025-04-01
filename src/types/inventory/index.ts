@@ -1,3 +1,4 @@
+
 export * from './bufferTypes';
 export * from './decouplingTypes';
 export * from './classificationTypes';
@@ -6,7 +7,7 @@ export * from './databaseTypes';
 export * from './inventoryFilters';
 export * from './shipmentTypes';
 
-// Updated Classification interface to match our components
+// Classification interface
 export interface Classification {
   leadTimeCategory?: 'short' | 'medium' | 'long';
   variabilityLevel?: 'low' | 'medium' | 'high'; 
@@ -18,13 +19,9 @@ export interface Classification {
 export interface SKUClassification {
   id?: string;
   sku: string;
-  lead_time_category?: 'short' | 'medium' | 'long';
-  variability_level?: 'low' | 'medium' | 'high';
-  criticality?: 'low' | 'medium' | 'high';
-  score?: number;
-  last_updated?: string;
-  category?: string;
   classification?: Classification;
+  category?: string;
+  last_updated?: string;
 }
 
 // ReplenishmentData interface

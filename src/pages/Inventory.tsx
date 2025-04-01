@@ -30,7 +30,7 @@ const Inventory = () => {
   const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedLocationId, setSelectedLocationId] = useState<string>("");
+  const [selectedLocationId, setSelectedLocationId] = useState<string>("all");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -114,26 +114,35 @@ const Inventory = () => {
           { 
             id: "1", 
             sku: "SKU001", 
-            lead_time_category: "short", 
-            variability_level: "low", 
-            criticality: "high",
-            score: 85 
+            classification: {
+              leadTimeCategory: "short", 
+              variabilityLevel: "low", 
+              criticality: "high",
+              score: 85
+            },
+            category: "Electronics"
           },
           { 
             id: "2", 
             sku: "SKU002", 
-            lead_time_category: "medium", 
-            variability_level: "medium", 
-            criticality: "medium",
-            score: 65 
+            classification: {
+              leadTimeCategory: "medium", 
+              variabilityLevel: "medium", 
+              criticality: "medium",
+              score: 65
+            },
+            category: "Furniture"
           },
           { 
             id: "3", 
             sku: "SKU003", 
-            lead_time_category: "long", 
-            variability_level: "high", 
-            criticality: "low",
-            score: 45 
+            classification: {
+              leadTimeCategory: "long", 
+              variabilityLevel: "high", 
+              criticality: "low",
+              score: 45
+            },
+            category: "Apparel"
           }
         ];
         setSkuClassifications(mockData);
@@ -148,7 +157,20 @@ const Inventory = () => {
         console.error("Fetch classification error:", error);
         setHasError(true);
       } else {
-        setSkuClassifications(data || []);
+        // Transform the data to match our expected structure
+        const transformedData: SKUClassification[] = data?.map(item => ({
+          id: item.id,
+          sku: item.sku,
+          classification: {
+            leadTimeCategory: item.lead_time_category,
+            variabilityLevel: item.variability_level,
+            criticality: item.criticality,
+            score: item.score
+          },
+          category: item.category
+        })) || [];
+        
+        setSkuClassifications(transformedData);
       }
     } catch (err) {
       console.error("Unexpected classification fetch error:", err);
@@ -252,12 +274,7 @@ const Inventory = () => {
     if (classification) {
       return {
         ...item,
-        classification: {
-          leadTimeCategory: classification.lead_time_category,
-          variabilityLevel: classification.variability_level,
-          criticality: classification.criticality,
-          score: classification.score
-        }
+        classification: classification.classification
       };
     }
     
@@ -266,7 +283,7 @@ const Inventory = () => {
   
   const filteredData = enrichedInventory.filter(
     (item) => safeFilter(item, searchQuery) && 
-    (selectedLocationId === "" || item.location === selectedLocationId)
+    (selectedLocationId === "all" || item.location === selectedLocationId)
   );
 
   const startIndex = Math.max(0, (currentPage - 1) * 10);

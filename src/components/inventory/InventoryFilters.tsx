@@ -78,7 +78,7 @@ const InventoryFilters = ({
           <SelectValue placeholder={t("common.inventory.allLocations")} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="">
+          <SelectItem value="all">
             {t("common.inventory.allLocations")}
           </SelectItem>
           {locations.map((location) => (

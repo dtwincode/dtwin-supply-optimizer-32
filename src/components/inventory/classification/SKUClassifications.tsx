@@ -19,7 +19,7 @@ export function SKUClassifications({ classifications }: SKUClassificationsProps)
 
   // Group classifications by their lead time category
   const groupedByLeadTime = classifications.reduce((acc, classification) => {
-    const category = classification.lead_time_category || 'unknown';
+    const category = classification.classification?.leadTimeCategory || 'unknown';
     if (!acc[category]) {
       acc[category] = [];
     }
@@ -45,9 +45,9 @@ export function SKUClassifications({ classifications }: SKUClassificationsProps)
                   <span className="truncate">{item.sku}</span>
                   <Badge
                     variant="secondary"
-                    className={`text-xs ${getVariabilityColor(item.variability_level)}`}
+                    className={`text-xs ${getVariabilityColor(item.classification?.variabilityLevel)}`}
                   >
-                    {item.variability_level || 'unknown'}
+                    {item.classification?.variabilityLevel || 'unknown'}
                   </Badge>
                 </li>
               ))}
