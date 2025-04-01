@@ -44,7 +44,7 @@ const Navigation = memo(({ language, isRTL }: NavigationProps) => {
   const { t } = useI18n();
 
   return (
-    <nav className="py-2 space-y-0.5">
+    <nav className="py-2 space-y-0.5 h-[calc(100vh-4rem)] overflow-y-auto scrollbar-none">
       {navigationItems.map((item) => (
         <Link
           key={item.name}
@@ -53,7 +53,7 @@ const Navigation = memo(({ language, isRTL }: NavigationProps) => {
             "flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-colors duration-200",
             location.pathname === item.href || (item.href === "/" && location.pathname === "")
               ? "bg-dtwin-medium text-white"
-              : "text-gray-600 hover:bg-gray-100"
+              : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
           )}
         >
           <item.icon className={`h-4 w-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />

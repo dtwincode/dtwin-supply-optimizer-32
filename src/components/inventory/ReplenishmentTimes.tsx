@@ -37,12 +37,12 @@ export const ReplenishmentTimes: React.FC<ReplenishmentTimesProps> = ({ data }) 
             {data.map((item) => (
               <TableRow key={item.id}>
                 <TableCell className="font-medium">{item.sku}</TableCell>
-                <TableCell>{item.locationFrom || item.source}</TableCell>
-                <TableCell>{item.locationTo || item.destination}</TableCell>
-                <TableCell>{item.internalTransferTime ? `${item.internalTransferTime} days` : 'N/A'}</TableCell>
-                <TableCell>{item.replenishmentLeadTime ? `${item.replenishmentLeadTime} days` : 'N/A'}</TableCell>
-                <TableCell>{item.totalCycleTime ? `${item.totalCycleTime} days` : 'N/A'}</TableCell>
-                <TableCell>{item.lastUpdated ? formatDate(item.lastUpdated) : 'N/A'}</TableCell>
+                <TableCell>{item.source || 'N/A'}</TableCell>
+                <TableCell>{item.destination || 'N/A'}</TableCell>
+                <TableCell>{item.transferTime ? `${item.transferTime} days` : 'N/A'}</TableCell>
+                <TableCell>{item.replenishmentType ? `${item.replenishmentType} days` : 'N/A'}</TableCell>
+                <TableCell>{item.cycleTime ? `${item.cycleTime} days` : 'N/A'}</TableCell>
+                <TableCell>{item.createdAt ? formatDate(item.createdAt) : 'N/A'}</TableCell>
               </TableRow>
             ))}
           </TableBody>

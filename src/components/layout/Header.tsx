@@ -10,7 +10,7 @@ import { navigationItems } from "./Navigation";
 interface HeaderProps {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
-  language: 'en' | 'ar';  // Updated type to be specific
+  language: 'en' | 'ar';
   setLanguage: (lang: 'en' | 'ar') => void;
   setCreateTicketOpen: (open: boolean) => void;
   signOut: () => void;
@@ -36,12 +36,12 @@ const Header = ({
   };
 
   return (
-    <div className="bg-white dark:bg-card border-b">
+    <div className="sticky top-0 z-30 bg-white dark:bg-gray-900 border-b dark:border-gray-800 shadow-sm">
       <div className="flex items-center h-16 px-4">
         {!sidebarOpen && (
           <button
             onClick={() => setSidebarOpen(true)}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors mr-4"
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors mr-4"
           >
             <MenuIcon className="h-5 w-5" />
           </button>

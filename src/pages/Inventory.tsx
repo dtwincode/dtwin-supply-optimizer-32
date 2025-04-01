@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -252,7 +251,7 @@ function Inventory() {
 
       <Card>
         <CardContent className="p-6">
-          <SKUClassifications classifications={classifications} />
+          <SKUClassifications classifications={classifications || []} />
         </CardContent>
       </Card>
 
@@ -281,7 +280,7 @@ function Inventory() {
             </TabsContent>
 
             <TabsContent value="classification" className="m-0">
-              <ClassificationTab classifications={classifications || sampleClassifications} />
+              <ClassificationTab />
             </TabsContent>
 
             <TabsContent value="ai-insights" className="m-0">
