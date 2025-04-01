@@ -62,17 +62,28 @@ export const InventoryTab = ({ paginatedData, onRefresh, isRefreshing = false, p
       const csvRows = [headers];
       
       paginatedData.forEach(item => {
+        const product_id = item.product_id || item.sku || "";
+        const name = item.name || product_id;
+        const currentStock = item.quantity_on_hand || item.onHand || 0;
+        const productFamily = item.productFamily || "";
+        const leadTime = item.lead_time_days || item.leadTimeDays || 0;
+        const variability = item.demand_variability || item.variabilityFactor || 0;
+        const safetyStock = item.safety_stock || 0;
+        const minLevel = item.min_stock_level || 0;
+        const maxLevel = item.max_stock_level || 0;
+        const location = item.location_id || item.location || "";
+        
         csvRows.push([
-          item.product_id || "",
-          item.name || "",
-          String(item.quantity_on_hand || 0),
-          item.productFamily || "",
-          String(item.lead_time_days || 0),
-          String(item.demand_variability || 0),
-          String(item.safety_stock || 0),
-          String(item.min_stock_level || 0),
-          String(item.max_stock_level || 0),
-          item.location_id || ""
+          product_id,
+          name,
+          String(currentStock),
+          productFamily,
+          String(leadTime),
+          String(variability),
+          String(safetyStock),
+          String(minLevel),
+          String(maxLevel),
+          location
         ]);
       });
       
@@ -94,6 +105,7 @@ export const InventoryTab = ({ paginatedData, onRefresh, isRefreshing = false, p
         description: "Inventory data has been exported to CSV.",
       });
     } catch (error) {
+      console.error("Export error:", error);
       toast({
         title: "Export failed",
         description: "Could not export inventory data. Please try again.",
@@ -104,9 +116,9 @@ export const InventoryTab = ({ paginatedData, onRefresh, isRefreshing = false, p
 
   const getPriorityCount = () => {
     return paginatedData.filter(item => {
-      const stockRatio = item.quantity_on_hand && item.max_stock_level 
-        ? item.quantity_on_hand / item.max_stock_level 
-        : 1;
+      const maxLevel = item.max_stock_level || 0; 
+      const currentStock = item.quantity_on_hand || item.onHand || 0;
+      const stockRatio = maxLevel > 0 ? currentStock / maxLevel : 1;
       return stockRatio < 0.5;  
     }).length;
   };

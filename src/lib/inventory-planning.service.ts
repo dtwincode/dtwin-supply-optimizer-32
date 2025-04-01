@@ -39,6 +39,7 @@ export async function fetchInventoryPlanningView(filters?: {
     }
     
     const { count } = await countQuery;
+    console.log("Total count of records:", count);
     
     // Step 2: Build the main query with optimizations
     let query = supabase
@@ -91,9 +92,16 @@ export async function fetchInventoryPlanningView(filters?: {
       return [];
     }
 
+    console.log(`Fetched ${data?.length || 0} planning view records`);
+    if (data && data.length > 0) {
+      console.log("Sample planning view record:", data[0]);
+    }
+
     // Get product and location data in batch operations
-    const productIds = [...new Set(data.map(item => item.product_id))];
-    const locationIds = [...new Set(data.map(item => item.location_id))];
+    const productIds = [...new Set(data?.map(item => item.product_id) || [])];
+    const locationIds = [...new Set(data?.map(item => item.location_id) || [])];
+    
+    console.log(`Fetching data for ${productIds.length} products and ${locationIds.length} locations`);
     
     // Fetch product data in one batch
     const { data: productData } = await supabase
@@ -102,7 +110,7 @@ export async function fetchInventoryPlanningView(filters?: {
       .in('product_id', productIds);
     
     // Create product lookup map
-    const productMap = (productData || []).reduce((map, product) => {
+    const productMap = (productData || []).reduce((map: Record<string, any>, product) => {
       map[product.product_id] = product;
       return map;
     }, {});
@@ -114,7 +122,7 @@ export async function fetchInventoryPlanningView(filters?: {
       .in('location_id', locationIds);
     
     // Create location lookup map
-    const locationMap = (locationData || []).reduce((map, location) => {
+    const locationMap = (locationData || []).reduce((map: Record<string, any>, location) => {
       map[location.location_id] = location;
       return map;
     }, {});
@@ -127,11 +135,13 @@ export async function fetchInventoryPlanningView(filters?: {
       .in('location_id', locationIds);
     
     // Create inventory lookup map
-    const inventoryMap = {};
+    const inventoryMap: Record<string, any> = {};
     (inventoryData || []).forEach(item => {
       const key = `${item.product_id}-${item.location_id}`;
       inventoryMap[key] = item;
     });
+
+    console.log(`Created lookup maps for ${Object.keys(productMap).length} products, ${Object.keys(locationMap).length} locations, and ${Object.keys(inventoryMap).length} inventory items`);
 
     // Transform data
     const transformedData = [];
@@ -145,15 +155,15 @@ export async function fetchInventoryPlanningView(filters?: {
       // Calculate buffer penetration for priority filtering
       const currentStock = inventoryItem.quantity_on_hand || 0;
       const maxLevel = item.max_stock_level || 1;
-      const bufferPenetration = (currentStock / maxLevel) * 100;
-      const isPriority = bufferPenetration < 50; // Items below 50% buffer level are priority
+      const bufferPenetration = maxLevel > 0 ? ((maxLevel - currentStock) / maxLevel) * 100 : 0;
+      const isPriority = bufferPenetration > 50; // Items above 50% buffer penetration are priority
       
       // Skip non-priority items if priorityOnly filter is active
       if (filters?.priorityOnly && !isPriority) {
         continue;
       }
       
-      transformedData.push({
+      const transformedItem = {
         id: key,
         product_id: item.product_id,
         sku: item.product_id,
@@ -185,6 +195,11 @@ export async function fetchInventoryPlanningView(filters?: {
         available_qty: inventoryItem.available_qty || 0,
         reserved_qty: inventoryItem.reserved_qty || 0,
         
+        // Buffer zones calculation
+        redZoneSize: item.safety_stock || 0,
+        yellowZoneSize: (item.min_stock_level || 0) - (item.safety_stock || 0),
+        greenZoneSize: (item.max_stock_level || 0) - (item.min_stock_level || 0),
+        
         // Priority data
         bufferPenetration: bufferPenetration,
         planningPriority: isPriority ? 'high' : 'normal',
@@ -199,14 +214,17 @@ export async function fetchInventoryPlanningView(filters?: {
         
         // Product details
         productFamily: product.product_family || ''
-      });
+      };
+      
+      transformedData.push(transformedItem);
     }
 
     // Attach count for pagination
-    transformedData.totalCount = count;
+    const finalData = transformedData as any;
+    finalData.totalCount = count || transformedData.length;
     
-    console.log(`Processed ${transformedData.length} items out of ${data?.length} raw items`);
-    return transformedData;
+    console.log(`Processed ${transformedData.length} items out of ${data?.length || 0} raw items`);
+    return finalData as InventoryItem[];
   } catch (error) {
     console.error("Exception in fetchInventoryPlanningView:", error);
     return [];

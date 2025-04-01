@@ -44,13 +44,13 @@ export const useInventory = (
       console.log("Fetching inventory data with filters:", filters);
       const planningViewData = await fetchInventoryPlanningView(filters);
       
-      if (planningViewData.length > 0) {
+      if (planningViewData && planningViewData.length > 0) {
         console.log(`Successfully fetched ${planningViewData.length} inventory items`);
+        console.log("Sample item:", planningViewData[0]);
         
         setItems(planningViewData);
         
-        // We also need to get the total count of items for pagination
-        // This is now handled in the service layer with a count query
+        // Get the total count of items for pagination
         const totalItems = planningViewData.totalCount || planningViewData.length;
         
         setPagination(prev => ({
@@ -84,7 +84,7 @@ export const useInventory = (
 
   useEffect(() => {
     fetchItems();
-  }, [pagination.page, pagination.limit, searchQuery, locationId, priorityOnly, toast]);
+  }, [pagination.page, pagination.limit, searchQuery, locationId, priorityOnly]);
 
   const paginate = (page: number, limit: number = pagination.limit) => {
     setPagination({

@@ -1,14 +1,7 @@
 
 export * from './bufferTypes';
-export * from './decouplingTypes';
 export * from './classificationTypes';
-export * from './leadTimeTypes';
-export * from './databaseTypes';
-export * from './inventoryFilters';
-export * from './shipmentTypes';
-export * from './planningTypes';
 
-// PaginationState interface
 export interface PaginationState {
   page: number;
   limit: number;
@@ -18,35 +11,14 @@ export interface PaginationState {
   totalItems: number;
 }
 
-// Classification interface for inventory items
-export interface Classification {
-  leadTimeCategory?: "short" | "medium" | "long";
-  variabilityLevel?: "low" | "medium" | "high";
-  criticality?: "low" | "medium" | "high";
-  score?: number;
-}
-
-// InventoryItem interface to match both database and UI needs
 export interface InventoryItem {
-  // Core fields that match the database structure
-  id?: string;
-  inventory_id?: string;
-  product_id?: string;
-  sku?: string;
-  name?: string;
-  quantity_on_hand?: number;
-  available_qty?: number;
-  reserved_qty?: number;
-  location_id?: string;
-  location?: string;
-  last_updated?: string;
-  buffer_profile_id?: string;
-  decoupling_point?: boolean;
-  
-  // UI enhancements and derived fields
-  currentStock?: number;
+  id: string;
+  sku: string;
+  name: string;
+  currentStock: number;
   category?: string;
   subcategory?: string;
+  location: string;
   productFamily?: string;
   region?: string;
   city?: string;
@@ -54,49 +26,78 @@ export interface InventoryItem {
   warehouse?: string;
   decouplingPointId?: string;
   
-  // Fields from inventory_planning_view
-  adu?: number;
+  // Planning view fields
   average_daily_usage?: number;
-  leadTimeDays?: number;
-  lead_time_days?: number;
-  variabilityFactor?: number;
-  demandVariabilityFactor?: number;
-  demand_variability?: number;
+  demand_variability?: number; 
   min_stock_level?: number;
-  safety_stock?: number;
   max_stock_level?: number;
+  safety_stock?: number;
+  buffer_profile_id?: string;
+  decoupling_point?: boolean;
+  product_id?: string;
+  location_id?: string;
+  lead_time_days?: number;
   
-  // Buffer zones
+  // Original DDMRP fields
+  adu?: number;
+  leadTimeDays?: number;
+  variabilityFactor?: number;
   redZoneSize?: number;
   yellowZoneSize?: number;
   greenZoneSize?: number;
   
-  // Flow metrics
-  onHand?: number;
+  // Inventory data fields
+  quantity_on_hand?: number;
+  available_qty?: number;
+  reserved_qty?: number;
+  
+  // Buffer calculations
+  onHand: number;
   onOrder?: number;
   qualifiedDemand?: number;
   netFlowPosition?: number;
   planningPriority?: string;
   bufferPenetration?: number;
   
-  // Classification data
-  classification?: Classification;
-}
-
-// Define ReplenishmentData interface with additional fields needed by components
-export interface ReplenishmentData {
-  id: string;
-  sku: string;
-  quantity?: number;
-  replenishmentType: string;
-  source?: string;
-  destination?: string;
-  status?: string;
-  expectedDate?: string;
-  internalTransferTime?: number;
-  totalCycleTime?: number;
-  lastUpdated?: string;
-  locationFrom?: string;
-  locationTo?: string;
-  replenishmentLeadTime?: number;
+  // Classification
+  classification?: {
+    leadTimeCategory: string;
+    variabilityLevel: string;
+    criticality: string;
+    score?: number;
+  };
+  
+  // Optional DDMRP metrics
+  aduCalculation?: {
+    past30Days: number;
+    past60Days: number;
+    past90Days: number;
+    forecastedADU: number;
+    blendedADU: number;
+  };
+  dynamicAdjustments?: {
+    seasonality: number;
+    trend: number;
+    marketStrategy: number;
+  };
+  supplySignals?: {
+    leadTimeAlert: boolean;
+    qualityAlert: boolean;
+    orderDelayRisk: string;
+  };
+  decoupledLeadTime?: number;
+  orderSpikeThreshold?: number;
+  economicOrderQty?: number;
+  demandVariabilityFactor?: number;
+  supplyVariabilityFactor?: number;
+  serviceLevel?: number;
+  bufferHealthAssessment?: number;
+  inventoryTurnsRatio?: number;
+  leadTimeCompressionIndex?: number;
+  demandDrivenFillRate?: number;
+  inventoryCarryingCost?: number;
+  demandSensingAccuracy?: number;
+  originalLeadTime?: number;
+  minimumOrderQuantity?: number;
+  preferredSupplier?: string;
 }

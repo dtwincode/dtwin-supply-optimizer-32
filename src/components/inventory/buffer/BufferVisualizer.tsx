@@ -1,118 +1,129 @@
-
-import { Progress } from "@/components/ui/progress";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import React, { useEffect, useState } from 'react';
+import { Progress } from '@/components/ui/progress';
+import { Card, CardContent } from '@/components/ui/card';
+import { calculateBufferZones } from '@/utils/inventoryUtils';
+import { InventoryItem, BufferZones } from '@/types/inventory';
 
 interface BufferVisualizerProps {
   netFlowPosition: number;
-  bufferZones: {
-    red: number;
-    yellow: number;
-    green: number;
-  };
-  adu?: number; // Average Daily Usage
+  bufferZones: BufferZones;
+  adu?: number;
+  item?: InventoryItem;
+  className?: string;
 }
 
-export function BufferVisualizer({ 
-  netFlowPosition, 
-  bufferZones, 
-  adu 
+export function BufferVisualizer({
+  netFlowPosition,
+  bufferZones,
+  adu,
+  item,
+  className = ''
 }: BufferVisualizerProps) {
-  const { red, yellow, green } = bufferZones;
-  const totalBuffer = red + yellow + green;
+  const [loading, setLoading] = useState(false);
+  const [zones, setZones] = useState<BufferZones>(bufferZones);
   
-  // Calculate buffer penetration (how much of the buffer has been consumed)
-  const penetration = totalBuffer > 0 
-    ? Math.max(0, Math.min(100, ((totalBuffer - netFlowPosition) / totalBuffer) * 100)) 
-    : 0;
+  useEffect(() => {
+    const loadZones = async () => {
+      if (item) {
+        setLoading(true);
+        try {
+          const calculatedZones = await calculateBufferZones(item);
+          setZones(calculatedZones);
+        } catch (error) {
+          console.error("Error calculating buffer zones:", error);
+          // Keep using the provided bufferZones if calculation fails
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        // If no item provided, use the provided bufferZones
+        setZones(bufferZones);
+      }
+    };
+    
+    loadZones();
+  }, [item, bufferZones]);
+
+  const total = zones.red + zones.yellow + zones.green || 1;
+  const redPercentage = (zones.red / total) * 100;
+  const yellowPercentage = (zones.yellow / total) * 100;
+  const greenPercentage = (zones.green / total) * 100;
   
-  // Determine status based on penetration percentage
-  const getStatus = (): 'green' | 'yellow' | 'red' => {
-    if (penetration <= 33) return 'green';
-    if (penetration <= 66) return 'yellow';
-    return 'red';
-  };
+  // Calculate penetration percentage (how far into the buffer)
+  // 0% means at the top of green, 100% means at the bottom of red
+  const penetrationPercentage = Math.max(0, Math.min(100, ((total - netFlowPosition) / total) * 100));
   
-  const status = getStatus();
+  // Determine position on the buffer
+  const position = 
+    penetrationPercentage >= (yellowPercentage + greenPercentage) ? 'red' :
+    penetrationPercentage >= greenPercentage ? 'yellow' : 'green';
   
-  // Calculate zone proportions for visualization
-  const redZonePercent = Math.round((red / totalBuffer) * 100) || 0;
-  const yellowZonePercent = Math.round((yellow / totalBuffer) * 100) || 0;
-  const greenZonePercent = 100 - redZonePercent - yellowZonePercent;
+  if (loading) {
+    return (
+      <Card className={`p-2 ${className}`}>
+        <CardContent className="p-1">
+          <div className="h-6 bg-gray-200 animate-pulse rounded"></div>
+        </CardContent>
+      </Card>
+    );
+  }
   
-  // Determine color for the progress indicator
-  const getStatusColor = () => {
-    switch (status) {
-      case 'green': return 'bg-green-500';
-      case 'yellow': return 'bg-yellow-500';
-      case 'red': return 'bg-red-500';
-      default: return 'bg-gray-500';
-    }
-  };
+  if (!zones.red && !zones.yellow && !zones.green) {
+    return (
+      <Card className={`p-2 ${className}`}>
+        <CardContent className="p-1">
+          <div className="text-sm text-gray-500 text-center">No buffer data</div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="w-full space-y-1">
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>{adu ? `ADU: ${adu.toFixed(1)}` : ''}</span>
-              <span>Buffer: {totalBuffer}</span>
-            </div>
-            <div className="relative h-3 w-full overflow-hidden rounded-full bg-secondary">
-              {/* Red zone */}
-              <div 
-                className="absolute left-0 h-full bg-red-200" 
-                style={{ width: `${redZonePercent}%` }} 
-              />
-              {/* Yellow zone */}
-              <div 
-                className="absolute h-full bg-yellow-200" 
-                style={{ 
-                  left: `${redZonePercent}%`, 
-                  width: `${yellowZonePercent}%` 
-                }} 
-              />
-              {/* Green zone */}
-              <div 
-                className="absolute right-0 h-full bg-green-200" 
-                style={{ width: `${greenZonePercent}%` }} 
-              />
-              <Progress 
-                value={100 - penetration} 
-                className="h-full" 
-                indicatorClassName={getStatusColor()}
-              />
-            </div>
-            <div className="flex justify-between text-xs">
-              <span className="text-red-600 font-medium">
-                {netFlowPosition < 0 ? 0 : Math.round(penetration)}%
-              </span>
-              <span className="text-muted-foreground">
-                NFP: {Math.round(netFlowPosition)}
-              </span>
-            </div>
-          </div>
-        </TooltipTrigger>
-        <TooltipContent className="w-64">
-          <div className="space-y-2">
-            <h4 className="font-medium">Buffer Details</h4>
-            <div className="grid grid-cols-2 gap-1 text-sm">
-              <span>Red Zone:</span>
-              <span className="text-right">{red}</span>
-              <span>Yellow Zone:</span>
-              <span className="text-right">{yellow}</span>
-              <span>Green Zone:</span>
-              <span className="text-right">{green}</span>
-              <span>Total Buffer:</span>
-              <span className="text-right">{totalBuffer}</span>
-              <span>Net Flow Position:</span>
-              <span className="text-right">{Math.round(netFlowPosition)}</span>
-              <span>Buffer Penetration:</span>
-              <span className="text-right">{Math.round(penetration)}%</span>
-            </div>
-          </div>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <div className={`space-y-2 ${className}`}>
+      <div className="flex justify-between text-xs">
+        <span>NFP: {netFlowPosition.toFixed(0)}</span>
+        {adu && <span>ADU: {adu.toFixed(1)}/day</span>}
+      </div>
+      
+      <div className="flex h-6 rounded-md overflow-hidden">
+        {/* Red Zone */}
+        <div 
+          className="bg-red-200 flex items-center justify-center" 
+          style={{ width: `${redPercentage}%`, minWidth: '20px' }}
+        >
+          <span className="text-xs">{zones.red}</span>
+        </div>
+        
+        {/* Yellow Zone */}
+        <div 
+          className="bg-yellow-200 flex items-center justify-center" 
+          style={{ width: `${yellowPercentage}%`, minWidth: '20px' }}
+        >
+          <span className="text-xs">{zones.yellow}</span>
+        </div>
+        
+        {/* Green Zone */}
+        <div 
+          className="bg-green-200 flex items-center justify-center" 
+          style={{ width: `${greenPercentage}%`, minWidth: '20px' }}
+        >
+          <span className="text-xs">{zones.green}</span>
+        </div>
+      </div>
+      
+      {/* NFP Indicator */}
+      <Progress 
+        className="h-2" 
+        value={penetrationPercentage} 
+        indicatorClassName={`bg-${position}-500`}
+      />
+      
+      <div className="flex justify-between text-xs">
+        <span>Total: {total}</span>
+        <span className={`text-${position}-600 font-medium`}>
+          {position === 'green' ? 'Healthy' : position === 'yellow' ? 'Warning' : 'Critical'}
+        </span>
+      </div>
+    </div>
   );
 }
