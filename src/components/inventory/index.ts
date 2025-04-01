@@ -23,7 +23,7 @@ export { SKUClassifications } from './classification/SKUClassifications';
 export { ClassificationManager } from './classification/ClassificationManager';
 
 // Buffer related components
-export { BufferVisualizer } from './buffer/BufferVisualizer';
+export { BufferVisualizer } from './buffer/EnhancedBufferVisualizer';
 
 // Decoupling related components
 export { DecouplingPointDialog } from './decoupling/DecouplingPointDialog';
