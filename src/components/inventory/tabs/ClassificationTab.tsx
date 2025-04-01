@@ -41,7 +41,7 @@ export function ClassificationTab() {
     }
   };
 
-  const getLeadTimeColor = (category: any) => {
+  const getLeadTimeColor = (category: string | undefined) => {
     if (!category) return "bg-gray-100 text-gray-800";
     switch (category.toString().toLowerCase()) {
       case "short": return "bg-green-100 text-green-800";
@@ -51,7 +51,7 @@ export function ClassificationTab() {
     }
   };
 
-  const getVariabilityColor = (level: any) => {
+  const getVariabilityColor = (level: string | undefined) => {
     if (!level) return "bg-gray-100 text-gray-800";
     switch (level.toString().toLowerCase()) {
       case "low": return "bg-green-100 text-green-800";
@@ -61,7 +61,7 @@ export function ClassificationTab() {
     }
   };
 
-  const getCriticalityColor = (criticality: any) => {
+  const getCriticalityColor = (criticality: string | undefined) => {
     if (!criticality) return "bg-gray-100 text-gray-800";
     switch (criticality.toString().toLowerCase()) {
       case "low": return "bg-green-100 text-green-800";
