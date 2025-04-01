@@ -14,14 +14,13 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/lib/supabaseClient";
 import { useToast } from "@/hooks/use-toast";
-import { DecouplingPoint } from "@/types/inventory/decouplingTypes";
+import { useDecouplingPoints } from "@/hooks/useDecouplingPoints";
 
 interface DecouplingPointDialogProps {
   open: boolean;
   onClose: () => void;
   productId?: string;
   locationId?: string;
-  existingPoint?: DecouplingPoint;
   onSuccess?: () => void;
 }
 
@@ -30,10 +29,10 @@ export function DecouplingPointDialog({
   onClose,
   productId = '',
   locationId = '',
-  existingPoint,
   onSuccess
 }: DecouplingPointDialogProps) {
   const { toast } = useToast();
+  const { createDecouplingPoint } = useDecouplingPoints();
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState<{id: string, name: string}[]>([]);
   const [locations, setLocations] = useState<{id: string, name: string}[]>([]);
@@ -94,15 +93,13 @@ export function DecouplingPointDialog({
     
     if (open) {
       fetchData();
-      
-      // Set form data from props or existing point
       setFormData({
-        productId: productId || existingPoint?.id?.split('-')[0] || '',
-        locationId: locationId || existingPoint?.locationId || '',
-        bufferProfileId: existingPoint?.bufferProfileId || ''
+        productId: productId || '',
+        locationId: locationId || '',
+        bufferProfileId: ''
       });
     }
-  }, [open, productId, locationId, existingPoint]);
+  }, [open, productId, locationId]);
 
   const handleSubmit = async () => {
     if (!formData.productId || !formData.locationId || !formData.bufferProfileId) {
@@ -117,21 +114,11 @@ export function DecouplingPointDialog({
     try {
       setLoading(true);
       
-      // Create an override in the buffer_profile_override table
-      const { error } = await supabase
-        .from('buffer_profile_override')
-        .upsert({
-          product_id: formData.productId,
-          location_id: formData.locationId,
-          buffer_profile_id: formData.bufferProfileId,
-          decoupling_point: true
-        });
-
-      if (error) throw error;
-      
-      toast({
-        title: "Success",
-        description: "Decoupling point saved successfully",
+      // Call createDecouplingPoint from the hook
+      await createDecouplingPoint({
+        productId: formData.productId,
+        locationId: formData.locationId,
+        bufferProfileId: formData.bufferProfileId
       });
       
       if (onSuccess) onSuccess();
@@ -152,13 +139,9 @@ export function DecouplingPointDialog({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>
-            {existingPoint ? 'Edit Decoupling Point' : 'Add Decoupling Point'}
-          </DialogTitle>
+          <DialogTitle>Manual Decoupling Point Override</DialogTitle>
           <DialogDescription>
-            {existingPoint 
-              ? 'Modify this decoupling point configuration.' 
-              : 'Create a new decoupling point by overriding the system-generated configuration.'}
+            Create a manual override to define a decoupling point, overriding the system's auto-generation rules.
           </DialogDescription>
         </DialogHeader>
         
@@ -171,7 +154,7 @@ export function DecouplingPointDialog({
               <Select
                 value={formData.productId}
                 onValueChange={(value) => setFormData({...formData, productId: value})}
-                disabled={!!productId || !!existingPoint}
+                disabled={!!productId}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select product" />
@@ -195,7 +178,7 @@ export function DecouplingPointDialog({
               <Select
                 value={formData.locationId}
                 onValueChange={(value) => setFormData({...formData, locationId: value})}
-                disabled={!!locationId || !!existingPoint}
+                disabled={!!locationId}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select location" />
@@ -240,7 +223,7 @@ export function DecouplingPointDialog({
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={loading}>
-            {loading ? 'Saving...' : 'Save'}
+            {loading ? 'Saving...' : 'Create Override'}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -11,6 +11,7 @@ export interface DecouplingPoint {
   variabilityFactor?: number;
   enableDynamicAdjustment?: boolean;
   minimumOrderQuantity?: number;
+  isOverride?: boolean; // Whether this is a manually overridden point
 }
 
 export interface DecouplingNetworkNode {

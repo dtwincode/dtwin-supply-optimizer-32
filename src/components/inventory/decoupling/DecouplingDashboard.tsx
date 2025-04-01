@@ -1,17 +1,16 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
-import { DecouplingNetworkBoard } from "./DecouplingNetworkBoard";
+import { useState } from "react";
 import { DecouplingPointDialog } from "./DecouplingPointDialog";
 import { DecouplingAnalytics } from "./DecouplingAnalytics";
-import { fetchInventoryPlanningView } from "@/lib/inventory-planning.service";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, RefreshCw } from "lucide-react";
+import { PlusCircle, RefreshCw, AlertCircle } from "lucide-react";
 import { useDecouplingPoints } from "@/hooks/useDecouplingPoints";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export function DecouplingDashboard() {
   const { 
@@ -63,7 +62,12 @@ export function DecouplingDashboard() {
       {/* Summary Board */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Decoupling Points</CardTitle>
+          <div className="flex flex-col space-y-1.5">
+            <CardTitle>Decoupling Points</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Auto-generated based on demand variability and lead time thresholds, with manual override capability
+            </p>
+          </div>
           <div className="flex gap-2">
             <Button size="sm" variant="outline" onClick={refreshDecouplingPoints} disabled={loading}>
               <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
@@ -71,7 +75,7 @@ export function DecouplingDashboard() {
             </Button>
             <Button size="sm" onClick={() => setDialogOpen(true)}>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add Decoupling Point
+              Add Manual Override
             </Button>
           </div>
         </CardHeader>
@@ -93,6 +97,7 @@ export function DecouplingDashboard() {
                   <TableHead>Product ID</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Buffer Profile</TableHead>
+                  <TableHead>Source</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -107,6 +112,22 @@ export function DecouplingDashboard() {
                       </Badge>
                     </TableCell>
                     <TableCell>{point.bufferProfileId}</TableCell>
+                    <TableCell>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <Badge variant={point.isOverride ? "outline" : "default"} className={point.isOverride ? "border-amber-500 text-amber-700" : "bg-emerald-100 text-emerald-800"}>
+                              {point.isOverride ? "Manual Override" : "Auto-generated"}
+                            </Badge>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {point.isOverride 
+                              ? "This decoupling point was manually created through an override"
+                              : "This decoupling point was automatically generated based on thresholds"}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="sm" onClick={() => handleDeletePoint(point.id)}>
                         Remove
@@ -120,20 +141,10 @@ export function DecouplingDashboard() {
         </CardContent>
       </Card>
 
-      {/* Network Visualization */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Decoupling Network Visualization</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <DecouplingNetworkBoard />
-        </CardContent>
-      </Card>
-
       {/* Analytics Chart */}
       <Card>
         <CardHeader>
-          <CardTitle>Analytics</CardTitle>
+          <CardTitle>Decoupling Point Analytics</CardTitle>
         </CardHeader>
         <CardContent>
           <DecouplingAnalytics />

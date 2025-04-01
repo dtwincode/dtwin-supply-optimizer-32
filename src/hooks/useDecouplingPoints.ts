@@ -26,19 +26,71 @@ export const useDecouplingPoints = () => {
 
       if (viewError) throw viewError;
 
+      // Fetch overrides from buffer_profile_override table that set decoupling_point to true or false
+      const { data: overrideData, error: overrideError } = await supabase
+        .from('buffer_profile_override')
+        .select('*')
+        .filter('decoupling_point', 'in', '(true,false)');
+
+      if (overrideError) throw overrideError;
+
+      // Create a map of overrides for quick lookup
+      const overrideMap: Record<string, boolean> = {};
+      overrideData?.forEach(override => {
+        const key = `${override.product_id}-${override.location_id}`;
+        overrideMap[key] = override.decoupling_point;
+      });
+
       if (planningViewData) {
         // Format the decoupling points data
-        const formatted: DecouplingPoint[] = planningViewData.map(item => ({
-          id: `${item.product_id}-${item.location_id}`,
-          locationId: item.location_id,
-          type: determineDecouplingType(item.lead_time_days, item.demand_variability),
-          bufferProfileId: item.buffer_profile_id,
-          description: `Auto-generated decoupling point based on thresholds`,
-          leadTimeAdjustment: 0,
-          variabilityFactor: parseFloat(item.demand_variability) || 0,
-          enableDynamicAdjustment: false,
-          minimumOrderQuantity: 0
-        }));
+        const formatted: DecouplingPoint[] = planningViewData
+          // Filter out any points that have been explicitly overridden to false
+          .filter(item => {
+            const key = `${item.product_id}-${item.location_id}`;
+            return overrideMap[key] !== false;
+          })
+          .map(item => {
+            const key = `${item.product_id}-${item.location_id}`;
+            const isOverride = overrideMap[key] === true;
+            
+            return {
+              id: `${item.product_id}-${item.location_id}`,
+              locationId: item.location_id,
+              type: determineDecouplingType(item.lead_time_days, item.demand_variability),
+              bufferProfileId: item.buffer_profile_id,
+              description: isOverride 
+                ? `Manually overridden decoupling point` 
+                : `Auto-generated decoupling point based on thresholds`,
+              leadTimeAdjustment: 0,
+              variabilityFactor: parseFloat(item.demand_variability.toString()) || 0,
+              enableDynamicAdjustment: false,
+              minimumOrderQuantity: 0,
+              isOverride: isOverride
+            };
+          });
+
+        // Add any points that were explicitly set via override but don't appear in the view
+        overrideData?.forEach(override => {
+          if (override.decoupling_point === true) {
+            const key = `${override.product_id}-${override.location_id}`;
+            const exists = formatted.some(point => point.id === key);
+            
+            if (!exists) {
+              formatted.push({
+                id: key,
+                locationId: override.location_id,
+                type: 'strategic', // Default type for manual overrides
+                bufferProfileId: override.buffer_profile_id || 'BP001',
+                description: 'Manually created decoupling point',
+                leadTimeAdjustment: 0,
+                variabilityFactor: 0.5, // Default value
+                enableDynamicAdjustment: false,
+                minimumOrderQuantity: 0,
+                isOverride: true
+              });
+            }
+          }
+        });
 
         setDecouplingPoints(formatted);
         
