@@ -11,10 +11,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Pagination } from "@/components/Pagination";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface InventoryTabProps {
   paginatedData: InventoryItem[];
   onRefresh?: () => Promise<void>;
+  isRefreshing?: boolean;
   pagination?: {
     currentPage: number;
     totalPages: number;
@@ -22,30 +24,21 @@ interface InventoryTabProps {
   };
 }
 
-export const InventoryTab = ({ paginatedData, onRefresh, pagination }: InventoryTabProps) => {
+export const InventoryTab = ({ paginatedData, onRefresh, isRefreshing = false, pagination }: InventoryTabProps) => {
   const { t } = useI18n();
   const { toast } = useToast();
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [showPriorityOnly, setShowPriorityOnly] = useState(false);
-  const [activeView, setActiveView] = useState<'table' | 'card'>('table');
 
   const handleRefresh = async () => {
     if (onRefresh) {
-      setIsRefreshing(true);
       try {
         await onRefresh();
-        toast({
-          title: "Data refreshed",
-          description: "Inventory data has been updated successfully.",
-        });
       } catch (error) {
         toast({
           title: "Refresh failed",
           description: "Could not refresh inventory data. Please try again.",
           variant: "destructive",
         });
-      } finally {
-        setIsRefreshing(false);
       }
     }
   };
@@ -117,6 +110,34 @@ export const InventoryTab = ({ paginatedData, onRefresh, pagination }: Inventory
       return stockRatio < 0.5;  
     }).length;
   };
+
+  if (isRefreshing) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Inventory Buffer Management</CardTitle>
+          <CardDescription>Refreshing inventory data...</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-center space-x-4">
+              <Skeleton className="h-12 w-12 rounded-full" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-[250px]" />
+                <Skeleton className="h-4 w-[200px]" />
+              </div>
+            </div>
+            {[1, 2, 3, 4, 5].map(i => (
+              <div key={i} className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-20 w-full" />
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (!paginatedData || paginatedData.length === 0) {
     return (

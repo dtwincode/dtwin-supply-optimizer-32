@@ -8,15 +8,55 @@ export async function fetchInventoryPlanningView(filters?: {
   bufferProfileId?: string;
   decouplingPointsOnly?: boolean;
   priorityOnly?: boolean;
+  limit?: number;
+  offset?: number;
 }): Promise<InventoryItem[]> {
   try {
     console.log("Fetching inventory planning view with filters:", filters);
     
+    // Step 1: Get total count for pagination
+    let countQuery = supabase
+      .from("inventory_planning_view")
+      .select("product_id", { count: 'exact', head: true });
+    
+    // Apply basic filters to count query
+    if (filters) {
+      if (filters.searchQuery) {
+        countQuery = countQuery.ilike('product_id', `%${filters.searchQuery}%`);
+      }
+      
+      if (filters.locationId && filters.locationId !== 'all') {
+        countQuery = countQuery.eq('location_id', filters.locationId);
+      }
+      
+      if (filters.bufferProfileId && filters.bufferProfileId !== 'all') {
+        countQuery = countQuery.eq('buffer_profile_id', filters.bufferProfileId);
+      }
+      
+      if (filters.decouplingPointsOnly) {
+        countQuery = countQuery.eq('decoupling_point', true);
+      }
+    }
+    
+    const { count } = await countQuery;
+    
+    // Step 2: Build the main query with optimizations
     let query = supabase
       .from("inventory_planning_view")
-      .select("*");
+      .select(`
+        product_id,
+        location_id,
+        lead_time_days,
+        average_daily_usage,
+        demand_variability,
+        min_stock_level,
+        safety_stock,
+        max_stock_level,
+        buffer_profile_id,
+        decoupling_point
+      `);
 
-    // Apply filters if provided
+    // Apply filters
     if (filters) {
       if (filters.searchQuery) {
         query = query.ilike('product_id', `%${filters.searchQuery}%`);
@@ -33,6 +73,15 @@ export async function fetchInventoryPlanningView(filters?: {
       if (filters.decouplingPointsOnly) {
         query = query.eq('decoupling_point', true);
       }
+      
+      // Apply pagination
+      if (filters.limit) {
+        query = query.limit(filters.limit);
+      }
+      
+      if (filters.offset !== undefined) {
+        query = query.range(filters.offset, filters.offset + (filters.limit || 10) - 1);
+      }
     }
 
     const { data, error } = await query;
@@ -42,57 +91,79 @@ export async function fetchInventoryPlanningView(filters?: {
       return [];
     }
 
-    console.log("Inventory planning view data:", data);
+    // Get product and location data in batch operations
+    const productIds = [...new Set(data.map(item => item.product_id))];
+    const locationIds = [...new Set(data.map(item => item.location_id))];
+    
+    // Fetch product data in one batch
+    const { data: productData } = await supabase
+      .from("product_master")
+      .select("*")
+      .in('product_id', productIds);
+    
+    // Create product lookup map
+    const productMap = (productData || []).reduce((map, product) => {
+      map[product.product_id] = product;
+      return map;
+    }, {});
+    
+    // Fetch location data in one batch
+    const { data: locationData } = await supabase
+      .from("location_master")
+      .select("*")
+      .in('location_id', locationIds);
+    
+    // Create location lookup map
+    const locationMap = (locationData || []).reduce((map, location) => {
+      map[location.location_id] = location;
+      return map;
+    }, {});
+    
+    // Fetch inventory data in one batch
+    const { data: inventoryData } = await supabase
+      .from("inventory_data")
+      .select("*")
+      .in('product_id', productIds)
+      .in('location_id', locationIds);
+    
+    // Create inventory lookup map
+    const inventoryMap = {};
+    (inventoryData || []).forEach(item => {
+      const key = `${item.product_id}-${item.location_id}`;
+      inventoryMap[key] = item;
+    });
 
-    // Transform the data to match the InventoryItem interface
-    const transformedData: InventoryItem[] = [];
+    // Transform data
+    const transformedData = [];
     
     for (const item of data || []) {
-      // Get location data from separate query
-      const { data: locationData } = await supabase
-        .from("location_master")
-        .select("*")
-        .eq('location_id', item.location_id)
-        .maybeSingle();
+      const key = `${item.product_id}-${item.location_id}`;
+      const inventoryItem = inventoryMap[key] || {};
+      const product = productMap[item.product_id] || {};
+      const location = locationMap[item.location_id] || {};
       
-      // Get product data if available
-      const { data: productData } = await supabase
-        .from("product_master")
-        .select("*")
-        .eq('product_id', item.product_id)
-        .maybeSingle();
-      
-      // Get inventory data for current stock
-      const { data: inventoryData } = await supabase
-        .from("inventory_data")
-        .select("*")
-        .eq('product_id', item.product_id)
-        .eq('location_id', item.location_id)
-        .maybeSingle();
-
       // Calculate buffer penetration for priority filtering
-      const currentStock = inventoryData?.quantity_on_hand || 0;
+      const currentStock = inventoryItem.quantity_on_hand || 0;
       const maxLevel = item.max_stock_level || 1;
       const bufferPenetration = (currentStock / maxLevel) * 100;
-      const isPriority = bufferPenetration < 50; // Items below 50% buffer level are considered priority
-
+      const isPriority = bufferPenetration < 50; // Items below 50% buffer level are priority
+      
       // Skip non-priority items if priorityOnly filter is active
       if (filters?.priorityOnly && !isPriority) {
         continue;
       }
       
-      // Create the transformed item with all required fields
-      const inventoryItem: InventoryItem = {
-        id: `${item.product_id}-${item.location_id}`,
+      transformedData.push({
+        id: key,
         product_id: item.product_id,
-        sku: item.product_id, // Use product_id as SKU if needed
-        name: productData?.name || item.product_id, // Use product name if available
+        sku: item.product_id,
+        name: product.name || item.product_id,
         location: item.location_id,
         location_id: item.location_id,
-        warehouse: locationData?.warehouse || '',
-        city: locationData?.city || '',
-        region: locationData?.region || '',
-        channel: locationData?.channel || '',
+        warehouse: location.warehouse || '',
+        city: location.city || '',
+        region: location.region || '',
+        channel: location.channel || '',
         
         // Planning view specific fields
         lead_time_days: item.lead_time_days,
@@ -108,17 +179,17 @@ export async function fetchInventoryPlanningView(filters?: {
         decoupling_point: item.decoupling_point,
         
         // Inventory data
-        quantity_on_hand: inventoryData?.quantity_on_hand || 0,
-        onHand: inventoryData?.quantity_on_hand || 0,
-        currentStock: inventoryData?.quantity_on_hand || 0,
-        available_qty: inventoryData?.available_qty || 0,
-        reserved_qty: inventoryData?.reserved_qty || 0,
+        quantity_on_hand: inventoryItem.quantity_on_hand || 0,
+        onHand: inventoryItem.quantity_on_hand || 0,
+        currentStock: inventoryItem.quantity_on_hand || 0,
+        available_qty: inventoryItem.available_qty || 0,
+        reserved_qty: inventoryItem.reserved_qty || 0,
         
         // Priority data
         bufferPenetration: bufferPenetration,
         planningPriority: isPriority ? 'high' : 'normal',
         
-        // Classification 
+        // Classification
         classification: {
           leadTimeCategory: item.lead_time_days > 30 ? "long" : item.lead_time_days > 15 ? "medium" : "short",
           variabilityLevel: item.demand_variability > 1 ? "high" : item.demand_variability > 0.5 ? "medium" : "low",
@@ -127,13 +198,14 @@ export async function fetchInventoryPlanningView(filters?: {
         },
         
         // Product details
-        productFamily: productData?.product_family || ''
-      };
-      
-      transformedData.push(inventoryItem);
+        productFamily: product.product_family || ''
+      });
     }
 
-    console.log("Transformed inventory data:", transformedData);
+    // Attach count for pagination
+    transformedData.totalCount = count;
+    
+    console.log(`Processed ${transformedData.length} items out of ${data?.length} raw items`);
     return transformedData;
   } catch (error) {
     console.error("Exception in fetchInventoryPlanningView:", error);

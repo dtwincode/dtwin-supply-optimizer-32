@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useI18n } from "@/contexts/I18nContext";
@@ -21,7 +20,6 @@ import { fetchLocationWithNames } from "@/lib/inventory-planning.service";
 import InventoryFilters from "@/components/inventory/InventoryFilters";
 import { DecouplingDashboard } from "@/components/inventory/decoupling/DecouplingDashboard";
 
-// Function to merge item properties
 const mergeInventoryData = (items: InventoryItem[]): InventoryItem[] => {
   return items.map(item => {
     const id = item.id || `${item.product_id}-${item.location_id}`;
@@ -69,7 +67,8 @@ function Inventory() {
     error,
     pagination,
     paginate,
-    refreshData
+    refreshData,
+    isRefreshing
   } = useInventory(1, 25, searchQuery, locationFilter, priorityOnly);
   const [paginatedData, setPaginatedData] = useState<InventoryItem[]>([]);
 
@@ -120,10 +119,6 @@ function Inventory() {
   const handleRefresh = async () => {
     try {
       await refreshData();
-      toast({
-        title: "Data Refreshed",
-        description: "Inventory data has been refreshed from the database."
-      });
     } catch (err) {
       toast({
         title: "Error",
@@ -133,7 +128,6 @@ function Inventory() {
     }
   };
 
-  // Calculate pagination details for the InventoryTab
   const paginationProps = {
     currentPage: pagination.page,
     totalPages: pagination.total,
@@ -185,6 +179,7 @@ function Inventory() {
             <InventoryTab 
               paginatedData={paginatedData} 
               onRefresh={handleRefresh} 
+              isRefreshing={isRefreshing}
               pagination={paginationProps}
             />
           </TabsContent>
