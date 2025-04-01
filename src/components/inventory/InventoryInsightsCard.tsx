@@ -340,6 +340,9 @@ export const InventoryInsightsCard = () => {
                     ? "Thresholds have been optimized based on historical data using Bayesian methods." 
                     : "Thresholds are using default values. Run Bayesian optimization to improve."}
                 </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Data source: Performance Tracking ({performanceData.length} records)
+                </p>
               </div>
             </div>
           </TabsContent>

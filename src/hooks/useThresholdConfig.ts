@@ -102,8 +102,8 @@ export const useThresholdConfig = () => {
     try {
       setLoading(true);
       
-      // Call a stored procedure or edge function that will update thresholds
-      // based on performance_tracking data instead of inventory_performance_metrics
+      // Call a stored procedure that will update thresholds based on performance_tracking data
+      // Note: We're using update_threshold_bayesian RPC which should be updated to use performance_tracking
       const { error } = await supabase.rpc('update_threshold_bayesian');
       
       if (error) throw error;
