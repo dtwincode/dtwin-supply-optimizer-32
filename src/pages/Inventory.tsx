@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useI18n } from "@/contexts/I18nContext";
@@ -25,23 +24,14 @@ const mergeInventoryData = (items: InventoryItem[]): InventoryItem[] => {
   return items.map(item => {
     // Generate a unique ID if not available
     const id = item.id || `${item.product_id}-${item.location_id}`;
-    
+
     // Create classification if not available
     const classification = item.classification || {
-      leadTimeCategory: item.lead_time_days && item.lead_time_days > 30 
-        ? "long" 
-        : item.lead_time_days && item.lead_time_days > 15 
-        ? "medium" 
-        : "short",
-      variabilityLevel: item.demand_variability && item.demand_variability > 1 
-        ? "high" 
-        : item.demand_variability && item.demand_variability > 0.5 
-        ? "medium" 
-        : "low",
+      leadTimeCategory: item.lead_time_days && item.lead_time_days > 30 ? "long" : item.lead_time_days && item.lead_time_days > 15 ? "medium" : "short",
+      variabilityLevel: item.demand_variability && item.demand_variability > 1 ? "high" : item.demand_variability && item.demand_variability > 0.5 ? "medium" : "low",
       criticality: item.decoupling_point ? "high" : "low",
       score: item.max_stock_level || 0
     };
-    
     return {
       ...item,
       id,
@@ -57,19 +47,32 @@ const mergeInventoryData = (items: InventoryItem[]): InventoryItem[] => {
     };
   });
 };
-
 function Inventory() {
-  const { t } = useI18n();
+  const {
+    t
+  } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = searchParams.get("tab") || "buffer";
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [classified, setClassified] = useState<InventoryItem[]>([]);
   const [locationFilter, setLocationFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [locations, setLocations] = useState<{id: string, name: string}[]>([]);
-  
+  const [locations, setLocations] = useState<{
+    id: string;
+    name: string;
+  }[]>([]);
+
   // Use the custom hook with default values
-  const { items, loading, error, pagination, paginate, refreshData } = useInventory(1, 10, searchQuery, locationFilter);
+  const {
+    items,
+    loading,
+    error,
+    pagination,
+    paginate,
+    refreshData
+  } = useInventory(1, 10, searchQuery, locationFilter);
   const [paginatedData, setPaginatedData] = useState<InventoryItem[]>([]);
 
   // Load locations for filter dropdown
@@ -77,15 +80,14 @@ function Inventory() {
     const loadLocations = async () => {
       try {
         const locationData = await fetchLocationWithNames();
-        setLocations([
-          { id: 'all', name: 'All Locations' },
-          ...locationData
-        ]);
+        setLocations([{
+          id: 'all',
+          name: 'All Locations'
+        }, ...locationData]);
       } catch (err) {
         console.error('Error loading locations:', err);
       }
     };
-    
     loadLocations();
   }, []);
 
@@ -100,54 +102,43 @@ function Inventory() {
       setPaginatedData([]);
     }
   }, [items, loading]);
-
   const handleCreatePO = useCallback((item: InventoryItem) => {
     toast({
       title: "Purchase Order Created",
-      description: `A new purchase order has been created for ${item.sku || item.product_id}`,
+      description: `A new purchase order has been created for ${item.sku || item.product_id}`
     });
   }, [toast]);
-
   const handleTabChange = (value: string) => {
     // Update the URL query parameters
-    setSearchParams({ tab: value });
+    setSearchParams({
+      tab: value
+    });
   };
-
   const handleLocationChange = (location: string) => {
     setLocationFilter(location);
   };
-
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
   };
-
   const handleRefresh = async () => {
     try {
       await refreshData();
       toast({
         title: "Data Refreshed",
-        description: "Inventory data has been refreshed from the database.",
+        description: "Inventory data has been refreshed from the database."
       });
     } catch (err) {
       toast({
         title: "Error",
         description: "Failed to refresh inventory data. Please try again.",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
-  return (
-    <DashboardLayout>
+  return <DashboardLayout>
       <div className="container mx-auto py-6 space-y-8">
-        <PageHeader
-          title={t("navigation.inventory")}
-          description="Manage and monitor inventory across all your locations using inventory buffers and decoupling points."
-        >
-          <Badge
-            className="bg-green-600 text-white ml-2"
-            variant="outline"
-          >
+        <PageHeader title={t("navigation.inventory")} description="Manage and monitor inventory across all your locations using inventory buffers and decoupling points.">
+          <Badge className="bg-green-600 text-white ml-2" variant="outline">
             Phase 7
           </Badge>
         </PageHeader>
@@ -155,12 +146,7 @@ function Inventory() {
         <Separator className="my-6" />
 
         <div className="mb-6">
-          <InventoryFilters 
-            searchQuery={searchQuery}
-            setSearchQuery={handleSearchChange}
-            selectedLocationId={locationFilter}
-            setSelectedLocationId={handleLocationChange}
-          />
+          <InventoryFilters searchQuery={searchQuery} setSearchQuery={handleSearchChange} selectedLocationId={locationFilter} setSelectedLocationId={handleLocationChange} />
         </div>
 
         <Tabs value={tab} onValueChange={handleTabChange}>
@@ -184,18 +170,11 @@ function Inventory() {
           </TabsList>
 
           <TabsContent value="buffer">
-            <InventoryTab 
-              paginatedData={paginatedData} 
-              onCreatePO={handleCreatePO}
-              onRefresh={handleRefresh}
-            />
+            <InventoryTab paginatedData={paginatedData} onCreatePO={handleCreatePO} onRefresh={handleRefresh} />
           </TabsContent>
 
           <TabsContent value="decoupling">
-            <Card className="p-6">
-              <NetworkDecouplingMap />
-              <DecouplingNetworkBoard />
-            </Card>
+            
           </TabsContent>
 
           <TabsContent value="classification">
@@ -211,8 +190,6 @@ function Inventory() {
           </TabsContent>
         </Tabs>
       </div>
-    </DashboardLayout>
-  );
+    </DashboardLayout>;
 }
-
 export default Inventory;
