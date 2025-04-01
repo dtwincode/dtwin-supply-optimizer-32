@@ -202,7 +202,7 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
                   <TableRow>
                     <TableCell className="font-medium">{item.sku || item.product_id || "N/A"}</TableCell>
                     <TableCell>{item.name || "N/A"}</TableCell>
-                    <TableCell>{item.quantity_on_hand || (item.onHand || "N/A")}</TableCell>
+                    <TableCell>{typeof item.onHand === 'number' ? item.onHand : (typeof item.quantity_on_hand === 'number' ? item.quantity_on_hand : "N/A")}</TableCell>
                     <TableCell>
                       <BufferStatusBadge status={bufferData.status} />
                     </TableCell>
@@ -218,7 +218,7 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
                     <TableCell>{item.classification?.leadTimeCategory || "N/A"}</TableCell>
                     <TableCell>{item.classification?.variabilityLevel || "N/A"}</TableCell>
                     <TableCell>{item.classification?.criticality || "N/A"}</TableCell>
-                    <TableCell>{item.classification?.score || "N/A"}</TableCell>
+                    <TableCell>{item.classification?.score ?? "N/A"}</TableCell>
                     <TableCell>
                       <CreatePODialog 
                         item={item}

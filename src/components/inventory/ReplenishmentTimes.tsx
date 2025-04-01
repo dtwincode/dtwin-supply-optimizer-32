@@ -1,72 +1,61 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React from 'react';
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ReplenishmentData } from "@/types/inventory";
-import { Skeleton } from "@/components/ui/skeleton";
+import { format } from 'date-fns';
+import { ReplenishmentData } from '@/types/inventory';
 
 interface ReplenishmentTimesProps {
   data: ReplenishmentData[];
-  loading?: boolean;
 }
 
-export const ReplenishmentTimes = ({ data, loading = false }: ReplenishmentTimesProps) => {
-  if (loading) {
+export const ReplenishmentTimes: React.FC<ReplenishmentTimesProps> = ({ data }) => {
+  if (!data || data.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Replenishment Times</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
-          </div>
-        </CardContent>
-      </Card>
+      <div className="text-center py-4">
+        <p className="text-muted-foreground">No replenishment data available</p>
+      </div>
     );
   }
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Replenishment Times</CardTitle>
-      </CardHeader>
-      <CardContent>
+      <CardContent className="p-0">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>SKU</TableHead>
-              <TableHead>Last Updated</TableHead>
               <TableHead>From</TableHead>
               <TableHead>To</TableHead>
-              <TableHead>Internal Transfer (days)</TableHead>
-              <TableHead>Lead Time (days)</TableHead>
-              <TableHead>Total Cycle Time (days)</TableHead>
+              <TableHead>Internal Transfer</TableHead>
+              <TableHead>Replenishment Lead Time</TableHead>
+              <TableHead>Total Cycle Time</TableHead>
+              <TableHead>Last Updated</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center py-4">No replenishment data available</TableCell>
+            {data.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell className="font-medium">{item.sku}</TableCell>
+                <TableCell>{item.locationFrom || item.source}</TableCell>
+                <TableCell>{item.locationTo || item.destination}</TableCell>
+                <TableCell>{item.internalTransferTime ? `${item.internalTransferTime} days` : 'N/A'}</TableCell>
+                <TableCell>{item.replenishmentLeadTime ? `${item.replenishmentLeadTime} days` : 'N/A'}</TableCell>
+                <TableCell>{item.totalCycleTime ? `${item.totalCycleTime} days` : 'N/A'}</TableCell>
+                <TableCell>{item.lastUpdated ? formatDate(item.lastUpdated) : 'N/A'}</TableCell>
               </TableRow>
-            ) : (
-              data.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>{item.sku}</TableCell>
-                  <TableCell>{item.lastUpdated ? new Date(item.lastUpdated).toLocaleDateString() : "N/A"}</TableCell>
-                  <TableCell>{item.locationFrom || item.source || "N/A"}</TableCell>
-                  <TableCell>{item.locationTo || item.destination || "N/A"}</TableCell>
-                  <TableCell>{item.internalTransferTime || "N/A"}</TableCell>
-                  <TableCell>{item.replenishmentLeadTime || "N/A"}</TableCell>
-                  <TableCell>{item.totalCycleTime || "N/A"}</TableCell>
-                </TableRow>
-              ))
-            )}
+            ))}
           </TableBody>
         </Table>
       </CardContent>
     </Card>
   );
 };
+
+function formatDate(dateString: string): string {
+  try {
+    return format(new Date(dateString), 'MMM d, yyyy');
+  } catch (error) {
+    return dateString;
+  }
+}

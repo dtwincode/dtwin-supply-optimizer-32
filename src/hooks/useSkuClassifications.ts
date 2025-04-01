@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { SKUClassification } from '@/types/inventory';
+import { SKUClassification, Classification } from '@/types/inventory';
 
 export const useSkuClassifications = () => {
   const [classifications, setClassifications] = useState<SKUClassification[]>([]);
@@ -22,20 +22,24 @@ export const useSkuClassifications = () => {
         if (error) throw error;
 
         // Transform data to match our frontend model
-        const transformedData: SKUClassification[] = (data || []).map(item => ({
-          id: `${item.product_id}-${item.location_id}`,
-          sku: item.product_id,
-          product_id: item.product_id,
-          location_id: item.location_id,
-          category: item.classification_label,
-          last_updated: new Date().toISOString(), // Placeholder since last_updated might not be in the table
-          classification: {
+        const transformedData: SKUClassification[] = (data || []).map(item => {
+          const classification: Classification = {
             leadTimeCategory: item.lead_time_category as 'short' | 'medium' | 'long',
             variabilityLevel: item.variability_level as 'low' | 'medium' | 'high',
             criticality: item.criticality as 'low' | 'medium' | 'high',
             score: item.score
-          }
-        }));
+          };
+
+          return {
+            id: `${item.product_id}-${item.location_id}`,
+            sku: item.product_id,
+            product_id: item.product_id,
+            location_id: item.location_id,
+            category: item.classification_label,
+            last_updated: new Date().toISOString(), // Placeholder since last_updated might not be in the table
+            classification
+          };
+        });
 
         setClassifications(transformedData);
         setError(null);
@@ -61,20 +65,24 @@ export const useSkuClassifications = () => {
 
       if (error) throw error;
 
-      const transformedData: SKUClassification[] = (data || []).map(item => ({
-        id: `${item.product_id}-${item.location_id}`,
-        sku: item.product_id,
-        product_id: item.product_id,
-        location_id: item.location_id,
-        category: item.classification_label,
-        last_updated: new Date().toISOString(),
-        classification: {
+      const transformedData: SKUClassification[] = (data || []).map(item => {
+        const classification: Classification = {
           leadTimeCategory: item.lead_time_category as 'short' | 'medium' | 'long',
           variabilityLevel: item.variability_level as 'low' | 'medium' | 'high',
           criticality: item.criticality as 'low' | 'medium' | 'high',
           score: item.score
-        }
-      }));
+        };
+
+        return {
+          id: `${item.product_id}-${item.location_id}`,
+          sku: item.product_id,
+          product_id: item.product_id,
+          location_id: item.location_id,
+          category: item.classification_label,
+          last_updated: new Date().toISOString(),
+          classification
+        };
+      });
 
       setClassifications(transformedData);
       setError(null);
