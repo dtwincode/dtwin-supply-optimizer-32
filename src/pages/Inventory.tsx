@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useI18n } from "@/contexts/I18nContext";
@@ -97,13 +98,6 @@ function Inventory() {
     }
   }, [items, loading]);
 
-  const handleCreatePO = useCallback((item: InventoryItem) => {
-    toast({
-      title: "Purchase Order Created",
-      description: `A new purchase order has been created for ${item.sku || item.product_id}`
-    });
-  }, [toast]);
-
   const handleTabChange = (value: string) => {
     setSearchParams({
       tab: value
@@ -169,7 +163,7 @@ function Inventory() {
           </TabsList>
 
           <TabsContent value="buffer">
-            <InventoryTab paginatedData={paginatedData} onCreatePO={handleCreatePO} onRefresh={handleRefresh} />
+            <InventoryTab paginatedData={paginatedData} onRefresh={handleRefresh} />
           </TabsContent>
 
           <TabsContent value="decoupling">

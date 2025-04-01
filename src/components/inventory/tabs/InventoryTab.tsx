@@ -1,166 +1,24 @@
 
-import { useEffect, useState } from "react";
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import { useState } from "react";
 import { useI18n } from "@/contexts/I18nContext";
-import { InventoryTableHeader } from "../InventoryTableHeader";
-import { BufferStatusBadge } from "../BufferStatusBadge";
-import { BufferVisualizer } from "../BufferVisualizer";
-import { CreatePODialog } from "../CreatePODialog";
-import { InventoryItem, Classification } from "@/types/inventory";
+import { InventoryItem } from "@/types/inventory";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
-
-interface BufferZones {
-  red: number;
-  yellow: number;
-  green: number;
-}
-
-interface NetFlowPosition {
-  onHand: number;
-  onOrder: number;
-  qualifiedDemand: number;
-  netFlowPosition: number;
-}
-
-const calculateBufferZones = (item: InventoryItem): BufferZones => {
-  try {
-    // Use values directly from inventory_planning_view if available
-    if (item.safety_stock !== undefined && item.min_stock_level !== undefined) {
-      const redZone = Math.round(item.safety_stock);
-      const yellowZone = Math.round(item.min_stock_level - item.safety_stock);
-      const greenZone = Math.round(item.max_stock_level ? item.max_stock_level - item.min_stock_level : yellowZone * 0.5);
-      
-      return { red: redZone, yellow: yellowZone, green: greenZone };
-    }
-    
-    // Fallback to calculation if planning view fields aren't available
-    const adu = item.adu || item.average_daily_usage || 0;
-    const leadTimeDays = item.leadTimeDays || item.lead_time_days || 0;
-    
-    if (!adu || !leadTimeDays) {
-      return { red: 0, yellow: 0, green: 0 };
-    }
-    
-    const redZone = Math.round(adu * (leadTimeDays * 0.33));
-    const yellowZone = Math.round(adu * leadTimeDays);
-    const greenZone = Math.round(adu * (leadTimeDays * 0.5));
-    
-    return { red: redZone, yellow: yellowZone, green: greenZone };
-  } catch (error) {
-    console.error("Error calculating buffer zones:", error);
-    return { red: 0, yellow: 0, green: 0 };
-  }
-};
-
-const calculateNetFlowPosition = (item: InventoryItem): NetFlowPosition => {
-  try {
-    const onHand = item.onHand || item.quantity_on_hand || 0;
-    const onOrder = item.onOrder || 0;
-    const qualifiedDemand = item.qualifiedDemand || 0;
-    const netFlowPosition = onHand + onOrder - qualifiedDemand;
-    
-    return { onHand, onOrder, qualifiedDemand, netFlowPosition };
-  } catch (error) {
-    console.error("Error calculating net flow position:", error);
-    return { onHand: 0, onOrder: 0, qualifiedDemand: 0, netFlowPosition: 0 };
-  }
-};
-
-const calculateBufferPenetration = (netFlowPosition: number, bufferZones: BufferZones): number => {
-  try {
-    const totalBuffer = bufferZones.red + bufferZones.yellow + bufferZones.green;
-    if (totalBuffer <= 0) return 0;
-    
-    const penetration = ((totalBuffer - netFlowPosition) / totalBuffer) * 100;
-    return Math.max(0, Math.min(100, penetration));
-  } catch (error) {
-    console.error("Error calculating buffer penetration:", error);
-    return 0;
-  }
-};
-
-const getBufferStatus = (bufferPenetration: number): 'green' | 'yellow' | 'red' => {
-  try {
-    if (bufferPenetration <= 33) return 'green';
-    if (bufferPenetration <= 66) return 'yellow';
-    return 'red';
-  } catch (error) {
-    console.error("Error determining buffer status:", error);
-    return 'green';
-  }
-};
+import { RefreshCw, Download, Filter } from "lucide-react";
+import { EnhancedInventoryTable } from "../EnhancedInventoryTable";
+import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface InventoryTabProps {
   paginatedData: InventoryItem[];
-  onCreatePO: (item: InventoryItem) => void;
   onRefresh?: () => Promise<void>;
 }
 
-export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: InventoryTabProps) => {
+export const InventoryTab = ({ paginatedData, onRefresh }: InventoryTabProps) => {
   const { t } = useI18n();
   const { toast } = useToast();
-  const [itemBuffers, setItemBuffers] = useState<Record<string, {
-    bufferZones: BufferZones;
-    netFlow: NetFlowPosition;
-    bufferPenetration: number;
-    status: 'green' | 'yellow' | 'red';
-  }>>({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
-
-  useEffect(() => {
-    const loadBufferData = () => {
-      try {
-        if (!paginatedData || paginatedData.length === 0) {
-          setItemBuffers({});
-          setLoading(false);
-          return;
-        }
-        
-        const bufferData: Record<string, any> = {};
-        
-        for (const item of paginatedData) {
-          const uniqueKey = item.id || `${item.product_id}-${item.location_id}`;
-          if (!uniqueKey) continue;
-          
-          const bufferZones = calculateBufferZones(item);
-          const netFlow = calculateNetFlowPosition(item);
-          const bufferPenetration = calculateBufferPenetration(netFlow.netFlowPosition, bufferZones);
-          const status = getBufferStatus(bufferPenetration);
-          
-          bufferData[uniqueKey] = {
-            bufferZones,
-            netFlow,
-            bufferPenetration,
-            status
-          };
-        }
-        
-        setItemBuffers(bufferData);
-        setError(null);
-      } catch (error) {
-        console.error("Error calculating buffer data:", error);
-        setError("Failed to load buffer data");
-        toast({
-          title: t("common.error"),
-          description: t("common.inventory.errorLoading"),
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    setLoading(true);
-    const timer = setTimeout(() => {
-      loadBufferData();
-    }, 100);
-    
-    return () => clearTimeout(timer);
-  }, [paginatedData, toast, t]);
+  const [activeView, setActiveView] = useState<'table' | 'card'>('table');
 
   const handleRefresh = async () => {
     if (onRefresh) {
@@ -169,7 +27,7 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
         await onRefresh();
         toast({
           title: "Data refreshed",
-          description: "Inventory data has been updated.",
+          description: "Inventory data has been updated successfully.",
         });
       } catch (error) {
         toast({
@@ -183,117 +41,153 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
     }
   };
 
-  if (loading) {
-    return <div className="p-6 text-center">{t("common.inventory.loadingData")}</div>;
-  }
+  const handleExport = () => {
+    try {
+      // Create CSV content
+      const headers = [
+        "SKU", 
+        "Name", 
+        "Current Stock", 
+        "Product Family", 
+        "Lead Time", 
+        "Variability", 
+        "Safety Stock", 
+        "Min Level", 
+        "Max Level", 
+        "Location"
+      ];
+      
+      const csvRows = [headers];
+      
+      paginatedData.forEach(item => {
+        csvRows.push([
+          item.product_id || "",
+          item.name || "",
+          String(item.quantity_on_hand || 0),
+          item.productFamily || "",
+          String(item.lead_time_days || 0),
+          String(item.demand_variability || 0),
+          String(item.safety_stock || 0),
+          String(item.min_stock_level || 0),
+          String(item.max_stock_level || 0),
+          item.location_id || ""
+        ]);
+      });
+      
+      const csvContent = csvRows.map(row => row.join(',')).join('\n');
+      
+      // Create and download the CSV file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `inventory_data_${new Date().toISOString().slice(0, 10)}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast({
+        title: "Export successful",
+        description: "Inventory data has been exported to CSV.",
+      });
+    } catch (error) {
+      toast({
+        title: "Export failed",
+        description: "Could not export inventory data. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
-  if (error) {
+  if (!paginatedData || paginatedData.length === 0) {
     return (
-      <div className="p-6 text-center text-red-500">
-        {error}
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Inventory Buffer Management</CardTitle>
+          <CardDescription>No inventory data available</CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="text-center py-12 border border-dashed border-gray-300 rounded-lg">
+            <p className="text-muted-foreground mb-4">
+              No inventory items found. Try adjusting your filters or refreshing the data.
+            </p>
+            <Button 
+              variant="outline" 
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+              Refresh Data
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex justify-end mb-4">
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={handleRefresh}
-          disabled={isRefreshing}
-        >
-          <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-          Refresh Data
-        </Button>
-      </div>
-
-      {!paginatedData || paginatedData.length === 0 ? (
-        <div className="text-center py-10">
-          <p className="text-muted-foreground">{t("common.inventory.noItems")}</p>
+    <Card>
+      <CardHeader>
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle>Inventory Buffer Management</CardTitle>
+            <CardDescription>View and manage inventory buffers across all locations</CardDescription>
+          </div>
+          <div className="flex space-x-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleExport}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+          </div>
         </div>
-      ) : (
-        paginatedData.map((item) => {
-          const uniqueKey = item.id || `${item.product_id}-${item.location_id}`;
-          if (!uniqueKey) {
-            return null;
-          }
-          
-          const bufferData = itemBuffers[uniqueKey];
-          
-          if (!bufferData) {
-            return <div key={uniqueKey} className="text-muted-foreground">{t("common.inventory.loadingItem")}</div>;
-          }
-
-          // Create classification from lead time and variability data
-          const leadTimeCategory = item.lead_time_days && item.lead_time_days > 30 
-            ? "long" 
-            : item.lead_time_days && item.lead_time_days > 15 
-            ? "medium" 
-            : "short";
-            
-          const variabilityLevel = item.demand_variability && item.demand_variability > 1 
-            ? "high" 
-            : item.demand_variability && item.demand_variability > 0.5 
-            ? "medium" 
-            : "low";
-            
-          const criticality = item.decoupling_point ? "high" : "low";
-          
-          // Create classification object
-          const classification: Classification = {
-            leadTimeCategory,
-            variabilityLevel,
-            criticality,
-            score: item.max_stock_level || 0
-          };
-
-          // Apply classification if not already set
-          const itemWithClassification = {
-            ...item,
-            classification: item.classification || classification
-          };
-
-          return (
-            <div key={uniqueKey} className="space-y-4">
-              <Table>
-                <InventoryTableHeader />
-                <TableBody>
-                  <TableRow>
-                    <TableCell className="font-medium">{item.sku || item.product_id || "N/A"}</TableCell>
-                    <TableCell>{item.name || item.product_id || "N/A"}</TableCell>
-                    <TableCell>{typeof item.onHand === 'number' ? item.onHand : (typeof item.quantity_on_hand === 'number' ? item.quantity_on_hand : "N/A")}</TableCell>
-                    <TableCell>
-                      <BufferStatusBadge status={bufferData.status} />
-                    </TableCell>
-                    <TableCell>
-                      <BufferVisualizer 
-                        netFlowPosition={bufferData.netFlow.netFlowPosition}
-                        bufferZones={bufferData.bufferZones}
-                        adu={item.adu || item.average_daily_usage}
-                      />
-                    </TableCell>
-                    <TableCell>{item.location || item.location_id || "N/A"}</TableCell>
-                    <TableCell>{item.productFamily || "N/A"}</TableCell>
-                    <TableCell>{itemWithClassification.classification?.leadTimeCategory || "N/A"}</TableCell>
-                    <TableCell>{itemWithClassification.classification?.variabilityLevel || "N/A"}</TableCell>
-                    <TableCell>{itemWithClassification.classification?.criticality || "N/A"}</TableCell>
-                    <TableCell>{itemWithClassification.classification?.score ?? "N/A"}</TableCell>
-                    <TableCell>
-                      <CreatePODialog 
-                        item={itemWithClassification}
-                        bufferZones={bufferData.bufferZones}
-                        onSuccess={() => onCreatePO(itemWithClassification)}
-                      />
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <h4 className="text-sm font-medium text-blue-800 mb-2 flex items-center">
+              <Filter className="h-4 w-4 mr-1" />
+              Buffer Visualization Guide
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+              <div className="flex items-center">
+                <div className="w-4 h-4 rounded bg-red-200 mr-2"></div>
+                <span className="text-gray-700">Red Zone (Safety Stock)</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-4 h-4 rounded bg-yellow-200 mr-2"></div>
+                <span className="text-gray-700">Yellow Zone (Min-Safety)</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-4 h-4 rounded bg-green-200 mr-2"></div>
+                <span className="text-gray-700">Green Zone (Max-Min)</span>
+              </div>
             </div>
-          );
-        })
-      )}
-    </div>
+          </div>
+
+          <Separator />
+          
+          <EnhancedInventoryTable data={paginatedData} />
+        </div>
+      </CardContent>
+      <CardFooter className="border-t flex justify-between py-4">
+        <div className="text-sm text-muted-foreground">
+          Showing {paginatedData.length} items
+        </div>
+      </CardFooter>
+    </Card>
   );
 };
