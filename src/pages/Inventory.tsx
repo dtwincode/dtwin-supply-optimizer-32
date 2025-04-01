@@ -14,17 +14,14 @@ import { InventoryTab } from "@/components/inventory/tabs/InventoryTab";
 import { NetworkDecouplingMap } from "@/components/inventory/NetworkDecouplingMap";
 import { SKUClassifications } from "@/components/inventory/SKUClassifications";
 import { useToast } from "@/hooks/use-toast";
-import PageHeader from "@/components/PageHeader";
+import { PageHeader } from "@/components/PageHeader";
 import { ThresholdManagement } from "@/components/inventory/ThresholdManagement";
 import { motion } from "framer-motion";
 import { InventoryTourGuide } from "@/components/inventory/InventoryTourGuide";
-import { InventoryFilters } from "@/components/inventory/InventoryFilters";
-import { classifyInventoryItems } from "@/utils/inventoryClassification";
+import InventoryFilters from "@/components/inventory/InventoryFilters";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Buffer, Clock, Package, Pin } from "lucide-react";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
-import { Database } from "@/lib/database.types";
+import { Package, Pin, Clock, BarChart } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 
 // Animation variants for staggered child animations
@@ -79,18 +76,20 @@ const transformDatabaseItems = (items: any[]): InventoryItem[] => {
     bufferPenetration: item.bufferPenetration || 0,
     planningPriority: item.planningPriority || "",
     decouplingPointId: item.decouplingPointId || "",
-    // Map database field to proper interface field
-    product_id: item.product_id || "",
-    quantity_on_hand: item.quantity_on_hand || 0,
-    location_id: item.location_id || "",
-    // Additional maps for backward compatibility
+    // Additional properties
     inventory_id: item.inventory_id || "",
+    product_id: item.product_id || "",
+    location_id: item.location_id || "",
+    quantity_on_hand: item.quantity_on_hand || 0,
     reserved_qty: item.reserved_qty || 0,
     available_qty: item.available_qty || 0,
     last_updated: item.last_updated || "",
     buffer_profile_id: item.buffer_profile_id || "",
-    decouplingPoint: item.decoupling_point || false,
-    // Cache classification data if available
+    decoupling_point: item.decoupling_point || false,
+    // Safety stock and min_stock_level from inventory_planning_view
+    safety_stock: item.safety_stock || 0,
+    min_stock_level: item.min_stock_level || 0,
+    // Classification data
     classification: item.classification || {
       leadTimeCategory: item.leadTimeCategory || "medium",
       variabilityLevel: item.variabilityLevel || "medium",
@@ -118,14 +117,12 @@ function Inventory() {
   useEffect(() => {
     if (items && items.length > 0) {
       const transformedItems = transformDatabaseItems(items);
-      const classifiedItems = classifyInventoryItems(transformedItems);
-      setClassified(classifiedItems);
-      setPaginatedData(classifiedItems);
+      setClassified(transformedItems);
+      setPaginatedData(transformedItems);
     } else if (!loading && items.length === 0) {
       // If no data from API, use mock data
-      const mockClassified = classifyInventoryItems(inventoryData);
-      setClassified(mockClassified);
-      setPaginatedData(mockClassified);
+      setClassified(inventoryData);
+      setPaginatedData(inventoryData);
     }
   }, [items, loading]);
 
@@ -195,13 +192,18 @@ function Inventory() {
         <Separator className="my-6" />
 
         <motion.div variants={itemVariants} className="mb-6">
-          <InventoryFilters onLocationChange={handleLocationChange} />
+          <InventoryFilters 
+            searchQuery=""
+            setSearchQuery={() => {}}
+            selectedLocationId={locationFilter}
+            setSelectedLocationId={handleLocationChange}
+          />
         </motion.div>
 
         <Tabs value={tab} onValueChange={handleTabChange}>
           <TabsList className="mb-6">
             <TabsTrigger value="buffer" className="flex items-center gap-2">
-              <Buffer className="h-4 w-4" />
+              <BarChart className="h-4 w-4" />
               Buffer Management
             </TabsTrigger>
             <TabsTrigger value="decoupling" className="flex items-center gap-2">
@@ -235,7 +237,7 @@ function Inventory() {
 
           <TabsContent value="classification">
             <Card className="p-6">
-              <SKUClassifications />
+              <SKUClassifications classifications={[]} />
             </Card>
           </TabsContent>
 
