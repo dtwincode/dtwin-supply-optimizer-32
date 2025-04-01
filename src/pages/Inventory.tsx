@@ -20,6 +20,7 @@ import { Separator } from "@/components/ui/separator";
 import { Package, Pin, Clock, BarChart } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import InventoryFilters from "@/components/inventory/InventoryFilters";
+import { useDecouplingPoints } from "@/hooks/useDecouplingPoints";
 
 // Function to transform database items to match InventoryItem interface
 const transformDatabaseItems = (items: any[]): InventoryItem[] => {
@@ -99,6 +100,9 @@ function Inventory() {
   
   // Use the custom hook with default values
   const { items, loading, error, pagination, paginate, refreshData } = useInventory();
+  
+  // Fetch decoupling points data
+  const { decouplingNetwork } = useDecouplingPoints();
   
   const [paginatedData, setPaginatedData] = useState<InventoryItem[]>([]);
 
@@ -214,7 +218,7 @@ function Inventory() {
           <TabsContent value="decoupling">
             <Card className="p-6">
               <NetworkDecouplingMap />
-              <DecouplingNetworkBoard />
+              <DecouplingNetworkBoard network={decouplingNetwork} />
             </Card>
           </TabsContent>
 

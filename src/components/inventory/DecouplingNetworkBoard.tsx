@@ -23,7 +23,7 @@ import { AlertCircle, Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface DecouplingNetworkBoardProps {
-  network: DecouplingNetwork;
+  network?: DecouplingNetwork;
 }
 
 // Custom node renderer
@@ -67,10 +67,13 @@ export const DecouplingNetworkBoard: React.FC<DecouplingNetworkBoardProps> = ({ 
   const { language } = useLanguage();
   const [showHelp, setShowHelp] = useState(false);
   
+  // Create default empty network if none is provided
+  const safeNetwork = network || { nodes: [], links: [] };
+  
   // Convert network data to ReactFlow nodes and edges
-  const initialNodes: Node[] = network.nodes.map((node, index) => ({
+  const initialNodes: Node[] = safeNetwork.nodes.map((node, index) => ({
     id: node.id,
-    position: getNodePosition(node.id, index, network.nodes.length),
+    position: getNodePosition(node.id, index, safeNetwork.nodes.length),
     data: { 
       label: node.label,
       type: node.type,
@@ -81,7 +84,7 @@ export const DecouplingNetworkBoard: React.FC<DecouplingNetworkBoardProps> = ({ 
     targetPosition: Position.Left,
   }));
 
-  const initialEdges: Edge[] = network.links.map((link, index) => ({
+  const initialEdges: Edge[] = safeNetwork.links.map((link, index) => ({
     id: `e-${index}`,
     source: link.source,
     target: link.target,
@@ -103,8 +106,8 @@ export const DecouplingNetworkBoard: React.FC<DecouplingNetworkBoardProps> = ({ 
     const levelMapping: Record<string, number> = {};
     
     // Identify source nodes (those that are not targets in any link)
-    const targetIds = new Set(network.links.map(link => link.target));
-    const sourceIds = new Set(network.nodes.map(node => node.id).filter(id => !targetIds.has(id)));
+    const targetIds = new Set(safeNetwork.links.map(link => link.target));
+    const sourceIds = new Set(safeNetwork.nodes.map(node => node.id).filter(id => !targetIds.has(id)));
     
     // Assign levels based on distance from source
     let currentLevel = 0;
@@ -117,7 +120,7 @@ export const DecouplingNetworkBoard: React.FC<DecouplingNetworkBoardProps> = ({ 
         levelMapping[nodeId] = currentLevel;
         
         // Find nodes connected to this node
-        network.links
+        safeNetwork.links
           .filter(link => link.source === nodeId)
           .forEach(link => {
             if (!levelMapping.hasOwnProperty(link.target)) {
@@ -131,7 +134,7 @@ export const DecouplingNetworkBoard: React.FC<DecouplingNetworkBoardProps> = ({ 
     }
     
     // For any nodes not yet assigned (isolated nodes), assign to level 0
-    network.nodes.forEach(node => {
+    safeNetwork.nodes.forEach(node => {
       if (!levelMapping.hasOwnProperty(node.id)) {
         levelMapping[node.id] = 0;
       }
@@ -163,6 +166,24 @@ export const DecouplingNetworkBoard: React.FC<DecouplingNetworkBoardProps> = ({ 
   const toggleHelp = () => {
     setShowHelp(!showHelp);
   };
+
+  // If no network data is available, display an empty state message
+  if (!network || (safeNetwork.nodes.length === 0 && safeNetwork.links.length === 0)) {
+    return (
+      <div className="border rounded-md p-4 bg-white h-[500px] flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <AlertCircle className="h-12 w-12 text-amber-500 mx-auto mb-4" />
+          <h3 className="text-lg font-medium mb-2">
+            {getTranslation('common.inventory.noNetworkData', language) || 'No network data available'}
+          </h3>
+          <p className="text-muted-foreground mb-4">
+            {getTranslation('common.inventory.emptyNetworkDescription', language) || 
+             'No decoupling points have been configured yet. Add decoupling points to visualize your supply chain network.'}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="border rounded-md p-4 bg-white h-[500px]">
