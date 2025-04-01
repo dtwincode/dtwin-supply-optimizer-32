@@ -1,12 +1,22 @@
+import { useEffect, useState } from "react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { fetchInventoryPlanningView } from "@/lib/inventory-planning.service";
 
-import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DecouplingNetworkBoard } from "./DecouplingNetworkBoard";
-import { useDecouplingPoints } from "@/hooks/useDecouplingPoints";
-import { Loader2 } from "lucide-react";
+export function NetworkDecouplingMap() {
+  const [points, setPoints] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-export const NetworkDecouplingMap: React.FC = () => {
-  const { decouplingNetwork, isNetworkLoading } = useDecouplingPoints();
+  const loadDecouplingPoints = async () => {
+    setIsLoading(true);
+    const data = await fetchInventoryPlanningView();
+    const filtered = data.filter((item) => item.decoupling_point === true);
+    setPoints(filtered);
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    loadDecouplingPoints();
+  }, []);
 
   return (
     <Card>
@@ -14,14 +24,20 @@ export const NetworkDecouplingMap: React.FC = () => {
         <CardTitle>Network Decoupling Map</CardTitle>
       </CardHeader>
       <CardContent>
-        {isNetworkLoading ? (
-          <div className="flex h-60 items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
+        {isLoading ? (
+          <p>Loading map...</p>
+        ) : points.length === 0 ? (
+          <p>No decoupling points found.</p>
         ) : (
-          <DecouplingNetworkBoard network={decouplingNetwork} />
+          <ul className="space-y-1 text-sm">
+            {points.map((item) => (
+              <li key={`${item.product_id}-${item.location_id}`}>
+                🟢 {item.location_id} - {item.product_id}
+              </li>
+            ))}
+          </ul>
         )}
       </CardContent>
     </Card>
   );
-};
+}
