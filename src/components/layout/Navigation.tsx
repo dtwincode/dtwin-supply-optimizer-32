@@ -22,31 +22,31 @@ import { useI18n } from "@/contexts/I18nContext";
 
 // Reorganized navigation items in a logical workflow for planners
 const navigationItems = [
-  { name: "navigationItems.dashboard", icon: Home, href: "/" },
-  { name: "navigationItems.ddsop", icon: Layers, href: "/ddsop" },
-  { name: "navigationItems.forecasting", icon: TrendingUp, href: "/forecasting" },
+  { name: "navigation.dashboard", icon: Home, href: "/" },
+  { name: "navigation.ddsop", icon: Layers, href: "/ddsop" },
+  { name: "navigation.forecasting", icon: TrendingUp, href: "/forecasting" },
   { 
-    name: "navigationItems.inventory", 
+    name: "navigation.inventory", 
     icon: Package, 
     href: "/inventory",
     badge: "Phase 7", 
     badgeColor: "bg-green-600"
   },
   {
-    name: "navigationItems.inventoryPlanning",
+    name: "navigation.inventoryPlanning",
     icon: BarChart2,
     href: "/inventory-planning",
     badge: "New",
     badgeColor: "bg-blue-600"
   },
-  { name: "navigationItems.supplyPlanning", icon: ShoppingCart, href: "/supply-planning" },
-  { name: "navigationItems.salesPlanning", icon: LineChart, href: "/sales-and-returns" },
-  { name: "navigationItems.marketing", icon: Gift, href: "/marketing" },
-  { name: "navigationItems.logistics", icon: Truck, href: "/logistics" },
-  { name: "navigationItems.reports", icon: FileText, href: "/reports" },
-  { name: "navigationItems.askAI", icon: Search, href: "/ask-ai" },
-  { name: "navigationItems.data", icon: Database, href: "/data" },
-  { name: "navigationItems.guidelines", icon: BookOpen, href: "/guidelines" }
+  { name: "navigation.supplyPlanning", icon: ShoppingCart, href: "/supply-planning" },
+  { name: "navigation.salesPlanning", icon: LineChart, href: "/sales-and-returns" },
+  { name: "navigation.marketing", icon: Gift, href: "/marketing" },
+  { name: "navigation.logistics", icon: Truck, href: "/logistics" },
+  { name: "navigation.reports", icon: FileText, href: "/reports" },
+  { name: "navigation.askAI", icon: Search, href: "/ask-ai" },
+  { name: "navigation.data", icon: Database, href: "/data" },
+  { name: "navigation.guidelines", icon: BookOpen, href: "/guidelines" }
 ];
 
 interface NavigationProps {

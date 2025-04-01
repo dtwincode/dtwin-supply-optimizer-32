@@ -1,5 +1,5 @@
 
-import { Translations, Language } from './types';
+import { Translations, Translation } from './types';
 import { navigationTranslations } from './navigation';
 import { dashboardTranslations, executiveSummaryTranslations } from './common/dashboard';
 import { modulesSummaryTranslations } from './common/modules';
@@ -18,27 +18,20 @@ import { salesTranslations } from './sales';
 import { marketingTranslations } from './marketing';
 
 export { toArabicNumerals };
-export type { Language };
+export type { Translation };
 
 export const translations: Translations = {
-  navigationItems: navigationTranslations,
-  dashboardMetrics: dashboardTranslations,
-  financialMetrics: financialMetricsTranslations,
-  sustainabilityMetrics: sustainabilityMetricsTranslations,
-  modulesSummary: modulesSummaryTranslations,
+  navigation: navigationTranslations,
   common: commonTranslations,
-  executiveSummary: executiveSummaryTranslations,
-  sales: salesTranslations,
-  supplyPlanning: supplyPlanningTranslations,
-  ddsop: ddsopTranslations,
-  marketing: marketingTranslations,
+  dashboard: dashboardTranslations,
+  forecasting: {},
   inventory: inventoryTranslations,
-  ui: uiTranslations,
-  charts: chartTranslations,
-  pagination: paginationTranslations
+  settings: {},
+  auth: {},
+  errors: {},
 };
 
-export function getTranslation(key: string, language: Language) {
+export function getTranslation(key: string, language: 'en' | 'ar') {
   const keys = key.split('.');
   let current: any = translations;
 
