@@ -30,8 +30,9 @@ const InventoryFilters = ({
           .from('location_master')
           .select('location_id, warehouse');
 
-        if (error && error.code === '42P01') {
-          // Table doesn't exist, use mock data
+        if (error) {
+          console.error("Error fetching locations:", error);
+          // Use mock data
           setLocations([
             { id: 'loc-main-warehouse', name: 'Main Warehouse' },
             { id: 'loc-distribution-center', name: 'Distribution Center' },

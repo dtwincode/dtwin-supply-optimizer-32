@@ -41,7 +41,7 @@ export function SKUClassifications({ classifications }: SKUClassificationsProps)
             </h4>
             <ul className="space-y-1 text-sm">
               {items.slice(0, 5).map((item) => (
-                <li key={item.id} className="flex justify-between items-center">
+                <li key={item.id || item.sku} className="flex justify-between items-center">
                   <span className="truncate">{item.sku}</span>
                   <Badge
                     variant="secondary"

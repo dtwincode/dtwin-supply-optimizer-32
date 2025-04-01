@@ -107,9 +107,9 @@ const Inventory = () => {
         .select("sku")
         .limit(1);
         
-      if (tableCheck.error && tableCheck.error.code === "42P01") {
-        // Table doesn't exist - create mock data
-        console.log("sku_classification table doesn't exist, using mock data");
+      if (tableCheck.error) {
+        // Table doesn't exist or error occurred - create mock data
+        console.log("sku_classification table issue:", tableCheck.error);
         const mockData: SKUClassification[] = [
           { 
             id: "1", 

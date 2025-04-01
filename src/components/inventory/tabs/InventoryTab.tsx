@@ -10,8 +10,8 @@ import { InventoryItem } from "@/types/inventory";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
-import { useInventoryData } from "@/hooks/useInventoryData";
 
+// Simple calculation functions that don't rely on external services
 const simplifiedCalculateBufferZones = (item: InventoryItem) => {
   try {
     const redZone = item.redZoneSize || (item.adu && item.leadTimeDays ? Math.round(item.adu * (item.leadTimeDays * 0.33)) : 0);
@@ -183,7 +183,7 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
         </div>
       ) : (
         paginatedData.map((item) => {
-          const itemId = item.id || item.inventory_id || "";
+          const itemId = item.id || "";
           if (!itemId) {
             return null;
           }
@@ -200,7 +200,7 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
                 <InventoryTableHeader />
                 <TableBody>
                   <TableRow>
-                    <TableCell className="font-medium">{item.sku || item.product_id || "N/A"}</TableCell>
+                    <TableCell className="font-medium">{item.sku || "N/A"}</TableCell>
                     <TableCell>{item.name || "N/A"}</TableCell>
                     <TableCell>{typeof item.quantity_on_hand === 'number' ? item.quantity_on_hand : (item.onHand || "N/A")}</TableCell>
                     <TableCell>
@@ -213,12 +213,12 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
                         adu={item.adu}
                       />
                     </TableCell>
-                    <TableCell>{item.location || item.location_id || "N/A"}</TableCell>
+                    <TableCell>{item.location || "N/A"}</TableCell>
                     <TableCell>{item.productFamily || "N/A"}</TableCell>
                     <TableCell>{item.classification?.leadTimeCategory || "N/A"}</TableCell>
                     <TableCell>{item.classification?.variabilityLevel || "N/A"}</TableCell>
                     <TableCell>{item.classification?.criticality || "N/A"}</TableCell>
-                    <TableCell>{item.classification?.score ?? "N/A"}</TableCell>
+                    <TableCell>{item.classification?.score || "N/A"}</TableCell>
                     <TableCell>
                       <CreatePODialog 
                         item={item}
