@@ -1,11 +1,9 @@
-
 import { Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/index";
 import Auth from "./pages/Auth";
 import Marketing from "./pages/Marketing";
 import Forecasting from "./pages/Forecasting";
 import Inventory from "./pages/Inventory";
-import InventoryPlanning from "./pages/InventoryPlanning";
 import SalesAndReturns from "./pages/SalesAndReturns";
 import Reports from "./pages/Reports";
 import Logistics from "./pages/Logistics";
@@ -58,7 +56,7 @@ const RouteDebugger = ({ children }: { children: React.ReactNode }) => {
 
     console.log('[Route Debugger] Available routes:', [
       "/", "/auth", "/ddsop", "/forecasting", "/inventory", 
-      "/inventory-planning", "/supply-planning", "/sales-and-returns", "/marketing", 
+      "/supply-planning", "/sales-and-returns", "/marketing", 
       "/logistics", "/reports", "/ask-ai", "/data", 
       "/guidelines", "/sql-config", "/tickets"
     ]);
@@ -104,7 +102,6 @@ function App() {
                       <Route path="/inventory/classification" element={<Navigate to="/inventory?tab=classification" replace />} />
                       <Route path="/inventory/buffer-zones" element={<Navigate to="/inventory?tab=buffers" replace />} />
                       <Route path="/inventory/decoupling-point" element={<Navigate to="/inventory?tab=decoupling" replace />} />
-                      <Route path="/inventory-planning" element={<InventoryPlanning />} />
                       <Route path="/supply-planning" element={<SupplyPlanning />} />
                       <Route path="/sales-and-returns" element={<SalesAndReturns />} />
                       <Route path="/sales-planning" element={<Navigate to="/sales-and-returns" replace />} />
