@@ -7,12 +7,13 @@ import { Label } from "@/components/ui/label";
 import { PageHeader } from "@/components/PageHeader";
 import { Pagination } from "@/components/Pagination";
 import { InventoryItem, SKUClassification } from "@/types/inventory";
-import { InventoryTab } from "@/components/inventory/tabs/InventoryTab";
+import { EnhancedInventoryTab } from "@/components/inventory/tabs/EnhancedInventoryTab";
 import { ClassificationTab } from "@/components/inventory/tabs/ClassificationTab";
 import { AIInsightsTab } from "@/components/inventory/tabs/AIInsightsTab";
 import { ThresholdManagement } from "@/components/inventory/ThresholdManagement";
 import { ThresholdScheduler } from "@/components/inventory/ThresholdScheduler";
 import { SKUClassifications } from "@/components/inventory/classification/SKUClassifications";
+import { InventoryPlanningInsights } from "@/components/inventory/InventoryPlanningInsights";
 import { useToast } from "@/hooks/use-toast";
 import InventoryFilters from "@/components/inventory/InventoryFilters";
 import { supabase } from "@/lib/supabaseClient";
@@ -24,7 +25,6 @@ function Inventory() {
   const [selectedLocationId, setSelectedLocationId] = useState("all");
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [inventoryData, setInventoryData] = useState<InventoryItem[]>([]);
-  const [filteredInventory, setFilteredInventory] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
@@ -104,7 +104,12 @@ function Inventory() {
             subcategory: product?.subcategory,
             productFamily: product?.product_family,
             currentStock: item.quantity_on_hand,
-            // Classification data will be added in the next step
+            // Add lead time for simulation purposes
+            leadTimeDays: Math.floor(Math.random() * 30) + 1,
+            // Add average daily usage for simulation
+            adu: Math.floor(Math.random() * 100) + 1,
+            // Add variability factor for simulation
+            variabilityFactor: parseFloat((0.5 + Math.random() * 1).toFixed(2))
           };
         });
 
@@ -165,46 +170,6 @@ function Inventory() {
     };
   }, [searchQuery, selectedLocationId, page, itemsPerPage, autoRefresh, toast]);
 
-  // Sample SKU classifications for the card view
-  const sampleClassifications: SKUClassification[] = [
-    {
-      id: "1",
-      sku: "SKU001",
-      classification: {
-        leadTimeCategory: "short",
-        variabilityLevel: "low",
-        criticality: "high",
-        score: 85
-      },
-      category: "Electronics",
-      last_updated: "2023-11-01"
-    },
-    {
-      id: "2",
-      sku: "SKU002",
-      classification: {
-        leadTimeCategory: "medium",
-        variabilityLevel: "medium",
-        criticality: "medium",
-        score: 65
-      },
-      category: "Appliances",
-      last_updated: "2023-11-02"
-    },
-    {
-      id: "3",
-      sku: "SKU003",
-      classification: {
-        leadTimeCategory: "long",
-        variabilityLevel: "high",
-        criticality: "low",
-        score: 45
-      },
-      category: "Furniture",
-      last_updated: "2023-11-03"
-    }
-  ];
-
   const handleCreatePO = (item: InventoryItem) => {
     console.log("Creating PO for item:", item);
     toast({
@@ -251,6 +216,11 @@ function Inventory() {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <InventoryPlanningInsights />
+        <ThresholdScheduler />
+      </div>
+
       <Card>
         <CardContent className="p-6">
           <SKUClassifications classifications={classifications || []} />
@@ -267,7 +237,7 @@ function Inventory() {
             </TabsList>
 
             <TabsContent value="inventory" className="m-0">
-              <InventoryTab
+              <EnhancedInventoryTab
                 paginatedData={inventoryData}
                 onCreatePO={handleCreatePO}
                 onRefresh={refreshData}
@@ -291,11 +261,6 @@ function Inventory() {
           </Tabs>
         </CardContent>
       </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <ThresholdManagement />
-        <ThresholdScheduler />
-      </div>
     </div>
   );
 }
