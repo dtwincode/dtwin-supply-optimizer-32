@@ -8,14 +8,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { InventoryItem } from "@/types/inventory";
+import { InventoryItem, PaginationState } from "@/types/inventory";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { PaginationState } from "@/types/inventory/index";
 
 interface InventoryTableProps {
   data: InventoryItem[];
-  pagination: PaginationState;
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
+  };
   onCreatePO: (item: InventoryItem) => void;
 }
 

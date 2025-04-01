@@ -6,11 +6,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSearchParams } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { InventoryItem } from "@/types/inventory";
+import { Classification } from "@/types/inventory/classificationTypes";
 import { useInventory } from "@/hooks/useInventory";
-import { DecouplingNetworkBoard } from "@/components/inventory/DecouplingNetworkBoard";
 import { InventoryTab } from "@/components/inventory/InventoryTab";
-import { NetworkDecouplingMap } from "@/components/inventory/NetworkDecouplingMap";
-import { SKUClassifications } from "@/components/inventory/SKUClassifications";
+import { SKUClassifications } from "@/components/inventory/classification/SKUClassifications";
 import { useToast } from "@/hooks/use-toast";
 import { PageHeader } from "@/components/PageHeader";
 import { ThresholdManagement } from "@/components/inventory/ThresholdManagement";
@@ -24,25 +23,25 @@ import { DecouplingDashboard } from "@/components/inventory/decoupling/Decouplin
 const mergeInventoryData = (items: InventoryItem[]): InventoryItem[] => {
   return items.map(item => {
     // Create a unique ID if none exists
-    const id = item.id || `${item.product_id}-${item.location_id}` || `${item.sku}-${item.location}`;
+    const id = item.id || `${item.sku}-${item.location}` || `${item.sku}-${item.location}`;
 
     // Ensure classification data exists
-    const classification = item.classification || {
-      leadTimeCategory: item.lead_time_days && item.lead_time_days > 30 ? "long" : item.lead_time_days && item.lead_time_days > 15 ? "medium" : "short",
-      variabilityLevel: item.demand_variability && item.demand_variability > 1 ? "high" : item.demand_variability && item.demand_variability > 0.5 ? "medium" : "low",
-      criticality: item.decoupling_point ? "high" : "low",
-      score: item.max_stock_level || 0
+    const classification: Classification = item.classification || {
+      leadTimeCategory: item.leadTimeDays && item.leadTimeDays > 30 ? "long" : item.leadTimeDays && item.leadTimeDays > 15 ? "medium" : "short",
+      variabilityLevel: item.variabilityFactor && item.variabilityFactor > 1 ? "high" : item.variabilityFactor && item.variabilityFactor > 0.5 ? "medium" : "low",
+      criticality: item.decouplingPointId ? "high" : "low",
+      score: item.maxStockLevel || 0
     };
     
     // Ensure basic inventory data exists
     return {
       ...item,
       id,
-      sku: item.sku || item.product_id || "",
-      name: item.name || item.product_id || "",
-      onHand: item.onHand || item.quantity_on_hand || 0,
-      currentStock: item.currentStock || item.quantity_on_hand || 0,
-      location: item.location || item.location_id || "",
+      sku: item.sku || "",
+      name: item.name || item.sku || "",
+      onHand: item.onHand || item.currentStock || 0,
+      currentStock: item.currentStock || item.onHand || 0,
+      location: item.location || "",
       classification
     };
   });
@@ -136,7 +135,7 @@ function Inventory() {
 
   const paginationProps = {
     currentPage: pagination.page,
-    totalPages: pagination.total,
+    totalPages: pagination.totalPages,
     onPageChange: paginate
   };
 

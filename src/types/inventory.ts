@@ -1,4 +1,6 @@
 
+import { Classification } from "./inventory/classificationTypes";
+
 export interface BufferProfile {
   id: string;
   name: string;
@@ -34,14 +36,14 @@ export interface InventoryItem {
   sku: string;
   name: string;
   currentStock: number;
-  category: string;
-  subcategory: string;
+  category?: string;
+  subcategory?: string;
   location: string;
-  productFamily: string;
-  region: string;
-  city: string;
-  channel: string;
-  warehouse: string;
+  productFamily?: string;
+  region?: string;
+  city?: string;
+  channel?: string;
+  warehouse?: string;
   decouplingPointId?: string;
   adu?: number; // Average Daily Usage
   leadTimeDays?: number;
@@ -50,14 +52,20 @@ export interface InventoryItem {
   redZoneSize?: number;
   yellowZoneSize?: number;
   greenZoneSize?: number;
+  // Buffer management
+  maxStockLevel?: number;
+  minStockLevel?: number;
+  safetyStock?: number;
   // Net Flow Components
   onHand: number;
-  onOrder: number;
-  qualifiedDemand: number;
-  netFlowPosition: number;
+  onOrder?: number;
+  qualifiedDemand?: number;
+  netFlowPosition?: number;
   planningPriority?: string;
   // Buffer Management
   bufferPenetration?: number;
+  // Classification
+  classification?: Classification;
   // ADU Calculation Methods
   aduCalculation?: {
     past30Days: number;
@@ -127,18 +135,6 @@ export interface NetFlowPosition {
   netFlowPosition: number;
 }
 
-export interface DDMRPMetricsHistory {
-  id: string;
-  inventoryItemId: string;
-  metricType: string;
-  metricValue: number;
-  recordedAt: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export type IndustryType = 'manufacturing' | 'retail' | 'distribution' | 'electronics' | 'automotive' | 'consumer_goods' | 'pharmaceuticals';
-
 export interface BufferFactorConfig {
   id: string;
   shortLeadTimeFactor: number;
@@ -150,36 +146,7 @@ export interface BufferFactorConfig {
   greenZoneFactor: number;
   description?: string;
   isActive: boolean;
-  industry?: IndustryType;
+  industry?: string;
   isBenchmarkBased?: boolean;
   metadata?: Record<string, any>;
-}
-
-export interface SKUClassification {
-  id?: string;
-  sku: string;
-  category?: string;
-  subcategory?: string;
-  classification: string;
-  score?: number;
-  last_updated: string;
-}
-
-export interface Classification {
-  id: string;
-  name: string;
-  description?: string;
-  criteria: string;
-  score: number;
-}
-
-export interface ReplenishmentData {
-  id: string;
-  sku: string;
-  quantity: number;
-  replenishmentType: string;
-  source: string;
-  destination: string;
-  status: string;
-  expectedDate: string;
 }
