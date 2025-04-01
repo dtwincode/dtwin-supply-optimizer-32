@@ -1,29 +1,34 @@
-import React, { createContext, useContext } from 'react';
-import { getTranslation, Language } from '@/translations';
+
+import React, { createContext, useContext, useState } from 'react';
+import { getTranslation } from '@/translations';
 import { useLanguage } from './LanguageContext';
 
-type I18nContextType = {
+type Language = 'en' | 'ar';
+
+interface I18nContextType {
   t: (key: string) => string;
-};
+  language: Language;
+  setLanguage: (lang: Language) => void;
+}
 
-const I18nContext = createContext<I18nContextType | undefined>(undefined);
+const I18nContext = createContext<I18nContextType>({
+  t: (key: string) => key,
+  language: 'en',
+  setLanguage: () => {},
+});
 
-export const I18nProvider = ({ children }: { children: React.ReactNode }) => {
-  const { language } = useLanguage();
+export const useI18n = () => useContext(I18nContext);
 
-  const t = (key: string) => getTranslation(key, language as Language);
+export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { language, setLanguage } = useLanguage();
+
+  const t = (key: string): string => {
+    return getTranslation(key, language);
+  };
 
   return (
-    <I18nContext.Provider value={{ t }}>
+    <I18nContext.Provider value={{ t, language, setLanguage }}>
       {children}
     </I18nContext.Provider>
   );
-};
-
-export const useI18n = () => {
-  const context = useContext(I18nContext);
-  if (!context) {
-    throw new Error('useI18n must be used within an I18nProvider');
-  }
-  return context;
 };

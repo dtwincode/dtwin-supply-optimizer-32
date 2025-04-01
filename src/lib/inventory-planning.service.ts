@@ -58,7 +58,7 @@ export async function fetchLocations(): Promise<string[]> {
 
   // Extract unique location IDs and ensure they are strings
   const locations = [...new Set(data.map(item => String(item.location_id)))].filter(Boolean);
-  return locations;
+  return locations as string[];
 }
 
 export async function fetchBufferProfiles(): Promise<string[]> {
@@ -74,5 +74,5 @@ export async function fetchBufferProfiles(): Promise<string[]> {
 
   // Extract unique buffer profile IDs and ensure they are strings
   const profiles = [...new Set(data.map(item => String(item.buffer_profile_id)))].filter(Boolean);
-  return profiles;
+  return profiles as string[];
 }

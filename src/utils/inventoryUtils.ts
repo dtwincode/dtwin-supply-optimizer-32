@@ -1,4 +1,3 @@
-
 import { InventoryItem, BufferZones, NetFlowPosition, BufferFactorConfig } from "@/types/inventory";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -61,10 +60,14 @@ export const calculateBufferZones = async (item: InventoryItem): Promise<BufferZ
     };
   }
   
-  if (item.safety_stock && item.min_stock_level) {
+  // Use planning item fields if available
+  if (
+    (item as any).safety_stock !== undefined && 
+    (item as any).min_stock_level !== undefined
+  ) {
     // Use inventory_planning_view calculations if available
-    const redZone = Math.round(item.safety_stock);
-    const yellowZone = Math.round(item.min_stock_level);
+    const redZone = Math.round((item as any).safety_stock);
+    const yellowZone = Math.round((item as any).min_stock_level);
     const greenZone = Math.round(yellowZone * 0.5); // Typical DDMRP calculation
     
     return {
@@ -75,7 +78,7 @@ export const calculateBufferZones = async (item: InventoryItem): Promise<BufferZ
   }
 
   // Original calculation if we don't have planning data
-  if (!item.adu && !item.average_daily_usage || !item.leadTimeDays && !item.lead_time_days) {
+  if (!item.adu && !(item as any).average_daily_usage || !item.leadTimeDays && !(item as any).lead_time_days) {
     return {
       red: 0,
       yellow: 0,
@@ -84,8 +87,8 @@ export const calculateBufferZones = async (item: InventoryItem): Promise<BufferZ
   }
 
   const config = await fetchActiveBufferConfig();
-  const adu = item.adu || item.average_daily_usage || 0;
-  const leadTimeDays = item.leadTimeDays || item.lead_time_days || 0;
+  const adu = item.adu || (item as any).average_daily_usage || 0;
+  const leadTimeDays = item.leadTimeDays || (item as any).lead_time_days || 0;
 
   // Determine lead time category and factor
   let leadTimeFactor: number;
@@ -98,7 +101,7 @@ export const calculateBufferZones = async (item: InventoryItem): Promise<BufferZ
   }
   
   // Variability factor (if not provided, default to 1)
-  const variabilityFactor = item.variabilityFactor || item.demand_variability || 1;
+  const variabilityFactor = item.variabilityFactor || (item as any).demand_variability || 1;
 
   // Calculate zones using the configurable DDMRP formulas
   const redZone = Math.round(adu * leadTimeFactor * variabilityFactor);
