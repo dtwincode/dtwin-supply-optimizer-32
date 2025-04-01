@@ -32,8 +32,8 @@ export function DecouplingAnalytics() {
       const manualCount = decouplingPoints.filter(p => p.isOverride).length;
       
       setSourceData([
-        { name: 'Auto-generated', value: autoCount },
-        { name: 'Manual Override', value: manualCount }
+        { name: 'Auto-generated', value: autoCount, fill: '#4CAF50' },
+        { name: 'Manual Override', value: manualCount, fill: '#FF9800' }
       ]);
     }
   }, [decouplingPoints]);
@@ -101,13 +101,17 @@ export function DecouplingAnalytics() {
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip formatter={(value) => [`${value} points`, 'Count']} />
-                <Bar dataKey="value" fill="#8884d8">
+                <Bar dataKey="value">
                   {sourceData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={SOURCE_COLORS[index % SOURCE_COLORS.length]} />
+                    <Cell key={`cell-${index}`} fill={entry.fill || SOURCE_COLORS[index % SOURCE_COLORS.length]} />
                   ))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
+          </div>
+          <div className="mt-4 text-sm">
+            <p className="mb-2"><span className="inline-block w-3 h-3 bg-green-500 mr-2"></span> <strong>Auto-generated:</strong> Points based on threshold calculations in the inventory_planning_view</p>
+            <p><span className="inline-block w-3 h-3 bg-orange-500 mr-2"></span> <strong>Manual override:</strong> Points created through user adjustments</p>
           </div>
         </CardContent>
       </Card>
@@ -137,6 +141,14 @@ export function DecouplingAnalytics() {
                 against variability. They help maintain service levels.
               </p>
             </div>
+          </div>
+          
+          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+            <h4 className="font-semibold mb-2">Data Sources:</h4>
+            <p className="text-sm text-muted-foreground">
+              Auto-generated points are calculated based on demand variability and lead time thresholds from the <code>inventory_planning_view</code> database view.
+              Manual overrides are stored in the <code>buffer_profile_override</code> table.
+            </p>
           </div>
         </CardContent>
       </Card>
