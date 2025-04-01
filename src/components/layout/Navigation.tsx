@@ -66,7 +66,7 @@ const Navigation = memo(({ language, isRTL }: NavigationProps) => {
           to={item.href}
           className={cn(
             "flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-colors duration-200",
-            location.pathname === item.href || (item.href === "/" && location.pathname === "")
+            location.pathname === item.href || (item.href !== "/" && location.pathname.startsWith(item.href))
               ? "bg-dtwin-medium text-white"
               : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
           )}

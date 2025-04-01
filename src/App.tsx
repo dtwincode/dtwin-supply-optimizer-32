@@ -1,3 +1,4 @@
+
 import { Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/index";
 import Auth from "./pages/Auth";
@@ -57,7 +58,7 @@ const RouteDebugger = ({ children }: { children: React.ReactNode }) => {
 
     console.log('[Route Debugger] Available routes:', [
       "/", "/auth", "/ddsop", "/forecasting", "/inventory", 
-      "/supply-planning", "/sales-and-returns", "/marketing", 
+      "/inventory-planning", "/supply-planning", "/sales-and-returns", "/marketing", 
       "/logistics", "/reports", "/ask-ai", "/data", 
       "/guidelines", "/sql-config", "/tickets"
     ]);
