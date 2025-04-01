@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,8 +19,25 @@ import InventoryFilters from "@/components/inventory/InventoryFilters";
 import { supabase } from "@/lib/supabaseClient";
 import { useSkuClassifications } from "@/hooks/useSkuClassifications";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, BarChart, Layers, Grid3X3, TrendingUp, Filter, Network } from "lucide-react";
+import { 
+  RefreshCw, 
+  BarChart, 
+  Layers, 
+  Grid3X3, 
+  TrendingUp, 
+  Filter, 
+  Network,
+  PlusCircle,
+  AlertTriangle,
+  Settings,
+  PieChart
+} from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
+import { EnhancedBufferVisualizer } from "@/components/inventory/buffer/EnhancedBufferVisualizer";
+import { Badge } from "@/components/ui/badge";
+import { ReplenishmentTab } from "@/components/inventory/tabs/ReplenishmentTab";
+import { NetFlowTab } from "@/components/inventory/tabs/NetFlowTab";
+import { BufferManagementTab } from "@/components/inventory/tabs/BufferManagementTab";
 
 function Inventory() {
   const { toast } = useToast();
@@ -99,6 +117,7 @@ function Inventory() {
             location: location?.warehouse,
             last_updated: item.last_updated,
             decoupling_point: item.decoupling_point,
+            decouplingPointId: item.decoupling_point ? item.inventory_id : null,
             name: product?.name,
             category: product?.category,
             subcategory: product?.subcategory,
@@ -193,13 +212,28 @@ function Inventory() {
 
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
+  // Calculate buffer zones for visualization in the item details
+  const calculateBufferZones = (item: InventoryItem | null) => {
+    if (!item) return { red: 0, yellow: 0, green: 0 };
+    
+    const leadTime = item.leadTimeDays || 10;
+    const adu = item.adu || 5;
+    const variabilityFactor = item.variabilityFactor || 0.5;
+    
+    return {
+      red: Math.round(adu * leadTime * variabilityFactor),
+      yellow: Math.round(adu * leadTime * 0.5),
+      green: Math.round(adu * leadTime * 0.5 * 0.7)
+    };
+  };
+
   // Inventory page content
   const inventoryContent = (
     <div className="flex flex-col space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
         <PageHeader title="Inventory Management" />
         
-        <div className="flex items-center space-x-3">
+        <div className="flex flex-wrap items-center gap-3 justify-end">
           <Button 
             variant="outline" 
             size="sm" 
@@ -240,7 +274,54 @@ function Inventory() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <InventoryInsightsCard />
         <DecouplingAnalytics items={inventoryData} />
-        <InventoryPlanningInsights items={inventoryData} />
+        <Card className="overflow-hidden">
+          <CardHeader className="pb-2 flex flex-row items-center justify-between">
+            <CardTitle className="text-lg flex items-center">
+              <AlertTriangle className="h-5 w-5 mr-2 text-amber-500" />
+              Buffer Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-900/30">
+                <div className="font-medium text-lg text-red-700 dark:text-red-400">
+                  {inventoryData.filter(item => {
+                    const buffer = calculateBufferZones(item);
+                    const total = buffer.red + buffer.yellow + buffer.green;
+                    const position = item.onHand || 0;
+                    const penetration = total > 0 ? ((total - position) / total) * 100 : 0;
+                    return penetration >= 80;
+                  }).length}
+                </div>
+                <div className="text-xs text-red-600 dark:text-red-300">Critical</div>
+              </div>
+              <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-100 dark:border-amber-900/30">
+                <div className="font-medium text-lg text-amber-700 dark:text-amber-400">
+                  {inventoryData.filter(item => {
+                    const buffer = calculateBufferZones(item);
+                    const total = buffer.red + buffer.yellow + buffer.green;
+                    const position = item.onHand || 0;
+                    const penetration = total > 0 ? ((total - position) / total) * 100 : 0;
+                    return penetration >= 40 && penetration < 80;
+                  }).length}
+                </div>
+                <div className="text-xs text-amber-600 dark:text-amber-300">Warning</div>
+              </div>
+              <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-100 dark:border-green-900/30">
+                <div className="font-medium text-lg text-green-700 dark:text-green-400">
+                  {inventoryData.filter(item => {
+                    const buffer = calculateBufferZones(item);
+                    const total = buffer.red + buffer.yellow + buffer.green;
+                    const position = item.onHand || 0;
+                    const penetration = total > 0 ? ((total - position) / total) * 100 : 0;
+                    return penetration < 40;
+                  }).length}
+                </div>
+                <div className="text-xs text-green-600 dark:text-green-300">Healthy</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
@@ -253,27 +334,35 @@ function Inventory() {
           </CardHeader>
           <CardContent className="p-0">
             <Tabs defaultValue="inventory" value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <div className="px-6 pt-2">
-                <TabsList className="grid grid-cols-5 w-full">
-                  <TabsTrigger value="inventory" className="flex items-center">
-                    <Grid3X3 className="h-4 w-4 mr-2" />
-                    Inventory Data
+              <div className="px-4 sm:px-6 pt-2 overflow-x-auto">
+                <TabsList className="grid w-full min-w-max grid-cols-7">
+                  <TabsTrigger value="inventory" className="flex items-center text-xs sm:text-sm">
+                    <Grid3X3 className="h-4 w-4 mr-1 sm:mr-2" />
+                    <span>Data</span>
                   </TabsTrigger>
-                  <TabsTrigger value="classification" className="flex items-center">
-                    <Layers className="h-4 w-4 mr-2" />
-                    Classification
+                  <TabsTrigger value="classification" className="flex items-center text-xs sm:text-sm">
+                    <Layers className="h-4 w-4 mr-1 sm:mr-2" />
+                    <span>Classification</span>
                   </TabsTrigger>
-                  <TabsTrigger value="decoupling" className="flex items-center">
-                    <Network className="h-4 w-4 mr-2" />
-                    Decoupling Points
+                  <TabsTrigger value="decoupling" className="flex items-center text-xs sm:text-sm">
+                    <Network className="h-4 w-4 mr-1 sm:mr-2" />
+                    <span>Decoupling</span>
                   </TabsTrigger>
-                  <TabsTrigger value="analysis" className="flex items-center">
-                    <TrendingUp className="h-4 w-4 mr-2" />
-                    Analysis
+                  <TabsTrigger value="buffer" className="flex items-center text-xs sm:text-sm">
+                    <PieChart className="h-4 w-4 mr-1 sm:mr-2" />
+                    <span>Buffer</span>
                   </TabsTrigger>
-                  <TabsTrigger value="ai-insights" className="flex items-center">
-                    <BarChart className="h-4 w-4 mr-2" />
-                    AI Insights
+                  <TabsTrigger value="netflow" className="flex items-center text-xs sm:text-sm">
+                    <TrendingUp className="h-4 w-4 mr-1 sm:mr-2" />
+                    <span>Net Flow</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="replenishment" className="flex items-center text-xs sm:text-sm">
+                    <Settings className="h-4 w-4 mr-1 sm:mr-2" />
+                    <span>Replenishment</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="ai-insights" className="flex items-center text-xs sm:text-sm">
+                    <BarChart className="h-4 w-4 mr-1 sm:mr-2" />
+                    <span>AI Insights</span>
                   </TabsTrigger>
                 </TabsList>
               </div>
@@ -302,31 +391,16 @@ function Inventory() {
                 <DecouplingTab />
               </TabsContent>
               
-              <TabsContent value="analysis" className="m-0 p-4">
-                <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground">
-                    Inventory analysis provides insights into buffer management, replenishment strategies,
-                    and optimization opportunities based on historical patterns.
-                  </p>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Card className="p-4">
-                      <CardTitle className="text-sm mb-2">Buffer Analysis</CardTitle>
-                      <p className="text-xs text-muted-foreground mb-4">
-                        Analysis of current buffer levels across inventory locations.
-                      </p>
-                      {/* Buffer analysis content */}
-                    </Card>
-                    
-                    <Card className="p-4">
-                      <CardTitle className="text-sm mb-2">Replenishment Analysis</CardTitle>
-                      <p className="text-xs text-muted-foreground mb-4">
-                        Analysis of replenishment patterns and optimization opportunities.
-                      </p>
-                      {/* Replenishment analysis content */}
-                    </Card>
-                  </div>
-                </div>
+              <TabsContent value="buffer" className="m-0 p-4">
+                <BufferManagementTab />
+              </TabsContent>
+              
+              <TabsContent value="netflow" className="m-0 p-4">
+                <NetFlowTab />
+              </TabsContent>
+              
+              <TabsContent value="replenishment" className="m-0 p-4">
+                <ReplenishmentTab />
               </TabsContent>
 
               <TabsContent value="ai-insights" className="m-0">
@@ -338,22 +412,30 @@ function Inventory() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center">
-              <Layers className="h-5 w-5 mr-2 text-primary" />
-              Selected Item Details
+            <CardTitle className="text-lg flex items-center justify-between">
+              <div className="flex items-center">
+                <Layers className="h-5 w-5 mr-2 text-primary" />
+                Selected Item
+              </div>
+              {selectedItem && (
+                <Button variant="outline" size="sm" className="h-7 px-2">
+                  <PlusCircle className="h-3.5 w-3.5 mr-1" />
+                  <span className="text-xs">Add Note</span>
+                </Button>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {selectedItem ? (
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-sm font-medium">{selectedItem.product_id}</h3>
+                  <h3 className="text-sm font-medium">{selectedItem.sku}</h3>
                   <p className="text-xs text-muted-foreground">{selectedItem.name || 'No product name'}</p>
                   
                   <div className="grid grid-cols-2 gap-2 mt-3">
                     <div className="p-2 rounded bg-muted/50">
                       <p className="text-xs text-muted-foreground">On Hand</p>
-                      <p className="text-sm font-medium">{selectedItem.quantity_on_hand}</p>
+                      <p className="text-sm font-medium">{selectedItem.onHand}</p>
                     </div>
                     <div className="p-2 rounded bg-muted/50">
                       <p className="text-xs text-muted-foreground">Reserved</p>
@@ -361,7 +443,7 @@ function Inventory() {
                     </div>
                     <div className="p-2 rounded bg-muted/50">
                       <p className="text-xs text-muted-foreground">Location</p>
-                      <p className="text-sm font-medium">{selectedItem.location || selectedItem.location_id}</p>
+                      <p className="text-sm font-medium">{selectedItem.location}</p>
                     </div>
                     <div className="p-2 rounded bg-muted/50">
                       <p className="text-xs text-muted-foreground">Last Updated</p>
@@ -375,12 +457,8 @@ function Inventory() {
                 <div>
                   <h3 className="text-sm font-medium mb-2">Buffer Analysis</h3>
                   <EnhancedBufferVisualizer 
-                    bufferZones={{
-                      red: selectedItem.leadTimeDays * 5 || 50,
-                      yellow: selectedItem.adu * 3 || 30,
-                      green: selectedItem.adu * 2 || 20
-                    }}
-                    netFlowPosition={selectedItem.quantity_on_hand || 0}
+                    bufferZones={calculateBufferZones(selectedItem)}
+                    netFlowPosition={selectedItem.onHand || 0}
                     adu={selectedItem.adu}
                     showDetailedInfo={true}
                   />

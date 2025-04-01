@@ -1,5 +1,6 @@
 
 import React from "react";
+import { Badge } from "@/components/ui/badge";
 
 interface BufferZones {
   red: number;
@@ -12,13 +13,19 @@ interface EnhancedBufferVisualizerProps {
   netFlowPosition: number;
   adu?: number;
   showDetailedInfo?: boolean;
+  showLabels?: boolean;
+  compact?: boolean;
+  showBadge?: boolean;
 }
 
 export const EnhancedBufferVisualizer: React.FC<EnhancedBufferVisualizerProps> = ({
   bufferZones,
   netFlowPosition,
   adu,
-  showDetailedInfo = false
+  showDetailedInfo = false,
+  showLabels = true,
+  compact = false,
+  showBadge = true
 }) => {
   const { red, yellow, green } = bufferZones;
   const totalBuffer = red + yellow + green;
@@ -39,19 +46,19 @@ export const EnhancedBufferVisualizer: React.FC<EnhancedBufferVisualizerProps> =
   // Determine the status based on buffer penetration
   const getStatus = () => {
     if (bufferPenetration >= 80) {
-      return { label: "Critical", color: "text-red-600" };
+      return { label: "Critical", color: "text-red-600", badge: "destructive" };
     } else if (bufferPenetration >= 40) {
-      return { label: "Warning", color: "text-amber-600" };
+      return { label: "Warning", color: "text-amber-600", badge: "warning" };
     } else {
-      return { label: "Healthy", color: "text-green-600" };
+      return { label: "Healthy", color: "text-green-600", badge: "success" };
     }
   };
   
   const status = getStatus();
   
   return (
-    <div className="w-full">
-      <div className="relative h-4 flex rounded-full overflow-hidden mb-1">
+    <div className={`w-full ${compact ? 'space-y-0.5' : 'space-y-1'}`}>
+      <div className={`relative ${compact ? 'h-2' : 'h-4'} flex rounded-full overflow-hidden`}>
         <div 
           className="bg-red-500 h-full" 
           style={{ width: `${redPercent}%` }}
@@ -70,21 +77,27 @@ export const EnhancedBufferVisualizer: React.FC<EnhancedBufferVisualizerProps> =
           className="absolute top-0 h-full w-0.5 bg-black"
           style={{ left: markerPosition }}
         >
-          <div className="w-2 h-2 bg-black rounded-full -ml-[3px] -mt-[3px]"></div>
+          <div className={`w-2 h-2 bg-black rounded-full -ml-[3px] ${compact ? '-mt-[4px]' : '-mt-[3px]'}`}></div>
         </div>
       </div>
       
-      <div className="flex justify-between items-center">
-        <div className="text-xs font-medium">
-          <span className={status.color}>{status.label}</span>
-          {bufferPenetration > 0 && (
-            <span className="text-gray-700 dark:text-gray-300"> - {Math.round(bufferPenetration)}%</span>
-          )}
+      {showLabels && (
+        <div className="flex justify-between items-center">
+          <div className={`font-medium ${compact ? 'text-[10px]' : 'text-xs'}`}>
+            {showBadge ? (
+              <Badge variant={status.badge as any}>{status.label}</Badge>
+            ) : (
+              <span className={status.color}>{status.label}</span>
+            )}
+            {bufferPenetration > 0 && !compact && (
+              <span className="text-gray-700 dark:text-gray-300 ml-1">{Math.round(bufferPenetration)}%</span>
+            )}
+          </div>
+          <div className={`text-gray-600 dark:text-gray-400 ${compact ? 'text-[10px]' : 'text-xs'}`}>
+            {netFlowPosition} / {totalBuffer}
+          </div>
         </div>
-        <div className="text-xs text-gray-600 dark:text-gray-400">
-          {netFlowPosition} / {totalBuffer}
-        </div>
-      </div>
+      )}
       
       {showDetailedInfo && (
         <div className="mt-2 space-y-1">
