@@ -14,7 +14,6 @@ import {
 import { InventoryItem } from "@/types/inventory";
 import { EnhancedBufferVisualizer } from "@/components/inventory/buffer/EnhancedBufferVisualizer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface EnhancedInventoryTabProps {
   paginatedData: InventoryItem[];
@@ -108,7 +107,7 @@ export function EnhancedInventoryTab({
                 paginatedData.map((item) => {
                   const bufferZones = calculateBufferZones(item);
                   const totalBuffer = bufferZones.red + bufferZones.yellow + bufferZones.green;
-                  const netFlowPosition = item.quantity_on_hand || 0;
+                  const netFlowPosition = item.onHand || 0;
                   const bufferPenetration = totalBuffer > 0 
                     ? Math.max(0, Math.min(100, ((totalBuffer - netFlowPosition) / totalBuffer) * 100)) 
                     : 0;
@@ -121,10 +120,10 @@ export function EnhancedInventoryTab({
                       className="cursor-pointer hover:bg-muted/50"
                       onClick={() => onSelectItem && onSelectItem(item)}
                     >
-                      <TableCell className="font-medium">{item.sku || item.product_id}</TableCell>
+                      <TableCell className="font-medium">{item.sku}</TableCell>
                       <TableCell>{item.name || "-"}</TableCell>
-                      <TableCell>{item.location || item.location_id}</TableCell>
-                      <TableCell>{item.quantity_on_hand}</TableCell>
+                      <TableCell>{item.location}</TableCell>
+                      <TableCell>{item.onHand}</TableCell>
                       <TableCell>
                         <div className="w-40">
                           <EnhancedBufferVisualizer 
@@ -134,7 +133,7 @@ export function EnhancedInventoryTab({
                         </div>
                       </TableCell>
                       <TableCell>
-                        {item.decoupling_point ? (
+                        {item.decouplingPointId ? (
                           <Badge className="bg-blue-100 text-blue-800">Decoupling Point</Badge>
                         ) : (
                           <Badge variant="outline">Regular</Badge>
@@ -172,7 +171,7 @@ export function EnhancedInventoryTab({
             paginatedData.map((item) => {
               const bufferZones = calculateBufferZones(item);
               const totalBuffer = bufferZones.red + bufferZones.yellow + bufferZones.green;
-              const netFlowPosition = item.quantity_on_hand || 0;
+              const netFlowPosition = item.onHand || 0;
               const bufferPenetration = totalBuffer > 0 
                 ? Math.max(0, Math.min(100, ((totalBuffer - netFlowPosition) / totalBuffer) * 100)) 
                 : 0;
@@ -188,10 +187,10 @@ export function EnhancedInventoryTab({
                   <CardHeader className="pb-2">
                     <div className="flex justify-between items-start">
                       <div>
-                        <CardTitle className="text-base">{item.sku || item.product_id}</CardTitle>
+                        <CardTitle className="text-base">{item.sku}</CardTitle>
                         <p className="text-sm text-muted-foreground">{item.name || "-"}</p>
                       </div>
-                      {item.decoupling_point ? (
+                      {item.decouplingPointId ? (
                         <Badge className="bg-blue-100 text-blue-800">Decoupling Point</Badge>
                       ) : (
                         <Badge variant="outline">Regular</Badge>
@@ -202,11 +201,11 @@ export function EnhancedInventoryTab({
                     <div className="grid grid-cols-2 gap-2 mb-3">
                       <div className="bg-muted/50 p-2 rounded">
                         <p className="text-xs text-muted-foreground">Location</p>
-                        <p className="font-medium">{item.location || item.location_id}</p>
+                        <p className="font-medium">{item.location}</p>
                       </div>
                       <div className="bg-muted/50 p-2 rounded">
                         <p className="text-xs text-muted-foreground">On Hand</p>
-                        <p className="font-medium">{item.quantity_on_hand}</p>
+                        <p className="font-medium">{item.onHand}</p>
                       </div>
                     </div>
                     <div className="mb-4">

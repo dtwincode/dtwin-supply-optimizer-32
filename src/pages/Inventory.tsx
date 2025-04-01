@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,22 +5,21 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { PageHeader } from "@/components/PageHeader";
 import { Pagination } from "@/components/Pagination";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { InventoryItem } from "@/types/inventory";
 import { EnhancedInventoryTab } from "@/components/inventory/tabs/EnhancedInventoryTab";
 import { ClassificationTab } from "@/components/inventory/tabs/ClassificationTab";
 import { AIInsightsTab } from "@/components/inventory/tabs/AIInsightsTab";
 import { DecouplingTab } from "@/components/inventory/tabs/DecouplingTab";
 import { DecouplingAnalytics } from "@/components/inventory/decoupling/DecouplingAnalytics";
-import { EnhancedBufferVisualizer } from "@/components/inventory/buffer/EnhancedBufferVisualizer";
 import { InventoryInsightsCard } from "@/components/inventory/InventoryInsightsCard";
 import { InventoryPlanningInsights } from "@/components/inventory/InventoryPlanningInsights";
 import { useToast } from "@/hooks/use-toast";
 import InventoryFilters from "@/components/inventory/InventoryFilters";
 import { supabase } from "@/lib/supabaseClient";
 import { useSkuClassifications } from "@/hooks/useSkuClassifications";
+import { Button } from "@/components/ui/button";
 import { RefreshCw, BarChart, Layers, Grid3X3, TrendingUp, Filter, Network } from "lucide-react";
+import DashboardLayout from "@/components/DashboardLayout";
 
 function Inventory() {
   const { toast } = useToast();
@@ -177,7 +175,10 @@ function Inventory() {
   const refreshData = async () => {
     setLoading(true);
     try {
-      setPage(page);
+      // Simply refresh the current page
+      const currentPage = page;
+      setPage(1);
+      setTimeout(() => setPage(currentPage), 0);
     } catch (error) {
       console.error("Error refreshing data:", error);
       throw error;
@@ -192,7 +193,8 @@ function Inventory() {
 
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-  return (
+  // Inventory page content
+  const inventoryContent = (
     <div className="flex flex-col space-y-4">
       <div className="flex justify-between items-center">
         <PageHeader title="Inventory Management" />
@@ -438,6 +440,9 @@ function Inventory() {
       </div>
     </div>
   );
+
+  // Return the content wrapped in DashboardLayout
+  return <DashboardLayout>{inventoryContent}</DashboardLayout>;
 }
 
 export default Inventory;
