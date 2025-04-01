@@ -6,6 +6,7 @@ import Inventory from "./pages/Inventory";
 import Settings from "./pages/Settings";
 import Forecasting from "./pages/Forecasting";
 import DDSOP from "./pages/DDSOP";
+import InventoryPlanning from "./pages/InventoryPlanning";
 
 export const router = createBrowserRouter([
   {
@@ -20,6 +21,10 @@ export const router = createBrowserRouter([
       {
         path: "inventory",
         element: <Inventory />
+      },
+      {
+        path: "inventory-planning",
+        element: <InventoryPlanning />
       },
       {
         path: "forecasting",

@@ -19,6 +19,10 @@ export const navigationTranslations: NavigationItems = {
     en: "Inventory",
     ar: "المخزون"
   },
+  inventoryPlanning: {
+    en: "Inventory Planning",
+    ar: "تخطيط المخزون"
+  },
   inventoryClassification: {
     en: "SKU Classification",
     ar: "تصنيف وحدات التخزين"

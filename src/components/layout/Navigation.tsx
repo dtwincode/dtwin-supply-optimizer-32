@@ -13,7 +13,8 @@ import {
   BookOpen, 
   ShoppingCart,
   Gift,
-  BadgeCheck
+  BadgeCheck,
+  BarChart2
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -30,6 +31,13 @@ const navigationItems = [
     href: "/inventory",
     badge: "Phase 7", 
     badgeColor: "bg-green-600"
+  },
+  {
+    name: "navigationItems.inventoryPlanning",
+    icon: BarChart2,
+    href: "/inventory-planning",
+    badge: "New",
+    badgeColor: "bg-blue-600"
   },
   { name: "navigationItems.supplyPlanning", icon: ShoppingCart, href: "/supply-planning" },
   { name: "navigationItems.salesPlanning", icon: LineChart, href: "/sales-and-returns" },
