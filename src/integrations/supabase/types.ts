@@ -581,72 +581,6 @@ export type Database = {
         }
         Relationships: []
       }
-      forecast_integration_mappings: {
-        Row: {
-          columns_config: string | null
-          created_at: string
-          created_by: string | null
-          description: string | null
-          historical_key_column: string | null
-          historical_location_key_column: string | null
-          historical_product_key_column: string | null
-          historical_sales_mapping: Json
-          id: string
-          is_active: boolean | null
-          location_hierarchy_mapping: Json
-          location_key_column: string | null
-          mapping_name: string
-          product_hierarchy_mapping: Json
-          product_key_column: string | null
-          selected_columns_array: string[] | null
-          updated_at: string
-          use_location_mapping: boolean | null
-          use_product_mapping: boolean | null
-        }
-        Insert: {
-          columns_config?: string | null
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          historical_key_column?: string | null
-          historical_location_key_column?: string | null
-          historical_product_key_column?: string | null
-          historical_sales_mapping?: Json
-          id?: string
-          is_active?: boolean | null
-          location_hierarchy_mapping?: Json
-          location_key_column?: string | null
-          mapping_name: string
-          product_hierarchy_mapping?: Json
-          product_key_column?: string | null
-          selected_columns_array?: string[] | null
-          updated_at?: string
-          use_location_mapping?: boolean | null
-          use_product_mapping?: boolean | null
-        }
-        Update: {
-          columns_config?: string | null
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          historical_key_column?: string | null
-          historical_location_key_column?: string | null
-          historical_product_key_column?: string | null
-          historical_sales_mapping?: Json
-          id?: string
-          is_active?: boolean | null
-          location_hierarchy_mapping?: Json
-          location_key_column?: string | null
-          mapping_name?: string
-          product_hierarchy_mapping?: Json
-          product_key_column?: string | null
-          selected_columns_array?: string[] | null
-          updated_at?: string
-          use_location_mapping?: boolean | null
-          use_product_mapping?: boolean | null
-        }
-        Relationships: []
-      }
       forecast_models: {
         Row: {
           created_at: string | null
@@ -768,60 +702,6 @@ export type Database = {
           },
         ]
       }
-      hierarchy_column_mappings: {
-        Row: {
-          column_name: string
-          created_at: string | null
-          hierarchy_level: number | null
-          id: string
-          main_level: number | null
-          table_name: string
-          updated_at: string | null
-        }
-        Insert: {
-          column_name: string
-          created_at?: string | null
-          hierarchy_level?: number | null
-          id?: string
-          main_level?: number | null
-          table_name: string
-          updated_at?: string | null
-        }
-        Update: {
-          column_name?: string
-          created_at?: string | null
-          hierarchy_level?: number | null
-          id?: string
-          main_level?: number | null
-          table_name?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      hierarchy_column_selections: {
-        Row: {
-          created_at: string | null
-          id: string
-          selected_columns: string[]
-          table_name: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          selected_columns: string[]
-          table_name: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          selected_columns?: string[]
-          table_name?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       hierarchy_file_references: {
         Row: {
           created_at: string
@@ -858,63 +738,6 @@ export type Database = {
           original_name?: string
           storage_path?: string
           updated_at?: string
-        }
-        Relationships: []
-      }
-      hierarchy_mappings: {
-        Row: {
-          created_at: string | null
-          hierarchy_type: string
-          id: string
-          is_active: boolean | null
-          mappings: Json
-          selected_columns: string[]
-          temp_upload_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          hierarchy_type: string
-          id?: string
-          is_active?: boolean | null
-          mappings: Json
-          selected_columns: string[]
-          temp_upload_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          hierarchy_type?: string
-          id?: string
-          is_active?: boolean | null
-          mappings?: Json
-          selected_columns?: string[]
-          temp_upload_id?: string | null
-        }
-        Relationships: []
-      }
-      hierarchy_versions: {
-        Row: {
-          changes_summary: string | null
-          created_at: string | null
-          created_by: string | null
-          hierarchy_type: string
-          id: string
-          version: number
-        }
-        Insert: {
-          changes_summary?: string | null
-          created_at?: string | null
-          created_by?: string | null
-          hierarchy_type: string
-          id?: string
-          version: number
-        }
-        Update: {
-          changes_summary?: string | null
-          created_at?: string | null
-          created_by?: string | null
-          hierarchy_type?: string
-          id?: string
-          version?: number
         }
         Relationships: []
       }
@@ -1217,134 +1040,6 @@ export type Database = {
           valid_until?: string | null
         }
         Relationships: []
-      }
-      location_hierarchy: {
-        Row: {
-          active: boolean | null
-          channel: string | null
-          channel_id: string
-          city: string | null
-          code: string | null
-          coordinates: Json | null
-          country: string | null
-          created_at: string | null
-          display_name: string | null
-          hierarchy_level: number | null
-          id: string
-          last_updated_at: string | null
-          last_updated_by: string | null
-          location_desc: string | null
-          location_description: string | null
-          location_id: string
-          location_type: string | null
-          metadata: Json | null
-          org_id: string | null
-          parent_id: string | null
-          region: string | null
-          sub_channel: string | null
-          updated_at: string | null
-          warehouse: string | null
-        }
-        Insert: {
-          active?: boolean | null
-          channel?: string | null
-          channel_id: string
-          city?: string | null
-          code?: string | null
-          coordinates?: Json | null
-          country?: string | null
-          created_at?: string | null
-          display_name?: string | null
-          hierarchy_level?: number | null
-          id?: string
-          last_updated_at?: string | null
-          last_updated_by?: string | null
-          location_desc?: string | null
-          location_description?: string | null
-          location_id: string
-          location_type?: string | null
-          metadata?: Json | null
-          org_id?: string | null
-          parent_id?: string | null
-          region?: string | null
-          sub_channel?: string | null
-          updated_at?: string | null
-          warehouse?: string | null
-        }
-        Update: {
-          active?: boolean | null
-          channel?: string | null
-          channel_id?: string
-          city?: string | null
-          code?: string | null
-          coordinates?: Json | null
-          country?: string | null
-          created_at?: string | null
-          display_name?: string | null
-          hierarchy_level?: number | null
-          id?: string
-          last_updated_at?: string | null
-          last_updated_by?: string | null
-          location_desc?: string | null
-          location_description?: string | null
-          location_id?: string
-          location_type?: string | null
-          metadata?: Json | null
-          org_id?: string | null
-          parent_id?: string | null
-          region?: string | null
-          sub_channel?: string | null
-          updated_at?: string | null
-          warehouse?: string | null
-        }
-        Relationships: []
-      }
-      location_hierarchy_files: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          file_name: string
-          file_size: number | null
-          file_type: string | null
-          id: string
-          is_active: boolean | null
-          metadata: Json | null
-          original_name: string
-          temp_upload_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          file_name: string
-          file_size?: number | null
-          file_type?: string | null
-          id?: string
-          is_active?: boolean | null
-          metadata?: Json | null
-          original_name: string
-          temp_upload_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          file_name?: string
-          file_size?: number | null
-          file_type?: string | null
-          id?: string
-          is_active?: boolean | null
-          metadata?: Json | null
-          original_name?: string
-          temp_upload_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "location_hierarchy_files_temp_upload_id_fkey"
-            columns: ["temp_upload_id"]
-            isOneToOne: false
-            referencedRelation: "temp_hierarchy_uploads"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       location_master: {
         Row: {
@@ -1988,36 +1683,6 @@ export type Database = {
         }
         Relationships: []
       }
-      pricing: {
-        Row: {
-          created_at: string | null
-          effective_date: string
-          location_id: string
-          price: number
-          price_id: string
-          product_id: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          effective_date: string
-          location_id: string
-          price: number
-          price_id?: string
-          product_id: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          effective_date?: string
-          location_id?: string
-          price?: number
-          price_id?: string
-          product_id?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       product_classification: {
         Row: {
           classification_label: string
@@ -2457,57 +2122,6 @@ export type Database = {
           },
         ]
       }
-      temp_hierarchy_uploads: {
-        Row: {
-          created_at: string
-          file_type: string
-          filename: string
-          headers: Json | null
-          hierarchy_type: string
-          id: string
-          original_name: string
-          processed_at: string | null
-          processed_by: string | null
-          processing_error: string | null
-          row_count: number | null
-          sample_data: Json | null
-          status: string
-          storage_path: string
-        }
-        Insert: {
-          created_at?: string
-          file_type: string
-          filename: string
-          headers?: Json | null
-          hierarchy_type: string
-          id?: string
-          original_name: string
-          processed_at?: string | null
-          processed_by?: string | null
-          processing_error?: string | null
-          row_count?: number | null
-          sample_data?: Json | null
-          status?: string
-          storage_path: string
-        }
-        Update: {
-          created_at?: string
-          file_type?: string
-          filename?: string
-          headers?: Json | null
-          hierarchy_type?: string
-          id?: string
-          original_name?: string
-          processed_at?: string | null
-          processed_by?: string | null
-          processing_error?: string | null
-          row_count?: number | null
-          sample_data?: Json | null
-          status?: string
-          storage_path?: string
-        }
-        Relationships: []
-      }
       threshold_config: {
         Row: {
           decoupling_threshold: number | null
@@ -2773,57 +2387,6 @@ export type Database = {
             referencedColumns: ["product_id"]
           },
         ]
-      }
-      location_hierarchy_flat: {
-        Row: {
-          active: boolean | null
-          channel: string | null
-          channel_id: string | null
-          city: string | null
-          code: string | null
-          coordinates: Json | null
-          country: string | null
-          created_at: string | null
-          display_name: string | null
-          hierarchy_level: number | null
-          id: string | null
-          last_updated_at: string | null
-          last_updated_by: string | null
-          location_desc: string | null
-          location_description: string | null
-          location_id: string | null
-          location_type: string | null
-          metadata: Json | null
-          org_id: string | null
-          parent_id: string | null
-          path: string[] | null
-          region: string | null
-          row_num: number | null
-          sub_channel: string | null
-          updated_at: string | null
-          warehouse: string | null
-        }
-        Relationships: []
-      }
-      location_hierarchy_view: {
-        Row: {
-          active: boolean | null
-          channel: string | null
-          channel_id: string | null
-          city: string | null
-          country: string | null
-          display_name: string | null
-          hierarchy_level: number | null
-          id: string | null
-          level: number | null
-          location_id: string | null
-          location_type: string | null
-          parent_id: string | null
-          path: string[] | null
-          region: string | null
-          warehouse: string | null
-        }
-        Relationships: []
       }
       service_level_config: {
         Row: {

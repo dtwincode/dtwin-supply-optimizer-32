@@ -7,9 +7,18 @@ import { ReplenishmentData } from '@/types/inventory';
 
 interface ReplenishmentTimesProps {
   data: ReplenishmentData[];
+  loading?: boolean;
 }
 
-export const ReplenishmentTimes: React.FC<ReplenishmentTimesProps> = ({ data }) => {
+export const ReplenishmentTimes: React.FC<ReplenishmentTimesProps> = ({ data, loading }) => {
+  if (loading) {
+    return (
+      <div className="text-center py-4">
+        <p className="text-muted-foreground">Loading replenishment data...</p>
+      </div>
+    );
+  }
+
   if (!data || data.length === 0) {
     return (
       <div className="text-center py-4">
@@ -39,10 +48,10 @@ export const ReplenishmentTimes: React.FC<ReplenishmentTimesProps> = ({ data }) 
                 <TableCell className="font-medium">{item.sku}</TableCell>
                 <TableCell>{item.source || 'N/A'}</TableCell>
                 <TableCell>{item.destination || 'N/A'}</TableCell>
-                <TableCell>{item.transferTime ? `${item.transferTime} days` : 'N/A'}</TableCell>
-                <TableCell>{item.replenishmentType ? `${item.replenishmentType} days` : 'N/A'}</TableCell>
-                <TableCell>{item.cycleTime ? `${item.cycleTime} days` : 'N/A'}</TableCell>
-                <TableCell>{item.createdAt ? formatDate(item.createdAt) : 'N/A'}</TableCell>
+                <TableCell>{item.internalTransferTime ? `${item.internalTransferTime} days` : 'N/A'}</TableCell>
+                <TableCell>{item.replenishmentLeadTime ? `${item.replenishmentLeadTime} days` : 'N/A'}</TableCell>
+                <TableCell>{item.totalCycleTime ? `${item.totalCycleTime} days` : 'N/A'}</TableCell>
+                <TableCell>{item.lastUpdated ? formatDate(item.lastUpdated) : 'N/A'}</TableCell>
               </TableRow>
             ))}
           </TableBody>
