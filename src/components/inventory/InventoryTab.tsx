@@ -10,6 +10,7 @@ import { InventoryItem } from "@/types/inventory";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
+import { calculateBufferZones } from "@/utils/inventoryUtils";
 
 interface BufferZones {
   red: number;
@@ -23,36 +24,6 @@ interface NetFlowPosition {
   qualifiedDemand: number;
   netFlowPosition: number;
 }
-
-const calculateBufferZones = (item: InventoryItem): BufferZones => {
-  try {
-    // Use values directly from inventory_planning_view if available
-    if (item.safety_stock !== undefined && item.min_stock_level !== undefined) {
-      const redZone = Math.round(item.safety_stock);
-      const yellowZone = Math.round(item.min_stock_level - item.safety_stock);
-      const greenZone = Math.round(item.max_stock_level ? item.max_stock_level - item.min_stock_level : yellowZone * 0.5);
-      
-      return { red: redZone, yellow: yellowZone, green: greenZone };
-    }
-    
-    // Fallback to calculation if planning view fields aren't available
-    const adu = item.adu || item.average_daily_usage || 0;
-    const leadTimeDays = item.leadTimeDays || item.lead_time_days || 0;
-    
-    if (!adu || !leadTimeDays) {
-      return { red: 0, yellow: 0, green: 0 };
-    }
-    
-    const redZone = Math.round(adu * (leadTimeDays * 0.33));
-    const yellowZone = Math.round(adu * leadTimeDays);
-    const greenZone = Math.round(adu * (leadTimeDays * 0.5));
-    
-    return { red: redZone, yellow: yellowZone, green: greenZone };
-  } catch (error) {
-    console.error("Error calculating buffer zones:", error);
-    return { red: 0, yellow: 0, green: 0 };
-  }
-};
 
 const calculateNetFlowPosition = (item: InventoryItem): NetFlowPosition => {
   try {
@@ -94,11 +65,21 @@ const getBufferStatus = (bufferPenetration: number): 'green' | 'yellow' | 'red' 
 
 interface InventoryTabProps {
   paginatedData: InventoryItem[];
-  onCreatePO: (item: InventoryItem) => void;
   onRefresh?: () => Promise<void>;
+  isRefreshing?: boolean;
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
+  };
 }
 
-export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: InventoryTabProps) => {
+export const InventoryTab = ({ 
+  paginatedData, 
+  onRefresh, 
+  isRefreshing = false,
+  pagination 
+}: InventoryTabProps) => {
   const { t } = useI18n();
   const { toast } = useToast();
   const [itemBuffers, setItemBuffers] = useState<Record<string, {
@@ -109,11 +90,11 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
   }>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
-    const loadBufferData = () => {
+    const loadBufferData = async () => {
       try {
+        console.log("Loading buffer data for", paginatedData.length, "items");
         if (!paginatedData || paginatedData.length === 0) {
           setItemBuffers({});
           setLoading(false);
@@ -123,13 +104,29 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
         const bufferData: Record<string, any> = {};
         
         for (const item of paginatedData) {
-          const uniqueKey = item.id || `${item.product_id}-${item.location_id}`;
-          if (!uniqueKey) continue;
+          const uniqueKey = item.id || `${item.product_id}-${item.location_id}` || `${item.sku}-${item.location}`;
+          if (!uniqueKey) {
+            console.warn("Item without unique key:", item);
+            continue;
+          }
           
-          const bufferZones = calculateBufferZones(item);
+          console.log("Processing item:", uniqueKey, item);
+          
+          // Calculate buffer zones
+          const bufferZones = await calculateBufferZones(item);
+          console.log("Buffer zones calculated:", bufferZones);
+          
+          // Calculate net flow position
           const netFlow = calculateNetFlowPosition(item);
+          console.log("Net flow calculated:", netFlow);
+          
+          // Calculate buffer penetration
           const bufferPenetration = calculateBufferPenetration(netFlow.netFlowPosition, bufferZones);
+          console.log("Buffer penetration calculated:", bufferPenetration);
+          
+          // Determine buffer status
           const status = getBufferStatus(bufferPenetration);
+          console.log("Buffer status determined:", status);
           
           bufferData[uniqueKey] = {
             bufferZones,
@@ -139,6 +136,7 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
           };
         }
         
+        console.log("Buffer data populated:", bufferData);
         setItemBuffers(bufferData);
         setError(null);
       } catch (error) {
@@ -155,16 +153,11 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
     };
 
     setLoading(true);
-    const timer = setTimeout(() => {
-      loadBufferData();
-    }, 100);
-    
-    return () => clearTimeout(timer);
+    loadBufferData();
   }, [paginatedData, toast, t]);
 
   const handleRefresh = async () => {
     if (onRefresh) {
-      setIsRefreshing(true);
       try {
         await onRefresh();
         toast({
@@ -177,8 +170,6 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
           description: "Could not refresh inventory data. Please try again.",
           variant: "destructive",
         });
-      } finally {
-        setIsRefreshing(false);
       }
     }
   };
@@ -197,7 +188,8 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
 
   return (
     <div className="space-y-6 p-6">
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-semibold">Buffer Management</h2>
         <Button 
           variant="outline" 
           size="sm" 
@@ -210,60 +202,93 @@ export const InventoryTab = ({ paginatedData, onCreatePO, onRefresh }: Inventory
       </div>
 
       {!paginatedData || paginatedData.length === 0 ? (
-        <div className="text-center py-10">
+        <div className="text-center py-10 border rounded-md bg-gray-50">
           <p className="text-muted-foreground">{t("common.inventory.noItems") || "No inventory items found"}</p>
         </div>
       ) : (
-        paginatedData.map((item) => {
-          const uniqueKey = item.id || `${item.product_id}-${item.location_id}`;
-          if (!uniqueKey) {
-            return null;
-          }
-          
-          const bufferData = itemBuffers[uniqueKey];
-          
-          if (!bufferData) {
-            return <div key={uniqueKey} className="text-muted-foreground">{t("common.inventory.loadingItem") || "Loading item..."}</div>;
-          }
+        <div className="space-y-4">
+          {paginatedData.map((item) => {
+            const uniqueKey = item.id || `${item.product_id}-${item.location_id}` || `${item.sku}-${item.location}`;
+            if (!uniqueKey) {
+              return null;
+            }
+            
+            const bufferData = itemBuffers[uniqueKey];
+            
+            if (!bufferData) {
+              console.warn("No buffer data found for item:", uniqueKey);
+              return (
+                <div key={uniqueKey} className="text-muted-foreground text-center p-4 border rounded">
+                  {t("common.inventory.loadingItem") || "Loading item..."}
+                </div>
+              );
+            }
 
-          return (
-            <div key={uniqueKey} className="space-y-4">
-              <Table>
-                <InventoryTableHeader />
-                <TableBody>
-                  <TableRow>
-                    <TableCell className="font-medium">{item.sku || item.product_id || "N/A"}</TableCell>
-                    <TableCell>{item.name || item.product_id || "N/A"}</TableCell>
-                    <TableCell>{typeof item.onHand === 'number' ? item.onHand : (typeof item.quantity_on_hand === 'number' ? item.quantity_on_hand : "N/A")}</TableCell>
-                    <TableCell>
-                      <BufferStatusBadge status={bufferData.status} />
-                    </TableCell>
-                    <TableCell>
-                      <BufferVisualizer 
-                        netFlowPosition={bufferData.netFlow.netFlowPosition}
-                        bufferZones={bufferData.bufferZones}
-                        adu={item.adu || item.average_daily_usage}
-                      />
-                    </TableCell>
-                    <TableCell>{item.location || item.location_id || "N/A"}</TableCell>
-                    <TableCell>{item.productFamily || "N/A"}</TableCell>
-                    <TableCell>{item.classification?.leadTimeCategory || "N/A"}</TableCell>
-                    <TableCell>{item.classification?.variabilityLevel || "N/A"}</TableCell>
-                    <TableCell>{item.classification?.criticality || "N/A"}</TableCell>
-                    <TableCell>{item.classification?.score ?? "N/A"}</TableCell>
-                    <TableCell>
-                      <CreatePODialog 
-                        item={item}
-                        bufferZones={bufferData.bufferZones}
-                        onSuccess={() => onCreatePO(item)}
-                      />
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </div>
-          );
-        })
+            return (
+              <div key={uniqueKey} className="bg-white border rounded-md overflow-hidden">
+                <Table>
+                  <InventoryTableHeader />
+                  <TableBody>
+                    <TableRow>
+                      <TableCell className="font-medium">{item.sku || item.product_id || "N/A"}</TableCell>
+                      <TableCell>{item.name || item.product_id || "N/A"}</TableCell>
+                      <TableCell>{typeof item.onHand === 'number' ? item.onHand : (typeof item.quantity_on_hand === 'number' ? item.quantity_on_hand : "N/A")}</TableCell>
+                      <TableCell>
+                        <BufferStatusBadge status={bufferData.status} />
+                      </TableCell>
+                      <TableCell>
+                        <BufferVisualizer 
+                          netFlowPosition={bufferData.netFlow.netFlowPosition}
+                          bufferZones={bufferData.bufferZones}
+                          adu={item.adu || item.average_daily_usage}
+                        />
+                      </TableCell>
+                      <TableCell>{item.location || item.location_id || "N/A"}</TableCell>
+                      <TableCell>{item.productFamily || "N/A"}</TableCell>
+                      <TableCell>{item.classification?.leadTimeCategory || "N/A"}</TableCell>
+                      <TableCell>{item.classification?.variabilityLevel || "N/A"}</TableCell>
+                      <TableCell>{item.classification?.criticality || "N/A"}</TableCell>
+                      <TableCell>{item.classification?.score ?? "N/A"}</TableCell>
+                      <TableCell>
+                        <CreatePODialog 
+                          item={item}
+                          bufferZones={bufferData.bufferZones}
+                          onSuccess={() => handleRefresh()}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      
+      {pagination && pagination.totalPages > 1 && (
+        <div className="flex justify-center mt-4">
+          <div className="flex space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => pagination.onPageChange(pagination.currentPage - 1)}
+              disabled={pagination.currentPage === 1}
+            >
+              Previous
+            </Button>
+            <span className="py-2 px-3 text-sm">
+              Page {pagination.currentPage} of {pagination.totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => pagination.onPageChange(pagination.currentPage + 1)}
+              disabled={pagination.currentPage === pagination.totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
       )}
     </div>
   );

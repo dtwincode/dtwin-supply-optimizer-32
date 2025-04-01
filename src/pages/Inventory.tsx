@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useI18n } from "@/contexts/I18nContext";
@@ -7,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { InventoryItem } from "@/types/inventory";
 import { useInventory } from "@/hooks/useInventory";
 import { DecouplingNetworkBoard } from "@/components/inventory/DecouplingNetworkBoard";
-import { InventoryTab } from "@/components/inventory/tabs/InventoryTab";
+import { InventoryTab } from "@/components/inventory/InventoryTab";
 import { NetworkDecouplingMap } from "@/components/inventory/NetworkDecouplingMap";
 import { SKUClassifications } from "@/components/inventory/SKUClassifications";
 import { useToast } from "@/hooks/use-toast";
@@ -22,14 +23,18 @@ import { DecouplingDashboard } from "@/components/inventory/decoupling/Decouplin
 
 const mergeInventoryData = (items: InventoryItem[]): InventoryItem[] => {
   return items.map(item => {
-    const id = item.id || `${item.product_id}-${item.location_id}`;
+    // Create a unique ID if none exists
+    const id = item.id || `${item.product_id}-${item.location_id}` || `${item.sku}-${item.location}`;
 
+    // Ensure classification data exists
     const classification = item.classification || {
       leadTimeCategory: item.lead_time_days && item.lead_time_days > 30 ? "long" : item.lead_time_days && item.lead_time_days > 15 ? "medium" : "short",
       variabilityLevel: item.demand_variability && item.demand_variability > 1 ? "high" : item.demand_variability && item.demand_variability > 0.5 ? "medium" : "low",
       criticality: item.decoupling_point ? "high" : "low",
       score: item.max_stock_level || 0
     };
+    
+    // Ensure basic inventory data exists
     return {
       ...item,
       id,
@@ -44,14 +49,10 @@ const mergeInventoryData = (items: InventoryItem[]): InventoryItem[] => {
 };
 
 function Inventory() {
-  const {
-    t
-  } = useI18n();
+  const { t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = searchParams.get("tab") || "buffer";
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const [classified, setClassified] = useState<InventoryItem[]>([]);
   const [locationFilter, setLocationFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -89,10 +90,13 @@ function Inventory() {
 
   useEffect(() => {
     if (items && items.length > 0) {
+      console.log("Processing inventory items:", items);
       const processedItems = mergeInventoryData(items);
+      console.log("Processed inventory items:", processedItems);
       setClassified(processedItems);
       setPaginatedData(processedItems);
     } else if (!loading && items.length === 0) {
+      console.log("No inventory items found");
       setClassified([]);
       setPaginatedData([]);
     }
@@ -118,8 +122,10 @@ function Inventory() {
 
   const handleRefresh = async () => {
     try {
+      console.log("Refreshing inventory data");
       await refreshData();
     } catch (err) {
+      console.error("Error refreshing data:", err);
       toast({
         title: "Error",
         description: "Failed to refresh inventory data. Please try again.",
@@ -176,12 +182,14 @@ function Inventory() {
           </TabsList>
 
           <TabsContent value="buffer">
-            <InventoryTab 
-              paginatedData={paginatedData} 
-              onRefresh={handleRefresh} 
-              isRefreshing={isRefreshing}
-              pagination={paginationProps}
-            />
+            <Card className="p-0">
+              <InventoryTab 
+                paginatedData={paginatedData} 
+                onRefresh={handleRefresh} 
+                isRefreshing={isRefreshing}
+                pagination={paginationProps}
+              />
+            </Card>
           </TabsContent>
 
           <TabsContent value="decoupling">

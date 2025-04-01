@@ -28,6 +28,7 @@ export function BufferVisualizer({ netFlowPosition, bufferZones, adu }: BufferVi
         const totalBuffer = bufferZones.red + bufferZones.yellow + bufferZones.green;
         
         if (totalBuffer <= 0) {
+          console.log("No buffer data available", { bufferZones });
           return {
             percentage: 0,
             zoneColor: 'bg-gray-200',
@@ -100,7 +101,7 @@ export function BufferVisualizer({ netFlowPosition, bufferZones, adu }: BufferVi
             <Progress 
               className="h-2" 
               value={data.percentage} 
-              indicatorColor={data.zoneColor} 
+              indicatorClassName={data.zoneColor} 
             />
           </div>
         </TooltipTrigger>
