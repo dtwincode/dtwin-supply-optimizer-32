@@ -7,3 +7,16 @@ export interface DecouplingPoint {
   description?: string;
   isOverride?: boolean;
 }
+
+export interface DecouplingNetwork {
+  id: string;
+  name: string;
+  description?: string;
+  nodes: DecouplingPoint[];
+  connections: {
+    fromId: string;
+    toId: string;
+    type: string;
+    leadTime: number;
+  }[];
+}

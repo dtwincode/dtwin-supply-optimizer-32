@@ -1,9 +1,10 @@
 
+// Export from sub-modules
 export * from './classificationTypes';
 export * from './decouplingTypes';
 export * from './bufferTypes';
 
-// Define missing pagination type
+// Define pagination type
 export interface PaginationState {
   page: number;
   limit: number;
@@ -14,8 +15,8 @@ export interface PaginationState {
   totalItems: number;
 }
 
-// Export Classification and SKUClassification
-export { Classification, SKUClassification } from './classificationTypes';
+// Export Classification and SKUClassification as types
+export type { Classification, SKUClassification } from './classificationTypes';
 
 // Define ReplenishmentData type
 export interface ReplenishmentData {
@@ -79,4 +80,6 @@ export interface InventoryItem {
   product_id?: string;
   location_id?: string;
   decoupling_point?: boolean;
+  preferredSupplier?: string;
+  minimumOrderQuantity?: number;
 }

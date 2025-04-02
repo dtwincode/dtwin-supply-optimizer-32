@@ -1,77 +1,68 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import { getBufferProfiles, createBufferProfile } from '@/services/inventoryService';
 import { BufferProfile } from '@/types/inventory';
-import { getBufferProfiles, createBufferProfile, updateBufferProfile } from '@/services/inventoryService';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from './use-toast';
 
-export function useBufferProfiles() {
+export const useBufferProfiles = () => {
   const [profiles, setProfiles] = useState<BufferProfile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const fetchProfiles = useCallback(async () => {
+  const fetchProfiles = async () => {
     setLoading(true);
     try {
       const data = await getBufferProfiles();
       setProfiles(data);
-    } catch (error) {
-      console.error('Error fetching buffer profiles:', error);
+      setError(null);
+    } catch (err: any) {
+      console.error('Error fetching buffer profiles:', err);
+      setError(err.message || 'Failed to fetch buffer profiles');
       toast({
-        title: "Error",
-        description: "Failed to load buffer profiles",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to load buffer profiles',
+        variant: 'destructive'
       });
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  };
 
   useEffect(() => {
     fetchProfiles();
-  }, [fetchProfiles]);
+  }, []);
 
-  const createOrUpdateProfile = useCallback(async (profile: BufferProfile) => {
+  const addProfile = async (profile: Omit<BufferProfile, 'id'>) => {
     try {
-      let savedProfile: BufferProfile;
+      const result = await createBufferProfile(profile);
       
-      if (profile.id) {
-        savedProfile = await updateBufferProfile(profile);
+      if (result.success && result.data) {
+        setProfiles([...profiles, result.data]);
+        toast({
+          title: 'Success',
+          description: 'Buffer profile created successfully'
+        });
+        return result.data;
       } else {
-        // Remove id property for creation
-        const { id, ...profileWithoutId } = profile;
-        savedProfile = await createBufferProfile(profileWithoutId);
+        throw result.error || new Error('Failed to create buffer profile');
       }
-      
-      setProfiles(prev => {
-        const index = prev.findIndex(p => p.id === savedProfile.id);
-        if (index >= 0) {
-          return [...prev.slice(0, index), savedProfile, ...prev.slice(index + 1)];
-        } else {
-          return [...prev, savedProfile];
-        }
-      });
-      
+    } catch (err: any) {
+      console.error('Error creating buffer profile:', err);
       toast({
-        title: "Success",
-        description: `Buffer profile ${profile.id ? 'updated' : 'created'} successfully`,
+        title: 'Error',
+        description: `Failed to create buffer profile: ${err.message}`,
+        variant: 'destructive'
       });
-      
-      return { success: true, profile: savedProfile };
-    } catch (error) {
-      console.error('Error saving buffer profile:', error);
-      toast({
-        title: "Error",
-        description: `Failed to save buffer profile: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        variant: "destructive",
-      });
-      return { success: false };
+      return null;
     }
-  }, [toast]);
+  };
 
   return {
     profiles,
     loading,
+    error,
     fetchProfiles,
-    createOrUpdateProfile
+    addProfile
   };
-}
+};
