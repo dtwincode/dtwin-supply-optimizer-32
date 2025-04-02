@@ -42,3 +42,6 @@ export const DDSOPStatusBadge = ({ status, variant = 'outline' }: DDSOPStatusPro
     </Badge>
   );
 };
+
+// Add this export for compatibility with old imports
+export const getDDSOPStatusBadge = DDSOPStatusBadge;

@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/translations';
 import { Zap, ArrowRight, AlertTriangle, CheckCircle2 } from 'lucide-react';
-import { getStatusBadge, getTrendIcon } from '@/utils/ddsopUIUtils';
+import { getDDSOPStatusBadge as getStatusBadge } from '@/components/ddsop/utils/statusUtils';
+import { getTrendIcon } from '@/components/ddsop/utils/trendUtils';
 import { executionItems } from '@/data/ddsopMetricsData';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
