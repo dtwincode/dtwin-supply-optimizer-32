@@ -1,7 +1,7 @@
+
 import { ReactNode } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { Language } from '@/translations/types';
 
 interface StatusProps {
   status: 'active' | 'inactive' | 'pending' | 'completed' | 'processing' | string;

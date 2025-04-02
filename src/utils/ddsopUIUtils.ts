@@ -1,6 +1,8 @@
 
-import { Badge } from "@/components/ui/badge";
-import { TrendingDown, TrendingUp, Minus } from "lucide-react";
+import { ReactNode } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import { TrendingDown, TrendingUp, Minus } from 'lucide-react';
 
 export const StatusBadge = ({ status }: { status: string }) => {
   const getStatusClass = (status: string) => {
