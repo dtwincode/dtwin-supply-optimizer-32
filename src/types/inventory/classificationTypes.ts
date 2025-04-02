@@ -1,24 +1,18 @@
 
+export type LeadTimeCategory = 'short' | 'medium' | 'long';
+export type VariabilityLevel = 'low' | 'medium' | 'high';
+export type CriticalityLevel = 'low' | 'medium' | 'high';
+
 export interface Classification {
-  leadTimeCategory: 'short' | 'medium' | 'long';
-  variabilityLevel: 'low' | 'medium' | 'high';
-  criticality: 'low' | 'medium' | 'high';
+  leadTimeCategory: LeadTimeCategory;
+  variabilityLevel: VariabilityLevel;
+  criticality: CriticalityLevel;
   score: number;
 }
 
 export interface SKUClassification {
-  id: string;
-  sku: string;
-  productId: string;
-  productName?: string;
-  leadTimeCategory: 'short' | 'medium' | 'long';
-  variabilityLevel: 'low' | 'medium' | 'high';
-  criticality: 'low' | 'medium' | 'high'; 
-  score: number;
-  classification: string;
-  lastUpdated?: string;
-  // Properties needed for API compatibility
-  product_id?: string;
-  location_id?: string;
-  category?: string;
+  product_id: string;
+  location_id: string;
+  classification: Classification;
+  lastUpdated: string;
 }

@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { useI18n } from "@/contexts/I18nContext";
 import { InventoryTableHeader } from "./InventoryTableHeader";
 import { BufferStatusBadge } from "./BufferStatusBadge";
-import { BufferVisualizer } from "./BufferVisualizer";
+import { BufferVisualizer } from "./buffer/BufferVisualizer";
 import { InventoryItem } from "@/types/inventory";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -249,14 +249,13 @@ export const InventoryTab = ({
                       <TableCell>{item.decouplingPointId ? "High" : "Low"}</TableCell>
                       <TableCell>{item.bufferPenetration || "N/A"}</TableCell>
                       <TableCell>
-                        {/* Purchase Order Button Cell - Removed CreatePODialog */}
                         <Button 
                           variant="outline" 
                           size="sm" 
                           onClick={() => {
                             toast({
                               title: "Purchase Order",
-                              description: "Purchase order feature has been removed from this view.",
+                              description: "Create a purchase order for this item.",
                             });
                           }}
                         >

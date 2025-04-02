@@ -14,11 +14,10 @@ export interface PaginationState {
   totalItems: number;
 }
 
-// Export required types
-export type { Classification } from './classificationTypes';
-export type { SKUClassification } from './classificationTypes';
+// Export Classification and SKUClassification
+export { Classification, SKUClassification } from './classificationTypes';
 
-// Define ReplenishmentData type that was missing
+// Define ReplenishmentData type
 export interface ReplenishmentData {
   id: string;
   sku: string;
@@ -36,10 +35,10 @@ export interface ReplenishmentData {
   replenishmentLeadTime?: number;
 }
 
-// Define missing IndustryType
+// Define IndustryType
 export type IndustryType = 'pharmaceutical' | 'food' | 'electronics' | 'automotive' | 'retail' | 'manufacturing' | string;
 
-// Ensure InventoryItem has bufferProfileId property
+// Ensure InventoryItem has all needed properties
 export interface InventoryItem {
   id: string;
   sku: string;
