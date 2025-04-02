@@ -29,7 +29,7 @@ export const StatusBadge = ({ status }: { status: string }) => {
   return (
     <Badge 
       variant="outline" 
-      className={getStatusClass(status)}
+      className={cn(getStatusClass(status))}
     >
       {status}
     </Badge>
