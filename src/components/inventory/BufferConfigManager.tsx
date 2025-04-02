@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,8 +7,9 @@ import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/components/ui/use-toast";
-import { BufferFactorConfig, IndustryType } from '@/types/inventory';
-import { supabase } from "@/integrations/supabase/client";
+import { BufferFactorConfig } from '@/types/inventory';
+import { IndustryType } from '@/types/inventory';
+import { supabase } from "@/lib/supabaseClient";
 
 interface BufferFactorBenchmark {
   industry: IndustryType;

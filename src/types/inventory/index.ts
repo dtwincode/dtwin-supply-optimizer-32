@@ -15,36 +15,69 @@ export interface PaginationState {
 }
 
 // Export required types
-export { Classification } from './classificationTypes';
+export type { Classification } from './classificationTypes';
+export type { SKUClassification } from './classificationTypes';
 
 // Define ReplenishmentData type that was missing
 export interface ReplenishmentData {
   id: string;
   sku: string;
   quantity: number;
-  replenishment_type: string;
-  source_location?: string;
-  destination_location?: string;
+  replenishmentType: string;
+  source: string;
+  destination: string;
   status: string;
-  expected_date?: string;
-  internal_transfer_time?: number;
-  total_cycle_time?: number;
-  last_updated: string;
-  location_from?: string;
-  location_to?: string;
-  replenishment_lead_time?: number;
+  expectedDate?: string;
+  internalTransferTime?: number;
+  totalCycleTime?: number;
+  lastUpdated: string;
+  locationFrom?: string;
+  locationTo?: string;
+  replenishmentLeadTime?: number;
 }
 
-// SKU Classification type
-export interface SKUClassification {
+// Define missing IndustryType
+export type IndustryType = 'pharmaceutical' | 'food' | 'electronics' | 'automotive' | 'retail' | 'manufacturing' | string;
+
+// Ensure InventoryItem has bufferProfileId property
+export interface InventoryItem {
   id: string;
   sku: string;
-  productId: string;
-  productName?: string;
-  leadTimeCategory: 'short' | 'medium' | 'long';
-  variabilityLevel: 'low' | 'medium' | 'high';
-  criticality: 'low' | 'medium' | 'high'; 
-  score: number;
-  classification: string;
-  lastUpdated?: string;
+  name: string;
+  currentStock: number;
+  category?: string;
+  subcategory?: string;
+  location: string;
+  productFamily?: string;
+  region?: string;
+  city?: string;
+  channel?: string;
+  warehouse?: string;
+  decouplingPointId?: string;
+  bufferProfileId?: string;
+  adu?: number; // Average Daily Usage
+  leadTimeDays?: number;
+  variabilityFactor?: number;
+  // Buffer Zones
+  redZoneSize?: number;
+  yellowZoneSize?: number;
+  greenZoneSize?: number;
+  // Buffer management
+  maxStockLevel?: number;
+  minStockLevel?: number;
+  safetyStock?: number;
+  // Net Flow Components
+  onHand: number;
+  onOrder?: number;
+  qualifiedDemand?: number;
+  netFlowPosition?: number;
+  planningPriority?: string;
+  // Buffer Management
+  bufferPenetration?: number;
+  // Classification
+  classification?: Classification;
+  // Properties needed for backward compatibility
+  product_id?: string;
+  location_id?: string;
+  decoupling_point?: boolean;
 }

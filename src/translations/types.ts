@@ -9,6 +9,11 @@ export interface Translations {
   [key: string]: Translation;
 }
 
+// Add NavigationItems type
+export interface NavigationItems {
+  [key: string]: string;
+}
+
 export interface DashboardMetrics {
   title: string;
   subtitle: string;
@@ -47,6 +52,7 @@ export interface ModulesSummary {
     forecasting: string;
     marketing: string;
     sales: string;
+    inventoryManagement?: string; // Added missing property
   };
 }
 
@@ -66,7 +72,7 @@ export interface CommonTranslations {
     next: string;
   };
   status: {
-    loading: string;
+    loading: string; // Added loading property
     success: string;
     error: string;
     empty: string;
@@ -87,6 +93,7 @@ export interface UITranslations {
     invalid: string;
     success: string;
   };
+  settings?: any; // Added missing property
 }
 
 export interface PaginationTranslations {
@@ -96,10 +103,13 @@ export interface PaginationTranslations {
   of: string;
   items: string;
   perPage: string;
+  page?: string; // Added missing properties
+  to?: string;
 }
 
 export interface InventoryTranslations {
   title: string;
+  inventoryTitle?: string; // Added missing property
   metrics: {
     inStock: string;
     outOfStock: string;
@@ -115,6 +125,7 @@ export interface InventoryTranslations {
 
 export interface MarketingTranslations {
   title: string;
+  marketingModule?: string; // Added missing property
   campaigns: {
     active: string;
     completed: string;
@@ -128,3 +139,6 @@ export interface MarketingTranslations {
     roi: string;
   };
 }
+
+// Define TranslationValue type alias
+export type TranslationValue = string | { en: string; ar: string };

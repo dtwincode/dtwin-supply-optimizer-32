@@ -1,4 +1,3 @@
-
 import { supabase } from './supabaseClient';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
@@ -169,14 +168,9 @@ export const uploadHistoricalSales = async (file: File) => {
           console.log(`Inserted batch ${i/BATCH_SIZE + 1}/${Math.ceil(salesData.length/BATCH_SIZE)}, total success: ${successCount}`);
         }
       } catch (err) {
-        console.error('Batch insert error:', err);
-        if (err instanceof Error && err.message.includes('timed out')) {
-          return { 
-            success: false, 
-            error: 'Operation timed out. Please check the database for partial data or try with a smaller file.'
-          };
-        }
-        // Continue with the next batch
+        console.error("Error in historical sales service:", err);
+        const errorMessage = err instanceof Error ? err.message : "Unknown error occurred";
+        return { error: errorMessage };
       }
     }
 

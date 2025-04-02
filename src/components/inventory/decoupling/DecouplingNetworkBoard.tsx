@@ -1,154 +1,182 @@
+import React, { useState, useEffect } from 'react';
+import { useDecouplingPoints } from '@/hooks/useDecouplingPoints';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { DecouplingPoint } from '@/types/inventory/decouplingTypes';
+import { InventoryItem } from '@/types/inventory';
+import { CircleOff, CircleDot, Network } from 'lucide-react'; // Change Process to Network
+import { Button } from '@/components/ui/button';
+import { Toggle } from '@/components/ui/toggle';
+import { useToast } from '@/hooks/use-toast';
 
-import { useEffect, useState } from "react";
-import { InventoryItem } from "@/types/inventory";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { useI18n } from "@/contexts/I18nContext";
-import { Map, Process, Network } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { DecouplingPointDialog } from "./DecouplingPointDialog";
-import { useInventory } from "@/hooks/useInventory";
-import { Separator } from "@/components/ui/separator";
+interface DecouplingPointCardProps {
+  point: DecouplingPoint;
+  onDelete: (id: string) => void;
+}
 
-export function DecouplingNetworkBoard() {
-  const { t } = useI18n();
+const DecouplingPointCard: React.FC<DecouplingPointCardProps> = ({ point, onDelete }) => {
+  const [isManualOverride, setIsManualOverride] = useState(point.isOverride || false);
   const { toast } = useToast();
-  const [selectedView, setSelectedView] = useState<"map" | "network" | "process">("network");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [decouplingPoints, setDecouplingPoints] = useState<InventoryItem[]>([]);
-  
-  const { items, loading, error, refreshData } = useInventory(1, 100, "", "", true);
 
-  useEffect(() => {
-    if (items && items.length > 0) {
-      // Filter items that are decoupling points
-      const dPoints = items.filter(item => item.decouplingPointId || item.decoupling_point === true);
-      setDecouplingPoints(dPoints);
-    }
-  }, [items]);
-
-  const handleCreateDecouplingPoint = () => {
-    setIsDialogOpen(true);
-  };
-
-  const handleDialogClose = () => {
-    setIsDialogOpen(false);
-  };
-
-  const handleSuccess = () => {
+  const handleToggle = () => {
+    setIsManualOverride(!isManualOverride);
     toast({
-      title: "Success",
-      description: "Decoupling point has been created successfully",
+      title: "Decoupling Point Override",
+      description: `Decoupling point ${point.id} has been manually overridden.`,
     });
-    refreshData();
-  };
-
-  const renderContent = () => {
-    if (loading) {
-      return <div className="flex justify-center py-8">Loading decoupling points...</div>;
-    }
-
-    if (error) {
-      return <div className="text-red-500 py-8">Error loading decoupling points</div>;
-    }
-
-    if (decouplingPoints.length === 0) {
-      return (
-        <div className="text-center py-12">
-          <h3 className="text-lg font-medium mb-2">No decoupling points defined yet</h3>
-          <p className="text-muted-foreground mb-4">
-            Define strategic decoupling points in your supply chain to optimize buffer placement
-          </p>
-          <Button onClick={handleCreateDecouplingPoint}>Create Decoupling Point</Button>
-        </div>
-      );
-    }
-
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {decouplingPoints.map((item) => (
-          <Card key={item.id} className="overflow-hidden">
-            <div className="bg-primary/10 p-4">
-              <h3 className="font-medium">{item.name}</h3>
-              <p className="text-sm text-muted-foreground">{item.sku}</p>
-            </div>
-            <CardContent className="p-4">
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div>Location:</div>
-                <div className="font-medium">{item.location}</div>
-                
-                <div>Current Stock:</div>
-                <div className="font-medium">{item.onHand}</div>
-                
-                <div>Buffer Profile:</div>
-                <div className="font-medium">{item.bufferProfileId || "Standard"}</div>
-                
-                <div>Type:</div>
-                <div className="font-medium">Strategic</div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    );
   };
 
   return (
+    <Card className="shadow-sm">
+      <CardHeader>
+        <CardTitle className="text-sm font-medium">{point.id}</CardTitle>
+      </CardHeader>
+      <CardContent className="p-3 text-sm">
+        <div className="flex items-center space-x-2">
+          <CircleDot className="h-4 w-4 text-green-500" />
+          <span>{point.locationId}</span>
+        </div>
+        <div className="text-muted-foreground text-xs">Type: {point.type}</div>
+        <div className="text-muted-foreground text-xs">Buffer Profile: {point.bufferProfileId}</div>
+        <div className="flex items-center justify-between mt-2">
+          <Toggle variant="outline" size="sm" pressed={isManualOverride} onPressedChange={handleToggle}>
+            Override
+          </Toggle>
+          <Button variant="destructive" size="sm" onClick={() => onDelete(point.id)}>
+            Remove
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+interface DecouplingNetworkBoardProps {
+  items: InventoryItem[];
+}
+
+export const DecouplingNetworkBoard: React.FC<DecouplingNetworkBoardProps> = ({ items }) => {
+  const { decouplingPoints, loading, error, deleteDecouplingPoint, createDecouplingPoint } = useDecouplingPoints();
+  const [showAll, setShowAll] = useState(false);
+  const [newProductId, setNewProductId] = useState('');
+  const [newLocationId, setNewLocationId] = useState('');
+  const [newBufferProfileId, setNewBufferProfileId] = useState('default-profile');
+  const { toast } = useToast();
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteDecouplingPoint(id);
+      toast({
+        title: "Decoupling Point Deleted",
+        description: `Decoupling point ${id} has been successfully removed.`,
+      });
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to delete decoupling point",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCreate = async () => {
+    if (!newProductId || !newLocationId) {
+      toast({
+        title: "Error",
+        description: "Product ID and Location ID are required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await createDecouplingPoint({
+        productId: newProductId,
+        locationId: newLocationId,
+        bufferProfileId: newBufferProfileId,
+      });
+      toast({
+        title: "Decoupling Point Created",
+        description: `Decoupling point ${newProductId}-${newLocationId} has been successfully created.`,
+      });
+      setNewProductId('');
+      setNewLocationId('');
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to create decoupling point",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (loading) {
+    return <div className="p-4">Loading decoupling points...</div>;
+  }
+
+  if (error) {
+    return <div className="p-4 text-red-500">Error: {error.message}</div>;
+  }
+
+  const visiblePoints = showAll ? decouplingPoints : decouplingPoints.slice(0, 6);
+
+  return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-xl font-semibold">Decoupling Points</h2>
-          <p className="text-muted-foreground">
-            Strategic inventory positions that determine your supply chain's responsiveness
-          </p>
-        </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Decoupling Network</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {visiblePoints.map((point) => (
+              <DecouplingPointCard key={point.id} point={point} onDelete={handleDelete} />
+            ))}
+          </div>
+          {decouplingPoints.length > 6 && (
+            <Button variant="secondary" size="sm" onClick={() => setShowAll(!showAll)} className="mt-4">
+              {showAll ? "Show Less" : "Show All"}
+            </Button>
+          )}
+        </CardContent>
+      </Card>
 
-        <div className="flex space-x-2">
-          <Button
-            variant={selectedView === "network" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setSelectedView("network")}
-          >
-            <Network className="h-4 w-4 mr-1" />
-            Network
-          </Button>
-          <Button
-            variant={selectedView === "map" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setSelectedView("map")}
-          >
-            <Map className="h-4 w-4 mr-1" />
-            Map
-          </Button>
-          <Button
-            variant={selectedView === "process" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setSelectedView("process")}
-          >
-            <Process className="h-4 w-4 mr-1" />
-            Process
-          </Button>
-        </div>
-      </div>
-
-      <Separator />
-
-      <div className="flex justify-between items-center pb-4">
-        <div>
-          <p className="text-sm text-muted-foreground">
-            {decouplingPoints.length} decoupling points defined
-          </p>
-        </div>
-        <Button onClick={handleCreateDecouplingPoint}>Create Decoupling Point</Button>
-      </div>
-
-      {renderContent()}
-
-      <DecouplingPointDialog
-        open={isDialogOpen}
-        onClose={handleDialogClose}
-        onSuccess={handleSuccess}
-      />
+      <Card>
+        <CardHeader>
+          <CardTitle>Create New Decoupling Point</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Product ID</label>
+            <input
+              type="text"
+              value={newProductId}
+              onChange={(e) => setNewProductId(e.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Location ID</label>
+            <input
+              type="text"
+              value={newLocationId}
+              onChange={(e) => setNewLocationId(e.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Buffer Profile ID</label>
+            <input
+              type="text"
+              value={newBufferProfileId}
+              onChange={(e) => setNewBufferProfileId(e.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            />
+          </div>
+          <div className="flex items-end">
+            <Button onClick={handleCreate}>Create</Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
-}
+};

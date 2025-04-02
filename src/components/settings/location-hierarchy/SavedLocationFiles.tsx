@@ -1,182 +1,134 @@
-import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
-import { FileList } from "./components/FileList";
-import type { SavedFile } from "./types";
+import React, { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabaseClient';
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { MoreHorizontal } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
-interface SavedLocationFilesProps {
-  triggerRefresh?: number;
+interface SavedFile {
+  id: string;
+  file_name: string;
+  original_name: string;
+  created_at: string;
+  hierarchy_type: string;
+  created_by: string;
+  storage_path: string;
+  updated_at: string;
 }
 
-export function SavedLocationFiles({ triggerRefresh = 0 }: SavedLocationFilesProps) {
-  const [files, setFiles] = useState<SavedFile[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+export const SavedLocationFiles = () => {
+  const [data, setData] = useState<SavedFile[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { toast } = useToast();
-  const { user } = useAuth();
-
-  const fetchSavedFiles = async () => {
-    if (!user) return;
-    
-    try {
-      setIsLoading(true);
-      console.log('Fetching saved files...');
-      
-      const { data, error } = await supabase
-        .from('permanent_hierarchy_files')
-        .select('*')
-        .eq('hierarchy_type', 'location_hierarchy')
-        .eq('created_by', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Supabase fetch error:', error);
-        throw error;
-      }
-
-      // Ensure we only keep the latest version of each file
-      const uniqueFiles = Object.values(
-        data.reduce((acc: Record<string, SavedFile>, current) => {
-          const key = `${current.file_name}`;
-          if (!acc[key] || new Date(current.created_at) > new Date(acc[key].created_at)) {
-            acc[key] = current;
-          }
-          return acc;
-        }, {})
-      );
-
-      console.log('Fetched unique files:', uniqueFiles.length);
-      setFiles(uniqueFiles);
-      setError(null);
-    } catch (error) {
-      console.error('Error fetching files:', error);
-      setError('Failed to load saved files');
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to load saved files"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   useEffect(() => {
-    fetchSavedFiles();
-  }, [triggerRefresh, user]);
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const { data: files, error } = await supabase
+          .from('location_hierarchy_files')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-  const handleDelete = async (fileId: string) => {
-    if (!user || !fileId) return;
-
-    try {
-      setIsLoading(true);
-      console.log('Deleting file:', fileId);
-
-      // Get the file details first
-      const { data: fileData, error: fetchError } = await supabase
-        .from('permanent_hierarchy_files')
-        .select('file_name')
-        .eq('id', fileId)
-        .single();
-
-      if (fetchError) {
-        throw fetchError;
+        if (error) {
+          console.error("Error fetching data:", error);
+          setError("Failed to load data.");
+        } else {
+          setData(files ? files.map(item => ({ 
+            id: item.id, 
+            file_name: item.file_name, 
+            original_name: item.original_name, 
+            created_at: item.created_at,
+            hierarchy_type: item.hierarchy_type,
+            created_by: item.created_by,
+            storage_path: item.storage_path,
+            updated_at: item.updated_at,
+          })) : []);
+        }
+      } finally {
+        setLoading(false);
       }
+    };
 
-      if (!fileData) {
-        throw new Error('File not found');
-      }
+    fetchData();
+  }, []);
 
-      // Delete the file
-      const { error: deleteError } = await supabase
-        .from('permanent_hierarchy_files')
-        .delete()
-        .eq('id', fileId)
-        .eq('created_by', user.id);
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-      if (deleteError) {
-        throw deleteError;
-      }
-
-      // Update local state immediately
-      setFiles(prevFiles => prevFiles.filter(f => f.id !== fileId));
-
-      toast({
-        title: "Success",
-        description: "File deleted successfully",
-      });
-
-    } catch (error) {
-      console.error('Error deleting file:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to delete file"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleDownload = async (file: SavedFile) => {
-    try {
-      setIsLoading(true);
-      
-      const data = file.data;
-      const selectedColumns = file.selected_columns;
-      
-      if (!Array.isArray(data)) {
-        throw new Error('Invalid data format');
-      }
-
-      // Create CSV content with only selected columns
-      const headers = selectedColumns.join(',');
-      const rows = data.map(row => 
-        selectedColumns.map(col => {
-          const value = row[col];
-          // Handle values that might contain commas
-          if (typeof value === 'string' && value.includes(',')) {
-            return `"${value}"`;
-          }
-          return value ?? '';
-        }).join(',')
-      );
-
-      const csvContent = [headers, ...rows].join('\n');
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = file.original_name;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      toast({
-        title: "Success",
-        description: "File download started",
-      });
-    } catch (error) {
-      console.error('Error downloading file:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to download file"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
-    <FileList
-      files={files}
-      error={error}
-      isLoading={isLoading}
-      onDelete={handleDelete}
-      onDownload={handleDownload}
-    />
+    <div className="container mx-auto py-6">
+      <h1 className="text-2xl font-semibold mb-4">Saved Location Hierarchy Files</h1>
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>File Name</TableHead>
+              <TableHead>Original Name</TableHead>
+              <TableHead>Created At</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.map((file) => (
+              <TableRow key={file.id}>
+                <TableCell>{file.file_name}</TableCell>
+                <TableCell>{file.original_name}</TableCell>
+                <TableCell>{file.created_at}</TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Open menu</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onSelect={() => {
+                          // Handle download logic here, e.g., trigger a download
+                          console.log("Download clicked for file:", file.id);
+                        }}
+                      >
+                        Download
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onSelect={() => {
+                          // Handle delete logic here, e.g., show a confirmation dialog
+                          console.log("Delete clicked for file:", file.id);
+                        }}
+                      >
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
   );
-}
+};

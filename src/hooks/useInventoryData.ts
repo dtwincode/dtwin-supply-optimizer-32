@@ -1,11 +1,11 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { 
   InventoryItem, 
-  PaginationState
+  PaginationState,
+  ReplenishmentData,
+  SKUClassification
 } from '@/types/inventory';
-import { SKUClassification, ReplenishmentData } from '@/types/inventory/classificationTypes';
 
 interface UseInventoryDataProps {
   initialPage?: number;
@@ -49,7 +49,6 @@ export const useInventoryData = ({
     try {
       setLoading(true);
       
-      // Fetch inventory data with joined tables for more complete information
       const { data: inventoryData, error: inventoryError } = await supabase
         .from("inventory_data")
         .select(`
@@ -70,28 +69,24 @@ export const useInventoryData = ({
 
       if (inventoryError) throw inventoryError;
 
-      // Fetch SKU classifications separately
       const { data: classificationsData, error: classificationError } = await supabase
         .from("product_classification")
         .select("*");
 
       if (classificationError) throw classificationError;
       
-      // Fetch inventory planning data
       const { data: planningData, error: planningError } = await supabase
         .from("inventory_planning_view")
         .select("*");
         
       if (planningError) throw planningError;
 
-      // Get count of total inventory items for pagination
       const { count, error: countError } = await supabase
         .from("inventory_data")
         .select("inventory_id", { count: 'exact', head: true });
 
       if (countError) throw countError;
 
-      // Transform inventory data to match our frontend model
       const enrichedItems = inventoryData?.map(item => {
         const matchingClassification = classificationsData?.find(
           c => c.product_id === item.product_id && c.location_id === item.location_id
@@ -101,7 +96,6 @@ export const useInventoryData = ({
           p => p.product_id === item.product_id && p.location_id === item.location_id
         );
 
-        // Transform the classification data to match our Classification interface
         const classification = matchingClassification ? {
           leadTimeCategory: matchingClassification.lead_time_category as 'short' | 'medium' | 'long',
           variabilityLevel: matchingClassification.variability_level as 'low' | 'medium' | 'high',
@@ -109,50 +103,44 @@ export const useInventoryData = ({
           score: matchingClassification.score
         } : undefined;
         
-        return {
+        const inventoryItem: InventoryItem = {
           id: item.inventory_id,
-          inventory_id: item.inventory_id,
           sku: item.product_id,
+          name: item.product_id,
+          location: item.location_id,
+          onHand: item.quantity_on_hand,
+          currentStock: item.quantity_on_hand,
           product_id: item.product_id,
           location_id: item.location_id,
-          quantity_on_hand: item.quantity_on_hand,
-          reserved_qty: item.reserved_qty || 0,
-          available_qty: item.available_qty || (item.quantity_on_hand - (item.reserved_qty || 0)),
-          last_updated: item.last_updated,
-          decoupling_point: item.decoupling_point || matchingPlanningData?.decoupling_point || false,
-          currentStock: item.quantity_on_hand,
-          onHand: item.quantity_on_hand,
-          
-          // Planning data from inventory_planning_view
-          buffer_profile_id: matchingPlanningData?.buffer_profile_id,
-          adu: matchingPlanningData?.average_daily_usage,
-          average_daily_usage: matchingPlanningData?.average_daily_usage,
-          leadTimeDays: matchingPlanningData?.lead_time_days,
-          lead_time_days: matchingPlanningData?.lead_time_days,
-          variabilityFactor: matchingPlanningData?.demand_variability,
-          demand_variability: matchingPlanningData?.demand_variability,
-          min_stock_level: matchingPlanningData?.min_stock_level,
-          safety_stock: matchingPlanningData?.safety_stock,
-          max_stock_level: matchingPlanningData?.max_stock_level,
-          
-          classification
-        } as InventoryItem;
+          decoupling_point: item.decoupling_point || false,
+          classification,
+          ...(matchingPlanningData ? {
+            bufferProfileId: matchingPlanningData.buffer_profile_id,
+            adu: matchingPlanningData.average_daily_usage,
+            leadTimeDays: matchingPlanningData.lead_time_days,
+            variabilityFactor: matchingPlanningData.demand_variability,
+            minStockLevel: matchingPlanningData.min_stock_level,
+            safetyStock: matchingPlanningData.safety_stock,
+            maxStockLevel: matchingPlanningData.max_stock_level,
+          } : {})
+        };
+
+        return inventoryItem;
       }) || [];
 
-      // Transform classifications data to match our SKUClassification interface
       const transformedClassifications: SKUClassification[] = classificationsData?.map(c => ({
         id: `${c.product_id}-${c.location_id}`,
         sku: c.product_id,
+        productId: c.product_id,
         product_id: c.product_id,
         location_id: c.location_id,
+        leadTimeCategory: c.lead_time_category as 'short' | 'medium' | 'long',
+        variabilityLevel: c.variability_level as 'low' | 'medium' | 'high',
+        criticality: c.criticality as 'low' | 'medium' | 'high',
+        score: c.score,
+        classification: c.classification_label,
         category: c.classification_label,
-        last_updated: c.created_at,
-        classification: {
-          leadTimeCategory: c.lead_time_category as 'short' | 'medium' | 'long',
-          variabilityLevel: c.variability_level as 'low' | 'medium' | 'high',
-          criticality: c.criticality as 'low' | 'medium' | 'high',
-          score: c.score
-        }
+        lastUpdated: c.created_at
       })) || [];
 
       setItems(enrichedItems);
@@ -183,23 +171,33 @@ export const useInventoryData = ({
 
       if (error) throw error;
       
-      // Map the database response to our ReplenishmentData type
-      const mappedData: ReplenishmentData[] = data ? data.map(item => ({
-        id: item.id,
-        sku: item.sku || '',
-        quantity: item.quantity || 0,
-        replenishmentType: item.replenishment_type || '',
-        source: item.source_location || '',
-        destination: item.destination_location || '',
-        status: item.status || 'pending',
-        expectedDate: item.expected_date || new Date().toISOString(),
-        internalTransferTime: item.internal_transfer_time,
-        totalCycleTime: item.total_cycle_time,
-        lastUpdated: item.last_updated,
-        locationFrom: item.location_from,
-        locationTo: item.location_to,
-        replenishmentLeadTime: item.replenishment_lead_time
-      })) : [];
+      const mappedData: ReplenishmentData[] = data ? data.map(item => {
+        let replenishmentDetails = {};
+        try {
+          if (item.data && typeof item.data === 'object') {
+            replenishmentDetails = item.data;
+          }
+        } catch (e) {
+          console.error("Error parsing replenishment data JSON:", e);
+        }
+        
+        return {
+          id: item.id,
+          sku: replenishmentDetails.sku || '',
+          quantity: replenishmentDetails.quantity || 0,
+          replenishmentType: replenishmentDetails.replenishment_type || '',
+          source: replenishmentDetails.source_location || '',
+          destination: replenishmentDetails.destination_location || '',
+          status: replenishmentDetails.status || 'pending',
+          expectedDate: replenishmentDetails.expected_date || new Date().toISOString(),
+          internalTransferTime: replenishmentDetails.internal_transfer_time,
+          totalCycleTime: replenishmentDetails.total_cycle_time,
+          lastUpdated: item.created_at,
+          locationFrom: replenishmentDetails.location_from,
+          locationTo: replenishmentDetails.location_to,
+          replenishmentLeadTime: replenishmentDetails.replenishment_lead_time
+        };
+      }) : [];
       
       setReplenishmentData(mappedData);
     } catch (err) {

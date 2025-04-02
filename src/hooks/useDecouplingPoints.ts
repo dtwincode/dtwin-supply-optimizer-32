@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { DecouplingNetwork, DecouplingPoint } from '@/types/inventory/decouplingTypes';
 import { supabase } from '@/lib/supabaseClient';
@@ -37,6 +36,9 @@ export const useDecouplingPoints = () => {
       overrideData?.forEach(override => {
         const key = `${override.product_id}-${override.location_id}`;
         overrideMap[key] = override;
+        if (!('decoupling_point' in override)) {
+          override.decoupling_point = false;
+        }
       });
 
       if (planningViewData) {

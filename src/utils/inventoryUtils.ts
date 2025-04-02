@@ -6,48 +6,55 @@ let activeBufferConfig: BufferFactorConfig | null = null;
 export const fetchActiveBufferConfig = async (): Promise<BufferFactorConfig> => {
   if (activeBufferConfig) return activeBufferConfig;
 
-  const { data, error } = await supabase
-    .from('buffer_factor_configs')
-    .select('*')
-    .eq('is_active', true)
-    .single();
+  try {
+    // Since buffer_factor_configs doesn't exist, use buffer_profiles instead
+    const { data, error } = await supabase
+      .from('buffer_profiles')
+      .select('*')
+      .eq('name', 'Default')  // Using name as a way to identify the default profile
+      .single();
 
-  if (error) {
-    console.error('Error fetching buffer config:', error);
-    // Fall back to default values if fetch fails
-    return {
-      id: 'default',
-      shortLeadTimeFactor: 0.7,
-      mediumLeadTimeFactor: 1.0,
-      longLeadTimeFactor: 1.3,
-      shortLeadTimeThreshold: 7,
-      mediumLeadTimeThreshold: 14,
-      replenishmentTimeFactor: 1.0,
-      greenZoneFactor: 0.7,
-      isActive: true,
+    if (error) {
+      console.error('Error fetching buffer config:', error);
+      return getDefaultBufferConfig();
+    }
+
+    // Transform from buffer_profiles to the expected BufferFactorConfig
+    activeBufferConfig = {
+      id: data.id,
+      short_lead_time_factor: 0.7,
+      medium_lead_time_factor: 1.0,
+      long_lead_time_factor: 1.3,
+      short_lead_time_threshold: 7,
+      medium_lead_time_threshold: 14,
+      replenishment_time_factor: data.lead_time_factor || 1.0,
+      green_zone_factor: 0.7,
+      description: data.description,
+      is_active: true,
       metadata: {}
     };
+
+    return activeBufferConfig;
+  } catch (err) {
+    console.error("Error in fetchActiveBufferConfig:", err);
+    return getDefaultBufferConfig();
   }
+};
 
-  // Ensure metadata is an object, or default to empty object
-  const metadata = typeof data.metadata === 'object' ? data.metadata : {};
-
-  // Map database columns to camelCase interface
-  activeBufferConfig = {
-    id: data.id,
-    shortLeadTimeFactor: data.short_lead_time_factor,
-    mediumLeadTimeFactor: data.medium_lead_time_factor,
-    longLeadTimeFactor: data.long_lead_time_factor,
-    shortLeadTimeThreshold: data.short_lead_time_threshold,
-    mediumLeadTimeThreshold: data.medium_lead_time_threshold,
-    replenishmentTimeFactor: data.replenishment_time_factor,
-    greenZoneFactor: data.green_zone_factor,
-    description: data.description,
-    isActive: data.is_active,
-    metadata: metadata as Record<string, any>
+// Helper function to provide default buffer configuration
+const getDefaultBufferConfig = (): BufferFactorConfig => {
+  return {
+    id: 'default',
+    short_lead_time_factor: 0.7,
+    medium_lead_time_factor: 1.0,
+    long_lead_time_factor: 1.3,
+    short_lead_time_threshold: 7,
+    medium_lead_time_threshold: 14,
+    replenishment_time_factor: 1.0,
+    green_zone_factor: 0.7,
+    is_active: true,
+    metadata: {}
   };
-
-  return activeBufferConfig;
 };
 
 export const calculateBufferZones = async (item: InventoryItem): Promise<BufferZones> => {
@@ -114,12 +121,12 @@ export const calculateBufferZones = async (item: InventoryItem): Promise<BufferZ
     
     // Determine lead time category and factor
     let leadTimeFactor: number;
-    if (leadTimeDays <= config.shortLeadTimeThreshold) {
-      leadTimeFactor = config.shortLeadTimeFactor;
-    } else if (leadTimeDays <= config.mediumLeadTimeThreshold) {
-      leadTimeFactor = config.mediumLeadTimeFactor;
+    if (leadTimeDays <= config.short_lead_time_threshold) {
+      leadTimeFactor = config.short_lead_time_factor;
+    } else if (leadTimeDays <= config.medium_lead_time_threshold) {
+      leadTimeFactor = config.medium_lead_time_factor;
     } else {
-      leadTimeFactor = config.longLeadTimeFactor;
+      leadTimeFactor = config.long_lead_time_factor;
     }
     
     // Variability factor (if not provided, default to 1)
@@ -129,8 +136,8 @@ export const calculateBufferZones = async (item: InventoryItem): Promise<BufferZ
 
     // Calculate zones using the configurable DDMRP formulas
     const redZone = Math.round(estimatedAdu * leadTimeFactor * variabilityFactor);
-    const yellowZone = Math.round(estimatedAdu * leadTimeDays * config.replenishmentTimeFactor);
-    const greenZone = Math.round(yellowZone * config.greenZoneFactor);
+    const yellowZone = Math.round(estimatedAdu * leadTimeDays * config.replenishment_time_factor);
+    const greenZone = Math.round(yellowZone * config.green_zone_factor);
 
     console.log("Calculated buffer zones:", {
       red: redZone,

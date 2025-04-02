@@ -1,47 +1,25 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getTranslation, Language } from '@/translations'; // Fix the import - remove default import
+import { createContext, useContext, useState, ReactNode } from 'react';
+import { Language } from '@/translations/types';
 
 type LanguageContextType = {
-  language: 'en' | 'ar';
-  setLanguage: (lang: 'en' | 'ar') => void;
-  isRTL: boolean;
+  language: Language;
+  setLanguage: (lang: Language) => void;
 };
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+const LanguageContext = createContext<LanguageContextType>({
+  language: 'en',
+  setLanguage: () => {}
+});
 
-export const LanguageProvider = ({ children }: { children: React.ReactNode }) => {
-  const [language, setLanguage] = useState<'en' | 'ar'>(() => {
-    const saved = localStorage.getItem('language');
-    return (saved === 'ar' ? 'ar' : 'en') as 'en' | 'ar';
-  });
-
-  const isRTL = language === 'ar';
-
-  useEffect(() => {
-    localStorage.setItem('language', language);
-    document.dir = isRTL ? 'rtl' : 'ltr';
-    document.documentElement.lang = language;
-    // Remove the i18n.changeLanguage call as it doesn't exist in the current setup
-    
-    if (isRTL) {
-      document.body.classList.add('rtl');
-    } else {
-      document.body.classList.remove('rtl');
-    }
-  }, [language, isRTL]);
+export const LanguageProvider = ({ children }: { children: ReactNode }) => {
+  const [language, setLanguage] = useState<Language>('en');
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, isRTL }}>
+    <LanguageContext.Provider value={{ language, setLanguage }}>
       {children}
     </LanguageContext.Provider>
   );
 };
 
-export const useLanguage = () => {
-  const context = useContext(LanguageContext);
-  if (context === undefined) {
-    throw new Error('useLanguage must be used within a LanguageProvider');
-  }
-  return context;
-};
+export const useLanguage = () => useContext(LanguageContext);
