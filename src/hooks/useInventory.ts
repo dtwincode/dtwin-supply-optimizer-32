@@ -1,116 +1,95 @@
 
-import { useState, useEffect } from 'react';
-import { InventoryItem } from '@/types/inventory';
-import { PaginationState } from '@/types/inventory/index';
+import { useState, useEffect, useCallback } from 'react';
+import { InventoryItem, PaginationState } from '@/types/inventory';
 import { fetchInventoryPlanningView } from '@/lib/inventory-planning.service';
-import { useToast } from '@/hooks/use-toast';
 
 export const useInventory = (
-  initialPage = 1, 
-  initialLimit = 10, 
-  searchQuery = '', 
-  locationId = '',
-  priorityOnly = false
+  initialPage: number = 1,
+  initialLimit: number = 25,
+  searchQuery: string = '',
+  locationFilter: string = '',
+  priorityOnly: boolean = false
 ) => {
   const [items, setItems] = useState<InventoryItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
-  const { toast } = useToast();
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [pagination, setPagination] = useState<PaginationState>({
     page: initialPage,
     limit: initialLimit,
     total: 0,
+    totalPages: 0,
     currentPage: initialPage,
     itemsPerPage: initialLimit,
     totalItems: 0
   });
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const fetchItems = async () => {
+  const fetchData = useCallback(async () => {
     try {
-      if (!isRefreshing) {
-        setLoading(true);
-      }
+      setLoading(true);
+      setError(null);
+
+      const offset = (pagination.page - 1) * pagination.limit;
       
-      // Improved filtering directly at database level to minimize data transfer
-      const filters = {
-        searchQuery: searchQuery,
-        locationId: locationId !== 'all' ? locationId : undefined,
-        priorityOnly: priorityOnly,
+      const data = await fetchInventoryPlanningView({
+        searchQuery,
+        locationId: locationFilter,
+        priorityOnly,
         limit: pagination.limit,
-        offset: (pagination.page - 1) * pagination.limit
-      };
+        offset
+      });
+
+      setItems(data);
       
-      console.log("Fetching inventory data with filters:", filters);
-      const planningViewData = await fetchInventoryPlanningView(filters);
-      
-      if (planningViewData && planningViewData.length > 0) {
-        console.log(`Successfully fetched ${planningViewData.length} inventory items`);
-        console.log("Sample item:", planningViewData[0]);
-        
-        setItems(planningViewData);
-        
-        // Get the total count of items for pagination
-        const totalItems = planningViewData.totalCount || planningViewData.length;
-        
+      // Update pagination with the total count if available
+      if ('totalCount' in data) {
+        const totalCount = (data as any).totalCount || 0;
         setPagination(prev => ({
           ...prev,
-          total: Math.ceil(totalItems / pagination.limit),
-          totalItems: totalItems
-        }));
-      } else {
-        console.log("No inventory data found");
-        setItems([]);
-        setPagination(prev => ({
-          ...prev,
-          total: 0,
-          totalItems: 0
+          total: totalCount,
+          totalItems: totalCount,
+          totalPages: Math.ceil(totalCount / prev.limit)
         }));
       }
     } catch (err) {
       console.error('Error fetching inventory data:', err);
-      setError(err instanceof Error ? err : new Error('An unknown error occurred'));
-      toast({
-        title: "Error",
-        description: "Failed to load inventory data. Please try again.",
-        variant: "destructive",
-      });
+      setError(err instanceof Error ? err : new Error('Unknown error'));
       setItems([]);
     } finally {
       setLoading(false);
+    }
+  }, [pagination.page, pagination.limit, searchQuery, locationFilter, priorityOnly]);
+
+  // Initial data fetch
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Function to change page
+  const paginate = (page: number) => {
+    setPagination(prev => ({
+      ...prev,
+      page,
+      currentPage: page
+    }));
+  };
+
+  // Function to refresh data
+  const refreshData = async () => {
+    setIsRefreshing(true);
+    try {
+      await fetchData();
+    } finally {
       setIsRefreshing(false);
     }
   };
 
-  useEffect(() => {
-    fetchItems();
-  }, [pagination.page, pagination.limit, searchQuery, locationId, priorityOnly]);
-
-  const paginate = (page: number, limit: number = pagination.limit) => {
-    setPagination({
-      ...pagination,
-      page,
-      limit,
-      currentPage: page,
-      itemsPerPage: limit
-    });
-  };
-
-  const refreshData = async () => {
-    setIsRefreshing(true);
-    await fetchItems();
-    toast({
-      title: "Data refreshed",
-      description: "Inventory data has been updated."
-    });
-  };
-
-  return { 
-    items, 
-    loading, 
-    error, 
-    pagination, 
-    paginate, 
+  return {
+    items,
+    loading,
+    error,
+    pagination,
+    paginate,
     refreshData,
     isRefreshing
   };

@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { InventoryItem, PaginationState } from "@/types/inventory";
+import { InventoryItem } from "@/types/inventory";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 

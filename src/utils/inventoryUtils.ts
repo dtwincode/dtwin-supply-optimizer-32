@@ -1,5 +1,5 @@
 import { InventoryItem, BufferZones, NetFlowPosition, BufferFactorConfig } from "@/types/inventory";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabaseClient";
 
 let activeBufferConfig: BufferFactorConfig | null = null;
 
@@ -69,14 +69,14 @@ export const calculateBufferZones = async (item: InventoryItem): Promise<BufferZ
     }
     
     // Next priority: Use safety_stock field from planning view
-    if (typeof item.safety_stock !== 'undefined') {
-      const safetyStock = Math.round(Number(item.safety_stock) || 0);
-      const minLevel = Math.round(Number(item.min_stock_level) || 0);
-      const maxLevel = Math.round(Number(item.max_stock_level) || 0);
+    if (typeof item.safetyStock !== 'undefined') {
+      const safetyStock = Math.round(Number(item.safetyStock) || 0);
+      const minLevel = Math.round(Number(item.minStockLevel) || 0);
+      const maxLevel = Math.round(Number(item.maxStockLevel) || 0);
       
-      // In inventory_planning_view, safety_stock is the red zone
-      // min_stock_level includes safety_stock, so yellow = min - safety
-      // max_stock_level includes min_stock_level, so green = max - min
+      // In inventory_planning_view, safetyStock is the red zone
+      // minStockLevel includes safetyStock, so yellow = min - safety
+      // maxStockLevel includes minStockLevel, so green = max - min
       const redZone = safetyStock;
       const yellowZone = minLevel - safetyStock;
       const greenZone = maxLevel - minLevel;
@@ -85,9 +85,9 @@ export const calculateBufferZones = async (item: InventoryItem): Promise<BufferZ
         red: redZone,
         yellow: yellowZone,
         green: greenZone,
-        safety_stock: safetyStock,
-        min_stock_level: minLevel,
-        max_stock_level: maxLevel
+        safetyStock: safetyStock,
+        minStockLevel: minLevel,
+        maxStockLevel: maxLevel
       });
       
       if (redZone > 0 || yellowZone > 0 || greenZone > 0) {
@@ -102,12 +102,10 @@ export const calculateBufferZones = async (item: InventoryItem): Promise<BufferZ
     // If we don't have planning data, calculate from ADU and lead time
     console.log("Calculating buffer zones from ADU and lead time");
     const adu = 
-      typeof item.adu !== 'undefined' ? Number(item.adu) : 
-      typeof item.average_daily_usage !== 'undefined' ? Number(item.average_daily_usage) : 0;
+      typeof item.adu !== 'undefined' ? Number(item.adu) : 0;
     
     const leadTimeDays = 
-      typeof item.leadTimeDays !== 'undefined' ? Number(item.leadTimeDays) : 
-      typeof item.lead_time_days !== 'undefined' ? Number(item.lead_time_days) : 14; // default to 14 if unavailable
+      typeof item.leadTimeDays !== 'undefined' ? Number(item.leadTimeDays) : 14; // default to 14 if unavailable
     
     // If we don't have enough data for ADU, use a default value based on on-hand inventory
     const estimatedAdu = adu || (item.onHand ? Math.max(1, Math.round(item.onHand / 30)) : 1);
@@ -127,7 +125,7 @@ export const calculateBufferZones = async (item: InventoryItem): Promise<BufferZ
     // Variability factor (if not provided, default to 1)
     const variabilityFactor = 
       typeof item.variabilityFactor !== 'undefined' ? Number(item.variabilityFactor) : 
-      typeof item.demand_variability !== 'undefined' ? Number(item.demand_variability) : 1;
+      typeof item.demandVariabilityFactor !== 'undefined' ? Number(item.demandVariabilityFactor) : 1;
 
     // Calculate zones using the configurable DDMRP formulas
     const redZone = Math.round(estimatedAdu * leadTimeFactor * variabilityFactor);

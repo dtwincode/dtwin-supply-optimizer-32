@@ -103,6 +103,10 @@ export interface InventoryItem {
   // Adding missing properties
   minimumOrderQuantity?: number;
   preferredSupplier?: string;
+  // Properties needed for backward compatibility
+  product_id?: string;
+  location_id?: string;
+  decoupling_point?: boolean;
 }
 
 export interface InventoryFilters {
