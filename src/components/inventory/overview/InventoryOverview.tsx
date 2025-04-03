@@ -3,6 +3,7 @@ import { useInventoryFilter } from "@/components/inventory/InventoryFilterContex
 import { Card, CardContent } from "@/components/ui/card";
 import { fetchInventoryPlanningView } from "@/lib/inventory-planning.service";
 import { BufferBreachNotification } from "./BufferBreachNotification";
+import { BufferProfileDistributionChart } from "./BufferProfileDistributionChart";
 
 interface InventoryKPI {
   average_daily_usage: number;
@@ -56,7 +57,7 @@ export function InventoryOverview() {
 
   return (
     <div className="space-y-4">
-      <BufferBreachNotification /> {/* 🚨 Notification System */}
+      <BufferBreachNotification />
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {kpiData ? (
@@ -96,6 +97,8 @@ export function InventoryOverview() {
           <p className="col-span-full p-4">No KPI data available.</p>
         )}
       </div>
+
+      <BufferProfileDistributionChart /> {/* 📊 Chart Integration */}
     </div>
   );
 }
