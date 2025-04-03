@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,7 +31,15 @@ export function DecouplingPointContent() {
         return true;
       });
 
-      setDecouplingData(filtered);
+      // Transform data to match DecouplingItem interface
+      const transformedData: DecouplingItem[] = filtered.map((item: any) => ({
+        product_id: item.sku || item.product_id,
+        location_id: item.location_id,
+        decoupling_point: Boolean(item.decoupling_point),
+        lead_time_days: item.lead_time_days || 0
+      }));
+
+      setDecouplingData(transformedData);
     } catch (error) {
       console.error("Error loading decoupling data:", error);
     } finally {

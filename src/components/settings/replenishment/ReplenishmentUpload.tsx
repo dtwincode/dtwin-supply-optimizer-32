@@ -2,11 +2,11 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileUpload } from "../upload/FileUpload";
 import { ColumnSelector } from "../location-hierarchy/components/ColumnSelector";
+import { SavedFiles } from "../../../components/settings/files/SavedFiles";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { HierarchyTable } from "../hierarchy/components/HierarchyTable";
-import { SavedLocationFiles } from "../location-hierarchy/SavedLocationFiles";
 
 export function ReplenishmentUpload() {
   const [uploadedData, setUploadedData] = useState<any[] | null>(null);
@@ -144,7 +144,7 @@ export function ReplenishmentUpload() {
         </CardContent>
       </Card>
 
-      <SavedLocationFiles triggerRefresh={refreshTrigger} />
+      <SavedFiles hierarchyType="replenishment" />
     </div>
   );
 }

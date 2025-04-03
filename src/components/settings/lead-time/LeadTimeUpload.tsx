@@ -144,7 +144,7 @@ export function LeadTimeUpload() {
         </CardContent>
       </Card>
 
-      <SavedLocationFiles triggerRefresh={refreshTrigger} />
+      <SavedLocationFiles />
     </div>
   );
 }

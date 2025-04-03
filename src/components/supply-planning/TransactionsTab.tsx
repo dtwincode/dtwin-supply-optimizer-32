@@ -1,121 +1,203 @@
 
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { getTranslation } from '@/translations';
-import { Card } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
-import { ArrowDownRight, ArrowUpRight } from 'lucide-react';
-import { InventoryTransaction } from '@/types/inventory/shipmentTypes';
+import React, { useState } from "react";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useInventoryTransaction } from "@/hooks/useInventoryTransaction";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger 
+} from "@/components/ui/dialog";
+import { PlusCircle } from "lucide-react";
+import { Transaction } from "@/hooks/useInventoryTransaction";
 
 export const TransactionsTab = () => {
-  const { language } = useLanguage();
+  const { processTransaction, loading } = useInventoryTransaction();
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const { data: transactions, isLoading, error } = useQuery({
-    queryKey: ['inventory-transactions'],
-    queryFn: async () => {
-      // Use any to override the type checking temporarily
-      // since the table might not exist yet in the supabase types
-      const { data, error } = await (supabase as any)
-        .from('inventory_transactions')
-        .select('*')
-        .order('transaction_date', { ascending: false });
-
-      if (error) throw error;
-      return data as InventoryTransaction[];
-    },
-  });
-
-  if (isLoading) {
-    return (
-      <Card className="p-6">
-        <p>{getTranslation("common.inventory.loadingData", language)}</p>
-      </Card>
-    );
-  }
-
-  if (error) {
-    return (
-      <Card className="p-6">
-        <p>{getTranslation("common.inventory.errorLoading", language)}</p>
-      </Card>
-    );
-  }
+  const handleSubmitTransaction = async (transaction: Omit<Transaction, 'id' | 'timestamp' | 'status'>) => {
+    try {
+      const newTransaction = await processTransaction(transaction);
+      setTransactions([newTransaction, ...transactions]);
+      setIsDialogOpen(false);
+    } catch (error) {
+      console.error("Error processing transaction:", error);
+    }
+  };
 
   return (
-    <Card className="overflow-hidden">
-      <div className="p-6 border-b">
-        <h3 className="text-lg font-semibold">
-          {getTranslation("supplyPlanning.tabs.transactions", language) || "Inventory Transactions"}
-        </h3>
-        <p className="text-sm text-muted-foreground">
-          {getTranslation("supplyPlanning.transactionsDesc", language) || "Track all inventory movements and adjustments"}
-        </p>
-      </div>
-      
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>{getTranslation("common.date", language) || "Date"}</TableHead>
-            <TableHead>{getTranslation("common.inventory.sku", language)}</TableHead>
-            <TableHead>{getTranslation("supplyPlanning.type", language) || "Type"}</TableHead>
-            <TableHead>{getTranslation("supplyPlanning.quantity", language)}</TableHead>
-            <TableHead>{getTranslation("supplyPlanning.previousStock", language) || "Previous Stock"}</TableHead>
-            <TableHead>{getTranslation("supplyPlanning.newStock", language) || "New Stock"}</TableHead>
-            <TableHead>{getTranslation("supplyPlanning.reference", language) || "Reference"}</TableHead>
-            <TableHead>{getTranslation("supplyPlanning.notes", language) || "Notes"}</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {!transactions || transactions.length === 0 ? (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-xl">Inventory Transactions</CardTitle>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              New Transaction
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>New Inventory Transaction</DialogTitle>
+            </DialogHeader>
+            <TransactionForm onSubmit={handleSubmitTransaction} isSubmitting={loading} />
+          </DialogContent>
+        </Dialog>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
             <TableRow>
-              <TableCell colSpan={8} className="text-center py-6">
-                {getTranslation("supplyPlanning.noTransactions", language) || "No transactions found"}
-              </TableCell>
+              <TableHead>Type</TableHead>
+              <TableHead>SKU</TableHead>
+              <TableHead>Quantity</TableHead>
+              <TableHead>Location</TableHead>
+              <TableHead>Reference</TableHead>
+              <TableHead>Timestamp</TableHead>
+              <TableHead>Status</TableHead>
             </TableRow>
-          ) : (
-            transactions.map((transaction) => (
-              <TableRow key={transaction.id}>
-                <TableCell>
-                  {format(new Date(transaction.transaction_date), 'MMM dd, yyyy HH:mm')}
+          </TableHeader>
+          <TableBody>
+            {transactions.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-4">
+                  No transactions recorded. Create your first transaction.
                 </TableCell>
-                <TableCell>{transaction.sku}</TableCell>
-                <TableCell>
-                  {transaction.transaction_type === 'inbound' ? (
-                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 flex items-center">
-                      <ArrowDownRight className="h-3 w-3 mr-1" />
-                      {getTranslation("supplyPlanning.inbound", language) || "Inbound"}
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 flex items-center">
-                      <ArrowUpRight className="h-3 w-3 mr-1" />
-                      {getTranslation("supplyPlanning.outbound", language) || "Outbound"}
-                    </Badge>
-                  )}
-                </TableCell>
-                <TableCell>{transaction.quantity}</TableCell>
-                <TableCell>{transaction.previous_on_hand}</TableCell>
-                <TableCell>{transaction.new_on_hand}</TableCell>
-                <TableCell>
-                  {transaction.reference_type && transaction.reference_id 
-                    ? `${transaction.reference_type.replace('_', ' ')} #${transaction.reference_id.slice(-6)}` 
-                    : '-'}
-                </TableCell>
-                <TableCell>{transaction.notes || '-'}</TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+            ) : (
+              transactions.map((transaction) => (
+                <TableRow key={transaction.id}>
+                  <TableCell className="capitalize">{transaction.type}</TableCell>
+                  <TableCell>{transaction.sku}</TableCell>
+                  <TableCell>{transaction.quantity}</TableCell>
+                  <TableCell>{transaction.location}</TableCell>
+                  <TableCell>{transaction.reference || '-'}</TableCell>
+                  <TableCell>{new Date(transaction.timestamp).toLocaleString()}</TableCell>
+                  <TableCell className="capitalize">{transaction.status}</TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </CardContent>
     </Card>
+  );
+};
+
+// Simple transaction form component
+const TransactionForm = ({ 
+  onSubmit, 
+  isSubmitting 
+}: { 
+  onSubmit: (data: Omit<Transaction, 'id' | 'timestamp' | 'status'>) => void;
+  isSubmitting: boolean;
+}) => {
+  const [formData, setFormData] = useState({
+    type: 'receipt',
+    sku: '',
+    quantity: 0,
+    location: '',
+    reference: '',
+    userId: 'current-user', // In a real app, this would be the authenticated user's ID
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: name === 'quantity' ? Number(value) : value,
+    });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Transaction Type</label>
+          <select 
+            name="type" 
+            value={formData.type} 
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+            required
+          >
+            <option value="receipt">Receipt</option>
+            <option value="shipment">Shipment</option>
+            <option value="adjustment">Adjustment</option>
+            <option value="transfer">Transfer</option>
+          </select>
+        </div>
+        
+        <div className="space-y-2">
+          <label className="text-sm font-medium">SKU</label>
+          <input 
+            type="text" 
+            name="sku" 
+            value={formData.sku} 
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Quantity</label>
+          <input 
+            type="number" 
+            name="quantity" 
+            value={formData.quantity} 
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+            min="1"
+            required
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Location</label>
+          <input 
+            type="text" 
+            name="location" 
+            value={formData.location} 
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+            required
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Reference (Optional)</label>
+        <input 
+          type="text" 
+          name="reference" 
+          value={formData.reference} 
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+        />
+      </div>
+
+      <Button type="submit" disabled={isSubmitting} className="w-full">
+        {isSubmitting ? 'Processing...' : 'Create Transaction'}
+      </Button>
+    </form>
   );
 };

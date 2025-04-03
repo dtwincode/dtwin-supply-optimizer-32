@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
@@ -20,12 +19,10 @@ const InventoryDataUpload = () => {
     setFiles(acceptedFiles);
     setUploadSuccess(false);
     
-    // Preview first file
     if (acceptedFiles.length > 0) {
       const reader = new FileReader();
       reader.onload = () => {
         try {
-          // This is a simplistic CSV parser just for preview
           const text = reader.result as string;
           const lines = text.split('\n').filter(line => line.trim() !== '');
           const headers = lines[0].split(',');
@@ -68,7 +65,6 @@ const InventoryDataUpload = () => {
     setUploading(true);
     setUploadProgress(0);
     
-    // Simulate upload progress
     const interval = setInterval(() => {
       setUploadProgress(prev => {
         const newProgress = prev + 10;
@@ -210,7 +206,7 @@ const InventoryDataUpload = () => {
                 </div>
               </div>
               
-              <Alert variant="warning" className="mb-2">
+              <Alert variant="destructive" className="mb-2">
                 <AlertCircle className="h-4 w-4 mr-2" />
                 <AlertTitle>Important</AlertTitle>
                 <AlertDescription>

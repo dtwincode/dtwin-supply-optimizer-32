@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,7 +33,17 @@ export function BufferManagementDashboard() {
         return true;
       });
 
-      setBuffers(filtered);
+      // Transform data to match BufferItem interface
+      const transformedData: BufferItem[] = filtered.map((item: any) => ({
+        product_id: item.sku || item.product_id,
+        location_id: item.location_id,
+        min_stock_level: item.min_stock_level,
+        safety_stock: item.safety_stock,
+        max_stock_level: item.max_stock_level,
+        buffer_profile_id: item.buffer_profile_id || 'Default'
+      }));
+
+      setBuffers(transformedData);
     } catch (error) {
       console.error("Error loading buffer data:", error);
     } finally {

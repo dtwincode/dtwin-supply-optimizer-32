@@ -45,3 +45,64 @@ export interface DecouplingPointData {
   recommendedBuffer: number;
   lastUpdated: string;
 }
+
+export interface InventoryItem {
+  id: string;
+  sku: string;
+  name: string;
+  description?: string;
+  category: string;
+  subcategory?: string;
+  currentStock: number;
+  location?: string;
+  productFamily?: string;
+  region?: string;
+  city?: string;
+  channel?: string;
+  warehouse?: string;
+  minimumOrderQuantity?: number;
+  leadTimeDays?: number;
+  preferredSupplier?: string;
+  bufferProfile?: string;
+  onHand?: number;
+  onOrder?: number;
+  allocated?: number;
+  available?: number;
+  qualifiedDemand?: number;
+  netFlowPosition?: number;
+  adu?: number;
+  redZoneSize?: number;
+  yellowZoneSize?: number;
+  greenZoneSize?: number;
+  bufferPenetration?: number;
+  planningPriority?: string;
+  decouplingPointId?: string;
+  variabilityFactor?: number;
+  reorderPoint?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  aduCalculation?: {
+    past30Days: number;
+    past60Days: number;
+    past90Days: number;
+    forecastedADU: number;
+    blendedADU: number;
+  };
+  dynamicAdjustments?: {
+    seasonality: number;
+    trend: number;
+    marketStrategy: number;
+  };
+  supplySignals?: {
+    leadTimeAlert: boolean;
+    qualityAlert: boolean;
+    orderDelayRisk: string;
+  };
+}
+
+export interface BufferFactorConfig {
+  id: string;
+  name: string;
+  factor: number;
+  description?: string;
+}

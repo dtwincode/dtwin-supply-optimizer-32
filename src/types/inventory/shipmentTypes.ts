@@ -39,6 +39,19 @@ export interface TrackingEvent {
   description: string;
 }
 
+export interface InventoryTransaction {
+  id: string;
+  transactionType: 'receipt' | 'shipment' | 'adjustment' | 'transfer';
+  sku: string;
+  quantity: number;
+  location: string;
+  referenceNumber?: string;
+  timestamp: string;
+  status: 'pending' | 'completed' | 'cancelled';
+  createdBy: string;
+  notes?: string;
+}
+
 export type ShipmentStatus = 'planned' | 'in_transit' | 'delivered' | 'cancelled';
 
 export interface ShipmentFilter {
