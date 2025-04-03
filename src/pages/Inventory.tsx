@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BufferManagementContent } from "@/components/inventory/buffer/BufferManagementContent";
+import BufferManagementDashboard from "@/components/inventory/buffer/BufferManagementDashboard";
 import { SKUClassifications } from "@/components/inventory/classification/SKUClassifications";
 import { DecouplingPointContent } from "@/components/inventory/decoupling/DecouplingPointContent";
 import { InventoryOverview } from "@/components/inventory/overview/InventoryOverview";
@@ -49,7 +49,7 @@ const Inventory: React.FC = () => {
           </TabsContent>
 
           <TabsContent value="buffers">
-            <BufferManagementContent />
+            <BufferManagementDashboard />
           </TabsContent>
 
           <TabsContent value="classification">
