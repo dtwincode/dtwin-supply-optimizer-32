@@ -6,7 +6,7 @@ import { SKUCard } from "./SKUCard";
 import { fetchInventoryPlanningView } from "@/lib/inventory-planning.service";
 import { Button } from "@/components/ui/button";
 import { Download, RefreshCw } from "lucide-react";
-import saveAs from "file-saver";
+import * as FileSaver from "file-saver";
 
 export function SKUClassifications() {
   const [classifications, setClassifications] = useState<any[]>([]);
@@ -45,7 +45,7 @@ export function SKUClassifications() {
         .join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    saveAs(blob, "sku_classifications.csv");
+    FileSaver.saveAs(blob, "sku_classifications.csv");
   };
 
   const container = {
