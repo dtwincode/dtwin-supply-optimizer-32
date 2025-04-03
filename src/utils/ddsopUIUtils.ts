@@ -1,67 +1,63 @@
 
 /**
- * UI utility functions for DDSOP module
+ * Utility functions for DDSOP UI operations
  */
 
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-import React from "react";
-
-/**
- * Format a number as percentage
- */
-export const formatPercentage = (value: number): string => {
+// Formats a value as a percentage
+export const formatAsPercentage = (value: number): string => {
   return `${(value * 100).toFixed(1)}%`;
 };
 
-/**
- * Format a number as currency
- */
-export const formatCurrency = (value: number): string => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value);
+// Formats a number with commas for thousands
+export const formatWithCommas = (value: number): string => {
+  return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
-/**
- * Render a variance badge with appropriate styling based on value
- */
-export const renderVarianceBadge = (value: number) => {
-  const isNegative = value < 0;
-  const absValue = Math.abs(value);
-  const formattedValue = `${isNegative ? '-' : '+'}${formatPercentage(absValue)}`;
-  
-  let badgeVariant: "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "info" = "default";
-  
-  if (absValue >= 0.2) {
-    badgeVariant = isNegative ? "destructive" : "success";
-  } else if (absValue >= 0.1) {
-    badgeVariant = "warning";
-  } else {
-    badgeVariant = "info";
-  }
-  
-  return (
-    <Badge variant={badgeVariant} className={cn("text-xs", isNegative && "opacity-90")}>
-      {formattedValue}
-    </Badge>
-  );
+// Calculates percentage difference between two values
+export const calculatePercentageChange = (current: number, previous: number): number => {
+  if (previous === 0) return 0;
+  return (current - previous) / previous;
 };
 
-/**
- * Get status text based on variance
- */
-export const getStatusFromVariance = (variance: number): string => {
-  const absVariance = Math.abs(variance);
-  
-  if (absVariance >= 0.2) {
-    return variance < 0 ? "Significant Underperformance" : "Significant Overperformance";
-  } else if (absVariance >= 0.1) {
-    return variance < 0 ? "Moderate Underperformance" : "Moderate Overperformance";
-  } else {
-    return "On Target";
+// Determines if a percentage change is positive or negative
+export const isPositiveChange = (change: number, isHigherBetter: boolean = true): boolean => {
+  return isHigherBetter ? change > 0 : change < 0;
+};
+
+// Returns a color based on performance
+export const getPerformanceColor = (performance: "excellent" | "good" | "average" | "poor"): string => {
+  switch (performance) {
+    case "excellent":
+      return "text-green-600";
+    case "good":
+      return "text-emerald-500";
+    case "average":
+      return "text-amber-500";
+    case "poor":
+      return "text-red-600";
+    default:
+      return "text-gray-600";
   }
+};
+
+// Convert camelCase to Title Case
+export const camelToTitleCase = (text: string): string => {
+  const result = text.replace(/([A-Z])/g, " $1");
+  return result.charAt(0).toUpperCase() + result.slice(1);
+};
+
+// Format a date string to a readable format
+export const formatDateString = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'short', 
+    day: 'numeric' 
+  });
+};
+
+// Truncate text if it exceeds a certain length
+export const truncateText = (text: string, maxLength: number): string => {
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength) + '...';
 };

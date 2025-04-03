@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,25 +8,15 @@ import { Button } from "@/components/ui/button";
 import { Download, RefreshCw } from "lucide-react";
 import { saveAs } from "file-saver";
 
-interface SKUClassificationItem {
-  product_id: string;
-  location_id: string;
-  lead_time_days: number;
-  demand_variability: number;
-  decoupling_point: boolean;
-  max_stock_level: number;
-  buffer_profile_id: string;
-}
-
 export function SKUClassifications() {
-  const [classifications, setClassifications] = useState<SKUClassificationItem[]>([]);
+  const [classifications, setClassifications] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const loadClassifications = async () => {
     setIsLoading(true);
     try {
       const data = await fetchInventoryPlanningView();
-      setClassifications(data as SKUClassificationItem[]);
+      setClassifications(data as any[]);
     } catch (error) {
       console.error("Error loading classifications:", error);
     } finally {
