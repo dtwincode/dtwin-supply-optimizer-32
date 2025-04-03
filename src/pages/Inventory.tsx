@@ -8,6 +8,7 @@ import { InventoryOverview } from "@/components/inventory/overview/InventoryOver
 import { useSearchParams } from "react-router-dom";
 import { useI18n } from "@/contexts/I18nContext";
 import { InventoryFilterProvider } from "@/contexts/InventoryFilterContext";
+import { InventoryGlobalFilters } from "@/components/inventory/InventoryGlobalFilters";
 
 const Inventory: React.FC = () => {
   const { t } = useI18n();
@@ -37,6 +38,9 @@ const Inventory: React.FC = () => {
                 "Plan and manage inventory, buffers & decoupling points."}
             </p>
           </div>
+
+          {/* 🔥 Global Filter */}
+          <InventoryGlobalFilters />
 
           <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
             <TabsList>
