@@ -1,4 +1,3 @@
-
 export interface BufferProfile {
   id?: string;
   name: string;
@@ -105,4 +104,56 @@ export interface BufferFactorConfig {
   name: string;
   factor: number;
   description?: string;
+}
+
+export interface Shipment {
+  id: string;
+  shipmentNumber: string;
+  status: 'planned' | 'in_transit' | 'delivered' | 'cancelled';
+  origin: string;
+  destination: string;
+  carrier: string;
+  trackingNumber?: string;
+  expectedDeliveryDate?: string;
+  actualDeliveryDate?: string;
+  items: ShipmentItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ShipmentItem {
+  id: string;
+  sku: string;
+  name: string;
+  quantity: number;
+  unitOfMeasure: string;
+}
+
+export interface ShipmentItemInput {
+  sku: string;
+  name: string;
+  quantity: number;
+  unitOfMeasure: string;
+}
+
+export interface BufferItem extends InventoryItem {
+  product_id: string;
+  buffer_profile_id: string;
+}
+
+export interface DecouplingItem extends InventoryItem {
+  product_id: string;
+  is_decoupling_point: boolean;
+}
+
+export interface SavedFile {
+  id: string;
+  file_name: string;
+  original_name: string;
+  created_at: string;
+  created_by: string;
+  storage_path: string;
+  updated_at: string;
+  hierarchy_type?: string;
+  data?: any;
 }

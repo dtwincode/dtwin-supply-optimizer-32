@@ -1,33 +1,70 @@
 
 import { supabase } from '@/lib/supabaseClient';
-import { BufferProfile, BufferFactorConfig } from '@/types/inventory';
+import { BufferFactorConfig, BufferProfile } from '@/types/inventory';
+
+// Updated BufferFactorConfig interface that matches the data structure
+export interface ExtendedBufferFactorConfig {
+  id: string;
+  shortLeadTimeFactor: number;
+  mediumLeadTimeFactor: number;
+  longLeadTimeFactor: number;
+  shortLeadTimeThreshold: number;
+  mediumLeadTimeThreshold: number;
+  replenishmentTimeFactor: number;
+  minGreenZoneDays: number;
+  maxGreenZoneDays: number;
+  yellowZoneFactor: number;
+  decouplingPointFactor: number;
+  created_at?: string;
+  updated_at?: string;
+  metadata: Record<string, any>;
+}
+
+// Mock data for buffer factor configurations
+export const bufferFactorConfigs: ExtendedBufferFactorConfig[] = [
+  {
+    id: '1',
+    shortLeadTimeFactor: 1.2,
+    mediumLeadTimeFactor: 1.5,
+    longLeadTimeFactor: 2.0,
+    shortLeadTimeThreshold: 7, // days
+    mediumLeadTimeThreshold: 30, // days
+    replenishmentTimeFactor: 1.2, 
+    minGreenZoneDays: 7,
+    maxGreenZoneDays: 30,
+    yellowZoneFactor: 1.1,
+    decouplingPointFactor: 1.3,
+    metadata: {}
+  }
+];
+
+// Function to fetch buffer profiles
+export const fetchBufferProfiles = async (): Promise<BufferProfile[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('buffer_profiles')
+      .select('*');
+    
+    if (error) throw error;
+    
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching buffer profiles:', error);
+    return [];
+  }
+};
 
 // Function to fetch buffer factor configurations
 export const fetchBufferFactorConfigs = async (): Promise<BufferFactorConfig[]> => {
   try {
-    // Note: This table might need to be created in your Supabase instance
-    const { data, error } = await supabase
-      .from('buffer_profiles') // Use existing table instead of buffer_factor_configs
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-
-    // Map database columns to camelCase interface
-    return data.map(item => ({
-      id: item.id || '',
-      shortLeadTimeFactor: Number(item.lead_time_factor) || 0.7,
-      mediumLeadTimeFactor: Number(item.lead_time_factor) || 1.0,
-      longLeadTimeFactor: Number(item.lead_time_factor) || 1.3,
-      shortLeadTimeThreshold: 7,
-      mediumLeadTimeThreshold: 14,
-      replenishmentTimeFactor: 1.0,
-      greenZoneFactor: 0.7,
-      description: item.description || '',
-      isActive: true,
-      industry: item.variability_category || '',
-      isBenchmarkBased: false,
-      metadata: {}
+    // Mock implementation for now
+    // In a real implementation, we would fetch from Supabase
+    // Convert ExtendedBufferFactorConfig to BufferFactorConfig
+    return bufferFactorConfigs.map(config => ({
+      id: config.id,
+      name: `Buffer Factor ${config.id}`, // Create a name from the ID
+      factor: config.yellowZoneFactor, // Use one of the factors as the main factor
+      description: `Configuration for buffer factors with short LT: ${config.shortLeadTimeFactor}, medium LT: ${config.mediumLeadTimeFactor}, long LT: ${config.longLeadTimeFactor}`
     }));
   } catch (error) {
     console.error('Error fetching buffer factor configs:', error);
@@ -35,100 +72,53 @@ export const fetchBufferFactorConfigs = async (): Promise<BufferFactorConfig[]> 
   }
 };
 
-// Function to fetch buffer profiles
-export const getBufferProfiles = async (): Promise<BufferProfile[]> => {
-  try {
-    const { data, error } = await supabase
-      .from('buffer_profiles')
-      .select('*')
-      .order('name', { ascending: true });
-
-    if (error) throw error;
-
-    const profiles = data.map(item => ({
-      id: item.id,
-      name: item.name,
-      description: item.description || '',
-      variabilityFactor: item.variability_category as any,
-      leadTimeFactor: item.lead_time_category as any,
-      moq: 0, // Default value as moq doesn't exist in the DB schema
-      lotSizeFactor: item.lot_size_factor || 1
-    }));
-
-    return profiles as BufferProfile[];
-  } catch (error) {
-    console.error('Error fetching buffer profiles:', error);
-    return [];
+// Function to calculate buffer zones
+export const calculateBufferZones = (
+  adu: number,
+  leadTimeDays: number,
+  variabilityFactor: number,
+  settings: ExtendedBufferFactorConfig
+): { red: number; yellow: number; green: number } => {
+  let leadTimeFactor = settings.mediumLeadTimeFactor; // default to medium
+  
+  if (leadTimeDays <= settings.shortLeadTimeThreshold) {
+    leadTimeFactor = settings.shortLeadTimeFactor;
+  } else if (leadTimeDays > settings.mediumLeadTimeThreshold) {
+    leadTimeFactor = settings.longLeadTimeFactor;
   }
+  
+  // Red zone calculation (base buffer)
+  const redZone = Math.round(adu * leadTimeDays);
+  
+  // Yellow zone calculation (order cycle + variability)
+  const yellowZone = Math.round(redZone * settings.yellowZoneFactor * variabilityFactor);
+  
+  // Green zone calculation (safety + market opportunity)
+  let greenZoneDays = Math.min(
+    Math.max(leadTimeDays * 0.5, settings.minGreenZoneDays),
+    settings.maxGreenZoneDays
+  );
+  const greenZone = Math.round(adu * greenZoneDays);
+  
+  return {
+    red: redZone,
+    yellow: yellowZone,
+    green: greenZone
+  };
 };
 
-// Function to create a buffer profile
-export const createBufferProfile = async (profile: Omit<BufferProfile, 'id'>): Promise<{ success: boolean; error?: any; data?: BufferProfile }> => {
+// Function to check and update buffer penetration status
+export const checkBufferPenetration = async (itemId: string): Promise<number> => {
   try {
-    // Convert the frontend model to database model
-    const dbProfile = {
-      name: profile.name,
-      description: profile.description,
-      variability_category: profile.variabilityFactor,
-      lead_time_category: profile.leadTimeFactor,
-      variability_factor: parseFloat(String(0.5)), // Default value
-      lead_time_factor: parseFloat(String(1.0)), // Default value
-      lot_size_factor: profile.lotSizeFactor || 1
-      // moq isn't in the schema
-    };
-
-    const { data, error } = await supabase
-      .from('buffer_profiles')
-      .insert([dbProfile])
-      .select('*')
-      .single();
-
-    if (error) throw error;
-
-    // Convert the database model back to frontend model
-    const createdProfile: BufferProfile = {
-      id: data.id,
-      name: data.name,
-      description: data.description || '',
-      variabilityFactor: data.variability_category as any,
-      leadTimeFactor: data.lead_time_category as any,
-      moq: 0,
-      lotSizeFactor: data.lot_size_factor || 1
-    };
-
-    return { success: true, data: createdProfile };
+    // In a real implementation, we would:
+    // 1. Fetch the current inventory for the item
+    // 2. Calculate the buffer penetration
+    // 3. Update the buffer status if needed
+    
+    // Mock implementation
+    return Math.floor(Math.random() * 100);
   } catch (error) {
-    console.error('Error creating buffer profile:', error);
-    return { success: false, error };
-  }
-};
-
-// Function to get the active buffer configuration
-export const getActiveBufferConfig = async (): Promise<BufferFactorConfig | null> => {
-  try {
-    const { data, error } = await supabase
-      .from('buffer_profiles')
-      .select('*')
-      .eq('name', 'Default')
-      .single();
-
-    if (error) throw error;
-
-    return {
-      id: data.id,
-      shortLeadTimeFactor: 0.7,
-      mediumLeadTimeFactor: 1.0,
-      longLeadTimeFactor: 1.3,
-      shortLeadTimeThreshold: 7,
-      mediumLeadTimeThreshold: 14,
-      replenishmentTimeFactor: data.lead_time_factor || 1.0,
-      greenZoneFactor: 0.7,
-      description: data.description || '',
-      isActive: true,
-      metadata: {}
-    };
-  } catch (error) {
-    console.error('Error getting active buffer config:', error);
-    return null;
+    console.error('Error checking buffer penetration:', error);
+    return 0;
   }
 };

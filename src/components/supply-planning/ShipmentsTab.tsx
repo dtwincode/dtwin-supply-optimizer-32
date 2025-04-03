@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   Table,
@@ -65,6 +66,7 @@ import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Shipment, ShipmentItem, ShipmentItemInput } from "@/types/inventory"
 
 const formSchema = z.object({
   order_id: z.string().min(2, {
@@ -119,6 +121,31 @@ const data = [
   },
 ];
 
+// Dummy shipment data for initializing state
+const initialShipments: Shipment[] = [
+  {
+    id: "ship-1",
+    shipmentNumber: "SH-1001",
+    status: "planned",
+    origin: "Warehouse A",
+    destination: "Store 1",
+    carrier: "Express Shipping",
+    trackingNumber: "TRK123456",
+    expectedDeliveryDate: "2024-07-15",
+    items: [
+      {
+        id: "item-1",
+        sku: "SKU001",
+        name: "Product 1",
+        quantity: 5,
+        unitOfMeasure: "EA"
+      }
+    ],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  }
+];
+
 export const ShipmentsTab = () => {
   const [isShipping, setIsShipping] = useState(false);
   const { processTransaction, loading } = useInventoryTransaction();
@@ -128,6 +155,7 @@ export const ShipmentsTab = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [activeShipment, setActiveShipment] = useState<Shipment | null>(null);
+  const [shipments, setShipments] = useState<Shipment[]>(initialShipments);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -148,11 +176,12 @@ export const ShipmentsTab = () => {
     
     try {
       const success = await processTransaction({
-        product_id: order.product_id,
+        type: 'shipment',
+        sku: order.product_id,
         quantity: parseInt(order.quantity),
-        transactionType: 'outbound',
-        referenceId: order.order_id,
-        referenceType: 'sales_order',
+        location: 'default',
+        reference: order.order_id,
+        userId: 'current-user',
         notes: `Shipped order: ${order.order_id}`
       });
     

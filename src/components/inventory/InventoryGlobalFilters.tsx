@@ -34,14 +34,14 @@ export function InventoryGlobalFilters() {
       <div className="flex flex-col space-y-1">
         <label className="text-sm font-medium">Channel</label>
         <Select
-          value={filters.channelId || ""}
-          onValueChange={(value) => setFilters({ ...filters, channelId: value || null })}
+          value={filters.channelId || "all"}
+          onValueChange={(value) => setFilters({ ...filters, channelId: value === "all" ? null : value })}
         >
           <SelectTrigger className="w-40">
             <SelectValue placeholder="Select Channel" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All</SelectItem>
+            <SelectItem value="all">All Channels</SelectItem>
             <SelectItem value="B2B">B2B</SelectItem>
             <SelectItem value="B2C">B2C</SelectItem>
             <SelectItem value="Marketplace">Marketplace</SelectItem>

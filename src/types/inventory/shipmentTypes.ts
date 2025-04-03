@@ -64,3 +64,17 @@ export interface ShipmentFilter {
   destination?: string[];
   carrier?: string[];
 }
+
+// Add Transaction type for useInventoryTransaction hook
+export interface Transaction {
+  id: string;
+  type: 'receipt' | 'shipment' | 'adjustment' | 'transfer';
+  sku: string;
+  quantity: number;
+  location: string;
+  reference: string;
+  timestamp: string;
+  status: 'pending' | 'completed' | 'cancelled';
+  userId: string;
+  notes?: string;
+}

@@ -1,25 +1,19 @@
-
-import React, { useState } from "react";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import React, { useState, useEffect } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
+import { useInventoryTransaction } from '@/hooks/useInventoryTransaction';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useInventoryTransaction } from "@/hooks/useInventoryTransaction";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
-} from "@/components/ui/dialog";
-import { PlusCircle } from "lucide-react";
-import { Transaction } from "@/hooks/useInventoryTransaction";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { InventoryTransaction, Transaction } from "@/types/inventory/shipmentTypes";
 
 export const TransactionsTab = () => {
   const { processTransaction, loading } = useInventoryTransaction();
@@ -95,7 +89,6 @@ export const TransactionsTab = () => {
   );
 };
 
-// Simple transaction form component
 const TransactionForm = ({ 
   onSubmit, 
   isSubmitting 
