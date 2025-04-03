@@ -3,9 +3,8 @@ import React, { useEffect, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { fetchInventoryPlanningView } from "@/lib/inventory-planning.service";
 import { useInventoryFilter } from "@/components/inventory/InventoryFilterContext";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ExclamationTriangleIcon } from "lucide-react";
 
 export function BufferBreachNotification() {
   const { filters } = useInventoryFilter();
@@ -68,7 +67,7 @@ export function BufferBreachNotification() {
     <Alert variant="destructive" className="border-red-600 bg-red-50 text-red-800">
       <div className="flex justify-between items-center">
         <div className="flex items-center">
-          <ExclamationTriangleIcon className="h-5 w-5 mr-2" />
+          <AlertTriangle className="h-5 w-5 mr-2" />
           <div>
             <AlertTitle>Buffer Breach Alert</AlertTitle>
             <AlertDescription>
