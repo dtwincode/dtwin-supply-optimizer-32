@@ -1,8 +1,9 @@
+
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useInventoryFilter } from "@/contexts/InventoryFilterContext";
+import { useInventoryFilter } from "@/components/inventory/InventoryFilterContext";
 
 export function InventoryGlobalFilters() {
   const { filters, setFilters } = useInventoryFilter();
@@ -15,7 +16,7 @@ export function InventoryGlobalFilters() {
         <Input
           placeholder="Enter category"
           value={filters.productCategory || ""}
-          onChange={(e) => setFilters({ ...filters, productCategory: e.target.value })}
+          onChange={(e) => setFilters({ ...filters, productCategory: e.target.value || null })}
         />
       </div>
 
@@ -25,7 +26,7 @@ export function InventoryGlobalFilters() {
         <Input
           placeholder="Enter location ID"
           value={filters.locationId || ""}
-          onChange={(e) => setFilters({ ...filters, locationId: e.target.value })}
+          onChange={(e) => setFilters({ ...filters, locationId: e.target.value || null })}
         />
       </div>
 
@@ -34,7 +35,7 @@ export function InventoryGlobalFilters() {
         <label className="text-sm font-medium">Channel</label>
         <Select
           value={filters.channelId || ""}
-          onValueChange={(value) => setFilters({ ...filters, channelId: value })}
+          onValueChange={(value) => setFilters({ ...filters, channelId: value || null })}
         >
           <SelectTrigger className="w-40">
             <SelectValue placeholder="Select Channel" />

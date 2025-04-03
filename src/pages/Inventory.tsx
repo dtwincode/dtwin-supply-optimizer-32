@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,7 +8,7 @@ import { DecouplingPointContent } from "@/components/inventory/decoupling/Decoup
 import { InventoryOverview } from "@/components/inventory/overview/InventoryOverview";
 import { useSearchParams } from "react-router-dom";
 import { useI18n } from "@/contexts/I18nContext";
-import { InventoryFilterProvider } from "@/contexts/InventoryFilterContext";
+import { InventoryFilterProvider } from "@/components/inventory/InventoryFilterContext";
 import { InventoryGlobalFilters } from "@/components/inventory/InventoryGlobalFilters";
 
 const Inventory: React.FC = () => {
