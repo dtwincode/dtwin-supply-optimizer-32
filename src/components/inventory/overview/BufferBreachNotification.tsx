@@ -1,11 +1,11 @@
 
 import React, { useEffect, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { fetchInventoryPlanningView } from "@/lib/inventory-planning.service";
 import { useInventoryFilter } from "@/components/inventory/InventoryFilterContext";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ExclamationTriangleIcon } from "lucide-react";
 
 export function BufferBreachNotification() {
   const { filters } = useInventoryFilter();

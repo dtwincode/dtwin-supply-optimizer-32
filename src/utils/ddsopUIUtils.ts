@@ -1,63 +1,67 @@
 
-import { ReactNode } from 'react';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
-import { TrendingDown, TrendingUp, Minus } from 'lucide-react';
+/**
+ * UI utility functions for DDSOP module
+ */
 
-export const StatusBadge = ({ status }: { status: string }) => {
-  const getStatusClass = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'critical':
-        return 'bg-red-100 text-red-800 border-red-300';
-      case 'high':
-        return 'bg-orange-100 text-orange-800 border-orange-300';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'low':
-        return 'bg-green-100 text-green-800 border-green-300';
-      case 'good':
-        return 'bg-green-100 text-green-800 border-green-300';
-      case 'warning':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'alert':
-        return 'bg-red-100 text-red-800 border-red-300';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-300';
-    }
-  };
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import React from "react";
 
+/**
+ * Format a number as percentage
+ */
+export const formatPercentage = (value: number): string => {
+  return `${(value * 100).toFixed(1)}%`;
+};
+
+/**
+ * Format a number as currency
+ */
+export const formatCurrency = (value: number): string => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value);
+};
+
+/**
+ * Render a variance badge with appropriate styling based on value
+ */
+export const renderVarianceBadge = (value: number) => {
+  const isNegative = value < 0;
+  const absValue = Math.abs(value);
+  const formattedValue = `${isNegative ? '-' : '+'}${formatPercentage(absValue)}`;
+  
+  let badgeVariant: "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "info" = "default";
+  
+  if (absValue >= 0.2) {
+    badgeVariant = isNegative ? "destructive" : "success";
+  } else if (absValue >= 0.1) {
+    badgeVariant = "warning";
+  } else {
+    badgeVariant = "info";
+  }
+  
   return (
-    <Badge 
-      variant="outline" 
-      className={cn(getStatusClass(status))}
-    >
-      {status}
+    <Badge variant={badgeVariant} className={cn("text-xs", isNegative && "opacity-90")}>
+      {formattedValue}
     </Badge>
   );
 };
 
-export const getStatusBadge = StatusBadge;
-
-export const getTrendIcon = (trend: 'up' | 'down' | 'neutral') => {
-  switch (trend) {
-    case 'up':
-      return <TrendingUp className="h-4 w-4 text-green-600" />;
-    case 'down':
-      return <TrendingDown className="h-4 w-4 text-red-600" />;
-    default:
-      return <Minus className="h-4 w-4 text-gray-600" />;
-  }
-};
-
-export const getImpactBadge = (impact: 'high' | 'medium' | 'low') => {
-  switch (impact) {
-    case 'high':
-      return <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300">High</Badge>;
-    case 'medium':
-      return <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300">Medium</Badge>;
-    case 'low':
-      return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">Low</Badge>;
-    default:
-      return <Badge variant="outline" className="bg-gray-100 text-gray-800 border-gray-300">Unknown</Badge>;
+/**
+ * Get status text based on variance
+ */
+export const getStatusFromVariance = (variance: number): string => {
+  const absVariance = Math.abs(variance);
+  
+  if (absVariance >= 0.2) {
+    return variance < 0 ? "Significant Underperformance" : "Significant Overperformance";
+  } else if (absVariance >= 0.1) {
+    return variance < 0 ? "Moderate Underperformance" : "Moderate Overperformance";
+  } else {
+    return "On Target";
   }
 };
