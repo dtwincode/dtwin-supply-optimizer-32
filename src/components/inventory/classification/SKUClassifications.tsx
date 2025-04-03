@@ -6,7 +6,7 @@ import { SKUCard } from "./SKUCard";
 import { fetchInventoryPlanningView } from "@/lib/inventory-planning.service";
 import { Button } from "@/components/ui/button";
 import { Download, RefreshCw } from "lucide-react";
-import { saveAs } from "file-saver";
+import saveAs from "file-saver";
 
 export function SKUClassifications() {
   const [classifications, setClassifications] = useState<any[]>([]);
