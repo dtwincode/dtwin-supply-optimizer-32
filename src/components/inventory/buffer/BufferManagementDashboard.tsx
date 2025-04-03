@@ -1,99 +1,109 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { ArrowDown, TrendingUp, Warehouse } from "lucide-react";
+import { Download, RefreshCw } from "lucide-react";
+import { fetchInventoryPlanningView } from "@/lib/inventory-planning.service";
+import { saveAs } from "file-saver";
 
-export default function BufferManagement() {
+interface BufferItem {
+  product_id: string;
+  location_id: string;
+  lead_time_days: number;
+  average_daily_usage: number;
+  demand_variability: number;
+  min_stock_level: number;
+  safety_stock: number;
+  max_stock_level: number;
+  buffer_profile_id: string;
+  decoupling_point: boolean;
+}
+
+const BufferManagementDashboard: React.FC = () => {
+  const [bufferData, setBufferData] = useState<BufferItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const loadBufferData = async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchInventoryPlanningView();
+      setBufferData(data as BufferItem[]);
+    } catch (error) {
+      console.error("Error fetching buffer data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadBufferData();
+  }, []);
+
+  const exportToCSV = () => {
+    const csvContent =
+      "Product ID,Location ID,Lead Time,Average Daily Usage,Demand Variability,Min Stock,Safety Stock,Max Stock,Profile,Decoupling\n" +
+      bufferData
+        .map((item) =>
+          [
+            item.product_id,
+            item.location_id,
+            item.lead_time_days,
+            item.average_daily_usage,
+            item.demand_variability,
+            item.min_stock_level,
+            item.safety_stock,
+            item.max_stock_level,
+            item.buffer_profile_id,
+            item.decoupling_point ? "Yes" : "No",
+          ].join(",")
+        )
+        .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    saveAs(blob, "buffer_zones.csv");
+  };
+
   return (
-    <div className="p-6 space-y-6">
-      <h2 className="text-2xl font-semibold">Buffer Management Dashboard</h2>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Buffer Zones Management</h2>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={loadBufferData} disabled={isLoading}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+          <Button variant="secondary" onClick={exportToCSV}>
+            <Download className="h-4 w-4 mr-2" />
+            Export CSV
+          </Button>
+        </div>
+      </div>
 
-      <Tabs defaultValue="overview" className="w-full">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="zones">Buffer Zones</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="shadow-md hover:shadow-lg transition">
-              <CardContent className="flex items-center justify-between p-4">
-                <div>
-                  <p className="text-sm text-gray-500">Total Products</p>
-                  <p className="text-lg font-bold">420</p>
-                </div>
-                <Warehouse className="text-gray-400" size={32} />
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+        {isLoading ? (
+          <p>Loading buffer data...</p>
+        ) : bufferData.length === 0 ? (
+          <p>No buffer data found.</p>
+        ) : (
+          bufferData.map((item) => (
+            <Card key={`${item.product_id}-${item.location_id}`} className="shadow-md hover:shadow-lg transition rounded-2xl">
+              <CardContent className="p-4 space-y-2">
+                <h3 className="text-lg font-semibold">SKU: {item.product_id}</h3>
+                <p className="text-sm">Location: {item.location_id}</p>
+                <p className="text-sm">Profile: {item.buffer_profile_id}</p>
+                <p className="text-sm">Lead Time: {item.lead_time_days} days</p>
+                <p className="text-sm">Min Stock: {item.min_stock_level}</p>
+                <p className="text-sm">Safety Stock: {item.safety_stock}</p>
+                <p className="text-sm">Max Stock: {item.max_stock_level}</p>
+                <p className="text-sm text-muted-foreground">
+                  Decoupling Point: {item.decoupling_point ? "Yes" : "No"}
+                </p>
               </CardContent>
             </Card>
-
-            <Card className="shadow-md hover:shadow-lg transition">
-              <CardContent className="flex items-center justify-between p-4">
-                <div>
-                  <p className="text-sm text-gray-500">Stockouts This Month</p>
-                  <p className="text-lg font-bold">8 Days</p>
-                </div>
-                <ArrowDown className="text-red-500" size={32} />
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-md hover:shadow-lg transition">
-              <CardContent className="flex items-center justify-between p-4">
-                <div>
-                  <p className="text-sm text-gray-500">Trend Factor</p>
-                  <p className="text-lg font-bold">1.3</p>
-                </div>
-                <TrendingUp className="text-green-500" size={32} />
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="zones">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="border-l-8 border-red-500">
-              <CardContent className="p-4">
-                <h3 className="text-lg font-semibold">Red Zone</h3>
-                <p className="text-sm text-gray-500">Safety Stock: 320 units</p>
-              </CardContent>
-            </Card>
-            <Card className="border-l-8 border-yellow-500">
-              <CardContent className="p-4">
-                <h3 className="text-lg font-semibold">Yellow Zone</h3>
-                <p className="text-sm text-gray-500">Trend Factor Applied</p>
-              </CardContent>
-            </Card>
-            <Card className="border-l-8 border-green-500">
-              <CardContent className="p-4">
-                <h3 className="text-lg font-semibold">Green Zone</h3>
-                <p className="text-sm text-gray-500">Performance Feedback Active</p>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="performance">
-          <div className="space-y-4">
-            <Card className="shadow-md">
-              <CardContent className="p-4">
-                <h3 className="text-lg font-semibold">Current Service Level</h3>
-                <p className="text-sm text-gray-500">98.7% (B2C)</p>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-md">
-              <CardContent className="p-4 flex justify-between items-center">
-                <div>
-                  <h3 className="text-lg font-semibold">Auto Performance Update</h3>
-                  <p className="text-sm text-gray-500">Scheduled Daily</p>
-                </div>
-                <Button>View Logs</Button>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
+          ))
+        )}
+      </div>
     </div>
   );
-}
+};
+
+export default BufferManagementDashboard;
