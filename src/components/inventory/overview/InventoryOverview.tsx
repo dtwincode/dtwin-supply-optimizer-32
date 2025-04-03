@@ -1,93 +1,98 @@
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useInventoryFilter } from "@/components/inventory/InventoryFilterContext";
+import { Card, CardContent } from "@/components/ui/card";
 import { fetchInventoryPlanningView } from "@/lib/inventory-planning.service";
 
-interface OverviewStats {
-  totalSKUs: number;
-  decouplingCount: number;
-  bufferProfileDistribution: { red: number; yellow: number; green: number };
+interface InventoryKPI {
+  average_daily_usage: number;
+  safety_stock: number;
+  min_stock_level: number;
+  max_stock_level: number;
+  green_zone: number;
 }
 
 export function InventoryOverview() {
-  const [stats, setStats] = useState<OverviewStats | null>(null);
+  const { filters } = useInventoryFilter();
+  const [kpiData, setKpiData] = useState<InventoryKPI | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const loadOverviewStats = async () => {
-    setIsLoading(true);
-    try {
-      const data = await fetchInventoryPlanningView();
-
-      const totalSKUs = data.length;
-      const decouplingCount = data.filter((item: any) => item.decoupling_point).length;
-      const profileCounts = {
-        red: data.filter((item: any) => item.buffer_profile_id === "BP001").length,
-        yellow: data.filter((item: any) => item.buffer_profile_id === "BP002").length,
-        green: data.filter((item: any) => item.buffer_profile_id === "BP003").length,
-      };
-
-      setStats({
-        totalSKUs,
-        decouplingCount,
-        bufferProfileDistribution: profileCounts,
-      });
-    } catch (error) {
-      console.error("Error loading overview stats:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
-    loadOverviewStats();
-  }, []);
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        const data = await fetchInventoryPlanningView();
 
-  if (isLoading || !stats) {
-    return <div className="p-4">Loading Overview...</div>;
+        // Apply filters dynamically
+        const filtered = data.filter((item: any) => {
+          if (filters.productCategory && item.category !== filters.productCategory) return false;
+          if (filters.locationId && item.location_id !== filters.locationId) return false;
+          if (filters.channelId && item.channel_id !== filters.channelId) return false;
+          if (filters.decouplingOnly && !item.decoupling_point) return false;
+          return true;
+        });
+
+        // Aggregate KPI calculation
+        const kpi: InventoryKPI = {
+          average_daily_usage: filtered.reduce((sum, item) => sum + (item.average_daily_usage || 0), 0),
+          safety_stock: filtered.reduce((sum, item) => sum + (item.safety_stock || 0), 0),
+          min_stock_level: filtered.reduce((sum, item) => sum + (item.min_stock_level || 0), 0),
+          max_stock_level: filtered.reduce((sum, item) => sum + (item.max_stock_level || 0), 0),
+          green_zone: filtered.reduce((sum, item) => sum + (item.green_zone || 0), 0),
+        };
+
+        setKpiData(kpi);
+      } catch (error) {
+        console.error("Error loading KPI data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, [filters]);
+
+  if (isLoading) {
+    return <div className="p-6">Loading KPIs...</div>;
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-      <Card className="shadow-md">
-        <CardHeader>
-          <CardTitle>Total SKUs</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-3xl font-bold">{stats.totalSKUs}</p>
-        </CardContent>
-      </Card>
-
-      <Card className="shadow-md">
-        <CardHeader>
-          <CardTitle>Decoupling Points</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-3xl font-bold">{stats.decouplingCount}</p>
-          <p className="text-sm text-muted-foreground">
-            {((stats.decouplingCount / stats.totalSKUs) * 100).toFixed(1)}% of total SKUs
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card className="shadow-md">
-        <CardHeader>
-          <CardTitle>Buffer Profile Distribution</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-1">
-          <p className="text-sm">🔴 Red (Low Variability): {stats.bufferProfileDistribution.red}</p>
-          <p className="text-sm">🟡 Yellow (Medium Variability): {stats.bufferProfileDistribution.yellow}</p>
-          <p className="text-sm">🟢 Green (High Variability): {stats.bufferProfileDistribution.green}</p>
-        </CardContent>
-      </Card>
-
-      <Card className="shadow-md">
-        <CardHeader>
-          <CardTitle>Service Level</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-3xl font-bold">Dynamic</p>
-          <p className="text-sm text-muted-foreground">To be calculated from Performance Table</p>
-        </CardContent>
-      </Card>
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      {kpiData ? (
+        <>
+          <Card>
+            <CardContent className="p-4">
+              <h4 className="font-semibold">Avg Daily Usage</h4>
+              <p className="text-lg">{kpiData.average_daily_usage.toFixed(2)}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <h4 className="font-semibold">Safety Stock</h4>
+              <p className="text-lg">{kpiData.safety_stock}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <h4 className="font-semibold">Min Stock</h4>
+              <p className="text-lg">{kpiData.min_stock_level}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <h4 className="font-semibold">Max Stock</h4>
+              <p className="text-lg">{kpiData.max_stock_level}</p>
+            </CardContent>
+          </Card>
+          <Card className="col-span-full">
+            <CardContent className="p-4">
+              <h4 className="font-semibold">Green Zone</h4>
+              <p className="text-lg">{kpiData.green_zone}</p>
+            </CardContent>
+          </Card>
+        </>
+      ) : (
+        <p className="col-span-full p-4">No KPI data available.</p>
+      )}
     </div>
   );
 }
