@@ -78,6 +78,21 @@ export type Database = {
         }
         Relationships: []
       }
+      buffer_config: {
+        Row: {
+          key: string
+          value: number | null
+        }
+        Insert: {
+          key: string
+          value?: number | null
+        }
+        Update: {
+          key?: string
+          value?: number | null
+        }
+        Relationships: []
+      }
       buffer_profile_override: {
         Row: {
           buffer_profile_id: string
@@ -146,6 +161,24 @@ export type Database = {
           updated_at?: string
           variability_category?: string | null
           variability_factor?: number | null
+        }
+        Relationships: []
+      }
+      channel_master: {
+        Row: {
+          channel_id: string
+          channel_name: string
+          description: string | null
+        }
+        Insert: {
+          channel_id: string
+          channel_name: string
+          description?: string | null
+        }
+        Update: {
+          channel_id?: string
+          channel_name?: string
+          description?: string | null
         }
         Relationships: []
       }
@@ -750,6 +783,7 @@ export type Database = {
           revenue: number
           sales_date: string
           sales_id: string
+          transaction_type: string | null
           unit_price: number | null
           updated_at: string | null
           vendor_id: string | null
@@ -762,6 +796,7 @@ export type Database = {
           revenue: number
           sales_date: string
           sales_id?: string
+          transaction_type?: string | null
           unit_price?: number | null
           updated_at?: string | null
           vendor_id?: string | null
@@ -774,6 +809,7 @@ export type Database = {
           revenue?: number
           sales_date?: string
           sales_id?: string
+          transaction_type?: string | null
           unit_price?: number | null
           updated_at?: string | null
           vendor_id?: string | null
@@ -1560,39 +1596,61 @@ export type Database = {
       }
       performance_tracking: {
         Row: {
+          channel_id: string | null
           created_at: string | null
           id: number
+          lead_time_factor: number | null
           location_id: string
           overstock_count: number | null
           period_month: string
           product_id: string
           service_level: number | null
           stockout_count: number | null
+          stockout_rate: number | null
+          trend_factor: number | null
+          turnover_rate: number | null
           updated_at: string | null
         }
         Insert: {
+          channel_id?: string | null
           created_at?: string | null
           id?: number
+          lead_time_factor?: number | null
           location_id: string
           overstock_count?: number | null
           period_month: string
           product_id: string
           service_level?: number | null
           stockout_count?: number | null
+          stockout_rate?: number | null
+          trend_factor?: number | null
+          turnover_rate?: number | null
           updated_at?: string | null
         }
         Update: {
+          channel_id?: string | null
           created_at?: string | null
           id?: number
+          lead_time_factor?: number | null
           location_id?: string
           overstock_count?: number | null
           period_month?: string
           product_id?: string
           service_level?: number | null
           stockout_count?: number | null
+          stockout_rate?: number | null
+          trend_factor?: number | null
+          turnover_rate?: number | null
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_channel"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channel_master"
+            referencedColumns: ["channel_id"]
+          },
           {
             foreignKeyName: "fk_location"
             columns: ["location_id"]
@@ -2348,16 +2406,30 @@ export type Database = {
         Row: {
           average_daily_usage: number | null
           buffer_profile_id: string | null
+          channel_id: string | null
           decoupling_point: boolean | null
           demand_variability: number | null
+          green_zone: number | null
           lead_time_days: number | null
+          lead_time_factor: number | null
           location_id: string | null
           max_stock_level: number | null
           min_stock_level: number | null
           product_id: string | null
           safety_stock: number | null
+          stockout_rate: number | null
+          trend_factor: number | null
+          turnover_rate: number | null
+          yellow_zone: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_channel"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channel_master"
+            referencedColumns: ["channel_id"]
+          },
           {
             foreignKeyName: "fk_location"
             columns: ["location_id"]
@@ -2455,6 +2527,10 @@ export type Database = {
           p_table_name: string
           p_selected_columns: string[]
         }
+        Returns: undefined
+      }
+      update_performance_tracking: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
       update_threshold_bayesian: {

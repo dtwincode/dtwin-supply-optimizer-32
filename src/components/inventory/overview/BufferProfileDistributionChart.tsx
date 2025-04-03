@@ -1,8 +1,12 @@
+
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { fetchInventoryPlanningView } from "@/lib/inventory-planning.service";
 import { useInventoryFilter } from "@/components/inventory/InventoryFilterContext";
+import { RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const COLORS = ["#EF4444", "#F59E0B", "#10B981"];
 
@@ -11,53 +15,70 @@ export function BufferProfileDistributionChart() {
   const [profileData, setProfileData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  const loadProfileData = async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchInventoryPlanningView();
+
+      const filtered = data.filter((item: any) => {
+        if (filters.productCategory && item.category !== filters.productCategory) return false;
+        if (filters.locationId && item.location_id !== filters.locationId) return false;
+        if (filters.channelId && item.channel_id !== filters.channelId) return false;
+        if (filters.decouplingOnly && !item.decoupling_point) return false;
+        return true;
+      });
+
+      const counts: Record<string, number> = {
+        BP001: 0,
+        BP002: 0,
+        BP003: 0,
+      };
+
+      filtered.forEach((item: any) => {
+        if (item.buffer_profile_id) {
+          counts[item.buffer_profile_id] = (counts[item.buffer_profile_id] || 0) + 1;
+        }
+      });
+
+      setProfileData([
+        { name: "Low Variability (BP001)", value: counts.BP001 },
+        { name: "Medium Variability (BP002)", value: counts.BP002 },
+        { name: "High Variability (BP003)", value: counts.BP003 },
+      ]);
+      
+      toast.success("Chart data refreshed");
+    } catch (error) {
+      console.error("Error loading buffer profile data:", error);
+      toast.error("Failed to refresh chart data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const loadProfileData = async () => {
-      setIsLoading(true);
-      try {
-        const data = await fetchInventoryPlanningView();
-
-        const filtered = data.filter((item: any) => {
-          if (filters.productCategory && item.category !== filters.productCategory) return false;
-          if (filters.locationId && item.location_id !== filters.locationId) return false;
-          if (filters.channelId && item.channel_id !== filters.channelId) return false;
-          if (filters.decouplingOnly && !item.decoupling_point) return false;
-          return true;
-        });
-
-        const counts: Record<string, number> = {
-          BP001: 0,
-          BP002: 0,
-          BP003: 0,
-        };
-
-        filtered.forEach((item: any) => {
-          counts[item.buffer_profile_id] += 1;
-        });
-
-        setProfileData([
-          { name: "Low Variability (BP001)", value: counts.BP001 },
-          { name: "Medium Variability (BP002)", value: counts.BP002 },
-          { name: "High Variability (BP003)", value: counts.BP003 },
-        ]);
-      } catch (error) {
-        console.error("Error loading buffer profile data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     loadProfileData();
   }, [filters]);
 
+  const handleRefresh = () => {
+    loadProfileData();
+  };
+
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle>Buffer Profile Distribution</CardTitle>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={handleRefresh} 
+          disabled={isLoading}
+        >
+          <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
+        </Button>
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <p className="p-4">Loading...</p>
+          <p className="p-4 text-center">Loading...</p>
         ) : (
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
