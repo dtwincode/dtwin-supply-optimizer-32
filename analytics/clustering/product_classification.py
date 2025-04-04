@@ -37,9 +37,9 @@ def fetch_all_data():
     print(f"✅ Total fetched: {len(all_rows)} rows")
     return pd.DataFrame(all_rows)
 
-# === Step 2: Classify Products with K-Means ===
+# === Step 2: Classify Products with K-Means and ABC Labels ===
 def classify_products(df):
-    """Apply K-Means Clustering and assign classification labels (Green, Yellow, Red)."""
+    """Apply K-Means Clustering and assign classification labels (A, B, C)."""
     if df.empty:
         print("⚠️ No data to classify.")
         return df
@@ -50,21 +50,21 @@ def classify_products(df):
     df['cluster_id'] = kmeans.fit_predict(features)
 
     centroids = kmeans.cluster_centers_
-    risk_scores = [np.sum(c) for c in centroids]
-    sorted_clusters = np.argsort(risk_scores)
+    risk_scores = [np.sum(c) for c in centroids]  # higher sum = higher importance
+    sorted_clusters = np.argsort(risk_scores)[::-1]  # sort high → low
 
-    color_map = ['Green', 'Yellow', 'Red']
-    cluster_to_label = {cluster_id: color_map[idx] for idx, cluster_id in enumerate(sorted_clusters)}
+    label_map = ['A', 'B', 'C']  # A = highest priority
+    cluster_to_label = {cluster_id: label_map[idx] for idx, cluster_id in enumerate(sorted_clusters)}
     df['classification_label'] = df['cluster_id'].map(cluster_to_label)
 
-    df['lead_time_category'] = 'Normal'
+    df['lead_time_category'] = 'Normal'  # placeholder if no real lead time category
     df['variability_level'] = pd.cut(df['demand_variability'],
                                      bins=[-1, 0.3, 0.6, float('inf')],
                                      labels=['Low', 'Medium', 'High'])
     df['criticality'] = df['classification_label'].map({
-        'Red': 'High',
-        'Yellow': 'Medium',
-        'Green': 'Low'
+        'A': 'High',
+        'B': 'Medium',
+        'C': 'Low'
     })
     df['score'] = df['average_daily_usage'].rank(ascending=False).astype(int)
 
@@ -78,7 +78,7 @@ def store_classification(df):
         return
 
     try:
-        # Optional: clear existing records
+        # Optional: clear old records
         supabase.table('product_classification').delete().neq('product_id', '').execute()
         print("🗑️ Old classification records cleared.")
 
@@ -100,13 +100,13 @@ def main():
         print("⚠️ No data fetched, exiting.")
         return
 
-    print("🚀 Running K-Means classification...")
+    print("🚀 Running K-Means classification (ABC)...")
     classified_df = classify_products(df)
 
-    print("💾 Storing classification results...")
+    print("💾 Storing classification results to Supabase...")
     store_classification(classified_df)
 
-    print("🎯 Classification completed.")
+    print("🎯 Classification completed successfully.")
 
 if __name__ == "__main__":
     main()
