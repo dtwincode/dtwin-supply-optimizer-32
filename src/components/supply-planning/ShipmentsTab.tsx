@@ -66,6 +66,7 @@ import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Shipment, ShipmentItem, ShipmentItemInput } from "@/types/inventory"
 
 const formSchema = z.object({
   order_id: z.string().min(2, {
@@ -120,12 +121,41 @@ const data = [
   },
 ];
 
-const ShipmentsTab = () => {
+// Dummy shipment data for initializing state
+const initialShipments: Shipment[] = [
+  {
+    id: "ship-1",
+    shipmentNumber: "SH-1001",
+    status: "planned",
+    origin: "Warehouse A",
+    destination: "Store 1",
+    carrier: "Express Shipping",
+    trackingNumber: "TRK123456",
+    expectedDeliveryDate: "2024-07-15",
+    items: [
+      {
+        id: "item-1",
+        sku: "SKU001",
+        name: "Product 1",
+        quantity: 5,
+        unitOfMeasure: "EA"
+      }
+    ],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  }
+];
+
+export const ShipmentsTab = () => {
   const [isShipping, setIsShipping] = useState(false);
   const { processTransaction, loading } = useInventoryTransaction();
   const { toast } = useToast()
   const [orders, setOrders] = useState(data);
   const [open, setOpen] = React.useState(false)
+  const [isCreating, setIsCreating] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [activeShipment, setActiveShipment] = useState<Shipment | null>(null);
+  const [shipments, setShipments] = useState<Shipment[]>(initialShipments);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -145,13 +175,13 @@ const ShipmentsTab = () => {
     setIsShipping(true);
     
     try {
-      // We need to fix this call to use product_id instead of sku
       const success = await processTransaction({
-        product_id: order.product_id, // Changed from sku to product_id
+        type: 'shipment',
+        sku: order.product_id,
         quantity: parseInt(order.quantity),
-        transactionType: 'outbound',
-        referenceId: order.order_id,
-        referenceType: 'sales_order',
+        location: 'default',
+        reference: order.order_id,
+        userId: 'current-user',
         notes: `Shipped order: ${order.order_id}`
       });
     
@@ -176,6 +206,66 @@ const ShipmentsTab = () => {
       });
     } finally {
       setIsShipping(false);
+    }
+  };
+
+  const createNewShipment = async (data: Omit<Shipment, 'id' | 'createdAt' | 'updatedAt' | 'items'> & { items: ShipmentItemInput[] }) => {
+    try {
+      setIsCreating(true);
+      
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const newShipment: Shipment = {
+        id: `ship-${Date.now()}`,
+        shipmentNumber: `SH-${Math.floor(Math.random() * 10000)}`,
+        status: data.status,
+        origin: data.origin,
+        destination: data.destination,
+        carrier: data.carrier,
+        trackingNumber: data.trackingNumber,
+        expectedDeliveryDate: data.expectedDeliveryDate,
+        actualDeliveryDate: data.actualDeliveryDate,
+        items: data.items.map(item => ({
+          id: `item-${Date.now()}-${Math.random()}`,
+          sku: item.sku,
+          name: item.name,
+          quantity: item.quantity,
+          unitOfMeasure: item.unitOfMeasure
+        })),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      for (const item of newShipment.items) {
+        const transaction = {
+          type: 'shipment' as const,
+          sku: item.sku,
+          quantity: item.quantity,
+          location: data.origin,
+          reference: newShipment.shipmentNumber,
+          userId: 'current-user'
+        };
+        
+        await processTransaction(transaction);
+      }
+      
+      setShipments([newShipment, ...shipments]);
+      setActiveShipment(newShipment);
+      setIsCreating(false);
+      setShowCreateDialog(false);
+      
+      toast({
+        title: "Shipment Created",
+        description: `Shipment ${newShipment.shipmentNumber} has been created successfully.`,
+      });
+    } catch (error) {
+      console.error("Error creating shipment:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create shipment. Please try again.",
+        variant: "destructive"
+      });
+      setIsCreating(false);
     }
   };
 

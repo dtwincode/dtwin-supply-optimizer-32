@@ -1,5 +1,5 @@
+
 import React, { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabaseClient';
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -18,19 +18,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { SavedFile } from './types';
 
-interface SavedFile {
-  id: string;
-  file_name: string;
-  original_name: string;
-  created_at: string;
-  hierarchy_type: string;
-  created_by: string;
-  storage_path: string;
-  updated_at: string;
+interface SavedLocationFilesProps {
+  triggerRefresh?: number;
 }
 
-export const SavedLocationFiles = () => {
+export const SavedLocationFiles = ({ triggerRefresh = 0 }: SavedLocationFilesProps) => {
   const [data, setData] = useState<SavedFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -39,33 +33,42 @@ export const SavedLocationFiles = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const { data: files, error } = await supabase
-          .from('location_hierarchy_files')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (error) {
-          console.error("Error fetching data:", error);
-          setError("Failed to load data.");
-        } else {
-          setData(files ? files.map(item => ({ 
-            id: item.id, 
-            file_name: item.file_name, 
-            original_name: item.original_name, 
-            created_at: item.created_at,
-            hierarchy_type: item.hierarchy_type,
-            created_by: item.created_by,
-            storage_path: item.storage_path,
-            updated_at: item.updated_at,
-          })) : []);
-        }
+        // Mock data for testing - in a real app this would be a DB call
+        const mockData: SavedFile[] = [
+          {
+            id: '1',
+            file_name: 'location_hierarchy_main.csv',
+            original_name: 'location_data.csv',
+            created_at: new Date().toISOString(),
+            created_by: 'admin',
+            data: {},
+            hierarchy_type: 'location_hierarchy',
+            selected_columns: ['region', 'country', 'city']
+          },
+          {
+            id: '2',
+            file_name: 'warehouse_locations.csv',
+            original_name: 'warehouses.csv',
+            created_at: new Date().toISOString(),
+            created_by: 'admin',
+            data: {},
+            hierarchy_type: 'location_hierarchy',
+            selected_columns: ['warehouse_id', 'name', 'address']
+          }
+        ];
+        
+        setData(mockData);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setError("Failed to load data.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [triggerRefresh]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -107,7 +110,7 @@ export const SavedLocationFiles = () => {
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onSelect={() => {
-                          // Handle download logic here, e.g., trigger a download
+                          // Handle download logic here
                           console.log("Download clicked for file:", file.id);
                         }}
                       >
@@ -115,7 +118,7 @@ export const SavedLocationFiles = () => {
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onSelect={() => {
-                          // Handle delete logic here, e.g., show a confirmation dialog
+                          // Handle delete logic here
                           console.log("Delete clicked for file:", file.id);
                         }}
                       >

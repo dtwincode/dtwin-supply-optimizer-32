@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from scipy import stats
 from supabase import create_client, Client
+<<<<<<< HEAD
 from dotenv import load_dotenv
 import os
 import logging
@@ -27,6 +28,21 @@ def fetch_sales_data():
     return pd.DataFrame(response.data)
 
 # === Step 3: Detect best distribution ===
+=======
+
+# === Supabase Credentials ===
+SUPABASE_URL = "https://mttzjxktvbsixjaqiuxq.supabase.co"
+SUPABASE_SERVICE_KEY = "YOUR_SERVICE_KEY"
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+
+# === Step 1: Fetch historical sales data ===
+def fetch_sales_data():
+    response = supabase.table('historical_sales_data').select('product_id, location_id, quantity_sold').execute()
+    data = response.data
+    return pd.DataFrame(data)
+
+# === Step 2: Fit and detect distribution ===
+>>>>>>> def869ae182592ea12e2ad10b1cc222d66aefe1e
 def detect_distribution(sales):
     distributions = ['norm', 'lognorm', 'gamma', 'beta']
     best_fit = None
@@ -45,7 +61,11 @@ def detect_distribution(sales):
 
     return best_fit
 
+<<<<<<< HEAD
 # === Step 4: Store results ===
+=======
+# === Step 3: Store results in Supabase ===
+>>>>>>> def869ae182592ea12e2ad10b1cc222d66aefe1e
 def store_profile(product_id, location_id, distribution, params):
     supabase.table('demand_distribution_profile').upsert({
         'product_id': product_id,
@@ -55,6 +75,7 @@ def store_profile(product_id, location_id, distribution, params):
         'param2': params[1] if len(params) > 1 else None
     }).execute()
 
+<<<<<<< HEAD
 # === Main Function ===
 def main():
     logging.info("Fetching active demand nodes...")
@@ -78,11 +99,22 @@ def main():
         if np.any(sales <= 0):
             logging.info(f"🚫 Skipping {product_id} @ {location_id} → Contains zero or negative sales")
             continue
+=======
+def main():
+    df = fetch_sales_data()
+    grouped = df.groupby(['product_id', 'location_id'])
+
+    for (product_id, location_id), group in grouped:
+        sales = group['quantity_sold'].dropna().values
+        if len(sales) < 5:
+            continue  # Skip small samples
+>>>>>>> def869ae182592ea12e2ad10b1cc222d66aefe1e
 
         best_fit = detect_distribution(sales)
         if best_fit:
             dist_name, params = best_fit
             store_profile(product_id, location_id, dist_name, params)
+<<<<<<< HEAD
             logging.info(f"✅ Inserted {product_id} @ {location_id} → {dist_name}")
             total_inserted += 1
         else:
@@ -92,3 +124,9 @@ def main():
 
 if __name__ == "__main__":
     main()
+=======
+            print(f"✅ {product_id} @ {location_id} → {dist_name}")
+
+if __name__ == "__main__":
+    main()
+>>>>>>> def869ae182592ea12e2ad10b1cc222d66aefe1e
