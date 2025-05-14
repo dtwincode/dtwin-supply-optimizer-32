@@ -1,0 +1,354 @@
+﻿[
+    {
+        "name":  ".env",
+        "path":  ".env",
+        "sha":  "a8a7f12bcdb3d4c7555d4f1d9eaadf8f0508afeb",
+        "size":  601,
+        "url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/.env?ref=main",
+        "html_url":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/.env",
+        "git_url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/a8a7f12bcdb3d4c7555d4f1d9eaadf8f0508afeb",
+        "download_url":  "https://raw.githubusercontent.com/dtwincode/dtwin-supply-optimizer-32/main/.env?token=BPSAYNZZU7Y6E6P7LSKQM6TH5UKQ2",
+        "type":  "file",
+        "_links":  {
+                       "self":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/.env?ref=main",
+                       "git":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/a8a7f12bcdb3d4c7555d4f1d9eaadf8f0508afeb",
+                       "html":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/.env"
+                   }
+    },
+    {
+        "name":  ".gitignore",
+        "path":  ".gitignore",
+        "sha":  "a547bf36d8d11a4f89c59c144f24795749086dd1",
+        "size":  253,
+        "url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/.gitignore?ref=main",
+        "html_url":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/.gitignore",
+        "git_url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/a547bf36d8d11a4f89c59c144f24795749086dd1",
+        "download_url":  "https://raw.githubusercontent.com/dtwincode/dtwin-supply-optimizer-32/main/.gitignore?token=BPSAYN4MZTLQUDKBY4WRNIDH5UKQ2",
+        "type":  "file",
+        "_links":  {
+                       "self":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/.gitignore?ref=main",
+                       "git":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/a547bf36d8d11a4f89c59c144f24795749086dd1",
+                       "html":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/.gitignore"
+                   }
+    },
+    {
+        "name":  "README.md",
+        "path":  "README.md",
+        "sha":  "001c2ffc79f6ebf1e67aa6accef62bae2bfda81d",
+        "size":  2159,
+        "url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/README.md?ref=main",
+        "html_url":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/README.md",
+        "git_url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/001c2ffc79f6ebf1e67aa6accef62bae2bfda81d",
+        "download_url":  "https://raw.githubusercontent.com/dtwincode/dtwin-supply-optimizer-32/main/README.md?token=BPSAYN47Y44PUZQCRK4V2FLH5UKQ2",
+        "type":  "file",
+        "_links":  {
+                       "self":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/README.md?ref=main",
+                       "git":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/001c2ffc79f6ebf1e67aa6accef62bae2bfda81d",
+                       "html":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/README.md"
+                   }
+    },
+    {
+        "name":  "analytics",
+        "path":  "analytics",
+        "sha":  "4085946e94e95a076556f112b13d4dbfdd1fb807",
+        "size":  0,
+        "url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/analytics?ref=main",
+        "html_url":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/tree/main/analytics",
+        "git_url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/trees/4085946e94e95a076556f112b13d4dbfdd1fb807",
+        "download_url":  null,
+        "type":  "dir",
+        "_links":  {
+                       "self":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/analytics?ref=main",
+                       "git":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/trees/4085946e94e95a076556f112b13d4dbfdd1fb807",
+                       "html":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/tree/main/analytics"
+                   }
+    },
+    {
+        "name":  "bun.lockb",
+        "path":  "bun.lockb",
+        "sha":  "c37fa2031ff80c3cd7819148426939901923d2e1",
+        "size":  187199,
+        "url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/bun.lockb?ref=main",
+        "html_url":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/bun.lockb",
+        "git_url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/c37fa2031ff80c3cd7819148426939901923d2e1",
+        "download_url":  "https://raw.githubusercontent.com/dtwincode/dtwin-supply-optimizer-32/main/bun.lockb?token=BPSAYN5PD3SDJIXXIG2AFYDH5UKQ2",
+        "type":  "file",
+        "_links":  {
+                       "self":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/bun.lockb?ref=main",
+                       "git":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/c37fa2031ff80c3cd7819148426939901923d2e1",
+                       "html":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/bun.lockb"
+                   }
+    },
+    {
+        "name":  "components.json",
+        "path":  "components.json",
+        "sha":  "f29e3f1610677762f3d97aaefc9ce40a9d410948",
+        "size":  413,
+        "url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/components.json?ref=main",
+        "html_url":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/components.json",
+        "git_url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/f29e3f1610677762f3d97aaefc9ce40a9d410948",
+        "download_url":  "https://raw.githubusercontent.com/dtwincode/dtwin-supply-optimizer-32/main/components.json?token=BPSAYN2IWDVI77KOKDSFAFDH5UKQ2",
+        "type":  "file",
+        "_links":  {
+                       "self":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/components.json?ref=main",
+                       "git":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/f29e3f1610677762f3d97aaefc9ce40a9d410948",
+                       "html":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/components.json"
+                   }
+    },
+    {
+        "name":  "eslint.config.js",
+        "path":  "eslint.config.js",
+        "sha":  "e67846f70fbbe40407fc84875913595ab31c4a47",
+        "size":  789,
+        "url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/eslint.config.js?ref=main",
+        "html_url":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/eslint.config.js",
+        "git_url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/e67846f70fbbe40407fc84875913595ab31c4a47",
+        "download_url":  "https://raw.githubusercontent.com/dtwincode/dtwin-supply-optimizer-32/main/eslint.config.js?token=BPSAYN27VZ337EHTAZJ7NPLH5UKQ2",
+        "type":  "file",
+        "_links":  {
+                       "self":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/eslint.config.js?ref=main",
+                       "git":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/e67846f70fbbe40407fc84875913595ab31c4a47",
+                       "html":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/eslint.config.js"
+                   }
+    },
+    {
+        "name":  "index.html",
+        "path":  "index.html",
+        "sha":  "67f549b1a9805c75f6ebaa53ab6b1ceae6c6983f",
+        "size":  697,
+        "url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/index.html?ref=main",
+        "html_url":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/index.html",
+        "git_url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/67f549b1a9805c75f6ebaa53ab6b1ceae6c6983f",
+        "download_url":  "https://raw.githubusercontent.com/dtwincode/dtwin-supply-optimizer-32/main/index.html?token=BPSAYNYAEA7LYXNRQKU7B53H5UKQ2",
+        "type":  "file",
+        "_links":  {
+                       "self":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/index.html?ref=main",
+                       "git":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/67f549b1a9805c75f6ebaa53ab6b1ceae6c6983f",
+                       "html":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/index.html"
+                   }
+    },
+    {
+        "name":  "package-lock.json",
+        "path":  "package-lock.json",
+        "sha":  "1458102f262d9c616d19e60007aec354d46614c1",
+        "size":  750760,
+        "url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/package-lock.json?ref=main",
+        "html_url":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/package-lock.json",
+        "git_url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/1458102f262d9c616d19e60007aec354d46614c1",
+        "download_url":  "https://raw.githubusercontent.com/dtwincode/dtwin-supply-optimizer-32/main/package-lock.json?token=BPSAYN45VWJFVLRZGPAZ2DLH5UKQ2",
+        "type":  "file",
+        "_links":  {
+                       "self":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/package-lock.json?ref=main",
+                       "git":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/1458102f262d9c616d19e60007aec354d46614c1",
+                       "html":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/package-lock.json"
+                   }
+    },
+    {
+        "name":  "package.json",
+        "path":  "package.json",
+        "sha":  "d8e704e107df9da95de2ffca80d297316ecdd2f6",
+        "size":  3149,
+        "url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/package.json?ref=main",
+        "html_url":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/package.json",
+        "git_url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/d8e704e107df9da95de2ffca80d297316ecdd2f6",
+        "download_url":  "https://raw.githubusercontent.com/dtwincode/dtwin-supply-optimizer-32/main/package.json?token=BPSAYN5A4FGYZ7WXWSIPOP3H5UKQ2",
+        "type":  "file",
+        "_links":  {
+                       "self":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/package.json?ref=main",
+                       "git":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/d8e704e107df9da95de2ffca80d297316ecdd2f6",
+                       "html":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/package.json"
+                   }
+    },
+    {
+        "name":  "pnpm-lock.yaml",
+        "path":  "pnpm-lock.yaml",
+        "sha":  "2be06c20b9567aa20b0e706b5f043e7bf0d95cff",
+        "size":  555381,
+        "url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/pnpm-lock.yaml?ref=main",
+        "html_url":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/pnpm-lock.yaml",
+        "git_url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/2be06c20b9567aa20b0e706b5f043e7bf0d95cff",
+        "download_url":  "https://raw.githubusercontent.com/dtwincode/dtwin-supply-optimizer-32/main/pnpm-lock.yaml?token=BPSAYN6ZE7MWI5HHRUN4FNTH5UKQ2",
+        "type":  "file",
+        "_links":  {
+                       "self":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/pnpm-lock.yaml?ref=main",
+                       "git":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/2be06c20b9567aa20b0e706b5f043e7bf0d95cff",
+                       "html":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/pnpm-lock.yaml"
+                   }
+    },
+    {
+        "name":  "postcss.config.js",
+        "path":  "postcss.config.js",
+        "sha":  "2e7af2b7f1a6f391da1631d93968a9d487ba977d",
+        "size":  80,
+        "url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/postcss.config.js?ref=main",
+        "html_url":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/postcss.config.js",
+        "git_url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/2e7af2b7f1a6f391da1631d93968a9d487ba977d",
+        "download_url":  "https://raw.githubusercontent.com/dtwincode/dtwin-supply-optimizer-32/main/postcss.config.js?token=BPSAYNZNT3LWTRC2SNW4DOLH5UKQ2",
+        "type":  "file",
+        "_links":  {
+                       "self":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/postcss.config.js?ref=main",
+                       "git":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/2e7af2b7f1a6f391da1631d93968a9d487ba977d",
+                       "html":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/postcss.config.js"
+                   }
+    },
+    {
+        "name":  "public",
+        "path":  "public",
+        "sha":  "a782f14ac1fc9b4af551212b46736bca15a90a97",
+        "size":  0,
+        "url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/public?ref=main",
+        "html_url":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/tree/main/public",
+        "git_url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/trees/a782f14ac1fc9b4af551212b46736bca15a90a97",
+        "download_url":  null,
+        "type":  "dir",
+        "_links":  {
+                       "self":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/public?ref=main",
+                       "git":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/trees/a782f14ac1fc9b4af551212b46736bca15a90a97",
+                       "html":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/tree/main/public"
+                   }
+    },
+    {
+        "name":  "src",
+        "path":  "src",
+        "sha":  "26165b1298cb9067b80b701969fe9883190a81de",
+        "size":  0,
+        "url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/src?ref=main",
+        "html_url":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/tree/main/src",
+        "git_url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/trees/26165b1298cb9067b80b701969fe9883190a81de",
+        "download_url":  null,
+        "type":  "dir",
+        "_links":  {
+                       "self":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/src?ref=main",
+                       "git":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/trees/26165b1298cb9067b80b701969fe9883190a81de",
+                       "html":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/tree/main/src"
+                   }
+    },
+    {
+        "name":  "supabase",
+        "path":  "supabase",
+        "sha":  "6561de1cdc782c05738808cdd62efc65c4136dc6",
+        "size":  0,
+        "url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/supabase?ref=main",
+        "html_url":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/tree/main/supabase",
+        "git_url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/trees/6561de1cdc782c05738808cdd62efc65c4136dc6",
+        "download_url":  null,
+        "type":  "dir",
+        "_links":  {
+                       "self":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/supabase?ref=main",
+                       "git":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/trees/6561de1cdc782c05738808cdd62efc65c4136dc6",
+                       "html":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/tree/main/supabase"
+                   }
+    },
+    {
+        "name":  "tailwind.config.ts",
+        "path":  "tailwind.config.ts",
+        "sha":  "736832a8f6b20a4e64eebfbd3c3756b9b5b9043c",
+        "size":  2677,
+        "url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/tailwind.config.ts?ref=main",
+        "html_url":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/tailwind.config.ts",
+        "git_url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/736832a8f6b20a4e64eebfbd3c3756b9b5b9043c",
+        "download_url":  "https://raw.githubusercontent.com/dtwincode/dtwin-supply-optimizer-32/main/tailwind.config.ts?token=BPSAYN3XW4DJJQFWORWRLVTH5UKQ2",
+        "type":  "file",
+        "_links":  {
+                       "self":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/tailwind.config.ts?ref=main",
+                       "git":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/736832a8f6b20a4e64eebfbd3c3756b9b5b9043c",
+                       "html":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/tailwind.config.ts"
+                   }
+    },
+    {
+        "name":  "tsconfig.app.json",
+        "path":  "tsconfig.app.json",
+        "sha":  "0b0e43e6bc8079ff97d899dddb025d5b09f20ee2",
+        "size":  652,
+        "url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/tsconfig.app.json?ref=main",
+        "html_url":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/tsconfig.app.json",
+        "git_url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/0b0e43e6bc8079ff97d899dddb025d5b09f20ee2",
+        "download_url":  "https://raw.githubusercontent.com/dtwincode/dtwin-supply-optimizer-32/main/tsconfig.app.json?token=BPSAYN4GE2EPYE5YBNBP3TLH5UKQ2",
+        "type":  "file",
+        "_links":  {
+                       "self":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/tsconfig.app.json?ref=main",
+                       "git":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/0b0e43e6bc8079ff97d899dddb025d5b09f20ee2",
+                       "html":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/tsconfig.app.json"
+                   }
+    },
+    {
+        "name":  "tsconfig.json",
+        "path":  "tsconfig.json",
+        "sha":  "129b1a30fdbe84d753a2526f13a20e0857f420ba",
+        "size":  381,
+        "url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/tsconfig.json?ref=main",
+        "html_url":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/tsconfig.json",
+        "git_url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/129b1a30fdbe84d753a2526f13a20e0857f420ba",
+        "download_url":  "https://raw.githubusercontent.com/dtwincode/dtwin-supply-optimizer-32/main/tsconfig.json?token=BPSAYN6FMQPXDWYROTPESD3H5UKQ2",
+        "type":  "file",
+        "_links":  {
+                       "self":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/tsconfig.json?ref=main",
+                       "git":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/129b1a30fdbe84d753a2526f13a20e0857f420ba",
+                       "html":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/tsconfig.json"
+                   }
+    },
+    {
+        "name":  "tsconfig.node.json",
+        "path":  "tsconfig.node.json",
+        "sha":  "3133162c20350e1741b94b8d2ff77b811bec8363",
+        "size":  481,
+        "url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/tsconfig.node.json?ref=main",
+        "html_url":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/tsconfig.node.json",
+        "git_url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/3133162c20350e1741b94b8d2ff77b811bec8363",
+        "download_url":  "https://raw.githubusercontent.com/dtwincode/dtwin-supply-optimizer-32/main/tsconfig.node.json?token=BPSAYN45CIQ4B3ELDHINWMTH5UKQ2",
+        "type":  "file",
+        "_links":  {
+                       "self":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/tsconfig.node.json?ref=main",
+                       "git":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/3133162c20350e1741b94b8d2ff77b811bec8363",
+                       "html":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/tsconfig.node.json"
+                   }
+    },
+    {
+        "name":  "vercel.json",
+        "path":  "vercel.json",
+        "sha":  "bd3f7c0e2c4da3d87b7324f664262a6bfb59d5f9",
+        "size":  81,
+        "url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/vercel.json?ref=main",
+        "html_url":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/vercel.json",
+        "git_url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/bd3f7c0e2c4da3d87b7324f664262a6bfb59d5f9",
+        "download_url":  "https://raw.githubusercontent.com/dtwincode/dtwin-supply-optimizer-32/main/vercel.json?token=BPSAYN37J66RLFU4MCGPVQ3H5UKQ2",
+        "type":  "file",
+        "_links":  {
+                       "self":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/vercel.json?ref=main",
+                       "git":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/bd3f7c0e2c4da3d87b7324f664262a6bfb59d5f9",
+                       "html":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/vercel.json"
+                   }
+    },
+    {
+        "name":  "vite.config.ts",
+        "path":  "vite.config.ts",
+        "sha":  "a2de84d4912341efb4c21dc86fecf6a91dbeb58f",
+        "size":  725,
+        "url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/vite.config.ts?ref=main",
+        "html_url":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/vite.config.ts",
+        "git_url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/a2de84d4912341efb4c21dc86fecf6a91dbeb58f",
+        "download_url":  "https://raw.githubusercontent.com/dtwincode/dtwin-supply-optimizer-32/main/vite.config.ts?token=BPSAYN2PJ3H6QYT2JKUGOY3H5UKQ2",
+        "type":  "file",
+        "_links":  {
+                       "self":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/vite.config.ts?ref=main",
+                       "git":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/blobs/a2de84d4912341efb4c21dc86fecf6a91dbeb58f",
+                       "html":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/blob/main/vite.config.ts"
+                   }
+    },
+    {
+        "name":  "workflows",
+        "path":  "workflows",
+        "sha":  "b9f1b0bf556b524ed832afba7c90bc2721d976ec",
+        "size":  0,
+        "url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/workflows?ref=main",
+        "html_url":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/tree/main/workflows",
+        "git_url":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/trees/b9f1b0bf556b524ed832afba7c90bc2721d976ec",
+        "download_url":  null,
+        "type":  "dir",
+        "_links":  {
+                       "self":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/contents/workflows?ref=main",
+                       "git":  "https://api.github.com/repos/dtwincode/dtwin-supply-optimizer-32/git/trees/b9f1b0bf556b524ed832afba7c90bc2721d976ec",
+                       "html":  "https://github.com/dtwincode/dtwin-supply-optimizer-32/tree/main/workflows"
+                   }
+    }
+]

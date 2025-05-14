@@ -1,33 +1,61 @@
 import pandas as pd
 import numpy as np
 from supabase import create_client, Client
+from dotenv import load_dotenv
+import os
 import uuid
 from datetime import datetime
 
-# --- Supabase Credentials ---
-SUPABASE_URL = "https://mttzjxktvbsixjaqiuxq.supabase.co"
-SUPABASE_SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im10dHpqeGt0dmJzaXhqYXFpdXhxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczOTE2OTg0MSwiZXhwIjoyMDU0NzQ1ODQxfQ.xkL_emVJCkz3tWu75ad4x56aoOPJKHLLkr7SImBZuUc"
+# === Load environment variables ===
+load_dotenv()
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
-# --- Parameters ---
 NUM_SIMULATIONS = 1000
 
-# --- Functions ---
+# === Step 1: Fetch Active Demand Nodes ===
+def fetch_demand_nodes():
+    """Fetch valid demand nodes from active_demand_nodes."""
+    response = supabase.table('active_demand_nodes').select('product_id, location_id').execute()
+    return pd.DataFrame(response.data)
 
+# === Step 2: Fetch Demand Variability & Lead Time ===
 def fetch_demand_data():
-    """Fetch product demand variability & lead time."""
-    response = supabase.table('inventory_demand_variability').select('product_id, location_id, demand_variability, lead_time_days').execute()
-    data = response.data
-    return pd.DataFrame(data)
+    """Fetch demand variability and lead time data."""
+    nodes = fetch_demand_nodes()
+    if nodes.empty:
+        print("⚠️ No active demand nodes found.")
+        return pd.DataFrame()
 
+    product_ids = nodes['product_id'].tolist()
+    location_ids = nodes['location_id'].tolist()
+
+    response = supabase.table('inventory_demand_variability') \
+        .select('product_id, location_id, demand_variability, lead_time_days') \
+        .in_('product_id', product_ids) \
+        .in_('location_id', location_ids) \
+        .execute()
+
+    df = pd.DataFrame(response.data)
+    # Remove bad records
+    df = df[(df['demand_variability'] > 0) & (df['lead_time_days'].notnull())]
+    return df
+
+# === Step 3: Monte Carlo Simulation ===
 def run_simulation(row):
-    """Run Monte Carlo simulation for one product-location."""
+    """Run simulation for one product-location pair."""
     results = []
     for run in range(NUM_SIMULATIONS):
         simulated_demand = np.random.normal(loc=0, scale=row['demand_variability'])
-        simulated_lead_time = np.random.normal(loc=row['lead_time_days'], scale=1)  # Small lead time variance
+        simulated_lead_time = np.random.normal(loc=row['lead_time_days'], scale=1)
         calculated_safety_stock = max(0, simulated_demand * np.sqrt(simulated_lead_time))
+
+        if np.isnan(calculated_safety_stock) or np.isinf(calculated_safety_stock):
+            continue
+
         results.append({
             "id": str(uuid.uuid4()),
             "product_id": row['product_id'],
@@ -40,24 +68,32 @@ def run_simulation(row):
         })
     return results
 
+# === Step 4: Store Results ===
 def store_simulation_results(results):
     """Store simulation results in Supabase."""
     for record in results:
         supabase.table('safety_stock_simulation').insert(record).execute()
 
+# === Main Execution ===
 def main():
-    print("🔄 Fetching demand data...")
+    print("🔄 Fetching valid demand data...")
     df = fetch_demand_data()
-    print(f"✅ Fetched {len(df)} records.")
+    print(f"✅ Fetched {len(df)} valid records.")
 
-    all_results = []
+    if df.empty:
+        print("⚠️ No valid data found. Exiting.")
+        return
+
+    total_records = 0
     for _, row in df.iterrows():
         print(f"🎯 Running simulation for {row['product_id']} @ {row['location_id']}...")
-        simulation_results = run_simulation(row)
-        store_simulation_results(simulation_results)
-        print(f"✅ Simulation completed for {row['product_id']} @ {row['location_id']}")
+        results = run_simulation(row)
+        if results:
+            store_simulation_results(results)
+            total_records += len(results)
+        print(f"✅ Simulation done for {row['product_id']} @ {row['location_id']}")
 
-    print("🎯 Monte Carlo Simulation completed successfully.")
+    print(f"🎯 Monte Carlo Simulation completed. Total records stored: {total_records}")
 
 if __name__ == "__main__":
     main()
