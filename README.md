@@ -67,3 +67,14 @@ Simply open [Lovable](https://lovable.dev/projects/b006500d-faf3-4127-884e-bcd01
 ## I want to use a custom domain - is that possible?
 
 We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+
+
+## Package management
+
+This project uses **pnpm** as the package manager for the front‑end. To install dependencies locally, run:
+
+```
+pnpm install
+```
+
+Please avoid using `npm install` or `bun install` to prevent creating conflicting lock files.
