@@ -101,4 +101,4 @@ const AIAssistant = () => {
   );
 };
 
-export default AIAssistant;
+export { AIAssistant };

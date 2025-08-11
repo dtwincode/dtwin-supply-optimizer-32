@@ -1,18 +1,9 @@
 import pandas as pd
 import numpy as np
-from supabase import create_client, Client
-from dotenv import load_dotenv
 import os
 import uuid
 from datetime import datetime
-
-# === Load environment variables ===
-load_dotenv()
-
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
-
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+from backend.supabase.supabase_client import supabase  # ✅ الاتصال المركزي
 
 NUM_SIMULATIONS = 1000
 
@@ -40,7 +31,6 @@ def fetch_demand_data():
         .execute()
 
     df = pd.DataFrame(response.data)
-    # Remove bad records
     df = df[(df['demand_variability'] > 0) & (df['lead_time_days'].notnull())]
     return df
 
@@ -64,7 +54,7 @@ def run_simulation(row):
             "simulated_demand": simulated_demand,
             "simulated_lead_time": simulated_lead_time,
             "calculated_safety_stock": calculated_safety_stock,
-            "created_at": datetime.now().isoformat()
+            "created_at": datetime.utcnow().isoformat()
         })
     return results
 

@@ -85,4 +85,4 @@ const Guidelines = () => {
       </div>
     </DashboardLayout>;
 };
-export default Guidelines;
+export { Guidelines };

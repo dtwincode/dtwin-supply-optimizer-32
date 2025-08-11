@@ -1,11 +1,5 @@
 import pandas as pd
-from supabase import create_client, Client
-
-# Supabase credentials
-SUPABASE_URL = "https://mttzjxktvbsixjaqiuxq.supabase.co"
-SUPABASE_SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+from backend.supabase.supabase_client import supabase  # الاتصال المركزي
 
 def fetch_performance_data():
     """Fetch monthly performance tracking data."""
@@ -23,7 +17,7 @@ def update_thresholds():
     df = fetch_performance_data()
 
     if df.empty:
-        print("No performance data found.")
+        print("⚠️ No performance data found.")
         return
 
     # Example calculation: Adjust Demand Variability Threshold
@@ -31,7 +25,7 @@ def update_thresholds():
     observed_variance = df['service_level_achieved'].var()
 
     # Fetch current threshold
-    current = supabase.table('threshold_config').select('*').execute().data[0]
+    current = supabase.table('threshold_config').select('*').limit(1).execute().data[0]
     prior_mean = current['demand_variability_threshold']
     prior_variance = 0.01  # Example prior variance
 

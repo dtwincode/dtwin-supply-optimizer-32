@@ -101,3 +101,16 @@ export const updateBufferLevels = async (
   
   return { success: true };
 };
+export const fetchBufferProfiles = fetchInventoryPlanningView;
+
+export const updateBufferProfile = updateBufferLevels;
+
+export const createBufferProfile = async (profile) => {
+  console.log("Creating buffer profile:", profile);
+  return { success: true };
+};
+
+export const deleteBufferProfile = async (id) => {
+  console.log("Deleting buffer profile with ID:", id);
+  return { success: true };
+};

@@ -2,12 +2,20 @@
 import { supabase } from './supabaseClient'; 
 import Papa from 'papaparse';
 
+// Define the type for a location row
+interface LocationRow {
+  warehouse: string;
+  region?: string | null;
+  city?: string | null;
+  channel?: string | null;
+}
+
 // Function to handle location data upload from CSV
 export const uploadLocation = async (file: File) => {
   try {
     // Parse the CSV file
-    const parseResult = await new Promise<Papa.ParseResult<any>>((resolve, reject) => {
-      Papa.parse(file, {
+    const parseResult = await new Promise<Papa.ParseResult<LocationRow>>((resolve, reject) => {
+      Papa.parse<LocationRow>(file, {
         header: true,
         complete: resolve,
         error: reject,

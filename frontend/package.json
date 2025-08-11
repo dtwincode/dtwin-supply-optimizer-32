@@ -8,7 +8,8 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "migrate-types": "ts-migrate migrate src --plugin fix-types --plugin eslint-fix"
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^3.0.0",
