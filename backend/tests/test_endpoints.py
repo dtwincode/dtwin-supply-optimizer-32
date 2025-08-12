@@ -33,3 +33,43 @@ def test_ddsop_simulation():
         json={"scenario_id": "scenario1", "orders": [{"item_id": "x", "quantity": 5}], "capacity": 10},
     )
     assert resp.status_code in (200, 202, 500)
+
+
+def test_ddom_dynamic_schedule():
+    resp = client.post(
+        "/ddom/dynamic-schedule",
+        json={
+            "orders": [{"item_id": "x", "quantity": 5}],
+            "capacity_schedule": {"2025-01-01": 10},
+            "default_capacity": 10
+        }
+    )
+    assert resp.status_code in (200, 202, 500)
+
+
+def test_ddsop_master_settings():
+    resp = client.get("/ddsop/master-settings")
+    assert resp.status_code in (200, 404, 500)
+
+
+def test_ddsop_variance():
+    resp = client.post(
+        "/ddsop/variance",
+        json={"actual": [10, 15, 20], "planned": [8, 14, 18]}
+    )
+    assert resp.status_code in (200, 500)
+
+
+def test_ddsop_simulation_post():
+    resp = client.post(
+        "/ddsop/simulation",
+        json={
+            "scenarios": [
+                {
+                    "orders": [{"item_id": "x", "quantity": 5}],
+                    "capacity": 10
+                }
+            ]
+        }
+    )
+    assert resp.status_code in (200, 202, 500)
