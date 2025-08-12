@@ -1,80 +1,112 @@
-# Welcome to your Lovable project
+# dtwin-supply-optimizer-32
 
-## Project info
+This project is a demand-driven supply chain optimization platform built with a FastAPI backend and a React/TypeScript frontend. It implements analytics and planning functions based on the Demand-Driven MRP (DDMRP) methodology and extends towards Demand-Driven Operating Model (DDOM) and Demand-Driven Sales & Operations Planning (DDS&OP).
 
-**URL**: https://lovable.dev/projects/b006500d-faf3-4127-884e-bcd01399fc3d
+## Features
 
-## How can I edit this code?
+- **DDMRP Analytics:** Calculates decoupled lead times, buffer profiles, dynamic buffer adjustments, net flow positions, and generates alerts to support demand-driven replenishment【978784539584437†L126-L166】.
+- **DDOM Scheduling:** Provides capacity scheduling and execution functions to align supply orders with actual demand and resource constraints【851657482394210†L88-L143】.
+- **DDS&OP Planning:** Offers master settings management, variance analysis, and scenario simulation to assess DDOM performance and support integrated planning【94646912161783†L120-L137】.
+- **API Services:** All analytics are exposed via RESTful FastAPI endpoints with Pydantic models.
+- **React Frontend:** Modern React/Vite UI with pages for DDMRP, DDOM, and DDS&OP dashboards, connecting to the backend services.
+- **CI Pipeline:** GitHub Actions workflow runs linters, type checks, unit tests, and builds the frontend.
 
-There are several ways of editing your application.
+## Installation
 
-**Use Lovable**
+### Prerequisites
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/b006500d-faf3-4127-884e-bcd01399fc3d) and start prompting.
+- Python 3.11+
+- Node.js 18+ and pnpm (used for frontend)
+- A Supabase project (for data persistence)
 
-Changes made via Lovable will be committed automatically to this repo.
+### Backend Setup
 
-**Use your preferred IDE**
+1. Clone the repository and navigate to the backend:
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+   ```bash
+   git clone <repository-url>
+   cd dtwin-supply-optimizer-32/backend
+   ```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+2. Create a Python virtual environment and install dependencies:
 
-Follow these steps:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+3. Create a `.env` file in the backend directory based on `.env.example`:
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+   ```
+   SUPABASE_URL=<your-supabase-url>
+   SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
+   SUPABASE_ANON_KEY=<your-anon-key>
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+4. Run the FastAPI server:
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+   ```bash
+   uvicorn app_server:app --reload
+   ```
 
-**Edit a file directly in GitHub**
+### Frontend Setup
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. Navigate to the `frontend` directory:
 
-**Use GitHub Codespaces**
+   ```bash
+   cd ../frontend
+   ```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+2. Install dependencies using pnpm:
 
-## What technologies are used for this project?
+   ```bash
+   pnpm install
+   ```
 
-This project is built with .
+3. Start the development server:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+   ```bash
+   pnpm dev
+   ```
 
-## How can I deploy this project?
+The frontend will be available at `http://localhost:5173` by default.
 
-Simply open [Lovable](https://lovable.dev/projects/b006500d-faf3-4127-884e-bcd01399fc3d) and click on Share -> Publish.
+## API Endpoints
 
-## I want to use a custom domain - is that possible?
+A full OpenAPI spec is available at `/docs` when the backend server is running. Key endpoints include:
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+- `POST /ddmrp/decoupled-lead-time` – Calculate decoupled lead time for an item.
+- `POST /ddmrp/buffer-profiles` – Compute DDMRP buffer zones (red, yellow, green).
+- `POST /ddmrp/buffer-adjustments` – Apply dynamic buffer adjustments.
+- `POST /ddmrp/net-flow` – Determine net flow position and color status.
+- `POST /ddmrp/alerts` – Generate alerts based on net flow.
+- `POST /ddom/schedule` – Schedule orders based on capacity.
+- `POST /ddom/execute` – Execute orders and update statuses.
+- `POST /ddom/variance` – Analyze buffer variance.
+- `POST /ddsop/master-settings` – Upsert master settings for DDOM.
+- `POST /ddsop/variance` – Perform variance analysis for DDOM.
+- `POST /ddsop/simulation` – Simulate DDOM scenarios.
 
+## Contributing
 
-## Package management
+1. Fork the repository and create a new branch for your feature.
+2. Install pre-commit hooks:
 
-This project uses **pnpm** as the package manager for the front‑end. To install dependencies locally, run:
+   ```bash
+   pre-commit install
+   ```
 
-```
-pnpm install
-```
+3. Run the test suite before committing:
 
-Please avoid using `npm install` or `bun install` to prevent creating conflicting lock files.
+   ```bash
+   pytest
+   ```
+
+4. Push your branch and create a pull request.
+
+## References
+
+- Demand Driven Institute software compliance criteria【978784539584437†L126-L166】.
+- Demand Driven Operating Model concepts【851657482394210†L88-L143】.
+- DDS&OP software requirements【94646912161783†L120-L137】.
