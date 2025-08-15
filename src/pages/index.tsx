@@ -47,14 +47,14 @@ const Index = () => {
       <Suspense fallback={<LoadingFallback />}>
         <div 
           className={cn(
-            "space-y-2 transition-all duration-500 ease-in-out",
+            "space-y-6 transition-all duration-500 ease-in-out",
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           )} 
           dir={isRTL ? 'rtl' : 'ltr'}
         >
           <section className="transition-opacity duration-500">
-            <div className="flex items-center justify-between mb-4">
-              <h1 className="font-display text-2xl font-bold">
+            <div className="flex items-center justify-between mb-6">
+              <h1 className="font-display text-3xl font-bold text-gray-900 dark:text-gray-100">
                 {getTranslation('navigation.dashboard', language)}
               </h1>
             </div>
@@ -70,20 +70,20 @@ const Index = () => {
 const MemoizedMetrics = memo(() => {
   console.log("MemoizedMetrics rendering");
   return (
-    <div className="transition-all duration-500 ease-in-out space-y-4">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div className="transition-all duration-500 ease-in-out space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <DashboardMetrics />
         </div>
-        <div className="flex flex-col space-y-4">
+        <div className="flex flex-col space-y-6">
           <FinancialMetrics />
           <SustainabilityMetrics />
         </div>
       </div>
       
-      <div className="grid grid-cols-1 gap-4">
-        <ExecutiveSummary />
+      <div className="grid grid-cols-1 gap-6">
         <ModuleSummaryCards />
+        <ExecutiveSummary />
         <DashboardCharts />
       </div>
     </div>

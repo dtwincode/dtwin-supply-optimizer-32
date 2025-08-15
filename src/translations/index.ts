@@ -37,6 +37,7 @@ export const translations: Translations = {
     logistics: logisticsTranslations,
     ddsop: ddsopTranslations,
   },
+  modulesSummary: modulesSummaryTranslations,
   dashboard: dashboardTranslations,
   forecasting: {},
   inventory: inventoryTranslations,

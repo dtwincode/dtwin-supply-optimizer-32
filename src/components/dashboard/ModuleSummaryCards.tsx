@@ -99,15 +99,15 @@ const ModuleSummaryCards = () => {
   };
 
   return (
-    <Card className="p-3">
-      <h3 className="font-display text-md font-semibold mb-2 px-1">
-        {getTranslation('common.modules', language)}
+    <Card className="p-6">
+      <h3 className="font-display text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
+        {getTranslation('common.ui.modules', language)}
       </h3>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 mb-2">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {modulesSummary.map((module) => (
           <Card 
             key={module.title} 
-            className="hover:shadow-md transition-all duration-300 border-t-2 cursor-pointer"
+            className="hover:shadow-lg transition-all duration-300 border-t-4 cursor-pointer bg-white dark:bg-gray-800"
             style={{ borderTopColor: module.color.replace('text-', '').includes('blue') ? '#3b82f6' : 
                                    module.color.replace('text-', '').includes('green') ? '#10b981' :
                                    module.color.replace('text-', '').includes('purple') ? '#8b5cf6' :
@@ -115,19 +115,19 @@ const ModuleSummaryCards = () => {
                                    module.color.replace('text-', '').includes('orange') ? '#f97316' : '#6366f1' }}
             onClick={() => navigate(module.route)}
           >
-            <div className="p-2">
-              <div className="flex flex-col items-center text-center">
-                <div className={`p-1.5 rounded-lg ${module.bgColor} mb-1`}>
-                  <module.icon className={`h-4 w-4 ${module.color}`} />
+            <div className="p-4">
+              <div className="flex flex-col items-center text-center space-y-2">
+                <div className={`p-2 rounded-lg ${module.bgColor} mb-1`}>
+                  <module.icon className={`h-5 w-5 ${module.color}`} />
                 </div>
-                <h4 className="font-semibold text-sm mb-0.5 line-clamp-1">
+                <h4 className="font-semibold text-sm mb-1 line-clamp-2 text-gray-900 dark:text-gray-100">
                   {getTranslation(`modulesSummary.${module.title}`, language)}
                 </h4>
-                <div className="text-md font-semibold mb-0.5">
+                <div className="text-lg font-bold mb-1 text-gray-900 dark:text-gray-100">
                   {formatStats(module.stats, module.showCurrency, module.suffix)}
                 </div>
-                <p className="text-xs text-gray-500 line-clamp-1">
-                  {getTranslation(`common.${module.statsKey}`, language)}
+                <p className="text-xs text-muted-foreground line-clamp-1">
+                  {getTranslation(`common.ui.${module.statsKey}`, language)}
                 </p>
               </div>
             </div>
