@@ -33,12 +33,14 @@ const SustainabilityMetrics = () => {
   const { language } = useLanguage();
 
   return (
-    <Card className="p-6 h-fit">
-      <h4 className="font-display text-lg font-semibold mb-4 flex items-center">
-        <Leaf className="h-5 w-5 mr-2 text-green-600" />
+    <Card className="bg-white dark:bg-card shadow-lg border border-border rounded-xl p-6 h-fit">
+      <h4 className="font-bold text-lg text-foreground mb-6 flex items-center">
+        <div className="bg-emerald-500/10 p-2 rounded-lg mr-3">
+          <Leaf className="h-5 w-5 text-emerald-600" />
+        </div>
         {getTranslation('common.sustainabilityMetrics.title', language)}
       </h4>
-      <div className="space-y-3">
+      <div className="space-y-4">
         {sustainabilityMetrics.map((metric) => (
           <div key={metric.title} className="flex justify-between items-center py-3 border-b last:border-b-0 border-gray-100 dark:border-gray-800">
             <div className="space-y-1">

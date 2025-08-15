@@ -34,12 +34,14 @@ const FinancialMetrics = () => {
   const { language } = useLanguage();
 
   return (
-    <Card className="p-6 h-fit">
-      <h4 className="font-display text-lg font-semibold mb-4 flex items-center">
-        <Wallet className="h-5 w-5 mr-2 text-primary" />
+    <Card className="bg-white dark:bg-card shadow-lg border border-border rounded-xl p-6 h-fit">
+      <h4 className="font-bold text-lg text-foreground mb-6 flex items-center">
+        <div className="bg-green-500/10 p-2 rounded-lg mr-3">
+          <Wallet className="h-5 w-5 text-green-600" />
+        </div>
         {getTranslation('common.financialMetrics.title', language)}
       </h4>
-      <div className="space-y-3">
+      <div className="space-y-4">
         {financialMetrics.map((metric) => (
           <div key={metric.title} className="flex justify-between items-center py-3 border-b last:border-b-0 border-gray-100 dark:border-gray-800">
             <div className="space-y-1">

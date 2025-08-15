@@ -18,7 +18,7 @@ export default {
       },
     },
     extend: {
-      colors: {
+        colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -52,9 +52,6 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        "dtwin-light": "#e8f4fd",
-        "dtwin-medium": "#2563eb",
-        "dtwin-dark": "#1e40af",
         success: {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
@@ -73,6 +70,9 @@ export default {
           50: "#fef2f2",
           500: "hsl(var(--danger))",
         },
+        "dtwin-light": "#e8f4fd",
+        "dtwin-medium": "#2563eb",
+        "dtwin-dark": "#1e40af",
       },
       borderRadius: {
         lg: "var(--radius)",
