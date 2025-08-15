@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback } from "react";
-import SimpleDashboardLayout from "@/components/SimpleDashboardLayout";
+import DashboardLayout from "@/components/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BufferManagementContent } from "@/components/inventory/buffer/BufferManagementContent";
 import { SKUClassifications } from "@/components/inventory/classification/SKUClassifications";
@@ -28,7 +28,7 @@ const Inventory: React.FC = () => {
 
   return (
     <InventoryFilterProvider>
-      <SimpleDashboardLayout>
+      <DashboardLayout>
         <div className="space-y-6">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
@@ -68,7 +68,7 @@ const Inventory: React.FC = () => {
             </TabsContent>
           </Tabs>
         </div>
-      </SimpleDashboardLayout>
+      </DashboardLayout>
     </InventoryFilterProvider>
   );
 };
