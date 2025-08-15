@@ -1,7 +1,6 @@
 
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
 import App from './App.tsx'
 import './index.css'
 import { Toaster } from "sonner"
@@ -58,10 +57,8 @@ if (!rootElement) {
             console.error("Root error boundary caught:", { error, info, time: new Date().toISOString() });
           }}
         >
-          <BrowserRouter>
-            <App />
-            <Toaster richColors closeButton position="top-right" />
-          </BrowserRouter>
+          <App />
+          <Toaster richColors closeButton position="top-right" />
         </ErrorBoundary>
       </React.StrictMode>,
     );
