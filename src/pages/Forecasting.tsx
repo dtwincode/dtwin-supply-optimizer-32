@@ -104,4 +104,4 @@ const Forecasting = () => {
   );
 };
 
-export { Forecasting };
+export default Forecasting;
