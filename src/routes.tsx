@@ -1,4 +1,5 @@
 import { createBrowserRouter, Outlet } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import Inventory from "./pages/Inventory";
@@ -8,9 +9,13 @@ import DDSOP from "./pages/DDSOP";
 import DDMRP from "./pages/DDMRP";
 import DDOM from "./pages/DDOM";
 
-// Layout component to wrap all routes
+// Layout component to wrap all routes with AuthProvider
 const Layout = () => {
-  return <Outlet />;
+  return (
+    <AuthProvider>
+      <Outlet />
+    </AuthProvider>
+  );
 };
 
 // Define the application routes using React Router v6 createBrowserRouter.
