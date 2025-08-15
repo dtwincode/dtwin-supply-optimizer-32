@@ -99,7 +99,7 @@ const ExecutiveSummary = () => {
       <div className="flex items-center justify-between mb-2">
         <h3 className="font-display text-md font-semibold flex items-center">
           <BadgeCheck className="mr-1 h-4 w-4 text-primary" />
-          {getTranslation('executiveSummary.title', language) || "Executive Summary"}
+          {getTranslation('common.executiveSummary.title', language) || "Executive Summary"}
         </h3>
       </div>
 
@@ -111,8 +111,8 @@ const ExecutiveSummary = () => {
               <Card key={kpi.title} className="shadow-sm p-2">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-xs text-gray-500 font-medium">
-                      {getTranslation(kpi.title, language) || kpi.title}
+                    <p className="text-sm text-muted-foreground font-medium">
+                      {getTranslation(`common.dashboardMetrics.${kpi.title.split('.').pop()}`, language) || kpi.title}
                     </p>
                     <div className="text-md font-semibold">
                       {formatNumber(kpi.value)}%
@@ -139,7 +139,7 @@ const ExecutiveSummary = () => {
         <div className="md:col-span-1">
           <Card className="p-2 h-full">
             <p className="text-xs font-medium mb-1">
-              {getTranslation('executiveSummary.bufferDistribution', language) || "Buffer Distribution"}
+              {getTranslation('common.executiveSummary.bufferDistribution', language) || "Buffer Distribution"}
             </p>
             <div className="h-24">
               <ResponsiveContainer width="100%" height="100%">
@@ -180,7 +180,7 @@ const ExecutiveSummary = () => {
           <Card className="p-2 h-full">
             <p className="text-xs font-medium flex items-center mb-1">
               <AlertCircle className="mr-1 h-3 w-3 text-danger-500" />
-              {getTranslation('executiveSummary.criticalAlerts', language) || "Critical Alerts"}
+              {getTranslation('common.executiveSummary.criticalAlerts', language) || "Critical Alerts"}
             </p>
             {criticalAlerts.map((alert) => (
               <Alert key={alert.id} variant="destructive" className="py-1 px-2 mb-1 border-l-2 border-l-danger-400">
@@ -205,7 +205,7 @@ const ExecutiveSummary = () => {
         <div className="md:col-span-2">
           <Card className="p-2">
             <p className="text-xs font-medium mb-1">
-              {getTranslation('executiveSummary.performanceTrend', language) || "Supply Chain Performance"}
+              {getTranslation('common.executiveSummary.performanceTrend', language) || "Supply Chain Performance"}
             </p>
             <div className="h-36">
               <ResponsiveContainer width="100%" height="100%">
@@ -240,7 +240,7 @@ const ExecutiveSummary = () => {
           <Card className="p-2">
             <p className="text-xs font-medium flex items-center mb-1">
               <HeartPulse className="mr-1 h-3 w-3 text-success-500" />
-              {getTranslation('executiveSummary.moduleHealth', language) || "Module Health"}
+              {getTranslation('common.executiveSummary.moduleHealth', language) || "Module Health"}
             </p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-1 text-xs">
               {moduleHealth.map((module) => (
@@ -248,7 +248,7 @@ const ExecutiveSummary = () => {
                   ${module.status === 'healthy' ? 'bg-green-50' : 'bg-amber-50'}`}>
                   <div className={`w-2 h-2 rounded-full mr-1 
                     ${module.status === 'healthy' ? 'bg-green-500' : 'bg-amber-500'}`}></div>
-                  <span className="flex-1">{getTranslation(`navigationItems.${module.name}`, language)}</span>
+                  <span className="flex-1">{getTranslation(`navigation.${module.name}`, language)}</span>
                 </div>
               ))}
             </div>
