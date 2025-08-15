@@ -70,6 +70,7 @@
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.9.2",
     "vite": "^7.1.2",
+    "xlsx": "^0.18.5",
     "zod": "^4.0.17"
   }
 }
