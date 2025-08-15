@@ -1,5 +1,6 @@
 import { createBrowserRouter, Outlet } from "react-router-dom";
 import NotFound from "./pages/NotFound";
+import Auth from "./pages/Auth";
 import Inventory from "./pages/Inventory";
 import Settings from "./pages/Settings";
 import Forecasting from "./pages/Forecasting";
@@ -16,6 +17,10 @@ const Layout = () => {
 // This router configuration adds new routes for DDMRP and DDOM analytics dashboards
 // while retaining existing routes for inventory, settings, forecasting, and DDSOP.
 export const router = createBrowserRouter([
+  {
+    path: "/auth",
+    element: <Auth />,
+  },
   {
     path: "/",
     element: <Layout />, // Use Layout instead of App
