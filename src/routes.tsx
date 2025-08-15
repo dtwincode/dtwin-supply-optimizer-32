@@ -8,6 +8,13 @@ import Forecasting from "./pages/Forecasting";
 import DDSOP from "./pages/DDSOP";
 import DDMRP from "./pages/DDMRP";
 import DDOM from "./pages/DDOM";
+import SupplyPlanning from "./pages/SupplyPlanning";
+import SalesPlanning from "./pages/SalesPlanning";
+import Marketing from "./pages/Marketing";
+import Logistics from "./pages/Logistics";
+import Reports from "./pages/Reports";
+import DataManagement from "./pages/DataManagement";
+import Guidelines from "./pages/Guidelines";
 
 // Root layout component to wrap all routes with AuthProvider
 const RootLayout = () => {
@@ -18,7 +25,7 @@ const RootLayout = () => {
   );
 };
 
-// Main app layout for authenticated routes
+// Main app layout for authenticated routes  
 const Layout = () => {
   return <Outlet />;
 };
@@ -67,6 +74,34 @@ export const router = createBrowserRouter([
           {
             path: "ddsop",
             element: <DDSOP />,
+          },
+          {
+            path: "supply-planning",
+            element: <SupplyPlanning />,
+          },
+          {
+            path: "sales-and-returns",
+            element: <SalesPlanning />,
+          },
+          {
+            path: "marketing",
+            element: <Marketing />,
+          },
+          {
+            path: "logistics",
+            element: <Logistics />,
+          },
+          {
+            path: "reports",
+            element: <Reports />,
+          },
+          {
+            path: "data",
+            element: <DataManagement />,
+          },
+          {
+            path: "guidelines",
+            element: <Guidelines />,
           },
           {
             path: "*",
