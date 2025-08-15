@@ -33,33 +33,35 @@ const SustainabilityMetrics = () => {
   const { language } = useLanguage();
 
   return (
-    <Card className="p-3">
-      <h4 className="font-display text-md font-semibold mb-2 flex items-center">
-        <Leaf className="h-4 w-4 mr-1 text-success-500" />
-        {getTranslation('sustainabilityMetrics.title', language)}
+    <Card className="p-6 h-fit">
+      <h4 className="font-display text-lg font-semibold mb-4 flex items-center">
+        <Leaf className="h-5 w-5 mr-2 text-green-600" />
+        {getTranslation('common.sustainabilityMetrics.title', language)}
       </h4>
-      <div className="grid grid-cols-1 gap-2">
+      <div className="space-y-3">
         {sustainabilityMetrics.map((metric) => (
-          <div key={metric.title} className="border-b last:border-b-0 pb-2 last:pb-0">
-            <div className="flex justify-between items-center">
-              <p className="text-xs text-gray-500 font-medium">
-                {getTranslation(`sustainabilityMetrics.${metric.title}`, language)}
+          <div key={metric.title} className="flex justify-between items-center py-3 border-b last:border-b-0 border-gray-100 dark:border-gray-800">
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                {getTranslation(`common.sustainabilityMetrics.${metric.title}`, language)}
               </p>
-              <div className="text-sm font-semibold">
-                <span>{language === 'ar' ? toArabicNumerals(metric.value) : metric.value}</span>
+              <div className="flex items-center space-x-2">
+                <div className="text-lg font-bold">
+                  <span>{language === 'ar' ? toArabicNumerals(metric.value) : metric.value}</span>
+                </div>
+                <div className={`flex items-center text-sm ${
+                  (metric.title === 'carbonFootprint' && metric.trend === 'down') || 
+                  (metric.title !== 'carbonFootprint' && metric.trend === 'up') 
+                    ? 'text-green-600' : 'text-red-600'
+                }`}>
+                  {(metric.title === 'carbonFootprint' && metric.trend === 'down') || 
+                   (metric.title !== 'carbonFootprint' && metric.trend === 'up') ? 
+                    <TrendingUp className="h-4 w-4 mr-1" /> : 
+                    <TrendingDown className="h-4 w-4 mr-1" />
+                  }
+                  <span>{language === 'ar' ? toArabicNumerals(metric.change) : metric.change}</span>
+                </div>
               </div>
-            </div>
-            <div className={`flex items-center text-xs ${
-              (metric.title === 'carbonFootprint' && metric.trend === 'down') || 
-              (metric.title !== 'carbonFootprint' && metric.trend === 'up') 
-                ? 'text-green-500' : 'text-red-500'
-            }`}>
-              {(metric.title === 'carbonFootprint' && metric.trend === 'down') || 
-               (metric.title !== 'carbonFootprint' && metric.trend === 'up') ? 
-                <TrendingUp className="h-3 w-3 mr-0.5" /> : 
-                <TrendingDown className="h-3 w-3 mr-0.5" />
-              }
-              <span>{language === 'ar' ? toArabicNumerals(metric.change) : metric.change}</span>
             </div>
           </div>
         ))}

@@ -64,7 +64,7 @@ const Navigation = memo(({ language, isRTL }: NavigationProps) => {
           )}
         >
           <item.icon className={`h-4 w-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
-          <span className="flex-1">{t(item.name)}</span>
+          <span className="flex-1">{t(`navigation.${item.name.split('.')[1]}`)}</span>
           {item.badge && (
             <span className={`text-[10px] px-1.5 py-0.5 rounded-full text-white ${item.badgeColor || 'bg-dtwin-medium'} ml-2`}>
               {item.badge}

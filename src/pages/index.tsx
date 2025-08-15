@@ -53,9 +53,11 @@ const Index = () => {
           dir={isRTL ? 'rtl' : 'ltr'}
         >
           <section className="transition-opacity duration-500">
-            <h2 className="font-display text-xl font-semibold mb-2">
-              {getTranslation('dashboard', language)}
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h1 className="font-display text-2xl font-bold">
+                {getTranslation('navigation.dashboard', language)}
+              </h1>
+            </div>
             
             <MemoizedMetrics />
           </section>
