@@ -2,6 +2,7 @@ import { createBrowserRouter, Outlet } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
+import Dashboard from "./pages/Dashboard";
 import Inventory from "./pages/Inventory";
 import Settings from "./pages/Settings";
 import Forecasting from "./pages/Forecasting";
@@ -49,7 +50,7 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Inventory />, // Use Inventory as home page
+            element: <Dashboard />, // Use Dashboard as home page
           },
           {
             path: "inventory",
