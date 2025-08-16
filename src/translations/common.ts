@@ -25,9 +25,6 @@ export const commonTranslations: CommonTranslations = {
   skus: { en: "SKUs", ar: "وحدات التخزين" },
   create: { en: "Create", ar: "إنشاء" },
   
-  // Add missing overview translation
-  overview: { en: "Overview", ar: "نظرة عامة" },
-  
   // Zone translations
   zones: zonesTranslations,
   
