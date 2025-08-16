@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Quick test - this should apply */
+.test-bg { background-color: #3b82f6; }
+
 @layer base {
   :root {
     --background: 210 20% 98%;
