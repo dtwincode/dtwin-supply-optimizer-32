@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { createRoot } from 'react-dom/client';
+import ReactDOM from 'react-dom';
 
 interface MarkerOptions {
   color?: string;
@@ -56,15 +56,11 @@ export const createMapMarker = ({
     
     markerElement.appendChild(tooltipContainer);
     
-    let root: any = null;
-    
     // Render tooltip content using React
     const renderTooltip = () => {
-      if (!root) {
-        root = createRoot(tooltipContainer);
-      }
-      root.render(
-        <div className="marker-tooltip">{tooltipContent}</div>
+      ReactDOM.render(
+        <div className="marker-tooltip">{tooltipContent}</div>,
+        tooltipContainer
       );
     };
     

@@ -23,92 +23,76 @@ const DashboardMetrics = () => {
   };
 
   return (
-    <div className="dashboard-card">
-      <h4 className="text-xl font-bold mb-4 flex items-center">
-        <div style={{
-          backgroundColor: 'rgba(59, 130, 246, 0.1)',
-          padding: '0.5rem',
-          borderRadius: '0.5rem',
-          marginRight: '0.75rem'
-        }}>
-          <Package style={{ height: '1.5rem', width: '1.5rem', color: '#3b82f6' }} />
-        </div>
-        {getTranslation('common.dashboardMetrics.title', language)}
+    <Card className="p-3">
+      <h4 className="font-semibold text-base text-gray-800 dark:text-gray-100 mb-3 px-2">
+        {getTranslation('dashboardMetrics.title', language)}
       </h4>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
-        <div className="dashboard-card" style={{ 
-          background: 'linear-gradient(135deg, #eff6ff, #dbeafe)',
-          borderLeft: '4px solid #3b82f6'
-        }}>
-          <div className="flex justify-between items-center">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <p style={{ fontSize: '0.875rem', color: '#1e40af', fontWeight: '600' }}>
-                {getTranslation('common.dashboardMetrics.totalSKUs', language)}
-              </p>
-              <p style={{ fontSize: '1.875rem', fontWeight: '700', color: '#1e3a8a' }}>
-                {formatNumber(1234)}
-              </p>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                fontSize: '0.875rem', 
-                color: '#059669',
-                backgroundColor: '#d1fae5',
-                padding: '0.25rem 0.5rem',
-                borderRadius: '9999px'
-              }}>
-                <TrendingUp style={{ height: '1rem', width: '1rem', marginRight: '0.25rem' }} />
-                <span style={{ fontWeight: '500' }}>+5.2%</span>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <Card className="p-3 shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-primary">
+          <div className="flex items-start justify-between">
+            <div className="space-y-0.5">
+              <p className="text-xs text-gray-500 font-medium">{getTranslation('dashboardMetrics.totalSKUs', language)}</p>
+              <p className="text-lg font-semibold">{formatNumber(1234)}</p>
+              <div className="flex items-center text-xs text-green-600">
+                <TrendingUp className="h-3 w-3 mr-0.5" />
+                <span>+5.2%</span>
               </div>
             </div>
-            <div style={{
-              backgroundColor: '#3b82f6',
-              padding: '0.75rem',
-              borderRadius: '0.75rem',
-              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-            }}>
-              <Package style={{ height: '1.5rem', width: '1.5rem', color: 'white' }} />
+            <div className="bg-blue-50 p-1.5 rounded-full">
+              <Package className="h-4 w-4 text-primary" />
             </div>
           </div>
-        </div>
+        </Card>
         
-        <div className="dashboard-card" style={{ 
-          background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)',
-          borderLeft: '4px solid #10b981'
-        }}>
-          <div className="flex justify-between items-center">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <p style={{ fontSize: '0.875rem', color: '#065f46', fontWeight: '600' }}>
-                {getTranslation('common.dashboardMetrics.bufferPenetration', language)}
-              </p>
-              <p style={{ fontSize: '1.875rem', fontWeight: '700', color: '#064e3b' }}>
-                {formatPercentage(78)}
-              </p>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                fontSize: '0.875rem', 
-                color: '#059669',
-                backgroundColor: '#d1fae5',
-                padding: '0.25rem 0.5rem',
-                borderRadius: '9999px'
-              }}>
-                <TrendingUp style={{ height: '1rem', width: '1rem', marginRight: '0.25rem' }} />
-                <span style={{ fontWeight: '500' }}>+3.4%</span>
+        <Card className="p-3 shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-success-500">
+          <div className="flex items-start justify-between">
+            <div className="space-y-0.5">
+              <p className="text-xs text-gray-500 font-medium">{getTranslation('dashboardMetrics.bufferPenetration', language)}</p>
+              <p className="text-lg font-semibold">{formatPercentage(78)}</p>
+              <div className="flex items-center text-xs text-green-600">
+                <TrendingUp className="h-3 w-3 mr-0.5" />
+                <span>+3.4%</span>
               </div>
             </div>
-            <div style={{
-              backgroundColor: '#10b981',
-              padding: '0.75rem',
-              borderRadius: '0.75rem',
-              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-            }}>
-              <ShieldAlert style={{ height: '1.5rem', width: '1.5rem', color: 'white' }} />
+            <div className="bg-green-50 p-1.5 rounded-full">
+              <ShieldAlert className="h-4 w-4 text-success-500" />
             </div>
           </div>
-        </div>
+        </Card>
+        
+        <Card className="p-3 shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-warning-500">
+          <div className="flex items-start justify-between">
+            <div className="space-y-0.5">
+              <p className="text-xs text-gray-500 font-medium">{getTranslation('dashboardMetrics.orderStatus', language)}</p>
+              <p className="text-lg font-semibold">{formatPercentage(92)}</p>
+              <div className="flex items-center text-xs text-amber-600">
+                <TrendingDown className="h-3 w-3 mr-0.5" />
+                <span>-1.2%</span>
+              </div>
+            </div>
+            <div className="bg-amber-50 p-1.5 rounded-full">
+              <Zap className="h-4 w-4 text-warning-500" />
+            </div>
+          </div>
+        </Card>
+        
+        <Card className="p-3 shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-danger-500">
+          <div className="flex items-start justify-between">
+            <div className="space-y-0.5">
+              <p className="text-xs text-gray-500 font-medium">{getTranslation('dashboardMetrics.flowIndex', language)}</p>
+              <p className="text-lg font-semibold">{formatNumber(4.2)}x</p>
+              <div className="flex items-center text-xs text-green-600">
+                <TrendingUp className="h-3 w-3 mr-0.5" />
+                <span>+0.3x</span>
+              </div>
+            </div>
+            <div className="bg-red-50 p-1.5 rounded-full">
+              <ArrowUpDown className="h-4 w-4 text-danger-500" />
+            </div>
+          </div>
+        </Card>
       </div>
-    </div>
+    </Card>
   );
 };
 

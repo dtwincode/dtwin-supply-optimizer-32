@@ -22,30 +22,13 @@ export type { Translation };
 
 export const translations: Translations = {
   navigation: navigationTranslations,
-  common: {
-    ...commonTranslations,
-    dashboardMetrics: dashboardTranslations,
-    executiveSummary: executiveSummaryTranslations,
-    modules: modulesSummaryTranslations,
-    ui: uiTranslations,
-    charts: chartTranslations,
-    inventory: inventoryTranslations,
-    pagination: paginationTranslations,
-    supplyPlanning: supplyPlanningTranslations,
-    financialMetrics: financialMetricsTranslations,
-    sustainabilityMetrics: sustainabilityMetricsTranslations,
-    logistics: logisticsTranslations,
-    ddsop: ddsopTranslations,
-  },
-  modulesSummary: modulesSummaryTranslations,
+  common: commonTranslations,
   dashboard: dashboardTranslations,
   forecasting: {},
   inventory: inventoryTranslations,
   settings: {},
   auth: {},
   errors: {},
-  sales: salesTranslations,
-  marketing: marketingTranslations,
 };
 
 export function getTranslation(key: string, language: 'en' | 'ar') {
