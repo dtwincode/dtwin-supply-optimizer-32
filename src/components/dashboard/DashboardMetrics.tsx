@@ -23,79 +23,92 @@ const DashboardMetrics = () => {
   };
 
   return (
-    <Card className="bg-card shadow-[var(--shadow-card)] border-border p-6">
-      <h4 className="font-bold text-xl text-card-foreground mb-6 flex items-center">
-        <div className="bg-primary/10 p-2 rounded-lg mr-3">
-          <Package className="h-6 w-6 text-primary" />
+    <div className="dashboard-card">
+      <h4 className="text-xl font-bold mb-4 flex items-center">
+        <div style={{
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          padding: '0.5rem',
+          borderRadius: '0.5rem',
+          marginRight: '0.75rem'
+        }}>
+          <Package style={{ height: '1.5rem', width: '1.5rem', color: '#3b82f6' }} />
         </div>
         {getTranslation('common.dashboardMetrics.title', language)}
       </h4>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-primary/5 to-primary/10 p-4 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-primary)] transition-all duration-300 border-l-4 border-l-primary rounded-xl">
-          <div className="flex items-start justify-between">
-            <div className="space-y-2">
-              <p className="text-sm text-primary font-semibold">{getTranslation('common.dashboardMetrics.totalSKUs', language)}</p>
-              <p className="text-3xl font-bold text-card-foreground">{formatNumber(1234)}</p>
-              <div className="flex items-center text-sm text-success bg-success/10 px-2 py-1 rounded-full">
-                <TrendingUp className="h-4 w-4 mr-1" />
-                <span className="font-medium">+5.2%</span>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
+        <div className="dashboard-card" style={{ 
+          background: 'linear-gradient(135deg, #eff6ff, #dbeafe)',
+          borderLeft: '4px solid #3b82f6'
+        }}>
+          <div className="flex justify-between items-center">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <p style={{ fontSize: '0.875rem', color: '#1e40af', fontWeight: '600' }}>
+                {getTranslation('common.dashboardMetrics.totalSKUs', language)}
+              </p>
+              <p style={{ fontSize: '1.875rem', fontWeight: '700', color: '#1e3a8a' }}>
+                {formatNumber(1234)}
+              </p>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                fontSize: '0.875rem', 
+                color: '#059669',
+                backgroundColor: '#d1fae5',
+                padding: '0.25rem 0.5rem',
+                borderRadius: '9999px'
+              }}>
+                <TrendingUp style={{ height: '1rem', width: '1rem', marginRight: '0.25rem' }} />
+                <span style={{ fontWeight: '500' }}>+5.2%</span>
               </div>
             </div>
-            <div className="bg-primary p-3 rounded-xl shadow-lg">
-              <Package className="h-6 w-6 text-primary-foreground" />
+            <div style={{
+              backgroundColor: '#3b82f6',
+              padding: '0.75rem',
+              borderRadius: '0.75rem',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+            }}>
+              <Package style={{ height: '1.5rem', width: '1.5rem', color: 'white' }} />
             </div>
           </div>
-        </Card>
+        </div>
         
-        <Card className="bg-gradient-to-br from-success/5 to-success/10 p-4 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-primary)] transition-all duration-300 border-l-4 border-l-success rounded-xl">
-          <div className="flex items-start justify-between">
-            <div className="space-y-2">
-              <p className="text-sm text-success font-semibold">{getTranslation('common.dashboardMetrics.bufferPenetration', language)}</p>
-              <p className="text-3xl font-bold text-card-foreground">{formatPercentage(78)}</p>
-              <div className="flex items-center text-sm text-success bg-success/10 px-2 py-1 rounded-full">
-                <TrendingUp className="h-4 w-4 mr-1" />
-                <span className="font-medium">+3.4%</span>
+        <div className="dashboard-card" style={{ 
+          background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)',
+          borderLeft: '4px solid #10b981'
+        }}>
+          <div className="flex justify-between items-center">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <p style={{ fontSize: '0.875rem', color: '#065f46', fontWeight: '600' }}>
+                {getTranslation('common.dashboardMetrics.bufferPenetration', language)}
+              </p>
+              <p style={{ fontSize: '1.875rem', fontWeight: '700', color: '#064e3b' }}>
+                {formatPercentage(78)}
+              </p>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                fontSize: '0.875rem', 
+                color: '#059669',
+                backgroundColor: '#d1fae5',
+                padding: '0.25rem 0.5rem',
+                borderRadius: '9999px'
+              }}>
+                <TrendingUp style={{ height: '1rem', width: '1rem', marginRight: '0.25rem' }} />
+                <span style={{ fontWeight: '500' }}>+3.4%</span>
               </div>
             </div>
-            <div className="bg-success p-3 rounded-xl shadow-lg">
-              <ShieldAlert className="h-6 w-6 text-success-foreground" />
+            <div style={{
+              backgroundColor: '#10b981',
+              padding: '0.75rem',
+              borderRadius: '0.75rem',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+            }}>
+              <ShieldAlert style={{ height: '1.5rem', width: '1.5rem', color: 'white' }} />
             </div>
           </div>
-        </Card>
-        
-        <Card className="bg-gradient-to-br from-warning/5 to-warning/10 p-4 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-primary)] transition-all duration-300 border-l-4 border-l-warning rounded-xl">
-          <div className="flex items-start justify-between">
-            <div className="space-y-2">
-              <p className="text-sm text-warning font-semibold">{getTranslation('common.dashboardMetrics.orderStatus', language)}</p>
-              <p className="text-3xl font-bold text-card-foreground">{formatPercentage(92)}</p>
-              <div className="flex items-center text-sm text-danger bg-danger/10 px-2 py-1 rounded-full">
-                <TrendingDown className="h-4 w-4 mr-1" />
-                <span className="font-medium">-1.2%</span>
-              </div>
-            </div>
-            <div className="bg-warning p-3 rounded-xl shadow-lg">
-              <Zap className="h-6 w-6 text-warning-foreground" />
-            </div>
-          </div>
-        </Card>
-        
-        <Card className="bg-gradient-to-br from-accent/5 to-accent/10 p-4 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-primary)] transition-all duration-300 border-l-4 border-l-accent rounded-xl">
-          <div className="flex items-start justify-between">
-            <div className="space-y-2">
-              <p className="text-sm text-accent-foreground font-semibold">{getTranslation('common.dashboardMetrics.flowIndex', language)}</p>
-              <p className="text-3xl font-bold text-card-foreground">{formatNumber(4.2)}x</p>
-              <div className="flex items-center text-sm text-success bg-success/10 px-2 py-1 rounded-full">
-                <TrendingUp className="h-4 w-4 mr-1" />
-                <span className="font-medium">+0.3x</span>
-              </div>
-            </div>
-            <div className="bg-accent p-3 rounded-xl shadow-lg">
-              <ArrowUpDown className="h-6 w-6 text-accent-foreground" />
-            </div>
-          </div>
-        </Card>
+        </div>
       </div>
-    </Card>
+    </div>
   );
 };
 

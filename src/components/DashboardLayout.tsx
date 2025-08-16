@@ -33,11 +33,18 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 bg-background flex items-center justify-center">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 w-48 bg-muted rounded"></div>
-          <div className="h-32 w-96 bg-muted rounded"></div>
-        </div>
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: '#f3f4f6',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        Loading...
       </div>
     );
   }
@@ -46,50 +53,72 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div 
-      className={cn(
-        "min-h-screen bg-background flex",
-        isContentVisible ? "opacity-100" : "opacity-0",
-        "transition-all duration-300 ease-in-out"
-      )} 
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        backgroundColor: '#f8fafc',
+        fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif'
+      }}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       <div
-        className={cn(
-          "fixed top-0 bottom-0 z-40 h-full transition-transform duration-300 ease-out",
-          isRTL ? 'right-0' : 'left-0',
-          sidebarOpen ? "translate-x-0" : isRTL ? 'translate-x-full' : '-translate-x-full'
-        )}
+        style={{
+          position: 'fixed',
+          top: 0,
+          bottom: 0,
+          [isRTL ? 'right' : 'left']: 0,
+          width: '12rem',
+          backgroundColor: 'white',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+          borderRight: '1px solid #e5e7eb',
+          transform: sidebarOpen ? 'translateX(0)' : (isRTL ? 'translateX(100%)' : 'translateX(-100%)'),
+          transition: 'transform 0.3s ease',
+          zIndex: 40
+        }}
       >
-        <div className="h-full w-48 bg-card shadow-lg border-r border-border">
-          <div className="flex items-center justify-between p-2 border-b border-border">
-            <div className="flex items-center w-full justify-center">
-              <Link to="/">
-                <img 
-                  src="/lovable-uploads/ff1ca214-cc5f-4fa6-8bfd-4818cf19a551.png" 
-                  alt="dtwin logo" 
-                  className="h-14 w-auto"
-                />
-              </Link>
-            </div>
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="p-1 rounded-lg hover:bg-muted transition-colors"
-            >
-              <X className="h-4 w-4" />
-            </button>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0.5rem',
+          borderBottom: '1px solid #e5e7eb'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'center' }}>
+            <Link to="/">
+              <img 
+                src="/lovable-uploads/ff1ca214-cc5f-4fa6-8bfd-4818cf19a551.png" 
+                alt="dtwin logo" 
+                style={{ height: '3.5rem', width: 'auto' }}
+              />
+            </Link>
           </div>
-          <Navigation 
-            language={language}
-            isRTL={isRTL}
-          />
+          <button
+            onClick={() => setSidebarOpen(false)}
+            style={{
+              padding: '0.25rem',
+              borderRadius: '0.5rem',
+              border: 'none',
+              backgroundColor: 'transparent',
+              cursor: 'pointer'
+            }}
+          >
+            <X style={{ height: '1rem', width: '1rem' }} />
+          </button>
         </div>
+        <Navigation 
+          language={language}
+          isRTL={isRTL}
+        />
       </div>
 
       <div
-        className={cn(
-          "flex flex-col flex-1 transition-all duration-300 ease-in-out",
-          sidebarOpen ? (isRTL ? 'mr-48' : 'ml-48') : 'ml-0'
-        )}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          flex: 1,
+          marginLeft: sidebarOpen ? '12rem' : 0,
+          transition: 'margin 0.3s ease'
+        }}
       >
         <Header
           sidebarOpen={sidebarOpen}
@@ -100,16 +129,9 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           signOut={signOut}
         />
 
-        <main 
-          className={cn(
-            "flex-1 transition-all duration-300 ease-in-out",
-            isContentVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-          )}
-        >
-          <div className="p-6">
-            {children}
-            <FloatingAskAI />
-          </div>
+        <main style={{ flex: 1, padding: '1.5rem' }}>
+          {children}
+          <FloatingAskAI />
         </main>
       </div>
 
