@@ -1,12 +1,13 @@
 import type { Config } from "tailwindcss";
 
-export default {
+const config: Config = {
   darkMode: ["class"],
   content: [
     "./pages/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
     "./app/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
+    "./index.html",
   ],
   prefix: "",
   theme: {
@@ -18,7 +19,7 @@ export default {
       },
     },
     extend: {
-        colors: {
+      colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -55,24 +56,15 @@ export default {
         success: {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
-          50: "#f0fdf4",
-          500: "hsl(var(--success))",
         },
         warning: {
           DEFAULT: "hsl(var(--warning))",
           foreground: "hsl(var(--warning-foreground))",
-          50: "#fefce8",
-          500: "hsl(var(--warning))",
         },
         danger: {
           DEFAULT: "hsl(var(--danger))",
           foreground: "hsl(var(--danger-foreground))",
-          50: "#fef2f2",
-          500: "hsl(var(--danger))",
         },
-        "dtwin-light": "#e8f4fd",
-        "dtwin-medium": "#2563eb",
-        "dtwin-dark": "#1e40af",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -99,4 +91,6 @@ export default {
     },
   },
   plugins: [require("tailwindcss-animate")],
-} satisfies Config;
+};
+
+export default config;
