@@ -1,9 +1,15 @@
 import { InventoryTranslations } from './types';
 
 export const inventoryTranslations: InventoryTranslations = {
-  inventoryTitle: {
-    en: "Inventory Management",
+  inventoryManagement: {
+    en: "Inventory Management", 
     ar: "إدارة المخزون"
+  },
+  management: {
+    description: {
+      en: "Plan and manage inventory, buffers & decoupling points.",
+      ar: "تخطيط وإدارة المخزون والمخازن ونقاط الفصل."
+    }
   },
   sku: {
     en: "SKU",
