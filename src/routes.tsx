@@ -6,10 +6,18 @@ import Forecasting from "./pages/Forecasting";
 import DDSOP from "./pages/DDSOP";
 import DDMRP from "./pages/DDMRP";
 import DDOM from "./pages/DDOM";
+import { AuthProvider } from "./contexts/AuthContext";
+import { I18nProvider } from "./contexts/I18nContext";
 
-// Layout component to wrap all routes
+// Layout component to wrap all routes with necessary providers
 const Layout = () => {
-  return <Outlet />;
+  return (
+    <AuthProvider>
+      <I18nProvider>
+        <Outlet />
+      </I18nProvider>
+    </AuthProvider>
+  );
 };
 
 // Define the application routes using React Router v6 createBrowserRouter.
