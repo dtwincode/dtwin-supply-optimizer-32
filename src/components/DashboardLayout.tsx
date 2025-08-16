@@ -47,18 +47,11 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div 
       className={cn(
-        "min-h-screen bg-background flex debug-test",
+        "min-h-screen bg-background flex",
         isContentVisible ? "opacity-100" : "opacity-0",
         "transition-all duration-300 ease-in-out"
       )} 
       dir={isRTL ? 'rtl' : 'ltr'}
-      style={{
-        /* DEBUG: Inline styles as fallback */
-        minHeight: '100vh',
-        display: 'flex',
-        backgroundColor: '#f8fafc',
-        fontFamily: 'system-ui, -apple-system, sans-serif'
-      }}
     >
       <div
         className={cn(
