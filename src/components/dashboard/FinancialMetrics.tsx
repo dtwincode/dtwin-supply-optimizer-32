@@ -34,22 +34,22 @@ const FinancialMetrics = () => {
   const { language } = useLanguage();
 
   return (
-    <Card className="bg-white dark:bg-card shadow-lg border border-border rounded-xl p-6 h-fit">
-      <h4 className="font-bold text-lg text-foreground mb-6 flex items-center">
-        <div className="bg-green-500/10 p-2 rounded-lg mr-3">
-          <Wallet className="h-5 w-5 text-green-600" />
+    <Card className="bg-card shadow-[var(--shadow-card)] border-border rounded-xl p-6 h-fit">
+      <h4 className="font-bold text-lg text-card-foreground mb-6 flex items-center">
+        <div className="bg-success/10 p-2 rounded-lg mr-3">
+          <Wallet className="h-5 w-5 text-success" />
         </div>
         {getTranslation('common.financialMetrics.title', language)}
       </h4>
       <div className="space-y-4">
         {financialMetrics.map((metric) => (
-          <div key={metric.title} className="flex justify-between items-center py-3 border-b last:border-b-0 border-gray-100 dark:border-gray-800">
+          <div key={metric.title} className="flex justify-between items-center py-3 border-b last:border-b-0 border-border">
             <div className="space-y-1">
-              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+              <p className="text-sm font-medium text-card-foreground">
                 {getTranslation(`common.financialMetrics.${metric.title}`, language)}
               </p>
               <div className="flex items-center space-x-2">
-                <div className="text-lg font-bold flex items-center">
+                <div className="text-lg font-bold flex items-center text-card-foreground">
                   <Image 
                     src="/lovable-uploads/b7ca4974-ecc5-4f81-bfc0-6ae96ce56a48.png" 
                     alt="Currency" 
@@ -58,7 +58,7 @@ const FinancialMetrics = () => {
                   <span>{language === 'ar' ? toArabicNumerals(metric.value) : metric.value}</span>
                 </div>
                 <div className={`flex items-center text-sm ${
-                  metric.trend === 'up' ? 'text-green-600' : 'text-red-600'
+                  metric.trend === 'up' ? 'text-success' : 'text-danger'
                 }`}>
                   {metric.trend === 'up' ? 
                     <TrendingUp className="h-4 w-4 mr-1" /> : 

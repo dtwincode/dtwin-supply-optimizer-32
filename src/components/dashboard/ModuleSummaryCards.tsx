@@ -99,31 +99,26 @@ const ModuleSummaryCards = () => {
   };
 
   return (
-    <Card className="p-6">
-      <h3 className="font-display text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
+    <Card className="bg-card shadow-[var(--shadow-card)] border-border p-6">
+      <h3 className="font-display text-lg font-semibold mb-4 text-card-foreground">
         {getTranslation('common.ui.modules', language)}
       </h3>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {modulesSummary.map((module) => (
           <Card 
             key={module.title} 
-            className="hover:shadow-lg transition-all duration-300 border-t-4 cursor-pointer bg-white dark:bg-gray-800"
-            style={{ borderTopColor: module.color.replace('text-', '').includes('blue') ? '#3b82f6' : 
-                                   module.color.replace('text-', '').includes('green') ? '#10b981' :
-                                   module.color.replace('text-', '').includes('purple') ? '#8b5cf6' :
-                                   module.color.replace('text-', '').includes('pink') ? '#ec4899' :
-                                   module.color.replace('text-', '').includes('orange') ? '#f97316' : '#6366f1' }}
+            className="hover:shadow-[var(--shadow-primary)] transition-all duration-300 border-t-4 border-t-primary cursor-pointer bg-card"
             onClick={() => navigate(module.route)}
           >
             <div className="p-4">
               <div className="flex flex-col items-center text-center space-y-2">
-                <div className={`p-2 rounded-lg ${module.bgColor} mb-1`}>
-                  <module.icon className={`h-5 w-5 ${module.color}`} />
+                <div className="p-2 rounded-lg bg-primary/10 mb-1">
+                  <module.icon className="h-5 w-5 text-primary" />
                 </div>
-                <h4 className="font-semibold text-sm mb-1 line-clamp-2 text-gray-900 dark:text-gray-100">
+                <h4 className="font-semibold text-sm mb-1 line-clamp-2 text-card-foreground">
                   {getTranslation(`modulesSummary.${module.title}`, language)}
                 </h4>
-                <div className="text-lg font-bold mb-1 text-gray-900 dark:text-gray-100">
+                <div className="text-lg font-bold mb-1 text-card-foreground">
                   {formatStats(module.stats, module.showCurrency, module.suffix)}
                 </div>
                 <p className="text-xs text-muted-foreground line-clamp-1">
