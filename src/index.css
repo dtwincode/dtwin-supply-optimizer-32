@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* DEBUG: Test if this CSS file is being loaded at all */
+body {
+  background-color: #f8fafc !important;
+  font-family: system-ui, -apple-system, sans-serif !important;
+}
+
+/* DEBUG: Test if Tailwind is working */
+.debug-test {
+  background-color: red !important;
+  color: white !important;
+  padding: 1rem !important;
+}
+
 @layer base {
   :root {
     --background: 210 20% 98%;
