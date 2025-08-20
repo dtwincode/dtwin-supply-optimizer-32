@@ -29,7 +29,7 @@ const MOCK_USER: User = {
   updated_at: new Date().toISOString(),
 };
 
-const USE_MOCK = true; // Set to true in dev env
+const USE_MOCK = false; // Set to true in dev env
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
