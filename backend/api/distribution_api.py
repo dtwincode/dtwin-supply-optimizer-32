@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from analytics.distribution.detect_best_distribution import main as run_distribution
 
-router = APIRouter(
+router = APIRouter()
 
 @router.get("/distribution/run")
 def run_distribution_endpoint():
