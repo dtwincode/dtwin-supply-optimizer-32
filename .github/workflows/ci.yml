@@ -20,7 +20,7 @@ jobs:
           pip install ruff black mypy pytest
       - name: Lint and format
         run: |
-          ruff check backend
+          ruff backend
           black --check backend
       - name: Type check
         run: |
