@@ -1,12 +1,11 @@
-
-import { LucideIcon } from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import { useQuery } from '@tanstack/react-query';
-import { getLogisticsMetrics } from '@/services/logisticsAnalyticsService';
-import { Loader2, AlertTriangle } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { getTranslation } from '@/translations';
+import { LucideIcon } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
+import { getLogisticsMetrics } from "@/services/logisticsAnalyticsService";
+import { Loader2, AlertTriangle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslation } from "@/translations";
 
 interface LogisticsMetricsCardProps {
   icon: LucideIcon;
@@ -23,26 +22,36 @@ export const LogisticsMetricsCard = ({
   value: defaultValue,
   bgColor,
   textColor,
-  metricType
+  metricType,
 }: LogisticsMetricsCardProps) => {
   const [hasError, setHasError] = useState(false);
   const { language } = useLanguage();
-  
-  const { data: metrics, isLoading, isError } = useQuery({
-    queryKey: ['logistics-metrics', metricType],
+
+  const {
+    data: metrics,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["logistics-metrics", metricType],
     queryFn: () => getLogisticsMetrics(metricType),
     placeholderData: [
       {
-        id: 'placeholder',
+        id: "placeholder",
         metric_type: metricType,
-        metric_value: metricType === 'on_time_delivery' ? 88.5 :
-                      metricType === 'avg_transit_time' ? 3.2 :
-                      metricType === 'delivery_success' ? 96.7 :
-                      metricType === 'cost_per_shipment' ? 245.75 : 0,
+        metric_value:
+          metricType === "on_time_delivery"
+            ? 88.5
+            : metricType === "avg_transit_time"
+              ? 3.2
+              : metricType === "delivery_success"
+                ? 96.7
+                : metricType === "cost_per_shipment"
+                  ? 245.75
+                  : 0,
         dimension: null,
         timestamp: new Date().toISOString(),
-        metadata: {}
-      }
+        metadata: {},
+      },
     ],
   });
 
@@ -53,21 +62,22 @@ export const LogisticsMetricsCard = ({
   }, [isError]);
 
   const latestMetric = metrics?.[0];
-  const displayValue = isLoading ? defaultValue : 
-    (latestMetric?.metric_value !== undefined ? 
-      (metricType === 'on_time_delivery' || metricType === 'delivery_success' ? 
-        `${latestMetric.metric_value.toFixed(1)}%` : 
-      metricType === 'avg_transit_time' ? 
-        `${latestMetric.metric_value.toFixed(1)} days` : 
-      metricType === 'cost_per_shipment' ? 
-        `﷼${latestMetric.metric_value.toFixed(2)}` : 
-        latestMetric.metric_value.toFixed(2)) : 
-      defaultValue);
+  const displayValue = isLoading
+    ? defaultValue
+    : latestMetric?.metric_value !== undefined
+      ? metricType === "on_time_delivery" || metricType === "delivery_success"
+        ? `${latestMetric.metric_value.toFixed(1)}%`
+        : metricType === "avg_transit_time"
+          ? `${latestMetric.metric_value.toFixed(1)} days`
+          : metricType === "cost_per_shipment"
+            ? `﷼${latestMetric.metric_value.toFixed(2)}`
+            : latestMetric.metric_value.toFixed(2)
+      : defaultValue;
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return getTranslation("common.logistics.notAvailable", language);
+    if (!dateString) return getTranslation("logistics.notAvailable", language);
     const date = new Date(dateString);
-    return date.toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US');
+    return date.toLocaleString(language === "ar" ? "ar-SA" : "en-US");
   };
 
   if (isError || hasError) {
@@ -81,7 +91,7 @@ export const LogisticsMetricsCard = ({
             <div>
               <h3 className="text-sm font-medium text-gray-600">{label}</h3>
               <p className="text-xs text-red-500">
-                {language === 'en' ? 'Unavailable' : 'غير متوفر'}
+                {language === "en" ? "Unavailable" : "غير متوفر"}
               </p>
             </div>
           </div>
@@ -104,16 +114,18 @@ export const LogisticsMetricsCard = ({
           <div>
             <h3 className="text-sm font-medium text-gray-600">{label}</h3>
             <p className="text-2xl font-bold">{displayValue}</p>
-            <p className="text-xs text-gray-400" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-              {getTranslation("common.logistics.lastUpdated", language)}: {
-                latestMetric?.timestamp ? 
-                formatDate(latestMetric.timestamp) : 
-                "N/A"
-              }
+            <p
+              className="text-xs text-gray-400"
+              dir={language === "ar" ? "rtl" : "ltr"}
+            >
+              {getTranslation("logistics.lastUpdated", language)}:{" "}
+              {latestMetric?.timestamp
+                ? formatDate(latestMetric.timestamp)
+                : "N/A"}
             </p>
           </div>
         </div>
       </div>
     </Card>
   );
-}
+};

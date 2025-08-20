@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -13,7 +12,11 @@ const SalesAndReturnsPage = () => {
   const [searchParams] = useSearchParams();
   const tabParam = searchParams.get("tab");
   const [activeTab, setActiveTab] = useState<"dashboard" | "sales" | "returns">(
-    tabParam === "returns" ? "returns" : tabParam === "sales" ? "sales" : "dashboard"
+    tabParam === "returns"
+      ? "returns"
+      : tabParam === "sales"
+        ? "sales"
+        : "dashboard"
   );
   const { language } = useLanguage();
   const navigate = useNavigate();
@@ -34,38 +37,47 @@ const SalesAndReturnsPage = () => {
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold">
-                {getTranslation('sales.salesAndReturns', language) || "Sales & Returns"}
+                {getTranslation("sales.salesAndReturns", language) ||
+                  "Sales & Returns"}
               </h1>
               <p className="text-muted-foreground">
-                {language === 'ar' 
-                  ? 'تخطيط وإدارة المبيعات والمرتجعات'
-                  : 'Plan and manage sales activities and returns'}
+                {language === "ar"
+                  ? "تخطيط وإدارة المبيعات والمرتجعات"
+                  : "Plan and manage sales activities and returns"}
               </p>
             </div>
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "dashboard" | "sales" | "returns")} className="w-full">
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) =>
+            setActiveTab(value as "dashboard" | "sales" | "returns")
+          }
+          className="w-full"
+        >
           <TabsList className="grid grid-cols-3 w-full max-w-md mb-4">
             <TabsTrigger value="dashboard">
-              {getTranslation('sales.dashboard', language) || "Dashboard"}
+              {getTranslation("sales.dashboard", language) || "Dashboard"}
             </TabsTrigger>
             <TabsTrigger value="sales">
-              {getTranslation('sales.salesPlanning', language) || "Sales Planning"}
+              {getTranslation("sales.salesPlanning", language) ||
+                "Sales Planning"}
             </TabsTrigger>
             <TabsTrigger value="returns">
-              {getTranslation('sales.returnsManagement', language) || "Returns Management"}
+              {getTranslation("sales.returnsManagement", language) ||
+                "Returns Management"}
             </TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="dashboard" className="mt-4">
             <SalesDashboard />
           </TabsContent>
-          
+
           <TabsContent value="sales" className="mt-4">
             <SalesPlanning />
           </TabsContent>
-          
+
           <TabsContent value="returns" className="mt-4">
             <ReturnsManagement />
           </TabsContent>

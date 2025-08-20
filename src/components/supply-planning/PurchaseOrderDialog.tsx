@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import {
   Dialog,
@@ -50,7 +49,7 @@ export function PurchaseOrderDialog({
   const { language } = useLanguage();
   const { toast } = useToast();
   const isEdit = !!purchaseOrder?.id;
-  
+
   const [formData, setFormData] = useState<PurchaseOrderData>(
     purchaseOrder || {
       sku: "",
@@ -87,11 +86,13 @@ export function PurchaseOrderDialog({
     try {
       // Ensure po_number is defined for new POs
       const poNumber = isEdit ? formData.po_number : `PO-${Date.now()}`;
-      
+
       const poData = {
         ...formData,
         po_number: poNumber, // Always provide a po_number
-        expected_delivery_date: deliveryDate ? new Date(deliveryDate).toISOString() : null,
+        expected_delivery_date: deliveryDate
+          ? new Date(deliveryDate).toISOString()
+          : null,
         updated_at: new Date().toISOString(),
       };
 
@@ -190,10 +191,7 @@ export function PurchaseOrderDialog({
             <Label htmlFor="status">
               {getTranslation("supplyPlanning.status", language)}
             </Label>
-            <Select
-              value={formData.status}
-              onValueChange={handleStatusChange}
-            >
+            <Select value={formData.status} onValueChange={handleStatusChange}>
               <SelectTrigger>
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
@@ -261,8 +259,8 @@ export function PurchaseOrderDialog({
               {isSubmitting
                 ? getTranslation("common.saving", language)
                 : isEdit
-                ? getTranslation("common.save", language)
-                : getTranslation("common.create", language)}
+                  ? getTranslation("common.save", language)
+                  : getTranslation("common.create", language)}
             </Button>
           </DialogFooter>
         </form>

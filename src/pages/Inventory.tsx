@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -29,13 +28,13 @@ const Inventory: React.FC = () => {
   return (
     <InventoryFilterProvider>
       <DashboardLayout>
-        <div className="space-y-6">
+        <div className="space-y-6 ">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
+            <h1 className=" text-3xl font-bold tracking-tight">
               {t("inventory.inventoryManagement") || "Inventory Management"}
             </h1>
             <p className="text-muted-foreground mt-2">
-              {t("inventory.management.description") ||
+              {t("inventory.managementDescription") ||
                 "Plan and manage inventory, buffers & decoupling points."}
             </p>
           </div>
@@ -43,12 +42,22 @@ const Inventory: React.FC = () => {
           {/* 🔥 Global Filter */}
           <InventoryGlobalFilters />
 
-          <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
+          <Tabs
+            value={activeTab}
+            onValueChange={handleTabChange}
+            className="space-y-4"
+          >
             <TabsList>
               <TabsTrigger value="overview">{t("common.overview")}</TabsTrigger>
-              <TabsTrigger value="buffers">{t("inventory.bufferZones")}</TabsTrigger>
-              <TabsTrigger value="classification">{t("inventory.classification")}</TabsTrigger>
-              <TabsTrigger value="decoupling">{t("inventory.decouplingPoint")}</TabsTrigger>
+              <TabsTrigger value="buffers">
+                {t("inventory.bufferZones")}
+              </TabsTrigger>
+              <TabsTrigger value="classification">
+                {t("inventory.classification")}
+              </TabsTrigger>
+              <TabsTrigger value="decoupling">
+                {t("inventory.decouplingPoint")}
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview">

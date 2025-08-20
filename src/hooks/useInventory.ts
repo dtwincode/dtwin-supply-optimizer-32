@@ -4,14 +4,15 @@ import { fetchInventoryPlanningView } from "@/lib/inventory-planning.service";
 export function useInventory() {
   const [items, setItems] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
+  const [error, setError] = useState<any>();
   useEffect(() => {
     const loadInventory = async () => {
       try {
         const data = await fetchInventoryPlanningView();
         setItems(data);
-      } catch (error) {
-        console.error("Error loading inventory:", error);
+      } catch (err) {
+        console.error("Error loading inventory:", err);
+        setError(err);
       } finally {
         setIsLoading(false);
       }
@@ -20,5 +21,5 @@ export function useInventory() {
     loadInventory();
   }, []);
 
-  return { items, isLoading };
+  return { items, isLoading, error };
 }

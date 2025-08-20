@@ -1,104 +1,126 @@
-
-import React from 'react';
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { getTranslation } from '@/translations';
+import React from "react";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslation } from "@/translations";
 
 // Sample data for the purchase order pipeline
 const pipelineData = [
   {
-    id: 'PO-2024-001',
-    supplier: 'Global Supplies Inc.',
-    stage: 'manufacturing',
-    startDate: '2024-03-01',
-    eta: '2024-04-15',
+    id: "PO-2024-001",
+    supplier: "Global Supplies Inc.",
+    stage: "manufacturing",
+    startDate: "2024-03-01",
+    eta: "2024-04-15",
     completion: 65,
     blockers: null,
-    priority: 'high'
+    priority: "high",
   },
   {
-    id: 'PO-2024-002',
-    supplier: 'Tech Components Ltd.',
-    stage: 'shipping',
-    startDate: '2024-02-15',
-    eta: '2024-03-30',
+    id: "PO-2024-002",
+    supplier: "Tech Components Ltd.",
+    stage: "shipping",
+    startDate: "2024-02-15",
+    eta: "2024-03-30",
     completion: 80,
     blockers: null,
-    priority: 'medium'
+    priority: "medium",
   },
   {
-    id: 'PO-2024-003',
-    supplier: 'Precision Parts Co.',
-    stage: 'customs',
-    startDate: '2024-03-10',
-    eta: '2024-04-05',
+    id: "PO-2024-003",
+    supplier: "Precision Parts Co.",
+    stage: "customs",
+    startDate: "2024-03-10",
+    eta: "2024-04-05",
     completion: 45,
-    blockers: 'Documentation issues',
-    priority: 'high'
+    blockers: "Documentation issues",
+    priority: "high",
   },
   {
-    id: 'PO-2024-004',
-    supplier: 'Quality Materials Corp.',
-    stage: 'delivery',
-    startDate: '2024-02-28',
-    eta: '2024-03-25',
+    id: "PO-2024-004",
+    supplier: "Quality Materials Corp.",
+    stage: "delivery",
+    startDate: "2024-02-28",
+    eta: "2024-03-25",
     completion: 90,
     blockers: null,
-    priority: 'low'
-  }
+    priority: "low",
+  },
 ];
 
 export const POPipelineTable = () => {
   const { language } = useLanguage();
-  
+
   const getStageTranslation = (stage: string) => {
     const stageMap: Record<string, string> = {
-      'manufacturing': language === 'en' ? 'Manufacturing' : 'التصنيع',
-      'shipping': language === 'en' ? 'Shipping' : 'الشحن',
-      'customs': language === 'en' ? 'Customs' : 'الجمارك',
-      'delivery': language === 'en' ? 'Delivery' : 'التسليم'
+      manufacturing: language === "en" ? "Manufacturing" : "التصنيع",
+      shipping: language === "en" ? "Shipping" : "الشحن",
+      customs: language === "en" ? "Customs" : "الجمارك",
+      delivery: language === "en" ? "Delivery" : "التسليم",
     };
-    
+
     return stageMap[stage] || stage;
   };
 
   const getPriorityVariant = (priority: string) => {
     const priorityMap: Record<string, string> = {
-      'high': 'destructive',
-      'medium': 'default',
-      'low': 'secondary'
+      high: "destructive",
+      medium: "default",
+      low: "secondary",
     };
-    
-    return priorityMap[priority] || 'default';
+
+    return priorityMap[priority] || "default";
   };
 
   const getPriorityTranslation = (priority: string) => {
     const priorityMap: Record<string, string> = {
-      'high': getTranslation('common.logistics.highPriority', language) || (language === 'en' ? 'High' : 'عالي'),
-      'medium': getTranslation('common.logistics.mediumPriority', language) || (language === 'en' ? 'Medium' : 'متوسط'),
-      'low': getTranslation('common.logistics.lowPriority', language) || (language === 'en' ? 'Low' : 'منخفض')
+      high:
+        getTranslation("logistics.highPriority", language) ||
+        (language === "en" ? "High" : "عالي"),
+      medium:
+        getTranslation("logistics.mediumPriority", language) ||
+        (language === "en" ? "Medium" : "متوسط"),
+      low:
+        getTranslation("logistics.lowPriority", language) ||
+        (language === "en" ? "Low" : "منخفض"),
     };
-    
+
     return priorityMap[priority] || priority;
   };
 
   return (
-    <div dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <div dir={language === "ar" ? "rtl" : "ltr"}>
       <h3 className="text-lg font-medium mb-4">
-        {getTranslation("common.logistics.purchaseOrderPipeline", language)}
+        {getTranslation("logistics.purchaseOrderPipeline", language)}
       </h3>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>{getTranslation("common.logistics.supplier", language)}</TableHead>
-            <TableHead>{getTranslation("common.logistics.stage", language)}</TableHead>
-            <TableHead>{getTranslation("common.logistics.startDate", language)}</TableHead>
-            <TableHead>{getTranslation("common.logistics.eta", language)}</TableHead>
-            <TableHead>{getTranslation("common.logistics.completion", language)}</TableHead>
-            <TableHead>{getTranslation("common.logistics.blockers", language)}</TableHead>
-            <TableHead>{getTranslation("common.logistics.priority", language)}</TableHead>
+            <TableHead>
+              {getTranslation("logistics.supplier", language)}
+            </TableHead>
+            <TableHead>{getTranslation("logistics.stage", language)}</TableHead>
+            <TableHead>
+              {getTranslation("logistics.startDate", language)}
+            </TableHead>
+            <TableHead>{getTranslation("logistics.eta", language)}</TableHead>
+            <TableHead>
+              {getTranslation("logistics.completion", language)}
+            </TableHead>
+            <TableHead>
+              {getTranslation("logistics.blockers", language)}
+            </TableHead>
+            <TableHead>
+              {getTranslation("logistics.priority", language)}
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -115,7 +137,7 @@ export const POPipelineTable = () => {
                 </div>
               </TableCell>
               <TableCell>
-                {po.blockers || getTranslation("common.logistics.none", language)}
+                {po.blockers || getTranslation("logistics.none", language)}
               </TableCell>
               <TableCell>
                 <Badge variant={getPriorityVariant(po.priority) as any}>

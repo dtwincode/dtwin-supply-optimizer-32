@@ -1,4 +1,3 @@
-
 // Define translation interface for a single phrase
 export interface Translation {
   en: string;
@@ -10,13 +9,17 @@ export interface Translation {
 
 // Define interface for a collection of translations
 export interface TranslationSet {
-  [key: string]: Translation | TranslationSet;
-  
+  [key: string]:
+    | Translation
+    | TranslationSet
+    | { [key: string]: string }
+    | undefined;
+
   // Add specific allowed properties here to fix type errors
   inventory?: {
     [key: string]: Translation;
   };
-  bufferZones?: Translation;
+  bufferZones?: any;
   redZone?: Translation;
   yellowZone?: Translation;
   greenZone?: Translation;
