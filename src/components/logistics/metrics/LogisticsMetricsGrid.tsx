@@ -1,17 +1,29 @@
-
-import { useLanguage } from '@/contexts/LanguageContext';
-import { getTranslation } from '@/translations';
-import { LogisticsMetricsCard } from './LogisticsMetricsCard';
-import { TrendingUp, Clock, CheckCircle, DollarSign, Truck, Leaf, AlertTriangle, BarChart, Globe } from 'lucide-react';
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslation } from "@/translations";
+import { LogisticsMetricsCard } from "./LogisticsMetricsCard";
+import {
+  TrendingUp,
+  Clock,
+  CheckCircle,
+  DollarSign,
+  Truck,
+  Leaf,
+  AlertTriangle,
+  BarChart,
+  Globe,
+} from "lucide-react";
 
 export const LogisticsMetricsGrid = () => {
   const { language } = useLanguage();
-  
+
   return (
-    <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-3" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <div
+      className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-3"
+      dir={language === "ar" ? "rtl" : "ltr"}
+    >
       <LogisticsMetricsCard
         icon={TrendingUp}
-        label={getTranslation("common.logistics.onTimeDeliveryRate", language)}
+        label={getTranslation("logistics.onTimeDeliveryRate", language)}
         value="88.5%"
         bgColor="bg-blue-100"
         textColor="text-blue-700"
@@ -19,7 +31,7 @@ export const LogisticsMetricsGrid = () => {
       />
       <LogisticsMetricsCard
         icon={Clock}
-        label={getTranslation("common.logistics.averageTransitTime", language)}
+        label={getTranslation("logistics.averageTransitTime", language)}
         value="3.2 days"
         bgColor="bg-amber-100"
         textColor="text-amber-700"
@@ -27,7 +39,7 @@ export const LogisticsMetricsGrid = () => {
       />
       <LogisticsMetricsCard
         icon={CheckCircle}
-        label={getTranslation("common.logistics.deliverySuccessRate", language)}
+        label={getTranslation("logistics.deliverySuccessRate", language)}
         value="96.7%"
         bgColor="bg-green-100"
         textColor="text-green-700"
@@ -35,7 +47,7 @@ export const LogisticsMetricsGrid = () => {
       />
       <LogisticsMetricsCard
         icon={DollarSign}
-        label={getTranslation("common.logistics.costPerShipment", language)}
+        label={getTranslation("logistics.costPerShipment", language)}
         value="﷼245.75"
         bgColor="bg-purple-100"
         textColor="text-purple-700"
@@ -43,7 +55,10 @@ export const LogisticsMetricsGrid = () => {
       />
       <LogisticsMetricsCard
         icon={Truck}
-        label={getTranslation("common.logistics.carrierPerformance", language) || "Carrier Performance"}
+        label={
+          getTranslation("logistics.carrierPerformance", language) ||
+          "Carrier Performance"
+        }
         value="92.4%"
         bgColor="bg-blue-100"
         textColor="text-blue-700"
@@ -51,7 +66,10 @@ export const LogisticsMetricsGrid = () => {
       />
       <LogisticsMetricsCard
         icon={Leaf}
-        label={getTranslation("common.logistics.carbonFootprint", language) || "Carbon Footprint"}
+        label={
+          getTranslation("logistics.carbonFootprint", language) ||
+          "Carbon Footprint"
+        }
         value="124.5 kg"
         bgColor="bg-green-100"
         textColor="text-green-700"
@@ -59,7 +77,7 @@ export const LogisticsMetricsGrid = () => {
       />
       <LogisticsMetricsCard
         icon={AlertTriangle}
-        label={getTranslation("common.logistics.delayRate", language) || "Delay Rate"}
+        label={getTranslation("logistics.delayRate", language) || "Delay Rate"}
         value="4.2%"
         bgColor="bg-orange-100"
         textColor="text-orange-700"
@@ -67,7 +85,10 @@ export const LogisticsMetricsGrid = () => {
       />
       <LogisticsMetricsCard
         icon={BarChart}
-        label={getTranslation("common.logistics.predictedVolume", language) || "Predicted Volume"}
+        label={
+          getTranslation("logistics.predictedVolume", language) ||
+          "Predicted Volume"
+        }
         value="+8.3%"
         bgColor="bg-indigo-100"
         textColor="text-indigo-700"
@@ -75,7 +96,10 @@ export const LogisticsMetricsGrid = () => {
       />
       <LogisticsMetricsCard
         icon={Globe}
-        label={getTranslation("common.logistics.weatherImpact", language) || "Weather Impact"}
+        label={
+          getTranslation("logistics.weatherImpact", language) ||
+          "Weather Impact"
+        }
         value="Medium"
         bgColor="bg-cyan-100"
         textColor="text-cyan-700"

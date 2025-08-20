@@ -1,36 +1,35 @@
-
-import React, { useState, useEffect, useRef } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { 
+import React, { useState, useEffect, useRef } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
+} from "@/components/ui/popover";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { 
-  Layers, 
-  MapPin, 
-  Truck, 
-  Package, 
-  Clock, 
+} from "@/components/ui/dropdown-menu";
+import {
+  Layers,
+  MapPin,
+  Truck,
+  Package,
+  Clock,
   AlertTriangle,
   ChevronDown,
   Settings,
-  RefreshCw
-} from 'lucide-react';
-import { useLogisticsTracking } from '@/hooks/useLogisticsTracking';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { getTranslation } from '@/translations';
-import BaseMap from '@/components/shared/maps/BaseMap';
-import { createMapMarker } from '@/components/shared/maps/MapMarker';
+  RefreshCw,
+} from "lucide-react";
+import { useLogisticsTracking } from "@/hooks/useLogisticsTracking";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslation } from "@/translations";
+import BaseMap from "@/components/shared/maps/BaseMap";
+import { createMapMarker } from "@/components/shared/maps/MapMarker";
 
 export const LogisticsMap = () => {
   const { language } = useLanguage();
@@ -48,70 +47,110 @@ export const LogisticsMap = () => {
 
   // Sample warehouse data
   const warehouseLocations = [
-    { id: 'wh1', name: getTranslation('common.logistics.warehouseLocations.riyadh', language) || 'Riyadh Distribution Center', lat: 24.7136, lng: 46.6753, type: 'distribution_center', shipments: 24 },
-    { id: 'wh2', name: getTranslation('common.logistics.warehouseLocations.jeddah', language) || 'Jeddah Regional Warehouse', lat: 21.5412, lng: 39.1721, type: 'warehouse', shipments: 18 },
-    { id: 'wh3', name: getTranslation('common.logistics.warehouseLocations.dammam', language) || 'Dammam Port Facility', lat: 26.4207, lng: 50.0887, type: 'port', shipments: 12 },
-    { id: 'wh4', name: getTranslation('common.logistics.warehouseLocations.mecca', language) || 'Mecca Fulfillment Center', lat: 21.3891, lng: 39.8579, type: 'fulfillment_center', shipments: 9 },
+    {
+      id: "wh1",
+      name:
+        getTranslation("logistics.warehouseLocations.riyadh", language) ||
+        "Riyadh Distribution Center",
+      lat: 24.7136,
+      lng: 46.6753,
+      type: "distribution_center",
+      shipments: 24,
+    },
+    {
+      id: "wh2",
+      name:
+        getTranslation("logistics.warehouseLocations.jeddah", language) ||
+        "Jeddah Regional Warehouse",
+      lat: 21.5412,
+      lng: 39.1721,
+      type: "warehouse",
+      shipments: 18,
+    },
+    {
+      id: "wh3",
+      name:
+        getTranslation("logistics.warehouseLocations.dammam", language) ||
+        "Dammam Port Facility",
+      lat: 26.4207,
+      lng: 50.0887,
+      type: "port",
+      shipments: 12,
+    },
+    {
+      id: "wh4",
+      name:
+        getTranslation("logistics.warehouseLocations.mecca", language) ||
+        "Mecca Fulfillment Center",
+      lat: 21.3891,
+      lng: 39.8579,
+      type: "fulfillment_center",
+      shipments: 9,
+    },
   ];
 
   // Sample shipment data
   const shipments = [
-    { 
-      id: 's1', 
-      orderId: 'ORD-12345', 
-      status: 'in_transit', 
-      lat: 23.1802, 
-      lng: 43.9412, 
-      from: warehouseLocations[0].name, 
-      to: 'Customer Location A', 
-      carrier: getTranslation('common.logistics.carriers.saudiPost.en', language) || 'Saudi Post',
-      eta: '2025-03-20T15:30:00', 
+    {
+      id: "s1",
+      orderId: "ORD-12345",
+      status: "in_transit",
+      lat: 23.1802,
+      lng: 43.9412,
+      from: warehouseLocations[0].name,
+      to: "Customer Location A",
+      carrier:
+        getTranslation("logistics.carriers.saudiPost.en", language) ||
+        "Saudi Post",
+      eta: "2025-03-20T15:30:00",
       isDelayed: false,
-      vehicle: 'truck'
+      vehicle: "truck",
     },
-    { 
-      id: 's2', 
-      orderId: 'ORD-12346', 
-      status: 'in_transit', 
-      lat: 22.2734, 
-      lng: 39.8851, 
-      from: warehouseLocations[1].name, 
-      to: 'Customer Location B', 
-      carrier: getTranslation('common.logistics.carriers.aramex.en', language) || 'Aramex',
-      eta: '2025-03-19T18:45:00', 
+    {
+      id: "s2",
+      orderId: "ORD-12346",
+      status: "in_transit",
+      lat: 22.2734,
+      lng: 39.8851,
+      from: warehouseLocations[1].name,
+      to: "Customer Location B",
+      carrier:
+        getTranslation("logistics.carriers.aramex.en", language) || "Aramex",
+      eta: "2025-03-19T18:45:00",
       isDelayed: true,
-      vehicle: 'van'
+      vehicle: "van",
     },
-    { 
-      id: 's3', 
-      orderId: 'ORD-12347', 
-      status: 'out_for_delivery', 
-      lat: 26.2172, 
-      lng: 50.1971, 
-      from: warehouseLocations[2].name, 
-      to: 'Customer Location C', 
-      carrier: getTranslation('common.logistics.carriers.dhl.en', language) || 'DHL',
-      eta: '2025-03-19T14:15:00', 
+    {
+      id: "s3",
+      orderId: "ORD-12347",
+      status: "out_for_delivery",
+      lat: 26.2172,
+      lng: 50.1971,
+      from: warehouseLocations[2].name,
+      to: "Customer Location C",
+      carrier: getTranslation("logistics.carriers.dhl.en", language) || "DHL",
+      eta: "2025-03-19T14:15:00",
       isDelayed: false,
-      vehicle: 'truck'
+      vehicle: "truck",
     },
-    { 
-      id: 's4', 
-      orderId: 'ORD-12348', 
-      status: 'in_transit', 
-      lat: 21.2805, 
-      lng: 40.4513, 
-      from: warehouseLocations[3].name, 
-      to: 'Customer Location D', 
-      carrier: getTranslation('common.logistics.carriers.fedex.en', language) || 'FedEx',
-      eta: '2025-03-21T09:30:00', 
+    {
+      id: "s4",
+      orderId: "ORD-12348",
+      status: "in_transit",
+      lat: 21.2805,
+      lng: 40.4513,
+      from: warehouseLocations[3].name,
+      to: "Customer Location D",
+      carrier:
+        getTranslation("logistics.carriers.fedex.en", language) || "FedEx",
+      eta: "2025-03-21T09:30:00",
       isDelayed: true,
-      vehicle: 'truck'
-    }
+      vehicle: "truck",
+    },
   ];
 
-  const filteredShipments = showDelayedOnly 
-    ? shipments.filter(s => s.isDelayed) 
+  const filteredShipments = showDelayedOnly
+    ? shipments.filter((s) => s.isDelayed)
     : shipments;
 
   // Handle live tracking toggle
@@ -121,55 +160,68 @@ export const LogisticsMap = () => {
 
   // Shipment marker click handler
   const handleShipmentClick = (shipment) => {
-    console.log('Shipment clicked:', shipment);
+    console.log("Shipment clicked:", shipment);
     // Here you would typically show a detailed view or modal
   };
 
   // Warehouse marker click handler
   const handleWarehouseClick = (warehouse) => {
-    console.log('Warehouse clicked:', warehouse);
+    console.log("Warehouse clicked:", warehouse);
     // Here you would typically show a detailed view or modal
   };
 
   // Get marker color based on shipment status
   const getShipmentMarkerColor = (status, isDelayed) => {
-    if (isDelayed) return 'red';
-    switch(status) {
-      case 'delivered': return 'green';
-      case 'out_for_delivery': return 'blue';
-      case 'in_transit': return 'yellow';
-      case 'processing': return 'purple';
-      case 'exception': return 'red';
-      default: return 'gray';
+    if (isDelayed) return "red";
+    switch (status) {
+      case "delivered":
+        return "green";
+      case "out_for_delivery":
+        return "blue";
+      case "in_transit":
+        return "yellow";
+      case "processing":
+        return "purple";
+      case "exception":
+        return "red";
+      default:
+        return "gray";
     }
   };
 
   // Get marker color based on warehouse type
   const getWarehouseMarkerColor = (type) => {
-    switch(type) {
-      case 'distribution_center': return 'blue';
-      case 'warehouse': return 'green';
-      case 'port': return 'purple';
-      case 'fulfillment_center': return 'orange';
-      default: return 'gray';
+    switch (type) {
+      case "distribution_center":
+        return "blue";
+      case "warehouse":
+        return "green";
+      case "port":
+        return "purple";
+      case "fulfillment_center":
+        return "orange";
+      default:
+        return "gray";
     }
   };
 
   // Format date to readable format
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return date.toLocaleString(language === "ar" ? "ar-SA" : "en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const getLiveTrackingStatus = () => {
-    return liveTracking 
-      ? getTranslation('common.logistics.liveTrackingEnabled', language) || 'Live tracking enabled'
-      : getTranslation('common.logistics.liveTrackingDisabled', language) || 'Live tracking disabled';
+    return liveTracking
+      ? getTranslation("logistics.liveTrackingEnabled", language) ||
+          "Live tracking enabled"
+      : getTranslation("logistics.liveTrackingDisabled", language) ||
+          "Live tracking disabled";
   };
 
   const getStatusBadge = (status, isDelayed) => {
@@ -177,45 +229,72 @@ export const LogisticsMap = () => {
       return (
         <Badge variant="destructive" className="ml-2">
           <Clock className="h-3 w-3 mr-1" />
-          {getTranslation('common.logistics.delayedEta', language) || 'Delayed (3h+)'}
+          {getTranslation("logistics.delayedEta", language) || "Delayed (3h+)"}
         </Badge>
       );
     }
 
-    switch(status) {
-      case 'in_transit':
+    switch (status) {
+      case "in_transit":
         return (
           <Badge variant="secondary" className="ml-2">
             <Truck className="h-3 w-3 mr-1" />
-            {getTranslation('common.logistics.inTransit', language) || 'In Transit'}
+            {getTranslation("logistics.inTransit", language) || "In Transit"}
           </Badge>
         );
-      case 'out_for_delivery':
+      case "out_for_delivery":
         return (
           <Badge variant="default" className="bg-blue-500 ml-2">
             <Package className="h-3 w-3 mr-1" />
-            {getTranslation('common.logistics.outForDelivery', language) || 'Out for Delivery'}
+            {getTranslation("logistics.outForDelivery", language) ||
+              "Out for Delivery"}
           </Badge>
         );
-      case 'delivered':
+      case "delivered":
         return (
           <Badge variant="default" className="bg-green-500 ml-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            {getTranslation('common.logistics.delivered', language) || 'Delivered'}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="mr-1"
+            >
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            {getTranslation("logistics.delivered", language) || "Delivered"}
           </Badge>
         );
-      case 'processing':
+      case "processing":
         return (
           <Badge variant="outline" className="ml-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><path d="M22 12A10 10 0 1 1 12 2a1 1 0 0 1 1 1v8h8a1 1 0 0 1 1 1Z"></path></svg>
-            {getTranslation('common.logistics.processing', language) || 'Processing'}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="mr-1"
+            >
+              <path d="M22 12A10 10 0 1 1 12 2a1 1 0 0 1 1 1v8h8a1 1 0 0 1 1 1Z"></path>
+            </svg>
+            {getTranslation("logistics.processing", language) || "Processing"}
           </Badge>
         );
-      case 'exception':
+      case "exception":
         return (
           <Badge variant="destructive" className="ml-2">
             <AlertTriangle className="h-3 w-3 mr-1" />
-            {getTranslation('common.logistics.exception', language) || 'Exception'}
+            {getTranslation("logistics.exception", language) || "Exception"}
           </Badge>
         );
       default:
@@ -226,39 +305,42 @@ export const LogisticsMap = () => {
   // Prepare map markers
   const prepareMapMarkers = () => {
     const markers = [];
-    
+
     // Add warehouse markers if the layer is enabled
     if (showWarehousesLayer) {
-      warehouseLocations.forEach(warehouse => {
+      warehouseLocations.forEach((warehouse) => {
         markers.push({
           id: `warehouse-${warehouse.id}`,
           latitude: warehouse.lat,
           longitude: warehouse.lng,
           color: getWarehouseMarkerColor(warehouse.type),
-          icon: 'warehouse',
+          icon: "warehouse",
           onClick: () => handleWarehouseClick(warehouse),
           tooltipContent: (
             <div className="p-2 max-w-[200px]">
               <div className="font-semibold">{warehouse.name}</div>
-              <div className="text-sm text-muted-foreground">{warehouse.type.replace('_', ' ')}</div>
+              <div className="text-sm text-muted-foreground">
+                {warehouse.type.replace("_", " ")}
+              </div>
               <div className="text-sm mt-1">
-                <span className="font-medium">{warehouse.shipments}</span> active shipments
+                <span className="font-medium">{warehouse.shipments}</span>{" "}
+                active shipments
               </div>
             </div>
-          )
+          ),
         });
       });
     }
-    
+
     // Add shipment markers if the layer is enabled
     if (showShipmentsLayer) {
-      filteredShipments.forEach(shipment => {
+      filteredShipments.forEach((shipment) => {
         markers.push({
           id: `shipment-${shipment.id}`,
           latitude: shipment.lat,
           longitude: shipment.lng,
           color: getShipmentMarkerColor(shipment.status, shipment.isDelayed),
-          icon: shipment.vehicle || 'delivery',
+          icon: shipment.vehicle || "delivery",
           onClick: () => handleShipmentClick(shipment),
           tooltipContent: (
             <div className="p-2 max-w-[200px]">
@@ -268,24 +350,37 @@ export const LogisticsMap = () => {
               </div>
               <div className="text-xs mt-2">
                 <div>
-                  <span className="font-medium">{getTranslation('common.logistics.origin', language) || 'From'}:</span> {shipment.from}
+                  <span className="font-medium">
+                    {getTranslation("logistics.origin", language) || "From"}:
+                  </span>{" "}
+                  {shipment.from}
                 </div>
                 <div>
-                  <span className="font-medium">{getTranslation('common.logistics.destination', language) || 'To'}:</span> {shipment.to}
+                  <span className="font-medium">
+                    {getTranslation("logistics.destination", language) || "To"}:
+                  </span>{" "}
+                  {shipment.to}
                 </div>
                 <div>
-                  <span className="font-medium">{getTranslation('common.logistics.carrier', language) || 'Carrier'}:</span> {shipment.carrier}
+                  <span className="font-medium">
+                    {getTranslation("logistics.carrier", language) || "Carrier"}
+                    :
+                  </span>{" "}
+                  {shipment.carrier}
                 </div>
                 <div>
-                  <span className="font-medium">{getTranslation('common.logistics.eta', language) || 'ETA'}:</span> {formatDate(shipment.eta)}
+                  <span className="font-medium">
+                    {getTranslation("logistics.eta", language) || "ETA"}:
+                  </span>{" "}
+                  {formatDate(shipment.eta)}
                 </div>
               </div>
             </div>
-          )
+          ),
         });
       });
     }
-    
+
     return markers;
   };
 
@@ -296,47 +391,51 @@ export const LogisticsMap = () => {
           <Button
             variant="secondary"
             size="sm"
-            className={`flex items-center ${liveTracking ? 'bg-green-600 hover:bg-green-700 text-white' : ''}`}
+            className={`flex items-center ${liveTracking ? "bg-green-600 hover:bg-green-700 text-white" : ""}`}
             onClick={toggleLiveTracking}
           >
-            <span className={`h-2 w-2 rounded-full mr-2 ${liveTracking ? 'bg-white animate-pulse' : 'bg-muted-foreground'}`}></span>
-            {liveTracking 
-              ? getTranslation('common.logistics.liveOn', language) || 'Live'
-              : getTranslation('common.logistics.liveOff', language) || 'Go Live'
-            }
+            <span
+              className={`h-2 w-2 rounded-full mr-2 ${liveTracking ? "bg-white animate-pulse" : "bg-muted-foreground"}`}
+            ></span>
+            {liveTracking
+              ? getTranslation("logistics.liveOn", language) || "Live"
+              : getTranslation("logistics.liveOff", language) || "Go Live"}
           </Button>
 
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="flex items-center">
                 <Layers className="h-4 w-4 mr-2" />
-                {getTranslation('common.logistics.layers', language) || 'Layers'}
+                {getTranslation("logistics.layers", language) || "Layers"}
                 <ChevronDown className="h-3 w-3 ml-1" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-80" align="start">
               <div className="space-y-4">
                 <h4 className="font-medium">
-                  {getTranslation('common.logistics.mapLayers', language) || 'Map Layers'}
+                  {getTranslation("logistics.mapLayers", language) ||
+                    "Map Layers"}
                 </h4>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="text-sm flex items-center">
                       <Truck className="h-4 w-4 mr-2" />
-                      {getTranslation('common.logistics.shipments', language) || 'Shipments'}
+                      {getTranslation("logistics.shipments", language) ||
+                        "Shipments"}
                     </label>
-                    <Switch 
+                    <Switch
                       checked={showShipmentsLayer}
                       onCheckedChange={setShowShipmentsLayer}
                     />
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <label className="text-sm flex items-center">
                       <MapPin className="h-4 w-4 mr-2" />
-                      {getTranslation('common.logistics.warehouses', language) || 'Warehouses'}
+                      {getTranslation("logistics.warehouses", language) ||
+                        "Warehouses"}
                     </label>
-                    <Switch 
+                    <Switch
                       checked={showWarehousesLayer}
                       onCheckedChange={setShowWarehousesLayer}
                     />
@@ -344,21 +443,58 @@ export const LogisticsMap = () => {
 
                   <div className="flex items-center justify-between">
                     <label className="text-sm flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="M20 17.5v-13a2.5 2.5 0 0 0-5 0v13"></path><path d="M4 17.5v-13a2.5 2.5 0 0 1 5 0v13"></path><path d="M4 5h16"></path><path d="M20 17.5h-16"></path></svg>
-                      {getTranslation('common.logistics.trafficData', language) || 'Traffic Data'}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="mr-2"
+                      >
+                        <path d="M20 17.5v-13a2.5 2.5 0 0 0-5 0v13"></path>
+                        <path d="M4 17.5v-13a2.5 2.5 0 0 1 5 0v13"></path>
+                        <path d="M4 5h16"></path>
+                        <path d="M20 17.5h-16"></path>
+                      </svg>
+                      {getTranslation("logistics.trafficData", language) ||
+                        "Traffic Data"}
                     </label>
-                    <Switch 
+                    <Switch
                       checked={showTrafficData}
                       onCheckedChange={setShowTrafficData}
                     />
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <label className="text-sm flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="M17.5 17a5 5 0 1 1-.4-4"></path><path d="m22 22-5-5"></path><path d="M11.7 3a20 20 0 0 0-1.1 3"></path><path d="M9.5 9C6.4 9.9 5 11.5 5 15a7 7 0 1 0 13.3-3"></path><path d="M13.1 7a20 20 0 0 1 1.1-3"></path><path d="M8 2a20 20 0 0 0-.7 2"></path><path d="M16 2a20 20 0 0 1 .7 2"></path></svg>
-                      {getTranslation('common.logistics.weatherOverlay', language) || 'Weather Overlay'}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="mr-2"
+                      >
+                        <path d="M17.5 17a5 5 0 1 1-.4-4"></path>
+                        <path d="m22 22-5-5"></path>
+                        <path d="M11.7 3a20 20 0 0 0-1.1 3"></path>
+                        <path d="M9.5 9C6.4 9.9 5 11.5 5 15a7 7 0 1 0 13.3-3"></path>
+                        <path d="M13.1 7a20 20 0 0 1 1.1-3"></path>
+                        <path d="M8 2a20 20 0 0 0-.7 2"></path>
+                        <path d="M16 2a20 20 0 0 1 .7 2"></path>
+                      </svg>
+                      {getTranslation("logistics.weatherOverlay", language) ||
+                        "Weather Overlay"}
                     </label>
-                    <Switch 
+                    <Switch
                       checked={showWeatherOverlay}
                       onCheckedChange={setShowWeatherOverlay}
                     />
@@ -369,9 +505,10 @@ export const LogisticsMap = () => {
                   <div className="flex items-center justify-between">
                     <label className="text-sm flex items-center">
                       <Clock className="h-4 w-4 mr-2" />
-                      {getTranslation('common.logistics.showDelayedOnly', language) || 'Show Delayed Only'}
+                      {getTranslation("logistics.showDelayedOnly", language) ||
+                        "Show Delayed Only"}
                     </label>
-                    <Switch 
+                    <Switch
                       checked={showDelayedOnly}
                       onCheckedChange={setShowDelayedOnly}
                     />
@@ -391,34 +528,38 @@ export const LogisticsMap = () => {
             <DropdownMenuContent align="start">
               <div className="p-2">
                 <h4 className="font-medium mb-3">
-                  {getTranslation('common.logistics.mapViewSettings', language) || 'Map View Settings'}
+                  {getTranslation("logistics.mapViewSettings", language) ||
+                    "Map View Settings"}
                 </h4>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="text-sm">
-                      {getTranslation('common.logistics.showRoutes', language) || 'Show Routes'}
+                      {getTranslation("logistics.showRoutes", language) ||
+                        "Show Routes"}
                     </label>
-                    <Switch 
+                    <Switch
                       checked={showRoutes}
                       onCheckedChange={setShowRoutes}
                     />
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <label className="text-sm">
-                      {getTranslation('common.logistics.showHeatmap', language) || 'Show Heatmap'}
+                      {getTranslation("logistics.showHeatmap", language) ||
+                        "Show Heatmap"}
                     </label>
-                    <Switch 
+                    <Switch
                       checked={showHeatmap}
                       onCheckedChange={setShowHeatmap}
                     />
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <label className="text-sm">
-                      {getTranslation('common.logistics.clusterMarkers', language) || 'Cluster Markers'}
+                      {getTranslation("logistics.clusterMarkers", language) ||
+                        "Cluster Markers"}
                     </label>
-                    <Switch 
+                    <Switch
                       checked={clusterMarkers}
                       onCheckedChange={setClusterMarkers}
                     />
@@ -441,7 +582,10 @@ export const LogisticsMap = () => {
               </div>
               {liveTracking && (
                 <div className="text-xs text-muted-foreground">
-                  {getTranslation('common.logistics.locationUpdatesEnabled', language) || 'Location updates every 15 seconds'}
+                  {getTranslation(
+                    "logistics.locationUpdatesEnabled",
+                    language
+                  ) || "Location updates every 15 seconds"}
                 </div>
               )}
             </CardContent>
@@ -452,7 +596,9 @@ export const LogisticsMap = () => {
           <Card className="bg-white/90 shadow-md border-0">
             <CardContent className="p-2">
               <div className="text-xs font-medium">
-                {getTranslation('common.logistics.activeShipments', language) || 'Active Shipments'}: {filteredShipments.length}
+                {getTranslation("logistics.activeShipments", language) ||
+                  "Active Shipments"}
+                : {filteredShipments.length}
               </div>
             </CardContent>
           </Card>

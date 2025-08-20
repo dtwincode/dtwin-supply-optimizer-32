@@ -1,4 +1,3 @@
-
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/DashboardLayout";
 import { SupplyPlanningTabs } from "@/components/supply-planning/SupplyPlanningTabs";
@@ -23,7 +22,7 @@ const SupplyPlanning = () => {
             <Sparkles className="h-6 w-6 text-dtwin-dark" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-dtwin-dark to-dtwin-medium bg-clip-text text-transparent">
-            {getTranslation("navigationItems.supplyPlanning", language)}
+            {getTranslation("navigation.supplyPlanning", language)}
           </h1>
         </div>
         <p className="text-muted-foreground">

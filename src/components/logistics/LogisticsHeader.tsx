@@ -1,8 +1,7 @@
-
-import React from 'react';
-import { Truck } from 'lucide-react';
-import { useI18n } from '@/contexts/I18nContext';
-import { LogisticsFilters } from './filters/LogisticsFilters';
+import React from "react";
+import { Truck } from "lucide-react";
+import { useI18n } from "@/contexts/I18nContext";
+import { LogisticsFilters } from "./filters/LogisticsFilters";
 
 export const LogisticsHeader = () => {
   const { t } = useI18n();
@@ -15,10 +14,10 @@ export const LogisticsHeader = () => {
         </div>
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">
-            {t('common.logistics.title')}
+            {t("logistics.title")}
           </h1>
           <p className="text-muted-foreground">
-            {t('common.logistics.optimizeSupplyChain')}
+            {t("logistics.optimizeSupplyChain")}
           </p>
         </div>
       </div>

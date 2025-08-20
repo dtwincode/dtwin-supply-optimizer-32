@@ -1,6 +1,11 @@
-
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useI18n } from "@/contexts/I18nContext";
 import { salesPlansData } from "@/data/salesData";
@@ -10,7 +15,9 @@ import { WhatIfScenarios } from "./dashboard/WhatIfScenarios";
 import { SalesForecastIntegration } from "./dashboard/SalesForecastIntegration";
 
 export const SalesDashboard = () => {
-  const [timeFrame, setTimeFrame] = useState<"monthly" | "quarterly" | "yearly">("quarterly");
+  const [timeFrame, setTimeFrame] = useState<
+    "monthly" | "quarterly" | "yearly"
+  >("quarterly");
   const { t } = useI18n();
 
   return (
@@ -24,21 +31,27 @@ export const SalesDashboard = () => {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>{t('sales.salesTrends')}</CardTitle>
+                <CardTitle>{t("sales.salesTrends")}</CardTitle>
                 <CardDescription>
-                  {t('sales.comparePlannedVsActual')}
+                  {t("sales.comparePlannedVsActual")}
                 </CardDescription>
               </div>
-              <Tabs 
-                defaultValue="quarterly" 
+              <Tabs
+                defaultValue="quarterly"
                 value={timeFrame}
-                onValueChange={(value) => setTimeFrame(value as "monthly" | "quarterly" | "yearly")}
+                onValueChange={(value) =>
+                  setTimeFrame(value as "monthly" | "quarterly" | "yearly")
+                }
                 className="w-[400px]"
               >
                 <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="monthly">{t('sales.monthly')}</TabsTrigger>
-                  <TabsTrigger value="quarterly">{t('sales.quarterly')}</TabsTrigger>
-                  <TabsTrigger value="yearly">{t('sales.yearly')}</TabsTrigger>
+                  <TabsTrigger value="monthly">
+                    {t("sales.monthly")}
+                  </TabsTrigger>
+                  <TabsTrigger value="quarterly">
+                    {t("sales.quarterly")}
+                  </TabsTrigger>
+                  <TabsTrigger value="yearly">{t("sales.yearly")}</TabsTrigger>
                 </TabsList>
               </Tabs>
             </div>
@@ -50,9 +63,9 @@ export const SalesDashboard = () => {
 
         <Card className="lg:col-span-1">
           <CardHeader>
-            <CardTitle>{t('sales.whatIfScenarios')}</CardTitle>
+            <CardTitle>{t("sales.whatIfScenarios")}</CardTitle>
             <CardDescription>
-              {t('sales.exploreSalesScenarios')}
+              {t("sales.exploreSalesScenarios")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -64,9 +77,9 @@ export const SalesDashboard = () => {
       <div className="grid grid-cols-1 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>{t('sales.forecastIntegration')}</CardTitle>
+            <CardTitle>{t("sales.forecastIntegration")}</CardTitle>
             <CardDescription>
-              {t('sales.integrationWithForecasts')}
+              {t("sales.integrationWithForecasts")}
             </CardDescription>
           </CardHeader>
           <CardContent>

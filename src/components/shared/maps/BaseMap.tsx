@@ -1,8 +1,8 @@
+import React, { useRef, useEffect, useState } from "react";
+import mapboxgl from "mapbox-gl";
 
-import React, { useRef, useEffect, useState } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import { createMapMarker } from './MapMarker';
+import "mapbox-gl/dist/mapbox-gl.css";
+import { createMapMarker } from "./MapMarker";
 
 interface BaseMapProps {
   latitude?: number;
@@ -19,61 +19,66 @@ interface BaseMapProps {
   }>;
 }
 
-const BaseMap: React.FC<BaseMapProps> = ({ 
-  latitude = 34.0522, 
-  longitude = -118.2437, 
+const BaseMap: React.FC<BaseMapProps> = ({
+  latitude = 34.0522,
+  longitude = -118.2437,
   zoom = 9,
-  markers = []
+  markers = [],
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<mapboxgl.Map | null>(null);
-  const markerRefs = useRef<{[key: string]: mapboxgl.Marker}>({});
+  const markerRefs = useRef<{ [key: string]: mapboxgl.Marker }>({});
 
   useEffect(() => {
     // Use a fallback token if the environment variable is not available
-    const mapboxToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || 
-                       'pk.eyJ1IjoiZHR3aW4tc3VwcGx5LWNoYWluIiwiYSI6ImNscXVkZndnYzE3YXIya284bHkxdjgwa24ifQ.kWnflNf9FQtNwxTvTiG20g';
+    const mapboxToken =
+      import.meta.env.VITE_MAPBOX_ACCESS_TOKEN ||
+      "pk.eyJ1IjoiZHR3aW4tc3VwcGx5LWNoYWluIiwiYSI6ImNscXVkZndnYzE3YXIya284bHkxdjgwa24ifQ.kWnflNf9FQtNwxTvTiG20g";
     mapboxgl.accessToken = mapboxToken;
 
     const initializeMap = () => {
       const mapInstance = new mapboxgl.Map({
         container: mapContainer.current!,
-        style: 'mapbox://styles/mapbox/streets-v12',
+        style: "mapbox://styles/mapbox/streets-v12",
         center: [longitude, latitude],
-        zoom: zoom
+        zoom: zoom,
       });
 
-      mapInstance.on('load', () => {
+      mapInstance.on("load", () => {
         setMap(mapInstance);
         mapInstance.resize();
       });
 
       // Add navigation control (the +/- zoom buttons)
-      mapInstance.addControl(new mapboxgl.NavigationControl(), 'top-right');
+      mapInstance.addControl(new mapboxgl.NavigationControl(), "top-right");
 
       // Add geolocate control to the map.
       mapInstance.addControl(
         new mapboxgl.GeolocateControl({
           positionOptions: {
-            enableHighAccuracy: true
+            enableHighAccuracy: true,
           },
           trackUserLocation: true,
-          showUserHeading: true
+          showUserHeading: true,
         }),
-        'top-left'
+        "top-left"
       );
 
       // Add full screen control
       mapInstance.addControl(new mapboxgl.FullscreenControl());
 
       // Add scale control
-      mapInstance.addControl(new mapboxgl.ScaleControl({
-        maxWidth: 80,
-        unit: 'metric'
-      }));
+      mapInstance.addControl(
+        new mapboxgl.ScaleControl({
+          maxWidth: 80,
+          unit: "metric",
+        })
+      );
 
       // Add attribution control
-      mapInstance.addControl(new mapboxgl.AttributionControl({ compact: true }));
+      mapInstance.addControl(
+        new mapboxgl.AttributionControl({ compact: true })
+      );
 
       setMap(mapInstance);
     };
@@ -92,37 +97,36 @@ const BaseMap: React.FC<BaseMapProps> = ({
     if (!map) return;
 
     // Clear previous markers
-    Object.values(markerRefs.current).forEach(marker => marker.remove());
+    Object.values(markerRefs.current).forEach((marker) => marker.remove());
     markerRefs.current = {};
 
     // Add new markers
-    markers.forEach(marker => {
-      const { id, latitude, longitude, color, onClick, icon, tooltipContent } = marker;
-      const markerElement = createMapMarker({ 
-        color, 
+    markers.forEach((marker) => {
+      const { id, latitude, longitude, color, onClick, icon, tooltipContent } =
+        marker;
+      const markerElement = createMapMarker({
+        color,
         icon,
-        tooltipContent
+        tooltipContent,
       });
-      
+
       const mapMarker = new mapboxgl.Marker(markerElement)
         .setLngLat([longitude, latitude])
         .addTo(map);
-        
+
       if (onClick) {
-        markerElement.addEventListener('click', onClick);
+        markerElement.addEventListener("click", onClick);
       }
-      
+
       markerRefs.current[id] = mapMarker;
     });
-    
+
     return () => {
-      Object.values(markerRefs.current).forEach(marker => marker.remove());
+      Object.values(markerRefs.current).forEach((marker) => marker.remove());
     };
   }, [map, markers]);
 
-  return (
-    <div ref={mapContainer} style={{ width: '100%', height: '400px' }} />
-  );
+  return <div ref={mapContainer} style={{ width: "100%", height: "400px" }} />;
 };
 
 export default BaseMap;

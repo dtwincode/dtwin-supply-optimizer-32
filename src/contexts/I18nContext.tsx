@@ -1,10 +1,9 @@
-
-import React, { createContext, useContext } from 'react';
-import { getTranslation } from '@/translations';
-import { useLanguage } from './LanguageContext';
+import React, { createContext, useContext } from "react";
+import { getTranslation } from "../translations";
+import { useLanguage } from "./LanguageContext";
 
 // Define Language type here since it's not properly exported from translations
-export type Language = 'en' | 'ar';
+export type Language = "en" | "ar";
 
 interface I18nContextType {
   t: (key: string) => string;
@@ -14,13 +13,15 @@ interface I18nContextType {
 
 const I18nContext = createContext<I18nContextType>({
   t: (key: string) => key,
-  language: 'en',
+  language: "en",
   setLanguage: () => {},
 });
 
 export const useI18n = () => useContext(I18nContext);
 
-export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const { language, setLanguage } = useLanguage();
 
   const t = (key: string): string => {

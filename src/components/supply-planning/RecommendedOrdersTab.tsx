@@ -1,31 +1,44 @@
-
 import { useState, useEffect } from "react";
 import { useInventory } from "@/hooks/useInventory";
 import { InventoryItem } from "@/types/inventory";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslation } from "@/translations";
 import { PlusCircle, ArrowUpDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { calculateBufferZones, calculateNetFlowPosition, shouldCreatePurchaseOrder, calculateOrderQuantity } from "@/utils/inventoryUtils";
+import {
+  calculateBufferZones,
+  calculateNetFlowPosition,
+  shouldCreatePurchaseOrder,
+  calculateOrderQuantity,
+} from "@/utils/inventoryUtils";
 import { useCreatePurchaseOrder } from "@/hooks/useCreatePurchaseOrder";
 
 export const RecommendedOrdersTab = () => {
-  const { items, loading, error } = useInventory();
+  const { items, isLoading, error } = useInventory();
   const { language } = useLanguage();
   const { toast } = useToast();
   const createPurchaseOrder = useCreatePurchaseOrder();
   const [processingItem, setProcessingItem] = useState<string | null>(null);
   const [filteredItems, setFilteredItems] = useState<InventoryItem[]>([]);
-  const [itemsWithOrderData, setItemsWithOrderData] = useState<(InventoryItem & { orderQuantity: number })[]>([]);
+  const [itemsWithOrderData, setItemsWithOrderData] = useState<
+    (InventoryItem & { orderQuantity: number })[]
+  >([]);
 
   // Process items to determine which need replenishment
   useEffect(() => {
     const processItems = async () => {
-      if (!items.length || loading) return;
-      
+      if (!items.length || isLoading) return;
+
       const itemsNeedingReplenishment: InventoryItem[] = [];
       const itemsWithData: (InventoryItem & { orderQuantity: number })[] = [];
 
@@ -33,63 +46,79 @@ export const RecommendedOrdersTab = () => {
         try {
           const bufferZones = await calculateBufferZones(item);
           const netFlow = calculateNetFlowPosition(item);
-          const shouldOrder = shouldCreatePurchaseOrder(netFlow.netFlowPosition, bufferZones);
-          
+          const shouldOrder = shouldCreatePurchaseOrder(
+            netFlow.netFlowPosition,
+            bufferZones
+          );
+
           if (shouldOrder) {
             itemsNeedingReplenishment.push(item);
-            
+
             const orderQuantity = calculateOrderQuantity(
               netFlow.netFlowPosition,
               bufferZones,
               item.minimumOrderQuantity || 0
             );
-            
+
             itemsWithData.push({
               ...item,
-              orderQuantity
+              orderQuantity,
             });
           }
         } catch (err) {
           console.error(`Error processing item ${item.sku}:`, err);
         }
       }
-      
+
       setFilteredItems(itemsNeedingReplenishment);
       setItemsWithOrderData(itemsWithData);
     };
-    
-    processItems();
-  }, [items, loading]);
 
-  const handleCreatePO = async (item: InventoryItem & { orderQuantity: number }) => {
+    processItems();
+  }, [items, isLoading]);
+
+  const handleCreatePO = async (
+    item: InventoryItem & { orderQuantity: number }
+  ) => {
     try {
       setProcessingItem(item.sku);
-      
+
       await createPurchaseOrder({
         sku: item.sku,
         quantity: item.orderQuantity,
-        status: 'planned',
-        supplier: item.preferredSupplier || '',
-        expectedDeliveryDate: new Date(Date.now() + (item.leadTimeDays || 30) * 24 * 60 * 60 * 1000)
+        status: "planned",
+        supplier: item.preferredSupplier || "",
+        expectedDeliveryDate: new Date(
+          Date.now() + (item.leadTimeDays || 30) * 24 * 60 * 60 * 1000
+        ),
       });
-      
+
       toast({
-        title: getTranslation("supplyPlanning.notifications.poCreated", language),
-        description: getTranslation("supplyPlanning.notifications.poCreatedDesc", language)
+        title: getTranslation(
+          "supplyPlanning.notifications.poCreated",
+          language
+        ),
+        description: getTranslation(
+          "supplyPlanning.notifications.poCreatedDesc",
+          language
+        ),
       });
     } catch (err) {
       console.error("Error creating PO:", err);
       toast({
         title: getTranslation("supplyPlanning.notifications.poError", language),
-        description: getTranslation("supplyPlanning.notifications.poErrorDesc", language),
-        variant: "destructive"
+        description: getTranslation(
+          "supplyPlanning.notifications.poErrorDesc",
+          language
+        ),
+        variant: "destructive",
       });
     } finally {
       setProcessingItem(null);
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Card className="p-6">
         <p>{getTranslation("common.inventory.loadingData", language)}</p>
@@ -115,12 +144,12 @@ export const RecommendedOrdersTab = () => {
           {getTranslation("supplyPlanning.recommendedOrdersDesc", language)}
         </p>
       </div>
-      
+
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>{getTranslation("common.inventory.sku", language)}</TableHead>
-            <TableHead>{getTranslation("common.inventory.name", language)}</TableHead>
+            <TableHead>{getTranslation("common.skus", language)}</TableHead>
+            <TableHead>{getTranslation("common.name", language)}</TableHead>
             <TableHead>
               <div className="flex items-center">
                 {getTranslation("supplyPlanning.currentStock", language)}
@@ -133,9 +162,15 @@ export const RecommendedOrdersTab = () => {
                 <ArrowUpDown className="ml-2 h-4 w-4" />
               </div>
             </TableHead>
-            <TableHead>{getTranslation("supplyPlanning.supplier", language)}</TableHead>
-            <TableHead>{getTranslation("supplyPlanning.leadTime", language)}</TableHead>
-            <TableHead className="text-right">{getTranslation("common.inventory.actions", language)}</TableHead>
+            <TableHead>
+              {getTranslation("supplyPlanning.supplier", language)}
+            </TableHead>
+            <TableHead>
+              {getTranslation("supplyPlanning.leadTime", language)}
+            </TableHead>
+            <TableHead className="text-right">
+              {getTranslation("common.inventory.actions", language)}
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -153,7 +188,10 @@ export const RecommendedOrdersTab = () => {
                 <TableCell>{item.currentStock}</TableCell>
                 <TableCell>{item.orderQuantity}</TableCell>
                 <TableCell>{item.preferredSupplier || "-"}</TableCell>
-                <TableCell>{item.leadTimeDays} {getTranslation("supplyPlanning.days", language)}</TableCell>
+                <TableCell>
+                  {item.leadTimeDays}{" "}
+                  {getTranslation("supplyPlanning.days", language)}
+                </TableCell>
                 <TableCell className="text-right">
                   <Button
                     size="sm"

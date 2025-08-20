@@ -1,18 +1,19 @@
-
-import { useState } from 'react';
-import { RouteOptimizationForm } from './RouteOptimizationForm';
-import { OptimizedRouteDetails } from './OptimizedRouteDetails';
-import { RoutesList } from './RoutesList';
-import { OptimizedRoute } from '@/services/routeOptimizationService';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertTriangle } from 'lucide-react';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { getTranslation } from '@/translations';
+import { useState } from "react";
+import { RouteOptimizationForm } from "./RouteOptimizationForm";
+import { OptimizedRouteDetails } from "./OptimizedRouteDetails";
+import { RoutesList } from "./RoutesList";
+import { OptimizedRoute } from "@/services/routeOptimizationService";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslation } from "@/translations";
 
 export const RouteOptimizationContainer = () => {
   const { language } = useLanguage();
-  const [generatedRoute, setGeneratedRoute] = useState<OptimizedRoute | null>(null);
+  const [generatedRoute, setGeneratedRoute] = useState<OptimizedRoute | null>(
+    null
+  );
 
   const handleRouteGenerated = (route: OptimizedRoute) => {
     setGeneratedRoute(route);
@@ -30,42 +31,52 @@ export const RouteOptimizationContainer = () => {
             fallback={
               <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
-                <AlertTitle>{getTranslation("common.error", language)}</AlertTitle>
+                <AlertTitle>
+                  {getTranslation("common.error", language)}
+                </AlertTitle>
                 <AlertDescription>
-                  {getTranslation("common.logistics.errorLoadingForm", language)}
+                  {getTranslation("logistics.errorLoadingForm", language)}
                 </AlertDescription>
               </Alert>
             }
           >
-            <RouteOptimizationForm 
-              onRouteGenerated={handleRouteGenerated}
-            />
+            <RouteOptimizationForm onRouteGenerated={handleRouteGenerated} />
           </ErrorBoundary>
         </div>
-        
+
         <div className="md:col-span-2">
           <ErrorBoundary
             fallback={
               <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
-                <AlertTitle>{getTranslation("common.error", language)}</AlertTitle>
+                <AlertTitle>
+                  {getTranslation("common.error", language)}
+                </AlertTitle>
                 <AlertDescription>
-                  {getTranslation("common.logistics.errorDisplayingRouteDetails", language)}
+                  {getTranslation(
+                    "logistics.errorDisplayingRouteDetails",
+                    language
+                  )}
                 </AlertDescription>
               </Alert>
             }
           >
             {generatedRoute ? (
-              <OptimizedRouteDetails 
-                route={generatedRoute} 
-                onReset={handleReset} 
+              <OptimizedRouteDetails
+                route={generatedRoute}
+                onReset={handleReset}
               />
             ) : (
               <div className="h-full flex items-center justify-center p-6 border border-dashed rounded-lg">
                 <div className="text-center">
-                  <h3 className="font-medium">{getTranslation('common.logistics.noRouteGenerated', language)}</h3>
+                  <h3 className="font-medium">
+                    {getTranslation("logistics.noRouteGenerated", language)}
+                  </h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {getTranslation('common.logistics.routeSelectionInstruction', language)}
+                    {getTranslation(
+                      "logistics.routeSelectionInstruction",
+                      language
+                    )}
                   </p>
                 </div>
               </div>
@@ -73,14 +84,14 @@ export const RouteOptimizationContainer = () => {
           </ErrorBoundary>
         </div>
       </div>
-      
+
       <ErrorBoundary
         fallback={
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
             <AlertTitle>{getTranslation("common.error", language)}</AlertTitle>
             <AlertDescription>
-              {getTranslation("common.logistics.errorLoadingSavedRoutes", language)}
+              {getTranslation("logistics.errorLoadingSavedRoutes", language)}
             </AlertDescription>
           </Alert>
         }

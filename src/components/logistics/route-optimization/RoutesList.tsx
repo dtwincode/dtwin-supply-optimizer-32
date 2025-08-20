@@ -1,20 +1,22 @@
-
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { AlertTriangle, Loader2 } from 'lucide-react';
-import { OptimizedRoute, getSavedRoutes } from '@/services/routeOptimizationService';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { getTranslation } from '@/translations';
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { AlertTriangle, Loader2 } from "lucide-react";
+import {
+  OptimizedRoute,
+  getSavedRoutes,
+} from "@/services/routeOptimizationService";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslation } from "@/translations";
 
 export const RoutesList = () => {
   const { language } = useLanguage();
@@ -29,8 +31,10 @@ export const RoutesList = () => {
         const routesData = await getSavedRoutes();
         setRoutes(routesData);
       } catch (err) {
-        console.error('Error fetching routes:', err);
-        setError(err instanceof Error ? err : new Error('Failed to fetch routes'));
+        console.error("Error fetching routes:", err);
+        setError(
+          err instanceof Error ? err : new Error("Failed to fetch routes")
+        );
       } finally {
         setLoading(false);
       }
@@ -52,7 +56,9 @@ export const RoutesList = () => {
       <Alert variant="destructive">
         <AlertTriangle className="h-4 w-4" />
         <AlertTitle>Error</AlertTitle>
-        <AlertDescription>Failed to load routes: {error.message}</AlertDescription>
+        <AlertDescription>
+          Failed to load routes: {error.message}
+        </AlertDescription>
       </Alert>
     );
   }
@@ -60,18 +66,32 @@ export const RoutesList = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{getTranslation('common.logistics.savedRoutes', language)}</CardTitle>
+        <CardTitle>
+          {getTranslation("logistics.savedRoutes", language)}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{getTranslation('common.logistics.routeName', language)}</TableHead>
-              <TableHead>{getTranslation('common.logistics.transportMode', language)}</TableHead>
-              <TableHead>{getTranslation('common.logistics.totalDistance', language)}</TableHead>
-              <TableHead>{getTranslation('common.logistics.totalTime', language)}</TableHead>
-              <TableHead>{getTranslation('common.logistics.totalCost', language)}</TableHead>
-              <TableHead>{getTranslation('common.logistics.statusLabel', language)}</TableHead>
+              <TableHead>
+                {getTranslation("logistics.routeName", language)}
+              </TableHead>
+              <TableHead>
+                {getTranslation("logistics.transportMode", language)}
+              </TableHead>
+              <TableHead>
+                {getTranslation("logistics.totalDistance", language)}
+              </TableHead>
+              <TableHead>
+                {getTranslation("logistics.totalTime", language)}
+              </TableHead>
+              <TableHead>
+                {getTranslation("logistics.totalCost", language)}
+              </TableHead>
+              <TableHead>
+                {getTranslation("logistics.statusLabel", language)}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -83,26 +103,40 @@ export const RoutesList = () => {
                 <TableCell>{route.total_time_hours} hours</TableCell>
                 <TableCell>${route.total_cost.toFixed(2)}</TableCell>
                 <TableCell>
-                  <Badge 
+                  <Badge
                     variant={
-                      route.status === 'planned' ? 'default' :
-                      route.status === 'in-progress' ? 'secondary' :
-                      route.status === 'completed' ? 'outline' :
-                      'default'
+                      route.status === "planned"
+                        ? "default"
+                        : route.status === "in-progress"
+                          ? "secondary"
+                          : route.status === "completed"
+                            ? "outline"
+                            : "default"
                     }
                     className="capitalize"
                   >
-                    {route.status === 'planned' ? getTranslation('common.logistics.status.planned', language) :
-                     route.status === 'in-progress' ? getTranslation('common.logistics.status.inProgress', language) :
-                     getTranslation('common.logistics.status.completed', language)}
+                    {route.status === "planned"
+                      ? getTranslation("logistics.status.planned", language)
+                      : route.status === "in-progress"
+                        ? getTranslation(
+                            "logistics.status.inProgress",
+                            language
+                          )
+                        : getTranslation(
+                            "logistics.status.completed",
+                            language
+                          )}
                   </Badge>
                 </TableCell>
               </TableRow>
             ))}
             {routes.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-4 text-muted-foreground">
-                  {getTranslation('common.logistics.noRoutesFound', language)}
+                <TableCell
+                  colSpan={6}
+                  className="text-center py-4 text-muted-foreground"
+                >
+                  {getTranslation("logistics.noRoutesFound", language)}
                 </TableCell>
               </TableRow>
             )}

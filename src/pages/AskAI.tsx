@@ -1,4 +1,3 @@
-
 import DashboardLayout from "@/components/DashboardLayout";
 import { AskAI } from "@/components/ai/AskAI";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -13,12 +12,12 @@ const AskAIPage = () => {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">
-              {getTranslation('navigationItems.askAI', language)}
+              {getTranslation("navigation.askAI", language)}
             </h1>
             <p className="text-muted-foreground">
-              {language === 'ar' 
-                ? 'اطرح أسئلة واحصل على رؤى حول بيانات سلسلة التوريد الخاصة بك'
-                : 'Ask questions and get insights about your supply chain data'}
+              {language === "ar"
+                ? "اطرح أسئلة واحصل على رؤى حول بيانات سلسلة التوريد الخاصة بك"
+                : "Ask questions and get insights about your supply chain data"}
             </p>
           </div>
         </div>
