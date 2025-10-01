@@ -84,6 +84,10 @@ export function BufferProfileDistributionChart() {
       <CardContent>
         {isLoading ? (
           <p className="p-4 text-center">Loading...</p>
+        ) : profileData.length === 0 ? (
+          <div className="h-72 flex items-center justify-center">
+            <p className="text-muted-foreground">No buffer profile data available</p>
+          </div>
         ) : (
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -95,7 +99,8 @@ export function BufferProfileDistributionChart() {
                   cx="50%"
                   cy="50%"
                   outerRadius={80}
-                  label
+                  label={(entry) => `${entry.name} (${entry.value})`}
+                  fill="#8884d8"
                 >
                   {profileData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

@@ -64,6 +64,8 @@ export const fetchInventoryPlanningView = async () => {
         red_zone: buffer.red_zone || 0,
         yellow_zone: buffer.yellow_zone || 0,
         green_zone: buffer.green_zone || 0,
+        buffer_profile_id: buffer.buffer_profile_id,
+        buffer_profile_name: buffer.buffer_profile_name,
         on_hand: netFlow?.on_hand || 0,
         on_order: netFlow?.on_order || 0,
         qualified_demand: netFlow?.qualified_demand || 0,
