@@ -52,7 +52,7 @@ export const SalesTrendsChart = ({ timeFrame }: SalesTrendsChartProps) => {
     }
   }, [timeFrame]);
 
-  const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
+  const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white p-3 border rounded shadow-sm">
