@@ -30,23 +30,26 @@ interface DecouplingPointData {
 
 const nodeTypes = {
   locationNode: ({ data }: any) => (
-    <div className={`px-4 py-3 rounded-lg border-2 bg-card shadow-lg ${
-      data.isDecouplingPoint ? 'border-primary' : 'border-border'
+    <div className={`px-4 py-3 rounded-lg border-2 bg-card shadow-lg min-w-[140px] ${
+      data.isDecouplingPoint ? 'border-primary ring-2 ring-primary/20' : 'border-border'
     }`}>
       <div className="flex items-center gap-2 mb-1">
-        {data.type === 'DC' && <Warehouse className="h-4 w-4 text-primary" />}
-        {data.type === 'Restaurant' && <Building2 className="h-4 w-4 text-primary" />}
+        {data.type === 'DC' && <Warehouse className="h-5 w-5 text-primary" />}
+        {data.type === 'Restaurant' && <Building2 className="h-5 w-5 text-primary" />}
         {data.type === 'Customer' && <Users className="h-4 w-4 text-muted-foreground" />}
         <div className="font-semibold text-sm">{data.label}</div>
       </div>
       {data.isDecouplingPoint && (
-        <div className="flex items-center gap-1 mt-1">
-          <Shield className="h-3 w-3 text-primary" />
-          <span className="text-xs text-primary font-medium">Buffer Point</span>
+        <div className="flex items-center gap-1 mt-2 bg-primary/10 px-2 py-1 rounded">
+          <Shield className="h-4 w-4 text-primary" />
+          <span className="text-xs text-primary font-bold">BUFFER POINT</span>
         </div>
       )}
       {data.region && (
         <div className="text-xs text-muted-foreground mt-1">{data.region}</div>
+      )}
+      {data.level && (
+        <div className="text-xs text-muted-foreground font-mono mt-1">Level {data.level}</div>
       )}
     </div>
   ),
@@ -119,25 +122,26 @@ export function SupplyChainNetwork() {
       const flowNodes: Node[] = [];
       const flowEdges: Edge[] = [];
 
-      // Layer 0: Other locations (old system) - connect to nearest DC
+      // Layer 0: Other locations (old system) - Level i=0
       others.forEach((location: any, i: number) => {
         const isDP = decouplingLocations.has(location.location_id);
         flowNodes.push({
           id: location.location_id,
           type: 'locationNode',
-          position: { x: 100 + i * 180, y: 50 },
+          position: { x: 150 + i * 200, y: 80 },
           data: {
             label: location.location_id,
             type: location.location_type || 'Location',
             region: location.region || 'N/A',
             isDecouplingPoint: isDP,
+            level: 0,
           },
         });
 
-        // Connect old locations to DCs based on region
+        // Connect old locations to DCs
         const nearestDC = dcs.find((dc: any) => 
-          dc.region === location.region || dc.location_id.includes(location.region?.toUpperCase() || '')
-        ) || dcs[0]; // fallback to first DC
+          dc.region === location.region
+        ) || dcs[0];
 
         if (nearestDC) {
           flowEdges.push({
@@ -152,29 +156,30 @@ export function SupplyChainNetwork() {
             },
             style: {
               stroke: isDP ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
-              strokeWidth: isDP ? 2 : 1,
+              strokeWidth: isDP ? 3 : 1.5,
             },
           });
         }
       });
 
-      // Layer 1: Distribution Centers (top of hierarchy)
+      // Layer 1: Distribution Centers (top of supply chain) - Level i=1
       dcs.forEach((dc: any, i: number) => {
         const isDP = decouplingLocations.has(dc.location_id);
         flowNodes.push({
           id: dc.location_id,
           type: 'locationNode',
-          position: { x: 100 + i * 400, y: 250 },
+          position: { x: 150 + i * 450, y: 300 },
           data: {
             label: dc.location_id,
             type: 'DC',
             region: dc.region || 'N/A',
             isDecouplingPoint: isDP,
+            level: 1,
           },
         });
       });
 
-      // Layer 2: Restaurants grouped by region (connected to their DC)
+      // Layer 2: Restaurants grouped by region (Level i=2)
       const regionDCMap: Record<string, string> = {
         'Midwest': 'DC_MIDWEST_CHI',
         'Southeast': 'DC_SOUTHEAST_ATL',
@@ -185,31 +190,30 @@ export function SupplyChainNetwork() {
         const isDP = decouplingLocations.has(restaurant.location_id);
         const region = restaurant.region || 'Unknown';
         
-        // Find which DC index this restaurant belongs to
         const dcId = regionDCMap[region];
         const dcIndex = dcs.findIndex((dc: any) => dc.location_id === dcId);
         
-        // Position restaurants below their DC
         const restaurantsInRegion = restaurants.filter((r: any) => r.region === region);
         const indexInRegion = restaurantsInRegion.findIndex((r: any) => r.location_id === restaurant.location_id);
         
-        const baseX = 100 + (dcIndex >= 0 ? dcIndex : 0) * 400;
+        const baseX = 150 + (dcIndex >= 0 ? dcIndex : 1) * 450;
         const offsetX = (indexInRegion % 2) * 200 - 100;
-        const offsetY = Math.floor(indexInRegion / 2) * 150;
+        const offsetY = Math.floor(indexInRegion / 2) * 160;
         
         flowNodes.push({
           id: restaurant.location_id,
           type: 'locationNode',
-          position: { x: baseX + offsetX, y: 450 + offsetY },
+          position: { x: baseX + offsetX, y: 550 + offsetY },
           data: {
             label: restaurant.location_id,
             type: 'Restaurant',
             region: region,
             isDecouplingPoint: isDP,
+            level: 2,
           },
         });
 
-        // Connect restaurant to its DC
+        // Create edge from DC to Restaurant
         if (dcId && dcs.some((dc: any) => dc.location_id === dcId)) {
           flowEdges.push({
             id: `${dcId}-${restaurant.location_id}`,
@@ -217,14 +221,20 @@ export function SupplyChainNetwork() {
             target: restaurant.location_id,
             type: 'smoothstep',
             animated: isDP,
-            label: isDP ? '🛡️ Buffer' : '',
+            label: isDP ? '🛡️' : '',
+            labelStyle: { fontSize: 18 },
+            labelBgPadding: [8, 4],
+            labelBgBorderRadius: 4,
+            labelBgStyle: { fill: 'hsl(var(--primary))', fillOpacity: 0.1 },
             markerEnd: {
               type: MarkerType.ArrowClosed,
+              width: 20,
+              height: 20,
               color: isDP ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
             },
             style: {
               stroke: isDP ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
-              strokeWidth: isDP ? 3 : 1.5,
+              strokeWidth: isDP ? 3 : 2,
             },
           });
         }
