@@ -28,23 +28,27 @@ export function BufferProfileDistributionChart() {
         return true;
       });
 
-      const counts: Record<string, number> = {
-        BP001: 0,
-        BP002: 0,
-        BP003: 0,
-      };
+      const counts: Record<string, { name: string; count: number }> = {};
 
       filtered.forEach((item: any) => {
         if (item.buffer_profile_id) {
-          counts[item.buffer_profile_id] = (counts[item.buffer_profile_id] || 0) + 1;
+          const profileId = item.buffer_profile_id;
+          if (!counts[profileId]) {
+            counts[profileId] = {
+              name: profileId,
+              count: 0
+            };
+          }
+          counts[profileId].count++;
         }
       });
 
-      setProfileData([
-        { name: "Low Variability (BP001)", value: counts.BP001 },
-        { name: "Medium Variability (BP002)", value: counts.BP002 },
-        { name: "High Variability (BP003)", value: counts.BP003 },
-      ]);
+      const chartData = Object.values(counts).map(profile => ({
+        name: profile.name,
+        value: profile.count
+      }));
+
+      setProfileData(chartData);
       
       toast.success("Chart data refreshed");
     } catch (error) {

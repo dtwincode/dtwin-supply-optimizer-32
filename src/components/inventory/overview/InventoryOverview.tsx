@@ -35,10 +35,10 @@ export function InventoryOverview() {
       });
 
       const kpi: InventoryKPI = {
-        average_daily_usage: filtered.reduce((sum, item) => sum + (item.average_daily_usage || 0), 0),
-        min_stock_level: filtered.reduce((sum, item) => sum + (item.min_stock_level || 0), 0),
-        max_stock_level: filtered.reduce((sum, item) => sum + (item.max_stock_level || 0), 0),
-        green_zone: filtered.reduce((sum, item) => sum + (item.green_zone || 0), 0),
+        average_daily_usage: Math.round(filtered.reduce((sum, item) => sum + (item.average_daily_usage || 0), 0) * 100) / 100,
+        min_stock_level: Math.round(filtered.reduce((sum, item) => sum + (item.min_stock_level || 0), 0)),
+        max_stock_level: Math.round(filtered.reduce((sum, item) => sum + (item.max_stock_level || 0), 0)),
+        green_zone: Math.round(filtered.reduce((sum, item) => sum + (item.green_zone || 0), 0)),
       };
 
       setKpiData(kpi);
@@ -88,19 +88,19 @@ export function InventoryOverview() {
             <Card>
               <CardContent className="p-4">
                 <h4 className="font-semibold">Min Stock</h4>
-                <p className="text-lg">{kpiData.min_stock_level}</p>
+                <p className="text-lg">{kpiData.min_stock_level.toLocaleString()}</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4">
                 <h4 className="font-semibold">Max Stock</h4>
-                <p className="text-lg">{kpiData.max_stock_level}</p>
+                <p className="text-lg">{kpiData.max_stock_level.toLocaleString()}</p>
               </CardContent>
             </Card>
             <Card className="col-span-full">
               <CardContent className="p-4">
                 <h4 className="font-semibold">Green Zone</h4>
-                <p className="text-lg">{kpiData.green_zone}</p>
+                <p className="text-lg">{kpiData.green_zone.toLocaleString()}</p>
               </CardContent>
             </Card>
           </>
