@@ -29,7 +29,7 @@ export const WhatIfScenarios = () => {
   // Generate chart data based on what-if parameters
   const generateChartData = () => {
     const baselineData = [100, 105, 110, 108, 112, 115];
-    const data = [];
+    const data: Array<{ month: number; baseline: number; scenario: number }> = [];
 
     for (let i = 0; i < 6; i++) {
       // Simple simulation calculations

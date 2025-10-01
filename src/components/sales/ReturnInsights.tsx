@@ -43,7 +43,7 @@ export const ReturnInsights = ({ returns }: ReturnInsightsProps) => {
   // Generate dummy time series data
   const generateTimeSeriesData = () => {
     const now = new Date();
-    const data = [];
+    const data: Array<{ date: string; returns: number; impact: number }> = [];
     for (let i = 6; i >= 0; i--) {
       const date = new Date();
       date.setDate(now.getDate() - i);
@@ -147,7 +147,7 @@ export const ReturnInsights = ({ returns }: ReturnInsightsProps) => {
                           outerRadius={80}
                           paddingAngle={5}
                           dataKey="value"
-                          label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
+                          label={({name, percent}) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
                         >
                           {returnByCondition.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={entry.color} />

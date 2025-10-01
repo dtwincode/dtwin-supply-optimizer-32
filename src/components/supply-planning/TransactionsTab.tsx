@@ -8,12 +8,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { useInventoryTransaction } from '@/hooks/useInventoryTransaction';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { InventoryTransaction, Transaction } from "@/types/inventory/shipmentTypes";
+import { PlusCircle } from "lucide-react";
 
 export const TransactionsTab = () => {
   const { processTransaction, loading } = useInventoryTransaction();
@@ -23,7 +25,7 @@ export const TransactionsTab = () => {
   const handleSubmitTransaction = async (transaction: Omit<Transaction, 'id' | 'timestamp' | 'status'>) => {
     try {
       const newTransaction = await processTransaction(transaction);
-      setTransactions([newTransaction, ...transactions]);
+      setTransactions([newTransaction as Transaction, ...transactions]);
       setIsDialogOpen(false);
     } catch (error) {
       console.error("Error processing transaction:", error);
@@ -115,7 +117,7 @@ const TransactionForm = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    onSubmit(formData as Omit<Transaction, 'id' | 'timestamp' | 'status'>);
   };
 
   return (
