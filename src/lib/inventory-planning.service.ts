@@ -8,6 +8,7 @@
 const mockInventoryPlanningData = [
   {
     id: 1,
+    product_id: "PROD001",
     sku: "SKU001",
     product_name: "Product A",
     category: "Electronics",
@@ -29,6 +30,7 @@ const mockInventoryPlanningData = [
   },
   {
     id: 2,
+    product_id: "PROD002",
     sku: "SKU002",
     product_name: "Product B",
     category: "Electronics",
@@ -50,6 +52,7 @@ const mockInventoryPlanningData = [
   },
   {
     id: 3,
+    product_id: "PROD003",
     sku: "SKU003",
     product_name: "Product C",
     category: "Clothing",
