@@ -304,7 +304,7 @@ export const LogisticsMap = () => {
 
   // Prepare map markers
   const prepareMapMarkers = () => {
-    const markers = [];
+    const markers: any[] = [];
 
     // Add warehouse markers if the layer is enabled
     if (showWarehousesLayer) {

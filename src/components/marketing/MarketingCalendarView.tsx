@@ -17,7 +17,7 @@ export const MarketingCalendarView = () => {
   
   // Generate days for current month view
   const generateDaysArray = () => {
-    const days = [];
+    const days: Date[] = [];
     let day = startDate;
     
     while (day <= endDate) {

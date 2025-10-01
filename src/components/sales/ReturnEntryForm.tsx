@@ -19,7 +19,7 @@ import { Package, MapPin, User } from "lucide-react";
 const returnSchema = z.object({
   productSku: z.string().min(1, { message: "SKU is required" }),
   productName: z.string().optional(),
-  quantity: z.coerce.number().positive({ message: "Quantity must be positive" }),
+  quantity: z.number().positive({ message: "Quantity must be positive" }),
   returnDate: z.string().min(1, { message: "Return date is required" }),
   reason: z.string().min(1, { message: "Reason is required" }),
   condition: z.enum(["new", "damaged", "expired"]),
@@ -29,7 +29,7 @@ const returnSchema = z.object({
   customerId: z.string().optional(),
   customerName: z.string().optional(),
   customerSegment: z.string().optional(),
-  priorityLevel: z.enum(["low", "medium", "high"]).default("medium"),
+  priorityLevel: z.enum(["low", "medium", "high"]),
   relatedOrder: z.string().optional(),
 });
 
@@ -182,7 +182,12 @@ export const ReturnEntryForm = ({ onSubmit, onCancel }: ReturnEntryFormProps) =>
                     <FormItem>
                       <FormLabel>{getTranslation('sales.quantity', language)}</FormLabel>
                       <FormControl>
-                        <Input type="number" min="1" {...field} />
+                        <Input 
+                          type="number" 
+                          min="1" 
+                          {...field}
+                          onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
