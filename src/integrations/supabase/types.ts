@@ -1639,6 +1639,17 @@ export type Database = {
         }
         Relationships: []
       }
+      inventory_net_flow_view: {
+        Row: {
+          location_id: string | null
+          nfp: number | null
+          on_hand: number | null
+          on_order: number | null
+          product_id: string | null
+          qualified_demand: number | null
+        }
+        Relationships: []
+      }
       lead_time_variability: {
         Row: {
           lead_time_stddev: number | null
