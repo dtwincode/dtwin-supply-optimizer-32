@@ -278,39 +278,6 @@ export type Database = {
         }
         Relationships: []
       }
-      data_quality_metrics: {
-        Row: {
-          accuracy_score: number | null
-          anomaly_count: number | null
-          completeness_score: number | null
-          consistency_score: number | null
-          created_at: string | null
-          dataset_date: string
-          id: string
-          notes: string | null
-        }
-        Insert: {
-          accuracy_score?: number | null
-          anomaly_count?: number | null
-          completeness_score?: number | null
-          consistency_score?: number | null
-          created_at?: string | null
-          dataset_date: string
-          id?: string
-          notes?: string | null
-        }
-        Update: {
-          accuracy_score?: number | null
-          anomaly_count?: number | null
-          completeness_score?: number | null
-          consistency_score?: number | null
-          created_at?: string | null
-          dataset_date?: string
-          id?: string
-          notes?: string | null
-        }
-        Relationships: []
-      }
       data_validation_logs: {
         Row: {
           created_at: string | null
@@ -350,36 +317,6 @@ export type Database = {
           updated_at?: string | null
           validation_date?: string | null
           validation_errors?: Json | null
-        }
-        Relationships: []
-      }
-      ddmrp_metrics_history: {
-        Row: {
-          created_at: string
-          id: string
-          inventory_item_id: string | null
-          metric_type: string
-          metric_value: number
-          recorded_at: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          inventory_item_id?: string | null
-          metric_type: string
-          metric_value: number
-          recorded_at?: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          inventory_item_id?: string | null
-          metric_type?: string
-          metric_value?: number
-          recorded_at?: string
-          updated_at?: string
         }
         Relationships: []
       }
@@ -440,304 +377,6 @@ export type Database = {
         }
         Relationships: []
       }
-      demand_distribution_profile: {
-        Row: {
-          created_at: string | null
-          distribution_type: string
-          location_id: string
-          param1: number | null
-          param2: number | null
-          product_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          distribution_type: string
-          location_id: string
-          param1?: number | null
-          param2?: number | null
-          product_id: string
-        }
-        Update: {
-          created_at?: string | null
-          distribution_type?: string
-          location_id?: string
-          param1?: number | null
-          param2?: number | null
-          product_id?: string
-        }
-        Relationships: []
-      }
-      external_factors: {
-        Row: {
-          created_at: string | null
-          factor_type: string
-          factor_value: Json
-          id: string
-          impact_score: number | null
-          recorded_date: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          factor_type: string
-          factor_value: Json
-          id?: string
-          impact_score?: number | null
-          recorded_date?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          factor_type?: string
-          factor_value?: Json
-          id?: string
-          impact_score?: number | null
-          recorded_date?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      forecast_accuracy: {
-        Row: {
-          actual_value: number | null
-          created_at: string | null
-          forecast_date: string
-          forecasted_value: number | null
-          id: string
-          mae: number | null
-          mape: number | null
-          model_id: string | null
-          notes: string | null
-          rmse: number | null
-          updated_at: string | null
-        }
-        Insert: {
-          actual_value?: number | null
-          created_at?: string | null
-          forecast_date: string
-          forecasted_value?: number | null
-          id?: string
-          mae?: number | null
-          mape?: number | null
-          model_id?: string | null
-          notes?: string | null
-          rmse?: number | null
-          updated_at?: string | null
-        }
-        Update: {
-          actual_value?: number | null
-          created_at?: string | null
-          forecast_date?: string
-          forecasted_value?: number | null
-          id?: string
-          mae?: number | null
-          mape?: number | null
-          model_id?: string | null
-          notes?: string | null
-          rmse?: number | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "forecast_accuracy_model_id_fkey"
-            columns: ["model_id"]
-            isOneToOne: false
-            referencedRelation: "forecast_models"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      forecast_adjustments: {
-        Row: {
-          adjusted_at: string | null
-          adjusted_by: string | null
-          adjustment_reason: string | null
-          forecast_id: string | null
-          id: string
-          metadata: Json | null
-          new_value: number | null
-          previous_value: number | null
-        }
-        Insert: {
-          adjusted_at?: string | null
-          adjusted_by?: string | null
-          adjustment_reason?: string | null
-          forecast_id?: string | null
-          id?: string
-          metadata?: Json | null
-          new_value?: number | null
-          previous_value?: number | null
-        }
-        Update: {
-          adjusted_at?: string | null
-          adjusted_by?: string | null
-          adjustment_reason?: string | null
-          forecast_id?: string | null
-          id?: string
-          metadata?: Json | null
-          new_value?: number | null
-          previous_value?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "forecast_adjustments_forecast_id_fkey"
-            columns: ["forecast_id"]
-            isOneToOne: false
-            referencedRelation: "forecast_data"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      forecast_data: {
-        Row: {
-          category: string | null
-          channel: string | null
-          city: string | null
-          created_at: string
-          date: string
-          forecast: number | null
-          id: string
-          l1_main_prod: string | null
-          l2_prod_line: string | null
-          l3_prod_category: string | null
-          l4_device_make: string | null
-          l5_prod_sub_category: string | null
-          l6_device_model: string | null
-          l7_device_color: string | null
-          l8_device_storage: string | null
-          notes: string | null
-          region: string | null
-          sku: string | null
-          subcategory: string | null
-          updated_at: string
-          value: number
-          variance: number | null
-          warehouse: string | null
-        }
-        Insert: {
-          category?: string | null
-          channel?: string | null
-          city?: string | null
-          created_at?: string
-          date: string
-          forecast?: number | null
-          id?: string
-          l1_main_prod?: string | null
-          l2_prod_line?: string | null
-          l3_prod_category?: string | null
-          l4_device_make?: string | null
-          l5_prod_sub_category?: string | null
-          l6_device_model?: string | null
-          l7_device_color?: string | null
-          l8_device_storage?: string | null
-          notes?: string | null
-          region?: string | null
-          sku?: string | null
-          subcategory?: string | null
-          updated_at?: string
-          value: number
-          variance?: number | null
-          warehouse?: string | null
-        }
-        Update: {
-          category?: string | null
-          channel?: string | null
-          city?: string | null
-          created_at?: string
-          date?: string
-          forecast?: number | null
-          id?: string
-          l1_main_prod?: string | null
-          l2_prod_line?: string | null
-          l3_prod_category?: string | null
-          l4_device_make?: string | null
-          l5_prod_sub_category?: string | null
-          l6_device_model?: string | null
-          l7_device_color?: string | null
-          l8_device_storage?: string | null
-          notes?: string | null
-          region?: string | null
-          sku?: string | null
-          subcategory?: string | null
-          updated_at?: string
-          value?: number
-          variance?: number | null
-          warehouse?: string | null
-        }
-        Relationships: []
-      }
-      forecast_data_quality: {
-        Row: {
-          created_at: string | null
-          data_completeness_score: number | null
-          dataset_date: string
-          id: string
-          missing_values_count: number | null
-          outliers_count: number | null
-          quality_issues: Json | null
-          resolution_status: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          data_completeness_score?: number | null
-          dataset_date: string
-          id?: string
-          missing_values_count?: number | null
-          outliers_count?: number | null
-          quality_issues?: Json | null
-          resolution_status?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          data_completeness_score?: number | null
-          dataset_date?: string
-          id?: string
-          missing_values_count?: number | null
-          outliers_count?: number | null
-          quality_issues?: Json | null
-          resolution_status?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      forecast_models: {
-        Row: {
-          created_at: string | null
-          created_by: string | null
-          description: string | null
-          id: string
-          last_modified_by: string | null
-          name: string
-          parameters: Json
-          updated_at: string | null
-          version: string
-        }
-        Insert: {
-          created_at?: string | null
-          created_by?: string | null
-          description?: string | null
-          id?: string
-          last_modified_by?: string | null
-          name: string
-          parameters?: Json
-          updated_at?: string | null
-          version: string
-        }
-        Update: {
-          created_at?: string | null
-          created_by?: string | null
-          description?: string | null
-          id?: string
-          last_modified_by?: string | null
-          name?: string
-          parameters?: Json
-          updated_at?: string | null
-          version?: string
-        }
-        Relationships: []
-      }
       forecast_outliers: {
         Row: {
           confidence_score: number | null
@@ -768,50 +407,6 @@ export type Database = {
           is_verified?: boolean | null
           metadata?: Json | null
           verified_by?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "forecast_outliers_data_point_id_fkey"
-            columns: ["data_point_id"]
-            isOneToOne: false
-            referencedRelation: "forecast_data"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      forecast_test_periods: {
-        Row: {
-          accuracy_metrics: Json | null
-          created_at: string | null
-          id: string
-          scenario_id: string | null
-          testing_end_date: string
-          testing_start_date: string
-          training_end_date: string
-          training_start_date: string
-          updated_at: string | null
-        }
-        Insert: {
-          accuracy_metrics?: Json | null
-          created_at?: string | null
-          id?: string
-          scenario_id?: string | null
-          testing_end_date: string
-          testing_start_date: string
-          training_end_date: string
-          training_start_date: string
-          updated_at?: string | null
-        }
-        Update: {
-          accuracy_metrics?: Json | null
-          created_at?: string | null
-          id?: string
-          scenario_id?: string | null
-          testing_end_date?: string
-          testing_start_date?: string
-          training_end_date?: string
-          training_start_date?: string
-          updated_at?: string | null
         }
         Relationships: []
       }
@@ -962,45 +557,6 @@ export type Database = {
         }
         Relationships: []
       }
-      lead_time_predictions: {
-        Row: {
-          confidence_score: number
-          created_at: string | null
-          factors_considered: Json | null
-          id: string
-          predicted_lead_time: number
-          prediction_date: string | null
-          sku: string
-          supplier_id: string
-          updated_at: string | null
-          valid_until: string | null
-        }
-        Insert: {
-          confidence_score: number
-          created_at?: string | null
-          factors_considered?: Json | null
-          id?: string
-          predicted_lead_time: number
-          prediction_date?: string | null
-          sku: string
-          supplier_id: string
-          updated_at?: string | null
-          valid_until?: string | null
-        }
-        Update: {
-          confidence_score?: number
-          created_at?: string | null
-          factors_considered?: Json | null
-          id?: string
-          predicted_lead_time?: number
-          prediction_date?: string | null
-          sku?: string
-          supplier_id?: string
-          updated_at?: string | null
-          valid_until?: string | null
-        }
-        Relationships: []
-      }
       location_master: {
         Row: {
           channel_id: string | null
@@ -1024,39 +580,6 @@ export type Database = {
           location_id?: string
           location_type?: string | null
           region?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      logistics_analytics: {
-        Row: {
-          created_at: string | null
-          dimension: string | null
-          id: string
-          metadata: Json | null
-          metric_type: string
-          metric_value: number | null
-          timestamp: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          dimension?: string | null
-          id?: string
-          metadata?: Json | null
-          metric_type: string
-          metric_value?: number | null
-          timestamp?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          dimension?: string | null
-          id?: string
-          metadata?: Json | null
-          metric_type?: string
-          metric_value?: number | null
-          timestamp?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -1121,42 +644,6 @@ export type Database = {
         }
         Relationships: []
       }
-      logistics_documents: {
-        Row: {
-          created_at: string
-          document_type: string
-          file_url: string | null
-          id: string
-          metadata: Json | null
-          order_id: string
-          status: string | null
-          updated_at: string
-          version: number | null
-        }
-        Insert: {
-          created_at?: string
-          document_type: string
-          file_url?: string | null
-          id?: string
-          metadata?: Json | null
-          order_id: string
-          status?: string | null
-          updated_at?: string
-          version?: number | null
-        }
-        Update: {
-          created_at?: string
-          document_type?: string
-          file_url?: string | null
-          id?: string
-          metadata?: Json | null
-          order_id?: string
-          status?: string | null
-          updated_at?: string
-          version?: number | null
-        }
-        Relationships: []
-      }
       logistics_enhanced_orders: {
         Row: {
           actual_delivery: string | null
@@ -1198,39 +685,6 @@ export type Database = {
           shipping_method?: string | null
           status?: string | null
           tracking_number?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      logistics_tracking: {
-        Row: {
-          created_at: string | null
-          id: string
-          latitude: number | null
-          longitude: number | null
-          order_id: string
-          status: string | null
-          timestamp: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          latitude?: number | null
-          longitude?: number | null
-          order_id: string
-          status?: string | null
-          timestamp?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          latitude?: number | null
-          longitude?: number | null
-          order_id?: string
-          status?: string | null
-          timestamp?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -1385,39 +839,6 @@ export type Database = {
         }
         Relationships: []
       }
-      model_training_history: {
-        Row: {
-          created_at: string | null
-          id: string
-          model_version: string
-          trained_at: string | null
-          training_metrics: Json | null
-          training_parameters: Json | null
-          updated_at: string | null
-          validation_metrics: Json | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          model_version: string
-          trained_at?: string | null
-          training_metrics?: Json | null
-          training_parameters?: Json | null
-          updated_at?: string | null
-          validation_metrics?: Json | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          model_version?: string
-          trained_at?: string | null
-          training_metrics?: Json | null
-          training_parameters?: Json | null
-          updated_at?: string | null
-          validation_metrics?: Json | null
-        }
-        Relationships: []
-      }
       model_version_applications: {
         Row: {
           created_at: string | null
@@ -1448,56 +869,6 @@ export type Database = {
           performance_metrics?: Json | null
           product_code?: string | null
           updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "model_version_applications_model_version_id_fkey"
-            columns: ["model_version_id"]
-            isOneToOne: false
-            referencedRelation: "model_versions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      model_versions: {
-        Row: {
-          accuracy_metrics: Json | null
-          created_at: string | null
-          id: string
-          is_active: boolean | null
-          metadata: Json | null
-          model_name: string
-          parameters: Json | null
-          training_data_snapshot: Json | null
-          updated_at: string | null
-          validation_metrics: Json | null
-          version: string
-        }
-        Insert: {
-          accuracy_metrics?: Json | null
-          created_at?: string | null
-          id?: string
-          is_active?: boolean | null
-          metadata?: Json | null
-          model_name: string
-          parameters?: Json | null
-          training_data_snapshot?: Json | null
-          updated_at?: string | null
-          validation_metrics?: Json | null
-          version: string
-        }
-        Update: {
-          accuracy_metrics?: Json | null
-          created_at?: string | null
-          id?: string
-          is_active?: boolean | null
-          metadata?: Json | null
-          model_name?: string
-          parameters?: Json | null
-          training_data_snapshot?: Json | null
-          updated_at?: string | null
-          validation_metrics?: Json | null
-          version?: string
         }
         Relationships: []
       }
@@ -1624,36 +995,6 @@ export type Database = {
           product_id?: string
           qty?: number
           status?: string
-        }
-        Relationships: []
-      }
-      order_spike_settings: {
-        Row: {
-          created_at: string
-          horizon_days: number
-          id: string
-          is_enabled: boolean
-          location_id: string | null
-          product_id: string | null
-          spike_multiplier: number
-        }
-        Insert: {
-          created_at?: string
-          horizon_days?: number
-          id?: string
-          is_enabled?: boolean
-          location_id?: string | null
-          product_id?: string | null
-          spike_multiplier?: number
-        }
-        Update: {
-          created_at?: string
-          horizon_days?: number
-          id?: string
-          is_enabled?: boolean
-          location_id?: string | null
-          product_id?: string | null
-          spike_multiplier?: number
         }
         Relationships: []
       }
@@ -1803,80 +1144,6 @@ export type Database = {
         }
         Relationships: []
       }
-      prediction_accuracy_tracking: {
-        Row: {
-          actual_lead_time: number | null
-          analysis_date: string | null
-          created_at: string | null
-          id: string
-          impact_on_buffer: number | null
-          prediction_error: number | null
-          prediction_id: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          actual_lead_time?: number | null
-          analysis_date?: string | null
-          created_at?: string | null
-          id?: string
-          impact_on_buffer?: number | null
-          prediction_error?: number | null
-          prediction_id?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          actual_lead_time?: number | null
-          analysis_date?: string | null
-          created_at?: string | null
-          id?: string
-          impact_on_buffer?: number | null
-          prediction_error?: number | null
-          prediction_id?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "prediction_accuracy_tracking_prediction_id_fkey"
-            columns: ["prediction_id"]
-            isOneToOne: false
-            referencedRelation: "lead_time_predictions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      price_analysis: {
-        Row: {
-          analysis_date: string | null
-          id: string
-          max_threshold: number | null
-          min_threshold: number | null
-          optimal_price: number | null
-          optimal_threshold: number | null
-          price_elasticity: number | null
-          product_id: string | null
-        }
-        Insert: {
-          analysis_date?: string | null
-          id?: string
-          max_threshold?: number | null
-          min_threshold?: number | null
-          optimal_price?: number | null
-          optimal_threshold?: number | null
-          price_elasticity?: number | null
-          product_id?: string | null
-        }
-        Update: {
-          analysis_date?: string | null
-          id?: string
-          max_threshold?: number | null
-          min_threshold?: number | null
-          optimal_price?: number | null
-          optimal_threshold?: number | null
-          price_elasticity?: number | null
-          product_id?: string | null
-        }
-        Relationships: []
-      }
       product_classification: {
         Row: {
           classification_label: string
@@ -2023,33 +1290,6 @@ export type Database = {
           id?: string
           updated_at?: string | null
           username?: string | null
-        }
-        Relationships: []
-      }
-      replenishment_data: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          data: Json
-          id: string
-          is_active: boolean | null
-          version: number | null
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          data: Json
-          id?: string
-          is_active?: boolean | null
-          version?: number | null
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          data?: Json
-          id?: string
-          is_active?: boolean | null
-          version?: number | null
         }
         Relationships: []
       }
@@ -2250,33 +1490,6 @@ export type Database = {
         }
         Relationships: []
       }
-      threshold_update_config: {
-        Row: {
-          id: number
-          last_run_at: string | null
-          next_run_at: string | null
-          preferred_day: number | null
-          preferred_frequency: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          id?: number
-          last_run_at?: string | null
-          next_run_at?: string | null
-          preferred_day?: number | null
-          preferred_frequency?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          id?: number
-          last_run_at?: string | null
-          next_run_at?: string | null
-          preferred_day?: number | null
-          preferred_frequency?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       vendor_master: {
         Row: {
           city: string | null
@@ -2325,42 +1538,6 @@ export type Database = {
           vendor_code?: string
           vendor_id?: string
           vendor_name?: string
-        }
-        Relationships: []
-      }
-      weather_data: {
-        Row: {
-          alert: string | null
-          humidity: number | null
-          id: string
-          location: string
-          precipitation: number | null
-          recorded_at: string | null
-          temperature: number | null
-          weather_condition: string | null
-          wind_speed: number | null
-        }
-        Insert: {
-          alert?: string | null
-          humidity?: number | null
-          id?: string
-          location: string
-          precipitation?: number | null
-          recorded_at?: string | null
-          temperature?: number | null
-          weather_condition?: string | null
-          wind_speed?: number | null
-        }
-        Update: {
-          alert?: string | null
-          humidity?: number | null
-          id?: string
-          location?: string
-          precipitation?: number | null
-          recorded_at?: string | null
-          temperature?: number | null
-          weather_condition?: string | null
-          wind_speed?: number | null
         }
         Relationships: []
       }
@@ -2482,14 +1659,6 @@ export type Database = {
           location_id: string | null
           product_id: string | null
           qty_on_order: number | null
-        }
-        Relationships: []
-      }
-      qualified_demand_view: {
-        Row: {
-          location_id: string | null
-          product_id: string | null
-          qualified_demand: number | null
         }
         Relationships: []
       }
