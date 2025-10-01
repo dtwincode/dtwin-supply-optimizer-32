@@ -87,31 +87,45 @@ export function SupplyChainNetwork() {
         decouplingPoints?.map((dp: DecouplingPointData) => dp.location_id) || []
       );
 
-      // Show all locations - treat any non-restaurant as DC for visualization
       const allLocations = locations || [];
+
+      // Separate locations by type for hierarchical layout
+      const dcs = allLocations.filter((l: any) => 
+        l.location_type?.includes('DISTRIBUTION') || l.location_type === 'DC'
+      );
+      const restaurants = allLocations.filter((l: any) => 
+        l.location_type === 'RESTAURANT'
+      );
+      const others = allLocations.filter((l: any) => 
+        !l.location_type?.includes('DISTRIBUTION') && 
+        l.location_type !== 'DC' && 
+        l.location_type !== 'RESTAURANT'
+      );
       
       if (allLocations.length === 0) {
         toast.error('No locations found in database');
         setIsLoading(false);
         return;
       }
-      
+
+      console.log('Network Layout:', { 
+        total: allLocations.length, 
+        dcs: dcs.length, 
+        restaurants: restaurants.length,
+        decouplingPoints: decouplingLocations.size 
+      });
+
       // Create nodes and edges
       const flowNodes: Node[] = [];
       const flowEdges: Edge[] = [];
 
-      // Position all locations in a hierarchical layout
-      const locationsPerRow = 5;
-      
-      allLocations.forEach((location: any, i: number) => {
+      // Layer 0: Other locations (old system)
+      others.forEach((location: any, i: number) => {
         const isDP = decouplingLocations.has(location.location_id);
-        const col = i % locationsPerRow;
-        const row = Math.floor(i / locationsPerRow);
-        
         flowNodes.push({
           id: location.location_id,
           type: 'locationNode',
-          position: { x: col * 250, y: row * 180 },
+          position: { x: 100 + i * 180, y: 50 },
           data: {
             label: location.location_id,
             type: location.location_type || 'Location',
@@ -119,23 +133,74 @@ export function SupplyChainNetwork() {
             isDecouplingPoint: isDP,
           },
         });
+      });
 
-        // Create flow edges between locations if they have decoupling points
-        if (i > 0 && isDP) {
-          const prevLocation = allLocations[i - 1];
+      // Layer 1: Distribution Centers (top of hierarchy)
+      dcs.forEach((dc: any, i: number) => {
+        const isDP = decouplingLocations.has(dc.location_id);
+        flowNodes.push({
+          id: dc.location_id,
+          type: 'locationNode',
+          position: { x: 100 + i * 400, y: 250 },
+          data: {
+            label: dc.location_id,
+            type: 'DC',
+            region: dc.region || 'N/A',
+            isDecouplingPoint: isDP,
+          },
+        });
+      });
+
+      // Layer 2: Restaurants grouped by region (connected to their DC)
+      const regionDCMap: Record<string, string> = {
+        'Midwest': 'DC_MIDWEST_CHI',
+        'Southeast': 'DC_SOUTHEAST_ATL',
+        'West': 'DC_WEST_LA',
+      };
+
+      restaurants.forEach((restaurant: any, i: number) => {
+        const isDP = decouplingLocations.has(restaurant.location_id);
+        const region = restaurant.region || 'Unknown';
+        
+        // Find which DC index this restaurant belongs to
+        const dcId = regionDCMap[region];
+        const dcIndex = dcs.findIndex((dc: any) => dc.location_id === dcId);
+        
+        // Position restaurants below their DC
+        const restaurantsInRegion = restaurants.filter((r: any) => r.region === region);
+        const indexInRegion = restaurantsInRegion.findIndex((r: any) => r.location_id === restaurant.location_id);
+        
+        const baseX = 100 + (dcIndex >= 0 ? dcIndex : 0) * 400;
+        const offsetX = (indexInRegion % 2) * 200 - 100;
+        const offsetY = Math.floor(indexInRegion / 2) * 150;
+        
+        flowNodes.push({
+          id: restaurant.location_id,
+          type: 'locationNode',
+          position: { x: baseX + offsetX, y: 450 + offsetY },
+          data: {
+            label: restaurant.location_id,
+            type: 'Restaurant',
+            region: region,
+            isDecouplingPoint: isDP,
+          },
+        });
+
+        // Connect restaurant to its DC
+        if (dcId) {
           flowEdges.push({
-            id: `${prevLocation.location_id}-${location.location_id}`,
-            source: prevLocation.location_id,
-            target: location.location_id,
+            id: `${dcId}-${restaurant.location_id}`,
+            source: dcId,
+            target: restaurant.location_id,
             type: 'smoothstep',
-            animated: true,
+            animated: isDP,
             markerEnd: {
               type: MarkerType.ArrowClosed,
-              color: 'hsl(var(--primary))',
+              color: isDP ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
             },
             style: {
-              stroke: 'hsl(var(--primary))',
-              strokeWidth: 2,
+              stroke: isDP ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
+              strokeWidth: isDP ? 2 : 1,
             },
           });
         }
