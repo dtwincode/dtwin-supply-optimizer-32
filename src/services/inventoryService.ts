@@ -1,5 +1,5 @@
 
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/integrations/supabase/client';
 import { BufferFactorConfig, BufferProfile } from '@/types/inventory';
 
 // Updated BufferFactorConfig interface that matches the data structure
