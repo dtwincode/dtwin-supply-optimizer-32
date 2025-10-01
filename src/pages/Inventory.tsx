@@ -1,24 +1,26 @@
 import React, { useState, useCallback } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BufferManagementDashboard } from "@/components/inventory/buffer/BufferManagementDashboard";
-import { SKUClassifications } from "@/components/inventory/classification/SKUClassifications";
-import { DecouplingPointContent } from "@/components/inventory/decoupling/DecouplingPointContent";
-import { InventoryOverview } from "@/components/inventory/overview/InventoryOverview";
 import { useSearchParams } from "react-router-dom";
 import { useI18n } from "@/contexts/I18nContext";
 import { InventoryFilterProvider } from "@/components/inventory/InventoryFilterContext";
 import { InventoryGlobalFilters } from "@/components/inventory/InventoryGlobalFilters";
-import { AdvancedKPIDashboard } from "@/components/inventory/advanced/AdvancedKPIDashboard";
-import { BufferPenetrationHeatmap } from "@/components/inventory/advanced/BufferPenetrationHeatmap";
-import { InteractiveBufferChart } from "@/components/inventory/advanced/InteractiveBufferChart";
+
+// Strategic Planning
+import { DecouplingPointManager } from "@/components/inventory/strategic/DecouplingPointManager";
+
+// Operational View
+import { BufferStatusGrid } from "@/components/inventory/operational/BufferStatusGrid";
 import { ExceptionManagement } from "@/components/inventory/advanced/ExceptionManagement";
-import { AnalyticsDashboard } from "@/components/inventory/advanced/AnalyticsDashboard";
+
+// Analytics & Insights
+import { BufferPerformance } from "@/components/inventory/analytics/BufferPerformance";
+import { SKUClassifications } from "@/components/inventory/classification/SKUClassifications";
 
 const Inventory: React.FC = () => {
   const { t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
-  const defaultTab = searchParams.get("tab") || "overview";
+  const defaultTab = searchParams.get("tab") || "strategic";
   const [activeTab, setActiveTab] = useState(defaultTab);
 
   const handleTabChange = useCallback(
@@ -33,18 +35,17 @@ const Inventory: React.FC = () => {
   return (
     <InventoryFilterProvider>
       <DashboardLayout>
-        <div className="space-y-6 ">
+        <div className="space-y-6">
           <div>
-            <h1 className=" text-3xl font-bold tracking-tight">
-              {t("inventory.inventoryManagement") || "Inventory Management"}
+            <h1 className="text-3xl font-bold tracking-tight">
+              {t("inventory.inventoryManagement") || "DDMRP Inventory Management"}
             </h1>
             <p className="text-muted-foreground mt-2">
               {t("inventory.managementDescription") ||
-                "Plan and manage inventory, buffers & decoupling points."}
+                "Strategic buffer planning and operational execution"}
             </p>
           </div>
 
-          {/* 🔥 Global Filter */}
           <InventoryGlobalFilters />
 
           <Tabs
@@ -52,39 +53,24 @@ const Inventory: React.FC = () => {
             onValueChange={handleTabChange}
             className="space-y-4"
           >
-            <TabsList className="grid w-full grid-cols-6">
-              <TabsTrigger value="overview">{t("common.overview")}</TabsTrigger>
-              <TabsTrigger value="analytics">Analytics</TabsTrigger>
-              <TabsTrigger value="buffers">{t("inventory.bufferZones")}</TabsTrigger>
-              <TabsTrigger value="exceptions">Exceptions</TabsTrigger>
-              <TabsTrigger value="classification">{t("inventory.classification")}</TabsTrigger>
-              <TabsTrigger value="decoupling">{t("inventory.decouplingPoint")}</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="strategic">Strategic Planning</TabsTrigger>
+              <TabsTrigger value="operational">Operational View</TabsTrigger>
+              <TabsTrigger value="analytics">Analytics & Insights</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="overview" className="space-y-6">
-              <AdvancedKPIDashboard />
-              <BufferPenetrationHeatmap />
-              <InteractiveBufferChart />
+            <TabsContent value="strategic" className="space-y-6">
+              <DecouplingPointManager />
             </TabsContent>
 
-            <TabsContent value="analytics">
-              <AnalyticsDashboard />
-            </TabsContent>
-
-            <TabsContent value="buffers">
-              <BufferManagementDashboard />
-            </TabsContent>
-
-            <TabsContent value="exceptions">
+            <TabsContent value="operational" className="space-y-6">
+              <BufferStatusGrid />
               <ExceptionManagement />
             </TabsContent>
 
-            <TabsContent value="classification">
+            <TabsContent value="analytics" className="space-y-6">
+              <BufferPerformance />
               <SKUClassifications />
-            </TabsContent>
-
-            <TabsContent value="decoupling">
-              <DecouplingPointContent />
             </TabsContent>
           </Tabs>
         </div>
