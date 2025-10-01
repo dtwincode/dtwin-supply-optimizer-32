@@ -1,5 +1,5 @@
 
-import type { Database } from "@/types/database";
+import { Database } from "@/integrations/supabase/types";
 
 export interface DataTemplate {
   required_columns: string[];
