@@ -2656,7 +2656,7 @@ export type Database = {
             referencedColumns: ["product_id"]
           },
           {
-            foreignKeyName: "inventory_data_product_id_fkey"
+            foreignKeyName: "historical_sales_data_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "product_master"
@@ -2670,32 +2670,6 @@ export type Database = {
           lead_time_days: number | null
           location_id: string | null
           product_id: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "inventory_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-        ]
-      }
-      inventory_net_flow_view: {
-        Row: {
-          location_id: string | null
-          nfp: number | null
-          on_hand: number | null
-          on_order: number | null
-          product_id: string | null
-          qualified_demand: number | null
         }
         Relationships: [
           {
