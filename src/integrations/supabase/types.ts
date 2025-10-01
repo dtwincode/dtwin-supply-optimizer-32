@@ -1194,6 +1194,7 @@ export type Database = {
       }
       product_master: {
         Row: {
+          buffer_profile_id: string | null
           category: string | null
           created_at: string | null
           name: string
@@ -1206,6 +1207,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          buffer_profile_id?: string | null
           category?: string | null
           created_at?: string | null
           name: string
@@ -1218,6 +1220,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          buffer_profile_id?: string | null
           category?: string | null
           created_at?: string | null
           name?: string
@@ -1715,6 +1718,10 @@ export type Database = {
       }
       activate_hierarchy_version: {
         Args: { p_hierarchy_type: string; p_version: number }
+        Returns: undefined
+      }
+      assign_buffer_profiles_by_classification: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
       ddmrp_nightly: {
