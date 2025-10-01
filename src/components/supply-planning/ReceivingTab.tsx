@@ -49,7 +49,7 @@ const mockPurchaseOrders: PurchaseOrder[] = [
 ];
 
 export const ReceivingTab = () => {
-  const { items, loading, error, refresh: refreshInventory } = useInventory();
+  const { items, isLoading: loading, error } = useInventory();
   const { toast } = useToast();
   const { processTransaction } = useInventoryTransaction();
   const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>(mockPurchaseOrders);

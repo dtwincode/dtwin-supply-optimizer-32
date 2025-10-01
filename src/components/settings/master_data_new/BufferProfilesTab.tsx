@@ -30,7 +30,12 @@ const bufferProfileFields: FieldDescription[] = [
 
 const BufferProfilesTab = () => {
   const { toast } = useToast();
-  const { profiles, loading, fetchProfiles, createOrUpdateProfile } = useBufferProfiles();
+  const { profiles, isLoading: loading, reload: fetchProfiles } = useBufferProfiles();
+  
+  const createOrUpdateProfile = async (profile: BufferProfile) => {
+    // This would integrate with your backend
+    console.log("Creating/updating profile:", profile);
+  };
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isAddProfileOpen, setIsAddProfileOpen] = useState(false);
