@@ -71,6 +71,8 @@ export function SupplyChainNetwork() {
 
       if (locError) throw locError;
 
+      console.log('Loaded locations:', locations);
+
       // Load decoupling points
       const { data: decouplingPoints, error: dpError } = await supabase
         .from('decoupling_points')
@@ -78,109 +80,75 @@ export function SupplyChainNetwork() {
 
       if (dpError) throw dpError;
 
-      // Group locations by type
-      const dcs = locations?.filter((l: LocationNode) => l.location_type === 'DC') || [];
-      const restaurants = locations?.filter((l: LocationNode) => l.location_type === 'Restaurant') || [];
+      console.log('Loaded decoupling points:', decouplingPoints);
+
+      // Create a map of locations with decoupling points
+      const decouplingLocations = new Set(
+        decouplingPoints?.map((dp: DecouplingPointData) => dp.location_id) || []
+      );
+
+      // Show all locations - treat any non-restaurant as DC for visualization
+      const allLocations = locations || [];
       
-      // Create nodes
+      if (allLocations.length === 0) {
+        toast.error('No locations found in database');
+        setIsLoading(false);
+        return;
+      }
+      
+      // Create nodes and edges
       const flowNodes: Node[] = [];
       const flowEdges: Edge[] = [];
 
-      // Layer 1: Distribution Centers
-      dcs.forEach((dc: LocationNode, i: number) => {
-        const isDP = decouplingPoints?.some((dp: DecouplingPointData) => dp.location_id === dc.location_id);
-        flowNodes.push({
-          id: dc.location_id,
-          type: 'locationNode',
-          position: { x: 300 * i, y: 0 },
-          data: {
-            label: dc.location_id,
-            type: 'DC',
-            region: dc.region,
-            isDecouplingPoint: isDP,
-          },
-        });
-      });
-
-      // Layer 2: Restaurants (connected to DCs)
-      restaurants.forEach((restaurant: LocationNode, i: number) => {
-        const isDP = decouplingPoints?.some((dp: DecouplingPointData) => dp.location_id === restaurant.location_id);
-        
-        // Position restaurants in a grid below DCs
-        const col = i % 4;
-        const row = Math.floor(i / 4);
+      // Position all locations in a hierarchical layout
+      const locationsPerRow = 5;
+      
+      allLocations.forEach((location: any, i: number) => {
+        const isDP = decouplingLocations.has(location.location_id);
+        const col = i % locationsPerRow;
+        const row = Math.floor(i / locationsPerRow);
         
         flowNodes.push({
-          id: restaurant.location_id,
+          id: location.location_id,
           type: 'locationNode',
-          position: { x: 150 + col * 200, y: 200 + row * 150 },
+          position: { x: col * 250, y: row * 180 },
           data: {
-            label: restaurant.location_id,
-            type: 'Restaurant',
-            region: restaurant.region,
+            label: location.location_id,
+            type: location.location_type || 'Location',
+            region: location.region || 'N/A',
             isDecouplingPoint: isDP,
           },
         });
 
-        // Connect restaurants to nearest DC (simplified - in reality would be based on actual routing)
-        const nearestDC = dcs[Math.floor(i / (restaurants.length / Math.max(dcs.length, 1)))];
-        if (nearestDC) {
+        // Create flow edges between locations if they have decoupling points
+        if (i > 0 && isDP) {
+          const prevLocation = allLocations[i - 1];
           flowEdges.push({
-            id: `${nearestDC.location_id}-${restaurant.location_id}`,
-            source: nearestDC.location_id,
-            target: restaurant.location_id,
+            id: `${prevLocation.location_id}-${location.location_id}`,
+            source: prevLocation.location_id,
+            target: location.location_id,
             type: 'smoothstep',
-            animated: isDP,
+            animated: true,
             markerEnd: {
               type: MarkerType.ArrowClosed,
-              color: isDP ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
+              color: 'hsl(var(--primary))',
             },
             style: {
-              stroke: isDP ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
-              strokeWidth: isDP ? 2 : 1,
+              stroke: 'hsl(var(--primary))',
+              strokeWidth: 2,
             },
           });
         }
-      });
-
-      // Add customer layer nodes (conceptual)
-      const customerNode: Node = {
-        id: 'customers',
-        type: 'locationNode',
-        position: { x: 400, y: 800 },
-        data: {
-          label: 'End Customers',
-          type: 'Customer',
-          region: 'All Regions',
-          isDecouplingPoint: false,
-        },
-      };
-      flowNodes.push(customerNode);
-
-      // Connect some restaurants to customers (sampling)
-      restaurants.slice(0, Math.min(5, restaurants.length)).forEach((restaurant: LocationNode) => {
-        flowEdges.push({
-          id: `${restaurant.location_id}-customers`,
-          source: restaurant.location_id,
-          target: 'customers',
-          type: 'smoothstep',
-          animated: false,
-          style: {
-            stroke: 'hsl(var(--muted-foreground))',
-            strokeWidth: 1,
-            strokeDasharray: '5 5',
-          },
-        });
       });
 
       setNodes(flowNodes);
       setEdges(flowEdges);
 
       // Calculate stats
-      const uniqueRegions = new Set(locations?.map((l: LocationNode) => l.region).filter(Boolean));
+      const uniqueRegions = new Set(allLocations.map((l: any) => l.region).filter(Boolean));
       setStats({
-        total: locations?.length || 0,
-        decouplingPoints: decouplingPoints?.length || 0,
+        total: allLocations.length,
+        decouplingPoints: decouplingLocations.size,
         regions: uniqueRegions.size,
       });
 
@@ -241,12 +209,14 @@ export function SupplyChainNetwork() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Supply Chain Network Topology</CardTitle>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <Badge variant="outline" className="gap-1">
                 <Shield className="h-3 w-3" />
                 Buffer Point
               </Badge>
-              <Badge variant="secondary">Flow Direction</Badge>
+              <div className="text-xs text-muted-foreground flex items-center gap-1">
+                <span>→</span> Flow Direction
+              </div>
             </div>
           </div>
         </CardHeader>
