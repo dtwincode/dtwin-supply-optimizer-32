@@ -155,7 +155,6 @@ export interface DecouplingItem {
   min_stock_level: number;
   max_stock_level: number;
   reorder_level: number;
-  safety_stock: number;
   lead_time_days: number;
   decoupling_point: boolean;
   buffer_status: string;

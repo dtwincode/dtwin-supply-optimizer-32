@@ -11,7 +11,6 @@ import { toast } from "sonner";
 
 interface InventoryKPI {
   average_daily_usage: number;
-  safety_stock: number;
   min_stock_level: number;
   max_stock_level: number;
   green_zone: number;
@@ -37,7 +36,6 @@ export function InventoryOverview() {
 
       const kpi: InventoryKPI = {
         average_daily_usage: filtered.reduce((sum, item) => sum + (item.average_daily_usage || 0), 0),
-        safety_stock: filtered.reduce((sum, item) => sum + (item.safety_stock || 0), 0),
         min_stock_level: filtered.reduce((sum, item) => sum + (item.min_stock_level || 0), 0),
         max_stock_level: filtered.reduce((sum, item) => sum + (item.max_stock_level || 0), 0),
         green_zone: filtered.reduce((sum, item) => sum + (item.green_zone || 0), 0),
@@ -85,12 +83,6 @@ export function InventoryOverview() {
               <CardContent className="p-4">
                 <h4 className="font-semibold">Avg Daily Usage</h4>
                 <p className="text-lg">{kpiData.average_daily_usage.toFixed(2)}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <h4 className="font-semibold">Safety Stock</h4>
-                <p className="text-lg">{kpiData.safety_stock}</p>
               </CardContent>
             </Card>
             <Card>

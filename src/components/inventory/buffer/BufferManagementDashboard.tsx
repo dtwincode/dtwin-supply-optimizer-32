@@ -11,7 +11,6 @@ interface BufferItem {
   product_id: string;
   location_id: string;
   min_stock_level: number;
-  safety_stock: number;
   max_stock_level: number;
   buffer_profile_id: string;
 }
@@ -39,7 +38,6 @@ export function BufferManagementDashboard() {
         product_id: item.sku || item.product_id,
         location_id: item.location_id,
         min_stock_level: item.min_stock_level,
-        safety_stock: item.safety_stock,
         max_stock_level: item.max_stock_level,
         buffer_profile_id: item.buffer_profile_id || 'Default'
       }));
@@ -84,7 +82,6 @@ export function BufferManagementDashboard() {
               <h4 className="font-semibold mb-2">{item.product_id}</h4>
               <p>Location: {item.location_id}</p>
               <p>Min Stock: {item.min_stock_level}</p>
-              <p>Safety Stock: {item.safety_stock}</p>
               <p>Max Stock: {item.max_stock_level}</p>
               <p>Profile: {item.buffer_profile_id}</p>
             </CardContent>

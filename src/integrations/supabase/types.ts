@@ -2095,39 +2095,6 @@ export type Database = {
         }
         Relationships: []
       }
-      safety_stock_simulation: {
-        Row: {
-          calculated_safety_stock: number | null
-          created_at: string | null
-          id: string
-          location_id: string
-          product_id: string
-          simulated_demand: number | null
-          simulated_lead_time: number | null
-          simulation_run: number
-        }
-        Insert: {
-          calculated_safety_stock?: number | null
-          created_at?: string | null
-          id?: string
-          location_id: string
-          product_id: string
-          simulated_demand?: number | null
-          simulated_lead_time?: number | null
-          simulation_run: number
-        }
-        Update: {
-          calculated_safety_stock?: number | null
-          created_at?: string | null
-          id?: string
-          location_id?: string
-          product_id?: string
-          simulated_demand?: number | null
-          simulated_lead_time?: number | null
-          simulation_run?: number
-        }
-        Relationships: []
-      }
       saved_model_configs: {
         Row: {
           auto_run: boolean | null
@@ -2468,6 +2435,30 @@ export type Database = {
             referencedColumns: ["product_id"]
           },
         ]
+      }
+      inventory_ddmrp_buffers_view: {
+        Row: {
+          adu: number | null
+          buffer_profile_id: string | null
+          buffer_profile_name: string | null
+          category: string | null
+          dlt: number | null
+          green_zone: number | null
+          location_id: string | null
+          min_order_qty: number | null
+          order_cycle_days: number | null
+          product_id: string | null
+          product_name: string | null
+          red_zone: number | null
+          rounding_multiple: number | null
+          sku: string | null
+          subcategory: string | null
+          tog: number | null
+          tor: number | null
+          toy: number | null
+          yellow_zone: number | null
+        }
+        Relationships: []
       }
       lead_time_variability: {
         Row: {

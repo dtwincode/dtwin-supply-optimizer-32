@@ -189,10 +189,6 @@ const InventoryDataUpload = () => {
                   <span>Maximum stock level</span>
                 </div>
                 <div className="flex">
-                  <span className="font-semibold text-primary w-32">safety_stock</span>
-                  <span>Safety stock quantity</span>
-                </div>
-                <div className="flex">
                   <span className="font-semibold text-primary w-32">red_zone</span>
                   <span>Red buffer zone quantity</span>
                 </div>

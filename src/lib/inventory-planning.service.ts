@@ -65,7 +65,6 @@ export const fetchInventoryPlanningView = async () => {
         min_stock_level: buffer.tor || 0,
         max_stock_level: buffer.tog || 0,
         reorder_level: buffer.toy || 0,
-        safety_stock: buffer.red_safety || 0,
         lead_time_days: buffer.dlt || 0,
         decoupling_point: true,
         buffer_status,
@@ -97,7 +96,6 @@ export const updateBufferLevels = async (
   updates: {
     min_stock_level?: number;
     max_stock_level?: number;
-    safety_stock?: number;
   }
 ) => {
   // Simulate API call delay
