@@ -11,77 +11,32 @@ import { supabase } from '@/integrations/supabase/client';
  */
 export const fetchInventoryPlanningView = async () => {
   try {
-    // Fetch DDMRP buffer data
+    // Fetch DDMRP buffer data with all calculations
     const { data: bufferData, error: bufferError } = await supabase
       .from('inventory_ddmrp_buffers_view')
       .select('*');
 
     if (bufferError) throw bufferError;
 
-    // Fetch net flow data using raw query since types aren't regenerated yet
+    // Fetch net flow position data
     const { data: netFlowData, error: netFlowError } = await supabase
-      .rpc('get_inventory_planning_data') as any;
+      .from('inventory_net_flow_view')
+      .select('*');
 
-    // If RPC doesn't exist, try direct query
-    let netFlows: any[] = [];
-    if (netFlowError) {
-      // Fallback: calculate manually from individual views
-      const { data: onHandData } = await supabase.from('onhand_latest_view').select('*');
-      const { data: onOrderData } = await supabase.from('onorder_view').select('*');
-      const { data: qualifiedDemandData } = await supabase.from('open_so').select('*');
+    if (netFlowError) throw netFlowError;
 
-      // Combine the data manually
-      bufferData?.forEach((buffer: any) => {
-        const onHand = onHandData?.find((oh: any) => 
-          oh.product_id === buffer.product_id && oh.location_id === buffer.location_id
-        );
-        const onOrder = onOrderData?.find((oo: any) => 
-          oo.product_id === buffer.product_id && oo.location_id === buffer.location_id
-        );
-        const qualifiedDemand = qualifiedDemandData
-          ?.filter((qd: any) => 
-            qd.product_id === buffer.product_id && 
-            qd.location_id === buffer.location_id &&
-            qd.status === 'CONFIRMED'
-          )
-          .reduce((sum: number, qd: any) => sum + (qd.qty || 0), 0) || 0;
-
-        const onHandQty = onHand?.qty_on_hand || 0;
-        const onOrderQty = onOrder?.qty_on_order || 0;
-        const nfp = onHandQty + onOrderQty - qualifiedDemand;
-
-        netFlows.push({
-          product_id: buffer.product_id,
-          location_id: buffer.location_id,
-          on_hand: onHandQty,
-          on_order: onOrderQty,
-          qualified_demand: qualifiedDemand,
-          nfp: nfp
-        });
-      });
-    } else {
-      netFlows = netFlowData || [];
-    }
-
-    // Fetch product master data for names
-    const { data: productData, error: productError } = await supabase
-      .from('product_master')
-      .select('product_id, name, sku, category, subcategory');
-
-    if (productError) throw productError;
-
-    // Combine the data
+    // Combine buffer data with net flow data
     const combinedData = bufferData?.map((buffer: any) => {
-      const netFlow = netFlows?.find(
+      const netFlow = netFlowData?.find(
         (nf: any) => nf.product_id === buffer.product_id && nf.location_id === buffer.location_id
       );
-      const product = productData?.find((p: any) => p.product_id === buffer.product_id);
 
-      // Determine buffer status based on NFP
+      // Determine buffer status based on NFP vs thresholds
+      const nfp = netFlow?.nfp ?? 0;
       let buffer_status = 'GREEN';
-      if (netFlow?.nfp <= buffer.tor) {
+      if (nfp <= buffer.tor) {
         buffer_status = 'RED';
-      } else if (netFlow?.nfp <= buffer.toy) {
+      } else if (nfp <= buffer.toy) {
         buffer_status = 'YELLOW';
       }
 
@@ -92,10 +47,10 @@ export const fetchInventoryPlanningView = async () => {
       return {
         id: numericId,
         product_id: buffer.product_id,
-        sku: product?.sku || buffer.product_id,
-        product_name: product?.name || buffer.product_id,
-        category: product?.category || 'Unknown',
-        subcategory: product?.subcategory || '',
+        sku: buffer.sku || buffer.product_id,
+        product_name: buffer.product_name || buffer.product_id,
+        category: buffer.category || 'Unknown',
+        subcategory: buffer.subcategory || '',
         location_id: buffer.location_id,
         channel_id: 'B2C',
         current_stock_level: netFlow?.on_hand || 0,
