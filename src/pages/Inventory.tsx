@@ -8,6 +8,10 @@ import { InventoryGlobalFilters } from "@/components/inventory/InventoryGlobalFi
 
 // Strategic Planning
 import { DecouplingPointManager } from "@/components/inventory/strategic/DecouplingPointManager";
+import { SupplyChainNetwork } from "@/components/inventory/strategic/SupplyChainNetwork";
+
+// Bill of Materials
+import { BOMViewer } from "@/components/inventory/bom";
 
 // Operational View
 import { BufferStatusGrid } from "@/components/inventory/operational/BufferStatusGrid";
@@ -53,13 +57,15 @@ const Inventory: React.FC = () => {
             onValueChange={handleTabChange}
             className="space-y-4"
           >
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="strategic">Strategic Planning</TabsTrigger>
               <TabsTrigger value="operational">Operational View</TabsTrigger>
               <TabsTrigger value="analytics">Analytics & Insights</TabsTrigger>
+              <TabsTrigger value="bom">Bill of Materials</TabsTrigger>
             </TabsList>
 
             <TabsContent value="strategic" className="space-y-6">
+              <SupplyChainNetwork />
               <DecouplingPointManager />
             </TabsContent>
 
@@ -71,6 +77,10 @@ const Inventory: React.FC = () => {
             <TabsContent value="analytics" className="space-y-6">
               <BufferPerformance />
               <SKUClassifications />
+            </TabsContent>
+
+            <TabsContent value="bom" className="space-y-6">
+              <BOMViewer />
             </TabsContent>
           </Tabs>
         </div>
