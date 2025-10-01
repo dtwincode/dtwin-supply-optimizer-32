@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Database } from "@/integrations/supabase/types";
+import type { Database } from "@/types/database";
 import { ValidationError, ValidationRules, DataTemplate } from "./types";
 
 export const validateData = async (

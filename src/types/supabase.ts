@@ -1,16 +1,12 @@
+/**
+ * Supabase Database Types
+ * This file provides a clean import path for database types
+ */
 
-export interface BufferFactorConfig {
-  id: string;
-  short_lead_time_factor: number;
-  medium_lead_time_factor: number;
-  long_lead_time_factor: number;
-  short_lead_time_threshold: number;
-  medium_lead_time_threshold: number;
-  replenishment_time_factor: number;
-  green_zone_factor: number;
-  description?: string;
-  is_active: boolean;
-  industry?: string;
-  is_benchmark_based?: boolean;
-  metadata?: Record<string, any>;
-}
+// Import all types and re-export to create a clean namespace
+import type { Database as DB, Json as JsonType } from '@/integrations/supabase/types';
+
+export type Database = DB;
+export type Json = JsonType;
+export type Tables<T extends keyof DB['public']['Tables']> = DB['public']['Tables'][T];
+export type Enums = DB['public']['Enums'];
