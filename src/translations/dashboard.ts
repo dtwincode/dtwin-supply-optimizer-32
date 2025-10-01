@@ -1,6 +1,6 @@
 import { Translation, TranslationSet } from './types';
 
-export const dashboardTranslations: TranslationSet = {
+export const dashboardTranslations: any = {
   metrics: {
     totalOrders: {
       en: 'Total Orders',

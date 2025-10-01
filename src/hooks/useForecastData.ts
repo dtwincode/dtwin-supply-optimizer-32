@@ -149,8 +149,8 @@ export const useForecastData = (
 
         // Calculate metrics only if we have data
         if (transformedData.length > 0) {
-          const actuals = transformedData.map(d => d.actual);
-          const forecasts = transformedData.map(d => d.forecast);
+          const actuals = transformedData.map(d => d.actual).filter((v): v is number => v !== null);
+          const forecasts = transformedData.map(d => d.forecast).filter((v): v is number => v !== null);
           
           const calculatedMetrics = calculateMetrics(actuals, forecasts);
           setMetrics(calculatedMetrics);

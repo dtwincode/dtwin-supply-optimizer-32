@@ -35,9 +35,9 @@ export const SavedFiles = ({ triggerRefresh = 0, hierarchyType }: SavedFilesProp
     const fetchData = async () => {
       setLoading(true);
       try {
-        // This query needs to be customized based on your actual supabase schema
+        // Query the hierarchy_file_references table
         const { data: files, error } = await supabase
-          .from('hierarchy_files')
+          .from('hierarchy_file_references')
           .select('*')
           .eq('hierarchy_type', hierarchyType)
           .order('created_at', { ascending: false });
@@ -46,7 +46,7 @@ export const SavedFiles = ({ triggerRefresh = 0, hierarchyType }: SavedFilesProp
           console.error("Error fetching data:", error);
           setError("Failed to load data.");
         } else {
-          setData(files || []);
+          setData(files as any || []);
         }
       } finally {
         setLoading(false);

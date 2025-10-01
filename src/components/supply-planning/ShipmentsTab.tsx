@@ -79,7 +79,7 @@ const formSchema = z.object({
     message: "Quantity must be at least 1 characters.",
   }),
   order_date: z.date({
-    required_error: "A date of order is required.",
+    message: "A date of order is required.",
   }),
 })
 
@@ -181,8 +181,7 @@ export const ShipmentsTab = () => {
         quantity: parseInt(order.quantity),
         location: 'default',
         reference: order.order_id,
-        userId: 'current-user',
-        notes: `Shipped order: ${order.order_id}`
+        userId: 'current-user'
       });
     
       if (success) {

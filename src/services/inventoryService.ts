@@ -47,7 +47,18 @@ export const fetchBufferProfiles = async (): Promise<BufferProfile[]> => {
     
     if (error) throw error;
     
-    return data || [];
+    // Map snake_case from DB to camelCase for the interface
+    return (data || []).map(profile => ({
+      id: profile.id,
+      name: profile.name,
+      variabilityFactor: profile.variability_category as any || 'medium_variability',
+      leadTimeFactor: profile.lead_time_category as any || 'medium',
+      moq: profile.lot_size_factor || undefined,
+      lotSizeFactor: profile.lot_size_factor || undefined,
+      description: profile.description || undefined,
+      createdAt: profile.created_at,
+      updatedAt: profile.updated_at,
+    }));
   } catch (error) {
     console.error('Error fetching buffer profiles:', error);
     return [];

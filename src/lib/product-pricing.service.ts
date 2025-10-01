@@ -33,9 +33,9 @@ export const uploadProductPricing = async (file: File) => {
       currency: row.currency || 'SAR'
     }));
 
-    // Insert data into the product_pricing table
+    // Insert data into the product_pricing-master table
     const { error } = await supabase
-      .from('product_pricing')
+      .from('product_pricing-master')
       .insert(pricingData);
 
     if (error) {

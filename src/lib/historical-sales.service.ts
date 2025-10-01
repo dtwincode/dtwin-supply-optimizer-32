@@ -158,9 +158,9 @@ export const uploadHistoricalSales = async (file: File) => {
           .from('historical_sales_data')
           .insert(batch);
           
-        const result = await Promise.race([insertPromise, timeout]);
+        const result: any = await Promise.race([insertPromise, timeout]);
         
-        if (result.error) {
+        if (result?.error) {
           console.error('Error inserting batch starting at index', i, ':', result.error.message);
           // Continue with the next batch instead of failing completely
         } else {

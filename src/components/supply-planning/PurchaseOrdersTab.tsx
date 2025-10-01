@@ -213,7 +213,7 @@ export const PurchaseOrdersTab = () => {
       <PurchaseOrderDialog 
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        purchaseOrder={selectedPO}
+        purchaseOrder={selectedPO ? { ...selectedPO, supplier: selectedPO.supplier || undefined } as any : null}
         onSuccess={() => {
           refetch();
           setDialogOpen(false);
