@@ -578,25 +578,43 @@ export type Database = {
         Row: {
           channel_id: string | null
           created_at: string | null
+          daily_sales_volume: number | null
+          demographic_profile: string | null
+          drive_thru: boolean | null
           location_id: string
           location_type: string | null
+          operating_hours: Json | null
           region: string | null
+          restaurant_number: string | null
+          seating_capacity: number | null
           updated_at: string | null
         }
         Insert: {
           channel_id?: string | null
           created_at?: string | null
+          daily_sales_volume?: number | null
+          demographic_profile?: string | null
+          drive_thru?: boolean | null
           location_id: string
           location_type?: string | null
+          operating_hours?: Json | null
           region?: string | null
+          restaurant_number?: string | null
+          seating_capacity?: number | null
           updated_at?: string | null
         }
         Update: {
           channel_id?: string | null
           created_at?: string | null
+          daily_sales_volume?: number | null
+          demographic_profile?: string | null
+          drive_thru?: boolean | null
           location_id?: string
           location_type?: string | null
+          operating_hours?: Json | null
           region?: string | null
+          restaurant_number?: string | null
+          seating_capacity?: number | null
           updated_at?: string | null
         }
         Relationships: []
@@ -1168,6 +1186,68 @@ export type Database = {
         }
         Relationships: []
       }
+      product_bom: {
+        Row: {
+          bom_level: number
+          child_product_id: string
+          created_at: string | null
+          id: string
+          operation_sequence: number | null
+          parent_product_id: string
+          quantity_per: number
+          updated_at: string | null
+        }
+        Insert: {
+          bom_level: number
+          child_product_id: string
+          created_at?: string | null
+          id?: string
+          operation_sequence?: number | null
+          parent_product_id: string
+          quantity_per: number
+          updated_at?: string | null
+        }
+        Update: {
+          bom_level?: number
+          child_product_id?: string
+          created_at?: string | null
+          id?: string
+          operation_sequence?: number | null
+          parent_product_id?: string
+          quantity_per?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_bom_child_product_id_fkey"
+            columns: ["child_product_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_ddmrp_buffers_view"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "product_bom_child_product_id_fkey"
+            columns: ["child_product_id"]
+            isOneToOne: false
+            referencedRelation: "product_master"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "product_bom_parent_product_id_fkey"
+            columns: ["parent_product_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_ddmrp_buffers_view"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "product_bom_parent_product_id_fkey"
+            columns: ["parent_product_id"]
+            isOneToOne: false
+            referencedRelation: "product_master"
+            referencedColumns: ["product_id"]
+          },
+        ]
+      }
       product_classification: {
         Row: {
           classification_label: string
@@ -1224,10 +1304,17 @@ export type Database = {
           name: string
           notes: string | null
           planning_priority: string | null
+          preparation_time_minutes: number | null
           product_family: string | null
           product_id: string
+          product_type: string | null
+          shelf_life_days: number | null
           sku: string
+          storage_temp_max: number | null
+          storage_temp_min: number | null
           subcategory: string | null
+          supplier_id: string | null
+          unit_of_measure: string | null
           updated_at: string | null
         }
         Insert: {
@@ -1237,10 +1324,17 @@ export type Database = {
           name: string
           notes?: string | null
           planning_priority?: string | null
+          preparation_time_minutes?: number | null
           product_family?: string | null
           product_id?: string
+          product_type?: string | null
+          shelf_life_days?: number | null
           sku: string
+          storage_temp_max?: number | null
+          storage_temp_min?: number | null
           subcategory?: string | null
+          supplier_id?: string | null
+          unit_of_measure?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -1250,10 +1344,17 @@ export type Database = {
           name?: string
           notes?: string | null
           planning_priority?: string | null
+          preparation_time_minutes?: number | null
           product_family?: string | null
           product_id?: string
+          product_type?: string | null
+          shelf_life_days?: number | null
           sku?: string
+          storage_temp_max?: number | null
+          storage_temp_min?: number | null
           subcategory?: string | null
+          supplier_id?: string | null
+          unit_of_measure?: string | null
           updated_at?: string | null
         }
         Relationships: []
