@@ -1,5 +1,5 @@
 
-import { supabase } from './supabaseClient'; 
+import { supabase } from '@/integrations/supabase/client'; 
 import Papa from 'papaparse';
 
 // Define the type for a location row

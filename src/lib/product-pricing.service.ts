@@ -1,5 +1,5 @@
 
-import { supabase } from './supabaseClient';
+import { supabase } from '@/integrations/supabase/client';
 import Papa from 'papaparse';
 
 // Function to handle product pricing data upload from CSV
