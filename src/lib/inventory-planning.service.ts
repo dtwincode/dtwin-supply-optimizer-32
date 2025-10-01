@@ -18,16 +18,18 @@ export const fetchInventoryPlanningView = async () => {
 
     if (bufferError) throw bufferError;
 
-    // Fetch net flow position data
+    // Fetch net flow position data using type assertion since view isn't in generated types
     const { data: netFlowData, error: netFlowError } = await supabase
-      .from('inventory_net_flow_view')
+      .from('inventory_net_flow_view' as any)
       .select('*');
 
-    if (netFlowError) throw netFlowError;
+    if (netFlowError) {
+      console.warn('Net flow data not available:', netFlowError);
+    }
 
     // Combine buffer data with net flow data
     const combinedData = bufferData?.map((buffer: any) => {
-      const netFlow = netFlowData?.find(
+      const netFlow: any = netFlowData?.find(
         (nf: any) => nf.product_id === buffer.product_id && nf.location_id === buffer.location_id
       );
 

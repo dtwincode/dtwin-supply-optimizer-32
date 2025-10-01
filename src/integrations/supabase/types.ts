@@ -324,28 +324,31 @@ export type Database = {
         Row: {
           buffer_profile_id: string
           created_at: string
-          description: string | null
+          designation_reason: string | null
           id: string
+          is_strategic: boolean
           location_id: string
-          type: Database["public"]["Enums"]["decoupling_type"]
+          product_id: string
           updated_at: string
         }
         Insert: {
-          buffer_profile_id: string
+          buffer_profile_id?: string
           created_at?: string
-          description?: string | null
+          designation_reason?: string | null
           id?: string
+          is_strategic?: boolean
           location_id: string
-          type: Database["public"]["Enums"]["decoupling_type"]
+          product_id: string
           updated_at?: string
         }
         Update: {
           buffer_profile_id?: string
           created_at?: string
-          description?: string | null
+          designation_reason?: string | null
           id?: string
+          is_strategic?: boolean
           location_id?: string
-          type?: Database["public"]["Enums"]["decoupling_type"]
+          product_id?: string
           updated_at?: string
         }
         Relationships: []
@@ -459,13 +462,6 @@ export type Database = {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
             referencedRelation: "product_master"
             referencedColumns: ["product_id"]
           },
@@ -474,13 +470,6 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "inventory_ddmrp_buffers_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
             referencedColumns: ["product_id"]
           },
           {
@@ -1094,13 +1083,6 @@ export type Database = {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
             referencedRelation: "product_master"
             referencedColumns: ["product_id"]
           },
@@ -1316,13 +1298,6 @@ export type Database = {
             foreignKeyName: "product_pricing_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "product_pricing_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
             referencedRelation: "product_master"
             referencedColumns: ["product_id"]
           },
@@ -1527,13 +1502,6 @@ export type Database = {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
             referencedRelation: "product_master"
             referencedColumns: ["product_id"]
           },
@@ -1633,13 +1601,6 @@ export type Database = {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
             referencedRelation: "product_master"
             referencedColumns: ["product_id"]
           },
@@ -1648,13 +1609,6 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "inventory_ddmrp_buffers_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
             referencedColumns: ["product_id"]
           },
           {
@@ -1685,13 +1639,6 @@ export type Database = {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
             referencedRelation: "product_master"
             referencedColumns: ["product_id"]
           },
@@ -1700,13 +1647,6 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "inventory_ddmrp_buffers_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
             referencedColumns: ["product_id"]
           },
           {
@@ -1737,13 +1677,6 @@ export type Database = {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
             referencedRelation: "product_master"
             referencedColumns: ["product_id"]
           },
@@ -1752,13 +1685,6 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "inventory_ddmrp_buffers_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
             referencedColumns: ["product_id"]
           },
           {
@@ -1793,17 +1719,6 @@ export type Database = {
           toy: number | null
           variability_factor: number | null
           yellow_zone: number | null
-        }
-        Relationships: []
-      }
-      inventory_net_flow_view: {
-        Row: {
-          location_id: string | null
-          nfp: number | null
-          on_hand: number | null
-          on_order: number | null
-          product_id: string | null
-          qualified_demand: number | null
         }
         Relationships: []
       }
@@ -1859,13 +1774,6 @@ export type Database = {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
             referencedRelation: "product_master"
             referencedColumns: ["product_id"]
           },
@@ -1874,13 +1782,6 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "inventory_ddmrp_buffers_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
             referencedColumns: ["product_id"]
           },
           {
