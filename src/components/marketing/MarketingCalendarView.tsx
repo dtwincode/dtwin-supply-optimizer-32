@@ -31,7 +31,7 @@ export const MarketingCalendarView = () => {
   const days = generateDaysArray();
   
   // Find campaigns for a specific date
-  const getCampaignsForDate = (date) => {
+  const getCampaignsForDate = (date: Date) => {
     return marketingPlansData.filter(campaign => {
       const campaignStart = parseISO(campaign.startDate);
       const campaignEnd = parseISO(campaign.endDate);
@@ -51,7 +51,7 @@ export const MarketingCalendarView = () => {
   };
 
   // Get color for promotion type
-  const getPromotionColor = (type) => {
+  const getPromotionColor = (type: string) => {
     switch(type) {
       case 'seasonal-sale': return 'bg-green-100 text-green-800';
       case 'themed-promotion': return 'bg-blue-100 text-blue-800';

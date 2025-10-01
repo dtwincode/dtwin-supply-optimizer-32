@@ -23,8 +23,8 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
   };
 
   // Generate page numbers to display
-  const getPageNumbers = () => {
-    const pages = [];
+  const getPageNumbers = (): (number | string)[] => {
+    const pages: (number | string)[] = [];
     const maxVisiblePages = 5;
     
     if (totalPages <= maxVisiblePages) {

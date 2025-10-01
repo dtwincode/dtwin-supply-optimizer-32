@@ -22,9 +22,7 @@ const returnSchema = z.object({
   quantity: z.coerce.number().positive({ message: "Quantity must be positive" }),
   returnDate: z.string().min(1, { message: "Return date is required" }),
   reason: z.string().min(1, { message: "Reason is required" }),
-  condition: z.enum(["new", "damaged", "expired"], { 
-    errorMap: () => ({ message: "Please select a valid condition" })
-  }),
+  condition: z.enum(["new", "damaged", "expired"]),
   region: z.string().min(1, { message: "Region is required" }),
   city: z.string().optional(),
   warehouse: z.string().optional(),

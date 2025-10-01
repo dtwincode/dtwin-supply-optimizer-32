@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "12.2.3 (519615d)"
+  }
   public: {
     Tables: {
       active_models: {
@@ -45,6 +50,30 @@ export type Database = {
         }
         Relationships: []
       }
+      actual_lead_time: {
+        Row: {
+          actual_lead_time_days: number
+          created_at: string | null
+          location_id: string
+          product_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          actual_lead_time_days: number
+          created_at?: string | null
+          location_id: string
+          product_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          actual_lead_time_days?: number
+          created_at?: string | null
+          location_id?: string
+          product_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -78,6 +107,48 @@ export type Database = {
         }
         Relationships: []
       }
+      buffer_breach_events: {
+        Row: {
+          acknowledged: boolean | null
+          acknowledged_at: string | null
+          breach_type: string
+          created_at: string
+          current_oh: number | null
+          detected_ts: string
+          event_id: number
+          location_id: string
+          product_id: string
+          severity: string | null
+          threshold: number | null
+        }
+        Insert: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          breach_type: string
+          created_at?: string
+          current_oh?: number | null
+          detected_ts?: string
+          event_id?: number
+          location_id: string
+          product_id: string
+          severity?: string | null
+          threshold?: number | null
+        }
+        Update: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          breach_type?: string
+          created_at?: string
+          current_oh?: number | null
+          detected_ts?: string
+          event_id?: number
+          location_id?: string
+          product_id?: string
+          severity?: string | null
+          threshold?: number | null
+        }
+        Relationships: []
+      }
       buffer_config: {
         Row: {
           key: string
@@ -90,6 +161,45 @@ export type Database = {
         Update: {
           key?: string
           value?: number | null
+        }
+        Relationships: []
+      }
+      buffer_profile_master: {
+        Row: {
+          buffer_profile_id: string
+          created_at: string
+          description: string | null
+          lt_factor: number
+          min_order_qty: number
+          name: string
+          order_cycle_days: number
+          rounding_multiple: number
+          updated_at: string
+          variability_factor: number
+        }
+        Insert: {
+          buffer_profile_id: string
+          created_at?: string
+          description?: string | null
+          lt_factor?: number
+          min_order_qty?: number
+          name: string
+          order_cycle_days?: number
+          rounding_multiple?: number
+          updated_at?: string
+          variability_factor?: number
+        }
+        Update: {
+          buffer_profile_id?: string
+          created_at?: string
+          description?: string | null
+          lt_factor?: number
+          min_order_qty?: number
+          name?: string
+          order_cycle_days?: number
+          rounding_multiple?: number
+          updated_at?: string
+          variability_factor?: number
         }
         Relationships: []
       }
@@ -357,27 +467,67 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "decoupling_points_location_id_fkey"
-            columns: ["location_id"]
-            isOneToOne: false
-            referencedRelation: "location_master"
-            referencedColumns: ["location_id"]
-          },
-          {
             foreignKeyName: "fk_buffer_profile"
             columns: ["buffer_profile_id"]
             isOneToOne: false
             referencedRelation: "buffer_profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "fk_location"
-            columns: ["location_id"]
-            isOneToOne: false
-            referencedRelation: "location_master"
-            referencedColumns: ["location_id"]
-          },
         ]
+      }
+      demand_adjustment_factor: {
+        Row: {
+          created_at: string
+          daf: number
+          end_date: string
+          location_id: string
+          product_id: string
+          start_date: string
+        }
+        Insert: {
+          created_at?: string
+          daf?: number
+          end_date: string
+          location_id: string
+          product_id: string
+          start_date: string
+        }
+        Update: {
+          created_at?: string
+          daf?: number
+          end_date?: string
+          location_id?: string
+          product_id?: string
+          start_date?: string
+        }
+        Relationships: []
+      }
+      demand_distribution_profile: {
+        Row: {
+          created_at: string | null
+          distribution_type: string
+          location_id: string
+          param1: number | null
+          param2: number | null
+          product_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          distribution_type: string
+          location_id: string
+          param1?: number | null
+          param2?: number | null
+          product_id: string
+        }
+        Update: {
+          created_at?: string | null
+          distribution_type?: string
+          location_id?: string
+          param1?: number | null
+          param2?: number | null
+          product_id?: string
+        }
+        Relationships: []
       }
       external_factors: {
         Row: {
@@ -780,48 +930,38 @@ export type Database = {
           location_id: string
           product_id: string
           quantity_sold: number
-          revenue: number
+          revenue: number | null
           sales_date: string
           sales_id: string
           transaction_type: string | null
           unit_price: number | null
           updated_at: string | null
-          vendor_id: string | null
         }
         Insert: {
           created_at?: string | null
           location_id: string
           product_id: string
           quantity_sold: number
-          revenue: number
+          revenue?: number | null
           sales_date: string
           sales_id?: string
           transaction_type?: string | null
           unit_price?: number | null
           updated_at?: string | null
-          vendor_id?: string | null
         }
         Update: {
           created_at?: string | null
           location_id?: string
           product_id?: string
           quantity_sold?: number
-          revenue?: number
+          revenue?: number | null
           sales_date?: string
           sales_id?: string
           transaction_type?: string | null
           unit_price?: number | null
           updated_at?: string | null
-          vendor_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "fk_location"
-            columns: ["location_id"]
-            isOneToOne: false
-            referencedRelation: "location_master"
-            referencedColumns: ["location_id"]
-          },
           {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
@@ -830,32 +970,11 @@ export type Database = {
             referencedColumns: ["product_id"]
           },
           {
-            foreignKeyName: "fk_vendor"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vendor_master"
-            referencedColumns: ["vendor_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_location_id_fkey"
-            columns: ["location_id"]
-            isOneToOne: false
-            referencedRelation: "location_master"
-            referencedColumns: ["location_id"]
-          },
-          {
             foreignKeyName: "historical_sales_data_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "product_master"
             referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_vendor_id_fkey"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vendor_master"
-            referencedColumns: ["vendor_id"]
           },
         ]
       }
@@ -901,7 +1020,6 @@ export type Database = {
       inventory_data: {
         Row: {
           available_qty: number | null
-          decoupling_point: boolean | null
           inventory_id: string
           last_updated: string | null
           location_id: string
@@ -911,7 +1029,6 @@ export type Database = {
         }
         Insert: {
           available_qty?: number | null
-          decoupling_point?: boolean | null
           inventory_id?: string
           last_updated?: string | null
           location_id: string
@@ -921,7 +1038,6 @@ export type Database = {
         }
         Update: {
           available_qty?: number | null
-          decoupling_point?: boolean | null
           inventory_id?: string
           last_updated?: string | null
           location_id?: string
@@ -931,25 +1047,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "fk_location"
-            columns: ["location_id"]
-            isOneToOne: false
-            referencedRelation: "location_master"
-            referencedColumns: ["location_id"]
-          },
-          {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "product_master"
             referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "inventory_data_location_id_fkey"
-            columns: ["location_id"]
-            isOneToOne: false
-            referencedRelation: "location_master"
-            referencedColumns: ["location_id"]
           },
           {
             foreignKeyName: "inventory_data_product_id_fkey"
@@ -1014,30 +1116,6 @@ export type Database = {
         }
         Relationships: []
       }
-      lead_time_lookup: {
-        Row: {
-          created_at: string | null
-          lead_time_days: number
-          location_id: string
-          product_id: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          lead_time_days: number
-          location_id: string
-          product_id: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          lead_time_days?: number
-          location_id?: string
-          product_id?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       lead_time_predictions: {
         Row: {
           confidence_score: number
@@ -1079,31 +1157,28 @@ export type Database = {
       }
       location_master: {
         Row: {
-          channel: string | null
-          city: string | null
+          channel_id: string | null
           created_at: string | null
           location_id: string
+          location_type: string | null
           region: string | null
           updated_at: string | null
-          warehouse: string
         }
         Insert: {
-          channel?: string | null
-          city?: string | null
+          channel_id?: string | null
           created_at?: string | null
-          location_id?: string
+          location_id: string
+          location_type?: string | null
           region?: string | null
           updated_at?: string | null
-          warehouse: string
         }
         Update: {
-          channel?: string | null
-          city?: string | null
+          channel_id?: string | null
           created_at?: string | null
           location_id?: string
+          location_type?: string | null
           region?: string | null
           updated_at?: string | null
-          warehouse?: string
         }
         Relationships: []
       }
@@ -1407,6 +1482,30 @@ export type Database = {
         }
         Relationships: []
       }
+      master_lead_time: {
+        Row: {
+          created_at: string | null
+          location_id: string
+          product_id: string
+          standard_lead_time_days: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          location_id: string
+          product_id: string
+          standard_lead_time_days: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          location_id?: string
+          product_id?: string
+          standard_lead_time_days?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       model_testing_configs: {
         Row: {
           created_at: string | null
@@ -1594,6 +1693,132 @@ export type Database = {
         }
         Relationships: []
       }
+      on_hand_inventory: {
+        Row: {
+          created_at: string
+          id: string
+          location_id: string
+          product_id: string
+          qty_on_hand: number
+          snapshot_ts: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          location_id: string
+          product_id: string
+          qty_on_hand?: number
+          snapshot_ts?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          location_id?: string
+          product_id?: string
+          qty_on_hand?: number
+          snapshot_ts?: string
+        }
+        Relationships: []
+      }
+      open_pos: {
+        Row: {
+          created_at: string
+          expected_date: string | null
+          id: string
+          location_id: string
+          order_date: string
+          ordered_qty: number
+          product_id: string
+          received_qty: number | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          expected_date?: string | null
+          id?: string
+          location_id: string
+          order_date: string
+          ordered_qty: number
+          product_id: string
+          received_qty?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          expected_date?: string | null
+          id?: string
+          location_id?: string
+          order_date?: string
+          ordered_qty?: number
+          product_id?: string
+          received_qty?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      open_so: {
+        Row: {
+          confirmed_date: string
+          created_at: string
+          id: string
+          location_id: string
+          product_id: string
+          qty: number
+          status: string
+        }
+        Insert: {
+          confirmed_date: string
+          created_at?: string
+          id?: string
+          location_id: string
+          product_id: string
+          qty: number
+          status?: string
+        }
+        Update: {
+          confirmed_date?: string
+          created_at?: string
+          id?: string
+          location_id?: string
+          product_id?: string
+          qty?: number
+          status?: string
+        }
+        Relationships: []
+      }
+      order_spike_settings: {
+        Row: {
+          created_at: string
+          horizon_days: number
+          id: string
+          is_enabled: boolean
+          location_id: string | null
+          product_id: string | null
+          spike_multiplier: number
+        }
+        Insert: {
+          created_at?: string
+          horizon_days?: number
+          id?: string
+          is_enabled?: boolean
+          location_id?: string | null
+          product_id?: string | null
+          spike_multiplier?: number
+        }
+        Update: {
+          created_at?: string
+          horizon_days?: number
+          id?: string
+          is_enabled?: boolean
+          location_id?: string | null
+          product_id?: string | null
+          spike_multiplier?: number
+        }
+        Relationships: []
+      }
       performance_tracking: {
         Row: {
           channel_id: string | null
@@ -1650,13 +1875,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "channel_master"
             referencedColumns: ["channel_id"]
-          },
-          {
-            foreignKeyName: "fk_location"
-            columns: ["location_id"]
-            isOneToOne: false
-            referencedRelation: "location_master"
-            referencedColumns: ["location_id"]
           },
           {
             foreignKeyName: "fk_product"
@@ -1774,6 +1992,21 @@ export type Database = {
         }
         Relationships: []
       }
+      product_location_pairs: {
+        Row: {
+          location_id: string | null
+          product_id: string | null
+        }
+        Insert: {
+          location_id?: string | null
+          product_id?: string | null
+        }
+        Update: {
+          location_id?: string | null
+          product_id?: string | null
+        }
+        Relationships: []
+      }
       product_master: {
         Row: {
           category: string | null
@@ -1813,82 +2046,41 @@ export type Database = {
         }
         Relationships: []
       }
-      product_pricing: {
+      "product_pricing-master": {
         Row: {
           created_at: string | null
           currency: string | null
           effective_date: string
-          location_id: string | null
           price: number
           pricing_id: string
           product_id: string
           updated_at: string | null
-          vendor_id: string | null
         }
         Insert: {
           created_at?: string | null
           currency?: string | null
           effective_date: string
-          location_id?: string | null
           price: number
           pricing_id?: string
           product_id: string
           updated_at?: string | null
-          vendor_id?: string | null
         }
         Update: {
           created_at?: string | null
           currency?: string | null
           effective_date?: string
-          location_id?: string | null
           price?: number
           pricing_id?: string
           product_id?: string
           updated_at?: string | null
-          vendor_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "fk_location"
-            columns: ["location_id"]
-            isOneToOne: false
-            referencedRelation: "location_master"
-            referencedColumns: ["location_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_vendor"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vendor_master"
-            referencedColumns: ["vendor_id"]
-          },
-          {
-            foreignKeyName: "product_pricing_location_id_fkey"
-            columns: ["location_id"]
-            isOneToOne: false
-            referencedRelation: "location_master"
-            referencedColumns: ["location_id"]
-          },
           {
             foreignKeyName: "product_pricing_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "product_master"
             referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "product_pricing_vendor_id_fkey"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vendor_master"
-            referencedColumns: ["vendor_id"]
           },
         ]
       }
@@ -1973,6 +2165,48 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           version?: number | null
+        }
+        Relationships: []
+      }
+      replenishment_orders: {
+        Row: {
+          created_at: string
+          location_id: string
+          product_id: string
+          proposal_id: number
+          proposal_ts: string
+          qty_recommend: number
+          reason: string
+          source_view: string
+          status: string
+          target_due_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          location_id: string
+          product_id: string
+          proposal_id?: number
+          proposal_ts?: string
+          qty_recommend: number
+          reason?: string
+          source_view?: string
+          status?: string
+          target_due_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          location_id?: string
+          product_id?: string
+          proposal_id?: number
+          proposal_ts?: string
+          qty_recommend?: number
+          reason?: string
+          source_view?: string
+          status?: string
+          target_due_date?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -2165,13 +2399,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "fk_location"
-            columns: ["location_id"]
-            isOneToOne: false
-            referencedRelation: "location_master"
-            referencedColumns: ["location_id"]
-          },
-          {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
             isOneToOne: false
@@ -2320,6 +2547,123 @@ export type Database = {
       }
     }
     Views: {
+      active_demand_nodes: {
+        Row: {
+          location_id: string | null
+          product_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_product"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "product_master"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "historical_sales_data_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "product_master"
+            referencedColumns: ["product_id"]
+          },
+        ]
+      }
+      adu_90d_view: {
+        Row: {
+          adu_adj: number | null
+          location_id: string | null
+          product_id: string | null
+          window_days: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_product"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "product_master"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "historical_sales_data_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "product_master"
+            referencedColumns: ["product_id"]
+          },
+        ]
+      }
+      buffer_profile_selected: {
+        Row: {
+          buffer_profile_id: string | null
+          location_id: string | null
+          product_id: string | null
+        }
+        Relationships: []
+      }
+      daily_sales_base: {
+        Row: {
+          location_id: string | null
+          product_id: string | null
+          qty: number | null
+          sales_date: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_product"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "product_master"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "historical_sales_data_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "product_master"
+            referencedColumns: ["product_id"]
+          },
+        ]
+      }
+      inventory_ddmrp_buffers_view: {
+        Row: {
+          adu_adj: number | null
+          buffer_profile_id: string | null
+          dlt: number | null
+          green_zone: number | null
+          location_id: string | null
+          lt_factor: number | null
+          min_order_qty: number | null
+          order_cycle_days: number | null
+          product_id: string | null
+          red_base: number | null
+          red_safety: number | null
+          red_zone: number | null
+          rounding_multiple: number | null
+          tog: number | null
+          tor: number | null
+          toy: number | null
+          variability: number | null
+          variability_factor: number | null
+          yellow_zone: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_product"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "product_master"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "inventory_data_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "product_master"
+            referencedColumns: ["product_id"]
+          },
+        ]
+      }
       inventory_demand_variability: {
         Row: {
           demand_variability: number | null
@@ -2329,13 +2673,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "fk_location"
-            columns: ["location_id"]
-            isOneToOne: false
-            referencedRelation: "location_master"
-            referencedColumns: ["location_id"]
-          },
-          {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
             isOneToOne: false
@@ -2343,11 +2680,30 @@ export type Database = {
             referencedColumns: ["product_id"]
           },
           {
-            foreignKeyName: "inventory_data_location_id_fkey"
-            columns: ["location_id"]
+            foreignKeyName: "inventory_data_product_id_fkey"
+            columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "location_master"
-            referencedColumns: ["location_id"]
+            referencedRelation: "product_master"
+            referencedColumns: ["product_id"]
+          },
+        ]
+      }
+      inventory_net_flow_view: {
+        Row: {
+          location_id: string | null
+          nfp: number | null
+          on_hand: number | null
+          on_order: number | null
+          product_id: string | null
+          qualified_demand: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_product"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "product_master"
+            referencedColumns: ["product_id"]
           },
           {
             foreignKeyName: "inventory_data_product_id_fkey"
@@ -2373,25 +2729,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "fk_location"
-            columns: ["location_id"]
-            isOneToOne: false
-            referencedRelation: "location_master"
-            referencedColumns: ["location_id"]
-          },
-          {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "product_master"
             referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "inventory_data_location_id_fkey"
-            columns: ["location_id"]
-            isOneToOne: false
-            referencedRelation: "location_master"
-            referencedColumns: ["location_id"]
           },
           {
             foreignKeyName: "inventory_data_product_id_fkey"
@@ -2431,25 +2773,11 @@ export type Database = {
             referencedColumns: ["channel_id"]
           },
           {
-            foreignKeyName: "fk_location"
-            columns: ["location_id"]
-            isOneToOne: false
-            referencedRelation: "location_master"
-            referencedColumns: ["location_id"]
-          },
-          {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "product_master"
             referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "inventory_data_location_id_fkey"
-            columns: ["location_id"]
-            isOneToOne: false
-            referencedRelation: "location_master"
-            referencedColumns: ["location_id"]
           },
           {
             foreignKeyName: "inventory_data_product_id_fkey"
@@ -2460,6 +2788,65 @@ export type Database = {
           },
         ]
       }
+      inventory_planning_view_temp: {
+        Row: {
+          lead_time_factor: number | null
+          location_id: string | null
+          product_id: string | null
+          stockout_rate: number | null
+          trend_factor: number | null
+          turnover_rate: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_product"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "product_master"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "inventory_data_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "product_master"
+            referencedColumns: ["product_id"]
+          },
+        ]
+      }
+      lead_time_variability: {
+        Row: {
+          lead_time_stddev: number | null
+          location_id: string | null
+          observations: number | null
+          product_id: string | null
+        }
+        Relationships: []
+      }
+      onhand_latest_view: {
+        Row: {
+          location_id: string | null
+          product_id: string | null
+          qty_on_hand: number | null
+        }
+        Relationships: []
+      }
+      onorder_view: {
+        Row: {
+          location_id: string | null
+          product_id: string | null
+          qty_on_order: number | null
+        }
+        Relationships: []
+      }
+      qualified_demand_view: {
+        Row: {
+          location_id: string | null
+          product_id: string | null
+          qualified_demand: number | null
+        }
+        Relationships: []
+      }
       service_level_config: {
         Row: {
           calculated_z_value: number | null
@@ -2469,27 +2856,54 @@ export type Database = {
         }
         Relationships: []
       }
+      trend_factor_view: {
+        Row: {
+          location_id: string | null
+          product_id: string | null
+          trend_factor: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_product"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "product_master"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "historical_sales_data_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "product_master"
+            referencedColumns: ["product_id"]
+          },
+        ]
+      }
     }
     Functions: {
       activate_hierarchy_mapping: {
-        Args: {
-          p_mapping_id: string
-        }
+        Args: { p_mapping_id: string }
         Returns: undefined
       }
       activate_hierarchy_version: {
-        Args: {
-          p_hierarchy_type: string
-          p_version: number
-        }
+        Args: { p_hierarchy_type: string; p_version: number }
         Returns: undefined
       }
-      drop_hierarchy_column: {
-        Args: {
-          p_table_name: string
-          p_column_name: string
-        }
+      ddmrp_nightly: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      detect_buffer_breaches: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      drop_hierarchy_column: {
+        Args: { p_column_name: string; p_table_name: string }
+        Returns: undefined
+      }
+      generate_replenishment: {
+        Args: { location_id_filter?: string }
+        Returns: number
       }
       get_inventory_planning_data: {
         Args: Record<PropertyKey, never>
@@ -2503,30 +2917,20 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json[]
       }
-      integrate_forecast_data:
-        | {
-            Args: Record<PropertyKey, never>
-            Returns: string
-          }
-        | {
-            Args: {
-              p_mapping_config: Json
-            }
-            Returns: string
-          }
+      integrate_forecast_data: {
+        Args: Record<PropertyKey, never> | { p_mapping_config: Json }
+        Returns: string
+      }
       process_hierarchy_configuration: {
         Args: {
-          p_table_name: string
-          p_selected_columns: string[]
           p_mappings: Json
+          p_selected_columns: string[]
+          p_table_name: string
         }
         Returns: undefined
       }
       remove_unselected_columns: {
-        Args: {
-          p_table_name: string
-          p_selected_columns: string[]
-        }
+        Args: { p_selected_columns: string[]; p_table_name: string }
         Returns: undefined
       }
       update_performance_tracking: {
@@ -2540,8 +2944,8 @@ export type Database = {
       validate_forecast_mapping: {
         Args: {
           p_historical_mapping: Json
-          p_product_mapping: Json
           p_location_mapping: Json
+          p_product_mapping: Json
         }
         Returns: boolean
       }
@@ -2591,27 +2995,33 @@ export type Database = {
   }
 }
 
-type PublicSchema = Database[Extract<keyof Database, "public">]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
-  PublicTableNameOrOptions extends
-    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
-        PublicSchema["Views"])
-    ? (PublicSchema["Tables"] &
-        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -2619,20 +3029,24 @@ export type Tables<
     : never
 
 export type TablesInsert<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -2640,20 +3054,24 @@ export type TablesInsert<
     : never
 
 export type TablesUpdate<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -2661,29 +3079,75 @@ export type TablesUpdate<
     : never
 
 export type Enums<
-  PublicEnumNameOrOptions extends
-    | keyof PublicSchema["Enums"]
-    | { schema: keyof Database },
-  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
-    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof PublicSchema["CompositeTypes"]
-    | { schema: keyof Database },
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
-    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      decoupling_type: [
+        "strategic",
+        "customer_order",
+        "stock_point",
+        "intermediate",
+      ],
+      hierarchy_level_type: ["L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8"],
+      hierarchy_status: ["draft", "active", "archived"],
+      industry_type: [
+        "manufacturing",
+        "retail",
+        "distribution",
+        "electronics",
+        "automotive",
+        "consumer_goods",
+        "pharmaceuticals",
+      ],
+      lead_time_category: ["short", "medium", "long"],
+      lead_time_type: ["short", "medium", "long"],
+      module_type: [
+        "forecasting",
+        "inventory",
+        "sales",
+        "marketing",
+        "logistics",
+        "location_hierarchy",
+        "product_hierarchy",
+      ],
+      variability_type: [
+        "high_variability",
+        "medium_variability",
+        "low_variability",
+      ],
+    },
+  },
+} as const
