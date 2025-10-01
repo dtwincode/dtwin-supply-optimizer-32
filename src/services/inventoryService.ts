@@ -1,63 +1,68 @@
+/**
+ * Inventory Service
+ * Handles buffer profiles and inventory calculations
+ */
 
 import { supabase } from '@/integrations/supabase/client';
 import { BufferFactorConfig, BufferProfile } from '@/types/inventory';
 
-// Updated BufferFactorConfig interface that matches the data structure
+// Updated BufferFactorConfig interface that matches the database structure
 export interface ExtendedBufferFactorConfig {
   id: string;
-  shortLeadTimeFactor: number;
-  mediumLeadTimeFactor: number;
-  longLeadTimeFactor: number;
-  shortLeadTimeThreshold: number;
-  mediumLeadTimeThreshold: number;
-  replenishmentTimeFactor: number;
-  minGreenZoneDays: number;
-  maxGreenZoneDays: number;
-  yellowZoneFactor: number;
-  decouplingPointFactor: number;
-  created_at?: string;
-  updated_at?: string;
-  metadata: Record<string, any>;
+  name: string;
+  lt_factor: number;
+  variability_factor: number;
+  order_cycle_days: number;
+  min_order_qty: number;
+  rounding_multiple: number;
+  description?: string;
 }
 
-// Mock data for buffer factor configurations
-export const bufferFactorConfigs: ExtendedBufferFactorConfig[] = [
+// Mock buffer factor configurations for fallback
+const bufferFactorConfigs: ExtendedBufferFactorConfig[] = [
   {
     id: '1',
-    shortLeadTimeFactor: 1.2,
-    mediumLeadTimeFactor: 1.5,
-    longLeadTimeFactor: 2.0,
-    shortLeadTimeThreshold: 7, // days
-    mediumLeadTimeThreshold: 30, // days
-    replenishmentTimeFactor: 1.2, 
-    minGreenZoneDays: 7,
-    maxGreenZoneDays: 30,
-    yellowZoneFactor: 1.1,
-    decouplingPointFactor: 1.3,
-    metadata: {}
+    name: 'Low Variability - Short Lead Time',
+    lt_factor: 0.5,
+    variability_factor: 0.25,
+    order_cycle_days: 7,
+    min_order_qty: 10,
+    rounding_multiple: 5,
+    description: 'For stable demand with predictable lead times'
+  },
+  {
+    id: '2',
+    name: 'Medium Variability - Medium Lead Time',
+    lt_factor: 1.0,
+    variability_factor: 0.5,
+    order_cycle_days: 14,
+    min_order_qty: 20,
+    rounding_multiple: 10,
+    description: 'Standard buffer configuration'
   }
 ];
 
-// Function to fetch buffer profiles
+/**
+ * Fetch buffer profiles from buffer_profile_master table
+ */
 export const fetchBufferProfiles = async (): Promise<BufferProfile[]> => {
   try {
     const { data, error } = await supabase
-      .from('buffer_profiles')
+      .from('buffer_profile_master')
       .select('*');
-    
+
     if (error) throw error;
-    
-    // Map snake_case from DB to camelCase for the interface
+
     return (data || []).map(profile => ({
-      id: profile.id,
+      id: profile.buffer_profile_id,
       name: profile.name,
-      variabilityFactor: profile.variability_category as any || 'medium_variability',
-      leadTimeFactor: profile.lead_time_category as any || 'medium',
-      moq: profile.lot_size_factor || undefined,
-      lotSizeFactor: profile.lot_size_factor || undefined,
+      variabilityFactor: 'medium_variability' as any,
+      leadTimeFactor: 'medium' as any,
+      moq: profile.min_order_qty,
+      lotSizeFactor: profile.rounding_multiple,
       description: profile.description || undefined,
-      createdAt: profile.created_at,
-      updatedAt: profile.updated_at,
+      createdAt: profile.created_at || undefined,
+      updatedAt: profile.updated_at || undefined,
     }));
   } catch (error) {
     console.error('Error fetching buffer profiles:', error);
@@ -65,71 +70,52 @@ export const fetchBufferProfiles = async (): Promise<BufferProfile[]> => {
   }
 };
 
-// Function to fetch buffer factor configurations
+/**
+ * Fetch buffer factor configurations
+ */
 export const fetchBufferFactorConfigs = async (): Promise<BufferFactorConfig[]> => {
-  try {
-    // Mock implementation for now
-    // In a real implementation, we would fetch from Supabase
-    // Convert ExtendedBufferFactorConfig to BufferFactorConfig
-    return bufferFactorConfigs.map(config => ({
-      id: config.id,
-      name: `Buffer Factor ${config.id}`, // Create a name from the ID
-      factor: config.yellowZoneFactor, // Use one of the factors as the main factor
-      description: `Configuration for buffer factors with short LT: ${config.shortLeadTimeFactor}, medium LT: ${config.mediumLeadTimeFactor}, long LT: ${config.longLeadTimeFactor}`
-    }));
-  } catch (error) {
-    console.error('Error fetching buffer factor configs:', error);
-    return [];
-  }
+  // Return mock data for now
+  return bufferFactorConfigs.map(config => ({
+    id: config.id,
+    name: config.name,
+    factor: config.variability_factor,
+    description: config.description || `LT Factor: ${config.lt_factor}, Variability: ${config.variability_factor}`
+  }));
 };
 
-// Function to calculate buffer zones
+/**
+ * Calculate buffer zones based on DDMRP principles
+ */
 export const calculateBufferZones = (
   adu: number,
   leadTimeDays: number,
   variabilityFactor: number,
   settings: ExtendedBufferFactorConfig
-): { red: number; yellow: number; green: number } => {
-  let leadTimeFactor = settings.mediumLeadTimeFactor; // default to medium
+) => {
+  const { lt_factor, order_cycle_days, min_order_qty } = settings;
   
-  if (leadTimeDays <= settings.shortLeadTimeThreshold) {
-    leadTimeFactor = settings.shortLeadTimeFactor;
-  } else if (leadTimeDays > settings.mediumLeadTimeThreshold) {
-    leadTimeFactor = settings.longLeadTimeFactor;
-  }
-  
-  // Red zone calculation (base buffer)
-  const redZone = Math.round(adu * leadTimeDays);
-  
-  // Yellow zone calculation (order cycle + variability)
-  const yellowZone = Math.round(redZone * settings.yellowZoneFactor * variabilityFactor);
-  
-  // Green zone calculation (safety + market opportunity)
-  let greenZoneDays = Math.min(
-    Math.max(leadTimeDays * 0.5, settings.minGreenZoneDays),
-    settings.maxGreenZoneDays
-  );
-  const greenZone = Math.round(adu * greenZoneDays);
-  
+  // Red Zone = (ADU × DLT × LT Factor) + (ADU × variability_factor)
+  const baseRed = adu * leadTimeDays * lt_factor;
+  const variabilityBuffer = adu * variabilityFactor * leadTimeDays;
+  const redZone = Math.max(baseRed + variabilityBuffer, min_order_qty);
+
+  // Yellow Zone = ADU × Order Cycle
+  const yellowZone = adu * order_cycle_days;
+
+  // Green Zone = Max(Red Zone, Yellow Zone)
+  const greenZone = Math.max(redZone, yellowZone);
+
   return {
-    red: redZone,
-    yellow: yellowZone,
-    green: greenZone
+    red: Math.round(redZone),
+    yellow: Math.round(yellowZone),
+    green: Math.round(greenZone)
   };
 };
 
-// Function to check and update buffer penetration status
+/**
+ * Check buffer penetration for an item
+ */
 export const checkBufferPenetration = async (itemId: string): Promise<number> => {
-  try {
-    // In a real implementation, we would:
-    // 1. Fetch the current inventory for the item
-    // 2. Calculate the buffer penetration
-    // 3. Update the buffer status if needed
-    
-    // Mock implementation
-    return Math.floor(Math.random() * 100);
-  } catch (error) {
-    console.error('Error checking buffer penetration:', error);
-    return 0;
-  }
+  // Mock implementation - would calculate actual penetration from inventory data
+  return Math.random() * 100;
 };

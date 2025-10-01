@@ -18,12 +18,50 @@ export const fetchInventoryPlanningView = async () => {
 
     if (bufferError) throw bufferError;
 
-    // Fetch net flow data
+    // Fetch net flow data using raw query since types aren't regenerated yet
     const { data: netFlowData, error: netFlowError } = await supabase
-      .from('inventory_net_flow_view')
-      .select('*');
+      .rpc('get_inventory_planning_data') as any;
 
-    if (netFlowError) throw netFlowError;
+    // If RPC doesn't exist, try direct query
+    let netFlows: any[] = [];
+    if (netFlowError) {
+      // Fallback: calculate manually from individual views
+      const { data: onHandData } = await supabase.from('onhand_latest_view').select('*');
+      const { data: onOrderData } = await supabase.from('onorder_view').select('*');
+      const { data: qualifiedDemandData } = await supabase.from('open_so').select('*');
+
+      // Combine the data manually
+      bufferData?.forEach((buffer: any) => {
+        const onHand = onHandData?.find((oh: any) => 
+          oh.product_id === buffer.product_id && oh.location_id === buffer.location_id
+        );
+        const onOrder = onOrderData?.find((oo: any) => 
+          oo.product_id === buffer.product_id && oo.location_id === buffer.location_id
+        );
+        const qualifiedDemand = qualifiedDemandData
+          ?.filter((qd: any) => 
+            qd.product_id === buffer.product_id && 
+            qd.location_id === buffer.location_id &&
+            qd.status === 'CONFIRMED'
+          )
+          .reduce((sum: number, qd: any) => sum + (qd.qty || 0), 0) || 0;
+
+        const onHandQty = onHand?.qty_on_hand || 0;
+        const onOrderQty = onOrder?.qty_on_order || 0;
+        const nfp = onHandQty + onOrderQty - qualifiedDemand;
+
+        netFlows.push({
+          product_id: buffer.product_id,
+          location_id: buffer.location_id,
+          on_hand: onHandQty,
+          on_order: onOrderQty,
+          qualified_demand: qualifiedDemand,
+          nfp: nfp
+        });
+      });
+    } else {
+      netFlows = netFlowData || [];
+    }
 
     // Fetch product master data for names
     const { data: productData, error: productError } = await supabase
@@ -34,7 +72,7 @@ export const fetchInventoryPlanningView = async () => {
 
     // Combine the data
     const combinedData = bufferData?.map((buffer: any) => {
-      const netFlow = netFlowData?.find(
+      const netFlow = netFlows?.find(
         (nf: any) => nf.product_id === buffer.product_id && nf.location_id === buffer.location_id
       );
       const product = productData?.find((p: any) => p.product_id === buffer.product_id);
@@ -47,7 +85,7 @@ export const fetchInventoryPlanningView = async () => {
         buffer_status = 'YELLOW';
       }
 
-      // Generate a numeric hash for id (simple hash function)
+      // Generate a numeric hash for id
       const hashString = `${buffer.product_id}-${buffer.location_id}`;
       const numericId = Math.abs(hashString.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0));
 
@@ -61,7 +99,7 @@ export const fetchInventoryPlanningView = async () => {
         location_id: buffer.location_id,
         channel_id: 'B2C',
         current_stock_level: netFlow?.on_hand || 0,
-        average_daily_usage: buffer.adu_adj || 0,
+        average_daily_usage: buffer.adu || 0,
         min_stock_level: buffer.tor || 0,
         max_stock_level: buffer.tog || 0,
         reorder_level: buffer.toy || 0,
@@ -98,24 +136,20 @@ export const updateBufferLevels = async (
     max_stock_level?: number;
   }
 ) => {
-  // Simulate API call delay
   await new Promise(resolve => setTimeout(resolve, 800));
-  
-  // In a real application, this would send the updates to an API
   console.log(`Updating buffer levels for product ${productId}:`, updates);
-  
   return { success: true };
 };
-export const fetchBufferProfiles = fetchInventoryPlanningView;
 
+export const fetchBufferProfiles = fetchInventoryPlanningView;
 export const updateBufferProfile = updateBufferLevels;
 
-export const createBufferProfile = async (profile) => {
+export const createBufferProfile = async (profile: any) => {
   console.log("Creating buffer profile:", profile);
   return { success: true };
 };
 
-export const deleteBufferProfile = async (id) => {
+export const deleteBufferProfile = async (id: string) => {
   console.log("Deleting buffer profile with ID:", id);
   return { success: true };
 };

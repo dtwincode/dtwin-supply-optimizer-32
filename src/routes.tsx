@@ -2,7 +2,6 @@ import { createBrowserRouter, Outlet } from "react-router-dom";
 import NotFound from "./pages/NotFound";
 import Inventory from "./pages/Inventory";
 import Settings from "./pages/Settings";
-import Forecasting from "./pages/Forecasting";
 import DDSOP from "./pages/DDSOP";
 import DDMRP from "./pages/DDMRP";
 import DDOM from "./pages/DDOM";
@@ -24,7 +23,6 @@ export const router = createBrowserRouter([
       { index: true, element: <Inventory /> },
       { path: "inventory", element: <Inventory /> },
       { path: "settings", element: <Settings /> },
-      { path: "forecasting", element: <Forecasting /> },
       { path: "ddmrp", element: <DDMRP /> },
       { path: "ddom", element: <DDOM /> },
       { path: "ddsop", element: <DDSOP /> },
