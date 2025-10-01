@@ -2,15 +2,10 @@ import React, { useEffect, useState } from "react";
 import { fetchInventoryPlanningView } from "@/lib/inventory-planning.service";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-interface DecouplingItem {
-  product_id: string;
-  location_id: string;
-  decoupling_point: boolean;
-}
+import { InventoryPlanningItem } from "@/types/inventory/planningTypes";
 
 export function DecouplingPointContent() {
-  const [decouplingItems, setDecouplingItems] = useState<DecouplingItem[]>([]);
+  const [decouplingItems, setDecouplingItems] = useState<InventoryPlanningItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const loadDecoupling = async () => {

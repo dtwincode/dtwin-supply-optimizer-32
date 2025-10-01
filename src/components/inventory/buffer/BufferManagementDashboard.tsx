@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { fetchInventoryPlanningView } from "@/lib/inventory-planning.service";
 import { useInventoryFilter } from "@/components/inventory/InventoryFilterContext";
+import { InventoryPlanningItem } from "@/types/inventory/planningTypes";
 
 interface BufferItem {
   product_id: string;

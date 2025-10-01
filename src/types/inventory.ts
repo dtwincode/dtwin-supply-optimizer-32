@@ -144,7 +144,7 @@ export interface BufferItem extends InventoryItem {
 export interface DecouplingItem {
   id: number;
   sku: string;
-  product_id?: string;
+  product_id: string;
   product_name: string;
   category: string;
   subcategory: string;
@@ -162,7 +162,7 @@ export interface DecouplingItem {
   red_zone: number;
   yellow_zone: number;
   green_zone: number;
-  is_decoupling_point?: boolean;
+  is_decoupling_point: boolean;
 }
 
 export interface SavedFile {

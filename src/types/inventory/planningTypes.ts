@@ -1,11 +1,13 @@
+// DDMRP Inventory Planning Types
 export interface InventoryPlanningItem {
   id?: number;
+  product_id: string;
+  location_id: string;
   sku: string;
   product_name: string;
   category: string;
-  subcategory: string;
-  location_id: string;
-  channel_id: string;
+  subcategory?: string;
+  channel_id?: string;
   current_stock_level: number;
   average_daily_usage: number;
   min_stock_level: number;
@@ -18,18 +20,44 @@ export interface InventoryPlanningItem {
   red_zone: number;
   yellow_zone: number;
   green_zone: number;
-  product_id?: string;
   buffer_profile_id?: string;
-  
-  // DDMRP specific fields
   demand_variability?: number;
-  buffer_penetration?: number;
-  net_flow_position?: number;
-  qualified_demand?: number;
+  on_hand?: number;
   on_order?: number;
-  
-  // Buffer zone thresholds (TOR, TOY, TOG)
-  tor?: number; // Top of Red
-  toy?: number; // Top of Yellow
-  tog?: number; // Top of Green
+  qualified_demand?: number;
+  nfp?: number;
+  tor?: number;
+  toy?: number;
+  tog?: number;
+}
+
+export interface BufferProfileMaster {
+  buffer_profile_id: string;
+  name: string;
+  description?: string;
+  lt_factor: number;
+  variability_factor: number;
+  order_cycle_days: number;
+  min_order_qty: number;
+  rounding_multiple: number;
+}
+
+export interface ReplenishmentOrder {
+  proposal_id: number;
+  product_id: string;
+  location_id: string;
+  qty_recommend: number;
+  reason: string;
+  status: 'DRAFT' | 'APPROVED' | 'REJECTED';
+  target_due_date?: string;
+}
+
+export interface BufferBreachEvent {
+  event_id: number;
+  product_id: string;
+  location_id: string;
+  breach_type: 'below_tor' | 'below_toy' | 'above_tog';
+  severity: 'HIGH' | 'MEDIUM' | 'LOW';
+  detected_ts: string;
+  acknowledged: boolean;
 }
