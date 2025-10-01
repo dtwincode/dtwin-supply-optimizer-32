@@ -1,88 +1,92 @@
-
 /**
  * Inventory Planning Service
- * Handles fetching and processing inventory planning data
+ * Handles fetching and processing inventory planning data from Supabase
  */
 
-// Mock data for inventory planning view
-const mockInventoryPlanningData = [
-  {
-    id: 1,
-    product_id: "PROD001",
-    sku: "SKU001",
-    product_name: "Product A",
-    category: "Electronics",
-    subcategory: "Mobile Phones",
-    location_id: "WH001",
-    channel_id: "B2C",
-    current_stock_level: 120,
-    average_daily_usage: 10,
-    min_stock_level: 30,
-    max_stock_level: 150,
-    reorder_level: 50,
-    safety_stock: 20,
-    lead_time_days: 5,
-    decoupling_point: true,
-    buffer_status: "GREEN",
-    red_zone: 30,
-    yellow_zone: 40,
-    green_zone: 80
-  },
-  {
-    id: 2,
-    product_id: "PROD002",
-    sku: "SKU002",
-    product_name: "Product B",
-    category: "Electronics",
-    subcategory: "Laptops",
-    location_id: "WH001",
-    channel_id: "B2B",
-    current_stock_level: 25,
-    average_daily_usage: 5,
-    min_stock_level: 30,
-    max_stock_level: 100,
-    reorder_level: 40,
-    safety_stock: 15,
-    lead_time_days: 7,
-    decoupling_point: false,
-    buffer_status: "RED",
-    red_zone: 20,
-    yellow_zone: 30,
-    green_zone: 50
-  },
-  {
-    id: 3,
-    product_id: "PROD003",
-    sku: "SKU003",
-    product_name: "Product C",
-    category: "Clothing",
-    subcategory: "T-shirts",
-    location_id: "WH002",
-    channel_id: "B2C",
-    current_stock_level: 200,
-    average_daily_usage: 8,
-    min_stock_level: 50,
-    max_stock_level: 180,
-    reorder_level: 70,
-    safety_stock: 30,
-    lead_time_days: 3,
-    decoupling_point: true,
-    buffer_status: "YELLOW",
-    red_zone: 40,
-    yellow_zone: 50,
-    green_zone: 90
-  }
-];
+import { supabase } from '@/integrations/supabase/client';
 
 /**
- * Fetch inventory planning view data
- * In a real application, this would call an API
+ * Fetch inventory planning view data from Supabase
+ * Combines DDMRP buffers with net flow position data
  */
 export const fetchInventoryPlanningView = async () => {
-  // Simulate API call delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  return mockInventoryPlanningData;
+  try {
+    // Fetch DDMRP buffer data
+    const { data: bufferData, error: bufferError } = await supabase
+      .from('inventory_ddmrp_buffers_view')
+      .select('*');
+
+    if (bufferError) throw bufferError;
+
+    // Fetch net flow data
+    const { data: netFlowData, error: netFlowError } = await supabase
+      .from('inventory_net_flow_view')
+      .select('*');
+
+    if (netFlowError) throw netFlowError;
+
+    // Fetch product master data for names
+    const { data: productData, error: productError } = await supabase
+      .from('product_master')
+      .select('product_id, name, sku, category, subcategory');
+
+    if (productError) throw productError;
+
+    // Combine the data
+    const combinedData = bufferData?.map((buffer: any) => {
+      const netFlow = netFlowData?.find(
+        (nf: any) => nf.product_id === buffer.product_id && nf.location_id === buffer.location_id
+      );
+      const product = productData?.find((p: any) => p.product_id === buffer.product_id);
+
+      // Determine buffer status based on NFP
+      let buffer_status = 'GREEN';
+      if (netFlow?.nfp <= buffer.tor) {
+        buffer_status = 'RED';
+      } else if (netFlow?.nfp <= buffer.toy) {
+        buffer_status = 'YELLOW';
+      }
+
+      // Generate a numeric hash for id (simple hash function)
+      const hashString = `${buffer.product_id}-${buffer.location_id}`;
+      const numericId = Math.abs(hashString.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0));
+
+      return {
+        id: numericId,
+        product_id: buffer.product_id,
+        sku: product?.sku || buffer.product_id,
+        product_name: product?.name || buffer.product_id,
+        category: product?.category || 'Unknown',
+        subcategory: product?.subcategory || '',
+        location_id: buffer.location_id,
+        channel_id: 'B2C',
+        current_stock_level: netFlow?.on_hand || 0,
+        average_daily_usage: buffer.adu_adj || 0,
+        min_stock_level: buffer.tor || 0,
+        max_stock_level: buffer.tog || 0,
+        reorder_level: buffer.toy || 0,
+        safety_stock: buffer.red_safety || 0,
+        lead_time_days: buffer.dlt || 0,
+        decoupling_point: true,
+        buffer_status,
+        red_zone: buffer.red_zone || 0,
+        yellow_zone: buffer.yellow_zone || 0,
+        green_zone: buffer.green_zone || 0,
+        on_hand: netFlow?.on_hand || 0,
+        on_order: netFlow?.on_order || 0,
+        qualified_demand: netFlow?.qualified_demand || 0,
+        nfp: netFlow?.nfp || 0,
+        tor: buffer.tor || 0,
+        toy: buffer.toy || 0,
+        tog: buffer.tog || 0,
+      };
+    }) || [];
+
+    return combinedData;
+  } catch (error) {
+    console.error('Error fetching inventory planning data:', error);
+    return [];
+  }
 };
 
 /**
