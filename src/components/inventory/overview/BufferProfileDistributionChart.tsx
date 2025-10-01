@@ -35,7 +35,7 @@ export function BufferProfileDistributionChart() {
           const profileId = item.buffer_profile_id;
           if (!counts[profileId]) {
             counts[profileId] = {
-              name: profileId,
+              name: item.buffer_profile_name || profileId,
               count: 0
             };
           }
@@ -48,6 +48,7 @@ export function BufferProfileDistributionChart() {
         value: profile.count
       }));
 
+      console.log('Buffer Profile Chart Data:', chartData);
       setProfileData(chartData);
       
       toast.success("Chart data refreshed");
