@@ -1622,6 +1622,7 @@ export type Database = {
           dlt: number | null
           green_zone: number | null
           location_id: string | null
+          lt_factor: number | null
           min_order_qty: number | null
           order_cycle_days: number | null
           product_id: string | null
@@ -1633,18 +1634,8 @@ export type Database = {
           tog: number | null
           tor: number | null
           toy: number | null
+          variability_factor: number | null
           yellow_zone: number | null
-        }
-        Relationships: []
-      }
-      inventory_net_flow_view: {
-        Row: {
-          location_id: string | null
-          nfp: number | null
-          on_hand: number | null
-          on_order: number | null
-          product_id: string | null
-          qualified_demand: number | null
         }
         Relationships: []
       }
