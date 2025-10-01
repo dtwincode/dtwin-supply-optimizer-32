@@ -1885,6 +1885,86 @@ export type Database = {
           },
         ]
       }
+      permanent_hierarchy_data: {
+        Row: {
+          created_at: string
+          data: Json
+          hierarchy_type: string
+          id: string
+          is_active: boolean
+          source_upload_id: string | null
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          data?: Json
+          hierarchy_type: string
+          id?: string
+          is_active?: boolean
+          source_upload_id?: string | null
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          hierarchy_type?: string
+          id?: string
+          is_active?: boolean
+          source_upload_id?: string | null
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permanent_hierarchy_data_source_upload_id_fkey"
+            columns: ["source_upload_id"]
+            isOneToOne: false
+            referencedRelation: "permanent_hierarchy_files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      permanent_hierarchy_files: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data: Json
+          file_name: string
+          file_type: string | null
+          hierarchy_type: string
+          id: string
+          original_name: string
+          storage_path: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          file_name: string
+          file_type?: string | null
+          hierarchy_type: string
+          id?: string
+          original_name: string
+          storage_path?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          file_name?: string
+          file_type?: string | null
+          hierarchy_type?: string
+          id?: string
+          original_name?: string
+          storage_path?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       prediction_accuracy_tracking: {
         Row: {
           actual_lead_time: number | null
