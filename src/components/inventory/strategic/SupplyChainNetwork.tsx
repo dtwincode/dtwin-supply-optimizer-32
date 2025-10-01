@@ -119,7 +119,7 @@ export function SupplyChainNetwork() {
       const flowNodes: Node[] = [];
       const flowEdges: Edge[] = [];
 
-      // Layer 0: Other locations (old system)
+      // Layer 0: Other locations (old system) - connect to nearest DC
       others.forEach((location: any, i: number) => {
         const isDP = decouplingLocations.has(location.location_id);
         flowNodes.push({
@@ -133,6 +133,29 @@ export function SupplyChainNetwork() {
             isDecouplingPoint: isDP,
           },
         });
+
+        // Connect old locations to DCs based on region
+        const nearestDC = dcs.find((dc: any) => 
+          dc.region === location.region || dc.location_id.includes(location.region?.toUpperCase() || '')
+        ) || dcs[0]; // fallback to first DC
+
+        if (nearestDC) {
+          flowEdges.push({
+            id: `${location.location_id}-${nearestDC.location_id}`,
+            source: location.location_id,
+            target: nearestDC.location_id,
+            type: 'smoothstep',
+            animated: isDP,
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              color: isDP ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
+            },
+            style: {
+              stroke: isDP ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
+              strokeWidth: isDP ? 2 : 1,
+            },
+          });
+        }
       });
 
       // Layer 1: Distribution Centers (top of hierarchy)
@@ -187,23 +210,31 @@ export function SupplyChainNetwork() {
         });
 
         // Connect restaurant to its DC
-        if (dcId) {
+        if (dcId && dcs.some((dc: any) => dc.location_id === dcId)) {
           flowEdges.push({
             id: `${dcId}-${restaurant.location_id}`,
             source: dcId,
             target: restaurant.location_id,
             type: 'smoothstep',
             animated: isDP,
+            label: isDP ? '🛡️ Buffer' : '',
             markerEnd: {
               type: MarkerType.ArrowClosed,
               color: isDP ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
             },
             style: {
               stroke: isDP ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
-              strokeWidth: isDP ? 2 : 1,
+              strokeWidth: isDP ? 3 : 1.5,
             },
           });
         }
+      });
+
+      console.log('Created network:', { 
+        nodes: flowNodes.length, 
+        edges: flowEdges.length,
+        dcs: dcs.map((d: any) => d.location_id),
+        restaurants: restaurants.map((r: any) => r.location_id),
       });
 
       setNodes(flowNodes);
