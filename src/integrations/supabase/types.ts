@@ -225,53 +225,6 @@ export type Database = {
           product_id?: string
           yellow_multiplier_override?: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "buffer_profile_override_buffer_profile_id_fkey"
-            columns: ["buffer_profile_id"]
-            isOneToOne: false
-            referencedRelation: "buffer_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      buffer_profiles: {
-        Row: {
-          created_at: string
-          description: string | null
-          id: string
-          lead_time_category: string | null
-          lead_time_factor: number | null
-          lot_size_factor: number | null
-          name: string
-          updated_at: string
-          variability_category: string | null
-          variability_factor: number | null
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          id?: string
-          lead_time_category?: string | null
-          lead_time_factor?: number | null
-          lot_size_factor?: number | null
-          name: string
-          updated_at?: string
-          variability_category?: string | null
-          variability_factor?: number | null
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          id?: string
-          lead_time_category?: string | null
-          lead_time_factor?: number | null
-          lot_size_factor?: number | null
-          name?: string
-          updated_at?: string
-          variability_category?: string | null
-          variability_factor?: number | null
-        }
         Relationships: []
       }
       channel_master: {
@@ -458,22 +411,7 @@ export type Database = {
           type?: Database["public"]["Enums"]["decoupling_type"]
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "decoupling_points_buffer_profile_id_fkey"
-            columns: ["buffer_profile_id"]
-            isOneToOne: false
-            referencedRelation: "buffer_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_buffer_profile"
-            columns: ["buffer_profile_id"]
-            isOneToOne: false
-            referencedRelation: "buffer_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       demand_adjustment_factor: {
         Row: {
@@ -875,53 +813,6 @@ export type Database = {
           training_start_date?: string
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "forecast_test_periods_scenario_id_fkey"
-            columns: ["scenario_id"]
-            isOneToOne: false
-            referencedRelation: "scenarios"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      hierarchy_file_references: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          data: Json
-          file_name: string
-          file_type: string
-          hierarchy_type: string
-          id: string
-          original_name: string
-          storage_path: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          data: Json
-          file_name: string
-          file_type: string
-          hierarchy_type: string
-          id?: string
-          original_name: string
-          storage_path: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          data?: Json
-          file_name?: string
-          file_type?: string
-          hierarchy_type?: string
-          id?: string
-          original_name?: string
-          storage_path?: string
-          updated_at?: string
-        }
         Relationships: []
       }
       historical_sales_data: {
@@ -1016,51 +907,6 @@ export type Database = {
           validation_status?: string | null
         }
         Relationships: []
-      }
-      inventory_data: {
-        Row: {
-          available_qty: number | null
-          inventory_id: string
-          last_updated: string | null
-          location_id: string
-          product_id: string
-          quantity_on_hand: number
-          reserved_qty: number | null
-        }
-        Insert: {
-          available_qty?: number | null
-          inventory_id?: string
-          last_updated?: string | null
-          location_id: string
-          product_id: string
-          quantity_on_hand: number
-          reserved_qty?: number | null
-        }
-        Update: {
-          available_qty?: number | null
-          inventory_id?: string
-          last_updated?: string | null
-          location_id?: string
-          product_id?: string
-          quantity_on_hand?: number
-          reserved_qty?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "inventory_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-        ]
       }
       inventory_threshold_overrides: {
         Row: {
@@ -1537,15 +1383,7 @@ export type Database = {
           training_time_period?: string | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "model_testing_configs_scenario_id_fkey"
-            columns: ["scenario_id"]
-            isOneToOne: false
-            referencedRelation: "scenarios"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       model_training_history: {
         Row: {
@@ -2188,39 +2026,6 @@ export type Database = {
         }
         Relationships: []
       }
-      purchase_orders: {
-        Row: {
-          created_at: string
-          id: string
-          order_date: string | null
-          po_number: string
-          quantity: number
-          sku: string
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          order_date?: string | null
-          po_number: string
-          quantity: number
-          sku: string
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          order_date?: string | null
-          po_number?: string
-          quantity?: number
-          sku?: string
-          status?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       replenishment_data: {
         Row: {
           created_at: string
@@ -2352,39 +2157,6 @@ export type Database = {
           parameters?: Json | null
           product_id?: string
           product_name?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      scenarios: {
-        Row: {
-          created_at: string | null
-          forecast_data: Json | null
-          horizon: string
-          id: string
-          model: string
-          name: string
-          parameters: Json | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          forecast_data?: Json | null
-          horizon: string
-          id?: string
-          model: string
-          name: string
-          parameters?: Json | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          forecast_data?: Json | null
-          horizon?: string
-          id?: string
-          model?: string
-          name?: string
-          parameters?: Json | null
           updated_at?: string | null
         }
         Relationships: []
@@ -2673,14 +2445,6 @@ export type Database = {
           },
         ]
       }
-      buffer_profile_selected: {
-        Row: {
-          buffer_profile_id: string | null
-          location_id: string | null
-          product_id: string | null
-        }
-        Relationships: []
-      }
       daily_sales_base: {
         Row: {
           location_id: string | null
@@ -2698,169 +2462,6 @@ export type Database = {
           },
           {
             foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-        ]
-      }
-      inventory_ddmrp_buffers_view: {
-        Row: {
-          adu_adj: number | null
-          buffer_profile_id: string | null
-          dlt: number | null
-          green_zone: number | null
-          location_id: string | null
-          lt_factor: number | null
-          min_order_qty: number | null
-          order_cycle_days: number | null
-          product_id: string | null
-          red_base: number | null
-          red_safety: number | null
-          red_zone: number | null
-          rounding_multiple: number | null
-          tog: number | null
-          tor: number | null
-          toy: number | null
-          variability: number | null
-          variability_factor: number | null
-          yellow_zone: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-        ]
-      }
-      inventory_demand_variability: {
-        Row: {
-          demand_variability: number | null
-          lead_time_days: number | null
-          location_id: string | null
-          product_id: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "inventory_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-        ]
-      }
-      inventory_planning_simulation_view: {
-        Row: {
-          average_daily_usage: number | null
-          buffer_profile_id: string | null
-          decoupling_point: boolean | null
-          demand_variability: number | null
-          lead_time_days: number | null
-          location_id: string | null
-          max_stock_level: number | null
-          min_stock_level: number | null
-          product_id: string | null
-          safety_stock: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "inventory_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-        ]
-      }
-      inventory_planning_view: {
-        Row: {
-          average_daily_usage: number | null
-          buffer_profile_id: string | null
-          channel_id: string | null
-          decoupling_point: boolean | null
-          demand_variability: number | null
-          green_zone: number | null
-          lead_time_days: number | null
-          lead_time_factor: number | null
-          location_id: string | null
-          max_stock_level: number | null
-          min_stock_level: number | null
-          product_id: string | null
-          safety_stock: number | null
-          stockout_rate: number | null
-          trend_factor: number | null
-          turnover_rate: number | null
-          yellow_zone: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_channel"
-            columns: ["channel_id"]
-            isOneToOne: false
-            referencedRelation: "channel_master"
-            referencedColumns: ["channel_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "inventory_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-        ]
-      }
-      inventory_planning_view_temp: {
-        Row: {
-          lead_time_factor: number | null
-          location_id: string | null
-          product_id: string | null
-          stockout_rate: number | null
-          trend_factor: number | null
-          turnover_rate: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "inventory_data_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "product_master"
