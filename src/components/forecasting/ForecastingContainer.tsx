@@ -116,7 +116,6 @@ export function ForecastingContainer() {
         currentHorizon="1-month"
         currentParameters={{}}
         forecastData={[]}
-        onScenarioLoad={handleScenarioLoad}
       />
 
       <ModelVersioning modelId="arima" />

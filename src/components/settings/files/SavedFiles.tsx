@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from "@/components/ui/button";
@@ -35,9 +34,9 @@ export const SavedFiles = ({ triggerRefresh = 0, hierarchyType }: SavedFilesProp
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Query the hierarchy_file_references table
+        // Query the permanent_hierarchy_files table
         const { data: files, error } = await supabase
-          .from('hierarchy_file_references')
+          .from('permanent_hierarchy_files')
           .select('*')
           .eq('hierarchy_type', hierarchyType)
           .order('created_at', { ascending: false });
@@ -96,7 +95,6 @@ export const SavedFiles = ({ triggerRefresh = 0, hierarchyType }: SavedFilesProp
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onSelect={() => {
-                          // Handle download logic here
                           console.log("Download clicked for file:", file.id);
                         }}
                       >
@@ -104,7 +102,6 @@ export const SavedFiles = ({ triggerRefresh = 0, hierarchyType }: SavedFilesProp
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onSelect={() => {
-                          // Handle delete logic here
                           console.log("Delete clicked for file:", file.id);
                         }}
                       >
