@@ -85,6 +85,7 @@ export const fetchBufferFactorConfigs = async (): Promise<BufferFactorConfig[]> 
 
 /**
  * Calculate buffer zones based on DDMRP principles
+ * Matches the view calculations exactly
  */
 export const calculateBufferZones = (
   adu: number,
@@ -94,21 +95,27 @@ export const calculateBufferZones = (
 ) => {
   const { lt_factor, order_cycle_days, min_order_qty } = settings;
   
-  // Red Zone = (ADU × DLT × LT Factor) + (ADU × variability_factor)
-  const baseRed = adu * leadTimeDays * lt_factor;
-  const variabilityBuffer = adu * variabilityFactor * leadTimeDays;
-  const redZone = Math.max(baseRed + variabilityBuffer, min_order_qty);
+  // DDMRP Correct Formulas (matching database view):
+  
+  // Red Zone = ADU × DLT × LT Factor × Variability Factor (minimum MOQ)
+  const redZone = Math.max(
+    adu * leadTimeDays * lt_factor * variabilityFactor,
+    min_order_qty
+  );
 
-  // Yellow Zone = ADU × Order Cycle
-  const yellowZone = adu * order_cycle_days;
+  // Yellow Zone = ADU × DLT × LT Factor
+  const yellowZone = adu * leadTimeDays * lt_factor;
 
-  // Green Zone = Max(Red Zone, Yellow Zone)
-  const greenZone = Math.max(redZone, yellowZone);
+  // Green Zone = ADU × Order Cycle × LT Factor OR Max(Red Zone, Yellow Zone)
+  const greenZone = Math.max(
+    adu * order_cycle_days * lt_factor,
+    redZone
+  );
 
   return {
-    red: Math.round(redZone),
-    yellow: Math.round(yellowZone),
-    green: Math.round(greenZone)
+    red: Math.round(redZone * 100) / 100,
+    yellow: Math.round(yellowZone * 100) / 100,
+    green: Math.round(greenZone * 100) / 100
   };
 };
 
