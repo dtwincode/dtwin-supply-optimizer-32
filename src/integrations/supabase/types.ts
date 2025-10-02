@@ -353,6 +353,48 @@ export type Database = {
         }
         Relationships: []
       }
+      decoupling_weights_config: {
+        Row: {
+          created_at: string | null
+          criticality_weight: number | null
+          holding_cost_weight: number | null
+          id: string
+          is_active: boolean | null
+          lead_time_weight: number | null
+          scenario_name: string
+          supplier_reliability_weight: number | null
+          updated_at: string | null
+          variability_weight: number | null
+          volume_weight: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          criticality_weight?: number | null
+          holding_cost_weight?: number | null
+          id?: string
+          is_active?: boolean | null
+          lead_time_weight?: number | null
+          scenario_name: string
+          supplier_reliability_weight?: number | null
+          updated_at?: string | null
+          variability_weight?: number | null
+          volume_weight?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          criticality_weight?: number | null
+          holding_cost_weight?: number | null
+          id?: string
+          is_active?: boolean | null
+          lead_time_weight?: number | null
+          scenario_name?: string
+          supplier_reliability_weight?: number | null
+          updated_at?: string | null
+          variability_weight?: number | null
+          volume_weight?: number | null
+        }
+        Relationships: []
+      }
       demand_adjustment_factor: {
         Row: {
           created_at: string
@@ -1706,6 +1748,41 @@ export type Database = {
           },
         ]
       }
+      supplier_performance: {
+        Row: {
+          created_at: string | null
+          last_updated: string | null
+          on_time_delivery_rate: number | null
+          quality_score: number | null
+          reliability_score: number | null
+          supplier_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          last_updated?: string | null
+          on_time_delivery_rate?: number | null
+          quality_score?: number | null
+          reliability_score?: number | null
+          supplier_id: string
+        }
+        Update: {
+          created_at?: string | null
+          last_updated?: string | null
+          on_time_delivery_rate?: number | null
+          quality_score?: number | null
+          reliability_score?: number | null
+          supplier_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_performance_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: true
+            referencedRelation: "vendor_master"
+            referencedColumns: ["vendor_id"]
+          },
+        ]
+      }
       threshold_config: {
         Row: {
           decoupling_threshold: number | null
@@ -2171,6 +2248,18 @@ export type Database = {
       assign_buffer_profiles_by_classification: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      auto_designate_with_scoring_v2: {
+        Args: { p_scenario_name?: string; p_threshold?: number }
+        Returns: Json
+      }
+      calculate_decoupling_score_v2: {
+        Args: {
+          p_location_id: string
+          p_product_id: string
+          p_scenario_name?: string
+        }
+        Returns: Json
       }
       ddmrp_nightly: {
         Args: Record<PropertyKey, never>
