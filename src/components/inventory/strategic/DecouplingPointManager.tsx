@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, MapPin } from "lucide-react";
+import { Plus, Trash2, MapPin, Sparkles, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -48,6 +48,8 @@ export function DecouplingPointManager() {
   const [selectedPair, setSelectedPair] = useState<ProductLocationPair | null>(null);
   const [bufferProfile, setBufferProfile] = useState("BP_DEFAULT");
   const [reason, setReason] = useState("");
+  const [autoDesignating, setAutoDesignating] = useState(false);
+  const [scoringResults, setScoringResults] = useState<any>(null);
 
   useEffect(() => {
     loadData();
@@ -132,6 +134,33 @@ export function DecouplingPointManager() {
     }
   };
 
+  const handleAutoDesignate = async () => {
+    setAutoDesignating(true);
+    try {
+      const { data, error } = await supabase.rpc("auto_designate_with_scoring_v2" as any, {
+        p_threshold: 0.75,
+        p_scenario_name: "default",
+      });
+
+      if (error) throw error;
+
+      const results = data as any;
+      setScoringResults(results);
+      
+      toast.success(
+        `Auto-Designation Complete: ${results?.summary?.auto_designated || 0} points designated`,
+        { description: `${results?.summary?.review_required || 0} require review, ${results?.summary?.auto_rejected || 0} rejected` }
+      );
+
+      loadData();
+    } catch (error) {
+      console.error("Error auto-designating:", error);
+      toast.error("Failed to auto-designate decoupling points");
+    } finally {
+      setAutoDesignating(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <Card>
@@ -151,7 +180,25 @@ export function DecouplingPointManager() {
               <MapPin className="h-5 w-5" />
               Strategic Decoupling Points
             </CardTitle>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleAutoDesignate}
+                disabled={autoDesignating}
+                variant="secondary"
+              >
+                {autoDesignating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Analyzing...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Auto-Designate
+                  </>
+                )}
+              </Button>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="h-4 w-4 mr-2" />
@@ -217,10 +264,46 @@ export function DecouplingPointManager() {
                   </Button>
                 </div>
               </DialogContent>
-            </Dialog>
+              </Dialog>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
+          {/* Scoring Results Summary */}
+          {scoringResults && (
+            <div className="mb-6 p-4 bg-muted/50 rounded-lg space-y-3 border">
+              <h3 className="text-sm font-semibold">Auto-Designation Results</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Total Analyzed</p>
+                  <p className="text-2xl font-bold">{scoringResults.summary?.total_analyzed || 0}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Auto-Designated</p>
+                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                    {scoringResults.summary?.auto_designated || 0}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Review Required</p>
+                  <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+                    {scoringResults.summary?.review_required || 0}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Auto-Rejected</p>
+                  <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+                    {scoringResults.summary?.auto_rejected || 0}
+                  </p>
+                </div>
+              </div>
+              <div className="text-xs text-muted-foreground mt-2">
+                Threshold: {scoringResults.summary?.threshold_used || 0.75} | 
+                Scenario: {scoringResults.summary?.scenario || 'default'}
+              </div>
+            </div>
+          )}
+
           <div className="space-y-3">
             {decouplingPoints.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
