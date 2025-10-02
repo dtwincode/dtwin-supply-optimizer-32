@@ -422,6 +422,51 @@ export type Database = {
         }
         Relationships: []
       }
+      demand_history_analysis: {
+        Row: {
+          analysis_period_end: string
+          analysis_period_start: string
+          created_at: string | null
+          cv: number | null
+          id: string
+          location_id: string
+          mean_demand: number
+          product_id: string
+          sku: string
+          std_dev_demand: number
+          updated_at: string | null
+          variability_score: number
+        }
+        Insert: {
+          analysis_period_end: string
+          analysis_period_start: string
+          created_at?: string | null
+          cv?: number | null
+          id?: string
+          location_id: string
+          mean_demand?: number
+          product_id: string
+          sku: string
+          std_dev_demand?: number
+          updated_at?: string | null
+          variability_score?: number
+        }
+        Update: {
+          analysis_period_end?: string
+          analysis_period_start?: string
+          created_at?: string | null
+          cv?: number | null
+          id?: string
+          location_id?: string
+          mean_demand?: number
+          product_id?: string
+          sku?: string
+          std_dev_demand?: number
+          updated_at?: string | null
+          variability_score?: number
+        }
+        Relationships: []
+      }
       forecast_outliers: {
         Row: {
           confidence_score: number | null
@@ -983,6 +1028,42 @@ export type Database = {
         }
         Relationships: []
       }
+      menu_mapping: {
+        Row: {
+          created_at: string | null
+          criticality_score: number
+          id: string
+          is_core_item: boolean
+          menu_items_count: number
+          product_id: string
+          sales_impact_percentage: number
+          sku: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          criticality_score?: number
+          id?: string
+          is_core_item?: boolean
+          menu_items_count?: number
+          product_id: string
+          sales_impact_percentage?: number
+          sku: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          criticality_score?: number
+          id?: string
+          is_core_item?: boolean
+          menu_items_count?: number
+          product_id?: string
+          sales_impact_percentage?: number
+          sku?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       model_testing_configs: {
         Row: {
           created_at: string | null
@@ -1076,6 +1157,45 @@ export type Database = {
           settings?: Json | null
           updated_at?: string
           validation_rules?: Json | null
+        }
+        Relationships: []
+      }
+      moq_data: {
+        Row: {
+          avg_daily_demand: number
+          created_at: string | null
+          days_coverage: number | null
+          id: string
+          moq_rigidity_score: number
+          moq_units: number
+          product_id: string
+          sku: string
+          supplier_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          avg_daily_demand?: number
+          created_at?: string | null
+          days_coverage?: number | null
+          id?: string
+          moq_rigidity_score?: number
+          moq_units?: number
+          product_id: string
+          sku: string
+          supplier_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          avg_daily_demand?: number
+          created_at?: string | null
+          days_coverage?: number | null
+          id?: string
+          moq_rigidity_score?: number
+          moq_units?: number
+          product_id?: string
+          sku?: string
+          supplier_id?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -1853,6 +1973,48 @@ export type Database = {
           },
         ]
       }
+      storage_requirements: {
+        Row: {
+          cartons_per_pallet: number
+          created_at: string | null
+          cubic_meters_per_unit: number
+          id: string
+          product_id: string
+          sku: string
+          storage_footprint_per_1000_units: number | null
+          storage_intensity_score: number
+          storage_type: string
+          units_per_carton: number
+          updated_at: string | null
+        }
+        Insert: {
+          cartons_per_pallet?: number
+          created_at?: string | null
+          cubic_meters_per_unit?: number
+          id?: string
+          product_id: string
+          sku: string
+          storage_footprint_per_1000_units?: number | null
+          storage_intensity_score?: number
+          storage_type: string
+          units_per_carton?: number
+          updated_at?: string | null
+        }
+        Update: {
+          cartons_per_pallet?: number
+          created_at?: string | null
+          cubic_meters_per_unit?: number
+          id?: string
+          product_id?: string
+          sku?: string
+          storage_footprint_per_1000_units?: number | null
+          storage_intensity_score?: number
+          storage_type?: string
+          units_per_carton?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       supplier_contracts: {
         Row: {
           contract_end_date: string | null
@@ -1936,25 +2098,31 @@ export type Database = {
       }
       supplier_performance: {
         Row: {
+          alternate_suppliers_count: number | null
           created_at: string | null
           last_updated: string | null
           on_time_delivery_rate: number | null
+          quality_reject_rate: number | null
           quality_score: number | null
           reliability_score: number | null
           supplier_id: string
         }
         Insert: {
+          alternate_suppliers_count?: number | null
           created_at?: string | null
           last_updated?: string | null
           on_time_delivery_rate?: number | null
+          quality_reject_rate?: number | null
           quality_score?: number | null
           reliability_score?: number | null
           supplier_id: string
         }
         Update: {
+          alternate_suppliers_count?: number | null
           created_at?: string | null
           last_updated?: string | null
           on_time_delivery_rate?: number | null
+          quality_reject_rate?: number | null
           quality_score?: number | null
           reliability_score?: number | null
           supplier_id?: string
@@ -2023,6 +2191,42 @@ export type Database = {
           first_time_adjusted?: boolean | null
           id?: number
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      usage_analysis: {
+        Row: {
+          avg_weekly_usage: number
+          created_at: string | null
+          id: string
+          location_id: string
+          percentage_of_total_usage: number
+          product_id: string
+          sku: string
+          updated_at: string | null
+          volume_score: number
+        }
+        Insert: {
+          avg_weekly_usage?: number
+          created_at?: string | null
+          id?: string
+          location_id: string
+          percentage_of_total_usage?: number
+          product_id: string
+          sku: string
+          updated_at?: string | null
+          volume_score?: number
+        }
+        Update: {
+          avg_weekly_usage?: number
+          created_at?: string | null
+          id?: string
+          location_id?: string
+          percentage_of_total_usage?: number
+          product_id?: string
+          sku?: string
+          updated_at?: string | null
+          volume_score?: number
         }
         Relationships: []
       }
@@ -2505,6 +2709,14 @@ export type Database = {
         Args: { p_scenario_name?: string; p_threshold?: number }
         Returns: Json
       }
+      calculate_8factor_weighted_score: {
+        Args: { p_location_id: string; p_product_id: string }
+        Returns: Json
+      }
+      calculate_criticality_score: {
+        Args: { p_product_id: string }
+        Returns: number
+      }
       calculate_decoupling_score_v2: {
         Args: {
           p_location_id: string
@@ -2512,6 +2724,34 @@ export type Database = {
           p_scenario_name?: string
         }
         Returns: Json
+      }
+      calculate_holding_cost_score: {
+        Args: { p_product_id: string }
+        Returns: number
+      }
+      calculate_lead_time_score: {
+        Args: { p_location_id: string; p_product_id: string }
+        Returns: number
+      }
+      calculate_moq_rigidity_score: {
+        Args: { p_product_id: string }
+        Returns: number
+      }
+      calculate_storage_intensity_score: {
+        Args: { p_product_id: string }
+        Returns: number
+      }
+      calculate_supplier_reliability_score: {
+        Args: { p_supplier_id: string }
+        Returns: number
+      }
+      calculate_variability_score: {
+        Args: { p_location_id: string; p_product_id: string }
+        Returns: number
+      }
+      calculate_volume_score: {
+        Args: { p_location_id: string; p_product_id: string }
+        Returns: number
       }
       ddmrp_nightly: {
         Args: Record<PropertyKey, never>
