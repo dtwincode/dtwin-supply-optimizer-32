@@ -6,6 +6,7 @@ import { fetchInventoryPlanningView } from '@/lib/inventory-planning.service';
 import { useInventoryFilter } from '../InventoryFilterContext';
 import { AlertTriangle, TrendingDown, Package, Clock, CheckCircle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface Exception {
   id: number;
@@ -25,6 +26,7 @@ export const ExceptionManagement: React.FC = () => {
   const [exceptions, setExceptions] = useState<Exception[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
+  const [selectedException, setSelectedException] = useState<Exception | null>(null);
 
   useEffect(() => {
     loadExceptions();
@@ -217,7 +219,7 @@ export const ExceptionManagement: React.FC = () => {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" onClick={() => setSelectedException(exception)}>
                         View Details
                       </Button>
                       <Button size="sm" variant="ghost">
@@ -237,6 +239,68 @@ export const ExceptionManagement: React.FC = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={!!selectedException} onOpenChange={() => setSelectedException(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Exception Details</DialogTitle>
+          </DialogHeader>
+          {selectedException && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">SKU</label>
+                  <p className="text-lg font-semibold">{selectedException.sku}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Product Name</label>
+                  <p className="text-lg">{selectedException.product_name}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Location</label>
+                  <p className="text-lg">{selectedException.location}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Exception Type</label>
+                  <Badge variant="outline">{getTypeLabel(selectedException.type)}</Badge>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Severity</label>
+                  <Badge className={getSeverityColor(selectedException.severity)}>
+                    {selectedException.severity.toUpperCase()}
+                  </Badge>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Value</label>
+                  <p className="text-lg font-semibold">{selectedException.value.toFixed(2)}</p>
+                </div>
+              </div>
+              
+              <div className="pt-4 border-t">
+                <label className="text-sm font-medium text-muted-foreground">Description</label>
+                <p className="mt-1">{selectedException.description}</p>
+              </div>
+              
+              <div className="pt-4 border-t">
+                <label className="text-sm font-medium text-muted-foreground">Recommendation</label>
+                <div className="mt-1 p-3 bg-muted rounded-md">
+                  💡 {selectedException.recommendation}
+                </div>
+              </div>
+
+              <div className="pt-4 border-t flex gap-2">
+                <Button className="flex-1" onClick={() => setSelectedException(null)}>
+                  Close
+                </Button>
+                <Button className="flex-1" variant="outline">
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Mark as Resolved
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
