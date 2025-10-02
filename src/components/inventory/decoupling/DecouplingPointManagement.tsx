@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Search, Plus, Trash2, Shield, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useInventoryConfig } from "@/hooks/useInventoryConfig";
 
 interface DecouplingPoint {
   id: string;
@@ -32,6 +33,7 @@ interface ProductLocationPair {
 }
 
 export function DecouplingPointManagement() {
+  const { getConfig } = useInventoryConfig();
   const [decouplingPoints, setDecouplingPoints] = useState<DecouplingPoint[]>([]);
   const [availablePairs, setAvailablePairs] = useState<ProductLocationPair[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -147,6 +149,8 @@ export function DecouplingPointManagement() {
      pair.location_id.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
+  const displayLimit = getConfig('decoupling_pairs_display_limit', 50);
+
   return (
     <div className="space-y-6">
       <Alert>
@@ -249,7 +253,7 @@ export function DecouplingPointManagement() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredPairs.slice(0, 50).map((pair, idx) => (
+              {filteredPairs.slice(0, getConfig('decoupling_pairs_display_limit', 50)).map((pair, idx) => (
                 <TableRow key={`${pair.product_id}-${pair.location_id}-${idx}`}>
                   <TableCell className="font-mono text-sm">{pair.sku}</TableCell>
                   <TableCell>{pair.product_name}</TableCell>
@@ -271,9 +275,9 @@ export function DecouplingPointManagement() {
               ))}
             </TableBody>
           </Table>
-          {filteredPairs.length > 50 && (
+          {filteredPairs.length > getConfig('decoupling_pairs_display_limit', 50) && (
             <p className="text-sm text-muted-foreground text-center mt-4">
-              Showing first 50 results. Use search to find specific products.
+              Showing first {getConfig('decoupling_pairs_display_limit', 50)} results. Use search to find specific products.
             </p>
           )}
         </CardContent>

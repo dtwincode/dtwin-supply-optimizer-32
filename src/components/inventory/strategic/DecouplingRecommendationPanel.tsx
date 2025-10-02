@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { CheckCircle, AlertTriangle, TrendingUp, TrendingDown, AlertCircle } from 'lucide-react';
+import { useInventoryConfig } from '@/hooks/useInventoryConfig';
 
 interface FactorBreakdown {
   score: number;
@@ -46,6 +47,7 @@ interface ProductLocationPair {
 }
 
 export function DecouplingRecommendationPanel() {
+  const { getConfig, isLoading: configLoading } = useInventoryConfig();
   const [pairs, setPairs] = useState<ProductLocationPair[]>([]);
   const [scores, setScores] = useState<Map<string, ScoringResult>>(new Map());
   const [loading, setLoading] = useState(false);
@@ -56,8 +58,10 @@ export function DecouplingRecommendationPanel() {
   const [overrideAction, setOverrideAction] = useState<'accept' | 'reject'>('accept');
 
   useEffect(() => {
-    loadPairs();
-  }, []);
+    if (!configLoading) {
+      loadPairs();
+    }
+  }, [configLoading]);
 
   const loadPairs = async () => {
     setLoading(true);
@@ -80,8 +84,11 @@ export function DecouplingRecommendationPanel() {
         );
 
         const allPairs: ProductLocationPair[] = [];
-        products.slice(0, 20).forEach((product) => {
-          locations.slice(0, 5).forEach((location) => {
+        const productsLimit = getConfig('recommendation_products_limit', 20);
+        const locationsLimit = getConfig('recommendation_locations_limit', 5);
+        
+        products.slice(0, productsLimit).forEach((product) => {
+          locations.slice(0, locationsLimit).forEach((location) => {
             allPairs.push({
               product_id: product.product_id,
               location_id: location.location_id,
@@ -139,8 +146,9 @@ export function DecouplingRecommendationPanel() {
     setCalculating(true);
     try {
       const newScores = new Map<string, ScoringResult>();
+      const batchSize = getConfig('recommendation_calculation_batch_size', 10);
 
-      for (const pair of pairs.slice(0, 10)) {
+      for (const pair of pairs.slice(0, batchSize)) {
         const score = await calculateScore(pair.product_id, pair.location_id);
         if (score) {
           newScores.set(`${pair.product_id}_${pair.location_id}`, score as ScoringResult);
@@ -328,7 +336,7 @@ export function DecouplingRecommendationPanel() {
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {pairs.slice(0, 10).map((pair) => {
+            {pairs.slice(0, getConfig('recommendation_pairs_display_limit', 10)).map((pair) => {
               const key = `${pair.product_id}_${pair.location_id}`;
               const score = scores.get(key);
 

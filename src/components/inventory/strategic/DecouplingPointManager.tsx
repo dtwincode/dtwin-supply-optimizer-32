@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useInventoryConfig } from "@/hooks/useInventoryConfig";
 
 interface DecouplingPoint {
   id: string;
@@ -41,6 +42,7 @@ interface ProductLocationPair {
 }
 
 export function DecouplingPointManager() {
+  const { getConfig } = useInventoryConfig();
   const [decouplingPoints, setDecouplingPoints] = useState<DecouplingPoint[]>([]);
   const [availablePairs, setAvailablePairs] = useState<ProductLocationPair[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -137,8 +139,9 @@ export function DecouplingPointManager() {
   const handleAutoDesignate = async () => {
     setAutoDesignating(true);
     try {
+      const threshold = getConfig('auto_designate_threshold', 0.75);
       const { data, error } = await supabase.rpc("auto_designate_with_scoring_v2" as any, {
-        p_threshold: 0.75,
+        p_threshold: threshold,
         p_scenario_name: "default",
       });
 
@@ -298,7 +301,7 @@ export function DecouplingPointManager() {
                 </div>
               </div>
               <div className="text-xs text-muted-foreground mt-2">
-                Threshold: {scoringResults.summary?.threshold_used || 0.75} | 
+                Threshold: {scoringResults.summary?.threshold_used || getConfig('auto_designate_threshold', 0.75)} | 
                 Scenario: {scoringResults.summary?.scenario || 'default'}
               </div>
             </div>

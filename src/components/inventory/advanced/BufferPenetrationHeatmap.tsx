@@ -5,6 +5,7 @@ import { useInventoryFilter } from '../InventoryFilterContext';
 import { Info, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useInventoryConfig } from '@/hooks/useInventoryConfig';
 
 interface BufferCell {
   id: number;
@@ -21,6 +22,7 @@ interface BufferCell {
 
 export const BufferPenetrationHeatmap: React.FC = () => {
   const { filters } = useInventoryFilter();
+  const { getConfig } = useInventoryConfig();
   const [buffers, setBuffers] = useState<BufferCell[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -60,7 +62,8 @@ export const BufferPenetrationHeatmap: React.FC = () => {
         };
       });
 
-      setBuffers(bufferCells.slice(0, 50)); // Limit to 50 for performance
+      const limit = getConfig('buffer_heatmap_limit', 50);
+      setBuffers(bufferCells.slice(0, limit));
     } catch (error) {
       console.error('Error loading buffer data:', error);
     } finally {

@@ -530,6 +530,36 @@ export type Database = {
         }
         Relationships: []
       }
+      inventory_config: {
+        Row: {
+          category: string
+          config_key: string
+          config_value: number
+          created_at: string | null
+          description: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          config_key: string
+          config_value: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          config_key?: string
+          config_value?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       lead_time_components: {
         Row: {
           created_at: string | null

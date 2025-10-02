@@ -3,9 +3,11 @@ import { Card } from '@/components/ui/card';
 import { fetchInventoryPlanningView } from '@/lib/inventory-planning.service';
 import { useInventoryFilter } from '../InventoryFilterContext';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart } from 'recharts';
+import { useInventoryConfig } from '@/hooks/useInventoryConfig';
 
 export const AnalyticsDashboard: React.FC = () => {
   const { filters } = useInventoryFilter();
+  const { getConfig } = useInventoryConfig();
   const [data, setData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -51,7 +53,8 @@ export const AnalyticsDashboard: React.FC = () => {
       }));
 
       // Turnover analysis
-      const turnoverData = filtered.slice(0, 10).map(item => ({
+      const turnoverLimit = getConfig('analytics_turnover_limit', 10);
+      const turnoverData = filtered.slice(0, turnoverLimit).map(item => ({
         sku: item.sku,
         turnover: item.on_hand > 0 && item.average_daily_usage > 0 
           ? ((item.average_daily_usage * 365) / item.on_hand).toFixed(1)

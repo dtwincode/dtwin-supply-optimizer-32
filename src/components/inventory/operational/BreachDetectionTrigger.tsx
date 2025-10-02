@@ -4,8 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { AlertTriangle, CheckCircle, Loader2, Package } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useInventoryConfig } from "@/hooks/useInventoryConfig";
 
 export const BreachDetectionTrigger = () => {
+  const { getConfig } = useInventoryConfig();
   const [isRunning, setIsRunning] = useState(false);
   const [lastRun, setLastRun] = useState<any>(null);
   const { toast } = useToast();
@@ -112,7 +114,7 @@ export const BreachDetectionTrigger = () => {
                   </span>
                 </div>
                 <div className="space-y-1">
-                  {lastRun.critical_breaches.slice(0, 3).map((breach: any, idx: number) => (
+                  {lastRun.critical_breaches.slice(0, getConfig('breach_critical_display_limit', 3)).map((breach: any, idx: number) => (
                     <div key={idx} className="text-xs text-muted-foreground">
                       {breach.product_id} @ {breach.location_id}: {breach.breach_type}
                     </div>
