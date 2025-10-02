@@ -58,6 +58,11 @@ const navigationItems = [
   { name: "navigation.askAI", icon: Search, href: "/ask-ai" },
   { name: "navigation.data", icon: Database, href: "/data" },
   { name: "navigation.guidelines", icon: BookOpen, href: "/guidelines" },
+  {
+    name: "DDMRP Config",
+    icon: Settings,
+    href: "/ddmrp-config",
+  },
 ];
 
 interface NavigationProps {

@@ -7,6 +7,7 @@ import DDMRP from "./pages/DDMRP";
 import DDOM from "./pages/DDOM";
 import BufferProfiles from "./pages/BufferProfiles";
 import BreachAlerts from "./pages/BreachAlerts";
+import DDMRPConfiguration from "./pages/DDMRPConfiguration";
 
 // Layout component to wrap all routes
 const Layout = () => (
@@ -30,6 +31,7 @@ export const router = createBrowserRouter([
       { path: "ddmrp", element: <DDMRP /> },
       { path: "ddom", element: <DDOM /> },
       { path: "ddsop", element: <DDSOP /> },
+      { path: "ddmrp-config", element: <DDMRPConfiguration /> },
       { path: "*", element: <NotFound /> },
     ],
   },
