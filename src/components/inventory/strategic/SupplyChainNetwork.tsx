@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Shield, Warehouse, Building2, Users, RefreshCw, Info, CheckCircle } from 'lucide-react';
+import { Shield, Warehouse, Building2, Users, RefreshCw, Info, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface LocationNode {
@@ -30,11 +30,38 @@ interface DecouplingPointData {
   buffer_profile_id: string;
 }
 
+interface AlignmentStatus {
+  locationId: string;
+  aligned: boolean;
+  hasDecoupling: boolean;
+  hasBuffer: boolean;
+  issues: string[];
+}
+
 const nodeTypes = {
   locationNode: ({ data }: any) => (
-    <div className={`px-4 py-3 rounded-lg border-2 bg-card shadow-lg min-w-[140px] ${
+    <div className={`px-4 py-3 rounded-lg border-2 bg-card shadow-lg min-w-[140px] relative ${
       data.isDecouplingPoint ? 'border-primary ring-2 ring-primary/20' : 'border-border'
     }`}>
+      {/* Alignment Badge */}
+      {data.alignmentStatus && (
+        <div className="absolute -top-2 -right-2">
+          {data.alignmentStatus.aligned ? (
+            <Badge variant="default" className="bg-green-500 hover:bg-green-600 h-6 w-6 rounded-full p-0 flex items-center justify-center">
+              <CheckCircle className="h-4 w-4 text-white" />
+            </Badge>
+          ) : data.alignmentStatus.hasDecoupling && !data.alignmentStatus.hasBuffer ? (
+            <Badge variant="destructive" className="h-6 w-6 rounded-full p-0 flex items-center justify-center" title="Empty Decouple: No buffer profile">
+              <XCircle className="h-4 w-4" />
+            </Badge>
+          ) : data.alignmentStatus.hasBuffer && !data.alignmentStatus.hasDecoupling ? (
+            <Badge variant="secondary" className="bg-orange-500 hover:bg-orange-600 h-6 w-6 rounded-full p-0 flex items-center justify-center" title="Orphan Buffer: Buffer without decoupling">
+              <AlertTriangle className="h-4 w-4 text-white" />
+            </Badge>
+          ) : null}
+        </div>
+      )}
+      
       <div className="flex items-center gap-2 mb-1">
         {data.type === 'DC' && <Warehouse className="h-5 w-5 text-primary" />}
         {data.type === 'Restaurant' && <Building2 className="h-5 w-5 text-primary" />}
@@ -61,8 +88,16 @@ export function SupplyChainNetwork() {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [stats, setStats] = useState({ total: 0, decouplingPoints: 0, regions: 0, dcs: 0, restaurants: 0 });
+  const [stats, setStats] = useState({ 
+    total: 0, 
+    decouplingPoints: 0, 
+    regions: 0, 
+    dcs: 0, 
+    restaurants: 0,
+    misalignments: 0,
+  });
   const [lastSync, setLastSync] = useState<Date | null>(null);
+  const [alignmentData, setAlignmentData] = useState<AlignmentStatus[]>([]);
 
   useEffect(() => {
     loadNetworkData();
@@ -118,6 +153,47 @@ export function SupplyChainNetwork() {
 
       console.log('[SupplyChainNetwork] Loaded decoupling points:', decouplingPoints?.length, decouplingPoints);
 
+      // Load product master to check buffer profiles
+      const { data: products } = await supabase
+        .from('product_master')
+        .select('product_id, buffer_profile_id');
+
+      // Create alignment status for each location
+      const alignmentStatuses: AlignmentStatus[] = [];
+      const locationAlignment: Record<string, AlignmentStatus> = {};
+
+      locations?.forEach((location) => {
+        const locationDecouplingPoints = decouplingPoints?.filter(
+          (dp: DecouplingPointData) => dp.location_id === location.location_id
+        ) || [];
+        
+        const locationProductsWithBuffers = locationDecouplingPoints.filter((dp: DecouplingPointData) => {
+          const product = products?.find(p => p.product_id === dp.product_id);
+          return product?.buffer_profile_id && product.buffer_profile_id !== 'BP_DEFAULT';
+        });
+
+        const hasDecoupling = locationDecouplingPoints.length > 0;
+        const hasBuffer = locationProductsWithBuffers.length > 0;
+        const aligned = (hasDecoupling && hasBuffer) || (!hasDecoupling && !hasBuffer);
+
+        const issues: string[] = [];
+        if (hasDecoupling && !hasBuffer) issues.push('empty_decouple');
+        if (hasBuffer && !hasDecoupling) issues.push('orphan_buffer');
+
+        const status: AlignmentStatus = {
+          locationId: location.location_id,
+          aligned,
+          hasDecoupling,
+          hasBuffer,
+          issues,
+        };
+
+        alignmentStatuses.push(status);
+        locationAlignment[location.location_id] = status;
+      });
+
+      setAlignmentData(alignmentStatuses);
+
       // Create a map of locations with decoupling points
       const decouplingLocations = new Set(
         decouplingPoints?.map((dp: DecouplingPointData) => dp.location_id) || []
@@ -170,6 +246,7 @@ export function SupplyChainNetwork() {
             region: location.region || 'N/A',
             isDecouplingPoint: isDP,
             level: 0,
+            alignmentStatus: locationAlignment[location.location_id],
           },
         });
 
@@ -210,6 +287,7 @@ export function SupplyChainNetwork() {
             region: dc.region || 'N/A',
             isDecouplingPoint: isDP,
             level: 1,
+            alignmentStatus: locationAlignment[dc.location_id],
           },
         });
       });
@@ -245,6 +323,7 @@ export function SupplyChainNetwork() {
             region: region,
             isDecouplingPoint: isDP,
             level: 2,
+            alignmentStatus: locationAlignment[restaurant.location_id],
           },
         });
 
@@ -290,12 +369,15 @@ export function SupplyChainNetwork() {
 
       // Calculate stats
       const uniqueRegions = new Set(allLocations.map((l: any) => l.region).filter(Boolean));
+      const misalignmentCount = alignmentStatuses.filter(s => !s.aligned).length;
+      
       setStats({
         total: allLocations.length,
         decouplingPoints: decouplingLocations.size,
         regions: uniqueRegions.size,
         dcs: dcs.length,
         restaurants: restaurants.length,
+        misalignments: misalignmentCount,
       });
       
       setLastSync(new Date());
@@ -455,6 +537,24 @@ export function SupplyChainNetwork() {
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span>→</span>
               <span>Material Flow</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <Badge variant="default" className="bg-green-500 h-5 w-5 rounded-full p-0 flex items-center justify-center">
+                <CheckCircle className="h-3 w-3 text-white" />
+              </Badge>
+              <span>Aligned</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <Badge variant="destructive" className="h-5 w-5 rounded-full p-0 flex items-center justify-center">
+                <XCircle className="h-3 w-3" />
+              </Badge>
+              <span>Empty Decouple</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <Badge variant="secondary" className="bg-orange-500 h-5 w-5 rounded-full p-0 flex items-center justify-center">
+                <AlertTriangle className="h-3 w-3 text-white" />
+              </Badge>
+              <span>Orphan Buffer</span>
             </div>
           </div>
         </CardHeader>

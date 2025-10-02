@@ -1,17 +1,15 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { CheckCircle, XCircle, AlertTriangle, TrendingUp, TrendingDown, Minus } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { Progress } from "@/components/ui/progress";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import React, { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
+import { CheckCircle, AlertTriangle, TrendingUp, TrendingDown, AlertCircle } from 'lucide-react';
 
 interface FactorBreakdown {
   score: number;
@@ -34,7 +32,7 @@ interface ScoringResult {
   product_id: string;
   location_id: string;
   total_score: number;
-  recommendation: "PULL_STORE_LEVEL" | "HYBRID_DC_LEVEL" | "PUSH_UPSTREAM";
+  recommendation: 'PULL_STORE_LEVEL' | 'HYBRID_DC_LEVEL' | 'PUSH_UPSTREAM';
   breakdown: ScoringBreakdown;
 }
 
@@ -52,7 +50,10 @@ export function DecouplingRecommendationPanel() {
   const [scores, setScores] = useState<Map<string, ScoringResult>>(new Map());
   const [loading, setLoading] = useState(false);
   const [calculating, setCalculating] = useState(false);
-  const [selectedPair, setSelectedPair] = useState<string | null>(null);
+  const [selectedPair, setSelectedPair] = useState<ProductLocationPair | null>(null);
+  const [showOverrideDialog, setShowOverrideDialog] = useState(false);
+  const [overrideReason, setOverrideReason] = useState('');
+  const [overrideAction, setOverrideAction] = useState<'accept' | 'reject'>('accept');
 
   useEffect(() => {
     loadPairs();
@@ -61,22 +62,21 @@ export function DecouplingRecommendationPanel() {
   const loadPairs = async () => {
     setLoading(true);
     try {
-      // Get all product-location pairs
       const { data: products } = await supabase
-        .from("product_master")
-        .select("product_id, sku, name");
-      
+        .from('product_master')
+        .select('product_id, sku, name');
+
       const { data: locations } = await supabase
-        .from("location_master")
-        .select("location_id, region");
+        .from('location_master')
+        .select('location_id, region');
 
       const { data: decouplingPoints } = await supabase
-        .from("decoupling_points")
-        .select("product_id, location_id");
+        .from('decoupling_points')
+        .select('product_id, location_id');
 
       if (products && locations) {
         const decouplingSet = new Set(
-          decouplingPoints?.map(dp => `${dp.product_id}_${dp.location_id}`) || []
+          decouplingPoints?.map((dp) => `${dp.product_id}_${dp.location_id}`) || []
         );
 
         const allPairs: ProductLocationPair[] = [];
@@ -98,8 +98,8 @@ export function DecouplingRecommendationPanel() {
         setPairs(allPairs);
       }
     } catch (error) {
-      console.error("Error loading pairs:", error);
-      toast.error("Failed to load product-location pairs");
+      console.error('Error loading pairs:', error);
+      toast.error('Failed to load product-location pairs');
     } finally {
       setLoading(false);
     }
@@ -107,7 +107,7 @@ export function DecouplingRecommendationPanel() {
 
   const calculateScore = async (productId: string, locationId: string) => {
     try {
-      const { data, error } = await supabase.rpc("calculate_8factor_weighted_score", {
+      const { data, error } = await supabase.rpc('calculate_8factor_weighted_score', {
         p_product_id: productId,
         p_location_id: locationId,
       });
@@ -115,12 +115,12 @@ export function DecouplingRecommendationPanel() {
       if (error) throw error;
       if (data) {
         const scoringResult = data as unknown as ScoringResult;
-        setScores(prev => new Map(prev).set(`${productId}_${locationId}`, scoringResult));
+        setScores((prev) => new Map(prev).set(`${productId}_${locationId}`, scoringResult));
         return scoringResult;
       }
     } catch (error) {
-      console.error("Error calculating score:", error);
-      toast.error("Failed to calculate score");
+      console.error('Error calculating score:', error);
+      toast.error('Failed to calculate score');
     }
   };
 
@@ -128,30 +128,82 @@ export function DecouplingRecommendationPanel() {
     setCalculating(true);
     try {
       const newScores = new Map<string, ScoringResult>();
-      
+
       for (const pair of pairs.slice(0, 10)) {
         const score = await calculateScore(pair.product_id, pair.location_id);
         if (score) {
           newScores.set(`${pair.product_id}_${pair.location_id}`, score as ScoringResult);
         }
       }
-      
+
       setScores(newScores);
       toast.success(`Calculated scores for ${newScores.size} pairs`);
     } catch (error) {
-      toast.error("Failed to calculate all scores");
+      toast.error('Failed to calculate all scores');
     } finally {
       setCalculating(false);
     }
   };
 
+  const handleAccept = (pair: ProductLocationPair, score: ScoringResult) => {
+    setSelectedPair(pair);
+    setOverrideAction('accept');
+
+    if (score.recommendation === 'PUSH_UPSTREAM') {
+      setShowOverrideDialog(true);
+    } else {
+      confirmAction(pair, score, 'System recommended');
+    }
+  };
+
+  const handleReject = (pair: ProductLocationPair, score: ScoringResult) => {
+    setSelectedPair(pair);
+    setOverrideAction('reject');
+
+    if (score.recommendation !== 'PUSH_UPSTREAM') {
+      setShowOverrideDialog(true);
+    } else {
+      confirmAction(pair, score, 'System recommended rejection');
+    }
+  };
+
+  const confirmAction = async (
+    pair: ProductLocationPair,
+    score: ScoringResult,
+    reason: string
+  ) => {
+    try {
+      if (overrideAction === 'accept') {
+        const { error } = await supabase.from('decoupling_points').insert({
+          product_id: pair.product_id,
+          location_id: pair.location_id,
+          buffer_profile_id: 'BP_DEFAULT',
+          is_strategic: true,
+          designation_reason: reason,
+        });
+
+        if (error) throw error;
+        toast.success(`Decoupling point created for ${pair.sku} at ${pair.region}`);
+      } else {
+        toast.info(`${pair.sku} at ${pair.region} rejected`);
+      }
+
+      setShowOverrideDialog(false);
+      setOverrideReason('');
+      loadPairs();
+    } catch (error) {
+      console.error('Error confirming action:', error);
+      toast.error('Failed to save decision');
+    }
+  };
+
   const getRecommendationBadge = (recommendation: string) => {
     switch (recommendation) {
-      case "PULL_STORE_LEVEL":
+      case 'PULL_STORE_LEVEL':
         return <Badge className="bg-green-500">PULL (Store)</Badge>;
-      case "HYBRID_DC_LEVEL":
+      case 'HYBRID_DC_LEVEL':
         return <Badge className="bg-yellow-500">HYBRID (DC)</Badge>;
-      case "PUSH_UPSTREAM":
+      case 'PUSH_UPSTREAM':
         return <Badge className="bg-blue-500">PUSH (Upstream)</Badge>;
       default:
         return <Badge variant="outline">{recommendation}</Badge>;
@@ -159,25 +211,23 @@ export function DecouplingRecommendationPanel() {
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 70) return "text-green-600";
-    if (score >= 40) return "text-yellow-600";
-    return "text-blue-600";
+    if (score >= 70) return 'text-green-600';
+    if (score >= 40) return 'text-yellow-600';
+    return 'text-blue-600';
   };
 
   const renderFactorBar = (name: string, factor: FactorBreakdown) => {
     const percentage = (factor.score / 100) * 100;
-    
+
     return (
       <div key={name} className="space-y-1">
         <div className="flex items-center justify-between text-sm">
-          <span className="font-medium capitalize">{name.replace(/_/g, " ")}</span>
+          <span className="font-medium capitalize">{name.replace(/_/g, ' ')}</span>
           <div className="flex items-center gap-2">
             <span className="text-muted-foreground text-xs">
               {factor.score.toFixed(1)}/100 × {(factor.weight * 100).toFixed(0)}%
             </span>
-            <span className="font-semibold">
-              = {factor.contribution.toFixed(1)}
-            </span>
+            <span className="font-semibold">= {factor.contribution.toFixed(1)}</span>
           </div>
         </div>
         <Progress value={percentage} className="h-2" />
@@ -185,7 +235,8 @@ export function DecouplingRecommendationPanel() {
     );
   };
 
-  const selectedScore = selectedPair ? scores.get(selectedPair) : null;
+  const selectedKey = selectedPair ? `${selectedPair.product_id}_${selectedPair.location_id}` : null;
+  const selectedScore = selectedKey ? scores.get(selectedKey) : null;
 
   if (loading) {
     return (
@@ -204,15 +255,10 @@ export function DecouplingRecommendationPanel() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>AI Decoupling Recommendations</CardTitle>
-              <CardDescription>
-                8-Factor weighted scoring for PULL/HYBRID/PUSH strategy
-              </CardDescription>
+              <CardDescription>8-Factor weighted scoring for PULL/HYBRID/PUSH strategy</CardDescription>
             </div>
-            <Button
-              onClick={calculateAllScores}
-              disabled={calculating}
-            >
-              {calculating ? "Calculating..." : "Calculate All Scores"}
+            <Button onClick={calculateAllScores} disabled={calculating}>
+              {calculating ? 'Calculating...' : 'Calculate All Scores'}
             </Button>
           </div>
         </CardHeader>
@@ -221,23 +267,24 @@ export function DecouplingRecommendationPanel() {
             {pairs.slice(0, 10).map((pair) => {
               const key = `${pair.product_id}_${pair.location_id}`;
               const score = scores.get(key);
-              
+
               return (
                 <div
                   key={key}
-                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                    selectedPair === key ? "border-primary bg-accent" : "hover:bg-accent/50"
+                  className={`p-3 border rounded-lg transition-colors ${
+                    selectedKey === key ? 'border-primary bg-accent' : 'hover:bg-accent/50'
                   }`}
-                  onClick={() => setSelectedPair(key)}
                 >
                   <div className="flex items-center justify-between">
-            <div className="flex-1">
-                      <div className="font-medium">{pair.sku} - {pair.product_name ?? 'Unknown Product'}</div>
+                    <div className="flex-1">
+                      <div className="font-medium">
+                        {pair.sku} - {pair.product_name ?? 'Unknown Product'}
+                      </div>
                       <div className="text-sm text-muted-foreground">
                         {pair.region} ({pair.location_id})
                       </div>
                     </div>
-                    
+
                     {score ? (
                       <div className="flex items-center gap-3">
                         <div className="text-right">
@@ -247,23 +294,38 @@ export function DecouplingRecommendationPanel() {
                           <div className="text-xs text-muted-foreground">Score</div>
                         </div>
                         {getRecommendationBadge(score.recommendation)}
-                        {pair.is_decoupling_point && (
-                          <CheckCircle className="w-5 h-5 text-green-500" />
-                        )}
                       </div>
-                    ) : (
+                    ) : null}
+                  </div>
+
+                  {score && (
+                    <div className="flex gap-2 mt-3 pt-3 border-t">
+                      <Button size="sm" onClick={() => handleAccept(pair, score)}>
+                        Accept
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => handleReject(pair, score)}>
+                        Reject
+                      </Button>
                       <Button
                         size="sm"
-                        variant="outline"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          calculateScore(pair.product_id, pair.location_id);
-                        }}
+                        variant="ghost"
+                        onClick={() => setSelectedPair(pair)}
                       >
-                        Calculate
+                        View Details
                       </Button>
-                    )}
-                  </div>
+                    </div>
+                  )}
+
+                  {!score && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="mt-3"
+                      onClick={() => calculateScore(pair.product_id, pair.location_id)}
+                    >
+                      Calculate Score
+                    </Button>
+                  )}
                 </div>
               );
             })}
@@ -276,7 +338,7 @@ export function DecouplingRecommendationPanel() {
           <CardHeader>
             <CardTitle>Factor Breakdown - AI Explainability</CardTitle>
             <CardDescription>
-              Why the system recommends {selectedScore.recommendation.replace(/_/g, " ")}
+              Why the system recommends {selectedScore.recommendation.replace(/_/g, ' ')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -289,17 +351,16 @@ export function DecouplingRecommendationPanel() {
                   </span>
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  {selectedScore.total_score >= 70 && "High score → PULL strategy (store-level decoupling)"}
-                  {selectedScore.total_score >= 40 && selectedScore.total_score < 70 && 
-                    "Medium score → HYBRID strategy (DC-level decoupling)"}
-                  {selectedScore.total_score < 40 && "Low score → PUSH strategy (upstream replenishment)"}
+                  {selectedScore.total_score >= 70 && 'High score → PULL strategy (store-level decoupling)'}
+                  {selectedScore.total_score >= 40 &&
+                    selectedScore.total_score < 70 &&
+                    'Medium score → HYBRID strategy (DC-level decoupling)'}
+                  {selectedScore.total_score < 40 && 'Low score → PUSH strategy (upstream replenishment)'}
                 </div>
               </div>
 
               <div className="space-y-3">
-                {Object.entries(selectedScore.breakdown).map(([key, factor]) => 
-                  renderFactorBar(key, factor)
-                )}
+                {Object.entries(selectedScore.breakdown).map(([key, factor]) => renderFactorBar(key, factor))}
               </div>
 
               <div className="pt-4 border-t">
@@ -329,6 +390,69 @@ export function DecouplingRecommendationPanel() {
           </CardContent>
         </Card>
       )}
+
+      {/* Manual Override Dialog */}
+      <Dialog open={showOverrideDialog} onOpenChange={setShowOverrideDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-orange-500" />
+              Manual Override Warning
+            </DialogTitle>
+            <DialogDescription>
+              {overrideAction === 'accept' ? (
+                <span>
+                  The AI system recommends <strong>PUSH (no decoupling)</strong> for this product-location pair.
+                  Proceeding will override this recommendation.
+                </span>
+              ) : (
+                <span>
+                  The AI system recommends <strong>PULL/HYBRID (decoupling)</strong> for this product-location pair.
+                  Rejecting will override this recommendation.
+                </span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Manual overrides should be used sparingly and with clear justification. This decision will be
+                flagged as a "manual exception" in the system.
+              </AlertDescription>
+            </Alert>
+            <div className="space-y-2">
+              <Label htmlFor="reason">Justification / Reason *</Label>
+              <Textarea
+                id="reason"
+                placeholder="Explain why you're overriding the AI recommendation..."
+                value={overrideReason}
+                onChange={(e) => setOverrideReason(e.target.value)}
+                rows={4}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowOverrideDialog(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (!overrideReason.trim()) {
+                  toast.error('Please provide a justification');
+                  return;
+                }
+                if (selectedPair && selectedScore) {
+                  confirmAction(selectedPair, selectedScore, `Manual override: ${overrideReason}`);
+                }
+              }}
+              disabled={!overrideReason.trim()}
+            >
+              Confirm Override
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
