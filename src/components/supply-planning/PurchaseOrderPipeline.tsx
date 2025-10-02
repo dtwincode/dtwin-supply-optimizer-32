@@ -2,9 +2,12 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Package, TruckIcon, AlertCircle } from "lucide-react";
-import { format } from "date-fns";
+import { Package, TruckIcon, AlertCircle, Send, PackageCheck } from "lucide-react";
+import { format, isPast } from "date-fns";
+import { usePurchaseOrderActions } from "@/hooks/usePurchaseOrderActions";
+import ReceivePODialog from "./ReceivePODialog";
 
 interface PurchaseOrder {
   id: string;
@@ -20,6 +23,8 @@ interface PurchaseOrder {
 const PurchaseOrderPipeline: React.FC = () => {
   const [orders, setOrders] = useState<PurchaseOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [receivingPO, setReceivingPO] = useState<PurchaseOrder | null>(null);
+  const { updatePOStatus, receivePO } = usePurchaseOrderActions();
 
   useEffect(() => {
     fetchOrders();
@@ -41,6 +46,33 @@ const PurchaseOrderPipeline: React.FC = () => {
     }
   };
 
+  const handleSendToSupplier = async (poId: string) => {
+    const success = await updatePOStatus(poId, 'IN_TRANSIT');
+    if (success) fetchOrders();
+  };
+
+  const handleReceiveClick = (order: PurchaseOrder) => {
+    setReceivingPO(order);
+  };
+
+  const handleReceiveConfirm = async (receivedQty: number) => {
+    if (!receivingPO) return;
+    
+    const success = await receivePO(
+      receivingPO.id,
+      receivingPO.product_id,
+      receivingPO.location_id,
+      receivingPO.ordered_qty,
+      receivedQty,
+      receivingPO.received_qty || 0
+    );
+    
+    if (success) {
+      fetchOrders();
+      setReceivingPO(null);
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     const config = {
       OPEN: { variant: "secondary" as const, label: "Open" },
@@ -51,6 +83,11 @@ const PurchaseOrderPipeline: React.FC = () => {
     const { variant, label } = config[status as keyof typeof config] || config.OPEN;
 
     return <Badge variant={variant}>{label}</Badge>;
+  };
+
+  const isLate = (expectedDate: string | null) => {
+    if (!expectedDate) return false;
+    return isPast(new Date(expectedDate)) && new Date(expectedDate).toDateString() !== new Date().toDateString();
   };
 
   const openOrders = orders.filter((o) => o.status === "OPEN");
@@ -119,13 +156,16 @@ const PurchaseOrderPipeline: React.FC = () => {
                   <TableHead>Order Date</TableHead>
                   <TableHead>Expected</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {orders.map((order) => {
                   const pending = order.ordered_qty - (order.received_qty || 0);
+                  const late = isLate(order.expected_date);
+                  
                   return (
-                    <TableRow key={order.id}>
+                    <TableRow key={order.id} className={late ? "bg-destructive/5" : ""}>
                       <TableCell className="font-mono text-sm">{order.id.slice(0, 8)}</TableCell>
                       <TableCell className="font-medium">{order.product_id}</TableCell>
                       <TableCell>{order.location_id}</TableCell>
@@ -134,9 +174,35 @@ const PurchaseOrderPipeline: React.FC = () => {
                       <TableCell className="text-right font-mono font-semibold">{pending.toFixed(0)}</TableCell>
                       <TableCell className="text-sm">{format(new Date(order.order_date), "MMM dd, yyyy")}</TableCell>
                       <TableCell className="text-sm">
-                        {order.expected_date ? format(new Date(order.expected_date), "MMM dd, yyyy") : "-"}
+                        <div className="flex items-center gap-2">
+                          {order.expected_date ? format(new Date(order.expected_date), "MMM dd, yyyy") : "-"}
+                          {late && <AlertCircle className="h-3 w-3 text-destructive" />}
+                        </div>
                       </TableCell>
                       <TableCell>{getStatusBadge(order.status)}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-end gap-2">
+                          {order.status === 'OPEN' && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleSendToSupplier(order.id)}
+                            >
+                              <Send className="h-3 w-3 mr-1" />
+                              Send
+                            </Button>
+                          )}
+                          {order.status === 'IN_TRANSIT' && (
+                            <Button
+                              size="sm"
+                              onClick={() => handleReceiveClick(order)}
+                            >
+                              <PackageCheck className="h-3 w-3 mr-1" />
+                              Receive
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
@@ -145,6 +211,16 @@ const PurchaseOrderPipeline: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      {receivingPO && (
+        <ReceivePODialog
+          open={!!receivingPO}
+          onOpenChange={(open) => !open && setReceivingPO(null)}
+          orderedQty={receivingPO.ordered_qty}
+          currentReceivedQty={receivingPO.received_qty || 0}
+          onReceive={handleReceiveConfirm}
+        />
+      )}
     </div>
   );
 };

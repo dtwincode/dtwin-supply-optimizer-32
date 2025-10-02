@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle, XCircle, Clock, Package, Edit2, Save, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import CreatePurchaseOrderDialog from "./CreatePurchaseOrderDialog";
 
 interface ReplenishmentOrder {
   proposal_id: number;
@@ -37,6 +38,7 @@ const ReplenishmentOrders: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [editingOrder, setEditingOrder] = useState<EditingOrder | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [createPODialogOpen, setCreatePODialogOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -215,6 +217,26 @@ const ReplenishmentOrders: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {approvedOrders.length > 0 && (
+        <Card className="border-primary/20 bg-primary/5">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Package className="h-5 w-5 text-primary" />
+                <CardTitle className="text-lg">Ready to Create Purchase Orders</CardTitle>
+              </div>
+              <Button onClick={() => setCreatePODialogOpen(true)}>
+                <Package className="mr-2 h-4 w-4" />
+                Create Purchase Orders ({approvedOrders.length})
+              </Button>
+            </div>
+            <CardDescription>
+              {approvedOrders.length} approved order{approvedOrders.length !== 1 ? 's' : ''} ready to be converted to POs
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      )}
+
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -414,6 +436,12 @@ const ReplenishmentOrders: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <CreatePurchaseOrderDialog
+        open={createPODialogOpen}
+        onOpenChange={setCreatePODialogOpen}
+        onSuccess={fetchOrders}
+      />
     </div>
   );
 };
