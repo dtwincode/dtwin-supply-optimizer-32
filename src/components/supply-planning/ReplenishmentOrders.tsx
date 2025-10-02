@@ -21,6 +21,8 @@ interface ReplenishmentOrder {
   status: string;
   reason: string;
   proposal_ts: string;
+  moq?: number;
+  rounding_multiple?: number;
 }
 
 interface EditingOrder {
@@ -43,13 +45,26 @@ const ReplenishmentOrders: React.FC = () => {
 
   const fetchOrders = async () => {
     try {
+      // Fetch orders with buffer profile data to get MOQ and rounding
       const { data, error } = await supabase
         .from("replenishment_orders")
-        .select("*")
+        .select(`
+          *,
+          product:product_master!inner(buffer_profile_id),
+          buffer:buffer_profile_master(moq, rounding_multiple)
+        `)
         .order("proposal_ts", { ascending: false });
 
       if (error) throw error;
-      setOrders(data || []);
+
+      // Flatten the data structure and add MOQ info
+      const enrichedOrders = (data || []).map((order: any) => ({
+        ...order,
+        moq: order.buffer?.[0]?.moq || 0,
+        rounding_multiple: order.buffer?.[0]?.rounding_multiple || 1,
+      }));
+
+      setOrders(enrichedOrders);
     } catch (error) {
       console.error("Error fetching replenishment orders:", error);
       toast({
@@ -74,6 +89,30 @@ const ReplenishmentOrders: React.FC = () => {
 
   const saveOrderEdits = async () => {
     if (!editingOrder) return;
+
+    const currentOrder = orders.find((o) => o.proposal_id === editingOrder.proposal_id);
+    const moq = currentOrder?.moq || 0;
+    const roundingMultiple = currentOrder?.rounding_multiple || 1;
+
+    // Validate MOQ
+    if (editingOrder.qty_recommend < moq) {
+      toast({
+        title: "Invalid Quantity",
+        description: `Quantity must be at least ${moq} (MOQ)`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate rounding multiple
+    if (editingOrder.qty_recommend % roundingMultiple !== 0) {
+      toast({
+        title: "Invalid Quantity",
+        description: `Quantity must be a multiple of ${roundingMultiple}`,
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
       const { error } = await supabase
@@ -294,12 +333,14 @@ const ReplenishmentOrders: React.FC = () => {
                       qty_recommend: parseFloat(e.target.value) || 0,
                     })
                   }
-                  min="0"
-                  step="1"
+                  min={orders.find((o) => o.proposal_id === editingOrder.proposal_id)?.moq || 0}
+                  step={orders.find((o) => o.proposal_id === editingOrder.proposal_id)?.rounding_multiple || 1}
                 />
-                <p className="text-xs text-muted-foreground">
-                  Original: {orders.find((o) => o.proposal_id === editingOrder.proposal_id)?.qty_recommend.toFixed(0)} units
-                </p>
+                <div className="text-xs text-muted-foreground space-y-1">
+                  <p>Original: {orders.find((o) => o.proposal_id === editingOrder.proposal_id)?.qty_recommend.toFixed(0)} units</p>
+                  <p className="font-semibold">MOQ: {orders.find((o) => o.proposal_id === editingOrder.proposal_id)?.moq || 0} units</p>
+                  <p>Rounding: {orders.find((o) => o.proposal_id === editingOrder.proposal_id)?.rounding_multiple || 1} units</p>
+                </div>
               </div>
 
               <div className="grid gap-2">
