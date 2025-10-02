@@ -73,6 +73,17 @@ export function AlignmentDashboard() {
             issueType: 'empty_decouple',
             recommendation: 'Add buffer profile to complete decoupling setup',
           });
+          
+          // Log to alignment_violations table
+          supabase.from('alignment_violations').upsert({
+            location_id: dp.location_id,
+            product_id: dp.product_id,
+            violation_type: 'empty_decouple',
+            status: 'open',
+          }, {
+            onConflict: 'location_id,product_id,violation_type',
+            ignoreDuplicates: false,
+          });
         }
       });
 
@@ -91,6 +102,17 @@ export function AlignmentDashboard() {
               sku: product.sku,
               issueType: 'orphan_buffer',
               recommendation: 'Promote location to decoupling point OR remove buffer profile',
+            });
+            
+            // Log to alignment_violations table
+            supabase.from('alignment_violations').upsert({
+              location_id: 'Multiple',
+              product_id: product.product_id,
+              violation_type: 'orphan_buffer',
+              status: 'open',
+            }, {
+              onConflict: 'location_id,product_id,violation_type',
+              ignoreDuplicates: false,
             });
           }
         }
@@ -139,6 +161,18 @@ export function AlignmentDashboard() {
         .eq('product_id', issue.productId);
 
       if (error) throw error;
+      
+      // Mark violation as resolved
+      await supabase
+        .from('alignment_violations')
+        .update({
+          status: 'resolved',
+          resolved_at: new Date().toISOString(),
+          resolution_action: `Auto-assigned buffer profile: ${bufferProfileId}`,
+        })
+        .eq('product_id', issue.productId)
+        .eq('violation_type', 'empty_decouple')
+        .eq('status', 'open');
 
       toast.success(`Buffer profile ${bufferProfileId} assigned to ${issue.sku}`);
       loadAlignmentIssues();
@@ -157,6 +191,18 @@ export function AlignmentDashboard() {
         .eq('product_id', issue.productId);
 
       if (error) throw error;
+      
+      // Mark violation as resolved
+      await supabase
+        .from('alignment_violations')
+        .update({
+          status: 'resolved',
+          resolved_at: new Date().toISOString(),
+          resolution_action: 'Removed orphan buffer profile',
+        })
+        .eq('product_id', issue.productId)
+        .eq('violation_type', 'orphan_buffer')
+        .eq('status', 'open');
 
       toast.success(`Buffer profile removed from ${issue.sku}`);
       loadAlignmentIssues();

@@ -116,6 +116,17 @@ export function DecouplingRecommendationPanel() {
       if (data) {
         const scoringResult = data as unknown as ScoringResult;
         setScores((prev) => new Map(prev).set(`${productId}_${locationId}`, scoringResult));
+        
+        // Save recommendation to database
+        await supabase.from('decoupling_recommendations').insert({
+          product_id: productId,
+          location_id: locationId,
+          total_score: scoringResult.total_score,
+          recommendation: scoringResult.recommendation,
+          factor_breakdown: scoringResult.breakdown as any,
+          planner_decision: 'pending',
+        });
+        
         return scoringResult;
       }
     } catch (error) {
@@ -173,6 +184,8 @@ export function DecouplingRecommendationPanel() {
     reason: string
   ) => {
     try {
+      const isOverride = reason.startsWith('Manual override:');
+      
       if (overrideAction === 'accept') {
         const { error } = await supabase.from('decoupling_points').insert({
           product_id: pair.product_id,
@@ -183,8 +196,59 @@ export function DecouplingRecommendationPanel() {
         });
 
         if (error) throw error;
+        
+        // Update recommendation decision
+        await supabase
+          .from('decoupling_recommendations')
+          .update({
+            planner_decision: 'accepted',
+            decision_reason: reason,
+            decided_at: new Date().toISOString(),
+          })
+          .eq('product_id', pair.product_id)
+          .eq('location_id', pair.location_id)
+          .order('created_at', { ascending: false })
+          .limit(1);
+        
+        // Log manual override if applicable
+        if (isOverride) {
+          await supabase.from('manual_overrides').insert({
+            product_id: pair.product_id,
+            location_id: pair.location_id,
+            ai_recommendation: score.recommendation,
+            planner_decision: 'accept_override',
+            justification: reason.replace('Manual override: ', ''),
+            override_type: 'accept_push',
+          });
+        }
+        
         toast.success(`Decoupling point created for ${pair.sku} at ${pair.region}`);
       } else {
+        // Update recommendation decision
+        await supabase
+          .from('decoupling_recommendations')
+          .update({
+            planner_decision: 'rejected',
+            decision_reason: reason,
+            decided_at: new Date().toISOString(),
+          })
+          .eq('product_id', pair.product_id)
+          .eq('location_id', pair.location_id)
+          .order('created_at', { ascending: false })
+          .limit(1);
+        
+        // Log manual override if applicable
+        if (isOverride) {
+          await supabase.from('manual_overrides').insert({
+            product_id: pair.product_id,
+            location_id: pair.location_id,
+            ai_recommendation: score.recommendation,
+            planner_decision: 'reject_override',
+            justification: reason.replace('Manual override: ', ''),
+            override_type: 'reject_pull_hybrid',
+          });
+        }
+        
         toast.info(`${pair.sku} at ${pair.region} rejected`);
       }
 

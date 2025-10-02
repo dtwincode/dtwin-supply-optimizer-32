@@ -38,6 +38,39 @@ export type Database = {
         }
         Relationships: []
       }
+      alignment_violations: {
+        Row: {
+          detected_at: string | null
+          id: string
+          location_id: string
+          product_id: string | null
+          resolution_action: string | null
+          resolved_at: string | null
+          status: string | null
+          violation_type: string
+        }
+        Insert: {
+          detected_at?: string | null
+          id?: string
+          location_id: string
+          product_id?: string | null
+          resolution_action?: string | null
+          resolved_at?: string | null
+          status?: string | null
+          violation_type: string
+        }
+        Update: {
+          detected_at?: string | null
+          id?: string
+          location_id?: string
+          product_id?: string | null
+          resolution_action?: string | null
+          resolved_at?: string | null
+          status?: string | null
+          violation_type?: string
+        }
+        Relationships: []
+      }
       buffer_breach_events: {
         Row: {
           acknowledged: boolean | null
@@ -206,6 +239,48 @@ export type Database = {
           location_id?: string
           product_id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      decoupling_recommendations: {
+        Row: {
+          created_at: string | null
+          decided_at: string | null
+          decided_by: string | null
+          decision_reason: string | null
+          factor_breakdown: Json
+          id: string
+          location_id: string
+          planner_decision: string | null
+          product_id: string
+          recommendation: string
+          total_score: number
+        }
+        Insert: {
+          created_at?: string | null
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_reason?: string | null
+          factor_breakdown: Json
+          id?: string
+          location_id: string
+          planner_decision?: string | null
+          product_id: string
+          recommendation: string
+          total_score: number
+        }
+        Update: {
+          created_at?: string | null
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_reason?: string | null
+          factor_breakdown?: Json
+          id?: string
+          location_id?: string
+          planner_decision?: string | null
+          product_id?: string
+          recommendation?: string
+          total_score?: number
         }
         Relationships: []
       }
@@ -533,6 +608,42 @@ export type Database = {
           restaurant_number?: string | null
           seating_capacity?: number | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      manual_overrides: {
+        Row: {
+          ai_recommendation: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          justification: string
+          location_id: string
+          override_type: string
+          planner_decision: string
+          product_id: string
+        }
+        Insert: {
+          ai_recommendation: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          justification: string
+          location_id: string
+          override_type: string
+          planner_decision: string
+          product_id: string
+        }
+        Update: {
+          ai_recommendation?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          justification?: string
+          location_id?: string
+          override_type?: string
+          planner_decision?: string
+          product_id?: string
         }
         Relationships: []
       }
