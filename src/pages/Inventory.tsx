@@ -15,6 +15,7 @@ import { BOMViewer } from "@/components/inventory/bom";
 
 // Operational View
 import { BufferStatusGrid } from "@/components/inventory/operational/BufferStatusGrid";
+import { BreachDetectionTrigger } from "@/components/inventory/operational/BreachDetectionTrigger";
 import { ExceptionManagement } from "@/components/inventory/advanced/ExceptionManagement";
 
 // Analytics & Insights
@@ -76,8 +77,15 @@ const Inventory: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="operational" className="space-y-6">
-              <BufferStatusGrid />
-              <ExceptionManagement />
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 space-y-6">
+                  <BufferStatusGrid />
+                  <ExceptionManagement />
+                </div>
+                <div>
+                  <BreachDetectionTrigger />
+                </div>
+              </div>
             </TabsContent>
 
             <TabsContent value="analytics" className="space-y-6">
