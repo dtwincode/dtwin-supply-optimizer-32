@@ -21,6 +21,10 @@ import { ExceptionManagement } from "@/components/inventory/advanced/ExceptionMa
 import { BufferPerformance } from "@/components/inventory/analytics/BufferPerformance";
 import { SKUClassifications } from "@/components/inventory/classification/SKUClassifications";
 
+// Buffer Management
+import { BufferProfileManagement } from "@/components/inventory/buffer-profiles";
+import { BreachAlertsDashboard } from "@/components/inventory/alerts";
+
 const Inventory: React.FC = () => {
   const { t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -57,10 +61,12 @@ const Inventory: React.FC = () => {
             onValueChange={handleTabChange}
             className="space-y-4"
           >
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="strategic">Strategic Planning</TabsTrigger>
               <TabsTrigger value="operational">Operational View</TabsTrigger>
               <TabsTrigger value="analytics">Analytics & Insights</TabsTrigger>
+              <TabsTrigger value="buffer-profiles">Buffer Profiles</TabsTrigger>
+              <TabsTrigger value="breach-alerts">Breach Alerts</TabsTrigger>
               <TabsTrigger value="bom">Bill of Materials</TabsTrigger>
             </TabsList>
 
@@ -77,6 +83,14 @@ const Inventory: React.FC = () => {
             <TabsContent value="analytics" className="space-y-6">
               <BufferPerformance />
               <SKUClassifications />
+            </TabsContent>
+
+            <TabsContent value="buffer-profiles" className="space-y-6">
+              <BufferProfileManagement />
+            </TabsContent>
+
+            <TabsContent value="breach-alerts" className="space-y-6">
+              <BreachAlertsDashboard />
             </TabsContent>
 
             <TabsContent value="bom" className="space-y-6">

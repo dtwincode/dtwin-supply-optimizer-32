@@ -33,16 +33,6 @@ const navigationItems = [
     badgeColor: "bg-green-600",
   },
   {
-    name: "Buffer Profiles",
-    icon: Settings,
-    href: "/buffer-profiles",
-  },
-  {
-    name: "Breach Alerts",
-    icon: AlertTriangle,
-    href: "/breach-alerts",
-  },
-  {
     name: "navigation.supplyPlanning",
     icon: ShoppingCart,
     href: "/supply-planning",
