@@ -11,9 +11,11 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Shield, Warehouse, Building2, Users } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Shield, Warehouse, Building2, Users, RefreshCw, Info, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface LocationNode {
@@ -59,10 +61,33 @@ export function SupplyChainNetwork() {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [stats, setStats] = useState({ total: 0, decouplingPoints: 0, regions: 0 });
+  const [stats, setStats] = useState({ total: 0, decouplingPoints: 0, regions: 0, dcs: 0, restaurants: 0 });
+  const [lastSync, setLastSync] = useState<Date | null>(null);
 
   useEffect(() => {
     loadNetworkData();
+    
+    // Subscribe to decoupling points changes for real-time sync
+    const channel = supabase
+      .channel('decoupling-points-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'decoupling_points'
+        },
+        (payload) => {
+          console.log('[SupplyChainNetwork] Decoupling point changed:', payload);
+          toast.info('Decoupling points updated - refreshing network');
+          loadNetworkData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const loadNetworkData = async () => {
@@ -269,8 +294,11 @@ export function SupplyChainNetwork() {
         total: allLocations.length,
         decouplingPoints: decouplingLocations.size,
         regions: uniqueRegions.size,
+        dcs: dcs.length,
+        restaurants: restaurants.length,
       });
-
+      
+      setLastSync(new Date());
       setIsLoading(false);
       console.log('[SupplyChainNetwork] Data load complete');
     } catch (error) {
@@ -298,21 +326,73 @@ export function SupplyChainNetwork() {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-3 gap-4">
+      {/* Help Alert */}
+      <Alert>
+        <Info className="h-4 w-4" />
+        <AlertTitle>Understanding the Supply Chain Network</AlertTitle>
+        <AlertDescription className="space-y-2 mt-2">
+          <p className="text-sm">
+            This visualization shows your complete supply chain flow from warehouses to restaurants:
+          </p>
+          <ul className="text-sm list-disc list-inside space-y-1">
+            <li><strong>Level 0 (Top):</strong> Legacy/Other locations</li>
+            <li><strong>Level 1 (Middle):</strong> Distribution Centers (DCs) - Hub locations</li>
+            <li><strong>Level 2 (Bottom):</strong> Restaurants - Final delivery points</li>
+            <li><strong>🛡️ Buffer Points:</strong> Locations highlighted with shield icon are strategic decoupling points (where inventory buffers are maintained)</li>
+            <li><strong>Flow Direction:</strong> Arrows show material flow from DCs to restaurants</li>
+          </ul>
+          <p className="text-sm text-muted-foreground mt-2">
+            <CheckCircle className="h-3 w-3 inline mr-1" />
+            This network automatically syncs with your Strategic Decoupling Points in real-time.
+          </p>
+        </AlertDescription>
+      </Alert>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-5 gap-4">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium">Total Locations</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
+            <p className="text-xs text-muted-foreground mt-1">All network nodes</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Buffer Points</CardTitle>
+            <CardTitle className="text-sm font-medium flex items-center gap-1">
+              <Warehouse className="h-3 w-3" />
+              DCs
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.dcs}</div>
+            <p className="text-xs text-muted-foreground mt-1">Distribution Centers</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-1">
+              <Building2 className="h-3 w-3" />
+              Restaurants
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.restaurants}</div>
+            <p className="text-xs text-muted-foreground mt-1">Delivery points</p>
+          </CardContent>
+        </Card>
+        <Card className="border-primary/50 bg-primary/5">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-1 text-primary">
+              <Shield className="h-3 w-3" />
+              Buffer Points
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">{stats.decouplingPoints}</div>
+            <p className="text-xs text-muted-foreground mt-1">Strategic positions</p>
           </CardContent>
         </Card>
         <Card>
@@ -321,6 +401,7 @@ export function SupplyChainNetwork() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.regions}</div>
+            <p className="text-xs text-muted-foreground mt-1">Geographic areas</p>
           </CardContent>
         </Card>
       </div>
@@ -328,15 +409,52 @@ export function SupplyChainNetwork() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Supply Chain Network Topology</CardTitle>
+            <div>
+              <CardTitle>Supply Chain Network Topology</CardTitle>
+              <CardDescription className="mt-1">
+                Visual representation of your supply chain structure
+                {lastSync && (
+                  <span className="text-xs ml-2">
+                    • Last synced: {lastSync.toLocaleTimeString()}
+                  </span>
+                )}
+              </CardDescription>
+            </div>
             <div className="flex gap-2 items-center">
-              <Badge variant="outline" className="gap-1">
-                <Shield className="h-3 w-3" />
-                Buffer Point
-              </Badge>
-              <div className="text-xs text-muted-foreground flex items-center gap-1">
-                <span>→</span> Flow Direction
-              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  toast.info('Refreshing network...');
+                  loadNetworkData();
+                }}
+              >
+                <RefreshCw className="h-3 w-3 mr-1" />
+                Refresh
+              </Button>
+            </div>
+          </div>
+          {/* Legend */}
+          <div className="flex gap-4 items-center mt-4 flex-wrap">
+            <div className="flex items-center gap-2 text-xs">
+              <Warehouse className="h-4 w-4 text-primary" />
+              <span>Distribution Center</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <Building2 className="h-4 w-4 text-primary" />
+              <span>Restaurant</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <Users className="h-4 w-4 text-muted-foreground" />
+              <span>Other Location</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <Shield className="h-4 w-4 text-primary" />
+              <span className="font-semibold">Buffer Point (Strategic)</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span>→</span>
+              <span>Material Flow</span>
             </div>
           </div>
         </CardHeader>
