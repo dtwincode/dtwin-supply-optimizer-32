@@ -67,23 +67,31 @@ export function SupplyChainNetwork() {
 
   const loadNetworkData = async () => {
     try {
+      console.log('[SupplyChainNetwork] Starting data load...');
+      
       // Load locations
       const { data: locations, error: locError } = await supabase
         .from('location_master')
         .select('location_id, location_type, region');
 
-      if (locError) throw locError;
+      if (locError) {
+        console.error('[SupplyChainNetwork] Location error:', locError);
+        throw locError;
+      }
 
-      console.log('Loaded locations:', locations);
+      console.log('[SupplyChainNetwork] Loaded locations:', locations?.length, locations);
 
       // Load decoupling points
       const { data: decouplingPoints, error: dpError } = await supabase
         .from('decoupling_points')
         .select('product_id, location_id, buffer_profile_id');
 
-      if (dpError) throw dpError;
+      if (dpError) {
+        console.error('[SupplyChainNetwork] Decoupling error:', dpError);
+        throw dpError;
+      }
 
-      console.log('Loaded decoupling points:', decouplingPoints);
+      console.log('[SupplyChainNetwork] Loaded decoupling points:', decouplingPoints?.length, decouplingPoints);
 
       // Create a map of locations with decoupling points
       const decouplingLocations = new Set(
@@ -106,16 +114,18 @@ export function SupplyChainNetwork() {
       );
       
       if (allLocations.length === 0) {
+        console.error('[SupplyChainNetwork] No locations found!');
         toast.error('No locations found in database');
         setIsLoading(false);
         return;
       }
 
-      console.log('Network Layout:', { 
+      console.log('[SupplyChainNetwork] Categorized locations:', { 
         total: allLocations.length, 
         dcs: dcs.length, 
         restaurants: restaurants.length,
-        decouplingPoints: decouplingLocations.size 
+        others: others.length,
+        decouplingLocations: decouplingLocations.size 
       });
 
       // Create nodes and edges
@@ -240,15 +250,18 @@ export function SupplyChainNetwork() {
         }
       });
 
-      console.log('Created network:', { 
+      console.log('[SupplyChainNetwork] Created network:', { 
         nodes: flowNodes.length, 
         edges: flowEdges.length,
-        dcs: dcs.map((d: any) => d.location_id),
-        restaurants: restaurants.map((r: any) => r.location_id),
+        firstNode: flowNodes[0],
+        firstEdge: flowEdges[0],
       });
 
+      console.log('[SupplyChainNetwork] Setting nodes and edges to state...');
       setNodes(flowNodes);
       setEdges(flowEdges);
+
+      console.log('[SupplyChainNetwork] Nodes and edges set successfully');
 
       // Calculate stats
       const uniqueRegions = new Set(allLocations.map((l: any) => l.region).filter(Boolean));
@@ -259,8 +272,9 @@ export function SupplyChainNetwork() {
       });
 
       setIsLoading(false);
+      console.log('[SupplyChainNetwork] Data load complete');
     } catch (error) {
-      console.error('Error loading network:', error);
+      console.error('[SupplyChainNetwork] Error loading network:', error);
       toast.error('Failed to load supply chain network');
       setIsLoading(false);
     }
@@ -327,7 +341,7 @@ export function SupplyChainNetwork() {
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div style={{ height: '600px', width: '100%' }}>
+          <div style={{ height: '600px', width: '100%' }} className="bg-muted/5">
             <ReactFlow
               nodes={nodes}
               edges={edges}
@@ -338,10 +352,20 @@ export function SupplyChainNetwork() {
               fitView
               minZoom={0.1}
               maxZoom={1.5}
+              defaultViewport={{ x: 0, y: 0, zoom: 0.5 }}
+              proOptions={{ hideAttribution: true }}
             >
               <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
               <Controls />
             </ReactFlow>
+            {nodes.length === 0 && !isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-background/50">
+                <div className="text-center">
+                  <p className="text-muted-foreground">No network data to display</p>
+                  <p className="text-sm text-muted-foreground mt-2">Check console for errors</p>
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
