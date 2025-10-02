@@ -4,7 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { CheckCircle, XCircle, Clock, Package } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { CheckCircle, XCircle, Clock, Package, Edit2, Save, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 
@@ -19,9 +23,18 @@ interface ReplenishmentOrder {
   proposal_ts: string;
 }
 
+interface EditingOrder {
+  proposal_id: number;
+  qty_recommend: number;
+  target_due_date: string;
+  adjustment_notes: string;
+}
+
 const ReplenishmentOrders: React.FC = () => {
   const [orders, setOrders] = useState<ReplenishmentOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingOrder, setEditingOrder] = useState<EditingOrder | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -46,6 +59,52 @@ const ReplenishmentOrders: React.FC = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const openEditDialog = (order: ReplenishmentOrder) => {
+    setEditingOrder({
+      proposal_id: order.proposal_id,
+      qty_recommend: order.qty_recommend,
+      target_due_date: order.target_due_date || format(new Date(), "yyyy-MM-dd"),
+      adjustment_notes: "",
+    });
+    setEditDialogOpen(true);
+  };
+
+  const saveOrderEdits = async () => {
+    if (!editingOrder) return;
+
+    try {
+      const { error } = await supabase
+        .from("replenishment_orders")
+        .update({
+          qty_recommend: editingOrder.qty_recommend,
+          target_due_date: editingOrder.target_due_date,
+          reason: editingOrder.adjustment_notes
+            ? `${editingOrder.adjustment_notes} (Adjusted by planner)`
+            : undefined,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("proposal_id", editingOrder.proposal_id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Order updated successfully",
+      });
+
+      setEditDialogOpen(false);
+      setEditingOrder(null);
+      fetchOrders();
+    } catch (error) {
+      console.error("Error updating order:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update order",
+        variant: "destructive",
+      });
     }
   };
 
@@ -179,6 +238,14 @@ const ReplenishmentOrders: React.FC = () => {
                         <div className="flex justify-end gap-2">
                           <Button
                             size="sm"
+                            variant="ghost"
+                            onClick={() => openEditDialog(order)}
+                          >
+                            <Edit2 className="h-4 w-4 mr-1" />
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
                             variant="default"
                             onClick={() => updateOrderStatus(order.proposal_id, "APPROVED")}
                           >
@@ -203,6 +270,89 @@ const ReplenishmentOrders: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit Replenishment Order</DialogTitle>
+            <DialogDescription>
+              Adjust quantity, due date, and add notes before approving this order.
+            </DialogDescription>
+          </DialogHeader>
+
+          {editingOrder && (
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="qty">Recommended Quantity</Label>
+                <Input
+                  id="qty"
+                  type="number"
+                  value={editingOrder.qty_recommend}
+                  onChange={(e) =>
+                    setEditingOrder({
+                      ...editingOrder,
+                      qty_recommend: parseFloat(e.target.value) || 0,
+                    })
+                  }
+                  min="0"
+                  step="1"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Original: {orders.find((o) => o.proposal_id === editingOrder.proposal_id)?.qty_recommend.toFixed(0)} units
+                </p>
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="dueDate">Target Due Date</Label>
+                <Input
+                  id="dueDate"
+                  type="date"
+                  value={editingOrder.target_due_date}
+                  onChange={(e) =>
+                    setEditingOrder({
+                      ...editingOrder,
+                      target_due_date: e.target.value,
+                    })
+                  }
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="notes">Adjustment Notes (Optional)</Label>
+                <Textarea
+                  id="notes"
+                  placeholder="Why are you adjusting this order? (e.g., promotional event, seasonal demand)"
+                  value={editingOrder.adjustment_notes}
+                  onChange={(e) =>
+                    setEditingOrder({
+                      ...editingOrder,
+                      adjustment_notes: e.target.value,
+                    })
+                  }
+                  rows={3}
+                />
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setEditDialogOpen(false);
+                setEditingOrder(null);
+              }}
+            >
+              <X className="h-4 w-4 mr-2" />
+              Cancel
+            </Button>
+            <Button onClick={saveOrderEdits}>
+              <Save className="h-4 w-4 mr-2" />
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
