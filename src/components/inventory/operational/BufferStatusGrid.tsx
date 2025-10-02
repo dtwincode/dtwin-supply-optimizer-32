@@ -39,13 +39,15 @@ export function BufferStatusGrid() {
   const getStatusColor = (status: string) => {
     switch (status?.toUpperCase()) {
       case "RED":
-        return "bg-red-500";
+        return "bg-destructive text-destructive-foreground";
       case "YELLOW":
-        return "bg-yellow-500";
+        return "bg-yellow-500 dark:bg-yellow-600 text-white";
       case "GREEN":
-        return "bg-green-500";
+        return "bg-green-600 dark:bg-green-700 text-white";
+      case "BLUE":
+        return "bg-blue-600 dark:bg-blue-700 text-white";
       default:
-        return "bg-gray-500";
+        return "bg-muted text-muted-foreground";
     }
   };
 
@@ -54,7 +56,7 @@ export function BufferStatusGrid() {
     const colorClass = getStatusColor(status);
     
     return (
-      <Badge className={`${colorClass} text-white`}>
+      <Badge className={colorClass}>
         {statusUpper}
       </Badge>
     );
@@ -85,24 +87,30 @@ export function BufferStatusGrid() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-4 gap-4 mb-6">
             <div className="text-center">
-              <div className="text-2xl font-bold text-red-500">
+              <div className="text-2xl font-bold text-destructive">
                 {bufferData.filter((b) => b.buffer_status === "RED").length}
               </div>
               <div className="text-sm text-muted-foreground">Critical (Red)</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-yellow-500">
+              <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-500">
                 {bufferData.filter((b) => b.buffer_status === "YELLOW").length}
               </div>
               <div className="text-sm text-muted-foreground">Warning (Yellow)</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-500">
+              <div className="text-2xl font-bold text-green-600 dark:text-green-500">
                 {bufferData.filter((b) => b.buffer_status === "GREEN").length}
               </div>
               <div className="text-sm text-muted-foreground">Healthy (Green)</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-500">
+                {bufferData.filter((b) => b.buffer_status === "BLUE").length}
+              </div>
+              <div className="text-sm text-muted-foreground">Excess (Blue)</div>
             </div>
           </div>
         </CardContent>
@@ -155,9 +163,9 @@ export function BufferStatusGrid() {
                   <div className="flex items-center gap-1">
                     <span className="font-medium">{calculatePenetration(item)}%</span>
                     {calculatePenetration(item) > 80 ? (
-                      <TrendingUp className="h-3 w-3 text-green-500" />
+                      <TrendingUp className="h-3 w-3 text-green-600 dark:text-green-500" />
                     ) : (
-                      <TrendingDown className="h-3 w-3 text-red-500" />
+                      <TrendingDown className="h-3 w-3 text-destructive" />
                     )}
                   </div>
                 </div>
