@@ -15,14 +15,8 @@ export function SavedFilesList({ tableName }: SavedFilesListProps) {
 
   const fetchSavedFiles = async () => {
     try {
-      const { data: files, error } = await supabase
-        .from('permanent_hierarchy_files')
-        .select('*')
-        .eq('hierarchy_type', tableName)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setSavedFiles(files || []);
+      // Table removed - hierarchy files functionality disabled
+      setSavedFiles([]);
     } catch (error) {
       console.error('Error fetching saved files:', error);
     }

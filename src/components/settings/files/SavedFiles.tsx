@@ -31,28 +31,9 @@ export const SavedFiles = ({ triggerRefresh = 0, hierarchyType }: SavedFilesProp
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        // Query the permanent_hierarchy_files table
-        const { data: files, error } = await supabase
-          .from('permanent_hierarchy_files')
-          .select('*')
-          .eq('hierarchy_type', hierarchyType)
-          .order('created_at', { ascending: false });
-
-        if (error) {
-          console.error("Error fetching data:", error);
-          setError("Failed to load data.");
-        } else {
-          setData(files as any || []);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+    // Table removed - hierarchy files functionality disabled
+    setLoading(false);
+    setData([]);
   }, [triggerRefresh, hierarchyType]);
 
   if (loading) {

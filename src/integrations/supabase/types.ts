@@ -14,42 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      active_models: {
-        Row: {
-          created_at: string | null
-          id: string
-          is_running: boolean | null
-          last_run: string | null
-          model_id: string
-          model_name: string
-          model_parameters: Json | null
-          product_filters: Json | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          is_running?: boolean | null
-          last_run?: string | null
-          model_id: string
-          model_name: string
-          model_parameters?: Json | null
-          product_filters?: Json | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          is_running?: boolean | null
-          last_run?: string | null
-          model_id?: string
-          model_name?: string
-          model_parameters?: Json | null
-          product_filters?: Json | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       actual_lead_time: {
         Row: {
           actual_lead_time_days: number
@@ -71,39 +35,6 @@ export type Database = {
           location_id?: string
           product_id?: string
           updated_at?: string | null
-        }
-        Relationships: []
-      }
-      audit_logs: {
-        Row: {
-          action: string
-          change_timestamp: string | null
-          changed_by: string
-          id: string
-          new_data: Json | null
-          old_data: Json | null
-          record_id: string
-          table_name: string
-        }
-        Insert: {
-          action: string
-          change_timestamp?: string | null
-          changed_by: string
-          id?: string
-          new_data?: Json | null
-          old_data?: Json | null
-          record_id: string
-          table_name: string
-        }
-        Update: {
-          action?: string
-          change_timestamp?: string | null
-          changed_by?: string
-          id?: string
-          new_data?: Json | null
-          old_data?: Json | null
-          record_id?: string
-          table_name?: string
         }
         Relationships: []
       }
@@ -242,81 +173,6 @@ export type Database = {
           channel_id?: string
           channel_name?: string
           description?: string | null
-        }
-        Relationships: []
-      }
-      classification_rules_history: {
-        Row: {
-          created_at: string | null
-          created_by: string | null
-          effective_from: string
-          effective_to: string | null
-          id: string
-          rule_definition: Json
-          rule_type: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          created_by?: string | null
-          effective_from: string
-          effective_to?: string | null
-          id?: string
-          rule_definition: Json
-          rule_type: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          created_by?: string | null
-          effective_from?: string
-          effective_to?: string | null
-          id?: string
-          rule_definition?: Json
-          rule_type?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      data_validation_logs: {
-        Row: {
-          created_at: string | null
-          error_count: number
-          file_name: string
-          id: string
-          module: Database["public"]["Enums"]["module_type"]
-          processed_by: string | null
-          row_count: number
-          status: string
-          updated_at: string | null
-          validation_date: string | null
-          validation_errors: Json | null
-        }
-        Insert: {
-          created_at?: string | null
-          error_count?: number
-          file_name: string
-          id?: string
-          module: Database["public"]["Enums"]["module_type"]
-          processed_by?: string | null
-          row_count: number
-          status?: string
-          updated_at?: string | null
-          validation_date?: string | null
-          validation_errors?: Json | null
-        }
-        Update: {
-          created_at?: string | null
-          error_count?: number
-          file_name?: string
-          id?: string
-          module?: Database["public"]["Enums"]["module_type"]
-          processed_by?: string | null
-          row_count?: number
-          status?: string
-          updated_at?: string | null
-          validation_date?: string | null
-          validation_errors?: Json | null
         }
         Relationships: []
       }
@@ -467,39 +323,6 @@ export type Database = {
         }
         Relationships: []
       }
-      forecast_outliers: {
-        Row: {
-          confidence_score: number | null
-          data_point_id: string | null
-          detected_at: string | null
-          detection_method: string
-          id: string
-          is_verified: boolean | null
-          metadata: Json | null
-          verified_by: string | null
-        }
-        Insert: {
-          confidence_score?: number | null
-          data_point_id?: string | null
-          detected_at?: string | null
-          detection_method: string
-          id?: string
-          is_verified?: boolean | null
-          metadata?: Json | null
-          verified_by?: string | null
-        }
-        Update: {
-          confidence_score?: number | null
-          data_point_id?: string | null
-          detected_at?: string | null
-          detection_method?: string
-          id?: string
-          is_verified?: boolean | null
-          metadata?: Json | null
-          verified_by?: string | null
-        }
-        Relationships: []
-      }
       historical_sales_data: {
         Row: {
           created_at: string | null
@@ -542,49 +365,7 @@ export type Database = {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "inventory_ddmrp_buffers_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_planning_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
             referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_ddmrp_buffers_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_planning_view"
             referencedColumns: ["product_id"]
           },
           {
@@ -595,45 +376,6 @@ export type Database = {
             referencedColumns: ["product_id"]
           },
         ]
-      }
-      integrated_forecast_data: {
-        Row: {
-          actual_value: number | null
-          created_at: string
-          date: string
-          id: string
-          mapping_config: Json | null
-          metadata: Json | null
-          sku: string | null
-          source_files: Json | null
-          updated_at: string
-          validation_status: string | null
-        }
-        Insert: {
-          actual_value?: number | null
-          created_at?: string
-          date: string
-          id?: string
-          mapping_config?: Json | null
-          metadata?: Json | null
-          sku?: string | null
-          source_files?: Json | null
-          updated_at?: string
-          validation_status?: string | null
-        }
-        Update: {
-          actual_value?: number | null
-          created_at?: string
-          date?: string
-          id?: string
-          mapping_config?: Json | null
-          metadata?: Json | null
-          sku?: string | null
-          source_files?: Json | null
-          updated_at?: string
-          validation_status?: string | null
-        }
-        Relationships: []
       }
       inventory_carrying_costs: {
         Row: {
@@ -667,60 +409,6 @@ export type Database = {
           opportunity_cost_rate_annual?: number | null
           product_category?: string
           storage_cost_per_unit_per_day?: number
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      inventory_threshold_overrides: {
-        Row: {
-          override_value: number | null
-          threshold_type: string
-        }
-        Insert: {
-          override_value?: number | null
-          threshold_type: string
-        }
-        Update: {
-          override_value?: number | null
-          threshold_type?: string
-        }
-        Relationships: []
-      }
-      lead_time_anomalies: {
-        Row: {
-          anomaly_score: number | null
-          anomaly_type: string
-          created_at: string | null
-          description: string | null
-          detection_date: string | null
-          id: string
-          resolution_status: string | null
-          sku: string
-          supplier_id: string
-          updated_at: string | null
-        }
-        Insert: {
-          anomaly_score?: number | null
-          anomaly_type: string
-          created_at?: string | null
-          description?: string | null
-          detection_date?: string | null
-          id?: string
-          resolution_status?: string | null
-          sku: string
-          supplier_id: string
-          updated_at?: string | null
-        }
-        Update: {
-          anomaly_score?: number | null
-          anomaly_type?: string
-          created_at?: string | null
-          description?: string | null
-          detection_date?: string | null
-          id?: string
-          resolution_status?: string | null
-          sku?: string
-          supplier_id?: string
           updated_at?: string | null
         }
         Relationships: []
@@ -806,228 +494,6 @@ export type Database = {
         }
         Relationships: []
       }
-      logistics_data: {
-        Row: {
-          actual_delivery: string | null
-          carrier: string
-          cost: number | null
-          created_at: string
-          date: string
-          destination: string
-          estimated_delivery: string | null
-          id: string
-          notes: string | null
-          origin: string
-          priority: string | null
-          shipment_id: string
-          status: string
-          tracking_number: string | null
-          type: string | null
-          updated_at: string
-          weight: number | null
-        }
-        Insert: {
-          actual_delivery?: string | null
-          carrier: string
-          cost?: number | null
-          created_at?: string
-          date: string
-          destination: string
-          estimated_delivery?: string | null
-          id?: string
-          notes?: string | null
-          origin: string
-          priority?: string | null
-          shipment_id: string
-          status: string
-          tracking_number?: string | null
-          type?: string | null
-          updated_at?: string
-          weight?: number | null
-        }
-        Update: {
-          actual_delivery?: string | null
-          carrier?: string
-          cost?: number | null
-          created_at?: string
-          date?: string
-          destination?: string
-          estimated_delivery?: string | null
-          id?: string
-          notes?: string | null
-          origin?: string
-          priority?: string | null
-          shipment_id?: string
-          status?: string
-          tracking_number?: string | null
-          type?: string | null
-          updated_at?: string
-          weight?: number | null
-        }
-        Relationships: []
-      }
-      logistics_enhanced_orders: {
-        Row: {
-          actual_delivery: string | null
-          carrier: string | null
-          created_at: string | null
-          estimated_delivery: string | null
-          id: string
-          metadata: Json | null
-          order_ref: string
-          priority: string | null
-          shipping_method: string | null
-          status: string | null
-          tracking_number: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          actual_delivery?: string | null
-          carrier?: string | null
-          created_at?: string | null
-          estimated_delivery?: string | null
-          id?: string
-          metadata?: Json | null
-          order_ref: string
-          priority?: string | null
-          shipping_method?: string | null
-          status?: string | null
-          tracking_number?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          actual_delivery?: string | null
-          carrier?: string | null
-          created_at?: string | null
-          estimated_delivery?: string | null
-          id?: string
-          metadata?: Json | null
-          order_ref?: string
-          priority?: string | null
-          shipping_method?: string | null
-          status?: string | null
-          tracking_number?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      market_events: {
-        Row: {
-          category: string
-          created_at: string | null
-          date: string
-          description: string
-          id: string
-          impact: number
-          name: string
-          source: string | null
-          type: string
-          updated_at: string | null
-        }
-        Insert: {
-          category?: string
-          created_at?: string | null
-          date: string
-          description?: string
-          id?: string
-          impact: number
-          name: string
-          source?: string | null
-          type?: string
-          updated_at?: string | null
-        }
-        Update: {
-          category?: string
-          created_at?: string | null
-          date?: string
-          description?: string
-          id?: string
-          impact?: number
-          name?: string
-          source?: string | null
-          type?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      marketing_data: {
-        Row: {
-          budget: number
-          campaign_name: string
-          channel: string | null
-          city: string | null
-          created_at: string
-          end_date: string
-          expected_roi: number | null
-          id: string
-          kpis: string | null
-          notes: string | null
-          product_category: string | null
-          region: string | null
-          start_date: string
-          target_audience: string
-          updated_at: string
-        }
-        Insert: {
-          budget: number
-          campaign_name: string
-          channel?: string | null
-          city?: string | null
-          created_at?: string
-          end_date: string
-          expected_roi?: number | null
-          id?: string
-          kpis?: string | null
-          notes?: string | null
-          product_category?: string | null
-          region?: string | null
-          start_date: string
-          target_audience: string
-          updated_at?: string
-        }
-        Update: {
-          budget?: number
-          campaign_name?: string
-          channel?: string | null
-          city?: string | null
-          created_at?: string
-          end_date?: string
-          expected_roi?: number | null
-          id?: string
-          kpis?: string | null
-          notes?: string | null
-          product_category?: string | null
-          region?: string | null
-          start_date?: string
-          target_audience?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      master_lead_time: {
-        Row: {
-          created_at: string | null
-          location_id: string
-          product_id: string
-          standard_lead_time_days: number
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          location_id: string
-          product_id: string
-          standard_lead_time_days: number
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          location_id?: string
-          product_id?: string
-          standard_lead_time_days?: number
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       menu_mapping: {
         Row: {
           created_at: string | null
@@ -1061,102 +527,6 @@ export type Database = {
           sales_impact_percentage?: number
           sku?: string
           updated_at?: string | null
-        }
-        Relationships: []
-      }
-      model_testing_configs: {
-        Row: {
-          created_at: string | null
-          id: string
-          scenario_id: string | null
-          testing_range: string | null
-          testing_time_period: string | null
-          training_range: string | null
-          training_time_period: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          scenario_id?: string | null
-          testing_range?: string | null
-          testing_time_period?: string | null
-          training_range?: string | null
-          training_time_period?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          scenario_id?: string | null
-          testing_range?: string | null
-          testing_time_period?: string | null
-          training_range?: string | null
-          training_time_period?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      model_version_applications: {
-        Row: {
-          created_at: string | null
-          id: string
-          is_active: boolean | null
-          location_id: string | null
-          model_version_id: string | null
-          performance_metrics: Json | null
-          product_code: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          is_active?: boolean | null
-          location_id?: string | null
-          model_version_id?: string | null
-          performance_metrics?: Json | null
-          product_code?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          is_active?: boolean | null
-          location_id?: string | null
-          model_version_id?: string | null
-          performance_metrics?: Json | null
-          product_code?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      module_settings: {
-        Row: {
-          created_at: string
-          data_template: Json | null
-          id: string
-          module: Database["public"]["Enums"]["module_type"]
-          settings: Json | null
-          updated_at: string
-          validation_rules: Json | null
-        }
-        Insert: {
-          created_at?: string
-          data_template?: Json | null
-          id?: string
-          module: Database["public"]["Enums"]["module_type"]
-          settings?: Json | null
-          updated_at?: string
-          validation_rules?: Json | null
-        }
-        Update: {
-          created_at?: string
-          data_template?: Json | null
-          id?: string
-          module?: Database["public"]["Enums"]["module_type"]
-          settings?: Json | null
-          updated_at?: string
-          validation_rules?: Json | null
         }
         Relationships: []
       }
@@ -1356,111 +726,10 @@ export type Database = {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "inventory_ddmrp_buffers_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_planning_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
             referencedRelation: "product_master"
             referencedColumns: ["product_id"]
           },
         ]
-      }
-      permanent_hierarchy_data: {
-        Row: {
-          created_at: string
-          data: Json
-          hierarchy_type: string
-          id: string
-          is_active: boolean
-          source_upload_id: string | null
-          updated_at: string
-          version: number
-        }
-        Insert: {
-          created_at?: string
-          data?: Json
-          hierarchy_type: string
-          id?: string
-          is_active?: boolean
-          source_upload_id?: string | null
-          updated_at?: string
-          version?: number
-        }
-        Update: {
-          created_at?: string
-          data?: Json
-          hierarchy_type?: string
-          id?: string
-          is_active?: boolean
-          source_upload_id?: string | null
-          updated_at?: string
-          version?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "permanent_hierarchy_data_source_upload_id_fkey"
-            columns: ["source_upload_id"]
-            isOneToOne: false
-            referencedRelation: "permanent_hierarchy_files"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      permanent_hierarchy_files: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          data: Json
-          file_name: string
-          file_type: string | null
-          hierarchy_type: string
-          id: string
-          original_name: string
-          storage_path: string | null
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          data?: Json
-          file_name: string
-          file_type?: string | null
-          hierarchy_type: string
-          id?: string
-          original_name: string
-          storage_path?: string | null
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          data?: Json
-          file_name?: string
-          file_type?: string | null
-          hierarchy_type?: string
-          id?: string
-          original_name?: string
-          storage_path?: string | null
-          updated_at?: string
-        }
-        Relationships: []
       }
       product_bom: {
         Row: {
@@ -1498,49 +767,7 @@ export type Database = {
             foreignKeyName: "product_bom_child_product_id_fkey"
             columns: ["child_product_id"]
             isOneToOne: false
-            referencedRelation: "inventory_ddmrp_buffers_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "product_bom_child_product_id_fkey"
-            columns: ["child_product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "product_bom_child_product_id_fkey"
-            columns: ["child_product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_planning_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "product_bom_child_product_id_fkey"
-            columns: ["child_product_id"]
-            isOneToOne: false
             referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "product_bom_parent_product_id_fkey"
-            columns: ["parent_product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_ddmrp_buffers_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "product_bom_parent_product_id_fkey"
-            columns: ["parent_product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "product_bom_parent_product_id_fkey"
-            columns: ["parent_product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_planning_view"
             referencedColumns: ["product_id"]
           },
           {
@@ -1729,55 +956,10 @@ export type Database = {
             foreignKeyName: "product_pricing_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "inventory_ddmrp_buffers_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "product_pricing_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "product_pricing_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_planning_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "product_pricing_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
             referencedRelation: "product_master"
             referencedColumns: ["product_id"]
           },
         ]
-      }
-      profiles: {
-        Row: {
-          avatar_url: string | null
-          full_name: string | null
-          id: string
-          updated_at: string | null
-          username: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          full_name?: string | null
-          id: string
-          updated_at?: string | null
-          username?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          full_name?: string | null
-          id?: string
-          updated_at?: string | null
-          username?: string | null
-        }
-        Relationships: []
       }
       replenishment_orders: {
         Row: {
@@ -1821,99 +1003,6 @@ export type Database = {
         }
         Relationships: []
       }
-      saved_model_configs: {
-        Row: {
-          auto_run: boolean | null
-          created_at: string | null
-          id: string
-          model_id: string
-          parameters: Json | null
-          product_id: string
-          product_name: string
-          updated_at: string | null
-        }
-        Insert: {
-          auto_run?: boolean | null
-          created_at?: string | null
-          id?: string
-          model_id: string
-          parameters?: Json | null
-          product_id: string
-          product_name: string
-          updated_at?: string | null
-        }
-        Update: {
-          auto_run?: boolean | null
-          created_at?: string | null
-          id?: string
-          model_id?: string
-          parameters?: Json | null
-          product_id?: string
-          product_name?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      seasonality_patterns: {
-        Row: {
-          configuration: Json | null
-          dataset_id: string | null
-          detected_at: string | null
-          frequency: number | null
-          id: string
-          last_updated_at: string | null
-          metadata: Json | null
-          pattern_type: string
-          strength: number | null
-        }
-        Insert: {
-          configuration?: Json | null
-          dataset_id?: string | null
-          detected_at?: string | null
-          frequency?: number | null
-          id?: string
-          last_updated_at?: string | null
-          metadata?: Json | null
-          pattern_type: string
-          strength?: number | null
-        }
-        Update: {
-          configuration?: Json | null
-          dataset_id?: string | null
-          detected_at?: string | null
-          frequency?: number | null
-          id?: string
-          last_updated_at?: string | null
-          metadata?: Json | null
-          pattern_type?: string
-          strength?: number | null
-        }
-        Relationships: []
-      }
-      secrets: {
-        Row: {
-          created_at: string | null
-          id: string
-          name: string
-          updated_at: string | null
-          value: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          name: string
-          updated_at?: string | null
-          value: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          name?: string
-          updated_at?: string | null
-          value?: string
-        }
-        Relationships: []
-      }
       service_level_override: {
         Row: {
           calculated_z_value: number | null
@@ -1943,27 +1032,6 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_ddmrp_buffers_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_planning_view"
-            referencedColumns: ["product_id"]
-          },
           {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
@@ -2137,39 +1205,6 @@ export type Database = {
           },
         ]
       }
-      supplier_product_mapping: {
-        Row: {
-          average_lead_time_days: number | null
-          created_at: string | null
-          id: string
-          is_primary_supplier: boolean | null
-          last_delivery_date: string | null
-          product_id: string
-          reliability_score: number | null
-          supplier_id: string
-        }
-        Insert: {
-          average_lead_time_days?: number | null
-          created_at?: string | null
-          id?: string
-          is_primary_supplier?: boolean | null
-          last_delivery_date?: string | null
-          product_id: string
-          reliability_score?: number | null
-          supplier_id: string
-        }
-        Update: {
-          average_lead_time_days?: number | null
-          created_at?: string | null
-          id?: string
-          is_primary_supplier?: boolean | null
-          last_delivery_date?: string | null
-          product_id?: string
-          reliability_score?: number | null
-          supplier_id?: string
-        }
-        Relationships: []
-      }
       threshold_config: {
         Row: {
           decoupling_threshold: number | null
@@ -2326,49 +1361,7 @@ export type Database = {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "inventory_ddmrp_buffers_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_planning_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
             referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_ddmrp_buffers_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_planning_view"
             referencedColumns: ["product_id"]
           },
           {
@@ -2392,49 +1385,7 @@ export type Database = {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "inventory_ddmrp_buffers_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_planning_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
             referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_ddmrp_buffers_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_planning_view"
             referencedColumns: ["product_id"]
           },
           {
@@ -2458,49 +1409,7 @@ export type Database = {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "inventory_ddmrp_buffers_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_planning_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
             referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_ddmrp_buffers_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_planning_view"
             referencedColumns: ["product_id"]
           },
           {
@@ -2511,86 +1420,6 @@ export type Database = {
             referencedColumns: ["product_id"]
           },
         ]
-      }
-      inventory_ddmrp_buffers_view: {
-        Row: {
-          adu: number | null
-          buffer_profile_id: string | null
-          buffer_profile_name: string | null
-          category: string | null
-          dlt: number | null
-          green_zone: number | null
-          location_id: string | null
-          lt_factor: number | null
-          min_order_qty: number | null
-          order_cycle_days: number | null
-          product_id: string | null
-          product_name: string | null
-          red_zone: number | null
-          rounding_multiple: number | null
-          sku: string | null
-          subcategory: string | null
-          tog: number | null
-          tor: number | null
-          toy: number | null
-          variability_factor: number | null
-          yellow_zone: number | null
-        }
-        Relationships: []
-      }
-      inventory_net_flow_view: {
-        Row: {
-          adu: number | null
-          allocated: number | null
-          buffer_profile_id: string | null
-          buffer_profile_name: string | null
-          category: string | null
-          dlt: number | null
-          green_zone: number | null
-          location_id: string | null
-          nfp: number | null
-          on_hand: number | null
-          on_order: number | null
-          product_id: string | null
-          product_name: string | null
-          red_zone: number | null
-          region: string | null
-          sku: string | null
-          subcategory: string | null
-          yellow_zone: number | null
-        }
-        Relationships: []
-      }
-      inventory_planning_view: {
-        Row: {
-          average_daily_usage: number | null
-          buffer_profile_id: string | null
-          buffer_status: string | null
-          category: string | null
-          current_stock_level: number | null
-          decoupling_point: boolean | null
-          demand_variability: number | null
-          green_zone: number | null
-          lead_time_days: number | null
-          location_id: string | null
-          max_stock_level: number | null
-          min_stock_level: number | null
-          nfp: number | null
-          on_hand: number | null
-          on_order: number | null
-          product_id: string | null
-          product_name: string | null
-          qualified_demand: number | null
-          red_zone: number | null
-          reorder_level: number | null
-          sku: string | null
-          subcategory: string | null
-          tog: number | null
-          tor: number | null
-          toy: number | null
-          yellow_zone: number | null
-        }
-        Relationships: []
       }
       lead_time_variability: {
         Row: {
@@ -2637,49 +1466,7 @@ export type Database = {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "inventory_ddmrp_buffers_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_planning_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
             referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_ddmrp_buffers_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_net_flow_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_planning_view"
             referencedColumns: ["product_id"]
           },
           {
@@ -2782,7 +1569,7 @@ export type Database = {
         Returns: Json[]
       }
       integrate_forecast_data: {
-        Args: Record<PropertyKey, never> | { p_mapping_config: Json }
+        Args: Record<PropertyKey, never>
         Returns: string
       }
       process_hierarchy_configuration: {

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface Header {
@@ -33,6 +33,7 @@ export function ColumnSelector({
 }: ColumnSelectorProps) {
   const [isSaving, setIsSaving] = useState(false);
   const { user } = useAuth();
+  const { toast } = useToast();
 
   const handleColumnToggle = (header: string) => {
     const newSelectedColumns = new Set(selectedColumns);
@@ -50,22 +51,14 @@ export function ColumnSelector({
     try {
       setIsSaving(true);
 
-      const { error } = await supabase
-        .from('permanent_hierarchy_files')
-        .insert({
-          file_name: tempUploadId,
-          original_name: `${tableName}_${new Date().toISOString()}.csv`,
-          hierarchy_type: hierarchyType,
-          data: data,
-          selected_columns: Array.from(selectedColumns),
-          created_by: user.id
-        });
-
-      if (error) throw error;
-
-      onSaveSuccess();
+      // Table removed - hierarchy files functionality disabled
+      toast({
+        variant: "destructive",
+        title: "Feature Disabled",
+        description: "Hierarchy files table was removed. Unable to save file.",
+      });
     } catch (error) {
-      console.error('Error saving file:', error);
+      console.error('Error:', error);
     } finally {
       setIsSaving(false);
     }

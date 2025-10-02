@@ -14,53 +14,11 @@ export function TemplateDownloader({ module }: TemplateDownloaderProps) {
   const { toast } = useToast();
 
   const downloadTemplate = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('module_settings')
-        .select('data_template')
-        .eq('module', module)
-        .single();
-
-      if (error) {
-        throw new Error(`Failed to fetch template: ${error.message}`);
-      }
-
-      if (!data || !data.data_template) {
-        throw new Error('Template not found for this module');
-      }
-
-      const template = data.data_template as unknown as DataTemplate;
-      if (!template.required_columns || !template.sample_row) {
-        throw new Error('Invalid template format');
-      }
-
-      const allColumns = [...template.required_columns, ...(template.optional_columns || [])];
-      const csvHeader = allColumns.join(',');
-      const csvRow = allColumns.map(col => template.sample_row[col] || '').join(',');
-      const csvContent = `${csvHeader}\n${csvRow}`;
-
-      const blob = new Blob([csvContent], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${module}_data_template.csv`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-
-      toast({
-        title: "Template Downloaded",
-        description: "You can now fill in your data using this template",
-      });
-    } catch (error) {
-      console.error('Error downloading template:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to download template",
-      });
-    }
+    toast({
+      variant: "destructive",
+      title: "Feature Disabled",
+      description: "Module settings table was removed. Template download is unavailable.",
+    });
   };
 
   return (

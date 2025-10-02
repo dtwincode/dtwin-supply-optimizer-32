@@ -28,14 +28,8 @@ export default function SQLConfig() {
   } = useQuery({
     queryKey: ["validationLogs"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("data_validation_logs")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(5);
-
-      if (error) throw error;
-      return data as ValidationLog[];
+      // Table removed - return empty array
+      return [] as ValidationLog[];
     },
   });
 

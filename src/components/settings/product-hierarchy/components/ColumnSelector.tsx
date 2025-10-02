@@ -69,29 +69,12 @@ export function ColumnSelector({
       const fileName = `${hierarchyType}_${timestamp}`;
       const originalName = data[0]?.original_name?.toString() || `${hierarchyType}.csv`;
 
-      const { error: permError } = await supabase
-        .from('permanent_hierarchy_files')
-        .insert({
-          file_name: fileName,
-          original_name: originalName,
-          hierarchy_type: hierarchyType,
-          selected_columns: Array.from(selectedColumns),
-          data: data as Json,
-          created_by: user.id
-        })
-        .select()
-        .single();
-
-      if (permError) throw permError;
-
+      // Table removed - hierarchy files functionality disabled
       toast({
-        title: "Success",
-        description: "File saved permanently",
+        variant: "destructive",
+        title: "Feature Disabled",
+        description: "Hierarchy files table was removed. Unable to save file.",
       });
-
-      if (onSaveSuccess) {
-        onSaveSuccess();
-      }
     } catch (error) {
       console.error('Error saving permanent data:', error);
       toast({
