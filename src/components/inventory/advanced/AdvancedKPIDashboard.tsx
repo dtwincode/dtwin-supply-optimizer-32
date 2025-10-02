@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, AlertTriangle, Package, Target, Activity } from 'lucide-react';
 import { fetchInventoryPlanningView } from '@/lib/inventory-planning.service';
 import { useInventoryFilter } from '../InventoryFilterContext';
+import { useInventoryConfig } from '@/hooks/useInventoryConfig';
 
 interface KPI {
   label: string;
@@ -15,6 +16,7 @@ interface KPI {
 
 export const AdvancedKPIDashboard: React.FC = () => {
   const { filters } = useInventoryFilter();
+  const { getConfig } = useInventoryConfig();
   const [kpis, setKpis] = useState<KPI[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -49,7 +51,7 @@ export const AdvancedKPIDashboard: React.FC = () => {
       const inventoryHealth = totalItems > 0 ? (greenStatus / totalItems * 100) : 0;
       const criticalItems = redStatus;
       
-      const totalValue = filtered.reduce((sum, item) => sum + (item.on_hand * 100), 0); // Placeholder value
+      const totalValue = filtered.reduce((sum, item) => sum + (item.on_hand * getConfig('inventory_value_multiplier', 100)), 0);
       const avgFillRate = totalItems > 0 ? (filtered.reduce((sum, item) => {
         const fillRate = item.tog > 0 ? Math.min((item.nfp / item.tog) * 100, 100) : 0;
         return sum + fillRate;
@@ -62,12 +64,22 @@ export const AdvancedKPIDashboard: React.FC = () => {
         return sum + turnover;
       }, 0) / totalItems) : 0;
 
+      const serviceLevelGood = getConfig('service_level_good_threshold', 95);
+      const serviceLevelWarning = getConfig('service_level_warning_threshold', 90);
+      const inventoryHealthGood = getConfig('inventory_health_good_threshold', 70);
+      const inventoryHealthWarning = getConfig('inventory_health_warning_threshold', 50);
+      const criticalItemsWarning = getConfig('critical_items_warning_threshold', 5);
+      const fillRateGood = getConfig('fill_rate_good_threshold', 90);
+      const fillRateWarning = getConfig('fill_rate_warning_threshold', 80);
+      const turnoverGood = getConfig('turnover_good_threshold', 4);
+      const turnoverWarning = getConfig('turnover_warning_threshold', 2);
+
       setKpis([
         {
           label: 'Service Level',
           value: `${serviceLevel.toFixed(1)}%`,
           trend: 2.5,
-          status: serviceLevel >= 95 ? 'good' : serviceLevel >= 90 ? 'warning' : 'critical',
+          status: serviceLevel >= serviceLevelGood ? 'good' : serviceLevel >= serviceLevelWarning ? 'warning' : 'critical',
           icon: Target,
           subtitle: `${greenStatus + yellowStatus} of ${totalItems} items`
         },
@@ -75,15 +87,15 @@ export const AdvancedKPIDashboard: React.FC = () => {
           label: 'Inventory Health',
           value: `${inventoryHealth.toFixed(1)}%`,
           trend: -1.2,
-          status: inventoryHealth >= 70 ? 'good' : inventoryHealth >= 50 ? 'warning' : 'critical',
+          status: inventoryHealth >= inventoryHealthGood ? 'good' : inventoryHealth >= inventoryHealthWarning ? 'warning' : 'critical',
           icon: Activity,
           subtitle: `${greenStatus} green zones`
         },
         {
           label: 'Critical Items',
           value: criticalItems,
-          trend: redStatus > 5 ? -5.3 : 2.1,
-          status: criticalItems === 0 ? 'good' : criticalItems <= 5 ? 'warning' : 'critical',
+          trend: redStatus > criticalItemsWarning ? -5.3 : 2.1,
+          status: criticalItems === 0 ? 'good' : criticalItems <= criticalItemsWarning ? 'warning' : 'critical',
           icon: AlertTriangle,
           subtitle: `${redStatus} red zones`
         },
@@ -99,7 +111,7 @@ export const AdvancedKPIDashboard: React.FC = () => {
           label: 'Avg Fill Rate',
           value: `${avgFillRate.toFixed(1)}%`,
           trend: 1.5,
-          status: avgFillRate >= 90 ? 'good' : avgFillRate >= 80 ? 'warning' : 'critical',
+          status: avgFillRate >= fillRateGood ? 'good' : avgFillRate >= fillRateWarning ? 'warning' : 'critical',
           icon: TrendingUp,
           subtitle: 'Buffer penetration'
         },
@@ -107,7 +119,7 @@ export const AdvancedKPIDashboard: React.FC = () => {
           label: 'Inventory Turnover',
           value: avgTurnover.toFixed(1),
           trend: 2.3,
-          status: avgTurnover >= 4 ? 'good' : avgTurnover >= 2 ? 'warning' : 'critical',
+          status: avgTurnover >= turnoverGood ? 'good' : avgTurnover >= turnoverWarning ? 'warning' : 'critical',
           icon: Activity,
           subtitle: 'Times per year'
         }

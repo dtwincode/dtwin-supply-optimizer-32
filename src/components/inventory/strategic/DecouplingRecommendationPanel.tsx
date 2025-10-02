@@ -283,8 +283,11 @@ export function DecouplingRecommendationPanel() {
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 70) return 'text-green-600';
-    if (score >= 40) return 'text-yellow-600';
+    const pullThreshold = getConfig('decoupling_score_pull_threshold', 70);
+    const hybridThreshold = getConfig('decoupling_score_hybrid_threshold', 40);
+    
+    if (score >= pullThreshold) return 'text-green-600';
+    if (score >= hybridThreshold) return 'text-yellow-600';
     return 'text-blue-600';
   };
 
@@ -423,11 +426,11 @@ export function DecouplingRecommendationPanel() {
                   </span>
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  {selectedScore.total_score >= 70 && 'High score → PULL strategy (store-level decoupling)'}
-                  {selectedScore.total_score >= 40 &&
-                    selectedScore.total_score < 70 &&
+                  {selectedScore.total_score >= getConfig('decoupling_score_pull_threshold', 70) && 'High score → PULL strategy (store-level decoupling)'}
+                  {selectedScore.total_score >= getConfig('decoupling_score_hybrid_threshold', 40) &&
+                    selectedScore.total_score < getConfig('decoupling_score_pull_threshold', 70) &&
                     'Medium score → HYBRID strategy (DC-level decoupling)'}
-                  {selectedScore.total_score < 40 && 'Low score → PUSH strategy (upstream replenishment)'}
+                  {selectedScore.total_score < getConfig('decoupling_score_hybrid_threshold', 40) && 'Low score → PUSH strategy (upstream replenishment)'}
                 </div>
               </div>
 

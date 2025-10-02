@@ -7,8 +7,10 @@ import { fetchInventoryPlanningView } from "@/lib/inventory-planning.service";
 import { Button } from "@/components/ui/button";
 import { Download, RefreshCw } from "lucide-react";
 import * as FileSaver from "file-saver";
+import { useInventoryConfig } from "@/hooks/useInventoryConfig";
 
 export function SKUClassifications() {
+  const { getConfig } = useInventoryConfig();
   const [classifications, setClassifications] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -83,31 +85,38 @@ export function SKUClassifications() {
           initial="hidden"
           animate="show"
         >
-          {classifications.map((item, index) => (
-            <SKUCard
-              key={`${item.product_id}-${item.location_id}`}
-              sku={item.product_id}
-              classification={{
-                leadTimeCategory:
-                  item.lead_time_days > 30
-                    ? "long"
-                    : item.lead_time_days > 15
-                    ? "medium"
-                    : "short",
-                variabilityLevel:
-                  item.demand_variability > 0.6
-                    ? "high"
-                    : item.demand_variability > 0.3
-                    ? "medium"
-                    : "low",
-                criticality: item.decoupling_point ? "high" : "low",
-                bufferProfile: item.buffer_profile_id,
-                score: item.max_stock_level || 0,
-              }}
-              lastUpdated={new Date().toISOString()}
-              index={index}
-            />
-          ))}
+          {classifications.map((item, index) => {
+            const longThreshold = getConfig('lead_time_long_threshold', 30);
+            const mediumThreshold = getConfig('lead_time_medium_threshold', 15);
+            const highVarThreshold = getConfig('demand_variability_high_threshold', 0.6);
+            const mediumVarThreshold = getConfig('demand_variability_medium_threshold', 0.3);
+            
+            return (
+              <SKUCard
+                key={`${item.product_id}-${item.location_id}`}
+                sku={item.product_id}
+                classification={{
+                  leadTimeCategory:
+                    item.lead_time_days > longThreshold
+                      ? "long"
+                      : item.lead_time_days > mediumThreshold
+                      ? "medium"
+                      : "short",
+                  variabilityLevel:
+                    item.demand_variability > highVarThreshold
+                      ? "high"
+                      : item.demand_variability > mediumVarThreshold
+                      ? "medium"
+                      : "low",
+                  criticality: item.decoupling_point ? "high" : "low",
+                  bufferProfile: item.buffer_profile_id,
+                  score: item.max_stock_level || 0,
+                }}
+                lastUpdated={new Date().toISOString()}
+                index={index}
+              />
+            );
+          })}
         </motion.div>
       )}
     </TooltipProvider>

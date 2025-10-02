@@ -37,18 +37,23 @@ export const AnalyticsDashboard: React.FC = () => {
 
       // Category analysis
       const categories = [...new Set(filtered.map(i => i.category))];
+      const inventoryValueMultiplier = getConfig('inventory_value_multiplier', 100);
       const categoryData = categories.map(cat => ({
         category: cat,
         items: filtered.filter(i => i.category === cat).length,
         avgStock: filtered.filter(i => i.category === cat).reduce((sum, i) => sum + i.on_hand, 0) / filtered.filter(i => i.category === cat).length,
-        totalValue: filtered.filter(i => i.category === cat).reduce((sum, i) => sum + (i.on_hand * 100), 0)
+        totalValue: filtered.filter(i => i.category === cat).reduce((sum, i) => sum + (i.on_hand * inventoryValueMultiplier), 0)
       }));
 
       // Demand pattern (simulated weekly data)
-      const demandPattern = Array.from({ length: 12 }, (_, i) => ({
+      const simulationWeeks = getConfig('demand_simulation_weeks', 12);
+      const simulationBase = getConfig('demand_simulation_base', 500);
+      const simulationRange = getConfig('demand_simulation_range', 1000);
+      
+      const demandPattern = Array.from({ length: simulationWeeks }, (_, i) => ({
         week: `W${i + 1}`,
-        actual: Math.floor(Math.random() * 1000 + 500),
-        forecast: Math.floor(Math.random() * 1000 + 500),
+        actual: Math.floor(Math.random() * simulationRange + simulationBase),
+        forecast: Math.floor(Math.random() * simulationRange + simulationBase),
         accuracy: 85 + Math.random() * 10
       }));
 

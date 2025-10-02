@@ -4,9 +4,11 @@ import { Badge } from "@/components/ui/badge";
 import { fetchInventoryPlanningView } from "@/lib/inventory-planning.service";
 import { useInventoryFilter } from "../InventoryFilterContext";
 import { Activity, TrendingUp, TrendingDown } from "lucide-react";
+import { useInventoryConfig } from "@/hooks/useInventoryConfig";
 
 export function BufferStatusGrid() {
   const { filters } = useInventoryFilter();
+  const { getConfig } = useInventoryConfig();
   const [bufferData, setBufferData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -162,7 +164,7 @@ export function BufferStatusGrid() {
                   <span className="text-muted-foreground">Penetration:</span>
                   <div className="flex items-center gap-1">
                     <span className="font-medium">{calculatePenetration(item)}%</span>
-                    {calculatePenetration(item) > 80 ? (
+                    {calculatePenetration(item) > getConfig('excess_stock_penetration_threshold', 80) ? (
                       <TrendingUp className="h-3 w-3 text-green-600 dark:text-green-500" />
                     ) : (
                       <TrendingDown className="h-3 w-3 text-destructive" />

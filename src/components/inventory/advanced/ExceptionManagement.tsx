@@ -7,6 +7,7 @@ import { useInventoryFilter } from '../InventoryFilterContext';
 import { AlertTriangle, TrendingDown, Package, Clock, CheckCircle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useInventoryConfig } from '@/hooks/useInventoryConfig';
 
 interface Exception {
   id: number;
@@ -23,6 +24,7 @@ interface Exception {
 
 export const ExceptionManagement: React.FC = () => {
   const { filters } = useInventoryFilter();
+  const { getConfig } = useInventoryConfig();
   const [exceptions, setExceptions] = useState<Exception[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
@@ -47,6 +49,11 @@ export const ExceptionManagement: React.FC = () => {
 
       const detectedExceptions: Exception[] = [];
 
+      const stockoutDaysThreshold = getConfig('stockout_risk_days_threshold', 7);
+      const slowMoverDaysThreshold = getConfig('slow_mover_days_threshold', 30);
+      const slowMoverADUThreshold = getConfig('slow_mover_adu_threshold', 1);
+      const excessStockMultiplier = 1.2;
+
       filtered.forEach(item => {
         // Buffer breach exceptions
         if (item.buffer_status === 'RED') {
@@ -65,7 +72,7 @@ export const ExceptionManagement: React.FC = () => {
         }
 
         // Stockout risk
-        if (item.on_hand < item.average_daily_usage * 7 && item.average_daily_usage > 0) {
+        if (item.on_hand < item.average_daily_usage * stockoutDaysThreshold && item.average_daily_usage > 0) {
           detectedExceptions.push({
             id: item.id + 10000,
             type: 'stockout_risk',
@@ -81,7 +88,7 @@ export const ExceptionManagement: React.FC = () => {
         }
 
         // Excess inventory
-        if (item.nfp > item.tog * 1.2) {
+        if (item.nfp > item.tog * excessStockMultiplier) {
           detectedExceptions.push({
             id: item.id + 20000,
             type: 'excess_inventory',
@@ -97,7 +104,7 @@ export const ExceptionManagement: React.FC = () => {
         }
 
         // Slow moving
-        if (item.average_daily_usage < 1 && item.on_hand > 30) {
+        if (item.average_daily_usage < slowMoverADUThreshold && item.on_hand > slowMoverDaysThreshold) {
           detectedExceptions.push({
             id: item.id + 30000,
             type: 'slow_moving',
