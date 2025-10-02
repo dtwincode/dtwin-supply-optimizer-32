@@ -538,6 +538,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           id: string
+          last_updated_by: string | null
           updated_at: string | null
         }
         Insert: {
@@ -547,6 +548,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          last_updated_by?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -556,9 +558,51 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          last_updated_by?: string | null
           updated_at?: string | null
         }
         Relationships: []
+      }
+      inventory_config_audit: {
+        Row: {
+          change_reason: string | null
+          changed_at: string
+          changed_by: string | null
+          config_id: string
+          config_key: string
+          id: string
+          new_value: number
+          old_value: number
+        }
+        Insert: {
+          change_reason?: string | null
+          changed_at?: string
+          changed_by?: string | null
+          config_id: string
+          config_key: string
+          id?: string
+          new_value: number
+          old_value: number
+        }
+        Update: {
+          change_reason?: string | null
+          changed_at?: string
+          changed_by?: string | null
+          config_id?: string
+          config_key?: string
+          id?: string
+          new_value?: number
+          old_value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_config_audit_config_id_fkey"
+            columns: ["config_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_config"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       lead_time_components: {
         Row: {
