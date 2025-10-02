@@ -6,6 +6,7 @@ import DDSOP from "./pages/DDSOP";
 import DDMRP from "./pages/DDMRP";
 import DDOM from "./pages/DDOM";
 import DDMRPConfiguration from "./pages/DDMRPConfiguration";
+import SupplyPlanning from "./pages/SupplyPlanning";
 
 // Layout component to wrap all routes
 const Layout = () => (
@@ -23,6 +24,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Inventory /> },
       { path: "inventory", element: <Inventory /> },
+      { path: "supply-planning", element: <SupplyPlanning /> },
       { path: "settings", element: <Settings /> },
       { path: "ddmrp", element: <DDMRP /> },
       { path: "ddom", element: <DDOM /> },
