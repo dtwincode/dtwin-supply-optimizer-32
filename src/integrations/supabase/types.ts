@@ -590,6 +590,42 @@ export type Database = {
         }
         Relationships: []
       }
+      inventory_carrying_costs: {
+        Row: {
+          created_at: string | null
+          id: string
+          insurance_rate_annual: number | null
+          location_id: string
+          obsolescence_rate_annual: number | null
+          opportunity_cost_rate_annual: number | null
+          product_category: string
+          storage_cost_per_unit_per_day: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          insurance_rate_annual?: number | null
+          location_id: string
+          obsolescence_rate_annual?: number | null
+          opportunity_cost_rate_annual?: number | null
+          product_category: string
+          storage_cost_per_unit_per_day: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          insurance_rate_annual?: number | null
+          location_id?: string
+          obsolescence_rate_annual?: number | null
+          opportunity_cost_rate_annual?: number | null
+          product_category?: string
+          storage_cost_per_unit_per_day?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       inventory_threshold_overrides: {
         Row: {
           override_value: number | null
@@ -640,6 +676,42 @@ export type Database = {
           resolution_status?: string | null
           sku?: string
           supplier_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      lead_time_components: {
+        Row: {
+          created_at: string | null
+          id: string
+          location_id: string
+          manufacturing_time_days: number | null
+          procurement_time_days: number | null
+          product_id: string
+          shipping_time_days: number | null
+          total_lead_time_days: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          location_id: string
+          manufacturing_time_days?: number | null
+          procurement_time_days?: number | null
+          product_id: string
+          shipping_time_days?: number | null
+          total_lead_time_days?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          location_id?: string
+          manufacturing_time_days?: number | null
+          procurement_time_days?: number | null
+          product_id?: string
+          shipping_time_days?: number | null
+          total_lead_time_days?: number | null
           updated_at?: string | null
         }
         Relationships: []
@@ -1393,6 +1465,39 @@ export type Database = {
         }
         Relationships: []
       }
+      product_cost_components: {
+        Row: {
+          created_at: string | null
+          id: string
+          labor_cost: number | null
+          material_cost: number | null
+          overhead_cost: number | null
+          product_id: string
+          total_unit_cost: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          labor_cost?: number | null
+          material_cost?: number | null
+          overhead_cost?: number | null
+          product_id: string
+          total_unit_cost?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          labor_cost?: number | null
+          material_cost?: number | null
+          overhead_cost?: number | null
+          product_id?: string
+          total_unit_cost?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       product_location_pairs: {
         Row: {
           location_id: string | null
@@ -1748,6 +1853,87 @@ export type Database = {
           },
         ]
       }
+      supplier_contracts: {
+        Row: {
+          contract_end_date: string | null
+          contract_id: string
+          contract_start_date: string
+          created_at: string | null
+          lead_time_days: number
+          minimum_order_qty: number | null
+          payment_terms: string | null
+          product_id: string
+          supplier_id: string
+          unit_cost: number
+          updated_at: string | null
+        }
+        Insert: {
+          contract_end_date?: string | null
+          contract_id?: string
+          contract_start_date: string
+          created_at?: string | null
+          lead_time_days: number
+          minimum_order_qty?: number | null
+          payment_terms?: string | null
+          product_id: string
+          supplier_id: string
+          unit_cost: number
+          updated_at?: string | null
+        }
+        Update: {
+          contract_end_date?: string | null
+          contract_id?: string
+          contract_start_date?: string
+          created_at?: string | null
+          lead_time_days?: number
+          minimum_order_qty?: number | null
+          payment_terms?: string | null
+          product_id?: string
+          supplier_id?: string
+          unit_cost?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      supplier_lead_time_history: {
+        Row: {
+          actual_delivery_date: string | null
+          actual_lead_time_days: number | null
+          created_at: string | null
+          id: string
+          on_time: boolean | null
+          order_date: string
+          product_id: string
+          promised_delivery_date: string
+          promised_lead_time_days: number | null
+          supplier_id: string
+        }
+        Insert: {
+          actual_delivery_date?: string | null
+          actual_lead_time_days?: number | null
+          created_at?: string | null
+          id?: string
+          on_time?: boolean | null
+          order_date: string
+          product_id: string
+          promised_delivery_date: string
+          promised_lead_time_days?: number | null
+          supplier_id: string
+        }
+        Update: {
+          actual_delivery_date?: string | null
+          actual_lead_time_days?: number | null
+          created_at?: string | null
+          id?: string
+          on_time?: boolean | null
+          order_date?: string
+          product_id?: string
+          promised_delivery_date?: string
+          promised_lead_time_days?: number | null
+          supplier_id?: string
+        }
+        Relationships: []
+      }
       supplier_performance: {
         Row: {
           created_at: string | null
@@ -1782,6 +1968,39 @@ export type Database = {
             referencedColumns: ["vendor_id"]
           },
         ]
+      }
+      supplier_product_mapping: {
+        Row: {
+          average_lead_time_days: number | null
+          created_at: string | null
+          id: string
+          is_primary_supplier: boolean | null
+          last_delivery_date: string | null
+          product_id: string
+          reliability_score: number | null
+          supplier_id: string
+        }
+        Insert: {
+          average_lead_time_days?: number | null
+          created_at?: string | null
+          id?: string
+          is_primary_supplier?: boolean | null
+          last_delivery_date?: string | null
+          product_id: string
+          reliability_score?: number | null
+          supplier_id: string
+        }
+        Update: {
+          average_lead_time_days?: number | null
+          created_at?: string | null
+          id?: string
+          is_primary_supplier?: boolean | null
+          last_delivery_date?: string | null
+          product_id?: string
+          reliability_score?: number | null
+          supplier_id?: string
+        }
+        Relationships: []
       }
       threshold_config: {
         Row: {
@@ -1855,6 +2074,39 @@ export type Database = {
           vendor_code?: string
           vendor_id?: string
           vendor_name?: string
+        }
+        Relationships: []
+      }
+      warehouse_cost_structure: {
+        Row: {
+          created_at: string | null
+          id: string
+          labor_cost_monthly: number | null
+          location_id: string
+          rent_per_sqm_monthly: number | null
+          total_storage_sqm: number | null
+          updated_at: string | null
+          utilities_cost_monthly: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          labor_cost_monthly?: number | null
+          location_id: string
+          rent_per_sqm_monthly?: number | null
+          total_storage_sqm?: number | null
+          updated_at?: string | null
+          utilities_cost_monthly?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          labor_cost_monthly?: number | null
+          location_id?: string
+          rent_per_sqm_monthly?: number | null
+          total_storage_sqm?: number | null
+          updated_at?: string | null
+          utilities_cost_monthly?: number | null
         }
         Relationships: []
       }
