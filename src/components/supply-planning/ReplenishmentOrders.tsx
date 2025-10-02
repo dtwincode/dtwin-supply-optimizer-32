@@ -45,24 +45,44 @@ const ReplenishmentOrders: React.FC = () => {
 
   const fetchOrders = async () => {
     try {
-      // Fetch orders with buffer profile data to get MOQ and rounding
-      const { data, error } = await supabase
+      // Fetch all replenishment orders first
+      const { data: ordersData, error: ordersError } = await supabase
         .from("replenishment_orders")
-        .select(`
-          *,
-          product:product_master!inner(buffer_profile_id),
-          buffer:buffer_profile_master(moq, rounding_multiple)
-        `)
+        .select("*")
         .order("proposal_ts", { ascending: false });
 
-      if (error) throw error;
+      if (ordersError) throw ordersError;
 
-      // Flatten the data structure and add MOQ info
-      const enrichedOrders = (data || []).map((order: any) => ({
-        ...order,
-        moq: order.buffer?.[0]?.moq || 0,
-        rounding_multiple: order.buffer?.[0]?.rounding_multiple || 1,
-      }));
+      // For each order, fetch the product's buffer profile MOQ
+      const enrichedOrders = await Promise.all(
+        (ordersData || []).map(async (order: any) => {
+          const { data: productData } = await supabase
+            .from("product_master")
+            .select("buffer_profile_id")
+            .eq("product_id", order.product_id)
+            .single();
+
+          if (productData?.buffer_profile_id) {
+            const { data: bufferData } = await supabase
+              .from("buffer_profile_master")
+              .select("min_order_qty, rounding_multiple")
+              .eq("buffer_profile_id", productData.buffer_profile_id)
+              .single();
+
+            return {
+              ...order,
+              moq: bufferData?.min_order_qty || 0,
+              rounding_multiple: bufferData?.rounding_multiple || 1,
+            };
+          }
+
+          return {
+            ...order,
+            moq: 0,
+            rounding_multiple: 1,
+          };
+        })
+      );
 
       setOrders(enrichedOrders);
     } catch (error) {
