@@ -1981,6 +1981,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      validate_buffer_decoupling_alignment: {
+        Args: { p_location_id: string; p_product_id: string }
+        Returns: Json
+      }
       validate_forecast_mapping: {
         Args: {
           p_historical_mapping: Json

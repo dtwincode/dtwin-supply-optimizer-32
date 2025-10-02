@@ -9,6 +9,7 @@ import { InventoryGlobalFilters } from "@/components/inventory/InventoryGlobalFi
 // Strategic Planning
 import { DecouplingPointManager } from "@/components/inventory/strategic/DecouplingPointManager";
 import { SupplyChainNetwork } from "@/components/inventory/strategic/SupplyChainNetwork";
+import { DecouplingRecommendationPanel } from "@/components/inventory/strategic/DecouplingRecommendationPanel";
 
 // Bill of Materials
 import { BOMViewer } from "@/components/inventory/bom";
@@ -136,6 +137,7 @@ const Inventory: React.FC = () => {
             </TabsList>
 
             <TabsContent value="strategic" className="space-y-6">
+              <DecouplingRecommendationPanel />
               <SupplyChainNetwork />
               <DecouplingPointManager />
             </TabsContent>
