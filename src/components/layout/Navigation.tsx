@@ -13,6 +13,8 @@ import {
   ShoppingCart,
   Gift,
   BadgeCheck,
+  Settings,
+  AlertTriangle,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -29,6 +31,16 @@ const navigationItems = [
     href: "/inventory",
     badge: "Phase 7",
     badgeColor: "bg-green-600",
+  },
+  {
+    name: "Buffer Profiles",
+    icon: Settings,
+    href: "/buffer-profiles",
+  },
+  {
+    name: "Breach Alerts",
+    icon: AlertTriangle,
+    href: "/breach-alerts",
   },
   {
     name: "navigation.supplyPlanning",

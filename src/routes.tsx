@@ -5,6 +5,8 @@ import Settings from "./pages/Settings";
 import DDSOP from "./pages/DDSOP";
 import DDMRP from "./pages/DDMRP";
 import DDOM from "./pages/DDOM";
+import BufferProfiles from "./pages/BufferProfiles";
+import BreachAlerts from "./pages/BreachAlerts";
 
 // Layout component to wrap all routes
 const Layout = () => (
@@ -22,6 +24,8 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Inventory /> },
       { path: "inventory", element: <Inventory /> },
+      { path: "buffer-profiles", element: <BufferProfiles /> },
+      { path: "breach-alerts", element: <BreachAlerts /> },
       { path: "settings", element: <Settings /> },
       { path: "ddmrp", element: <DDMRP /> },
       { path: "ddom", element: <DDOM /> },
