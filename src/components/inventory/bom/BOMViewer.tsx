@@ -32,6 +32,8 @@ export function BOMViewer() {
 
   const loadBOMData = async () => {
     try {
+      console.log('[BOMViewer] Starting BOM data load...');
+      
       const { data: bomRaw, error: bomError } = await supabase
         .from('product_bom')
         .select(`
@@ -43,7 +45,15 @@ export function BOMViewer() {
         `)
         .order('bom_level', { ascending: true });
 
+      console.log('[BOMViewer] BOM query result:', { count: bomRaw?.length, error: bomError });
+
       if (bomError) throw bomError;
+
+      if (!bomRaw || bomRaw.length === 0) {
+        console.log('[BOMViewer] No BOM data found in database');
+        setIsLoading(false);
+        return;
+      }
 
       // Load product details
       const productIds = new Set([
@@ -80,30 +90,45 @@ export function BOMViewer() {
   };
 
   const buildBOMTree = (flatBOM: TreeNode[]): TreeNode[] => {
-    const nodeMap = new Map<string, TreeNode>();
-    const roots: TreeNode[] = [];
+    console.log('[BOMViewer] Building tree from', flatBOM.length, 'items');
+    
+    // Find all unique parent products (roots)
+    const allParents = new Set(flatBOM.map(b => b.parent_product_id));
+    const allChildren = new Set(flatBOM.map(b => b.child_product_id));
+    const rootProducts = Array.from(allParents).filter(p => !allChildren.has(p));
+    
+    console.log('[BOMViewer] Root products:', rootProducts);
 
-    // Create node map
+    // Group by parent
+    const grouped = new Map<string, TreeNode[]>();
     flatBOM.forEach((node) => {
-      nodeMap.set(node.child_product_id, { ...node, children: [] });
+      if (!grouped.has(node.parent_product_id)) {
+        grouped.set(node.parent_product_id, []);
+      }
+      grouped.get(node.parent_product_id)!.push({ ...node, children: [] });
     });
 
-    // Build tree
-    flatBOM.forEach((node) => {
-      const childNode = nodeMap.get(node.child_product_id);
-      if (childNode) {
-        if (node.bom_level === 0) {
-          roots.push(childNode);
-        } else {
-          const parentNode = nodeMap.get(node.parent_product_id);
-          if (parentNode) {
-            parentNode.children = parentNode.children || [];
-            parentNode.children.push(childNode);
-          }
-        }
+    // Build tree for each root
+    const roots: TreeNode[] = [];
+    rootProducts.forEach((rootId) => {
+      const rootChildren = grouped.get(rootId) || [];
+      if (rootChildren.length > 0) {
+        // Create a virtual root node for the finished product
+        const rootNode: TreeNode = {
+          id: rootId,
+          parent_product_id: '',
+          child_product_id: rootId,
+          quantity_per: 1,
+          bom_level: 0,
+          parent_name: rootChildren[0]?.parent_name || rootId,
+          child_name: rootChildren[0]?.parent_name || rootId,
+          children: rootChildren
+        };
+        roots.push(rootNode);
       }
     });
 
+    console.log('[BOMViewer] Built tree with', roots.length, 'root nodes');
     return roots;
   };
 
