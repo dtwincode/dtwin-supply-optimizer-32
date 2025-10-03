@@ -15,6 +15,7 @@ import {
   BadgeCheck,
   Settings,
   AlertTriangle,
+  Activity,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -36,6 +37,11 @@ const navigationItems = [
     name: "navigation.supplyPlanning",
     icon: ShoppingCart,
     href: "/supply-planning",
+  },
+  {
+    name: "navigation.ddom",
+    icon: Activity,
+    href: "/ddom",
   },
   {
     name: "navigation.salesPlanning",

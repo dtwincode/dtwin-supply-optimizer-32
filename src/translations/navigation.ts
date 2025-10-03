@@ -30,6 +30,10 @@ export const navigationTranslations: any = {
     en: "Supply Planning",
     ar: "تخطيط الإمداد",
   },
+  ddom: {
+    en: "DDOM Execution",
+    ar: "تنفيذ DDOM",
+  },
   salesPlanning: {
     en: "Sales Planning",
     ar: "تخطيط المبيعات",
