@@ -604,6 +604,36 @@ export type Database = {
           },
         ]
       }
+      lead_time_adjustment_factor: {
+        Row: {
+          created_at: string
+          end_date: string
+          location_id: string
+          ltaf: number
+          product_id: string
+          reason: string | null
+          start_date: string
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          location_id: string
+          ltaf?: number
+          product_id: string
+          reason?: string | null
+          start_date: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          location_id?: string
+          ltaf?: number
+          product_id?: string
+          reason?: string | null
+          start_date?: string
+        }
+        Relationships: []
+      }
       lead_time_components: {
         Row: {
           created_at: string | null
@@ -1678,6 +1708,36 @@ export type Database = {
           total_storage_sqm?: number | null
           updated_at?: string | null
           utilities_cost_monthly?: number | null
+        }
+        Relationships: []
+      }
+      zone_adjustment_factor: {
+        Row: {
+          created_at: string
+          end_date: string
+          location_id: string
+          product_id: string
+          reason: string | null
+          start_date: string
+          zaf: number
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          location_id: string
+          product_id: string
+          reason?: string | null
+          start_date: string
+          zaf?: number
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          location_id?: string
+          product_id?: string
+          reason?: string | null
+          start_date?: string
+          zaf?: number
         }
         Relationships: []
       }
