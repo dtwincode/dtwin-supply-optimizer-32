@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { TrendingUp, Plus, Save, Trash2, Calendar, Info, BookOpen, Layers, Clock } from "lucide-react";
+import { TrendingUp, Plus, Save, Trash2, Info, BookOpen, Layers, Clock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -60,6 +60,7 @@ export function DynamicAdjustmentsTab() {
     start_date: "",
     end_date: "",
     daf: 1.0,
+    reason: "",
   });
 
   const [newZAF, setNewZAF] = useState({
@@ -153,7 +154,13 @@ export function DynamicAdjustmentsTab() {
     }
 
     try {
-      const { error } = await supabase.from("demand_adjustment_factor").insert([newDAF]);
+      const { error } = await supabase.from("demand_adjustment_factor").insert([{
+        product_id: newDAF.product_id,
+        location_id: newDAF.location_id,
+        start_date: newDAF.start_date,
+        end_date: newDAF.end_date,
+        daf: newDAF.daf,
+      }]);
       if (error) throw error;
 
       toast({
@@ -162,7 +169,7 @@ export function DynamicAdjustmentsTab() {
       });
 
       setIsDialogOpen(false);
-      setNewDAF({ product_id: "", location_id: "", start_date: "", end_date: "", daf: 1.0 });
+      setNewDAF({ product_id: "", location_id: "", start_date: "", end_date: "", daf: 1.0, reason: "" });
       fetchAllAdjustments();
     } catch (error) {
       console.error("Error adding DAF:", error);
@@ -306,10 +313,26 @@ export function DynamicAdjustmentsTab() {
     }
   };
 
-  const getImpactLabel = (value: number) => {
-    if (value > 1.0) return { label: "Increase", color: "bg-green-500" };
-    if (value < 1.0) return { label: "Decrease", color: "bg-red-500" };
-    return { label: "Neutral", color: "bg-gray-500" };
+  const getImpactBadge = (value: number) => {
+    const percentChange = ((value - 1) * 100).toFixed(0);
+    if (value > 1.0) {
+      return <Badge className="bg-green-500 text-white">{percentChange}% Increase</Badge>;
+    }
+    if (value < 1.0) {
+      return <Badge className="bg-red-500 text-white">{percentChange}% Decrease</Badge>;
+    }
+    return <Badge variant="outline">Neutral</Badge>;
+  };
+
+  const getStatusBadge = (startDate: string, endDate: string) => {
+    const isActive = isActiveAdjustment(startDate, endDate);
+    if (isActive) {
+      return <Badge className="bg-green-500 text-white">Active</Badge>;
+    }
+    if (new Date(endDate) < new Date()) {
+      return <Badge variant="outline">Expired</Badge>;
+    }
+    return <Badge variant="secondary">Scheduled</Badge>;
   };
 
   if (isLoading) {
@@ -371,7 +394,10 @@ export function DynamicAdjustmentsTab() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>Demand Adjustment Factor (DAF)</CardTitle>
+                    <CardTitle className="flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5" />
+                      Demand Adjustment Factor (DAF)
+                    </CardTitle>
                     <CardDescription>
                       Adjusts Average Daily Usage (ADU) for planned demand changes (promotions, seasonality).
                     </CardDescription>
@@ -451,6 +477,14 @@ export function DynamicAdjustmentsTab() {
                               Impact: {((newDAF.daf - 1) * 100).toFixed(0)}% {newDAF.daf > 1 ? "increase" : newDAF.daf < 1 ? "decrease" : "neutral"}
                             </p>
                           </div>
+                          <div className="space-y-2 col-span-2">
+                            <Label>Reason (Optional)</Label>
+                            <Textarea
+                              value={newDAF.reason}
+                              onChange={(e) => setNewDAF({ ...newDAF, reason: e.target.value })}
+                              placeholder="e.g., Summer promotion campaign"
+                            />
+                          </div>
                         </div>
                       </div>
 
@@ -473,59 +507,44 @@ export function DynamicAdjustmentsTab() {
                     <AlertDescription>No DAF configured. Add adjustments to handle planned demand changes.</AlertDescription>
                   </Alert>
                 ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Product</TableHead>
-                        <TableHead>Location</TableHead>
-                        <TableHead>Period</TableHead>
-                        <TableHead>DAF</TableHead>
-                        <TableHead>Impact</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {dafAdjustments.map((adj, idx) => {
-                        const isActive = isActiveAdjustment(adj.start_date, adj.end_date);
-                        const impact = getImpactLabel(adj.daf);
-                        
-                        return (
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Product</TableHead>
+                          <TableHead>Location</TableHead>
+                          <TableHead>Period</TableHead>
+                          <TableHead>Value</TableHead>
+                          <TableHead>Impact</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {dafAdjustments.map((adj, idx) => (
                           <TableRow key={`daf-${adj.product_id}-${adj.location_id}-${adj.start_date}-${idx}`}>
                             <TableCell className="font-medium">{adj.product_id}</TableCell>
                             <TableCell>{adj.location_id}</TableCell>
                             <TableCell className="text-sm">
                               {format(parseISO(adj.start_date), "MMM dd")} - {format(parseISO(adj.end_date), "MMM dd, yyyy")}
                             </TableCell>
-                            <TableCell className="font-mono">{adj.daf.toFixed(2)}×</TableCell>
-                            <TableCell>
-                              <Badge className={`${impact.color} text-white`}>
-                                {((adj.daf - 1) * 100).toFixed(0)}% {impact.label}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              {isActive ? (
-                                <Badge className="bg-green-500 text-white">Active</Badge>
-                              ) : new Date(adj.end_date) < new Date() ? (
-                                <Badge variant="outline">Expired</Badge>
-                              ) : (
-                                <Badge variant="outline">Scheduled</Badge>
-                              )}
-                            </TableCell>
-                            <TableCell>
+                            <TableCell className="font-mono text-base">{adj.daf.toFixed(2)}×</TableCell>
+                            <TableCell>{getImpactBadge(adj.daf)}</TableCell>
+                            <TableCell>{getStatusBadge(adj.start_date, adj.end_date)}</TableCell>
+                            <TableCell className="text-right">
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleDelete("daf", adj.product_id, adj.location_id, adj.start_date)}
                               >
-                                <Trash2 className="h-4 w-4 text-red-500" />
+                                <Trash2 className="h-4 w-4 text-destructive" />
                               </Button>
                             </TableCell>
                           </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -537,7 +556,10 @@ export function DynamicAdjustmentsTab() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>Zone Adjustment Factor (ZAF)</CardTitle>
+                    <CardTitle className="flex items-center gap-2">
+                      <Layers className="h-5 w-5" />
+                      Zone Adjustment Factor (ZAF)
+                    </CardTitle>
                     <CardDescription>
                       Adjusts variability factor in buffer zones for temporary variability changes.
                     </CardDescription>
@@ -613,9 +635,12 @@ export function DynamicAdjustmentsTab() {
                                 }
                               }}
                             />
+                            <p className="text-xs text-muted-foreground">
+                              Impact: {((newZAF.zaf - 1) * 100).toFixed(0)}% {newZAF.zaf > 1 ? "increase in variability buffer" : newZAF.zaf < 1 ? "decrease in variability buffer" : "neutral"}
+                            </p>
                           </div>
                           <div className="space-y-2 col-span-2">
-                            <Label>Reason</Label>
+                            <Label>Reason *</Label>
                             <Textarea
                               value={newZAF.reason}
                               onChange={(e) => setNewZAF({ ...newZAF, reason: e.target.value })}
@@ -644,54 +669,44 @@ export function DynamicAdjustmentsTab() {
                     <AlertDescription>No ZAF configured. Add adjustments to handle variability changes.</AlertDescription>
                   </Alert>
                 ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Product</TableHead>
-                        <TableHead>Location</TableHead>
-                        <TableHead>Period</TableHead>
-                        <TableHead>ZAF</TableHead>
-                        <TableHead>Reason</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {zafAdjustments.map((adj, idx) => {
-                        const isActive = isActiveAdjustment(adj.start_date, adj.end_date);
-                        
-                        return (
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Product</TableHead>
+                          <TableHead>Location</TableHead>
+                          <TableHead>Period</TableHead>
+                          <TableHead>Value</TableHead>
+                          <TableHead>Impact</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {zafAdjustments.map((adj, idx) => (
                           <TableRow key={`zaf-${adj.product_id}-${adj.location_id}-${adj.start_date}-${idx}`}>
                             <TableCell className="font-medium">{adj.product_id}</TableCell>
                             <TableCell>{adj.location_id}</TableCell>
                             <TableCell className="text-sm">
                               {format(parseISO(adj.start_date), "MMM dd")} - {format(parseISO(adj.end_date), "MMM dd, yyyy")}
                             </TableCell>
-                            <TableCell className="font-mono">{adj.zaf.toFixed(2)}×</TableCell>
-                            <TableCell className="text-sm">{adj.reason || "-"}</TableCell>
-                            <TableCell>
-                              {isActive ? (
-                                <Badge className="bg-green-500 text-white">Active</Badge>
-                              ) : new Date(adj.end_date) < new Date() ? (
-                                <Badge variant="outline">Expired</Badge>
-                              ) : (
-                                <Badge variant="outline">Scheduled</Badge>
-                              )}
-                            </TableCell>
-                            <TableCell>
+                            <TableCell className="font-mono text-base">{adj.zaf.toFixed(2)}×</TableCell>
+                            <TableCell>{getImpactBadge(adj.zaf)}</TableCell>
+                            <TableCell>{getStatusBadge(adj.start_date, adj.end_date)}</TableCell>
+                            <TableCell className="text-right">
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleDelete("zaf", adj.product_id, adj.location_id, adj.start_date)}
                               >
-                                <Trash2 className="h-4 w-4 text-red-500" />
+                                <Trash2 className="h-4 w-4 text-destructive" />
                               </Button>
                             </TableCell>
                           </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -703,7 +718,10 @@ export function DynamicAdjustmentsTab() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>Lead Time Adjustment Factor (LTAF)</CardTitle>
+                    <CardTitle className="flex items-center gap-2">
+                      <Clock className="h-5 w-5" />
+                      Lead Time Adjustment Factor (LTAF)
+                    </CardTitle>
                     <CardDescription>
                       Adjusts lead time factor for known temporary lead time changes.
                     </CardDescription>
@@ -779,9 +797,12 @@ export function DynamicAdjustmentsTab() {
                                 }
                               }}
                             />
+                            <p className="text-xs text-muted-foreground">
+                              Impact: {((newLTAF.ltaf - 1) * 100).toFixed(0)}% {newLTAF.ltaf > 1 ? "increase in lead time buffer" : newLTAF.ltaf < 1 ? "decrease in lead time buffer" : "neutral"}
+                            </p>
                           </div>
                           <div className="space-y-2 col-span-2">
-                            <Label>Reason</Label>
+                            <Label>Reason *</Label>
                             <Textarea
                               value={newLTAF.reason}
                               onChange={(e) => setNewLTAF({ ...newLTAF, reason: e.target.value })}
@@ -810,84 +831,96 @@ export function DynamicAdjustmentsTab() {
                     <AlertDescription>No LTAF configured. Add adjustments to handle lead time changes.</AlertDescription>
                   </Alert>
                 ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Product</TableHead>
-                        <TableHead>Location</TableHead>
-                        <TableHead>Period</TableHead>
-                        <TableHead>LTAF</TableHead>
-                        <TableHead>Reason</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {ltafAdjustments.map((adj, idx) => {
-                        const isActive = isActiveAdjustment(adj.start_date, adj.end_date);
-                        
-                        return (
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Product</TableHead>
+                          <TableHead>Location</TableHead>
+                          <TableHead>Period</TableHead>
+                          <TableHead>Value</TableHead>
+                          <TableHead>Impact</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {ltafAdjustments.map((adj, idx) => (
                           <TableRow key={`ltaf-${adj.product_id}-${adj.location_id}-${adj.start_date}-${idx}`}>
                             <TableCell className="font-medium">{adj.product_id}</TableCell>
                             <TableCell>{adj.location_id}</TableCell>
                             <TableCell className="text-sm">
                               {format(parseISO(adj.start_date), "MMM dd")} - {format(parseISO(adj.end_date), "MMM dd, yyyy")}
                             </TableCell>
-                            <TableCell className="font-mono">{adj.ltaf.toFixed(2)}×</TableCell>
-                            <TableCell className="text-sm">{adj.reason || "-"}</TableCell>
-                            <TableCell>
-                              {isActive ? (
-                                <Badge className="bg-green-500 text-white">Active</Badge>
-                              ) : new Date(adj.end_date) < new Date() ? (
-                                <Badge variant="outline">Expired</Badge>
-                              ) : (
-                                <Badge variant="outline">Scheduled</Badge>
-                              )}
-                            </TableCell>
-                            <TableCell>
+                            <TableCell className="font-mono text-base">{adj.ltaf.toFixed(2)}×</TableCell>
+                            <TableCell>{getImpactBadge(adj.ltaf)}</TableCell>
+                            <TableCell>{getStatusBadge(adj.start_date, adj.end_date)}</TableCell>
+                            <TableCell className="text-right">
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleDelete("ltaf", adj.product_id, adj.location_id, adj.start_date)}
                               >
-                                <Trash2 className="h-4 w-4 text-red-500" />
+                                <Trash2 className="h-4 w-4 text-destructive" />
                               </Button>
                             </TableCell>
                           </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 )}
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
 
+        {/* How They Work Together */}
         <Card>
           <CardHeader>
             <CardTitle>How Adjustment Factors Work Together</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="bg-muted p-4 rounded-md font-mono text-sm space-y-2">
-              <div><strong>Adjusted ADU</strong> = Base ADU × DAF</div>
-              <div><strong>Adjusted Variability Factor</strong> = Base VF × ZAF</div>
-              <div><strong>Adjusted LT Factor</strong> = Base LTF × LTAF</div>
-              <div className="pt-2 border-t mt-2">
-                <strong>Red Zone</strong> = Adjusted ADU × DLT × Adjusted LTF × Adjusted VF
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 border rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                  <h4 className="font-semibold">DAF</h4>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Adjusts <strong>Average Daily Usage</strong> for known demand changes
+                </p>
+                <p className="text-xs mt-2 font-mono">ADU × DAF</p>
               </div>
-              <div>
-                <strong>Yellow Zone</strong> = Adjusted ADU × DLT × Adjusted LTF
+              
+              <div className="p-4 border rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <Layers className="h-5 w-5 text-primary" />
+                  <h4 className="font-semibold">ZAF</h4>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Adjusts <strong>Variability Factor</strong> for supply/quality issues
+                </p>
+                <p className="text-xs mt-2 font-mono">VF × ZAF</p>
               </div>
-              <div>
-                <strong>Green Zone</strong> = Adjusted ADU × Order Cycle × Adjusted LTF
+              
+              <div className="p-4 border rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <Clock className="h-5 w-5 text-primary" />
+                  <h4 className="font-semibold">LTAF</h4>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Adjusts <strong>Lead Time Factor</strong> for supplier delays
+                </p>
+                <p className="text-xs mt-2 font-mono">LTF × LTAF</p>
               </div>
             </div>
 
             <Alert>
               <Info className="h-4 w-4" />
               <AlertDescription>
-                <strong>DDI Certification:</strong> All three planned adjustment factors (DAF, ZAF, LTAF) are required for DDMRP certification. They enable proactive buffer management for known future changes.
+                <strong>Buffer Calculation Formula:</strong><br />
+                Red Zone = (ADU × DAF) × DLT × (LTF × LTAF) × (VF × ZAF)
               </AlertDescription>
             </Alert>
           </CardContent>
