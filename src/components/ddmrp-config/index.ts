@@ -5,3 +5,5 @@ export { SupplierPerformanceTab } from "./SupplierPerformanceTab";
 export { CostStructureTab } from "./CostStructureTab";
 export { AnalysisResultsTab } from "./AnalysisResultsTab";
 export { DynamicAdjustmentsTab } from "./DynamicAdjustmentsTab";
+export { SpikeDetectionTab } from "./SpikeDetectionTab";
+export { BufferRecalculationTab } from "./BufferRecalculationTab";

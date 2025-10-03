@@ -191,6 +191,113 @@ export type Database = {
         }
         Relationships: []
       }
+      buffer_recalculation_history: {
+        Row: {
+          change_reason: string | null
+          daf_applied: number | null
+          id: string
+          location_id: string
+          ltaf_applied: number | null
+          new_adu: number
+          new_dlt: number
+          new_green_zone: number
+          new_red_zone: number
+          new_yellow_zone: number
+          old_adu: number | null
+          old_dlt: number | null
+          old_green_zone: number | null
+          old_red_zone: number | null
+          old_yellow_zone: number | null
+          product_id: string
+          recalc_ts: string
+          trend_factor: number | null
+          triggered_by: string | null
+        }
+        Insert: {
+          change_reason?: string | null
+          daf_applied?: number | null
+          id?: string
+          location_id: string
+          ltaf_applied?: number | null
+          new_adu: number
+          new_dlt: number
+          new_green_zone: number
+          new_red_zone: number
+          new_yellow_zone: number
+          old_adu?: number | null
+          old_dlt?: number | null
+          old_green_zone?: number | null
+          old_red_zone?: number | null
+          old_yellow_zone?: number | null
+          product_id: string
+          recalc_ts?: string
+          trend_factor?: number | null
+          triggered_by?: string | null
+        }
+        Update: {
+          change_reason?: string | null
+          daf_applied?: number | null
+          id?: string
+          location_id?: string
+          ltaf_applied?: number | null
+          new_adu?: number
+          new_dlt?: number
+          new_green_zone?: number
+          new_red_zone?: number
+          new_yellow_zone?: number
+          old_adu?: number | null
+          old_dlt?: number | null
+          old_green_zone?: number | null
+          old_red_zone?: number | null
+          old_yellow_zone?: number | null
+          product_id?: string
+          recalc_ts?: string
+          trend_factor?: number | null
+          triggered_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buffer_recalculation_history_product_id_location_id_fkey"
+            columns: ["product_id", "location_id"]
+            isOneToOne: false
+            referencedRelation: "decoupling_points"
+            referencedColumns: ["product_id", "location_id"]
+          },
+        ]
+      }
+      buffer_recalculation_schedule: {
+        Row: {
+          created_at: string
+          cron_expression: string
+          id: string
+          is_active: boolean
+          last_run_at: string | null
+          next_run_at: string | null
+          schedule_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          cron_expression: string
+          id?: string
+          is_active?: boolean
+          last_run_at?: string | null
+          next_run_at?: string | null
+          schedule_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          cron_expression?: string
+          id?: string
+          is_active?: boolean
+          last_run_at?: string | null
+          next_run_at?: string | null
+          schedule_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       channel_master: {
         Row: {
           channel_id: string
@@ -2244,6 +2351,24 @@ export type Database = {
           p_table_name: string
         }
         Returns: undefined
+      }
+      recalculate_buffers_with_adjustments: {
+        Args: {
+          p_location_id?: string
+          p_product_id?: string
+          p_triggered_by?: string
+        }
+        Returns: {
+          changes_applied: boolean
+          location_id: string
+          new_green: number
+          new_red: number
+          new_yellow: number
+          old_green: number
+          old_red: number
+          old_yellow: number
+          product_id: string
+        }[]
       }
       remove_unselected_columns: {
         Args: { p_selected_columns: string[]; p_table_name: string }

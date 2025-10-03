@@ -12,12 +12,24 @@ import PageLoading from "@/components/PageLoading";
 
 export const SpikeDetectionTab = () => {
   const { spikeParameters, spikeDetections, isLoadingParams, isLoadingDetections, updateSpikeParams, qualifyAllOrders } = useSpikeDetection();
-  const [horizonFactor, setHorizonFactor] = useState("0.5");
-  const [thresholdFactor, setThresholdFactor] = useState("2.0");
+  
+  // Load global parameters or use defaults
+  const globalParams = spikeParameters?.find(p => p.product_id === 'GLOBAL');
+  const [horizonFactor, setHorizonFactor] = useState(globalParams?.spike_horizon_factor?.toString() || "0.5");
+  const [thresholdFactor, setThresholdFactor] = useState(globalParams?.spike_threshold_factor?.toString() || "2.0");
 
   if (isLoadingParams || isLoadingDetections) {
     return <PageLoading />;
   }
+
+  const handleSaveParameters = () => {
+    updateSpikeParams.mutate({
+      product_id: 'GLOBAL',
+      location_id: 'GLOBAL',
+      spike_horizon_factor: parseFloat(horizonFactor),
+      spike_threshold_factor: parseFloat(thresholdFactor),
+    });
+  };
 
   const spikes = spikeDetections?.filter(d => d.is_spike) || [];
   const totalSpikes = spikes.length;
@@ -188,6 +200,15 @@ export const SpikeDetectionTab = () => {
                   <li>• <strong>Purpose:</strong> Prevent abnormal orders from distorting buffer calculations</li>
                   <li>• <strong>Impact:</strong> Spikes are excluded from NFP calculation</li>
                 </ul>
+              </div>
+
+              <div className="mt-6">
+                <Button 
+                  onClick={handleSaveParameters}
+                  disabled={updateSpikeParams.isPending}
+                >
+                  Save Parameters
+                </Button>
               </div>
             </CardContent>
           </Card>

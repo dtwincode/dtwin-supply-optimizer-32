@@ -42,7 +42,7 @@ import { CostStructureTab } from "@/components/ddmrp-config/CostStructureTab";
 import { AnalysisResultsTab } from "@/components/ddmrp-config/AnalysisResultsTab";
 import { InventoryConfigTab } from "@/components/ddmrp-config/InventoryConfigTab";
 import { DynamicAdjustmentsTab } from "@/components/ddmrp-config/DynamicAdjustmentsTab";
-import { SpikeDetectionTab } from "@/components/ddmrp-config/SpikeDetectionTab";
+import { SpikeDetectionTab, BufferRecalculationTab } from "@/components/ddmrp-config";
 
 const Inventory: React.FC = () => {
   const { t } = useI18n();
@@ -264,7 +264,7 @@ const Inventory: React.FC = () => {
               </div>
 
               <Tabs value={configTab} onValueChange={setConfigTab} className="space-y-4">
-                <TabsList className="grid w-full grid-cols-9">
+                <TabsList className="grid w-full grid-cols-10">
                   <TabsTrigger value="menu" className="text-xs">
                     <Package className="h-3 w-3 mr-1" />
                     Menu
@@ -292,6 +292,10 @@ const Inventory: React.FC = () => {
                   <TabsTrigger value="spike" className="text-xs">
                     <AlertTriangle className="h-3 w-3 mr-1" />
                     Spikes
+                  </TabsTrigger>
+                  <TabsTrigger value="recalc" className="text-xs">
+                    <RefreshCw className="h-3 w-3 mr-1" />
+                    Auto-Recalc
                   </TabsTrigger>
                   <TabsTrigger value="analysis" className="text-xs">
                     <Calculator className="h-3 w-3 mr-1" />
@@ -329,6 +333,10 @@ const Inventory: React.FC = () => {
 
                 <TabsContent value="spike" className="space-y-4">
                   <SpikeDetectionTab />
+                </TabsContent>
+
+                <TabsContent value="recalc" className="space-y-4">
+                  <BufferRecalculationTab />
                 </TabsContent>
 
                 <TabsContent value="analysis" className="space-y-4">
