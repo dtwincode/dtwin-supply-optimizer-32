@@ -102,6 +102,15 @@ export function DynamicAdjustmentsTab() {
       return;
     }
 
+    if (newDAF.daf < 0.20 || newDAF.daf > 3.00) {
+      toast({
+        title: "Validation Error",
+        description: "DAF must be between 0.20 and 3.00 per DDMRP standards.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from("demand_adjustment_factor")
@@ -227,10 +236,12 @@ export function DynamicAdjustmentsTab() {
                   <Alert>
                     <Info className="h-4 w-4" />
                     <AlertDescription>
-                      <strong>DAF Examples:</strong><br />
-                      • 1.5 = 50% demand increase (promotions)<br />
-                      • 0.7 = 30% demand decrease (off-season)<br />
-                      • 1.0 = No adjustment (neutral)
+                      <strong>DAF Guidelines (DDMRP Standard):</strong><br />
+                      • <strong>Range:</strong> 0.20 to 3.00 (20% to 300% of base demand)<br />
+                      • <strong>Typical Promotions:</strong> 1.20 to 1.50 (20-50% increase)<br />
+                      • <strong>Seasonal Decline:</strong> 0.50 to 0.80 (20-50% decrease)<br />
+                      • <strong>Extreme Events:</strong> Use up to 2.00-3.00 with caution<br />
+                      • <strong>Default:</strong> 1.00 = No adjustment
                     </AlertDescription>
                   </Alert>
 
@@ -280,14 +291,20 @@ export function DynamicAdjustmentsTab() {
                       <Input
                         id="daf"
                         type="number"
-                        step="0.01"
-                        min="0.01"
+                        step="0.05"
+                        min="0.20"
+                        max="3.00"
                         value={newDAF.daf}
-                        onChange={(e) => setNewDAF({ ...newDAF, daf: parseFloat(e.target.value) })}
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value);
+                          if (value >= 0.20 && value <= 3.00) {
+                            setNewDAF({ ...newDAF, daf: value });
+                          }
+                        }}
                         placeholder="1.0"
                       />
                       <p className="text-xs text-muted-foreground">
-                        Current impact: {((newDAF.daf - 1) * 100).toFixed(0)}% {newDAF.daf > 1 ? "increase" : newDAF.daf < 1 ? "decrease" : "no change"}
+                        Range: 0.20 to 3.00 (DDMRP Standard) | Current impact: {((newDAF.daf - 1) * 100).toFixed(0)}% {newDAF.daf > 1 ? "increase" : newDAF.daf < 1 ? "decrease" : "no change"}
                       </p>
                     </div>
                   </div>
@@ -393,13 +410,17 @@ export function DynamicAdjustmentsTab() {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-2">🎯 Common Use Cases</h4>
+            <h4 className="font-semibold mb-2">🎯 Common Use Cases (DDMRP Guidelines)</h4>
             <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-              <li><strong>Promotions:</strong> DAF 1.3-2.0 for expected demand spikes</li>
-              <li><strong>Seasonal Decline:</strong> DAF 0.5-0.8 for off-season periods</li>
-              <li><strong>Market Changes:</strong> Adjust for known competitor actions</li>
-              <li><strong>Phase-out:</strong> DAF 0.3-0.6 to reduce inventory gradually</li>
+              <li><strong>Standard Promotions:</strong> DAF 1.20-1.50 (20-50% increase)</li>
+              <li><strong>Major Campaigns:</strong> DAF 1.50-2.00 (50-100% increase)</li>
+              <li><strong>Seasonal Decline:</strong> DAF 0.50-0.80 (20-50% decrease)</li>
+              <li><strong>Phase-out:</strong> DAF 0.20-0.50 (reduce 50-80%)</li>
+              <li><strong>Extreme Events:</strong> DAF 2.00-3.00 (use with caution!)</li>
             </ul>
+            <p className="text-xs text-muted-foreground mt-2 italic">
+              Note: DAF values outside 0.20-3.00 range can destabilize supply chains and are not recommended by DDMRP standards.
+            </p>
           </div>
 
           <Alert>
