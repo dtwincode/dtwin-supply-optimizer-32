@@ -27,8 +27,8 @@ export const navigationTranslations: any = {
     ar: "تصنيف وحدات التخزين",
   },
   supplyPlanning: {
-    en: "Supply Planning",
-    ar: "تخطيط الإمداد",
+    en: "DDOM",
+    ar: "نموذج التشغيل الموجه بالطلب",
   },
   ddom: {
     en: "DDOM Execution",

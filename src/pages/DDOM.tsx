@@ -22,9 +22,9 @@ const SupplyPlanning: React.FC = () => {
     <DashboardLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Supply Planning</h1>
+          <h1 className="text-3xl font-bold tracking-tight">DDOM</h1>
           <p className="text-muted-foreground">
-            Review and manage replenishment orders, approve purchase orders, and track execution performance
+            Demand Driven Operating Model - Manage replenishment, execution, and performance
           </p>
         </div>
 
