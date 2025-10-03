@@ -4,7 +4,6 @@ import Inventory from "./pages/Inventory";
 import Settings from "./pages/Settings";
 import DDSOP from "./pages/DDSOP";
 import DDMRP from "./pages/DDMRP";
-import DDOM from "./pages/DDOM";
 import SupplyPlanning from "./pages/SupplyPlanning";
 import { AuthProvider } from "./contexts/AuthContext";
 import Auth from "./pages/Auth";
@@ -36,7 +35,6 @@ const App = () => (
                 <Route path="/supply-planning" element={<SupplyPlanning />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/ddmrp" element={<DDMRP />} />
-                <Route path="/ddom" element={<DDOM />} />
                 <Route path="/ddsop" element={<DDSOP />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/reports" element={<Reports />} />

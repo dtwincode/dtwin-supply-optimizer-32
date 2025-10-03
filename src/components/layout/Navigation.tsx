@@ -39,11 +39,6 @@ const navigationItems = [
     href: "/supply-planning",
   },
   {
-    name: "navigation.ddom",
-    icon: Activity,
-    href: "/ddom",
-  },
-  {
     name: "navigation.salesPlanning",
     icon: LineChart,
     href: "/sales-and-returns",

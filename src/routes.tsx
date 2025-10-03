@@ -4,7 +4,6 @@ import Inventory from "./pages/Inventory";
 import Settings from "./pages/Settings";
 import DDSOP from "./pages/DDSOP";
 import DDMRP from "./pages/DDMRP";
-import DDOM from "./pages/DDOM";
 import SupplyPlanning from "./pages/SupplyPlanning";
 
 // Layout component to wrap all routes
@@ -26,7 +25,6 @@ export const router = createBrowserRouter([
       { path: "supply-planning", element: <SupplyPlanning /> },
       { path: "settings", element: <Settings /> },
       { path: "ddmrp", element: <DDMRP /> },
-      { path: "ddom", element: <DDOM /> },
       { path: "ddsop", element: <DDSOP /> },
       { path: "*", element: <NotFound /> },
     ],
