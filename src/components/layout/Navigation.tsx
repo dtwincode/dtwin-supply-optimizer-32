@@ -16,6 +16,7 @@ import {
   Settings,
   AlertTriangle,
   Activity,
+  Clock,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -32,6 +33,20 @@ const navigationItems = [
     href: "/inventory",
     badge: "Phase 7",
     badgeColor: "bg-green-600",
+  },
+  {
+    name: "Execution Priority",
+    icon: AlertTriangle,
+    href: "/execution-priority",
+    badge: "New",
+    badgeColor: "bg-blue-600",
+  },
+  {
+    name: "Material Sync",
+    icon: Clock,
+    href: "/material-sync",
+    badge: "New",
+    badgeColor: "bg-blue-600",
   },
   {
     name: "navigation.supplyPlanning",

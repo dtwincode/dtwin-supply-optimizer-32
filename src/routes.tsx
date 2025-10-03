@@ -5,6 +5,8 @@ import Settings from "./pages/Settings";
 import DDSOP from "./pages/DDSOP";
 import DDMRP from "./pages/DDMRP";
 import DDOM from "./pages/DDOM";
+import ExecutionPriority from "./pages/ExecutionPriority";
+import MaterialSync from "./pages/MaterialSync";
 
 // Layout component to wrap all routes
 const Layout = () => (
@@ -22,6 +24,8 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Inventory /> },
       { path: "inventory", element: <Inventory /> },
+      { path: "execution-priority", element: <ExecutionPriority /> },
+      { path: "material-sync", element: <MaterialSync /> },
       { path: "supply-planning", element: <DDOM /> },
       { path: "settings", element: <Settings /> },
       { path: "ddmrp", element: <DDMRP /> },
