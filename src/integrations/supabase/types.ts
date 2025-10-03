@@ -128,6 +128,99 @@ export type Database = {
         }
         Relationships: []
       }
+      buffer_criteria_compliance: {
+        Row: {
+          bidirectional_downstream_benefit: string | null
+          bidirectional_test_passed: boolean | null
+          bidirectional_test_score: number | null
+          bidirectional_upstream_benefit: string | null
+          created_at: string
+          decoupling_test_notes: string | null
+          decoupling_test_passed: boolean | null
+          decoupling_test_score: number | null
+          dynamic_adjustment_passed: boolean | null
+          dynamic_adjustment_score: number | null
+          forecast_vs_actual_ratio: number | null
+          has_active_daf: boolean | null
+          has_active_ltaf: boolean | null
+          has_active_zaf: boolean | null
+          id: string
+          location_id: string
+          order_independence_notes: string | null
+          order_independence_passed: boolean | null
+          order_independence_score: number | null
+          overall_compliance_score: number | null
+          overall_status: string | null
+          primary_planning_passed: boolean | null
+          primary_planning_score: number | null
+          product_id: string
+          relative_priority_passed: boolean | null
+          relative_priority_score: number | null
+          test_date: string
+          uses_penetration_priority: boolean | null
+        }
+        Insert: {
+          bidirectional_downstream_benefit?: string | null
+          bidirectional_test_passed?: boolean | null
+          bidirectional_test_score?: number | null
+          bidirectional_upstream_benefit?: string | null
+          created_at?: string
+          decoupling_test_notes?: string | null
+          decoupling_test_passed?: boolean | null
+          decoupling_test_score?: number | null
+          dynamic_adjustment_passed?: boolean | null
+          dynamic_adjustment_score?: number | null
+          forecast_vs_actual_ratio?: number | null
+          has_active_daf?: boolean | null
+          has_active_ltaf?: boolean | null
+          has_active_zaf?: boolean | null
+          id?: string
+          location_id: string
+          order_independence_notes?: string | null
+          order_independence_passed?: boolean | null
+          order_independence_score?: number | null
+          overall_compliance_score?: number | null
+          overall_status?: string | null
+          primary_planning_passed?: boolean | null
+          primary_planning_score?: number | null
+          product_id: string
+          relative_priority_passed?: boolean | null
+          relative_priority_score?: number | null
+          test_date?: string
+          uses_penetration_priority?: boolean | null
+        }
+        Update: {
+          bidirectional_downstream_benefit?: string | null
+          bidirectional_test_passed?: boolean | null
+          bidirectional_test_score?: number | null
+          bidirectional_upstream_benefit?: string | null
+          created_at?: string
+          decoupling_test_notes?: string | null
+          decoupling_test_passed?: boolean | null
+          decoupling_test_score?: number | null
+          dynamic_adjustment_passed?: boolean | null
+          dynamic_adjustment_score?: number | null
+          forecast_vs_actual_ratio?: number | null
+          has_active_daf?: boolean | null
+          has_active_ltaf?: boolean | null
+          has_active_zaf?: boolean | null
+          id?: string
+          location_id?: string
+          order_independence_notes?: string | null
+          order_independence_passed?: boolean | null
+          order_independence_score?: number | null
+          overall_compliance_score?: number | null
+          overall_status?: string | null
+          primary_planning_passed?: boolean | null
+          primary_planning_score?: number | null
+          product_id?: string
+          relative_priority_passed?: boolean | null
+          relative_priority_score?: number | null
+          test_date?: string
+          uses_penetration_priority?: boolean | null
+        }
+        Relationships: []
+      }
       buffer_profile_master: {
         Row: {
           buffer_profile_id: string
@@ -776,6 +869,122 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      lead_time_variance_log: {
+        Row: {
+          acknowledged: boolean | null
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          alert_sent: boolean | null
+          detected_at: string
+          id: string
+          location_id: string
+          ltaf_triggered: boolean | null
+          ltaf_value: number | null
+          new_lead_time: number
+          notes: string | null
+          previous_lead_time: number
+          product_id: string
+          variance_pct: number
+        }
+        Insert: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          alert_sent?: boolean | null
+          detected_at?: string
+          id?: string
+          location_id: string
+          ltaf_triggered?: boolean | null
+          ltaf_value?: number | null
+          new_lead_time: number
+          notes?: string | null
+          previous_lead_time: number
+          product_id: string
+          variance_pct: number
+        }
+        Update: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          alert_sent?: boolean | null
+          detected_at?: string
+          id?: string
+          location_id?: string
+          ltaf_triggered?: boolean | null
+          ltaf_value?: number | null
+          new_lead_time?: number
+          notes?: string | null
+          previous_lead_time?: number
+          product_id?: string
+          variance_pct?: number
+        }
+        Relationships: []
+      }
+      location_hierarchy: {
+        Row: {
+          buffer_strategy: string
+          created_at: string
+          echelon_level: number
+          echelon_type: string
+          id: string
+          is_active: boolean | null
+          location_id: string
+          parent_location_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          buffer_strategy?: string
+          created_at?: string
+          echelon_level: number
+          echelon_type: string
+          id?: string
+          is_active?: boolean | null
+          location_id: string
+          parent_location_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          buffer_strategy?: string
+          created_at?: string
+          echelon_level?: number
+          echelon_type?: string
+          id?: string
+          is_active?: boolean | null
+          location_id?: string
+          parent_location_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "location_hierarchy_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: true
+            referencedRelation: "inventory_net_flow_view"
+            referencedColumns: ["location_id"]
+          },
+          {
+            foreignKeyName: "location_hierarchy_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: true
+            referencedRelation: "location_master"
+            referencedColumns: ["location_id"]
+          },
+          {
+            foreignKeyName: "location_hierarchy_parent_location_id_fkey"
+            columns: ["parent_location_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_net_flow_view"
+            referencedColumns: ["location_id"]
+          },
+          {
+            foreignKeyName: "location_hierarchy_parent_location_id_fkey"
+            columns: ["parent_location_id"]
+            isOneToOne: false
+            referencedRelation: "location_master"
+            referencedColumns: ["location_id"]
+          },
+        ]
       }
       location_master: {
         Row: {
@@ -2070,6 +2279,17 @@ export type Database = {
           },
         ]
       }
+      ddmrp_compliance_summary: {
+        Row: {
+          avg_compliance_score: number | null
+          compliant_count: number | null
+          last_test_date: string | null
+          non_compliant_count: number | null
+          partial_count: number | null
+          total_tested: number | null
+        }
+        Relationships: []
+      }
       inventory_ddmrp_buffers_view: {
         Row: {
           adu: number | null
@@ -2261,6 +2481,10 @@ export type Database = {
         Args: { p_scenario_name?: string; p_threshold?: number }
         Returns: Json
       }
+      auto_trigger_ltaf_on_variance: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       calculate_8factor_weighted_score: {
         Args: { p_location_id: string; p_product_id: string }
         Returns: Json
@@ -2312,6 +2536,17 @@ export type Database = {
       detect_buffer_breaches: {
         Args: Record<PropertyKey, never>
         Returns: number
+      }
+      detect_lead_time_variance: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          location_id: string
+          ltaf_recommended: number
+          new_lt: number
+          previous_lt: number
+          product_id: string
+          variance_pct: number
+        }[]
       }
       drop_hierarchy_column: {
         Args: { p_column_name: string; p_table_name: string }
@@ -2381,6 +2616,10 @@ export type Database = {
       update_threshold_bayesian: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      validate_buffer_criteria: {
+        Args: { p_location_id: string; p_product_id: string }
+        Returns: Json
       }
       validate_buffer_decoupling_alignment: {
         Args: { p_location_id: string; p_product_id: string }
