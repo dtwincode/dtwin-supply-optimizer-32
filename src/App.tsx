@@ -5,6 +5,8 @@ import Settings from "./pages/Settings";
 import DDSOP from "./pages/DDSOP";
 import DDMRP from "./pages/DDMRP";
 import DDOM from "./pages/DDOM";
+import ExecutionPriority from "./pages/ExecutionPriority";
+import MaterialSync from "./pages/MaterialSync";
 import { AuthProvider } from "./contexts/AuthContext";
 import Auth from "./pages/Auth";
 import { LanguageProvider } from "./contexts/LanguageContext";
@@ -32,6 +34,8 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/inventory" element={<Inventory />} />
+                <Route path="/execution-priority" element={<ExecutionPriority />} />
+                <Route path="/material-sync" element={<MaterialSync />} />
                 <Route path="/supply-planning" element={<DDOM />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/ddmrp" element={<DDMRP />} />
