@@ -286,7 +286,7 @@ const Inventory: React.FC = () => {
                   </TabsTrigger>
                   <TabsTrigger value="daf" className="text-xs">
                     <TrendingUp className="h-3 w-3 mr-1" />
-                    DAF
+                    Adjustments
                   </TabsTrigger>
                   <TabsTrigger value="analysis" className="text-xs">
                     <Calculator className="h-3 w-3 mr-1" />
