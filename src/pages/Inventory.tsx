@@ -41,6 +41,7 @@ import { SupplierPerformanceTab } from "@/components/ddmrp-config/SupplierPerfor
 import { CostStructureTab } from "@/components/ddmrp-config/CostStructureTab";
 import { AnalysisResultsTab } from "@/components/ddmrp-config/AnalysisResultsTab";
 import { InventoryConfigTab } from "@/components/ddmrp-config/InventoryConfigTab";
+import { DynamicAdjustmentsTab } from "@/components/ddmrp-config/DynamicAdjustmentsTab";
 
 const Inventory: React.FC = () => {
   const { t } = useI18n();
@@ -262,7 +263,7 @@ const Inventory: React.FC = () => {
               </div>
 
               <Tabs value={configTab} onValueChange={setConfigTab} className="space-y-4">
-                <TabsList className="grid w-full grid-cols-7">
+                <TabsList className="grid w-full grid-cols-8">
                   <TabsTrigger value="menu" className="text-xs">
                     <Package className="h-3 w-3 mr-1" />
                     Menu
@@ -282,6 +283,10 @@ const Inventory: React.FC = () => {
                   <TabsTrigger value="costs" className="text-xs">
                     <DollarSign className="h-3 w-3 mr-1" />
                     Costs
+                  </TabsTrigger>
+                  <TabsTrigger value="daf" className="text-xs">
+                    <TrendingUp className="h-3 w-3 mr-1" />
+                    DAF
                   </TabsTrigger>
                   <TabsTrigger value="analysis" className="text-xs">
                     <Calculator className="h-3 w-3 mr-1" />
@@ -311,6 +316,10 @@ const Inventory: React.FC = () => {
 
                 <TabsContent value="costs" className="space-y-4">
                   <CostStructureTab />
+                </TabsContent>
+
+                <TabsContent value="daf" className="space-y-4">
+                  <DynamicAdjustmentsTab />
                 </TabsContent>
 
                 <TabsContent value="analysis" className="space-y-4">
