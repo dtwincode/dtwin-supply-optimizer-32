@@ -123,7 +123,15 @@ export function AlignmentDashboard() {
       // Calculate stats
       const emptyDecouples = alignmentIssues.filter((i) => i.issueType === 'empty_decouple').length;
       const orphanBuffers = alignmentIssues.filter((i) => i.issueType === 'orphan_buffer').length;
-      const totalPairs = (decouplingPoints?.length || 0) + (products?.filter(p => p.buffer_profile_id && p.buffer_profile_id !== 'BP_DEFAULT')?.length || 0);
+      
+      // Fix double-counting: Count unique products with EITHER decoupling points OR buffer profiles
+      const uniqueProductsInDecouplingPoints = new Set(decouplingPoints?.map(dp => dp.product_id) || []);
+      const productsWithCustomBuffers = products?.filter(p => p.buffer_profile_id && p.buffer_profile_id !== 'BP_DEFAULT') || [];
+      const uniqueProductsWithBuffers = new Set(productsWithCustomBuffers.map(p => p.product_id));
+      
+      // Total unique products = union of both sets (no double-counting)
+      const allUniqueProducts = new Set([...uniqueProductsInDecouplingPoints, ...uniqueProductsWithBuffers]);
+      const totalPairs = allUniqueProducts.size;
       const aligned = totalPairs - alignmentIssues.length;
 
       setStats({
