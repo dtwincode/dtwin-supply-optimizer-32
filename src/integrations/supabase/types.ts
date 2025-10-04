@@ -2257,6 +2257,7 @@ export type Database = {
           num_finished_goods_using: number | null
           total_demand_90d: number | null
           used_in_finished_goods: string[] | null
+          window_days: number | null
         }
         Relationships: [
           {
@@ -2628,21 +2629,6 @@ export type Database = {
         Args: { p_column_name: string; p_table_name: string }
         Returns: undefined
       }
-      explode_finished_goods_demand: {
-        Args: { p_location_id?: string; p_product_id?: string }
-        Returns: {
-          component_adu: number
-          component_name: string
-          component_product_id: string
-          component_sku: string
-          demand_cv: number
-          high_variability: boolean
-          location_id: string
-          num_finished_goods_using: number
-          total_demand_90d: number
-          used_in_finished_goods: string[]
-        }[]
-      }
       generate_replenishment: {
         Args: { location_id_filter?: string }
         Returns: number
@@ -2695,6 +2681,10 @@ export type Database = {
           old_yellow: number
           product_id: string
         }[]
+      }
+      refresh_component_demand_view: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       remove_unselected_columns: {
         Args: { p_selected_columns: string[]; p_table_name: string }
