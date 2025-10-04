@@ -43,15 +43,18 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="flex items-center gap-8 max-w-[900px] w-full">
-        <div className="flex-1 flex justify-center">
+      <div className="flex flex-col items-center gap-12 max-w-[480px] w-full">
+        <div className="flex flex-col items-center gap-4">
           <img
             src={logo}
             alt="dtwin logo"
-            className="h-32 w-auto object-contain"
+            className="h-48 w-auto object-contain"
           />
+          <p className="text-muted-foreground text-center text-sm">
+            Innovate. Integrate. Accelerate.
+          </p>
         </div>
-        <Card className="w-[400px]">
+        <Card className="w-full">
           <CardHeader>
             <CardTitle className="text-2xl font-semibold text-center">Sign In</CardTitle>
           </CardHeader>
