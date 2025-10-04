@@ -87,7 +87,7 @@ Deno.serve(async (req) => {
     
     // Clear existing data first (batched deletion to avoid timeout)
     console.log('Clearing old historical sales data...');
-    const batchSize = 5000;
+    const batchSize = 500; // Smaller batch size to prevent timeout
     let deletedTotal = 0;
     let hasMore = true;
 
@@ -107,7 +107,7 @@ Deno.serve(async (req) => {
         break;
       }
 
-      // Delete by specific IDs
+      // Delete by specific IDs in smaller chunks
       const ids = idsToDelete.map((item: any) => item.sales_id);
       const { error: deleteError } = await supabase
         .from('historical_sales_data')

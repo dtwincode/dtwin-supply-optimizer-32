@@ -93,7 +93,7 @@ export const SampleDataGenerator = () => {
   };
 
   const clearDataBatched = async () => {
-    const batchSize = 5000;
+    const batchSize = 500; // Smaller batch size to prevent timeout
     let deletedCount = 0;
     let hasMore = true;
 
@@ -130,6 +130,9 @@ export const SampleDataGenerator = () => {
       
       // If we got fewer than batchSize, we're done
       hasMore = idsToDelete.length === batchSize;
+      
+      // Small delay to prevent overwhelming the database
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
   };
 
