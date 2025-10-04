@@ -203,15 +203,16 @@ export function SupplyChainNetwork() {
 
       // Separate locations by type for hierarchical layout
       const dcs = allLocations.filter((l: any) => 
-        l.location_type?.includes('DISTRIBUTION') || l.location_type === 'DC'
+        l.location_type?.toUpperCase().includes('DISTRIBUTION') || 
+        l.location_type?.toUpperCase() === 'DC'
       );
       const restaurants = allLocations.filter((l: any) => 
-        l.location_type === 'RESTAURANT'
+        l.location_type?.toUpperCase() === 'RESTAURANT'
       );
       const others = allLocations.filter((l: any) => 
-        !l.location_type?.includes('DISTRIBUTION') && 
-        l.location_type !== 'DC' && 
-        l.location_type !== 'RESTAURANT'
+        !l.location_type?.toUpperCase().includes('DISTRIBUTION') && 
+        l.location_type?.toUpperCase() !== 'DC' && 
+        l.location_type?.toUpperCase() !== 'RESTAURANT'
       );
       
       if (allLocations.length === 0) {
