@@ -1,0 +1,41 @@
+-- Truncate product_master to remove all data
+TRUNCATE TABLE product_master CASCADE;
+
+-- Insert Burgerizzr menu items
+INSERT INTO product_master (sku, name, category, subcategory, product_family, planning_priority, notes, product_type, unit_of_measure) VALUES
+-- Bestsellers/Limited Offers
+('BST-001', 'Zinger Shong Box', 'Bestsellers/Limited Offers', 'Combo Boxes', 'Combos', 'High', 'Fresh crispy chicken sandwich with ketchup, mayo, and crunchy lettuce, legendary shong side sauce, and a tub of crushed Cheetos fries next to epic curly fries.', 'FINISHED_GOOD', 'EACH'),
+('BST-002', 'Dbl Dbl Fraizerr Loaded Fries', 'Bestsellers/Limited Offers', 'Loaded Fries', 'Sides', 'High', 'Loaded fries with a mix of the awesome Double Double sauce and melted cheese over meat.', 'FINISHED_GOOD', 'EACH'),
+('BST-003', 'Tenderizzr', 'Bestsellers/Limited Offers', 'Chicken Tenders', 'Sides', 'High', 'Four juicy, generously sized chicken strips, served with signature Tenderizzr sauce, perfectly paired with curly fries and a soft brioche bun on the side.', 'FINISHED_GOOD', 'EACH'),
+('BST-004', 'Duo Hibherizzr', 'Bestsellers/Limited Offers', 'Combo Boxes', 'Combos', 'High', '2 fresh fried chicken burgers with the deliciousness of shaqra al-aseel (sea basil), with mahbahar sauce, and fries.', 'FINISHED_GOOD', 'EACH'),
+('BST-005', 'Dbl Dbl X Hibherizzr', 'Bestsellers/Limited Offers', 'Special Burgers', 'Burgers', 'High', 'Double Double Hibherizzr burger (double meat and double melted cheese - two 214g fresh Angus beef patties), served with curly fries, Hibherizzr sauce, crispy fried onions, and a shaqra chili pepper.', 'FINISHED_GOOD', 'EACH'),
+('BST-006', 'Hibherizzr Shaqra', 'Bestsellers/Limited Offers', 'Special Burgers', 'Burgers', 'High', 'Fresh fried chicken burger with the deliciousness of Shaqraa Al-Aseel, with mahbahar cheese, 2 mahbahar tenders, Raizar Habahar sauce, mahbahar fries, and a unique shaqraa shagra.', 'FINISHED_GOOD', 'EACH'),
+('BST-007', 'Hibherizzr Tortilla', 'Bestsellers/Limited Offers', 'Tortilla Wraps', 'Sandwiches', 'High', 'Fresh fried chicken tortilla with delicious Aseel Shaqra squid, with mahbahara cheese, 2 mahbahara tenders, Raizezzar Habahara sauce, mahbahara fries, and a unique shaqraa habahara.', 'FINISHED_GOOD', 'EACH'),
+('BST-008', 'Duo Cali Burgers', 'Bestsellers/Limited Offers', 'Combo Boxes', 'Combos', 'High', '2 Cali Style burgers with luxurious curly fries, Cali sauce, and Ranch sauce.', 'FINISHED_GOOD', 'EACH'),
+('BST-009', 'Cali Burger', 'Bestsellers/Limited Offers', 'Special Burgers', 'Burgers', 'High', 'Classic taste of the Cali Style burger with luxurious and crispy fries.', 'FINISHED_GOOD', 'EACH'),
+('BST-010', 'Break Box', 'Bestsellers/Limited Offers', 'Combo Boxes', 'Combos', 'High', 'Contains a burger of your choice and sauce of your choice with three pieces of Winger and potatoes.', 'FINISHED_GOOD', 'EACH'),
+('GBX-001', 'Meltizzr Burgerizzr Box', 'Gathering Boxes', 'Family Boxes', 'Combos', 'High', 'A special box with a choice of multiple burgers (meat, chicken, or fried chicken), with wings, fries, and three sauces on the side.', 'FINISHED_GOOD', 'EACH'),
+('GBX-002', 'Classic Burgerizzr Box', 'Gathering Boxes', 'Family Boxes', 'Combos', 'High', 'Contains 6 classic burgers (meat, chicken, fried chicken, or mixed), with chicken wings with sauce, sided with fries and three sauces.', 'FINISHED_GOOD', 'EACH'),
+('GBX-003', 'Bbq Classic Box', 'Gathering Boxes', 'Sharing Boxes', 'Combos', 'High', 'Burgerizzr''s distinctive grilling box contains all the ingredients for the burger, ready to grill (you only need to grill the ingredients).', 'FINISHED_GOOD', 'EACH'),
+('SBX-001', 'Dbl Dbl', 'Solo Boxes', 'Individual Combos', 'Combos', 'High', 'Contains a Double Double burger (double meat and double melted cheese - two 214g fresh Angus beef patties), curly fries, Double Double sauce, crispy fried onions, and a pickle.', 'FINISHED_GOOD', 'EACH'),
+('BEF-001', 'Classic Beef Burger', 'Beef Burgers', 'Grilled Beef', 'Burgers', 'Medium', 'Classic fresh grilled beef burger with luxurious brioche bread, lettuce, tomato, onion, pickles, and special Burgerizzr sauce.', 'FINISHED_GOOD', 'EACH'),
+('BEF-002', 'Meltizzr Beef Burger', 'Beef Burgers', 'Grilled Beef', 'Burgers', 'Medium', 'Fresh grilled beef burger with delicious and light potato bread, lettuce, tomatoes, and special Burgerizzr sauce.', 'FINISHED_GOOD', 'EACH'),
+('BEF-003', 'Classic Beef Keto', 'Beef Burgers', 'Keto Beef', 'Burgers', 'Medium', 'Classic keto burger with fresh and delicious meat wrapped with lettuce, pickles, and awesome Burgerizzr sauce.', 'FINISHED_GOOD', 'EACH'),
+('CHK-001', 'Classic Chicken Burger', 'Chicken Burgers', 'Grilled Chicken', 'Burgers', 'Medium', 'Delicious classic chicken burger with fresh ingredients, grilled chicken breast, luxurious brioche bread, lettuce, pickles, special Burgerizzr sauce, and mayonnaise.', 'FINISHED_GOOD', 'EACH'),
+('CHK-002', 'Classic Fried Burger', 'Chicken Burgers', 'Fried Chicken', 'Burgers', 'Medium', 'Fresh fried chicken breast burger with luxurious brioche bread, lettuce, awesome Burgerizzr sauce, pickle pieces, and mayonnaise.', 'FINISHED_GOOD', 'EACH'),
+('CHK-003', 'Meltizzr Chicken Burger', 'Chicken Burgers', 'Grilled Chicken', 'Burgers', 'Medium', 'Fresh chicken burger of grilled chicken thighs with delicious and light potato bread, lettuce, and special Burgerizzr sauce.', 'FINISHED_GOOD', 'EACH'),
+('CHK-004', 'Meltizzr Fried Chicken Burger', 'Chicken Burgers', 'Fried Chicken', 'Burgers', 'Medium', 'Fresh fried chicken burger in delicious and light potato bread with lettuce, special Burgerizzr sauce, and mayonnaise.', 'FINISHED_GOOD', 'EACH'),
+('CHK-005', 'Classic Chicken Keto', 'Chicken Burgers', 'Keto Chicken', 'Burgers', 'Medium', 'Classic keto burger with fresh chicken, delicious with its ingredients: grilled chicken breast wrapped with lettuce, pickles, and special Burgerizzr sauce.', 'FINISHED_GOOD', 'EACH'),
+('SND-001', 'Classic Tortilla Sandwich', 'Sandwiches/Wraps', 'Tortilla Wraps', 'Sandwiches', 'Medium', 'Tortilla sandwich of crispy chicken breasts, lettuce, fresh tomatoes, tortilla sauce, and cheese.', 'FINISHED_GOOD', 'EACH'),
+('SID-001', 'Curly Fries', 'Sides & Appetizers', 'Fries', 'Sides', 'Low', 'Crispy mellolo potatoes.', 'FINISHED_GOOD', 'EACH'),
+('SID-002', 'French Fries', 'Sides & Appetizers', 'Fries', 'Sides', 'Low', 'French fries.', 'FINISHED_GOOD', 'EACH'),
+('SID-003', 'Chicken Strips', 'Sides & Appetizers', 'Chicken Tenders', 'Sides', 'Medium', 'Two soft and crispy tenders with awesome Burgerizzr sauce.', 'FINISHED_GOOD', 'EACH'),
+('SID-004', 'Nuggets', 'Sides & Appetizers', 'Nuggets', 'Sides', 'Medium', 'Delicious pieces.', 'FINISHED_GOOD', 'EACH'),
+('SID-005', 'Wingers', 'Sides & Appetizers', 'Wings', 'Sides', 'Medium', 'Soft and crispy boneless wings with a sauce of your choice.', 'FINISHED_GOOD', 'EACH'),
+('SAU-001', 'Burgerizzr Sauce', 'Sauces', 'Signature Sauces', 'Condiments', 'Low', 'The awesome classic Burgerizzr sauce.', 'FINISHED_GOOD', 'EACH'),
+('SAU-002', 'Dbl Dbl Sauce', 'Sauces', 'Signature Sauces', 'Condiments', 'Low', 'The luxurious and awesome Double Double sauce.', 'FINISHED_GOOD', 'EACH'),
+('SAU-003', 'Hibherizzr Sauce', 'Sauces', 'Signature Sauces', 'Condiments', 'Low', 'Sauce with the addition of the amazing Shaqra sea basil, with its heat and sweetness.', 'FINISHED_GOOD', 'EACH'),
+('SAU-004', 'Other Sauces', 'Sauces', 'Standard Sauces', 'Condiments', 'Low', 'A collection of delicious and famous sauces.', 'FINISHED_GOOD', 'EACH'),
+('DRK-001', 'Soft Drinks', 'Drinks', 'Soft Drinks', 'Beverages', 'Low', 'Soft drinks (e.g., Pepsi, 7 Up).', 'FINISHED_GOOD', 'EACH'),
+('DRK-002', 'Juices', 'Drinks', 'Juices', 'Beverages', 'Low', 'Refreshing juices!', 'FINISHED_GOOD', 'EACH'),
+('DRK-003', 'Water', 'Drinks', 'Water', 'Beverages', 'Low', 'Water bottle.', 'FINISHED_GOOD', 'EACH');
