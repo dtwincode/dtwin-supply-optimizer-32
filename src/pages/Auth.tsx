@@ -48,7 +48,7 @@ export default function Auth() {
           <img
             src={logo}
             alt="dtwin logo"
-            className="h-48 w-auto object-contain"
+            className="h-64 w-auto object-contain"
           />
         </div>
         <Card className="w-[400px]">
