@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle, XCircle, AlertTriangle, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useInventoryFilter } from '../InventoryFilterContext';
 import {
   Table,
   TableBody,
@@ -25,6 +26,7 @@ interface AlignmentIssue {
 }
 
 export function AlignmentDashboard() {
+  const { filters } = useInventoryFilter();
   const [issues, setIssues] = useState<AlignmentIssue[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -36,7 +38,7 @@ export function AlignmentDashboard() {
 
   useEffect(() => {
     loadAlignmentIssues();
-  }, []);
+  }, [filters]);
 
   const loadAlignmentIssues = async () => {
     try {
@@ -48,14 +50,29 @@ export function AlignmentDashboard() {
         .select('product_id, location_id');
 
       // Get all products with buffer profiles
-      const { data: products } = await supabase
+      let productsQuery = supabase
         .from('product_master')
-        .select('product_id, sku, buffer_profile_id');
+        .select('product_id, sku, buffer_profile_id, category');
+      
+      if (filters.productCategory) {
+        productsQuery = productsQuery.eq('category', filters.productCategory);
+      }
+      
+      const { data: products } = await productsQuery;
 
       // Get all locations
-      const { data: locations } = await supabase
+      let locationsQuery = supabase
         .from('location_master')
-        .select('location_id, region');
+        .select('location_id, region, channel_id');
+      
+      if (filters.locationId) {
+        locationsQuery = locationsQuery.eq('location_id', filters.locationId);
+      }
+      if (filters.channelId) {
+        locationsQuery = locationsQuery.eq('channel_id', filters.channelId);
+      }
+      
+      const { data: locations } = await locationsQuery;
 
       const alignmentIssues: AlignmentIssue[] = [];
 

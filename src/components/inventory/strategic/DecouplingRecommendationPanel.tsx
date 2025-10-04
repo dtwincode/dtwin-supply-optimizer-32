@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { CheckCircle, AlertTriangle, TrendingUp, TrendingDown, AlertCircle } from 'lucide-react';
 import { useInventoryConfig } from '@/hooks/useInventoryConfig';
+import { useInventoryFilter } from '../InventoryFilterContext';
 
 interface FactorBreakdown {
   score: number;
@@ -48,6 +49,7 @@ interface ProductLocationPair {
 
 export function DecouplingRecommendationPanel() {
   const { getConfig, isLoading: configLoading } = useInventoryConfig();
+  const { filters } = useInventoryFilter();
   const [pairs, setPairs] = useState<ProductLocationPair[]>([]);
   const [scores, setScores] = useState<Map<string, ScoringResult>>(new Map());
   const [loading, setLoading] = useState(false);
@@ -61,18 +63,33 @@ export function DecouplingRecommendationPanel() {
     if (!configLoading) {
       loadPairs();
     }
-  }, [configLoading]);
+  }, [configLoading, filters]);
 
   const loadPairs = async () => {
     setLoading(true);
     try {
-      const { data: products } = await supabase
+      let productsQuery = supabase
         .from('product_master')
-        .select('product_id, sku, name');
+        .select('product_id, sku, name, category');
+      
+      if (filters.productCategory) {
+        productsQuery = productsQuery.eq('category', filters.productCategory);
+      }
+      
+      const { data: products } = await productsQuery;
 
-      const { data: locations } = await supabase
+      let locationsQuery = supabase
         .from('location_master')
-        .select('location_id, region');
+        .select('location_id, region, channel_id');
+      
+      if (filters.locationId) {
+        locationsQuery = locationsQuery.eq('location_id', filters.locationId);
+      }
+      if (filters.channelId) {
+        locationsQuery = locationsQuery.eq('channel_id', filters.channelId);
+      }
+      
+      const { data: locations } = await locationsQuery;
 
       const { data: decouplingPoints } = await supabase
         .from('decoupling_points')

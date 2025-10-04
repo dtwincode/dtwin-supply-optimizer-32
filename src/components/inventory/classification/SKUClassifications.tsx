@@ -8,16 +8,33 @@ import { Button } from "@/components/ui/button";
 import { Download, RefreshCw } from "lucide-react";
 import * as FileSaver from "file-saver";
 import { useInventoryConfig } from "@/hooks/useInventoryConfig";
+import { useInventoryFilter } from "../InventoryFilterContext";
 
 export function SKUClassifications() {
   const { getConfig } = useInventoryConfig();
+  const { filters } = useInventoryFilter();
   const [classifications, setClassifications] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const loadClassifications = async () => {
     setIsLoading(true);
     try {
-      const data = await fetchInventoryPlanningView();
+      let data = await fetchInventoryPlanningView();
+      
+      // Apply filters
+      if (filters.productCategory) {
+        data = data.filter((item: any) => item.category === filters.productCategory);
+      }
+      if (filters.locationId) {
+        data = data.filter((item: any) => item.location_id === filters.locationId);
+      }
+      if (filters.channelId) {
+        data = data.filter((item: any) => item.channel_id === filters.channelId);
+      }
+      if (filters.decouplingOnly) {
+        data = data.filter((item: any) => item.decoupling_point === true);
+      }
+      
       setClassifications(data as any[]);
     } catch (error) {
       console.error("Error loading classifications:", error);
@@ -28,7 +45,7 @@ export function SKUClassifications() {
 
   useEffect(() => {
     loadClassifications();
-  }, []);
+  }, [filters]);
 
   const exportToCSV = () => {
     const csvContent =

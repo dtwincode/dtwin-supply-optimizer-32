@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit2, Save, X } from "lucide-react";
+import { Plus, Edit2, Save, X, Filter } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { useInventoryFilter } from "../InventoryFilterContext";
 
 interface BufferProfile {
   buffer_profile_id: string;
@@ -31,6 +32,7 @@ interface BufferProfileOverride {
 
 export function BufferProfileManagement() {
   const { toast } = useToast();
+  const { filters } = useInventoryFilter();
   const [profiles, setProfiles] = useState<BufferProfile[]>([]);
   const [overrides, setOverrides] = useState<BufferProfileOverride[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,7 +42,7 @@ export function BufferProfileManagement() {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [filters]);
 
   const loadData = async () => {
     setLoading(true);
@@ -54,11 +56,16 @@ export function BufferProfileManagement() {
       if (profilesError) throw profilesError;
       setProfiles(profilesData || []);
 
-      // Load overrides
-      const { data: overridesData, error: overridesError } = await supabase
+      // Load overrides with filters
+      let overridesQuery = supabase
         .from('buffer_profile_override')
         .select('*');
+      
+      if (filters.locationId) {
+        overridesQuery = overridesQuery.eq('location_id', filters.locationId);
+      }
 
+      const { data: overridesData, error: overridesError } = await overridesQuery;
       if (overridesError) throw overridesError;
       setOverrides(overridesData || []);
     } catch (error: any) {

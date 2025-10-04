@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChevronRight, ChevronDown, Package } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { useInventoryFilter } from '../InventoryFilterContext';
 
 interface BOMNode {
   id: string;
@@ -22,13 +23,14 @@ interface TreeNode extends BOMNode {
 }
 
 export function BOMViewer() {
+  const { filters } = useInventoryFilter();
   const [bomData, setBomData] = useState<TreeNode[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     loadBOMData();
-  }, []);
+  }, [filters]);
 
   const loadBOMData = async () => {
     try {
@@ -61,10 +63,16 @@ export function BOMViewer() {
         ...bomRaw.map((b: BOMNode) => b.child_product_id),
       ]);
 
-      const { data: products, error: prodError } = await supabase
+      let productsQuery = supabase
         .from('product_master')
-        .select('product_id, name, sku')
+        .select('product_id, name, sku, category')
         .in('product_id', Array.from(productIds));
+      
+      if (filters.productCategory) {
+        productsQuery = productsQuery.eq('category', filters.productCategory);
+      }
+
+      const { data: products, error: prodError } = await productsQuery;
 
       if (prodError) throw prodError;
 

@@ -8,6 +8,7 @@ import { AlertTriangle, CheckCircle2, XCircle, Clock, RefreshCw } from "lucide-r
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useInventoryFilter } from "../InventoryFilterContext";
 
 interface BufferBreach {
   event_id: number;
@@ -24,6 +25,7 @@ interface BufferBreach {
 
 export function BreachAlertsDashboard() {
   const { toast } = useToast();
+  const { filters } = useInventoryFilter();
   const [breaches, setBreaches] = useState<BufferBreach[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterSeverity, setFilterSeverity] = useState<string>("all");
@@ -57,7 +59,7 @@ export function BreachAlertsDashboard() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [filters]);
 
   const loadBreaches = async () => {
     setLoading(true);
@@ -67,7 +69,12 @@ export function BreachAlertsDashboard() {
         .select('*')
         .order('detected_ts', { ascending: false });
 
-      // Apply filters
+      // Apply inventory filters
+      if (filters.locationId) {
+        query = query.eq('location_id', filters.locationId);
+      }
+      
+      // Apply local filters
       if (filterSeverity !== 'all') {
         query = query.eq('severity', filterSeverity.toUpperCase());
       }
