@@ -2245,19 +2245,25 @@ export type Database = {
       }
       component_demand_view: {
         Row: {
+          buffer_status: string | null
           component_adu: number | null
           component_category: string | null
           component_name: string | null
           component_product_id: string | null
           component_sku: string | null
-          days_with_demand: number | null
           demand_cv: number | null
           high_variability: boolean | null
           location_id: string | null
+          mean_demand: number | null
+          nfp: number | null
           num_finished_goods_using: number | null
-          total_demand_90d: number | null
+          on_hand: number | null
+          std_dev: number | null
+          tog: number | null
+          tor: number | null
+          total_component_qty: number | null
+          toy: number | null
           used_in_finished_goods: string[] | null
-          window_days: number | null
         }
         Relationships: [
           {

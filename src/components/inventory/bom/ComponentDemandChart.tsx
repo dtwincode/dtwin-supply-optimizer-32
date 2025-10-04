@@ -45,11 +45,13 @@ export function ComponentDemandChart() {
 
       if (error) throw error;
 
-      // Aggregate by component across all locations
-      const aggregated = new Map<string, ComponentData>();
+      // Aggregate by component across all locations using weighted average for CV
+      const aggregated = new Map<string, ComponentData & { totalWeight: number, weightedCVSum: number }>();
       
       (data || []).forEach((row: any) => {
         const key = row.component_product_id;
+        const adu = Number(row.component_adu || 0);
+        const cv = Number(row.demand_cv || 0);
         
         if (!aggregated.has(key)) {
           aggregated.set(key, {
@@ -62,16 +64,26 @@ export function ComponentDemandChart() {
             num_finished_goods_using: row.num_finished_goods_using,
             used_in_finished_goods: row.used_in_finished_goods || [],
             demand_cv: 0,
-            high_variability: false
+            high_variability: false,
+            totalWeight: 0,
+            weightedCVSum: 0
           });
         }
         
         const existing = aggregated.get(key)!;
-        existing.component_adu += Number(row.component_adu || 0);
+        existing.component_adu += adu;
         
-        // Average the CV across locations
-        existing.demand_cv = ((existing.demand_cv + (row.demand_cv || 0)) / 2);
+        // Weighted average for CV (weighted by ADU)
+        existing.weightedCVSum += cv * adu;
+        existing.totalWeight += adu;
         existing.high_variability = existing.high_variability || row.high_variability;
+      });
+
+      // Calculate final weighted CV
+      aggregated.forEach(item => {
+        if (item.totalWeight > 0) {
+          item.demand_cv = item.weightedCVSum / item.totalWeight;
+        }
       });
 
       // Convert to array and sort by ADU

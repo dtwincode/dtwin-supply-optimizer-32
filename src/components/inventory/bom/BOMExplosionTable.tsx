@@ -23,9 +23,12 @@ interface ComponentExplosion {
   used_in_finished_goods: string[];
   demand_cv: number;
   high_variability: boolean;
-  buffer_status?: 'RED' | 'YELLOW' | 'GREEN';
+  buffer_status?: 'RED' | 'YELLOW' | 'GREEN' | null;
   nfp?: number;
   tor?: number;
+  on_hand?: number;
+  toy?: number;
+  tog?: number;
 }
 
 export function BOMExplosionTable() {
@@ -65,10 +68,12 @@ export function BOMExplosionTable() {
       if (compError) throw compError;
 
       // Aggregate by component across all locations (unless location filter is active)
-      const aggregated = new Map<string, ComponentExplosion>();
+      const aggregated = new Map<string, ComponentExplosion & { totalWeight: number, weightedCVSum: number }>();
       
       (components || []).forEach((row: any) => {
         const key = filters.locationId ? `${row.component_product_id}-${row.location_id}` : row.component_product_id;
+        const adu = Number(row.component_adu || 0);
+        const cv = Number(row.demand_cv || 0);
         
         if (!aggregated.has(key)) {
           aggregated.set(key, {
@@ -82,15 +87,52 @@ export function BOMExplosionTable() {
             num_finished_goods_using: row.num_finished_goods_using,
             used_in_finished_goods: row.used_in_finished_goods || [],
             demand_cv: 0,
-            high_variability: false
+            high_variability: false,
+            buffer_status: row.buffer_status,
+            nfp: row.nfp,
+            tor: row.tor,
+            on_hand: row.on_hand,
+            toy: row.toy,
+            tog: row.tog,
+            totalWeight: 0,
+            weightedCVSum: 0
           });
         }
         
         const existing = aggregated.get(key)!;
-        existing.component_adu += Number(row.component_adu || 0);
+        existing.component_adu += adu;
         existing.total_demand_90d += Number(row.total_demand_90d || 0);
-        existing.demand_cv = ((existing.demand_cv + (row.demand_cv || 0)) / 2);
+        
+        // Weighted average for CV (weighted by ADU)
+        existing.weightedCVSum += cv * adu;
+        existing.totalWeight += adu;
         existing.high_variability = existing.high_variability || row.high_variability;
+        
+        // Aggregate buffer data (sum for aggregated view)
+        if (!filters.locationId) {
+          existing.nfp = (existing.nfp || 0) + (row.nfp || 0);
+          existing.tor = (existing.tor || 0) + (row.tor || 0);
+          existing.on_hand = (existing.on_hand || 0) + (row.on_hand || 0);
+          existing.toy = (existing.toy || 0) + (row.toy || 0);
+          existing.tog = (existing.tog || 0) + (row.tog || 0);
+        }
+      });
+
+      // Calculate final weighted CV and buffer status
+      aggregated.forEach(item => {
+        if (item.totalWeight > 0) {
+          item.demand_cv = item.weightedCVSum / item.totalWeight;
+        }
+        // Recalculate buffer status for aggregated data
+        if (!filters.locationId && item.nfp !== undefined && item.tor !== undefined) {
+          if (item.nfp <= item.tor) {
+            item.buffer_status = 'RED';
+          } else if (item.nfp <= (item.toy || 0)) {
+            item.buffer_status = 'YELLOW';
+          } else {
+            item.buffer_status = 'GREEN';
+          }
+        }
       });
 
       // Convert to array
@@ -242,17 +284,19 @@ export function BOMExplosionTable() {
                   <TableHead>Component Name</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>Location</TableHead>
+                  <TableHead className="text-right">On Hand</TableHead>
+                  <TableHead className="text-right">NFP</TableHead>
+                  <TableHead>Buffer Status</TableHead>
                   <TableHead className="text-right">Component ADU</TableHead>
                   <TableHead className="text-right">90d Demand</TableHead>
-                  <TableHead className="text-right"># Finished Goods</TableHead>
+                  <TableHead className="text-right"># FG Using</TableHead>
                   <TableHead>Variability</TableHead>
-                  <TableHead>Used In</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredData.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={11} className="text-center py-8 text-muted-foreground">
                       No components found
                     </TableCell>
                   </TableRow>
@@ -265,6 +309,24 @@ export function BOMExplosionTable() {
                         <Badge variant="outline">{row.component_category}</Badge>
                       </TableCell>
                       <TableCell>{row.location_id}</TableCell>
+                      <TableCell className="text-right">
+                        {row.on_hand !== undefined ? row.on_hand.toFixed(0) : '-'}
+                      </TableCell>
+                      <TableCell className="text-right font-semibold">
+                        {row.nfp !== undefined ? row.nfp.toFixed(0) : '-'}
+                      </TableCell>
+                      <TableCell>
+                        {row.buffer_status === 'RED' && (
+                          <Badge className="bg-red-500 text-white">RED</Badge>
+                        )}
+                        {row.buffer_status === 'YELLOW' && (
+                          <Badge className="bg-yellow-500 text-white">YELLOW</Badge>
+                        )}
+                        {row.buffer_status === 'GREEN' && (
+                          <Badge className="bg-green-500 text-white">GREEN</Badge>
+                        )}
+                        {!row.buffer_status && <Badge variant="outline">N/A</Badge>}
+                      </TableCell>
                       <TableCell className="text-right font-semibold">
                         {row.component_adu.toFixed(2)}
                       </TableCell>
@@ -276,20 +338,6 @@ export function BOMExplosionTable() {
                       </TableCell>
                       <TableCell>
                         {getBufferStatusBadge(row.demand_cv)}
-                      </TableCell>
-                      <TableCell className="max-w-[300px]">
-                        <div className="flex flex-wrap gap-1">
-                          {row.used_in_finished_goods?.slice(0, 3).map((fg, idx) => (
-                            <Badge key={idx} variant="secondary" className="text-xs">
-                              {fg}
-                            </Badge>
-                          ))}
-                          {row.used_in_finished_goods?.length > 3 && (
-                            <Badge variant="secondary" className="text-xs">
-                              +{row.used_in_finished_goods.length - 3} more
-                            </Badge>
-                          )}
-                        </div>
                       </TableCell>
                     </TableRow>
                   ))
