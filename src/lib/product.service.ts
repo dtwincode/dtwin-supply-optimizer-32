@@ -2,6 +2,27 @@
 import { supabase } from '@/integrations/supabase/client';
 import Papa from 'papaparse';
 
+// Function to clear all products from product_master table
+export const clearAllProducts = async () => {
+  try {
+    const { error } = await supabase
+      .from('product_master')
+      .delete()
+      .neq('product_id', '00000000-0000-0000-0000-000000000000'); // Delete all records
+    
+    if (error) {
+      console.error('Error clearing products:', error.message);
+      return false;
+    }
+    
+    console.log('All products cleared successfully');
+    return true;
+  } catch (error) {
+    console.error('Error clearing products:', error);
+    return false;
+  }
+};
+
 // Function to handle product data upload from CSV 
 export const uploadProduct = async (file: File) => {
   try {
