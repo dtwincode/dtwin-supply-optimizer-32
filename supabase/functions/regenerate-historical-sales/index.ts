@@ -84,6 +84,36 @@ Deno.serve(async (req) => {
     const { days = 90 } = await req.json();
 
     console.log(`Generating ${days} days of historical sales data...`);
+    
+    // Clear existing data first (batched deletion to avoid timeout)
+    console.log('Clearing old historical sales data...');
+    const batchSize = 5000;
+    let deletedTotal = 0;
+    let hasMore = true;
+
+    while (hasMore) {
+      const { error: deleteError } = await supabase
+        .from('historical_sales_data')
+        .delete()
+        .limit(batchSize);
+
+      if (deleteError) {
+        console.error('Error deleting batch:', deleteError);
+        throw new Error(`Failed to clear old data: ${deleteError.message}`);
+      }
+
+      deletedTotal += batchSize;
+      console.log(`Deleted ${deletedTotal} records...`);
+
+      // Check if more data exists
+      const { count } = await supabase
+        .from('historical_sales_data')
+        .select('*', { count: 'exact', head: true });
+      
+      hasMore = (count && count > 0) || false;
+    }
+
+    console.log(`Cleared ${deletedTotal} old records`);
 
     // Fetch sales configuration from database
     const config = await fetchSalesConfig(supabase);

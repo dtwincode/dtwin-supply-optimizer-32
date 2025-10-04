@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download, Database, RefreshCw, Trash2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Download, Database, RefreshCw, Trash2, Settings } from "lucide-react";
 import { toast } from "sonner";
 import { 
   generateRealisticHistoricalSales, 
@@ -10,11 +12,16 @@ import {
   getHistoricalSalesSummary 
 } from "@/lib/historical-sales-generator.service";
 import { supabase } from "@/integrations/supabase/client";
+import { Progress } from "@/components/ui/progress";
 
 export const SampleDataGenerator = () => {
   const [summary, setSummary] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
+  const [days, setDays] = useState(90);
+  const [progress, setProgress] = useState(0);
+  const [progressMessage, setProgressMessage] = useState("");
 
   useEffect(() => {
     loadSummary();
@@ -51,21 +58,67 @@ export const SampleDataGenerator = () => {
   const handleGenerateAndInsert = async () => {
     try {
       setGenerating(true);
-      toast.info("Clearing old data and generating new historical sales with finished goods...");
+      setProgress(0);
+      setProgressMessage("Clearing old data...");
       
+      // Step 1: Clear old data with batched deletion
+      await clearDataBatched();
+      
+      setProgress(30);
+      setProgressMessage(`Generating ${days} days of sales data...`);
+      
+      // Step 2: Generate new data
       const { data, error } = await supabase.functions.invoke('regenerate-historical-sales', {
-        body: { days: 90 }
+        body: { days }
       });
 
       if (error) throw error;
       
-      toast.success(data.message);
+      setProgress(90);
+      setProgressMessage("Finalizing...");
+      
       await loadSummary();
+      setProgress(100);
+      setProgressMessage("Complete!");
+      
+      toast.success(`Generated ${data.totalRecords.toLocaleString()} records`);
     } catch (error: any) {
       console.error("Error generating data:", error);
       toast.error(`Failed to generate data: ${error.message}`);
     } finally {
       setGenerating(false);
+      setProgress(0);
+      setProgressMessage("");
+    }
+  };
+
+  const clearDataBatched = async () => {
+    const batchSize = 5000;
+    let deletedCount = 0;
+    let hasMore = true;
+
+    while (hasMore) {
+      const { error } = await supabase
+        .from('historical_sales_data')
+        .delete()
+        .limit(batchSize);
+
+      if (error) {
+        throw new Error(`Failed to clear data: ${error.message}`);
+      }
+
+      deletedCount += batchSize;
+      
+      // Check if there's more data
+      const { count } = await supabase
+        .from('historical_sales_data')
+        .select('*', { count: 'exact', head: true });
+      
+      hasMore = (count && count > 0) || false;
+      
+      if (hasMore) {
+        setProgressMessage(`Clearing data... ${deletedCount.toLocaleString()} deleted`);
+      }
     }
   };
 
@@ -76,7 +129,12 @@ export const SampleDataGenerator = () => {
 
     try {
       setLoading(true);
-      await clearHistoricalSales();
+      setProgress(0);
+      setProgressMessage("Deleting data in batches...");
+      
+      await clearDataBatched();
+      
+      setProgress(100);
       toast.success("Historical sales data cleared successfully");
       await loadSummary();
     } catch (error: any) {
@@ -84,6 +142,8 @@ export const SampleDataGenerator = () => {
       toast.error(`Failed to clear data: ${error.message}`);
     } finally {
       setLoading(false);
+      setProgress(0);
+      setProgressMessage("");
     }
   };
 
@@ -180,6 +240,53 @@ export const SampleDataGenerator = () => {
           </ul>
         </div>
 
+        {/* Generation Options */}
+        <div className="space-y-3 p-4 border rounded-lg bg-muted/50">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowOptions(!showOptions)}
+            className="w-full flex items-center justify-between"
+          >
+            <span className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Generation Options
+            </span>
+            <span className="text-xs">{showOptions ? "Hide" : "Show"}</span>
+          </Button>
+
+          {showOptions && (
+            <div className="space-y-3 pt-2">
+              <div className="space-y-2">
+                <Label htmlFor="days">Number of Days</Label>
+                <Input
+                  id="days"
+                  type="number"
+                  min="1"
+                  max="365"
+                  value={days}
+                  onChange={(e) => setDays(parseInt(e.target.value) || 90)}
+                  placeholder="90"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Generate realistic sales data for the last {days} days
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Progress Indicator */}
+        {(generating || loading) && progress > 0 && (
+          <div className="space-y-2 p-4 border rounded-lg bg-primary/5">
+            <div className="flex items-center justify-between text-sm">
+              <span className="font-medium">{progressMessage}</span>
+              <span className="text-muted-foreground">{progress}%</span>
+            </div>
+            <Progress value={progress} className="h-2" />
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
           <Button 
             onClick={handleGenerateAndInsert} 
@@ -194,7 +301,7 @@ export const SampleDataGenerator = () => {
             ) : (
               <>
                 <Database className="mr-2 h-4 w-4" />
-                Generate 90 Days
+                Generate {days} Days
               </>
             )}
           </Button>
