@@ -1,47 +1,365 @@
-# DDMRP Inventory Management Tool - Complete User Guide
+# DDMRP Inventory Management Tool - Complete Beginner's Guide
 
-## Table of Contents
-1. [Introduction](#introduction)
-2. [Getting Started](#getting-started)
-3. [Initial Data Setup](#initial-data-setup)
-4. [Understanding the Inventory Module](#understanding-the-inventory-module)
-5. [Step-by-Step Workflow](#step-by-step-workflow)
-6. [Configuration Guide](#configuration-guide)
-7. [Daily Operations](#daily-operations)
-8. [Advanced Features](#advanced-features)
-
----
-
-## Introduction
-
-This DDMRP (Demand Driven Material Requirements Planning) tool implements the complete methodology from the DDMRP book by Carol Ptak and Chad Smith. The system focuses on:
-- **Strategic positioning** of inventory buffers
-- **Dynamic buffer adjustments** based on market conditions
-- **Visible collaborative execution** using buffer penetration
-- **Material synchronization** across multi-level BOMs
+## 📚 Table of Contents
+1. [What is This Tool & Why Use It?](#what-is-this-tool--why-use-it)
+2. [First Time Setup - Complete Walkthrough](#first-time-setup---complete-walkthrough)
+3. [Understanding Every Screen](#understanding-every-screen)
+4. [Complete Step-by-Step Workflow](#complete-step-by-step-workflow)
+5. [Daily Operations - What to Do Every Day](#daily-operations---what-to-do-every-day)
+6. [Understanding What You See](#understanding-what-you-see)
+7. [Common Questions & Troubleshooting](#common-questions--troubleshooting)
 
 ---
 
-## Getting Started
+## What is This Tool & Why Use It?
 
-### Prerequisites
-Before using the system, ensure you have:
-- Authentication credentials (login access)
-- Master data files ready for upload
-- Understanding of your supply chain structure
+### The Problem This Solves
+Traditional inventory management asks: *"How much will we sell next month?"* (forecasting)
 
-### First Login
-1. Navigate to the login page
-2. Enter your credentials
-3. You'll land on the Dashboard showing overall metrics
+DDMRP asks a better question: *"What do we need to protect our operations TODAY?"*
+
+### What Makes This Different?
+Instead of guessing future demand and ordering based on forecasts, this tool:
+1. **Positions inventory strategically** where it matters most
+2. **Adjusts automatically** when market conditions change
+3. **Shows you exactly** what to order and when, ranked by priority
+4. **Prevents both** stockouts AND excess inventory
+
+### Who Should Use This?
+- **Supply Chain Managers** - Plan inventory strategy
+- **Inventory Planners** - Execute daily replenishment orders
+- **Warehouse Managers** - Monitor stock levels and breaches
+- **Procurement Teams** - Create and track purchase orders
+- **Analysts** - Review performance metrics
 
 ---
 
-## Initial Data Setup
+## First Time Setup - Complete Walkthrough
 
-### Step 1: Upload Master Data (Settings Page)
+### Before You Start - What You Need
 
-Navigate to **Settings** page first. You must upload data in this specific order:
+Think of this system like building a house. Before you can live in it, you need to build the foundation. The foundation is your **master data**.
+
+**Required Data Files (prepare these FIRST):**
+1. ✅ **Product List** - What do you sell/use?
+2. ✅ **Location List** - Where do you store/sell products?
+3. ✅ **Vendor/Supplier List** - Who supplies your products?
+4. ✅ **Historical Sales** - Past 90 days minimum (more is better)
+5. ✅ **Product Prices** - How much does each product cost?
+6. ✅ **Lead Times** - How long does each supplier take to deliver?
+
+**Optional But Recommended:**
+- Supplier performance history
+- Storage requirements (frozen, chilled, ambient)
+- Minimum order quantities (MOQs)
+- Bill of materials (if you manufacture)
+
+---
+
+## Logging In for the First Time
+
+### Step 1: Open the Application
+1. Open your web browser (Chrome, Firefox, Safari, or Edge)
+2. Navigate to the application URL (provided by your IT team)
+3. You'll see a **login page** with two input fields
+
+### Step 2: Enter Your Credentials
+1. **Email Address Field** - Type your work email (e.g., `ahmed@company.com`)
+2. **Password Field** - Enter your password (case-sensitive!)
+3. Click the blue **"Sign In"** button
+
+**What You'll See After Login:**
+- You'll be taken to the **Dashboard** page
+- At the top, you'll see your name and company logo
+- On the left side, there's a navigation menu with these options:
+  - 📊 Dashboard
+  - 📦 Inventory
+  - 🎯 Execution Priority
+  - 🔄 Material Sync
+  - 📝 Reports
+  - ⚙️ Settings
+
+---
+
+## Understanding the Navigation
+
+### The Left Sidebar - Your Command Center
+
+Think of the left sidebar like the main menu of a restaurant - it shows you everything available.
+
+**1. Dashboard (📊)**
+- **What it shows:** Overall health of your inventory system
+- **When to use it:** Daily, first thing in the morning
+- **What you'll see:** 
+  - Total products being managed
+  - How many locations you have
+  - Products in each buffer zone (Green/Yellow/Red)
+  - Critical alerts
+  - Financial metrics (inventory value, carrying costs)
+
+**2. Inventory (📦) - YOUR MAIN WORKSPACE**
+- **What it shows:** Detailed inventory planning and management
+- **When to use it:** Throughout the day for planning and monitoring
+- **What you'll see:** 7 different tabs (explained in detail below)
+
+**3. Execution Priority (🎯)**
+- **What it shows:** What to order RIGHT NOW, sorted by urgency
+- **When to use it:** Every morning to plan your day
+- **What you'll see:** Products sorted by "buffer penetration" (how deep into the buffer you've gone)
+
+**4. Material Sync (🔄)**
+- **What it shows:** Component shortages for manufactured items
+- **When to use it:** If you have bills of materials (BOMs)
+- **What you'll see:** Missing components that could stop production
+
+**5. Reports (📝)**
+- **What it shows:** Historical analysis and trends
+- **When to use it:** Weekly/monthly reviews
+- **What you'll see:** Performance charts, trend analysis, KPI reports
+
+**6. Settings (⚙️) - START HERE ON DAY 1**
+- **What it shows:** Data upload and system configuration
+- **When to use it:** Initial setup, then whenever adding new products/locations
+- **What you'll see:** Upload forms for all master data tables
+
+---
+
+## Your First Day - Complete Setup Walkthrough
+
+### IMPORTANT: Do These Steps IN ORDER (Day 1-3)
+
+Think of this like assembling furniture - if you skip steps, things won't work properly!
+
+---
+
+## Step-by-Step: Uploading Master Data (Settings Page)
+
+### Getting to the Settings Page
+
+1. Look at the **left sidebar menu**
+2. Click on **⚙️ Settings** (usually at the bottom)
+3. You'll see a page with multiple tabs at the top:
+   - **Master Data** (start here)
+   - **Hierarchy**
+   - **Lead Time**
+   - **Replenishment**
+   - **Templates** (download sample files here!)
+
+---
+
+### BEFORE Uploading: Download Sample Templates
+
+**👉 CLICK THIS FIRST: Settings → Templates Tab**
+
+**What You'll See:**
+- A list of buttons labeled "Download Template" for each data type
+- These are Excel/CSV files showing EXACTLY what format you need
+
+**Actions:**
+1. Click **"Download Product Master Template"**
+2. Open the file in Excel
+3. You'll see column headers like:
+   ```
+   product_id | sku | name | category | subcategory | supplier_id | unit_of_measure
+   ```
+4. Replace the sample data with YOUR actual products
+5. Save the file (keep it as CSV format)
+
+**Repeat for all templates:**
+- Product Master Template
+- Location Master Template
+- Vendor Master Template
+- Historical Sales Template
+- Product Pricing Template
+- Lead Time Template
+
+---
+
+## Upload Sequence (MUST Follow This Order!)
+
+### 📦 Step 1: Upload Products First
+
+**Why First?** Everything else references products. No products = nothing else works.
+
+**Navigation:**
+1. Click **Settings** (left sidebar)
+2. Click **Master Data** tab (top of page)
+3. Look for the section titled **"Product Master Upload"**
+4. You'll see a **dashed box** with text "Click to upload or drag file here"
+
+**What to Upload:**
+- **File:** Your completed product master CSV
+- **Table Name:** `product_master`
+
+**Required Columns Explained (what each means):**
+
+| Column | What It Means | Example Value | Why It Matters |
+|--------|---------------|---------------|----------------|
+| `product_id` | Unique code for this product (like a serial number) | `PROD_001` | System uses this to link everything together |
+| `sku` | Stock Keeping Unit (your internal product code) | `BUN-SESAME-001` | What you use in warehouse/POS |
+| `name` | Product name (what humans call it) | `Sesame Seed Bun` | Shows on screens and reports |
+| `category` | Main group | `Ingredients` | For filtering and analysis |
+| `subcategory` | Subgroup | `Bakery` | More specific filtering |
+| `supplier_id` | Who supplies this? | `SUP_001` | Links to vendor table (upload vendors first if possible) |
+| `unit_of_measure` | How do you count it? | `EACH`, `KG`, `LITER` | For accurate calculations |
+| `buffer_profile_id` | What buffer rules apply? | `BP_DEFAULT` | Start with default, customize later |
+
+**Example Row:**
+```csv
+PROD_001,BUN-SESAME-001,Sesame Seed Bun,Ingredients,Bakery,SUP_001,EACH,BP_DEFAULT
+```
+
+**Actions:**
+1. Click the **dashed upload box**
+2. Select your product CSV file
+3. Wait for upload (you'll see a progress bar)
+4. ✅ **Success Message:** "Successfully uploaded 150 products"
+5. ❌ **Error Message:** If you see errors, check:
+   - File format is CSV (not Excel .xlsx)
+   - No empty rows
+   - All required columns present
+   - No special characters in IDs
+
+---
+
+### 📍 Step 2: Upload Locations Second
+
+**Why Second?** Products need to be stored somewhere. Locations define WHERE.
+
+**Navigation:**
+Same Settings page, scroll down to **"Location Master Upload"** section
+
+**Required Columns Explained:**
+
+| Column | What It Means | Example | Why It Matters |
+|--------|---------------|---------|----------------|
+| `location_id` | Unique location code | `LOC_RY_001` | System identifier |
+| `region` | Geographic area | `Riyadh`, `Jeddah` | For regional analysis |
+| `channel_id` | Type of channel | `DINE_IN`, `DRIVE_THRU`, `DELIVERY` | Different demand patterns |
+| `location_type` | Physical type | `RESTAURANT`, `WAREHOUSE`, `DC` | Determines buffer strategy |
+| `restaurant_number` | Your store number (optional) | `R001` | Links to your POS system |
+
+**Example Row:**
+```csv
+LOC_RY_001,Riyadh,DINE_IN,RESTAURANT,R001
+LOC_JD_DC,Jeddah,DC,WAREHOUSE,DC01
+```
+
+**What You'll See After Upload:**
+- Confirmation message with count
+- New locations appear in dropdown filters throughout the app
+
+---
+
+### 🏭 Step 3: Upload Vendors/Suppliers Third
+
+**Why Third?** Products reference suppliers. Need suppliers loaded first.
+
+**Navigation:**
+Settings → Master Data → **"Vendor Master Upload"**
+
+**Required Columns:**
+
+| Column | Example | Purpose |
+|--------|---------|---------|
+| `vendor_id` | `SUP_001` | Unique supplier code |
+| `vendor_code` | `BAKERY_SUPPLY_CO` | Your internal supplier code |
+| `vendor_name` | `National Bakery Supplies` | Company name |
+| `country` | `Saudi Arabia` | Location |
+| `contact_email` | `orders@bakery.com` | For communication |
+| `payment_terms` | `NET30`, `NET60` | Payment timing |
+
+---
+
+### 📊 Step 4: Upload Historical Sales (CRITICAL!)
+
+**Why Critical?** This calculates Average Daily Usage (ADU) - the foundation of all buffers!
+
+**Minimum Requirement:** 90 days of daily sales data
+**Recommended:** 1 year for better seasonality detection
+
+**Navigation:**
+Settings → Master Data → **"Historical Sales Upload"**
+
+**Required Columns Explained:**
+
+| Column | What It Means | Example | Format |
+|--------|---------------|---------|--------|
+| `sales_id` | Unique transaction ID | `SALE_20250101_001` | Any unique text |
+| `product_id` | What was sold? | `PROD_001` | Must match product_master |
+| `location_id` | Where was it sold? | `LOC_RY_001` | Must match location_master |
+| `sales_date` | When? | `2025-01-15` | YYYY-MM-DD format |
+| `quantity_sold` | How many units? | `150` | Whole number |
+| `revenue` | Sales value (optional) | `750.00` | Decimal number |
+
+**CRITICAL:** Every product-location combination needs sales history!
+
+**Example Data:**
+```csv
+SALE_001,PROD_001,LOC_RY_001,2025-01-01,150,750.00
+SALE_002,PROD_001,LOC_RY_001,2025-01-02,145,725.00
+SALE_003,PROD_001,LOC_RY_001,2025-01-03,160,800.00
+```
+
+**What Happens Behind the Scenes:**
+1. System groups by product_id + location_id
+2. Calculates average daily quantity over 90 days
+3. This becomes your base ADU (Average Daily Usage)
+4. ADU drives ALL buffer calculations
+
+---
+
+### 💰 Step 5: Upload Product Pricing
+
+**Navigation:**
+Settings → Master Data → **"Product Pricing Upload"**
+
+**Columns:**
+- `product_id` - Which product
+- `price` - Unit cost
+- `effective_date` - When this price started
+- `currency` - Usually `SAR`
+
+**Why It Matters:**
+- Inventory valuation reports
+- Holding cost calculations
+- ROI analysis
+
+---
+
+### ⏱️ Step 6: Upload Lead Times (EXTREMELY IMPORTANT!)
+
+**Why Important?** Lead time determines buffer sizes. Wrong lead time = wrong buffers!
+
+**Navigation:**
+Settings → Lead Time Tab → **"Upload Lead Time Data"**
+
+**Columns:**
+
+| Column | What It Means | Example | How to Determine |
+|--------|---------------|---------|------------------|
+| `product_id` | Which product | `PROD_001` | - |
+| `location_id` | At which location | `LOC_RY_001` | - |
+| `actual_lead_time_days` | Days from order to delivery | `7` | Ask your supplier! |
+
+**Example:**
+```csv
+PROD_001,LOC_RY_001,3
+PROD_002,LOC_RY_001,7
+PROD_003,LOC_JD_DC,14
+```
+
+**How to Find Lead Time:**
+1. **Check with supplier:** "If I order today, when will it arrive?"
+2. **Look at past orders:** Average time from PO to receipt
+3. **Include:** Order processing + manufacturing + shipping + receiving
+4. **Don't Include:** Internal consumption time
+
+**Common Lead Times:**
+- Local supplier: 1-3 days
+- Regional supplier: 5-10 days
+- International: 30-60 days
+- Made-to-order: 7-21 days
 
 #### 1.1 Product Master Data
 **Table:** `product_master`
