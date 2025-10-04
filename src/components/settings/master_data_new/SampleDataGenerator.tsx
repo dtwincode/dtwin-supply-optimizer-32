@@ -20,6 +20,25 @@ export const SampleDataGenerator = () => {
     loadSummary();
   }, []);
 
+  // Auto-generate data if empty
+  useEffect(() => {
+    const autoGenerate = async () => {
+      if (summary === null && !generating && !loading) {
+        // Wait a bit to ensure the summary loaded
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Check if still empty
+        const freshSummary = await getHistoricalSalesSummary();
+        if (!freshSummary) {
+          console.log("Auto-triggering historical sales generation...");
+          handleGenerateAndInsert();
+        }
+      }
+    };
+    
+    autoGenerate();
+  }, [summary]);
+
   const loadSummary = async () => {
     try {
       const summaryData = await getHistoricalSalesSummary();
