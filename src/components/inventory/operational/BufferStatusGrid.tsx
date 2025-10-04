@@ -23,8 +23,8 @@ export function BufferStatusGrid() {
 
       let filtered = data.filter((item: any) => item.decoupling_point === true);
 
-      if (filters.productCategory) {
-        filtered = filtered.filter((item) => item.category === filters.productCategory);
+      if (filters.productId) {
+        filtered = filtered.filter((item) => item.product_id === filters.productId);
       }
       if (filters.locationId) {
         filtered = filtered.filter((item) => item.location_id === filters.locationId);

@@ -72,8 +72,8 @@ export function DecouplingRecommendationPanel() {
         .from('product_master')
         .select('product_id, sku, name, category');
       
-      if (filters.productCategory) {
-        productsQuery = productsQuery.eq('category', filters.productCategory);
+      if (filters.productId) {
+        productsQuery = productsQuery.eq('product_id', filters.productId);
       }
       
       const { data: products } = await productsQuery;

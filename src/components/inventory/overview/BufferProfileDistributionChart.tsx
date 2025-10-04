@@ -21,7 +21,7 @@ export function BufferProfileDistributionChart() {
       const data = await fetchInventoryPlanningView();
 
       const filtered = data.filter((item: any) => {
-        if (filters.productCategory && item.category !== filters.productCategory) return false;
+        if (filters.productId && item.product_id !== filters.productId) return false;
         if (filters.locationId && item.location_id !== filters.locationId) return false;
         if (filters.channelId && item.channel_id !== filters.channelId) return false;
         if (filters.decouplingOnly && !item.decoupling_point) return false;

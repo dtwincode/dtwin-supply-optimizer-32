@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState } from "react";
 
 interface InventoryFilter {
-  productCategory: string | null;
+  productId: string | null;
   locationId: string | null;
   channelId: string | null;
   decouplingOnly: boolean;
@@ -16,7 +16,7 @@ const InventoryFilterContext = createContext<InventoryFilterContextType | undefi
 
 export const InventoryFilterProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [filters, setFilters] = useState<InventoryFilter>({
-    productCategory: null,
+    productId: null,
     locationId: null,
     channelId: null,
     decouplingOnly: false,

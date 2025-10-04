@@ -36,7 +36,7 @@ export function BOMViewer() {
     try {
       console.log('[BOMViewer] Starting BOM data load...');
       
-      const { data: bomRaw, error: bomError } = await supabase
+      let bomQuery = supabase
         .from('product_bom')
         .select(`
           id,
@@ -46,6 +46,12 @@ export function BOMViewer() {
           bom_level
         `)
         .order('bom_level', { ascending: true });
+      
+      if (filters.productId) {
+        bomQuery = bomQuery.eq('parent_product_id', filters.productId);
+      }
+
+      const { data: bomRaw, error: bomError } = await bomQuery;
 
       console.log('[BOMViewer] BOM query result:', { count: bomRaw?.length, error: bomError });
 
@@ -67,10 +73,6 @@ export function BOMViewer() {
         .from('product_master')
         .select('product_id, name, sku, category')
         .in('product_id', Array.from(productIds));
-      
-      if (filters.productCategory) {
-        productsQuery = productsQuery.eq('category', filters.productCategory);
-      }
 
       const { data: products, error: prodError } = await productsQuery;
 

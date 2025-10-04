@@ -21,8 +21,8 @@ export const AnalyticsDashboard: React.FC = () => {
       const rawData = await fetchInventoryPlanningView();
       
       let filtered = rawData;
-      if (filters.productCategory) {
-        filtered = filtered.filter(item => item.category === filters.productCategory);
+      if (filters.productId) {
+        filtered = filtered.filter(item => item.product_id === filters.productId);
       }
       if (filters.locationId) {
         filtered = filtered.filter(item => item.location_id === filters.locationId);

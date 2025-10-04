@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useInventoryFilter } from "@/components/inventory/InventoryFilterContext";
 import { useInventory } from "@/hooks/useInventory";
 import { cn } from "@/lib/utils";
@@ -12,71 +13,91 @@ export function InventoryGlobalFilters() {
   const { filters, setFilters } = useInventoryFilter();
   const { items } = useInventory();
   
-  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [productOpen, setProductOpen] = useState(false);
   const [locationOpen, setLocationOpen] = useState(false);
   const [channelOpen, setChannelOpen] = useState(false);
 
-  // Extract unique values from inventory data
-  const categories = Array.from(new Set(items.map(item => item.category).filter(Boolean))).sort();
+  // Extract unique products from inventory data
+  const products = useMemo(() => {
+    const productMap = new Map<string, { product_id: string; sku: string; name: string }>();
+    items.forEach(item => {
+      if (item.product_id && !productMap.has(item.product_id)) {
+        productMap.set(item.product_id, {
+          product_id: item.product_id,
+          sku: item.sku,
+          name: item.product_name
+        });
+      }
+    });
+    return Array.from(productMap.values()).sort((a, b) => a.sku.localeCompare(b.sku));
+  }, [items]);
+
   const locations = Array.from(new Set(items.map(item => item.location_id).filter(Boolean))).sort();
   const channels = ["B2B", "B2C", "Marketplace", "Wholesale", "Distribution"];
 
+  const selectedProduct = products.find(p => p.product_id === filters.productId);
+
   return (
     <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4 border p-4 rounded-lg bg-card shadow-sm">
-      {/* Product Category Filter */}
+      {/* Product/SKU Filter */}
       <div className="flex flex-col space-y-1">
-        <label className="text-sm font-medium">Product Category</label>
-        <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
+        <label className="text-sm font-medium">Product/SKU</label>
+        <Popover open={productOpen} onOpenChange={setProductOpen}>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
               role="combobox"
-              aria-expanded={categoryOpen}
-              className="w-[200px] justify-between"
+              aria-expanded={productOpen}
+              className="w-[280px] justify-between"
             >
-              {filters.productCategory || "Select category..."}
+              {selectedProduct ? `${selectedProduct.sku} - ${selectedProduct.product_id}` : "Select product..."}
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-[200px] p-0">
+          <PopoverContent className="w-[280px] p-0">
             <Command>
-              <CommandInput placeholder="Search category..." />
+              <CommandInput placeholder="Search product or SKU..." />
               <CommandList>
-                <CommandEmpty>No category found.</CommandEmpty>
+                <CommandEmpty>No product found.</CommandEmpty>
                 <CommandGroup>
                   <CommandItem
                     value="all"
                     onSelect={() => {
-                      setFilters({ ...filters, productCategory: null });
-                      setCategoryOpen(false);
+                      setFilters({ ...filters, productId: null });
+                      setProductOpen(false);
                     }}
                   >
                     <Check
                       className={cn(
                         "mr-2 h-4 w-4",
-                        !filters.productCategory ? "opacity-100" : "opacity-0"
+                        !filters.productId ? "opacity-100" : "opacity-0"
                       )}
                     />
-                    All Categories
+                    All Products
                   </CommandItem>
-                  {categories.map((category) => (
-                    <CommandItem
-                      key={category}
-                      value={category}
-                      onSelect={() => {
-                        setFilters({ ...filters, productCategory: category });
-                        setCategoryOpen(false);
-                      }}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          filters.productCategory === category ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      {category}
-                    </CommandItem>
-                  ))}
+                  <ScrollArea className="h-[300px]">
+                    {products.map((product) => (
+                      <CommandItem
+                        key={product.product_id}
+                        value={`${product.sku} ${product.product_id} ${product.name}`}
+                        onSelect={() => {
+                          setFilters({ ...filters, productId: product.product_id });
+                          setProductOpen(false);
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            filters.productId === product.product_id ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        <div className="flex flex-col">
+                          <span className="font-medium">{product.sku}</span>
+                          <span className="text-xs text-muted-foreground">{product.product_id} - {product.name}</span>
+                        </div>
+                      </CommandItem>
+                    ))}
+                  </ScrollArea>
                 </CommandGroup>
               </CommandList>
             </Command>

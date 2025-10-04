@@ -22,8 +22,8 @@ export function SKUClassifications() {
       let data = await fetchInventoryPlanningView();
       
       // Apply filters
-      if (filters.productCategory) {
-        data = data.filter((item: any) => item.category === filters.productCategory);
+      if (filters.productId) {
+        data = data.filter((item: any) => item.product_id === filters.productId);
       }
       if (filters.locationId) {
         data = data.filter((item: any) => item.location_id === filters.locationId);
