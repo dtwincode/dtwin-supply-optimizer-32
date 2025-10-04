@@ -35,9 +35,7 @@ export function ComponentDemandChart() {
 
       let query = supabase
         .from('component_demand_view')
-        .select('*')
-        .order('component_adu', { ascending: false })
-        .limit(10);
+        .select('*');
 
       if (filters.locationId) {
         query = query.eq('location_id', filters.locationId);
@@ -47,7 +45,41 @@ export function ComponentDemandChart() {
 
       if (error) throw error;
 
-      setTopComponents(data as any || []);
+      // Aggregate by component across all locations
+      const aggregated = new Map<string, ComponentData>();
+      
+      (data || []).forEach((row: any) => {
+        const key = row.component_product_id;
+        
+        if (!aggregated.has(key)) {
+          aggregated.set(key, {
+            component_product_id: row.component_product_id,
+            component_sku: row.component_sku,
+            component_name: row.component_name,
+            component_category: row.component_category,
+            location_id: 'ALL', // Aggregated across locations
+            component_adu: 0,
+            num_finished_goods_using: row.num_finished_goods_using,
+            used_in_finished_goods: row.used_in_finished_goods || [],
+            demand_cv: 0,
+            high_variability: false
+          });
+        }
+        
+        const existing = aggregated.get(key)!;
+        existing.component_adu += Number(row.component_adu || 0);
+        
+        // Average the CV across locations
+        existing.demand_cv = ((existing.demand_cv + (row.demand_cv || 0)) / 2);
+        existing.high_variability = existing.high_variability || row.high_variability;
+      });
+
+      // Convert to array and sort by ADU
+      const aggregatedArray = Array.from(aggregated.values())
+        .sort((a, b) => b.component_adu - a.component_adu)
+        .slice(0, 10);
+
+      setTopComponents(aggregatedArray);
       setIsLoading(false);
     } catch (error) {
       console.error('Error loading chart data:', error);

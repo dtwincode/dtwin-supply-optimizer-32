@@ -54,8 +54,7 @@ export function BOMExplosionTable() {
       // Load component demand from the new view
       let query = supabase
         .from('component_demand_view')
-        .select('*')
-        .order('component_adu', { ascending: false });
+        .select('*');
 
       if (filters.locationId) {
         query = query.eq('location_id', filters.locationId);
@@ -65,13 +64,45 @@ export function BOMExplosionTable() {
 
       if (compError) throw compError;
 
+      // Aggregate by component across all locations (unless location filter is active)
+      const aggregated = new Map<string, ComponentExplosion>();
+      
+      (components || []).forEach((row: any) => {
+        const key = filters.locationId ? `${row.component_product_id}-${row.location_id}` : row.component_product_id;
+        
+        if (!aggregated.has(key)) {
+          aggregated.set(key, {
+            component_product_id: row.component_product_id,
+            component_sku: row.component_sku,
+            component_name: row.component_name,
+            component_category: row.component_category,
+            location_id: filters.locationId || 'ALL LOCATIONS',
+            component_adu: 0,
+            total_demand_90d: 0,
+            num_finished_goods_using: row.num_finished_goods_using,
+            used_in_finished_goods: row.used_in_finished_goods || [],
+            demand_cv: 0,
+            high_variability: false
+          });
+        }
+        
+        const existing = aggregated.get(key)!;
+        existing.component_adu += Number(row.component_adu || 0);
+        existing.total_demand_90d += Number(row.total_demand_90d || 0);
+        existing.demand_cv = ((existing.demand_cv + (row.demand_cv || 0)) / 2);
+        existing.high_variability = existing.high_variability || row.high_variability;
+      });
+
+      // Convert to array
+      const aggregatedArray = Array.from(aggregated.values());
+
       // Extract unique locations and categories for filters
       const uniqueLocations = [...new Set(components?.map(c => c.location_id).filter(Boolean) || [])] as string[];
-      const uniqueCategories = [...new Set(components?.map(c => c.component_category).filter(Boolean) || [])] as string[];
+      const uniqueCategories = [...new Set(aggregatedArray.map(c => c.component_category).filter(Boolean) || [])] as string[];
       
       setLocations(uniqueLocations);
       setCategories(uniqueCategories);
-      setExplosionData(components as any || []);
+      setExplosionData(aggregatedArray);
       setIsLoading(false);
     } catch (error) {
       console.error('Error loading explosion data:', error);
