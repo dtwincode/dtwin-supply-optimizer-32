@@ -67,17 +67,16 @@ export const useBufferRecalculation = () => {
     },
   });
 
-  // Manual trigger recalculation
+  // Manual trigger recalculation (uses batch processing)
   const triggerRecalculation = useMutation({
     mutationFn: async (params?: { product_id?: string; location_id?: string }) => {
-      const { data, error } = await supabase.rpc(
-        "recalculate_buffers_with_adjustments" as any,
-        {
-          p_product_id: params?.product_id || null,
-          p_location_id: params?.location_id || null,
-          p_triggered_by: "MANUAL",
+      const { data, error } = await supabase.functions.invoke('recalculate-buffers-batch', {
+        body: {
+          batch_size: 100,
+          product_id: params?.product_id || null,
+          location_id: params?.location_id || null,
         }
-      );
+      });
 
       if (error) throw error;
       return data;
@@ -87,8 +86,9 @@ export const useBufferRecalculation = () => {
       queryClient.invalidateQueries({ queryKey: ["inventory-planning-view"] });
       queryClient.invalidateQueries({ queryKey: ["inventory-ddmrp-buffers-view"] });
       
-      const count = Array.isArray(result) ? result.length : 0;
-      toast.success(`Successfully recalculated ${count} buffer(s)`);
+      const count = result?.success_count || 0;
+      const total = result?.requested_count || 0;
+      toast.success(`Successfully recalculated ${count} out of ${total} buffer(s)`);
     },
     onError: (error: Error) => {
       toast.error(`Failed to recalculate buffers: ${error.message}`);

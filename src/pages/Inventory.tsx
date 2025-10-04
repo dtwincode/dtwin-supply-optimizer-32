@@ -66,13 +66,20 @@ const Inventory: React.FC = () => {
   const handleCalculateBuffers = async () => {
     setIsCalculating(true);
     try {
-      const { data, error } = await supabase.functions.invoke('update-buffer-calculations');
+      toast({
+        title: "Starting Buffer Recalculation",
+        description: "Processing buffers in batches to avoid timeout...",
+      });
+
+      const { data, error } = await supabase.functions.invoke('recalculate-buffers-batch', {
+        body: { batch_size: 100 }
+      });
       
       if (error) throw error;
       
       toast({
         title: "Buffer Calculations Complete",
-        description: "All DDMRP buffer zones have been recalculated successfully.",
+        description: `Successfully recalculated ${data.success_count} out of ${data.requested_count} buffers`,
       });
     } catch (error) {
       console.error("Error calculating buffers:", error);
