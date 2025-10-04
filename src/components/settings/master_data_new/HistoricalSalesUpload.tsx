@@ -9,6 +9,7 @@ import { AlertCircle, CheckCircle, Info, FileType, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { SampleDataGenerator } from "./SampleDataGenerator";
 
 const historicalSalesFields: FieldDescription[] = [
   { name: "sales_date", description: "Sale date (YYYY-MM-DD format or Excel date format)", required: true },
@@ -178,6 +179,9 @@ const HistoricalSalesUpload = () => {
 
   return (
     <div className="space-y-6">
+      {/* Sample Data Generator */}
+      <SampleDataGenerator />
+      
       <UploadInstructions
         title="Historical Sales Data Upload Instructions"
         description="Upload your historical sales data using CSV or Excel format. The file should include the fields below."
