@@ -92,25 +92,37 @@ Deno.serve(async (req) => {
     let hasMore = true;
 
     while (hasMore) {
+      // Select IDs to delete (with ORDER BY to satisfy PostgREST)
+      const { data: idsToDelete, error: selectError } = await supabase
+        .from('historical_sales_data')
+        .select('sales_id')
+        .order('sales_id')
+        .limit(batchSize);
+
+      if (selectError) {
+        throw new Error(`Failed to select records: ${selectError.message}`);
+      }
+
+      if (!idsToDelete || idsToDelete.length === 0) {
+        break;
+      }
+
+      // Delete by specific IDs
+      const ids = idsToDelete.map((item: any) => item.sales_id);
       const { error: deleteError } = await supabase
         .from('historical_sales_data')
         .delete()
-        .limit(batchSize);
+        .in('sales_id', ids);
 
       if (deleteError) {
-        console.error('Error deleting batch:', deleteError);
-        throw new Error(`Failed to clear old data: ${deleteError.message}`);
+        throw new Error(`Failed to delete batch: ${deleteError.message}`);
       }
 
-      deletedTotal += batchSize;
+      deletedTotal += idsToDelete.length;
       console.log(`Deleted ${deletedTotal} records...`);
 
-      // Check if more data exists
-      const { count } = await supabase
-        .from('historical_sales_data')
-        .select('*', { count: 'exact', head: true });
-      
-      hasMore = (count && count > 0) || false;
+      // If we got fewer records than batchSize, we're done
+      hasMore = idsToDelete.length === batchSize;
     }
 
     console.log(`Cleared ${deletedTotal} old records`);

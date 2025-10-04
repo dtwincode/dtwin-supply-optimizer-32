@@ -98,27 +98,38 @@ export const SampleDataGenerator = () => {
     let hasMore = true;
 
     while (hasMore) {
-      const { error } = await supabase
+      // First, get IDs of records to delete (with ORDER BY)
+      const { data: idsToDelete, error: selectError } = await supabase
         .from('historical_sales_data')
-        .delete()
+        .select('sales_id')
+        .order('sales_id')
         .limit(batchSize);
 
-      if (error) {
-        throw new Error(`Failed to clear data: ${error.message}`);
+      if (selectError) {
+        throw new Error(`Failed to select data: ${selectError.message}`);
       }
 
-      deletedCount += batchSize;
-      
-      // Check if there's more data
-      const { count } = await supabase
-        .from('historical_sales_data')
-        .select('*', { count: 'exact', head: true });
-      
-      hasMore = (count && count > 0) || false;
-      
-      if (hasMore) {
-        setProgressMessage(`Clearing data... ${deletedCount.toLocaleString()} deleted`);
+      if (!idsToDelete || idsToDelete.length === 0) {
+        hasMore = false;
+        break;
       }
+
+      // Delete by specific IDs
+      const ids = idsToDelete.map(item => item.sales_id);
+      const { error: deleteError } = await supabase
+        .from('historical_sales_data')
+        .delete()
+        .in('sales_id', ids);
+
+      if (deleteError) {
+        throw new Error(`Failed to delete data: ${deleteError.message}`);
+      }
+
+      deletedCount += idsToDelete.length;
+      setProgressMessage(`Clearing data... ${deletedCount.toLocaleString()} deleted`);
+      
+      // If we got fewer than batchSize, we're done
+      hasMore = idsToDelete.length === batchSize;
     }
   };
 
