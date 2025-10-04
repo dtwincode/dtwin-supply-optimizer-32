@@ -13,7 +13,7 @@ import { DecouplingRecommendationPanel } from "@/components/inventory/strategic/
 import { AlignmentDashboard } from "@/components/inventory/strategic/AlignmentDashboard";
 
 // Bill of Materials
-import { BOMViewer } from "@/components/inventory/bom";
+import { BOMViewer, BOMExplosionTable, ComponentDemandChart } from "@/components/inventory/bom";
 
 // Operational View
 import { BufferStatusGrid } from "@/components/inventory/operational/BufferStatusGrid";
@@ -173,6 +173,8 @@ const Inventory: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="bom" className="space-y-6">
+              <ComponentDemandChart />
+              <BOMExplosionTable />
               <BOMViewer />
             </TabsContent>
 
