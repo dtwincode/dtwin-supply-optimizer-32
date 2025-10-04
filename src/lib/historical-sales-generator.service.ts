@@ -32,10 +32,11 @@ const dayOfWeekMultipliers = [1.0, 0.85, 0.9, 0.95, 1.1, 1.3, 1.2];
 const seasonalMultipliers = [0.9, 0.95, 1.0, 1.05, 0.7, 1.2, 1.3, 1.25, 1.1, 1.0, 0.95, 0.9];
 
 export async function generateRealisticHistoricalSales(days: number = 90) {
-  // Fetch all products
+  // Fetch ONLY finished goods products (not raw materials or components)
   const { data: products, error: productsError } = await supabase
     .from('product_master')
-    .select('product_id, sku, name, category');
+    .select('product_id, sku, name, category')
+    .eq('product_type', 'FINISHED_GOOD');
 
   if (productsError || !products) {
     throw new Error(`Failed to fetch products: ${productsError?.message}`);
