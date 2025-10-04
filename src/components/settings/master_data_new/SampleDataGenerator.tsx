@@ -32,14 +32,15 @@ export const SampleDataGenerator = () => {
   const handleGenerateAndInsert = async () => {
     try {
       setGenerating(true);
-      toast.info("Generating realistic sales data...");
+      toast.info("Clearing old data and generating new historical sales with finished goods...");
       
-      const salesData = await generateRealisticHistoricalSales(90);
-      toast.info(`Generated ${salesData.length} records. Inserting into database...`);
+      const { data, error } = await supabase.functions.invoke('regenerate-historical-sales', {
+        body: { days: 90 }
+      });
+
+      if (error) throw error;
       
-      await insertHistoricalSales(salesData);
-      toast.success(`Successfully inserted ${salesData.length} historical sales records!`);
-      
+      toast.success(data.message);
       await loadSummary();
     } catch (error: any) {
       console.error("Error generating data:", error);
