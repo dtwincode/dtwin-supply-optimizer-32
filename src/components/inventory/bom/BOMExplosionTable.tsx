@@ -67,6 +67,26 @@ export function BOMExplosionTable() {
 
       if (compError) throw compError;
 
+      // Load buffer zones separately and join manually
+      const { data: buffers, error: bufError } = await supabase
+        .from('inventory_ddmrp_buffers_view')
+        .select('product_id, location_id, tor, toy, tog');
+
+      if (bufError) {
+        console.warn('Could not load buffer zones:', bufError);
+      }
+
+      // Create buffer lookup map
+      const bufferMap = new Map<string, { tor: number; toy: number; tog: number }>();
+      (buffers || []).forEach((buf: any) => {
+        const key = `${buf.product_id}-${buf.location_id}`;
+        bufferMap.set(key, {
+          tor: Number(buf.tor || 0),
+          toy: Number(buf.toy || 0),
+          tog: Number(buf.tog || 0)
+        });
+      });
+
       // Aggregate by component across all locations (unless location filter is active)
       const aggregated = new Map<string, ComponentExplosion & { totalWeight: number, weightedCVSum: number }>();
       
@@ -74,6 +94,10 @@ export function BOMExplosionTable() {
         const key = filters.locationId ? `${row.component_product_id}-${row.location_id}` : row.component_product_id;
         const adu = Number(row.component_adu || 0);
         const cv = Number(row.demand_cv || 0);
+        
+        // Look up buffer zones from our manual join
+        const bufferKey = `${row.component_product_id}-${row.location_id}`;
+        const bufferData = bufferMap.get(bufferKey);
         
         if (!aggregated.has(key)) {
           aggregated.set(key, {
@@ -88,12 +112,12 @@ export function BOMExplosionTable() {
             used_in_finished_goods: row.used_in_finished_goods || [],
             demand_cv: 0,
             high_variability: false,
-            buffer_status: row.buffer_status,
-            nfp: row.nfp,
-            tor: row.tor,
-            on_hand: row.on_hand,
-            toy: row.toy,
-            tog: row.tog,
+            buffer_status: undefined,
+            nfp: row.nfp || 0,
+            tor: bufferData?.tor || undefined,
+            on_hand: row.on_hand || 0,
+            toy: bufferData?.toy || undefined,
+            tog: bufferData?.tog || undefined,
             totalWeight: 0,
             weightedCVSum: 0
           });
@@ -123,14 +147,16 @@ export function BOMExplosionTable() {
         if (item.totalWeight > 0) {
           item.demand_cv = item.weightedCVSum / item.totalWeight;
         }
-        // Recalculate buffer status for aggregated data
-        if (!filters.locationId && item.nfp !== undefined && item.tor !== undefined) {
-          if (item.nfp <= item.tor) {
+        // Calculate buffer status based on NFP vs buffer zones
+        if (item.nfp !== undefined && item.tor !== undefined && item.toy !== undefined && item.tog !== undefined) {
+          if (item.nfp < item.tor) {
             item.buffer_status = 'RED';
-          } else if (item.nfp <= (item.toy || 0)) {
+          } else if (item.nfp < item.toy) {
             item.buffer_status = 'YELLOW';
-          } else {
+          } else if (item.nfp <= item.tog) {
             item.buffer_status = 'GREEN';
+          } else {
+            item.buffer_status = undefined; // EXCESS not mapped to our enum
           }
         }
       });
