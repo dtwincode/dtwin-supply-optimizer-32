@@ -41,7 +41,7 @@ export function InventoryGlobalFilters() {
     <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4 border p-4 rounded-lg bg-card shadow-sm">
       {/* Product/SKU Filter */}
       <div className="flex flex-col space-y-1">
-        <label className="text-sm font-medium">Product/SKU</label>
+        <label className="text-sm font-medium">Raw Materials & Components</label>
         <Popover open={productOpen} onOpenChange={setProductOpen}>
           <PopoverTrigger asChild>
             <Button
@@ -50,7 +50,7 @@ export function InventoryGlobalFilters() {
               aria-expanded={productOpen}
               className="w-[280px] justify-between"
             >
-              {selectedProduct ? `${selectedProduct.sku} - ${selectedProduct.product_id}` : "Select product..."}
+              {selectedProduct ? `${selectedProduct.sku} - ${selectedProduct.product_id}` : "Select component..."}
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
         </PopoverTrigger>
@@ -73,7 +73,7 @@ export function InventoryGlobalFilters() {
                         !filters.productId ? "opacity-100" : "opacity-0"
                       )}
                     />
-                    All Products
+                    All Buffered Items
                   </CommandItem>
                   <ScrollArea className="h-[300px]">
                     {products.map((product) => (
