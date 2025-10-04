@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useLanguage } from "@/contexts/LanguageContext";
+import logo from "@/assets/images/dtwin-logo.png";
 
 export default function Auth() {
   const { user, signIn, signUp, isLoading } = useAuth();
@@ -45,9 +46,9 @@ export default function Auth() {
       <div className="flex items-center gap-8 max-w-[900px] w-full">
         <div className="flex-1 flex justify-center">
           <img
-            src="/lovable-uploads/0b98205f-f1d3-4302-9462-faee3a8dbe23.png"
+            src={logo}
             alt="dtwin logo"
-            className="h-[600px] w-auto object-contain"
+            className="h-32 w-auto object-contain"
           />
         </div>
         <Card className="w-[400px]">
