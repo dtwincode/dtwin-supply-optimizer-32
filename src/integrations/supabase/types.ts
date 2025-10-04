@@ -2243,6 +2243,52 @@ export type Database = {
           },
         ]
       }
+      component_demand_view: {
+        Row: {
+          component_adu: number | null
+          component_category: string | null
+          component_name: string | null
+          component_product_id: string | null
+          component_sku: string | null
+          days_with_demand: number | null
+          demand_cv: number | null
+          high_variability: boolean | null
+          location_id: string | null
+          num_finished_goods_using: number | null
+          total_demand_90d: number | null
+          used_in_finished_goods: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_bom_child_product_id_fkey"
+            columns: ["component_product_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_ddmrp_buffers_view"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "product_bom_child_product_id_fkey"
+            columns: ["component_product_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_net_flow_view"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "product_bom_child_product_id_fkey"
+            columns: ["component_product_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_planning_view"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "product_bom_child_product_id_fkey"
+            columns: ["component_product_id"]
+            isOneToOne: false
+            referencedRelation: "product_master"
+            referencedColumns: ["product_id"]
+          },
+        ]
+      }
       daily_sales_base: {
         Row: {
           location_id: string | null
@@ -2581,6 +2627,21 @@ export type Database = {
       drop_hierarchy_column: {
         Args: { p_column_name: string; p_table_name: string }
         Returns: undefined
+      }
+      explode_finished_goods_demand: {
+        Args: { p_location_id?: string; p_product_id?: string }
+        Returns: {
+          component_adu: number
+          component_name: string
+          component_product_id: string
+          component_sku: string
+          demand_cv: number
+          high_variability: boolean
+          location_id: string
+          num_finished_goods_using: number
+          total_demand_90d: number
+          used_in_finished_goods: string[]
+        }[]
       }
       generate_replenishment: {
         Args: { location_id_filter?: string }
