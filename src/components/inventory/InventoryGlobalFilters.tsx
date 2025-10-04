@@ -53,9 +53,9 @@ export function InventoryGlobalFilters() {
               {selectedProduct ? `${selectedProduct.sku} - ${selectedProduct.product_id}` : "Select product..."}
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[280px] p-0">
-            <Command>
+        </PopoverTrigger>
+        <PopoverContent className="w-[280px] p-0 bg-popover z-50">
+          <Command className="bg-popover">
               <CommandInput placeholder="Search product or SKU..." />
               <CommandList>
                 <CommandEmpty>No product found.</CommandEmpty>
@@ -119,9 +119,9 @@ export function InventoryGlobalFilters() {
               {filters.locationId || "Select location..."}
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[200px] p-0">
-            <Command>
+        </PopoverTrigger>
+        <PopoverContent className="w-[200px] p-0 bg-popover z-50">
+          <Command className="bg-popover">
               <CommandInput placeholder="Search location..." />
               <CommandList>
                 <CommandEmpty>No location found.</CommandEmpty>
@@ -180,9 +180,9 @@ export function InventoryGlobalFilters() {
               {filters.channelId || "Select channel..."}
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[200px] p-0">
-            <Command>
+        </PopoverTrigger>
+        <PopoverContent className="w-[200px] p-0 bg-popover z-50">
+          <Command className="bg-popover">
               <CommandInput placeholder="Search channel..." />
               <CommandList>
                 <CommandEmpty>No channel found.</CommandEmpty>
