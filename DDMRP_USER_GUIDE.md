@@ -1,18 +1,744 @@
 # DDMRP Inventory Management Tool - Complete Beginner's Guide
 
+---
+
+## 🚀 START HERE: Choose Your Path
+
+### 👋 **First Time User? Never Used DDMRP Before?**
+**→ Go to [30-Minute Quick Start](#-30-minute-quick-start-your-first-success)** ⭐ **RECOMMENDED**
+
+### 👤 **Know Your Role? Want Role-Specific Instructions?**
+**→ Go to [Choose Your Role](#-choose-your-role-role-based-navigation)**
+
+### 📖 **Want Complete Understanding? Have Time to Read?**
+**→ Continue with [Full Guide](#-table-of-contents) below**
+
+### 🎥 **Prefer Video? Visual Learner?**
+**→ Go to [Video Tutorials](#-video-tutorials-for-visual-learners)**
+
+### ❓ **Something Broken? Need Help?**
+**→ Go to [Troubleshooting](#-troubleshooting--error-messages-guide)**
+
+---
+
 ## 📚 Table of Contents
-1. [What is This Tool & Why Use It?](#what-is-this-tool--why-use-it)
-2. [Key Terminology & Glossary](#key-terminology--glossary)
-3. [Financial Impact & KPIs](#financial-impact--kpis)
-4. [First Time Setup - Complete Walkthrough](#first-time-setup---complete-walkthrough)
-5. [Understanding Every Screen](#understanding-every-screen)
-6. [Complete Step-by-Step Workflow](#complete-step-by-step-workflow)
-7. [Multi-Echelon Buffer Positioning](#multi-echelon-buffer-positioning)
-8. [Dynamic Adjustments - Real Examples](#dynamic-adjustments---real-examples)
-9. [ERP Integration & Data Flow](#erp-integration--data-flow)
-10. [Daily Operations - What to Do Every Day](#daily-operations---what-to-do-every-day)
-11. [Understanding What You See](#understanding-what-you-see)
-12. [Common Questions & Troubleshooting](#common-questions--troubleshooting)
+
+### 🚀 Getting Started (Read This First!)
+1. [30-Minute Quick Start](#-30-minute-quick-start-your-first-success) ⭐ **START HERE**
+2. [Choose Your Role](#-choose-your-role-role-based-navigation)
+3. [Video Tutorials](#-video-tutorials-for-visual-learners)
+4. [What is This Tool & Why Use It?](#what-is-this-tool--why-use-it)
+5. [Before You Begin: Prerequisites](#-before-you-begin-prerequisites)
+
+### 📖 Understanding DDMRP
+6. [Key Terminology & Glossary](#key-terminology--glossary)
+7. [Financial Impact & KPIs](#financial-impact--kpis)
+
+### 🛠️ Setup & Configuration
+8. [First Day Checklist](#-first-day-checklist-complete-before-go-live)
+9. [Sample Data Examples](#-sample-data-real-working-examples)
+10. [First Time Setup - Complete Walkthrough](#first-time-setup---complete-walkthrough)
+11. [Understanding Every Screen](#understanding-every-screen)
+12. [Complete Step-by-Step Workflow](#complete-step-by-step-workflow)
+
+### 📊 Advanced Topics
+13. [Multi-Echelon Buffer Positioning](#multi-echelon-buffer-positioning)
+14. [Dynamic Adjustments - Real Examples](#dynamic-adjustments---real-examples)
+15. [ERP Integration & Data Flow](#erp-integration--data-flow)
+
+### 🎯 Daily Operations
+16. [Daily Operations - What to Do Every Day](#daily-operations---what-to-do-every-day)
+17. [Understanding What You See](#understanding-what-you-see)
+18. [One-Page Quick Reference Card](#-one-page-quick-reference-card-print-this)
+
+### ❌ Avoiding Problems
+19. [Common Mistakes (DON'T Do These!)](#-common-mistakes-dont-do-these)
+20. [Error Messages Guide](#-error-messages--solutions)
+21. [Performance Benchmarks](#️-performance-benchmarks-is-my-system-normal)
+22. [Common Questions & Troubleshooting](#common-questions--troubleshooting)
+
+---
+
+## ⚡ 30-Minute Quick Start: Your First Success
+
+### 🎯 Goal
+**See your first buffer calculation in 30 minutes or less, even if you've NEVER used DDMRP before.**
+
+### ✅ What You Need RIGHT NOW (Gather These First!)
+
+**Absolute Minimum:**
+- ✅ **Product list** - Even just 5-10 products is enough to start
+- ✅ **1 location** - Your main warehouse or store
+- ✅ **Sales history** - 30 days minimum (90 days preferred)
+- ✅ **Lead times** - How many days from order to delivery for each product
+
+**Don't have 90 days of sales?** That's OK! Even 30 days works for learning.
+
+**Don't have lead times?** Use estimates:
+- Local supplier: 3-5 days
+- Regional supplier: 7-10 days
+- International: 14-21 days
+
+---
+
+### 📋 Quick Start Steps (30 Minutes Total)
+
+#### ⏱️ Step 1: Download Templates (2 minutes)
+
+**Actions:**
+1. **Login** to the system
+2. Click **"Settings"** in left sidebar
+3. Click **"Templates"** tab at top
+4. Download these 4 files:
+   - 📄 Product Master Template
+   - 📄 Location Master Template
+   - 📄 Historical Sales Template
+   - 📄 Lead Time Template
+
+**What you'll get:** Excel/CSV files with column headers
+
+---
+
+#### ⏱️ Step 2: Fill Product Template (5 minutes)
+
+**Open:** product_master_template.csv
+
+**Fill in just 5 products to start:**
+
+```csv
+product_id,sku,name,category,subcategory,supplier_id,unit_of_measure,buffer_profile_id
+PROD_001,COFFEE-ARB,Arabica Coffee Beans,Beverages,Coffee,SUP_01,KG,BP_DEFAULT
+PROD_002,MILK-WHOLE,Whole Milk 1L,Dairy,Milk,SUP_02,LITER,BP_DEFAULT
+PROD_003,CUP-12OZ,Paper Cups 12oz,Packaging,Cups,SUP_03,CASE,BP_DEFAULT
+PROD_004,SUGAR-WHITE,White Sugar,Ingredients,Sweeteners,SUP_01,KG,BP_DEFAULT
+PROD_005,TEA-GREEN,Green Tea Bags,Beverages,Tea,SUP_01,BOX,BP_DEFAULT
+```
+
+**💡 Tips:**
+- `product_id` - Make it unique (PROD_001, PROD_002, etc.)
+- `sku` - Your actual product code
+- `buffer_profile_id` - Use "BP_DEFAULT" for now
+- `supplier_id` - Make up codes (SUP_01, SUP_02, etc.)
+
+**✅ Success Check:** 5 rows filled (plus header row = 6 total)
+
+---
+
+#### ⏱️ Step 3: Fill Location Template (3 minutes)
+
+**Open:** location_master_template.csv
+
+**Fill in 1 location:**
+
+```csv
+location_id,region,channel_id,location_type,restaurant_number
+LOC_MAIN_01,Central,CH_RETAIL,Warehouse,WH001
+```
+
+**💡 Tips:**
+- Use your actual warehouse or main store
+- Keep it simple for first test
+
+**✅ Success Check:** 1 location row filled
+
+---
+
+#### ⏱️ Step 4: Fill Sales History (7 minutes)
+
+**Open:** historical_sales_template.csv
+
+**Fill in 30 days of sales for your 5 products:**
+
+```csv
+sales_id,product_id,location_id,sales_date,quantity_sold,unit_price
+SALE_001,PROD_001,LOC_MAIN_01,2025-09-04,25,15.50
+SALE_002,PROD_001,LOC_MAIN_01,2025-09-05,28,15.50
+SALE_003,PROD_001,LOC_MAIN_01,2025-09-06,22,15.50
+...
+```
+
+**💡 Tips:**
+- Need 30 rows per product (30 days × 5 products = 150 rows)
+- Don't have exact data? **Estimate** is fine for testing:
+  - Coffee: 20-30 kg/day
+  - Milk: 40-60 liters/day
+  - Cups: 5-10 cases/day
+
+**🚀 Quick Fill Trick:**
+1. Fill first 7 days manually
+2. Copy those 7 rows
+3. Paste and change dates to continue
+
+**✅ Success Check:** At least 150 rows (30 days × 5 products)
+
+---
+
+#### ⏱️ Step 5: Fill Lead Times (2 minutes)
+
+**Open:** lead_time_template.csv
+
+**Fill lead times for your 5 products:**
+
+```csv
+product_id,location_id,actual_lead_time_days
+PROD_001,LOC_MAIN_01,7
+PROD_002,LOC_MAIN_01,3
+PROD_003,LOC_MAIN_01,14
+PROD_004,LOC_MAIN_01,7
+PROD_005,LOC_MAIN_01,7
+```
+
+**💡 Tips:**
+- Local suppliers: 3-5 days
+- Regional: 7-10 days
+- International: 14-30 days
+
+**✅ Success Check:** 5 lead time rows
+
+---
+
+#### ⏱️ Step 6: Upload Products (2 minutes)
+
+**Actions:**
+1. Go to **Settings → Master Data**
+2. Find **"Product Master Upload"** section
+3. Click **"Choose File"** or drag your product CSV
+4. Click **"Upload"**
+5. Wait for ✅ green success message
+
+**What you'll see:**
+```
+✅ Upload Successful!
+5 products imported
+0 errors
+```
+
+**✅ Success Check:** 
+- Green success message
+- No red errors
+- Product count = 5
+
+**❌ If you see errors:** Check your CSV for:
+- Missing required columns
+- Blank product_id values
+- Special characters in names
+
+---
+
+#### ⏱️ Step 7: Upload Locations (1 minute)
+
+**Actions:**
+1. Stay in **Settings → Master Data**
+2. Find **"Location Master Upload"** section
+3. Upload your location CSV
+4. Wait for success message
+
+**✅ Success Check:** "1 location imported"
+
+---
+
+#### ⏱️ Step 8: Upload Sales History (2 minutes)
+
+**Actions:**
+1. Find **"Historical Sales Upload"** section
+2. Upload your sales CSV
+3. **This might take 30-60 seconds** (150 rows)
+
+**✅ Success Check:** "150 sales records imported"
+
+---
+
+#### ⏱️ Step 9: Upload Lead Times (1 minute)
+
+**Actions:**
+1. Go to **Settings → Lead Time**
+2. Upload lead time CSV
+
+**✅ Success Check:** "5 lead time records imported"
+
+---
+
+#### ⏱️ Step 10: Set Decoupling Point (2 minutes)
+
+**What is this?** Telling the system WHERE to hold inventory
+
+**Actions:**
+1. Go to **Inventory → Strategic → Decoupling Point Manager**
+2. You'll see a table with your 5 products
+3. Check the box next to **"Arabica Coffee Beans"** (your highest volume product)
+4. Click **"Save Decoupling Points"**
+
+**✅ Success Check:** 
+- 1 product marked as decoupling point
+- Green confirmation message
+
+---
+
+#### ⏱️ Step 11: Calculate Buffers! (3 minutes)
+
+**🎉 The Magic Moment!**
+
+**Actions:**
+1. Go to **Inventory → Configuration → System Settings**
+2. Scroll to **"Buffer Calculation"** section
+3. Click big blue **"Calculate All Buffers Now"** button
+4. Watch progress bar (30-60 seconds)
+
+**What you'll see:**
+```
+🔄 Processing...
+Calculating product 3 of 5 (60%)
+Estimated time: 15 seconds...
+
+✅ Calculation Complete!
+5 products processed
+5 buffer records created
+```
+
+**✅ Success Check:** Green success message, no errors
+
+---
+
+#### ⏱️ Step 12: View Your Results! (5 minutes)
+
+**🎉 YOU DID IT! Now see what the system calculated:**
+
+**Actions:**
+1. Go to **Inventory → Operational → Buffer Status Grid**
+2. You'll see your 5 products with colored zones!
+
+**What you'll see:**
+```
+┌──────────────────────────────────────────────────────────┐
+│  🥤 Arabica Coffee Beans - LOC_MAIN_01                   │
+├──────────────────────────────────────────────────────────┤
+│  Buffer Status: 🟢 Green Zone (if you uploaded current  │
+│                     inventory, otherwise shows TBD)      │
+│                                                          │
+│  Buffer Zones Calculated:                                │
+│  🔴 Red Zone:    0-180 kg                                │
+│  🟡 Yellow Zone: 180-360 kg                              │
+│  🟢 Green Zone:  360-1,260 kg                            │
+│                                                          │
+│  📈 ADU (Average Daily Usage): 25.7 kg/day               │
+│  🚚 Lead Time: 7 days                                    │
+│  📊 Current Stock: Not yet loaded (upload in Step 13)   │
+└──────────────────────────────────────────────────────────┘
+```
+
+**✅ SUCCESS CRITERIA:**
+- ✅ You see Red/Yellow/Green zones with numbers (not zeros)
+- ✅ ADU shows a number (matches your sales average)
+- ✅ Lead time shows correctly (7 days)
+- ✅ All 5 products have buffers calculated
+
+---
+
+### 🎉 Congratulations! You've Completed Quick Start!
+
+**What you accomplished in 30 minutes:**
+- ✅ Uploaded master data
+- ✅ Calculated DDMRP buffer zones
+- ✅ Saw your first Red/Yellow/Green visualization
+- ✅ System is now 50% configured!
+
+**🚀 Next Steps:**
+1. Upload current inventory (so system knows your starting point)
+2. Add remaining products (when ready)
+3. Read [Daily Operations](#daily-operations---what-to-do-every-day) to learn daily workflow
+
+**❓ Questions?**
+- "Where are my buffer zones?" → Inventory → Operational → Buffer Status Grid
+- "ADU is zero?" → Check sales data uploaded correctly
+- "Calculation failed?" → Check [Error Messages Guide](#-error-messages--solutions)
+
+---
+
+## 👤 Choose Your Role: Role-Based Navigation
+
+### 👔 "I'm a CEO / CFO / Executive"
+
+**What You Need:**
+- **Daily:** Nothing (let your team handle it!)
+- **Weekly:** 5-minute dashboard review
+- **Monthly:** Financial impact review
+
+**Your Quick Guide:**
+
+**Step 1: View Financial Dashboard (2 minutes)**
+```
+Navigation: Dashboard (main page after login)
+
+What you'll see:
+┌────────────────────────────────────────────┐
+│  💵 Working Capital Released: $630,000     │
+│  📈 Service Level: 96.2% (Target: 95%)     │
+│  💸 Annual Savings: $960,450               │
+│  🔄 Inventory Turns: 12.4 (was 8.2)        │
+└────────────────────────────────────────────┘
+```
+
+**Step 2: Review KPIs Monthly (5 minutes)**
+- Go to **Reports → Financial Impact**
+- Export executive summary PDF
+- Share with board
+
+**That's it! You're done.**
+
+**What NOT to do:**
+- ❌ Don't touch buffer calculations
+- ❌ Don't modify product settings
+- ❌ Don't approve individual purchase orders (delegate this)
+
+**Delegate to:** Inventory Planners for daily operations
+
+---
+
+### 👨‍💼 "I'm an Inventory Planner / Supply Chain Manager"
+
+**What You Need:**
+- **Daily:** Execute replenishment orders, monitor alerts (20 min)
+- **Weekly:** Review buffer performance, adjust DAF/LTAF (45 min)
+- **Monthly:** Analyze trends, optimize buffers (2 hours)
+
+**Your Daily Workflow:**
+
+**Morning Routine (15 minutes):**
+1. Go to **Execution Priority** page
+2. Sort by Buffer Penetration (lowest first)
+3. Items showing <25% = **ORDER TODAY**
+4. Items 25-50% = **ORDER THIS WEEK**
+5. Create purchase orders
+
+**Your Key Pages:**
+- **Execution Priority** - What to order (daily)
+- **Buffer Status Grid** - Current inventory health (daily)
+- **Breach Alerts** - Critical issues (check immediately)
+- **Configuration → Dynamic Adjustments** - Add DAF/LTAF (weekly)
+- **Reports → Buffer Performance** - Trend analysis (weekly)
+
+**Read These Sections:**
+- [Daily Operations](#daily-operations---what-to-do-every-day)
+- [Dynamic Adjustments](#dynamic-adjustments---real-examples)
+- [Complete Step-by-Step Workflow](#complete-step-by-step-workflow)
+
+---
+
+### 👷 "I'm a Warehouse Manager / Warehouse Worker"
+
+**What You Need:**
+- **Daily:** Check buffer status, count inventory (10 min)
+- **Weekly:** Nothing extra
+- **Monthly:** Nothing
+
+**Your Simple Daily Workflow:**
+
+**Check What's Critical (5 minutes):**
+1. Go to **Inventory → Operational → Buffer Status Grid**
+2. Look for 🔴 **RED items** at top
+3. Tell your planner: "Product X is in RED zone"
+4. That's it!
+
+**Understanding the Colors:**
+- 🔴 **RED** = Danger zone, might run out soon → Tell planner immediately
+- 🟡 **YELLOW** = Getting low, will order soon → Monitor
+- 🟢 **GREEN** = Healthy, plenty of stock → No worries
+- ⚫ **BLACK** = Too much, stop receiving → Alert planner
+
+**What NOT to do:**
+- ❌ Don't calculate buffers (not your job)
+- ❌ Don't create purchase orders (planner does this)
+- ❌ Don't change system settings
+
+**When to Alert Your Planner:**
+- See 🔴 RED items
+- Physical inventory count doesn't match system
+- Received shipment but system not updated
+
+---
+
+### 🛒 "I'm a Procurement / Buyer"
+
+**What You Need:**
+- **Daily:** Execute approved purchase orders (15 min)
+- **Weekly:** Review supplier performance (30 min)
+
+**Your Daily Workflow:**
+
+**Morning: Check What to Order (10 minutes):**
+1. Go to **Execution Priority** page
+2. Items at top = **MOST URGENT**
+3. Click **"Create PO"** button for critical items
+4. System shows recommended order quantity
+5. Submit to supplier
+
+**Weekly: Supplier Review (30 minutes):**
+1. Go to **Inventory → Configuration → Supplier Performance**
+2. Check on-time delivery %
+3. Update lead times if supplier consistently late
+
+**Your Key Metrics:**
+- **On-Time Delivery Rate:** Target >95%
+- **Lead Time Accuracy:** Actual vs promised
+- **Quality Reject Rate:** Target <2%
+
+**Read These Sections:**
+- [Daily Operations](#daily-operations---what-to-do-every-day)
+- [Execution Priority](#step-24-use-buffer-penetration-for-prioritization)
+
+---
+
+### 🔧 "I'm a System Administrator / IT"
+
+**What You Need:**
+- **Setup:** Configure system initially (4-8 hours)
+- **Daily:** Monitor system health (5 min)
+- **Monthly:** Database maintenance, backups
+
+**Your Setup Checklist:**
+- [ ] User accounts created
+- [ ] Roles assigned (admin, planner, viewer)
+- [ ] Data upload templates prepared
+- [ ] Buffer profiles configured
+- [ ] Automated calculation schedule set (weekly)
+- [ ] Backup schedule configured
+- [ ] Integration with ERP tested (if applicable)
+
+**Daily Monitoring:**
+1. Check **Settings → System Settings → Buffer Calculation** for last run status
+2. Review error logs (if any)
+3. Verify data sync from ERP (if integrated)
+
+**Read These Sections:**
+- [Complete Step-by-Step Workflow](#complete-step-by-step-workflow)
+- [ERP Integration](#erp-integration--data-flow)
+- [Performance Benchmarks](#️-performance-benchmarks-is-my-system-normal)
+
+---
+
+## 🎥 Video Tutorials (For Visual Learners)
+
+### 📹 Getting Started Series
+
+**Video 1: System Overview & First Login (5 min)**
+- What is DDMRP and why use it?
+- How to login
+- Understanding the navigation menu
+- Quick tour of main pages
+
+**📌 Status:** Coming Soon - Watch this space!
+
+---
+
+**Video 2: Uploading Your First Data (12 min)**
+- Download templates
+- Fill in product master
+- Upload products, locations, sales
+- Verify successful upload
+- Common upload errors
+
+**📌 Status:** Coming Soon
+
+---
+
+**Video 3: Your First Buffer Calculation (8 min)**
+- Setting decoupling points
+- Running buffer calculation
+- Understanding results
+- Reading buffer zones
+
+**📌 Status:** Coming Soon
+
+---
+
+### 📹 Daily Operations Series
+
+**Video 4: Reading Buffer Status Grid (6 min)**
+- Understanding Red/Yellow/Green zones
+- What NFP means
+- Buffer penetration explained
+- When to take action
+
+**📌 Status:** Coming Soon
+
+---
+
+**Video 5: Creating Replenishment Orders (10 min)**
+- Using Execution Priority page
+- Generating order proposals
+- Reviewing and approving orders
+- Exporting to ERP
+
+**📌 Status:** Coming Soon
+
+---
+
+### 📹 Advanced Topics
+
+**Video 6: Dynamic Adjustments (15 min)**
+- When to use DAF (Demand Adjustment Factor)
+- When to use LTAF (Lead Time Adjustment Factor)
+- Real-world examples
+- Best practices
+
+**📌 Status:** Coming Soon
+
+---
+
+### 🎬 Prefer Reading?
+
+No problem! This entire guide covers everything the videos will teach. Continue reading below for complete written instructions with screenshots and examples.
+
+---
+
+## 📋 Before You Begin: Prerequisites
+
+### 🗂️ Data You MUST Gather First (Before Even Logging In)
+
+Think of this like packing for a trip - gather everything BEFORE you start.
+
+#### ✅ Required Data (Can't Start Without These)
+
+**1. Product Master Data**
+- **What you need:** List of ALL products you sell/use
+- **Format:** Excel or CSV file
+- **Required columns:**
+  - Product ID (unique code)
+  - SKU (your internal product code)
+  - Product name
+  - Category
+  - Unit of measure (KG, LITER, EACH, CASE, etc.)
+- **How to get it:** Export from your current system, or create from scratch
+- **Minimum:** 10 products to start
+
+**Example product list:**
+```
+Product 1: Arabica Coffee Beans, 25kg bags
+Product 2: Whole Milk, 1 liter bottles
+Product 3: Sugar, 50kg sacks
+...
+```
+
+---
+
+**2. Location Master Data**
+- **What you need:** List of ALL warehouses, stores, DCs
+- **Format:** Excel or CSV file
+- **Required columns:**
+  - Location ID (unique code)
+  - Location name
+  - Region
+  - Location type (Warehouse, Store, DC)
+- **Minimum:** 1 location to start
+
+**Example:**
+```
+Location 1: Main Warehouse, Riyadh, Central Region
+```
+
+---
+
+**3. Historical Sales Data**
+- **What you need:** Past sales transactions
+- **Time period:** Minimum 30 days, **90 days strongly recommended**
+- **Format:** Excel or CSV file
+- **Required columns:**
+  - Product ID
+  - Location ID
+  - Date
+  - Quantity sold
+- **How to get it:** Export from POS system or accounting software
+
+**Why 90 days?** System calculates Average Daily Usage (ADU) from this data. More data = more accurate.
+
+**Don't have 90 days?** Use what you have:
+- 30 days = OK for testing
+- 60 days = Good
+- 90 days = Best
+- 180+ days = Excellent
+
+---
+
+**4. Supplier Lead Times**
+- **What you need:** How long each supplier takes to deliver
+- **Format:** Can be rough estimates initially
+- **Required info:**
+  - Product ID
+  - Location ID
+  - Lead time in days
+
+**Don't know exact lead times?** Use these estimates:
+- Local supplier: 3-5 days
+- Regional supplier: 7-10 days
+- National supplier: 10-14 days
+- International: 14-30 days
+
+**Pro tip:** You can update these later with actual data.
+
+---
+
+#### ⚠️ Optional But Recommended Data
+
+**5. Current Inventory Levels (On-Hand)**
+- **What:** How much you have right now
+- **Why:** So system knows your starting point
+- **Can start without?** Yes, but you won't see buffer status
+
+**6. Open Purchase Orders**
+- **What:** Orders you've placed but not yet received
+- **Why:** Affects Net Flow Position calculation
+- **Can start without?** Yes
+
+**7. Open Sales Orders**
+- **What:** Customer orders confirmed but not yet shipped
+- **Why:** Shows committed demand
+- **Can start without?** Yes
+
+**8. Supplier Performance Data**
+- **What:** Historical on-time delivery rates
+- **Why:** Helps calculate safety stock more accurately
+- **Can start without?** Yes, use default settings
+
+---
+
+### 🖥️ Technical Prerequisites
+
+**Browser Requirements:**
+- ✅ Chrome (recommended)
+- ✅ Firefox
+- ✅ Safari
+- ✅ Edge
+- ❌ Internet Explorer (not supported)
+
+**Screen Resolution:**
+- Minimum: 1280×720
+- Recommended: 1920×1080 or higher
+
+**Internet Connection:**
+- Minimum: 2 Mbps
+- Recommended: 10+ Mbps
+
+**Excel or CSV Editor:**
+- Microsoft Excel
+- Google Sheets
+- LibreOffice Calc
+- Any CSV editor
+
+---
+
+### ✅ Pre-Launch Readiness Checklist
+
+**Before contacting IT to provision your account, check these:**
+
+- [ ] Product list prepared (minimum 10 products)
+- [ ] At least 1 location defined
+- [ ] Sales history collected (30-90 days)
+- [ ] Lead times documented (even estimates OK)
+- [ ] Team trained on DDMRP basics
+- [ ] Roles assigned (who will be planner, who will be viewer?)
+- [ ] Integration requirements defined (if integrating with ERP)
+
+**All checked?** You're ready to start!
 
 ---
 
@@ -249,6 +975,421 @@ When executives log in, they see a **Financial Summary Card** on the main dashbo
 **How to Present to CFO:**
 
 "By implementing DDMRP, we reduced inventory by 25.7% ($630K working capital freed), while **improving** service level from 92% to 96.2%. This translates to nearly $1M in annual financial benefit with better customer satisfaction."
+
+---
+
+## ✅ First Day Checklist: Complete Before Go-Live
+
+### 🎯 Purpose
+**Use this checklist to ensure you've completed ALL setup steps before using the system for real operations.**
+
+Print this page and check off each item as you complete it!
+
+---
+
+### Phase 1: Master Data Upload (MUST Complete First)
+
+```
+📦 PRODUCTS
+[ ] Product master template downloaded
+[ ] Product data filled in (minimum 10 products)
+[ ] Products uploaded successfully
+[ ] Product count matches uploaded file
+[ ] Can see products in Inventory → Strategic tab
+[ ] No products showing "null" or blank names
+
+📍 LOCATIONS  
+[ ] Location master template downloaded
+[ ] Location data filled in (minimum 1 location)
+[ ] Locations uploaded successfully
+[ ] Locations visible in system
+
+👥 VENDORS/SUPPLIERS
+[ ] Vendor master template downloaded
+[ ] Vendor data filled in
+[ ] Vendors uploaded successfully
+[ ] Vendors linked to products
+
+📊 HISTORICAL SALES
+[ ] Sales template downloaded
+[ ] Sales data filled for 30-90 days
+[ ] Sales uploaded successfully
+[ ] Sales record count correct (days × products)
+[ ] No "orphan" products (sales for non-existent products)
+
+💰 PRODUCT PRICING
+[ ] Pricing template downloaded
+[ ] Current prices filled in
+[ ] Pricing uploaded successfully
+
+🚚 LEAD TIMES
+[ ] Lead time template downloaded  
+[ ] Lead times filled for all products
+[ ] Lead times uploaded successfully
+[ ] No zero or blank lead times
+```
+
+**✅ Phase 1 Complete?** All boxes checked above = Ready for Phase 2
+
+---
+
+### Phase 2: Configuration & Settings
+
+```
+🎯 DECOUPLING POINTS
+[ ] Understand what decoupling point means
+[ ] Identified strategic products (20-30% of total)
+[ ] Set decoupling points in system
+[ ] At least 1 decoupling point assigned
+
+📋 BUFFER PROFILES
+[ ] Using default profile OR
+[ ] Created custom buffer profiles
+[ ] Buffer profiles assigned to products
+
+🏢 HIERARCHY (Multi-Location Only)
+[ ] Location hierarchy uploaded (if multiple locations)
+[ ] Parent-child relationships correct
+[ ] Echelon levels assigned
+
+⚙️ SYSTEM SETTINGS
+[ ] Reviewed default configuration values
+[ ] Adjusted if needed (or using defaults)
+```
+
+**✅ Phase 2 Complete?** All boxes checked above = Ready for Phase 3
+
+---
+
+### Phase 3: Validation & Testing (CRITICAL - DON'T SKIP!)
+
+```
+🔍 DATA VALIDATION
+[ ] Go to: Inventory → Configuration → Analysis Results
+[ ] ADU values showing (not zero)
+[ ] ADU values look reasonable (compare to your sales average)
+[ ] Lead times showing correctly
+[ ] No "N/A" or "Error" values
+
+🧪 TEST CALCULATION
+[ ] Navigate to: Inventory → Configuration → System Settings
+[ ] Click "Calculate All Buffers Now"
+[ ] Calculation completed without errors
+[ ] Processing time was reasonable (<5 min for <10K records)
+
+📊 VERIFY RESULTS
+[ ] Go to: Inventory → Operational → Buffer Status Grid
+[ ] See Red/Yellow/Green zones with actual numbers
+[ ] Zones are NOT all zeros
+[ ] ADU column populated
+[ ] DLT column populated
+[ ] Buffer zones look reasonable (not impossibly large/small)
+
+🔴 CHECK SPECIFIC PRODUCT
+[ ] Pick your highest-volume product
+[ ] Find it in Buffer Status Grid
+[ ] Red Zone > 0
+[ ] Yellow Zone > 0
+[ ] Green Zone > 0
+[ ] Total Buffer (TOG) = Red + Yellow + Green
+[ ] ADU roughly matches your daily sales
+```
+
+**✅ Phase 3 Complete?** All boxes checked above = Ready for Phase 4
+
+---
+
+### Phase 4: Current State Snapshot (Optional But Recommended)
+
+```
+📦 CURRENT INVENTORY
+[ ] Current inventory snapshot template downloaded
+[ ] Physical count completed for all products
+[ ] Inventory snapshot uploaded
+[ ] On-hand quantities showing in system
+
+📬 OPEN PURCHASE ORDERS
+[ ] Open PO template downloaded
+[ ] Current open POs listed
+[ ] POs uploaded
+[ ] On-order quantities showing in system
+
+📤 OPEN SALES ORDERS
+[ ] Open SO template downloaded
+[ ] Current open SOs listed
+[ ] SOs uploaded
+[ ] Qualified demand showing in system
+
+🧮 NFP CALCULATION
+[ ] Net Flow Position (NFP) calculated
+[ ] NFP = On Hand + On Order - Qualified Demand
+[ ] NFP values look correct
+[ ] Buffer status showing colors (Red/Yellow/Green)
+```
+
+**✅ Phase 4 Complete?** All boxes checked above = READY FOR GO-LIVE!
+
+---
+
+### Phase 5: Go-Live Readiness (Final Check)
+
+```
+👥 TEAM TRAINING
+[ ] Planners trained on buffer status interpretation
+[ ] Planners know how to use Execution Priority page
+[ ] Warehouse staff understand buffer colors
+[ ] Procurement knows how to create POs from system
+
+📱 ACCESS & PERMISSIONS
+[ ] All users have login credentials
+[ ] Roles assigned correctly (admin/planner/viewer)
+[ ] Permissions tested (users can access their pages)
+
+🔔 ALERTS CONFIGURED (Optional)
+[ ] Email notifications set up (if using)
+[ ] Alert recipients configured
+[ ] Test alert sent and received
+
+📊 REPORTING
+[ ] Dashboard accessible to executives
+[ ] Key reports tested (buffer performance, financial impact)
+[ ] Export functionality working (CSV, Excel, PDF)
+
+🔄 BACKUP & RECOVERY (IT Task)
+[ ] Database backup configured
+[ ] Backup schedule verified
+[ ] Recovery procedure documented
+
+🚀 STAKEHOLDER SIGN-OFF
+[ ] Inventory Manager approves
+[ ] Supply Chain Director approves
+[ ] IT confirms system ready
+[ ] Training completion confirmed
+```
+
+---
+
+### 🎉 GO-LIVE CHECKLIST SUMMARY
+
+**Count your checkmarks:**
+
+- **Phase 1 (Master Data):** _____ / 27 ✅
+- **Phase 2 (Configuration):** _____ / 9 ✅
+- **Phase 3 (Validation):** _____ / 16 ✅
+- **Phase 4 (Current State):** _____ / 12 ✅
+- **Phase 5 (Readiness):** _____ / 13 ✅
+
+**TOTAL: _____ / 77 ✅**
+
+---
+
+### ✅ READY FOR GO-LIVE?
+
+**Requirements:**
+- ✅ **Phase 1:** 100% complete (all 27 boxes)
+- ✅ **Phase 2:** 100% complete (all 9 boxes)
+- ✅ **Phase 3:** 100% complete (all 16 boxes) - CRITICAL
+- ⚠️ **Phase 4:** 50%+ complete (recommended but not mandatory)
+- ⚠️ **Phase 5:** 80%+ complete (recommended)
+
+**Minimum to go live:**
+- Phases 1, 2, 3 must be 100% complete
+- At least 40/77 total boxes checked
+
+**Recommended for smooth launch:**
+- All phases 90%+ complete
+- At least 70/77 total boxes checked
+
+---
+
+### ❌ Not Ready? Here's What to Do
+
+**If Phase 1 incomplete:**
+- STOP. Cannot proceed without master data.
+- Go back to [30-Minute Quick Start](#-30-minute-quick-start-your-first-success)
+- Complete all uploads
+
+**If Phase 2 incomplete:**
+- Review [First Time Setup](#first-time-setup---complete-walkthrough)
+- Set at least 1 decoupling point
+- Assign buffer profiles
+
+**If Phase 3 incomplete:**
+- This is CRITICAL. Do not skip!
+- Go to [Step 16: Calculate Buffers](#step-16-calculate-buffers-the-magic-moment)
+- Verify all validation checks pass
+
+**If seeing errors:**
+- Go to [Error Messages Guide](#-error-messages--solutions)
+- Check [Troubleshooting](#common-questions--troubleshooting)
+
+---
+
+## 📊 Sample Data: Real Working Examples
+
+### 🎯 Purpose
+**Learn by example! These are real, complete datasets you can use to test the system.**
+
+Copy these examples directly into your templates to see how everything works.
+
+---
+
+### Example 1: Coffee Shop Chain (5 Products)
+
+**Scenario:** Small coffee shop chain with 1 central warehouse supplying 3 locations.
+
+#### Product Master (product_master.csv)
+
+```csv
+product_id,sku,name,category,subcategory,supplier_id,unit_of_measure,buffer_profile_id,planning_priority
+PROD_COFFEE_001,BEAN-ARB-1KG,Arabica Coffee Beans 1kg,Beverages,Coffee,SUP_BEAN_CO,KG,BP_DEFAULT,HIGH
+PROD_MILK_001,MILK-WHOLE-1L,Whole Milk 1L,Dairy,Milk,SUP_DAIRY_01,LITER,BP_PERISHABLE,HIGH
+PROD_CUP_001,CUP-12OZ-100,Paper Cups 12oz (100ct),Packaging,Disposables,SUP_PACK_99,CASE,BP_DEFAULT,MEDIUM
+PROD_SUGAR_001,SUGAR-WHT-50KG,White Sugar 50kg,Ingredients,Sweeteners,SUP_GRAIN_01,KG,BP_DEFAULT,MEDIUM
+PROD_TEA_001,TEA-GRN-100,Green Tea Bags (100ct),Beverages,Tea,SUP_BEAN_CO,BOX,BP_DEFAULT,LOW
+```
+
+**Expected Result After Upload:**
+- ✅ 5 products visible
+- ✅ All have categories assigned
+- ✅ All have buffer profiles (BP_DEFAULT or BP_PERISHABLE)
+
+---
+
+#### Location Master (location_master.csv)
+
+```csv
+location_id,region,channel_id,location_type,restaurant_number,daily_sales_volume
+LOC_WH_CENTRAL,Central,CH_WAREHOUSE,Warehouse,WH001,0
+LOC_SHOP_RY01,Central,CH_RETAIL,Store,SHOP001,150
+LOC_SHOP_RY02,Central,CH_RETAIL,Store,SHOP002,120
+LOC_SHOP_JD01,Western,CH_RETAIL,Store,SHOP003,180
+```
+
+**Expected Result:**
+- ✅ 4 locations visible
+- ✅ 1 warehouse + 3 stores
+
+---
+
+#### Historical Sales (historical_sales_data.csv)
+
+**Sample: Coffee sales for 7 days (expand to 30-90 days)**
+
+```csv
+sales_id,product_id,location_id,sales_date,quantity_sold,unit_price,revenue
+SALE_001,PROD_COFFEE_001,LOC_SHOP_RY01,2025-09-01,2.5,75.00,187.50
+SALE_002,PROD_COFFEE_001,LOC_SHOP_RY01,2025-09-02,2.8,75.00,210.00
+SALE_003,PROD_COFFEE_001,LOC_SHOP_RY01,2025-09-03,2.2,75.00,165.00
+SALE_004,PROD_COFFEE_001,LOC_SHOP_RY01,2025-09-04,3.1,75.00,232.50
+SALE_005,PROD_COFFEE_001,LOC_SHOP_RY01,2025-09-05,2.9,75.00,217.50
+SALE_006,PROD_COFFEE_001,LOC_SHOP_RY01,2025-09-06,2.4,75.00,180.00
+SALE_007,PROD_COFFEE_001,LOC_SHOP_RY01,2025-09-07,2.7,75.00,202.50
+```
+
+**Quick Fill Instructions:**
+1. Copy these 7 rows
+2. Paste 12 more times (changing dates) to get 90 days
+3. Change quantity_sold slightly for variety (2.0-3.5 range)
+4. Repeat for all 5 products × all 3 stores = 1,350 rows total
+
+**Expected ADU After Upload:**
+- Coffee: ~2.7 kg/day per store
+- Milk: ~45 liters/day per store
+- Cups: ~6 cases/day per store
+
+---
+
+#### Lead Times (actual_lead_time.csv)
+
+```csv
+product_id,location_id,actual_lead_time_days
+PROD_COFFEE_001,LOC_WH_CENTRAL,14
+PROD_MILK_001,LOC_WH_CENTRAL,2
+PROD_CUP_001,LOC_WH_CENTRAL,7
+PROD_SUGAR_001,LOC_WH_CENTRAL,10
+PROD_TEA_001,LOC_WH_CENTRAL,14
+```
+
+**Notes:**
+- Coffee & Tea: 14 days (international import)
+- Milk: 2 days (local dairy, perishable)
+- Cups: 7 days (regional supplier)
+- Sugar: 10 days (national supplier)
+
+---
+
+#### Expected Buffer Zones After Calculation
+
+**Coffee (High-volume, long lead time):**
+```
+Red Zone: ~38 kg (2.7 ADU × 14 DLT × 0.5 × 0.25)
+Yellow Zone: ~38 kg
+Green Zone: ~95 kg (2.7 × 7 order cycle × 0.5)
+Total Buffer (TOG): ~171 kg
+```
+
+**Milk (High-volume, short lead time, perishable):**
+```
+Red Zone: ~12 liters (45 ADU × 2 DLT × 0.5 × 0.25)
+Yellow Zone: ~12 liters
+Green Zone: ~68 liters (45 × 3 order cycle × 0.5)
+Total Buffer (TOG): ~92 liters
+```
+
+---
+
+### Example 2: Restaurant Supply (10 Products)
+
+**Scenario:** Fast food restaurant with frozen, chilled, and ambient ingredients.
+
+#### Sample Product Mix
+
+```csv
+product_id,sku,name,category,storage_type,lead_time_days
+PROD_BUN_001,BUN-SES-24,Sesame Buns (24ct),Bakery,Ambient,5
+PROD_PATTY_001,BEEF-80G-40,Beef Patty 80g (40ct),Meat,Frozen,7
+PROD_CHEESE_001,CHEZ-SLC-200,Cheese Slices (200ct),Dairy,Chilled,3
+PROD_LETTUCE_001,LET-ICE-5KG,Iceberg Lettuce 5kg,Produce,Chilled,2
+PROD_PICKLE_001,PICK-SLC-2KG,Pickle Slices 2kg,Condiments,Ambient,10
+PROD_SAUCE_001,SAU-BURG-5L,Burger Sauce 5L,Condiments,Ambient,14
+PROD_FRIES_001,FRY-STR-2.5KG,Straight Fries 2.5kg,Frozen,Frozen,7
+PROD_OIL_001,OIL-VEG-20L,Vegetable Oil 20L,Cooking,Ambient,10
+PROD_BEV_001,COLA-24X330,Cola Cans 24×330ml,Beverages,Ambient,7
+PROD_BOX_001,BOX-MEAL-500,Meal Boxes (500ct),Packaging,Ambient,14
+```
+
+**Product Classification:**
+- **Frozen:** Patties, Fries (7-day lead time, high volume)
+- **Chilled:** Cheese, Lettuce (2-3 day lead time, moderate volume)
+- **Ambient:** Everything else (5-14 day lead time, varies)
+
+**Expected Buffer Profiles:**
+- Frozen: Higher green zone (less frequent deliveries)
+- Chilled: Smaller green zone (more frequent, perishable)
+- Ambient: Standard DDMRP zones
+
+---
+
+### 🎓 How to Use These Examples
+
+**Option 1: Test System (Recommended for First-Timers)**
+1. Copy Example 1 (Coffee Shop) data EXACTLY as shown
+2. Upload to your test system
+3. Run buffer calculation
+4. See if results match expected buffer zones above
+5. This confirms your system is working correctly!
+
+**Option 2: Adapt to Your Business**
+1. Use Examples as templates
+2. Replace product names with yours
+3. Replace sales quantities with yours
+4. Keep the structure the same
+
+**Option 3: Mix and Match**
+1. Use some example products
+2. Add some of your real products
+3. Test with partial real data before full rollout
 
 ---
 
@@ -2828,6 +3969,1231 @@ Go to: **Inventory → Configuration Tab → Spike Detection**
 1. Verify `product_bom` table populated with parent-child relationships
 2. Check that both parent and components are decoupling points
 3. Ensure all BOM items have buffer zones calculated
+
+---
+
+## ❌ Common Mistakes (DON'T Do These!)
+
+### 🎯 Purpose
+**Learn from others' mistakes! These are the most common errors beginners make. Avoid them!**
+
+---
+
+### Mistake #1: Uploading Data Out of Order
+
+**❌ WRONG:**
+```
+Day 1: Upload sales data first
+Day 2: Oh wait, need to upload products first
+Result: Sales upload fails with "Product not found" errors
+```
+
+**✅ RIGHT:**
+```
+ALWAYS upload in this exact order:
+1. Products (foundation - everything else references these)
+2. Locations (needed for sales, inventory, etc.)
+3. Vendors (referenced by products and contracts)
+4. Sales history (now products exist)
+5. Pricing (references products)
+6. Lead times (references products + locations)
+7. Everything else
+```
+
+**Why This Matters:**
+- Sales data has `product_id` column
+- If product doesn't exist yet → Foreign key error → Upload fails
+- Fixing requires deleting failed records and re-uploading
+
+**How to Remember:**
+Think of building a house: Foundation (products/locations) → Walls (sales/pricing) → Roof (buffers/reports)
+
+---
+
+### Mistake #2: Using Forecasted / Expected Sales
+
+**❌ WRONG:**
+```
+Manager: "We expect to sell 1,000 units next quarter"
+Planner uploads: 1,000 units for next 90 days
+Result: Completely wrong ADU, buffers way too high
+```
+
+**✅ RIGHT:**
+```
+Upload ONLY actual historical sales
+- What you ACTUALLY sold last 90 days
+- Not what you hope to sell
+- Not budgeted sales
+- Not forecasted sales
+```
+
+**Why This Matters:**
+- ADU (Average Daily Usage) MUST be based on reality
+- System calculates: ADU = Sum(actual sales) ÷ 90 days
+- Garbage in = Garbage out
+
+**Real Example:**
+```
+Actual Sales (last 90 days): 50, 45, 60, 55, 48... = Avg 52/day
+Forecasted Sales: 100/day (optimistic!)
+
+If you use forecast:
+- System calculates ADU = 100/day
+- Buffers sized for 100/day demand
+- You only sell 52/day
+- Result: Massive excess inventory, cash tied up
+
+If you use actual:
+- System calculates ADU = 52/day
+- Buffers sized correctly
+- Inventory matches real demand
+```
+
+---
+
+### Mistake #3: Setting ALL Products as Decoupling Points
+
+**❌ WRONG:**
+```
+Planner: "More buffers = safer, right? Let me mark all 500 products!"
+Result: Huge inventory investment, defeats purpose of DDMRP
+```
+
+**✅ RIGHT:**
+```
+Mark only 20-30% of products as decoupling points
+Focus on:
+- High-volume products (A items)
+- Long lead time products
+- Critical/strategic products
+- Products that protect downstream operations
+```
+
+**Why This Matters:**
+- Decoupling point = Strategic buffer position
+- Not every product needs strategic buffer
+- Low-volume items can be ordered as-needed
+- Over-buffering wastes working capital
+
+**Selection Criteria:**
+```
+✅ Mark as Decoupling Point:
+- Top 20% by volume
+- Lead time >7 days
+- Critical for operations
+- High demand variability
+- Expensive stockout cost
+
+❌ Don't Mark:
+- Low-volume items (C items)
+- Short lead time (<3 days)
+- Easily sourced alternatives
+- Stable, predictable demand
+- Low stockout impact
+```
+
+**Real Example:**
+```
+Restaurant chain - 847 total products
+
+WRONG Approach (all decoupling):
+- 847 products × $5,000 avg buffer value = $4.2M working capital
+- Includes slow-movers, condiments, paper goods
+- Massive tied-up cash
+
+RIGHT Approach (strategic):
+- 170 products (20%) as decoupling points
+- Focus on: Beef, chicken, buns, fries, cheese
+- 170 × $5,000 = $850K working capital
+- Savings: $3.35M freed up!
+```
+
+---
+
+### Mistake #4: Ignoring Red Zone Alerts
+
+**❌ WRONG:**
+```
+Warehouse: "Product X is in RED zone"
+Planner: "It's fine, we still have 50 units. I'll order tomorrow."
+Next day: Stockout occurs, production stops
+```
+
+**✅ RIGHT:**
+```
+RED ZONE = URGENT ACTION REQUIRED
+- Order immediately, same day
+- Consider expediting if needed
+- Increase order quantity to reach Yellow/Green
+- Don't wait until tomorrow
+```
+
+**Why This Matters:**
+- Red zone = Safety stock (last line of defense)
+- Below TOR = Already in danger territory
+- Any delay = Risk of stockout
+- Stockout cost >> expedite cost
+
+**Understanding Buffer Zones:**
+```
+BUFFER VISUALIZATION:
+
+TOG (1,000) ───────────────────────── ⚫ Excess (stop ordering)
+              🟢 GREEN ZONE (500)
+              Comfortable stock
+              No action needed
+TOY (500) ─────────────────────────── ✅ Order trigger
+              🟡 YELLOW ZONE (200)
+              Caution - order soon
+              Use normal lead time
+TOR (300) ─────────────────────────── ⚠️ First alert
+              🔴 RED ZONE (300)
+              DANGER - order NOW
+              Consider expediting
+0 ──────────────────────────────────── 🚨 STOCKOUT
+
+Your Position: NFP = 250 units
+Status: BELOW TOR → RED ZONE → ORDER TODAY!
+```
+
+**Decision Rules:**
+- NFP > TOY (500+) = 🟢 Healthy, no action
+- TOR < NFP < TOY (300-500) = 🟡 Order this week, normal delivery
+- NFP < TOR (< 300) = 🔴 Order TODAY, consider express shipping
+- NFP < 50% of Red = 🚨 CRITICAL - Expedite immediately
+
+---
+
+### Mistake #5: Overriding Buffer Calculations Daily
+
+**❌ WRONG:**
+```
+Planner daily:
+- "Coffee ADU looks too high, let me reduce it"
+- "Sugar buffer too low, I'll manually increase"
+- "Milk ADU wrong, let me fix it"
+Result: System becomes manual, loses DDMRP benefits
+```
+
+**✅ RIGHT:**
+```
+Trust the system calculations
+Override ONLY when:
+- Clear documented reason
+- Approved by manager
+- Temporary adjustment (not permanent)
+- Root cause identified and documented
+```
+
+**Why This Matters:**
+- System uses 90 days of actual data
+- You're using gut feel or recent memory
+- Frequent overrides = Losing DDMRP benefits
+- Becomes glorified min/max system
+
+**When Override IS Appropriate:**
+```
+✅ Valid Reasons to Override:
+1. Known future event
+   Example: "New promotion starts Monday, expect 2× demand"
+   Action: Use DAF (Demand Adjustment Factor) = 2.0
+
+2. Supplier change
+   Example: "Switched to faster local supplier"
+   Action: Update lead time OR use LTAF = 0.7
+
+3. Product discontinuation
+   Example: "Phasing out old SKU, replacement coming"
+   Action: Manually reduce buffer, don't reorder
+
+4. Data quality issue (temporary)
+   Example: "Sales data corrupted for last week"
+   Action: Exclude bad data, recalculate
+
+5. Seasonal ramp-up/down
+   Example: "Ramadan starts in 2 weeks"
+   Action: Apply DAF = 1.8 for duration
+```
+
+**Override Log Example:**
+```
+Date: 2025-10-03
+Product: Arabica Coffee (PROD_001)
+Current ADU: 52 kg/day (calculated)
+Override ADU: 93 kg/day (manual)
+Reason: Ramadan promotion confirmed, historical data shows 1.8× spike
+Approved By: Supply Chain Manager
+Valid Until: 2025-11-05 (30 days)
+Review Date: 2025-10-20
+```
+
+---
+
+### Mistake #6: Not Updating Sales Data Regularly
+
+**❌ WRONG:**
+```
+January: Upload 90 days of sales
+February-June: No new uploads
+June: "Why are my buffers wrong?"
+Result: ADU based on 6-month-old data
+```
+
+**✅ RIGHT:**
+```
+Upload new sales data:
+- Daily: Automated feed from POS/ERP (best)
+- Weekly: Manual upload of last 7 days (good)
+- Minimum: Monthly (acceptable but not ideal)
+
+System always uses last 90 days rolling window
+```
+
+**Why This Matters:**
+- Demand patterns change
+- Seasonality shifts
+- Promotions affect sales
+- Stale data = Wrong ADU = Wrong buffers
+
+**Best Practice:**
+```
+Weekly Sales Upload Routine:
+
+Monday 9:00 AM:
+1. Export last 7 days sales from POS
+2. Upload to DDMRP system (5 minutes)
+3. System recalculates ADU automatically
+4. Buffers adjust to reflect current demand
+
+Result:
+- Always using last 90 days (rolling)
+- Removes oldest 7 days, adds newest 7 days
+- ADU stays current
+```
+
+---
+
+### Mistake #7: Mixing Unit of Measure
+
+**❌ WRONG:**
+```
+Product Master: unit_of_measure = "KG"
+Sales Data: quantity_sold = 2.5 (but actually means 2.5 tons!)
+Lead Time: actual_lead_time = 7 (but means 7 hours, not days!)
+Result: Completely wrong calculations
+```
+
+**✅ RIGHT:**
+```
+Be ABSOLUTELY CONSISTENT with units:
+- Weight: Always KG (not grams, tons, pounds)
+- Volume: Always LITERS (not ml, gallons)
+- Time: Always DAYS (not hours, weeks)
+- Count: EACH or CASE (specify case size)
+```
+
+**Real Example:**
+```
+WRONG:
+Product: Coffee Beans
+Product Master: unit = "KG"
+Sales for Jan 5: quantity_sold = 2.5
+→ Planner means 2.5 tons (2,500 kg)
+→ System calculates ADU = 2.5 kg/day
+→ Buffers sized for 2.5 kg/day
+→ Result: Massive stockout!
+
+RIGHT:
+Product Master: unit = "KG"
+Sales for Jan 5: quantity_sold = 2500 (convert tons to kg)
+→ System calculates ADU = 2,500 kg/day
+→ Buffers sized correctly
+```
+
+**Conversion Checklist:**
+```
+Before uploading sales:
+[ ] All weights in KG (1 ton = 1,000 kg)
+[ ] All volumes in LITERS (1 gallon = 3.785 L)
+[ ] All lead times in DAYS (1 week = 7 days)
+[ ] All cases converted to EACH × case_size
+```
+
+---
+
+### Mistake #8: Skipping Validation Checks
+
+**❌ WRONG:**
+```
+Upload products → "Success!"
+Upload sales → "Success!"
+Calculate buffers → "Success!"
+Never check if results make sense
+Launch system
+Realize 2 weeks later: All ADUs are zero
+```
+
+**✅ RIGHT:**
+```
+After EVERY upload, validate:
+1. Record count matches expectation
+2. Spot-check 5-10 random records
+3. No null/blank values
+4. No impossible values (negative quantities)
+5. No outliers (1 million units sold in 1 day?)
+```
+
+**Validation Checklist After Uploads:**
+```
+✅ Products Uploaded:
+[ ] Count = Expected (e.g., 847 products)
+[ ] Open product list, scroll through
+[ ] Check first product: name shows correctly
+[ ] Check last product: all fields populated
+[ ] No products named "null" or blank
+[ ] All have valid unit_of_measure
+
+✅ Sales Uploaded:
+[ ] Count = Expected (90 days × products × locations)
+[ ] Check highest-volume product
+[ ] ADU approximately matches your expectations
+[ ] No zero or negative quantities
+[ ] Dates cover full 90-day period
+
+✅ Buffers Calculated:
+[ ] Buffer count = Decoupling points × locations
+[ ] Red zone > 0 for all products
+[ ] Yellow zone > 0
+[ ] Green zone > 0
+[ ] ADU column populated (not zero)
+[ ] Pick 3 random products → Zones look reasonable
+```
+
+---
+
+### Mistake #9: Creating Purchase Orders Before Loading Current Inventory
+
+**❌ WRONG:**
+```
+Day 1: Upload products, sales, calculate buffers
+Day 2: System shows all products in RED
+Day 2: Create POs for everything
+Day 3: Upload current inventory → Already have plenty!
+Result: Double-ordered, massive excess
+```
+
+**✅ RIGHT:**
+```
+Correct sequence:
+1. Upload master data
+2. Calculate buffers
+3. Upload current inventory snapshot (on-hand)
+4. Upload open POs (on-order)
+5. Upload open SOs (qualified demand)
+6. System calculates NFP
+7. NOW generate replenishment orders
+```
+
+**Why This Matters:**
+```
+Without current inventory:
+NFP = 0 (unknown) + 0 (unknown) - 0 (unknown) = UNKNOWN
+System assumes: NFP = 0
+Every product shows RED (because NFP < TOR)
+Creates orders for everything
+
+With current inventory:
+NFP = 500 (on hand) + 200 (on order) - 50 (qualified) = 650
+NFP = 650 > TOY (600) = GREEN zone
+No order needed
+```
+
+---
+
+### Mistake #10: Not Training Team Before Go-Live
+
+**❌ WRONG:**
+```
+Manager: "New system live tomorrow! Figure it out as you go."
+Planners: "What's NFP? What's TOR? Why is everything red??"
+Result: Panic, confusion, system abandoned
+```
+
+**✅ RIGHT:**
+```
+Before go-live:
+1. Train planners (2-4 hours)
+   - DDMRP basics
+   - How to read buffer status
+   - How to create orders
+
+2. Train warehouse staff (30 min)
+   - What colors mean
+   - When to alert planners
+
+3. Train procurement (1 hour)
+   - Execution priority
+   - PO creation
+
+4. Train executives (15 min)
+   - Financial dashboard only
+```
+
+**Training Checklist:**
+```
+[ ] All planners completed training
+[ ] Planners can explain: NFP, TOR, TOY, TOG
+[ ] Planners know how to generate orders
+[ ] Warehouse knows what RED/YELLOW/GREEN means
+[ ] Procurement knows how to use Execution Priority
+[ ] Executives know where to find financial metrics
+[ ] Training materials printed and distributed
+[ ] Quick reference card posted at each workstation
+```
+
+---
+
+## 🔴 Error Messages & Solutions
+
+### 🎯 Purpose
+**Understand what error messages mean and how to fix them quickly.**
+
+---
+
+### Error Category 1: Upload Errors
+
+#### Error: "No sales data found for product X"
+
+**Full Message:**
+```
+⚠️ Warning: No sales data found for product PROD_001
+ADU calculation failed for this product
+```
+
+**What It Means:**
+- Product exists in `product_master`
+- But has NO entries in `historical_sales_data`
+- System can't calculate ADU without sales history
+
+**How to Fix:**
+```
+Option 1: Upload Missing Sales (Recommended)
+1. Export sales history for PROD_001
+2. Verify product_id matches exactly (case-sensitive!)
+3. Upload sales data
+4. Re-run buffer calculation
+
+Option 2: Manual ADU (Temporary)
+1. Navigate to: Inventory → Configuration → Analysis Results
+2. Find product PROD_001
+3. Click "Manual Override"
+4. Enter estimated ADU (e.g., 25 units/day)
+5. Save and recalculate
+
+Option 3: Mark Inactive (If Discontinued)
+1. Go to: Settings → Master Data → Products
+2. Find product PROD_001
+3. Set "is_active" = FALSE
+4. System will skip this product
+```
+
+**Prevention:**
+- Always upload sales for ALL active products
+- Check sales history covers full 90 days
+- Verify product_id consistency across tables
+
+---
+
+#### Error: "Duplicate product_id found"
+
+**Full Message:**
+```
+❌ Upload Failed
+Error: Duplicate key violation on product_id "PROD_001"
+This product already exists in the database
+```
+
+**What It Means:**
+- Trying to upload product with `product_id` that already exists
+- Each product must have unique ID
+
+**How to Fix:**
+```
+Option 1: Update Existing Product
+1. Go to: Settings → Master Data → Products
+2. Find existing PROD_001
+3. Click "Edit"
+4. Update fields as needed
+5. Save
+
+Option 2: Change Product ID
+1. Open your upload CSV
+2. Change product_id from "PROD_001" to "PROD_001B"
+3. Make sure new ID is unique
+4. Re-upload
+
+Option 3: Delete Old Product First (Caution!)
+1. Go to: Settings → Master Data → Products
+2. Find PROD_001
+3. Click "Delete" (WARNING: Deletes all linked data!)
+4. Re-upload new product
+```
+
+**Prevention:**
+- Check existing products before uploading
+- Use consistent ID naming convention
+- Maintain master product list
+
+---
+
+#### Error: "Invalid date format"
+
+**Full Message:**
+```
+❌ Upload Failed
+Error on row 15: Invalid date format "10/03/2025"
+Expected format: YYYY-MM-DD
+```
+
+**What It Means:**
+- Date column not in correct format
+- System expects: `2025-10-03`
+- You provided: `10/03/2025` or `03-Oct-2025`
+
+**How to Fix:**
+```
+1. Open CSV in Excel
+2. Select date column
+3. Format cells → Custom → Type: "YYYY-MM-DD"
+4. Save as CSV (not Excel format!)
+5. Re-upload
+
+Or use Find & Replace:
+10/03/2025 → 2025-10-03
+03-Oct-2025 → 2025-10-03
+```
+
+**Correct Format Examples:**
+```
+✅ 2025-10-03 (RIGHT)
+✅ 2025-01-15 (RIGHT - note leading zero)
+❌ 10/3/2025 (WRONG - American format)
+❌ 03-10-2025 (WRONG - European format)
+❌ Oct 3, 2025 (WRONG - text format)
+❌ 2025/10/03 (WRONG - slashes instead of dashes)
+```
+
+---
+
+#### Error: "Required field missing: unit_of_measure"
+
+**Full Message:**
+```
+❌ Upload Failed
+Error on row 8: Required field "unit_of_measure" is NULL or empty
+All products must have a unit of measure
+```
+
+**What It Means:**
+- Column `unit_of_measure` is blank for some products
+- This is a required field
+
+**How to Fix:**
+```
+1. Open your product CSV
+2. Go to row 8 (or error row number)
+3. Fill in unit_of_measure column
+4. Valid values: KG, LITER, EACH, CASE, BOX, PALLET
+5. Save and re-upload
+```
+
+**Common Units:**
+```
+Weight: KG, GRAM, TON
+Volume: LITER, GALLON, ML
+Count: EACH, DOZEN, HUNDRED
+Packaging: CASE, BOX, PALLET, CARTON
+```
+
+---
+
+### Error Category 2: Calculation Errors
+
+#### Error: "Buffer calculation failed: ADU is zero"
+
+**Full Message:**
+```
+⚠️ Warning: Buffer calculation failed for PROD_001
+Reason: ADU (Average Daily Usage) = 0
+Cannot calculate buffer zones with zero demand
+```
+
+**What It Means:**
+- Product has sales data uploaded
+- But sum of all sales = 0 (or no sales in period)
+- Can't create buffers for items with zero demand
+
+**How to Fix:**
+```
+Diagnosis: Check Sales Data
+1. Go to: Inventory → Configuration → Analysis Results
+2. Find PROD_001
+3. Check "Sales Last 90 Days" column
+4. If showing "0" → No sales found
+
+Solution 1: Check Date Range
+- Sales might exist but outside 90-day window
+- System looks back from today
+- If your data is older → Won't be included
+- Upload more recent sales data
+
+Solution 2: Check Product-Location Pairing
+- Sales uploaded for different location?
+- Example: Sales for LOC_A, buffer calculation for LOC_B
+- Verify sales and decoupling point use same location_id
+
+Solution 3: Mark Inactive (If Truly Zero Demand)
+- If product genuinely has no demand
+- Don't waste effort managing buffer
+- Mark as inactive in product master
+
+Solution 4: Manual ADU Override
+1. Go to: Configuration → Analysis Results
+2. Find product
+3. Enter manual ADU (e.g., 10 units/day)
+4. Document why (new product, launching soon, etc.)
+```
+
+---
+
+#### Error: "Lead time not found for product-location"
+
+**Full Message:**
+```
+❌ Error: Cannot calculate buffer zones
+Missing lead time for product PROD_001 at location LOC_001
+```
+
+**What It Means:**
+- Product marked as decoupling point
+- No entry in `actual_lead_time` table for this product-location
+- System needs lead time to calculate DLT
+
+**How to Fix:**
+```
+1. Go to: Settings → Lead Time
+2. Download current lead times (to see what's missing)
+3. Add missing entry:
+   product_id: PROD_001
+   location_id: LOC_001
+   actual_lead_time_days: [your value, e.g., 7]
+4. Upload updated lead time file
+5. Re-run buffer calculation
+```
+
+**Quick Fix (If Urgent):**
+```
+Use default lead time:
+1. Go to: Settings → System Configuration
+2. Find "Default Lead Time (days)"
+3. Set to reasonable value (e.g., 7 days)
+4. System uses this when specific lead time missing
+```
+
+---
+
+### Error Category 3: System Performance Errors
+
+#### Error: "Calculation timeout - took longer than 30 minutes"
+
+**Full Message:**
+```
+⚠️ Buffer calculation timed out
+Processed 18,452 of 25,000 records before timeout
+System may be overloaded or database needs optimization
+```
+
+**What It Means:**
+- Calculation taking too long (>30 min threshold)
+- Usually happens with very large datasets (>50,000 product-location pairs)
+- Database queries are slow
+
+**How to Fix:**
+```
+Short-term:
+1. Run calculation during off-hours (overnight)
+2. Enable "Incremental Calculation" mode
+   - Only recalculates changed products
+   - Much faster than full recalc
+
+Medium-term (Contact IT):
+1. Add database indexes:
+   - historical_sales_data (product_id, location_id, sales_date)
+   - product_location_pairs (product_id, location_id)
+2. Review database server resources (RAM, CPU)
+
+Long-term (For IT):
+1. Schedule automated calculation (nightly at 2 AM)
+2. Use database partitioning for large tables
+3. Consider read-replicas for reporting queries
+```
+
+**Expected Calculation Times:**
+```
+< 1,000 records: 30-60 seconds
+1,000-10,000: 2-5 minutes
+10,000-50,000: 5-15 minutes
+50,000-100,000: 15-30 minutes
+> 100,000: 30+ minutes (schedule overnight)
+```
+
+---
+
+### Error Category 4: Integration Errors
+
+#### Error: "ERP connection failed"
+
+**Full Message:**
+```
+❌ Cannot connect to ERP system
+Error: Connection timeout after 30 seconds
+Check network connectivity and ERP system status
+```
+
+**What It Means:**
+- System trying to sync with ERP
+- Can't establish connection
+- Network issue or ERP down
+
+**How to Fix:**
+```
+1. Check ERP Status:
+   - Is ERP system running?
+   - Can you access ERP from browser?
+   - Check with IT if ERP maintenance ongoing
+
+2. Check Network:
+   - Are you on correct network/VPN?
+   - Firewall blocking connection?
+   - Check with IT for firewall rules
+
+3. Verify Credentials:
+   - Go to: Settings → Integration → ERP Connection
+   - Test connection button
+   - If fails: Update username/password
+
+4. Workaround (Manual Process):
+   - Export data from ERP manually
+   - Upload via CSV files
+   - Continue until integration restored
+```
+
+---
+
+## 📄 One-Page Quick Reference Card (Print This!)
+
+### 🎯 Daily Operations Cheat Sheet
+
+**🖨️ PRINT THIS PAGE and keep at your workstation!**
+
+---
+
+### ⏰ Morning Routine (10 minutes)
+
+**Step 1: Check Critical Alerts (2 min)**
+```
+1. Open Dashboard
+2. Look for red alerts banner
+3. Click to see details
+4. Note products in RED zone
+```
+
+**Step 2: Review Execution Priority (5 min)**
+```
+1. Go to: Execution Priority page
+2. Sort by: Buffer Penetration % (lowest first)
+3. Action based on %:
+   • <25% = 🔴 ORDER TODAY (expedite if possible)
+   • 25-50% = 🟠 ORDER THIS WEEK (normal delivery)
+   • 50-75% = 🟡 MONITOR (order in next 2 weeks)
+   • >75% = 🟢 HEALTHY (no action)
+```
+
+**Step 3: Create Purchase Orders (3 min)**
+```
+1. Select items <50% penetration
+2. Click "Generate Replenishment"
+3. Review quantities
+4. Approve and export to ERP
+```
+
+---
+
+### 🎨 Buffer Status Colors - What They Mean
+
+```
+VISUAL GUIDE:
+
+TOG ─────────────────────────────────────
+      🟢 GREEN ZONE
+      • Status: Comfortable excess
+      • Action: None needed
+      • Typical: 50-100% of TOG
+TOY ─────────────────────────────────────
+      🟡 YELLOW ZONE  
+      • Status: Normal operating range
+      • Action: Order this week
+      • Typical: Order when NFP drops to TOY
+TOR ─────────────────────────────────────
+      🔴 RED ZONE
+      • Status: Safety stock (danger!)
+      • Action: ORDER IMMEDIATELY
+      • Risk: Stockout if not ordered NOW
+0 ───────────────────────────────────────
+      🚨 STOCKOUT!
+```
+
+---
+
+### 🧮 Key Formulas (Quick Reference)
+
+**Net Flow Position:**
+```
+NFP = On Hand + On Order - Qualified Demand
+
+Example:
+On Hand: 500 units (current physical inventory)
+On Order: 200 units (POs not yet received)
+Qualified Demand: 50 units (confirmed sales orders)
+NFP = 500 + 200 - 50 = 650 units
+```
+
+**Buffer Penetration:**
+```
+Penetration % = (NFP - TOR) / (TOG - TOR) × 100
+
+Example:
+NFP = 650
+TOR = 300
+TOG = 1,000
+Penetration = (650 - 300) / (1,000 - 300) × 100 = 50%
+→ Mid-Yellow zone, order this week
+```
+
+**Order Quantity:**
+```
+Order Qty = TOG - NFP
+Round to Rounding Multiple
+Enforce MOQ if needed
+
+Example:
+TOG = 1,000
+NFP = 400
+Raw Order = 1,000 - 400 = 600 units
+Rounding Multiple = 24 (case size)
+Rounded = CEIL(600 / 24) × 24 = 25 × 24 = 600 units (no change)
+MOQ = 100 units (already met)
+Final Order = 600 units
+```
+
+**Average Daily Usage:**
+```
+ADU = Sum(Last 90 Days Sales) / 90
+
+Example:
+Total Sales (90 days) = 2,340 units
+ADU = 2,340 / 90 = 26 units/day
+```
+
+---
+
+### 🚦 Decision Matrix - When to Order
+
+| NFP Position | Zone | Buffer Penetration | Action | Urgency |
+|--------------|------|-------------------|--------|---------|
+| NFP > TOG | ⚫ Excess | >100% | STOP ordering | None |
+| TOY < NFP ≤ TOG | 🟢 Green | 50-100% | No action | Low |
+| TOR < NFP ≤ TOY | 🟡 Yellow | 25-50% | Order this week | Medium |
+| 0 < NFP ≤ TOR | 🔴 Red | 0-25% | ORDER TODAY | HIGH |
+| NFP ≤ 0 | 🚨 Stockout | Negative | EXPEDITE NOW | CRITICAL |
+
+---
+
+### 📞 Emergency Contacts
+
+```
+System Issues:
+IT Support: __________________
+Phone: __________________
+Email: __________________
+
+Data Questions:
+Data Admin: __________________
+Phone: __________________
+
+Supply Chain Approvals:
+Manager: __________________
+Phone: __________________
+
+Supplier Expedite:
+Procurement: __________________
+Phone: __________________
+```
+
+---
+
+### ⚡ Quick Actions (Bookmark These Pages)
+
+```
+Daily Tasks:
+• Buffer Status Grid: /inventory → Operational tab
+• Execution Priority: /execution-priority
+• Create POs: /supply-planning
+
+Weekly Tasks:
+• Buffer Performance: /inventory → Analytics tab
+• Add DAF/LTAF: /inventory → Configuration → Dynamic Adjustments
+• Review Alerts: /inventory → Breach Alerts tab
+
+Monthly Tasks:
+• Financial Dashboard: /dashboard
+• Performance Reports: /reports
+• Buffer Recalculation: /inventory → Configuration → System Settings
+```
+
+---
+
+### 🔤 Common Abbreviations
+
+```
+ADU = Average Daily Usage (units/day)
+ALT = Actual Lead Time (supplier promised days)
+DLT = Decoupled Lead Time (ALT × LTAF)
+DAF = Demand Adjustment Factor (temporary demand multiplier)
+LTAF = Lead Time Adjustment Factor (temporary lead time multiplier)
+NFP = Net Flow Position (available inventory)
+TOG = Top of Green (maximum buffer level)
+TOY = Top of Yellow (order trigger point)
+TOR = Top of Red (danger threshold)
+MOQ = Minimum Order Quantity (supplier requirement)
+PO = Purchase Order
+SO = Sales Order
+SKU = Stock Keeping Unit (product code)
+BOM = Bill of Materials (component list)
+```
+
+---
+
+### ✅ End-of-Day Checklist
+
+```
+Before leaving:
+[ ] All RED zone items ordered or expedited
+[ ] Tomorrow's priorities identified
+[ ] POs exported to ERP
+[ ] Critical alerts acknowledged
+[ ] Inventory transactions recorded
+[ ] Team briefed on urgent items
+```
+
+---
+
+## ⏱️ Performance Benchmarks: Is My System Normal?
+
+### 🎯 Purpose
+**Understand if your system is performing normally or needs optimization.**
+
+---
+
+### Buffer Calculation Speed
+
+**Expected Times (By Dataset Size):**
+
+| Product-Location Pairs | Expected Time | Your Time | Status |
+|------------------------|---------------|-----------|--------|
+| < 1,000 | 30-60 seconds | _______ | ✅ Normal if <2 min |
+| 1,000-5,000 | 1-2 minutes | _______ | ✅ Normal if <4 min |
+| 5,000-10,000 | 2-4 minutes | _______ | ✅ Normal if <8 min |
+| 10,000-25,000 | 4-8 minutes | _______ | ✅ Normal if <15 min |
+| 25,000-50,000 | 8-15 minutes | _______ | ✅ Normal if <25 min |
+| 50,000-100,000 | 15-25 minutes | _______ | ✅ Normal if <40 min |
+| > 100,000 | 25-45 minutes | _______ | ⚠️ Schedule overnight |
+
+**How to Calculate Your Pairs:**
+```
+Total Pairs = # Decoupling Points × # Locations
+
+Example:
+- 850 products total
+- 170 marked as decoupling points (20%)
+- 15 locations
+Total Pairs = 170 × 15 = 2,550 pairs
+Expected Time = 1-2 minutes ✅
+```
+
+**🔴 If Your Time is 3× Longer Than Expected:**
+```
+Contact IT for database optimization:
+1. Add missing indexes
+2. Review database server resources
+3. Consider scheduled overnight calculations
+```
+
+---
+
+### Page Load Speed
+
+**Expected Load Times:**
+
+| Page | Expected | Your Time | Notes |
+|------|----------|-----------|-------|
+| Dashboard | <2 seconds | _______ | Initial load, has many metrics |
+| Buffer Status Grid | <3 seconds | _______ | Large data table |
+| Execution Priority | <2 seconds | _______ | Sorted list |
+| Product Details | <1 second | _______ | Single product view |
+| Reports | <5 seconds | _______ | Complex calculations |
+
+**🔴 If Pages Load Slowly:**
+```
+Check these factors:
+1. Internet connection speed (run speed test)
+2. Browser cache (clear cache and retry)
+3. Number of products displayed (use filters)
+4. Time of day (peak usage?)
+5. Browser version (update if old)
+```
+
+---
+
+### Data Upload Speed
+
+**Expected Upload Times:**
+
+| File Size | Records | Expected Time | Your Time |
+|-----------|---------|---------------|-----------|
+| < 100 KB | < 1,000 rows | 5-10 seconds | _______ |
+| 100 KB - 1 MB | 1,000-10,000 rows | 10-30 seconds | _______ |
+| 1 MB - 5 MB | 10,000-50,000 rows | 30-90 seconds | _______ |
+| 5 MB - 20 MB | 50,000-200,000 rows | 2-5 minutes | _______ |
+| > 20 MB | > 200,000 rows | 5-15 minutes | _______ |
+
+**Tips for Faster Uploads:**
+```
+1. Upload during off-peak hours
+2. Split very large files into multiple uploads
+3. Remove unnecessary columns before upload
+4. Use CSV instead of Excel format
+5. Compress files if extremely large
+```
+
+---
+
+### Database Query Performance
+
+**Expected Query Times (From System Settings → Performance Monitor):**
+
+| Query Type | Expected | Action If Slower |
+|------------|----------|------------------|
+| Product Lookup | <100 ms | Add index on product_id |
+| Sales History (90 days) | <500 ms | Add index on sales_date |
+| Buffer Calculation (single) | <50 ms | Check formula complexity |
+| ADU Aggregation | <200 ms | Partition sales table |
+| Inventory Snapshot | <100 ms | Add index on snapshot_ts |
+
+**How to Check (For IT):**
+```
+1. Go to: Settings → System Settings → Performance Monitor
+2. Click "Run Diagnostics"
+3. Review query execution times
+4. Compare to expected times above
+5. Optimize slow queries
+```
+
+---
+
+### System Resource Usage
+
+**Normal Resource Consumption:**
+
+| Resource | Normal Range | Your System | Alert Level |
+|----------|--------------|-------------|-------------|
+| CPU Usage | 10-30% average | _______ % | >60% sustained |
+| Memory (RAM) | 20-40% of total | _______ % | >75% |
+| Database Size | 50-500 MB per 10K records | _______ MB | >5 GB needs cleanup |
+| Active Connections | 5-20 concurrent | _______ | >50 needs optimization |
+
+**How to Check (For IT):**
+```
+1. Go to: Settings → System Settings → Server Health
+2. View current resource usage
+3. Check historical trends
+4. Set up alerts if thresholds exceeded
+```
+
+---
+
+### Expected Data Volumes
+
+**Typical Database Sizes:**
+
+| Data Type | Records Per Year | Disk Space | Retention |
+|-----------|------------------|------------|-----------|
+| Products | 500-5,000 | 5-50 MB | Forever |
+| Locations | 10-500 | <5 MB | Forever |
+| Daily Sales | 180K-1.8M | 100-1,000 MB | 2-3 years |
+| Buffer Calculations | 365K-3.65M | 200-2,000 MB | 1 year |
+| Replenishment Orders | 50K-500K | 50-500 MB | 1 year |
+| Audit Logs | 100K-1M | 100-1,000 MB | 1 year |
+
+**Example: Medium-Sized Operation:**
+```
+Products: 2,000
+Locations: 25
+Decoupling Points: 400 (20%)
+Sales Transactions/Day: 5,000
+
+Annual Database Size:
+- Products: 20 MB
+- Sales: 1,825,000 records = ~500 MB
+- Buffers: 146,000 calculations = ~300 MB
+- Orders: 120,000 POs = ~200 MB
+Total: ~1,020 MB (~1 GB/year)
+
+After 3 years: ~3 GB
+```
+
+**🔴 If Database Growing Too Fast:**
+```
+Actions:
+1. Archive old sales data (>2 years)
+2. Delete obsolete buffer calculations
+3. Purge closed/fulfilled orders (>1 year old)
+4. Implement data retention policy
+5. Review for duplicate/junk data
+```
+
+---
+
+### Network Bandwidth Requirements
+
+**Minimum Requirements:**
+
+| Activity | Minimum Speed | Recommended | Notes |
+|----------|---------------|-------------|-------|
+| Daily Operations | 2 Mbps | 10 Mbps | Per user |
+| Large File Upload | 5 Mbps | 20 Mbps | For 10 MB files |
+| Report Generation | 5 Mbps | 10 Mbps | PDF exports |
+| Dashboard Refresh | 1 Mbps | 5 Mbps | Real-time updates |
+| ERP Integration | 5 Mbps | 20 Mbps | Constant sync |
+
+**How to Test Your Speed:**
+```
+1. Visit speedtest.net
+2. Run test from your location
+3. Note Download speed
+4. Compare to requirements above
+```
 
 ---
 
