@@ -14,24 +14,90 @@ interface LocationInfo {
   drive_thru: boolean | null;
 }
 
-// Product popularity based on category
-const categoryPopularity: Record<string, number> = {
-  'Beef Burgers': 1.0,
-  'Chicken Burgers': 0.95,
-  'Sandwiches/Wraps': 0.8,
-  'Sides & Appetizers': 1.2,
-  'Bestsellers/Limited Offers': 0.9,
-  'Gathering Boxes': 0.4,
-  'Sauces': 0.6,
-};
+interface SalesConfig {
+  categoryPopularity: Record<string, number>;
+  dayOfWeekMultipliers: Record<string, number>;
+  seasonalMultipliers: Record<string, number>;
+  regionalMultipliers: Record<string, number>;
+  baseVolume: number;
+  seatingCapacityNormalizer: number;
+  driveThruBoost: number;
+  randomVariationMin: number;
+  randomVariationRange: number;
+  minimumQuantityThreshold: number;
+  defaultFallbackPrice: number;
+  priceVariationMin: number;
+  priceVariationRange: number;
+}
 
-// Day of week multipliers (0 = Sunday, 6 = Saturday)
-const dayOfWeekMultipliers = [1.0, 0.85, 0.9, 0.95, 1.1, 1.3, 1.2];
+// Fetch configuration from database
+async function fetchSalesConfig(): Promise<SalesConfig> {
+  const { data, error } = await supabase
+    .from('sales_pattern_config')
+    .select('config_type, config_key, multiplier')
+    .eq('is_active', true);
 
-// Seasonal multipliers by month (0-11)
-const seasonalMultipliers = [0.9, 0.95, 1.0, 1.05, 0.7, 1.2, 1.3, 1.25, 1.1, 1.0, 0.95, 0.9];
+  if (error) {
+    throw new Error(`Failed to fetch sales configuration: ${error.message}`);
+  }
+
+  const config: SalesConfig = {
+    categoryPopularity: {},
+    dayOfWeekMultipliers: {},
+    seasonalMultipliers: {},
+    regionalMultipliers: {},
+    baseVolume: 30,
+    seatingCapacityNormalizer: 60,
+    driveThruBoost: 1.2,
+    randomVariationMin: 0.75,
+    randomVariationRange: 0.5,
+    minimumQuantityThreshold: 3,
+    defaultFallbackPrice: 20.0,
+    priceVariationMin: 0.9,
+    priceVariationRange: 0.2
+  };
+
+  data?.forEach((item) => {
+    switch (item.config_type) {
+      case 'category':
+        config.categoryPopularity[item.config_key] = item.multiplier;
+        break;
+      case 'day_of_week':
+        config.dayOfWeekMultipliers[item.config_key] = item.multiplier;
+        break;
+      case 'seasonal':
+        config.seasonalMultipliers[item.config_key] = item.multiplier;
+        break;
+      case 'regional':
+        config.regionalMultipliers[item.config_key] = item.multiplier;
+        break;
+      case 'base_volume':
+        config.baseVolume = item.multiplier;
+        break;
+      case 'location_calc':
+        if (item.config_key === 'seating_capacity_normalizer') config.seatingCapacityNormalizer = item.multiplier;
+        if (item.config_key === 'drive_thru_boost') config.driveThruBoost = item.multiplier;
+        break;
+      case 'quantity_calc':
+        if (item.config_key === 'random_variation_min') config.randomVariationMin = item.multiplier;
+        if (item.config_key === 'random_variation_range') config.randomVariationRange = item.multiplier;
+        if (item.config_key === 'minimum_quantity_threshold') config.minimumQuantityThreshold = item.multiplier;
+        break;
+      case 'price_calc':
+        if (item.config_key === 'default_fallback_price') config.defaultFallbackPrice = item.multiplier;
+        if (item.config_key === 'price_variation_min') config.priceVariationMin = item.multiplier;
+        if (item.config_key === 'price_variation_range') config.priceVariationRange = item.multiplier;
+        break;
+    }
+  });
+
+  return config;
+}
 
 export async function generateRealisticHistoricalSales(days: number = 90) {
+  // Fetch sales configuration from database
+  const config = await fetchSalesConfig();
+
   // Fetch ONLY finished goods products (not raw materials or components)
   const { data: products, error: productsError } = await supabase
     .from('product_master')
@@ -51,6 +117,24 @@ export async function generateRealisticHistoricalSales(days: number = 90) {
     throw new Error(`Failed to fetch locations: ${locationsError?.message}`);
   }
 
+  // Fetch all product prices once (batch)
+  const { data: allPrices, error: pricesError } = await supabase
+    .from('product_pricing-master')
+    .select('product_id, price, effective_date')
+    .order('effective_date', { ascending: false });
+
+  if (pricesError) {
+    console.warn('Failed to fetch prices:', pricesError);
+  }
+
+  // Build price lookup map (latest price per product)
+  const priceMap: Record<string, number> = {};
+  allPrices?.forEach((p) => {
+    if (!priceMap[p.product_id]) {
+      priceMap[p.product_id] = p.price;
+    }
+  });
+
   const salesData: any[] = [];
   const endDate = new Date();
   const startDate = new Date();
@@ -61,8 +145,8 @@ export async function generateRealisticHistoricalSales(days: number = 90) {
     const currentDate = new Date(d);
     const dayOfWeek = currentDate.getDay();
     const month = currentDate.getMonth();
-    const dayMultiplier = dayOfWeekMultipliers[dayOfWeek];
-    const seasonMultiplier = seasonalMultipliers[month];
+    const dayMultiplier = config.dayOfWeekMultipliers[dayOfWeek.toString()] || 1.0;
+    const seasonMultiplier = config.seasonalMultipliers[month.toString()] || 1.0;
     const dateString = currentDate.toISOString().split('T')[0];
 
     // For each location
@@ -70,24 +154,30 @@ export async function generateRealisticHistoricalSales(days: number = 90) {
       // Location multiplier based on characteristics
       let locationMult = 1.0;
       if (location.seating_capacity) {
-        locationMult = location.seating_capacity / 60; // Normalize around 60 seats
+        locationMult = location.seating_capacity / config.seatingCapacityNormalizer;
       }
       if (location.drive_thru) {
-        locationMult *= 1.2; // Drive-thru locations get 20% boost
+        locationMult *= config.driveThruBoost;
       }
       
-      // Regional adjustments
-      if (location.region?.includes('Makkah')) locationMult *= 1.5;
-      if (location.region?.includes('Riyadh')) locationMult *= 1.3;
-      if (location.region?.includes('Jeddah')) locationMult *= 1.4;
+      // Regional adjustments - check for regional multipliers from config
+      let regionalMult = config.regionalMultipliers['default'] || 1.0;
+      for (const [regionKey, multiplier] of Object.entries(config.regionalMultipliers)) {
+        if (regionKey !== 'default' && location.region?.includes(regionKey)) {
+          regionalMult = multiplier;
+          break;
+        }
+      }
+      locationMult *= regionalMult;
 
       // For each product
       for (const product of products) {
-        const categoryPop = categoryPopularity[product.category || 'Other'] || 0.7;
-        const baseVolume = 30; // Base daily sales per product per location
+        const categoryPop = config.categoryPopularity[product.category || 'Other'] || 
+                            config.categoryPopularity['Other'] || 0.7;
+        const baseVolume = config.baseVolume;
 
-        // Calculate quantity with all multipliers + random variation (±25%)
-        const randomVariation = 0.75 + Math.random() * 0.5; // 0.75 to 1.25
+        // Calculate quantity with all multipliers + random variation
+        const randomVariation = config.randomVariationMin + Math.random() * config.randomVariationRange;
         const quantity = Math.round(
           baseVolume * 
           categoryPop * 
@@ -97,19 +187,14 @@ export async function generateRealisticHistoricalSales(days: number = 90) {
           randomVariation
         );
 
-        // Skip if quantity is too low (realistic - not all products sold daily everywhere)
-        if (quantity < 3) continue;
+        // Skip if quantity is too low
+        if (quantity < config.minimumQuantityThreshold) continue;
 
-        // Estimate unit price based on category
-        let unitPrice = 20.0;
-        if (product.category?.includes('Gathering')) unitPrice = 45.0;
-        if (product.category?.includes('Beef')) unitPrice = 25.0;
-        if (product.category?.includes('Chicken')) unitPrice = 22.0;
-        if (product.category?.includes('Sides')) unitPrice = 10.0;
-        if (product.category?.includes('Sauces')) unitPrice = 5.0;
+        // Get price from pre-fetched price map
+        let unitPrice = priceMap[product.product_id] || config.defaultFallbackPrice;
         
-        // Add random variation to price (±10%)
-        unitPrice = unitPrice * (0.9 + Math.random() * 0.2);
+        // Add random variation to price
+        unitPrice = unitPrice * (config.priceVariationMin + Math.random() * config.priceVariationRange);
 
         const revenue = quantity * unitPrice;
 

@@ -1660,6 +1660,36 @@ export type Database = {
         }
         Relationships: []
       }
+      sales_pattern_config: {
+        Row: {
+          config_key: string
+          config_type: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          multiplier: number
+          updated_at: string | null
+        }
+        Insert: {
+          config_key: string
+          config_type: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          multiplier?: number
+          updated_at?: string | null
+        }
+        Update: {
+          config_key?: string
+          config_type?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          multiplier?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       service_level_override: {
         Row: {
           calculated_z_value: number | null

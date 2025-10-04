@@ -5,22 +5,70 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Product popularity based on category
-const categoryPopularity: Record<string, number> = {
-  'Beef Burgers': 1.0,
-  'Chicken Burgers': 0.95,
-  'Sandwiches/Wraps': 0.8,
-  'Sides & Appetizers': 1.2,
-  'Bestsellers/Limited Offers': 0.9,
-  'Gathering Boxes': 0.4,
-  'Sauces': 0.6,
-};
+// Fetch configuration from database
+async function fetchSalesConfig(supabase: any) {
+  const { data, error } = await supabase
+    .from('sales_pattern_config')
+    .select('config_type, config_key, multiplier')
+    .eq('is_active', true);
 
-// Day of week multipliers (0 = Sunday, 6 = Saturday)
-const dayOfWeekMultipliers = [1.0, 0.85, 0.9, 0.95, 1.1, 1.3, 1.2];
+  if (error) {
+    console.error('Error fetching sales config:', error);
+    throw new Error(`Failed to fetch sales configuration: ${error.message}`);
+  }
 
-// Seasonal multipliers by month (0-11)
-const seasonalMultipliers = [0.9, 0.95, 1.0, 1.05, 0.7, 1.2, 1.3, 1.25, 1.1, 1.0, 0.95, 0.9];
+  const config = {
+    categoryPopularity: {} as Record<string, number>,
+    dayOfWeekMultipliers: {} as Record<string, number>,
+    seasonalMultipliers: {} as Record<string, number>,
+    regionalMultipliers: {} as Record<string, number>,
+    baseVolume: 30, // default
+    seatingCapacityNormalizer: 60,
+    driveThruBoost: 1.2,
+    randomVariationMin: 0.75,
+    randomVariationRange: 0.5,
+    minimumQuantityThreshold: 3,
+    defaultFallbackPrice: 20.0,
+    priceVariationMin: 0.9,
+    priceVariationRange: 0.2
+  };
+
+  data.forEach((item: any) => {
+    switch (item.config_type) {
+      case 'category':
+        config.categoryPopularity[item.config_key] = item.multiplier;
+        break;
+      case 'day_of_week':
+        config.dayOfWeekMultipliers[item.config_key] = item.multiplier;
+        break;
+      case 'seasonal':
+        config.seasonalMultipliers[item.config_key] = item.multiplier;
+        break;
+      case 'regional':
+        config.regionalMultipliers[item.config_key] = item.multiplier;
+        break;
+      case 'base_volume':
+        config.baseVolume = item.multiplier;
+        break;
+      case 'location_calc':
+        if (item.config_key === 'seating_capacity_normalizer') config.seatingCapacityNormalizer = item.multiplier;
+        if (item.config_key === 'drive_thru_boost') config.driveThruBoost = item.multiplier;
+        break;
+      case 'quantity_calc':
+        if (item.config_key === 'random_variation_min') config.randomVariationMin = item.multiplier;
+        if (item.config_key === 'random_variation_range') config.randomVariationRange = item.multiplier;
+        if (item.config_key === 'minimum_quantity_threshold') config.minimumQuantityThreshold = item.multiplier;
+        break;
+      case 'price_calc':
+        if (item.config_key === 'default_fallback_price') config.defaultFallbackPrice = item.multiplier;
+        if (item.config_key === 'price_variation_min') config.priceVariationMin = item.multiplier;
+        if (item.config_key === 'price_variation_range') config.priceVariationRange = item.multiplier;
+        break;
+    }
+  });
+
+  return config;
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -36,6 +84,13 @@ Deno.serve(async (req) => {
     const { days = 90 } = await req.json();
 
     console.log(`Generating ${days} days of historical sales data...`);
+
+    // Fetch sales configuration from database
+    const config = await fetchSalesConfig(supabase);
+    console.log('Sales configuration loaded:', {
+      categories: Object.keys(config.categoryPopularity).length,
+      baseVolume: config.baseVolume
+    });
 
     // Fetch ONLY finished goods products
     const { data: products, error: productsError } = await supabase
@@ -60,6 +115,26 @@ Deno.serve(async (req) => {
 
     console.log(`Found ${locations.length} locations`);
 
+    // Fetch all product prices once (batch)
+    const { data: allPrices, error: pricesError } = await supabase
+      .from('product_pricing-master')
+      .select('product_id, price, effective_date')
+      .order('effective_date', { ascending: false });
+
+    if (pricesError) {
+      console.warn('Failed to fetch prices:', pricesError);
+    }
+
+    // Build price lookup map (latest price per product)
+    const priceMap: Record<string, number> = {};
+    allPrices?.forEach((p: any) => {
+      if (!priceMap[p.product_id]) {
+        priceMap[p.product_id] = p.price;
+      }
+    });
+
+    console.log(`Loaded ${Object.keys(priceMap).length} product prices`);
+
     const salesData: any[] = [];
     const endDate = new Date();
     const startDate = new Date();
@@ -70,8 +145,8 @@ Deno.serve(async (req) => {
       const currentDate = new Date(d);
       const dayOfWeek = currentDate.getDay();
       const month = currentDate.getMonth();
-      const dayMultiplier = dayOfWeekMultipliers[dayOfWeek];
-      const seasonMultiplier = seasonalMultipliers[month];
+      const dayMultiplier = config.dayOfWeekMultipliers[dayOfWeek.toString()] || 1.0;
+      const seasonMultiplier = config.seasonalMultipliers[month.toString()] || 1.0;
       const dateString = currentDate.toISOString().split('T')[0];
 
       // For each location
@@ -79,23 +154,30 @@ Deno.serve(async (req) => {
         // Location multiplier based on characteristics
         let locationMult = 1.0;
         if (location.seating_capacity) {
-          locationMult = location.seating_capacity / 60;
+          locationMult = location.seating_capacity / config.seatingCapacityNormalizer;
         }
         if (location.drive_thru) {
-          locationMult *= 1.2;
+          locationMult *= config.driveThruBoost;
         }
         
-        // Regional adjustments
-        if (location.region?.includes('Makkah')) locationMult *= 1.5;
-        if (location.region?.includes('Riyadh')) locationMult *= 1.3;
-        if (location.region?.includes('Jeddah')) locationMult *= 1.4;
+        // Regional adjustments - check for regional multipliers from config
+        let regionalMult = config.regionalMultipliers['default'] || 1.0;
+        for (const [regionKey, multiplier] of Object.entries(config.regionalMultipliers)) {
+          if (regionKey !== 'default' && location.region?.includes(regionKey)) {
+            regionalMult = multiplier;
+            break;
+          }
+        }
+        locationMult *= regionalMult;
 
         // For each product
         for (const product of products) {
-          const categoryPop = categoryPopularity[product.category || 'Other'] || 0.7;
-          const baseVolume = 30;
+          const categoryPop = config.categoryPopularity[product.category || 'Other'] || 
+                              config.categoryPopularity['Other'] || 0.7;
+          const baseVolume = config.baseVolume;
 
-          const randomVariation = 0.75 + Math.random() * 0.5;
+          // Calculate quantity with all multipliers + random variation
+          const randomVariation = config.randomVariationMin + Math.random() * config.randomVariationRange;
           const quantity = Math.round(
             baseVolume * 
             categoryPop * 
@@ -105,16 +187,14 @@ Deno.serve(async (req) => {
             randomVariation
           );
 
-          if (quantity < 3) continue;
+          // Skip if quantity is too low
+          if (quantity < config.minimumQuantityThreshold) continue;
 
-          let unitPrice = 20.0;
-          if (product.category?.includes('Gathering')) unitPrice = 45.0;
-          if (product.category?.includes('Beef')) unitPrice = 25.0;
-          if (product.category?.includes('Chicken')) unitPrice = 22.0;
-          if (product.category?.includes('Sides')) unitPrice = 10.0;
-          if (product.category?.includes('Sauces')) unitPrice = 5.0;
+          // Get price from pre-fetched price map
+          let unitPrice = priceMap[product.product_id] || config.defaultFallbackPrice;
           
-          unitPrice = unitPrice * (0.9 + Math.random() * 0.2);
+          // Add random variation
+          unitPrice = unitPrice * (config.priceVariationMin + Math.random() * config.priceVariationRange);
 
           const revenue = quantity * unitPrice;
 
