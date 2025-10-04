@@ -1870,29 +1870,558 @@ NFP recalculates → No duplicate recommendation
 
 ---
 
-#### Step 16: Calculate Buffers
-Go to: **Inventory → Configuration Tab → System Settings**
+#### Step 16: Calculate Buffers (The Magic Moment!)
 
-**Actions:**
-1. Click **"Calculate All Buffers"** button
-2. System performs:
-   - Fetches 90-day sales history
-   - Calculates ADU (Average Daily Usage) per product-location
-   - Applies active DAF/LTAF
-   - Computes buffer zones using formulas:
+**Navigation:** Inventory → Configuration Tab → System Settings
 
-**DDMRP Buffer Zone Formulas:**
+**What This Does:** This is where the system calculates all your buffer zones (Red, Yellow, Green) for every product at every location. Think of it as the "brain" of DDMRP - it takes all your data and turns it into actionable inventory targets.
+
+**🖥️ What You'll See on Screen:**
+
 ```
-Red Zone = ADU × DLT × LT_Factor × Variability_Factor
-Yellow Zone = Red Zone (standard practice)
-Green Zone = ADU × Order_Cycle × LT_Factor
-
-Top of Red (TOR) = Red Zone
-Top of Yellow (TOY) = Red + Yellow
-Top of Green (TOG) = Red + Yellow + Green
+┌─────────────────────────────────────────────────────────┐
+│  ⚙️ System Settings                                     │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  Buffer Calculation                                     │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │
+│                                                         │
+│  Last Calculation: 2025-10-01 14:30:00                 │
+│  Status: ✅ Completed Successfully                      │
+│  Products Processed: 847                                │
+│  Locations: 23                                          │
+│  Total Buffer Records: 19,481                           │
+│                                                         │
+│  ┌──────────────────────────────────────────┐          │
+│  │  🔄 Calculate All Buffers Now            │ ← Click! │
+│  └──────────────────────────────────────────┘          │
+│                                                         │
+│  ⚠️ Warning: Calculation may take 2-5 minutes          │
+│     for large datasets (>10,000 records)                │
+│                                                         │
+│  Advanced Options:                                      │
+│  ☑️ Recalculate only changed products                   │
+│  ☐ Force full recalculation (slower)                    │
+│  ☑️ Apply active DAF/LTAF adjustments                   │
+│  ☐ Generate detailed calculation log                    │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
 ```
 
-3. Results stored in `inventory_ddmrp_buffers_view`
+**Step-by-Step Instructions:**
+
+**1. Navigate to the System Settings**
+   - Click **"Inventory"** in the left sidebar
+   - Click the **"Configuration"** tab at the top
+   - Scroll down to find **"System Settings"** section
+
+**2. Click "Calculate All Buffers Now" Button**
+   - Big blue button in the center
+   - You'll see a loading spinner appear
+
+**3. Watch the Progress**
+   - Progress bar shows: "Processing product 234 of 847..."
+   - Percentage completion: "28%..."
+   - Estimated time remaining: "3 minutes 12 seconds..."
+
+**4. Wait for Completion**
+   - When done, you'll see a **green success message**:
+   ```
+   ✅ Buffer Calculation Completed Successfully!
+   
+   Summary:
+   - Products Processed: 847
+   - Locations: 23
+   - Buffer Records Created: 19,481
+   - Calculation Time: 4 minutes 23 seconds
+   - Products with DAF Applied: 127
+   - Products with LTAF Applied: 89
+   ```
+
+---
+
+### 🔧 Behind the Scenes: What the System Does
+
+When you click "Calculate All Buffers", here's what happens (you don't see this, but it helps to understand):
+
+**Step 1: Data Gathering (30 seconds)**
+```
+System queries:
+├─ historical_sales_data (last 90 days)
+├─ product_master (all active products)
+├─ location_master (all active locations)
+├─ buffer_profile_master (buffer settings)
+├─ actual_lead_time (lead times per product-location)
+├─ demand_adjustment_factor (active DAF entries)
+├─ lead_time_adjustment_factor (active LTAF entries)
+└─ product_location_pairs (decoupling points)
+```
+
+**Step 2: Calculate ADU for Each Product-Location (2 minutes)**
+```
+For each product-location pair:
+
+Example: Sesame Buns at Riyadh Store 001
+
+1. Fetch sales history:
+   └─ Past 90 days: [120, 135, 128, ... 142] buns sold per day
+   
+2. Calculate base ADU:
+   ADU_Base = SUM(90 days) / 90
+   ADU_Base = 12,450 / 90 = 138.3 buns/day
+
+3. Check for active DAF:
+   └─ Ramadan DAF = 1.5 (active from 2025-03-01 to 2025-03-30)
+   └─ ADU_Adjusted = 138.3 × 1.5 = 207.5 buns/day
+
+4. Check trend factor (from performance_tracking):
+   └─ 90-day trend = 1.08 (8% growth)
+   └─ ADU_Final = 207.5 × 1.08 = 224.1 buns/day
+```
+
+**Step 3: Calculate Decoupled Lead Time (30 seconds)**
+```
+For Sesame Buns at Riyadh Store 001:
+
+1. Fetch actual lead time:
+   Actual_LT = 5 days (from actual_lead_time table)
+
+2. Check for active LTAF:
+   Active LTAF = 1.3 (supplier delays, valid until 2025-10-15)
+
+3. Calculate DLT:
+   DLT = Actual_LT × LTAF
+   DLT = 5 days × 1.3 = 6.5 days
+```
+
+**Step 4: Fetch Buffer Profile Settings (10 seconds)**
+```
+Product: Sesame Buns
+Buffer Profile: BP_BAKERY_FRESH
+
+From buffer_profile_master:
+├─ lt_factor: 0.5
+├─ variability_factor: 0.25
+├─ order_cycle_days: 7
+├─ min_order_qty: 100
+└─ rounding_multiple: 24 (case size)
+```
+
+**Step 5: Calculate Buffer Zones (2 minutes)**
+```
+Using DDMRP Formulas:
+
+RED ZONE (Safety Stock):
+Red = ADU × DLT × LT_Factor × Variability_Factor
+Red = 224.1 × 6.5 × 0.5 × 0.25
+Red = 182.1 buns
+
+Enforce MOQ constraint:
+Red = MAX(182.1, 100) = 182.1 buns
+Red_Final = 182 buns (rounded)
+
+YELLOW ZONE (Cycle Stock):
+Yellow = Red (standard DDMRP practice)
+Yellow = 182 buns
+
+GREEN ZONE (Replenishment Flexibility):
+Green = ADU × Order_Cycle × LT_Factor
+Green = 224.1 × 7 × 0.5
+Green = 784.4 buns
+Green_Final = 784 buns (rounded)
+
+BUFFER THRESHOLDS:
+TOR (Top of Red) = Red = 182 buns
+TOY (Top of Yellow) = Red + Yellow = 182 + 182 = 364 buns
+TOG (Top of Green) = Red + Yellow + Green = 182 + 182 + 784 = 1,148 buns
+```
+
+**Step 6: Store Results (1 minute)**
+```
+System writes to inventory_ddmrp_buffers_view:
+
+product_id: PROD_BUNS_001
+location_id: LOC_RY_001
+sku: BUN-SESAME-001
+adu: 224.1
+dlt: 6.5
+red_zone: 182
+yellow_zone: 182
+green_zone: 784
+tor: 182
+toy: 364
+tog: 1,148
+buffer_profile_id: BP_BAKERY_FRESH
+lt_factor: 0.5
+variability_factor: 0.25
+order_cycle_days: 7
+moq: 100
+rounding_multiple: 24
+```
+
+---
+
+### ✅ How to Verify It Worked
+
+**Verification Step 1: Check the Dashboard**
+```
+Navigate to: Inventory → Strategic Tab
+
+You should now see:
+┌─────────────────────────────────────────────┐
+│  📊 Buffer Overview                         │
+├─────────────────────────────────────────────┤
+│  Total Buffers Calculated: 19,481           │
+│                                             │
+│  By Status:                                 │
+│  🟢 Green Zone: 12,847 (66%)                │
+│  🟡 Yellow Zone: 4,231 (22%)                │
+│  🔴 Red Zone: 2,103 (11%)                   │
+│  ⚫ Excess: 300 (1%)                         │
+│                                             │
+│  Last Updated: Just now                     │
+└─────────────────────────────────────────────┘
+```
+
+**Verification Step 2: Inspect a Specific Product**
+```
+Navigate to: Inventory → Operational → Buffer Status Grid
+
+Filter: Product = "Sesame Buns", Location = "Riyadh Store 001"
+
+You should see:
+┌────────────────────────────────────────────────────────┐
+│  🥖 Sesame Buns - Riyadh Store 001                     │
+├────────────────────────────────────────────────────────┤
+│  Buffer Status: 🟡 Yellow Zone                         │
+│  Buffer Penetration: 58%                               │
+│                                                        │
+│  Current Position:                                     │
+│  ├─ On Hand: 420 buns                                 │
+│  ├─ On Order: 240 buns                                │
+│  ├─ Qualified Demand: 0 buns                          │
+│  └─ NFP (Net Flow): 660 buns                          │
+│                                                        │
+│  Buffer Zones:                                         │
+│  ├─ 🔴 Red Zone: 0-182 buns                           │
+│  ├─ 🟡 Yellow Zone: 182-364 buns                      │
+│  ├─ 🟢 Green Zone: 364-1,148 buns                     │
+│  └─ ⚫ Excess: >1,148 buns                             │
+│                                                        │
+│  📈 ADU: 224 buns/day                                  │
+│  🚚 DLT: 6.5 days (LTAF 1.3 applied)                  │
+│  📦 MOQ: 100 buns                                      │
+│  📏 Rounding: 24 buns (case)                           │
+│                                                        │
+│  Active Adjustments:                                   │
+│  ├─ 🔼 DAF: 1.5 (Ramadan) [expires 2025-03-30]       │
+│  └─ ⏱️ LTAF: 1.3 (Supplier delays) [expires 2025-10-15] │
+└────────────────────────────────────────────────────────┘
+```
+
+**Verification Step 3: Check Calculation Log**
+```
+Navigate to: Inventory → Configuration → Analysis Results
+
+Recent Calculations:
+┌─────────────────────────────────────────────────────┐
+│  Calculation Run: 2025-10-03 14:35:22               │
+│  ───────────────────────────────────────────────── │
+│  ✅ Sesame Buns | Riyadh 001 | Red: 182 | Yellow: 182 | Green: 784 │
+│  ✅ Beef Patty  | Riyadh 001 | Red: 89  | Yellow: 89  | Green: 312 │
+│  ✅ Cheese Slice| Riyadh 001 | Red: 156 | Yellow: 156 | Green: 546 │
+│  ...                                                │
+│                                                     │
+│  Summary:                                           │
+│  Total Products: 847                                │
+│  Successful: 847 (100%)                             │
+│  Failed: 0                                          │
+│  With DAF: 127 products                             │
+│  With LTAF: 89 products                             │
+└─────────────────────────────────────────────────────┘
+```
+
+---
+
+### ⚠️ Troubleshooting Step 16
+
+**Problem 1: "No sales data found for product X"**
+```
+Cause: Missing historical_sales_data entries
+
+Fix:
+1. Go to Settings → Master Data → Historical Sales
+2. Verify you uploaded sales for last 90 days
+3. Check product_id matches between tables
+4. Re-upload missing data
+5. Re-run buffer calculation
+```
+
+**Problem 2: "Buffer zones are zero"**
+```
+Cause: Either no ADU or no lead time
+
+Fix:
+1. Check ADU calculation:
+   - Navigate to Inventory → Configuration → Analysis Results
+   - Look for ADU column
+   - If zero, check historical_sales_data
+   
+2. Check lead time:
+   - Navigate to Settings → Lead Time
+   - Verify actual_lead_time table has entry for this product-location
+   - Add missing lead times
+   
+3. Re-run calculation
+```
+
+**Problem 3: "Calculation taking too long (>10 minutes)"**
+```
+Cause: Large dataset or database performance
+
+Temporary Fix:
+1. Cancel current calculation
+2. Enable "Recalculate only changed products" option
+3. Try again
+
+Permanent Fix (for IT team):
+1. Add database indexes on:
+   - historical_sales_data (product_id, location_id, sales_date)
+   - product_location_pairs (product_id, location_id)
+2. Consider running calculation overnight via scheduled job
+```
+
+**Problem 4: "Red zone is same as MOQ for all products"**
+```
+Cause: Calculated red zone is less than MOQ, so MOQ constraint kicks in
+
+This is NORMAL behavior if:
+- You have slow-moving products (low ADU)
+- You have high MOQs from suppliers
+
+Example:
+ADU = 5 units/day
+DLT = 3 days
+Calculated Red = 5 × 3 × 0.5 × 0.25 = 1.875 units
+MOQ = 100 units
+Final Red = MAX(1.875, 100) = 100 units ✅
+
+This protects you from ordering too small quantities.
+```
+
+---
+
+### 📚 DDMRP Buffer Zone Formulas (Reference)
+
+**For your understanding, here are the exact formulas the system uses:**
+
+```
+RED ZONE (Protects against stockout during lead time)
+═══════════════════════════════════════════════════
+Red = ADU × DLT × LT_Factor × Variability_Factor
+
+Where:
+- ADU = Average Daily Usage (calculated from last 90 days)
+- DLT = Decoupled Lead Time (Actual_LT × LTAF)
+- LT_Factor = Lead time buffer factor (from buffer profile, typically 0.5)
+- Variability_Factor = Demand variability buffer (from buffer profile, typically 0.25)
+
+Constraint: Red = MAX(Calculated_Red, MOQ)
+
+
+YELLOW ZONE (Covers normal replenishment cycle)
+═══════════════════════════════════════════════════
+Yellow = Red
+
+Note: DDMRP standard practice is Yellow = Red
+This creates a "sweet spot" for ordering
+
+
+GREEN ZONE (Provides flexibility for bulk ordering)
+═══════════════════════════════════════════════════
+Green = ADU × Order_Cycle × LT_Factor
+
+Where:
+- Order_Cycle = How often you want to order (from buffer profile, e.g., 7 days)
+- LT_Factor = Same as red zone (0.5 typically)
+
+
+THRESHOLDS (Action triggers)
+═══════════════════════════════════════════════════
+TOR (Top of Red) = Red_Zone
+TOY (Top of Yellow) = Red_Zone + Yellow_Zone
+TOG (Top of Green) = Red_Zone + Yellow_Zone + Green_Zone
+
+
+DECISION RULES
+═══════════════════════════════════════════════════
+If NFP ≤ TOR  → 🔴 CRITICAL - Order immediately (expedite if possible)
+If TOR < NFP ≤ TOY  → 🟡 CAUTION - Order soon (normal lead time)
+If TOY < NFP ≤ TOG  → 🟢 HEALTHY - No action needed
+If NFP > TOG  → ⚫ EXCESS - Consider stopping orders
+```
+
+---
+
+### 🎓 Why These Formulas Work (The Math Behind DDMRP)
+
+**Red Zone Philosophy:**
+"How much do I need to survive the lead time if demand is higher than normal?"
+
+```
+Example:
+- Normally sell 100 units/day
+- Lead time is 5 days
+- If perfect world: need 100 × 5 = 500 units
+
+But:
+- LT_Factor (0.5) = Only half the lead time is "exposed" (order overlap)
+- Variability_Factor (0.25) = Demand can spike 25% above normal
+
+Red = 100 × 5 × 0.5 × 0.25 = 62.5 units
+
+This 62.5 units is your "insurance policy" against:
+- Demand spikes during lead time
+- Supplier delays
+- Forecast errors
+```
+
+**Yellow Zone Philosophy:**
+"Match the red zone to create a reorder trigger zone"
+
+```
+Yellow = Red creates a band where you should order.
+
+When you drop below TOY (top of yellow):
+- You still have Red + Yellow = 2× Red units
+- This gives you TWO lead times of protection
+- Safe to place normal replenishment order
+```
+
+**Green Zone Philosophy:**
+"How much extra should I carry for economies of scale?"
+
+```
+Green = ADU × Order_Cycle × LT_Factor
+
+If you order every 7 days (weekly):
+Green = 100 × 7 × 0.5 = 350 units
+
+This allows you to:
+- Order in bulk for better pricing
+- Reduce order frequency (labor savings)
+- Take advantage of truckload discounts
+```
+
+---
+
+### 🎯 When to Recalculate Buffers
+
+**Automatic Recalculation (Scheduled):**
+The system can auto-recalculate buffers on a schedule:
+
+```
+Navigate to: Inventory → Configuration → Auto-Recalculation
+
+┌─────────────────────────────────────────────┐
+│  🔄 Automated Buffer Recalculation          │
+├─────────────────────────────────────────────┤
+│  Status: ✅ Enabled                          │
+│  Schedule: Weekly (every Monday 3:00 AM)    │
+│  Last Run: 2025-09-30 03:00:00              │
+│  Next Run: 2025-10-07 03:00:00              │
+│                                             │
+│  Recalculation Triggers:                    │
+│  ☑️ New sales data uploaded                  │
+│  ☑️ Lead times updated                       │
+│  ☑️ DAF/LTAF changes                         │
+│  ☑️ Buffer profile changes                   │
+│                                             │
+│  [Edit Schedule] [Disable] [Run Now]       │
+└─────────────────────────────────────────────┘
+```
+
+**Manual Recalculation (When to Click the Button):**
+
+| Situation | When | Why |
+|-----------|------|-----|
+| **New products added** | Immediately after upload | New products need initial buffer calculation |
+| **Sales patterns changed** | After major events (promotions, seasonality) | ADU needs updating to reflect new reality |
+| **Lead times changed** | After supplier updates | DLT affects red/yellow zones significantly |
+| **Buffer profiles modified** | After changing LT_Factor or Variability_Factor | Zone sizes need recalculation |
+| **DAF/LTAF added or removed** | After adjustment factor changes | Temporary adjustments alter zone sizes |
+| **Weekly routine** | Every Monday morning | Keep buffers fresh with latest data |
+
+---
+
+### 💡 Pro Tips for Buffer Calculation
+
+**Tip 1: Start with Conservative Settings**
+```
+For first 30 days, use higher safety factors:
+- LT_Factor: 0.6 (instead of 0.5)
+- Variability_Factor: 0.35 (instead of 0.25)
+
+This builds confidence without stockouts.
+After 30 days of monitoring, reduce to standard factors.
+```
+
+**Tip 2: Compare Before/After**
+```
+Before clicking "Calculate Buffers", export current buffer levels:
+1. Go to Inventory → Operational → Buffer Status Grid
+2. Click "Export to Excel"
+3. Save as "Buffers_Before_2025-10-03.xlsx"
+
+After calculation, export again:
+4. Save as "Buffers_After_2025-10-03.xlsx"
+5. Compare in Excel to see changes
+```
+
+**Tip 3: Review Extreme Values**
+```
+After calculation, check for outliers:
+
+Navigate to: Inventory → Configuration → Analysis Results
+
+Sort by:
+- Highest Red Zone → Are these reasonable?
+- Lowest Red Zone → Below MOQ constraint?
+- Highest Green Zone → Check order cycle settings
+- Products with >$10,000 buffer value → Review priority
+```
+
+**Tip 4: Document Your Settings**
+```
+Create a "Buffer Calculation Log":
+
+Date: 2025-10-03
+Calculated By: Ahmed (Planner)
+Reason: Weekly routine update
+Products: 847
+DAF Active: 127 (Ramadan adjustment)
+LTAF Active: 89 (Supplier delays)
+Changes:
+- Increased red zones by avg 12% (Ramadan)
+- 34 products moved from Yellow to Red status
+- 15 products now showing excess (promotional items)
+Next Review: 2025-10-10
+```
+
+---
+
+### 🚀 Next Steps After Buffer Calculation
+
+✅ Step 16 Complete! Your buffers are now calculated.
+
+**What to do next:**
+1. ✅ **Step 17:** Upload current inventory snapshot (so system knows where you are TODAY)
+2. ✅ **Step 18:** Upload open purchase orders (so system knows what's coming)
+3. ✅ **Step 19:** Upload open sales orders (so system knows what's committed)
+4. ✅ **Step 20:** Monitor buffer status (see your inventory health)
+5. ✅ **Step 21:** Generate replenishment orders (system tells you what to buy)
+
+**Continue to Step 17 below...**
 
 #### Step 17: Load Current Inventory Snapshot
 Go to: **Settings → Upload Current Inventory**
