@@ -2,12 +2,17 @@
 
 ## 📚 Table of Contents
 1. [What is This Tool & Why Use It?](#what-is-this-tool--why-use-it)
-2. [First Time Setup - Complete Walkthrough](#first-time-setup---complete-walkthrough)
-3. [Understanding Every Screen](#understanding-every-screen)
-4. [Complete Step-by-Step Workflow](#complete-step-by-step-workflow)
-5. [Daily Operations - What to Do Every Day](#daily-operations---what-to-do-every-day)
-6. [Understanding What You See](#understanding-what-you-see)
-7. [Common Questions & Troubleshooting](#common-questions--troubleshooting)
+2. [Key Terminology & Glossary](#key-terminology--glossary)
+3. [Financial Impact & KPIs](#financial-impact--kpis)
+4. [First Time Setup - Complete Walkthrough](#first-time-setup---complete-walkthrough)
+5. [Understanding Every Screen](#understanding-every-screen)
+6. [Complete Step-by-Step Workflow](#complete-step-by-step-workflow)
+7. [Multi-Echelon Buffer Positioning](#multi-echelon-buffer-positioning)
+8. [Dynamic Adjustments - Real Examples](#dynamic-adjustments---real-examples)
+9. [ERP Integration & Data Flow](#erp-integration--data-flow)
+10. [Daily Operations - What to Do Every Day](#daily-operations---what-to-do-every-day)
+11. [Understanding What You See](#understanding-what-you-see)
+12. [Common Questions & Troubleshooting](#common-questions--troubleshooting)
 
 ---
 
@@ -30,7 +35,220 @@ Instead of guessing future demand and ordering based on forecasts, this tool:
 - **Inventory Planners** - Execute daily replenishment orders
 - **Warehouse Managers** - Monitor stock levels and breaches
 - **Procurement Teams** - Create and track purchase orders
+- **CFOs/Finance Teams** - Track working capital reduction
 - **Analysts** - Review performance metrics
+
+---
+
+## Key Terminology & Glossary
+
+### 🔑 Essential Terms You MUST Understand
+
+**CRITICAL DISTINCTION: Actual Lead Time vs Decoupled Lead Time**
+
+| Term | Abbreviation | Definition | Used For | Example |
+|------|--------------|------------|----------|---------|
+| **Actual Lead Time** | ALT | The **real-world** time from placing an order to receiving it | Baseline data entry | Supplier promises 5 days |
+| **Decoupled Lead Time** | DLT | The **adjusted** lead time used in buffer calculations<br/>**Formula: DLT = ALT × LTAF** | Buffer zone calculations | ALT 5 days × LTAF 1.4 = **DLT 7 days** |
+| **Lead Time Adjustment Factor** | LTAF | Multiplier to adjust lead times temporarily | Dynamic adjustments | Port congestion: LTAF = 1.5<br/>Express shipping: LTAF = 0.6 |
+
+**⚠️ REMEMBER:** Always enter **Actual Lead Time** in the database. The system automatically calculates **DLT** by applying any active LTAF.
+
+---
+
+### Buffer Zone Terms
+
+| Term | What It Means | Visual Color | When to Order |
+|------|--------------|--------------|---------------|
+| **Green Zone** | Comfortable excess inventory | 🟢 Green | No action needed |
+| **Yellow Zone** | Normal operating range | 🟡 Yellow | Consider ordering |
+| **Red Zone** | Safety stock (protection against stockouts) | 🔴 Red | **ORDER NOW!** |
+| **TOR** (Top of Red) | Threshold where you enter danger zone | Red line | First alert |
+| **TOY** (Top of Yellow) | Target inventory level after replenishment | Yellow line | Order trigger |
+| **TOG** (Top of Green) | Maximum buffer level | Green line | Stop ordering |
+
+---
+
+### Demand & Supply Terms
+
+| Term | Full Name | What It Calculates | Formula |
+|------|-----------|-------------------|---------|
+| **ADU** | Average Daily Usage | How much you sell per day on average | Sum(90 days sales) ÷ 90 |
+| **ADU Adjusted** | Adjusted ADU | ADU with promotions/trends applied | ADU × DAF × Trend Factor |
+| **DAF** | Demand Adjustment Factor | Temporary demand multiplier | Ramadan: DAF = 1.8 (+80%) |
+| **NFP** | Net Flow Position | Current available inventory position | On Hand + On Order - Qualified Demand |
+| **Buffer Penetration** | How deep into buffer you've consumed | Shows urgency % | (TOG - NFP) ÷ TOG × 100% |
+
+---
+
+### Planning & Execution Terms
+
+| Term | Definition | Example |
+|------|------------|---------|
+| **Decoupling Point** | Strategic position where you hold buffer inventory | Riyadh DC (not each store) |
+| **Qualified Demand** | Confirmed orders that must be fulfilled | Open sales orders |
+| **On Order** | Purchase orders placed but not yet received | 500 units arriving Friday |
+| **MOQ** | Minimum Order Quantity (supplier requirement) | Must order at least 100 units |
+| **Rounding Multiple** | Order in multiples (cases, pallets) | Order in cases of 24 |
+
+---
+
+## Financial Impact & KPIs
+
+### 💰 Why Executives Should Care
+
+Traditional inventory management focuses on **service level** (% of orders filled). DDMRP focuses on **return on investment** by reducing working capital while maintaining/improving service.
+
+---
+
+### Key Financial Metrics
+
+#### 1. **Working Capital Reduction**
+
+**What It Measures:** Cash freed up from inventory reduction
+
+**Visual in Dashboard:**
+```
+┌─────────────────────────────────────────┐
+│ 💵 Working Capital Impact               │
+├─────────────────────────────────────────┤
+│ Before DDMRP: $2,450,000               │
+│ After DDMRP:  $1,820,000               │
+│ Cash Released: $630,000 (25.7% ↓)      │
+│                                         │
+│ Opportunity Cost Avoided: $63,000/year │
+│ (10% cost of capital)                  │
+└─────────────────────────────────────────┘
+```
+
+**How It's Calculated:**
+```
+Average Inventory Value = Σ(On Hand × Unit Cost) across all products
+Working Capital Freed = Old Avg Inventory - New Avg Inventory
+Annual Savings = Working Capital Freed × Cost of Capital %
+```
+
+---
+
+#### 2. **Stockout Cost Avoided**
+
+**What It Measures:** Revenue protected by preventing stockouts
+
+**Visual in Dashboard:**
+```
+┌─────────────────────────────────────────┐
+│ 🚫 Stockout Prevention                  │
+├─────────────────────────────────────────┤
+│ Potential Stockouts Prevented: 43       │
+│ Average Lost Sale per Stockout: $1,850 │
+│ Total Revenue Protected: $79,550        │
+│                                         │
+│ Customer Satisfaction Score: 96.2%      │
+│ (Target: >95%)                          │
+└─────────────────────────────────────────┘
+```
+
+**Formula:**
+```
+Stockout Cost = # Breaches Prevented × Avg Order Value × (1 + Lost Customer %)
+```
+
+---
+
+#### 3. **Inventory Turnover Improvement**
+
+**What It Measures:** How efficiently inventory converts to sales
+
+**Visual in Dashboard:**
+```
+┌─────────────────────────────────────────┐
+│ 🔄 Inventory Turnover                   │
+├─────────────────────────────────────────┤
+│ Before: 8.2 turns/year                  │
+│ After:  12.4 turns/year                 │
+│ Improvement: +51.2%                     │
+│                                         │
+│ Days of Inventory:                      │
+│ Before: 44.5 days                       │
+│ After:  29.4 days                       │
+│ Improvement: -15.1 days                 │
+└─────────────────────────────────────────┘
+```
+
+**Formula:**
+```
+Inventory Turnover = Annual COGS ÷ Average Inventory Value
+Days of Inventory = 365 ÷ Inventory Turnover
+```
+
+---
+
+#### 4. **Obsolescence Reduction**
+
+**What It Measures:** Write-offs avoided due to expired/obsolete stock
+
+**Visual in Dashboard:**
+```
+┌─────────────────────────────────────────┐
+│ 🗑️ Obsolescence Prevention              │
+├─────────────────────────────────────────┤
+│ Products at Risk (>80% shelf life): 3   │
+│ Est. Obsolescence Cost: $12,400         │
+│                                         │
+│ Last Quarter Write-Offs:               │
+│ Before DDMRP: $87,200                   │
+│ After DDMRP:  $18,500 (-78.8%)          │
+└─────────────────────────────────────────┘
+```
+
+---
+
+#### 5. **Holding Cost Savings**
+
+**What It Measures:** Reduced warehouse, insurance, and opportunity costs
+
+**Visual in Dashboard:**
+```
+┌─────────────────────────────────────────┐
+│ 🏭 Annual Holding Cost Savings          │
+├─────────────────────────────────────────┤
+│ Storage Cost Reduction:    $42,000     │
+│ Insurance Premium Savings:  $8,500     │
+│ Opportunity Cost Avoided:  $63,000     │
+│ Obsolescence Prevention:   $68,700     │
+│ ─────────────────────────────────────   │
+│ Total Annual Savings:     $182,200     │
+└─────────────────────────────────────────┘
+```
+
+---
+
+### Executive Dashboard - What Leadership Sees
+
+When executives log in, they see a **Financial Summary Card** on the main dashboard:
+
+```
+╔══════════════════════════════════════════════════════╗
+║  📊 DDMRP Financial Impact Summary - Q1 2025        ║
+╠══════════════════════════════════════════════════════╣
+║                                                      ║
+║  💵 Working Capital Released:        $630,000       ║
+║  📈 Revenue Protected (Stockouts):    $79,550       ║
+║  💸 Annual Holding Cost Savings:     $182,200       ║
+║  🗑️ Obsolescence Reduction:          $68,700        ║
+║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+║  🎯 Total Financial Benefit:         $960,450       ║
+║                                                      ║
+║  📊 Service Level: 96.2% (Target: 95%)              ║
+║  🔄 Inventory Turns: 12.4 (Industry Avg: 8.5)       ║
+║  ⏱️ Order Fill Rate: 98.7% (Target: 95%)            ║
+║                                                      ║
+╚══════════════════════════════════════════════════════╝
+```
+
+**How to Present to CFO:**
+
+"By implementing DDMRP, we reduced inventory by 25.7% ($630K working capital freed), while **improving** service level from 92% to 96.2%. This translates to nearly $1M in annual financial benefit with better customer satisfaction."
 
 ---
 
@@ -786,7 +1004,871 @@ Go to: **Inventory → Configuration Tab → Dynamic Adjustments → Multi-Echel
 
 ---
 
-### Phase 4: System Initialization (Week 2)
+## Multi-Echelon Buffer Positioning - Concrete Examples
+
+### 🏢 What is Multi-Echelon Buffering?
+
+Think of it like a water distribution system:
+- **Central reservoir** (National DC) - Large volume, slower replenishment
+- **Regional tanks** (Regional DCs) - Medium volume, moderate speed
+- **Household taps** (Stores) - Small volume, instant access
+
+**The Goal:** Buffer where it makes most sense financially and operationally
+
+---
+
+### Real Example: Fast Food Chain in Saudi Arabia
+
+#### Scenario: Big Mac Buns Distribution
+
+**Product:** Sesame Seed Buns  
+**ADU per Store:** 150 buns/day  
+**Supplier Lead Time:** 14 days (imported from regional bakery)  
+**Network:** 1 National DC → 3 Regional DCs → 50 Stores
+
+---
+
+### ❌ WRONG Approach: Buffer at Every Level (Double Buffering)
+
+```
+National DC Buffer:  7,500 buns (7 days × 150/store × 50 stores)
+Regional DC Buffer:  2,500 buns each (7 days × 150/store × 17 stores avg)
+Store Buffer:          750 buns each (5 days × 150/day)
+
+Total Network Inventory: 57,500 buns
+Working Capital Tied Up: $34,500 (@ $0.60/bun)
+```
+
+**Problems:**
+- Massive excess inventory
+- High obsolescence risk (buns have 7-day shelf life)
+- Cash unnecessarily locked up
+
+---
+
+### ✅ CORRECT Approach: Strategic Positioning
+
+**Buffer Positioning Decision Matrix:**
+
+| Level | Buffer Size | Reasoning | Visual |
+|-------|-------------|-----------|--------|
+| **National DC** | 14 days supply<br/>(105,000 buns) | Covers supplier lead time<br/>Protects entire network | 🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢 |
+| **Regional DC** | 3 days supply<br/>(7,650 buns each) | Covers transport time<br/>Aggregates regional demand | 🟡🟡🟡 |
+| **Stores** | 1 day supply<br/>(150 buns each) | Minimum display stock<br/>No protection buffer | 🔴 |
+
+**Calculation Example:**
+
+```
+National DC (Riyadh Central):
+- Total Network ADU: 150 buns/store × 50 stores = 7,500 buns/day
+- Supplier Lead Time: 14 days
+- Buffer Zones:
+  ├─ Red Zone:   7,500 × 14 × 0.5 × 0.25 = 13,125 buns
+  ├─ Yellow Zone: 13,125 buns (= Red)
+  └─ Green Zone:  7,500 × 7 × 0.5 = 26,250 buns
+  Total Buffer (TOG): 52,500 buns
+
+Regional DC (Riyadh East):
+- Regional ADU: 150 × 17 stores = 2,550 buns/day
+- DC-to-Store Lead Time: 1 day
+- Buffer Zones:
+  ├─ Red Zone:   2,550 × 1 × 0.5 × 0.25 = 319 buns
+  ├─ Yellow Zone: 319 buns
+  └─ Green Zone:  2,550 × 3 × 0.5 = 3,825 buns
+  Total Buffer (TOG): 4,463 buns
+
+Store (Al Olaya Branch):
+- Store ADU: 150 buns/day
+- Display Stock Only: 1 day
+- Buffer Zones:
+  ├─ Red Zone:   0 (no safety stock)
+  ├─ Yellow Zone: 75 buns (half-day)
+  └─ Green Zone:  75 buns (half-day)
+  Total Buffer (TOG): 150 buns
+```
+
+**Total Network Inventory: 63,813 buns**  
+**Working Capital: $38,288 (vs $57,500 with double buffering)**  
+**Savings: $19,212 (33% reduction) while maintaining 98% service level**
+
+---
+
+### How System Prevents Double Buffering
+
+**Configuration in System:**
+
+```
+Location: Riyadh East Regional DC
+├─ parent_location_id: "NATIONAL_DC_RY"
+├─ echelon_level: 1
+├─ echelon_type: "REGIONAL_HUB"
+└─ buffer_strategy: "AGGREGATE"
+
+Location: Al Olaya Store
+├─ parent_location_id: "REGIONAL_DC_RY_EAST"
+├─ echelon_level: 2
+├─ echelon_type: "STORE"
+└─ buffer_strategy: "PASS_THROUGH" ← Key Setting!
+```
+
+**What `PASS_THROUGH` Means:**
+- Store does NOT hold strategic buffer
+- Orders replenish display stock only
+- Regional DC absorbs demand variability
+- System aggregates store demand to Regional DC level
+
+---
+
+### Visual: Multi-Echelon Network View
+
+When you go to **Inventory → Strategic → Supply Chain Network**, you'll see:
+
+```
+                    🏭 National DC (Riyadh Central)
+                    Buffer: 52,500 buns (14 days)
+                    Status: 🟢 Green (85% of TOG)
+                           |
+        ┌──────────────────┼──────────────────┐
+        │                  │                  │
+    🏢 Regional DC      🏢 Regional DC     🏢 Regional DC
+    (Riyadh East)      (Jeddah)           (Dammam)
+    Buffer: 4,463      Buffer: 3,825       Buffer: 4,012
+    Status: 🟡 Yellow  Status: 🟢 Green    Status: 🟡 Yellow
+        │                  │                  │
+    ┌───┼───┐          ┌───┼───┐          ┌───┼───┐
+    🏪 🏪 🏪          🏪 🏪 🏪          🏪 🏪 🏪
+    Stores (17)       Stores (18)         Stores (15)
+    Min Stock Only    Min Stock Only      Min Stock Only
+```
+
+---
+
+### When to Buffer at Each Level?
+
+| Echelon | Buffer Here If... | Don't Buffer If... | Example |
+|---------|-------------------|-------------------|---------|
+| **National DC** | Long supplier lead time (>7 days)<br/>High demand volume<br/>Central sourcing | Short lead times<br/>Drop-ship model | Imported ingredients |
+| **Regional DC** | Regional demand variability<br/>Transport complexity<br/>Local regulations | Direct store delivery<br/>Fresh/perishable items | Dry goods, frozen items |
+| **Store** | Display requirements<br/>Extremely fast-moving items<br/>Customer-facing variety | Strategic DDMRP buffers<br/>Slow movers | Only display stock |
+
+---
+
+## Dynamic Adjustments - Real Examples (Expanded)
+
+### 📈 Positive Scenarios (Demand/Supply Improvements)
+
+#### Example 1: Supplier Express Shipping Promotion
+
+**Scenario:**
+Your bread supplier offers a 2-week promotion with free express airfreight (normally 7-day delivery becomes 3-day).
+
+**Actions:**
+```
+Navigate to: Inventory → Configuration → Dynamic Adjustments → LTAF
+
+Product: All Bread Products
+Location: All Locations
+Start Date: 2025-02-01
+End Date: 2025-02-14
+LTAF: 0.43 (3 days ÷ 7 days = 0.43)
+Reason: "Supplier express airfreight promotion"
+```
+
+**Impact:**
+```
+BEFORE Promotion:
+- Actual Lead Time: 7 days
+- DLT (for buffers): 7 days
+- Red Zone: 1,050 buns (150 ADU × 7 days × 0.5 × 0.25)
+- Total Buffer (TOG): 4,725 buns
+
+DURING Promotion (with LTAF = 0.43):
+- Actual Lead Time: Still 7 days (in database)
+- DLT (calculated): 7 × 0.43 = 3 days
+- Red Zone: 450 buns (150 ADU × 3 days × 0.5 × 0.25)
+- Total Buffer (TOG): 2,025 buns
+
+Inventory Freed: 2,700 buns per location
+Cash Freed: 2,700 × $0.60 = $1,620 per store × 50 stores = $81,000
+```
+
+**What You'll See:**
+- Yellow "LTAF Active" badge on buffer status screen
+- Tooltip shows: "Lead time temporarily reduced due to express shipping"
+- Buffers automatically shrink for 2 weeks
+- After Feb 14, LTAF expires → buffers return to normal
+
+---
+
+#### Example 2: New Local Supplier (Shorter Lead Time)
+
+**Scenario:**
+You switch from imported beef (21-day lead time) to local Saudi supplier (3-day lead time).
+
+**Long-term Action (Permanent):**
+```
+Navigate to: Settings → Lead Time Upload
+
+Update actual_lead_time table:
+product_id: BEEF_PATTY_001
+location_id: ALL_LOCATIONS
+actual_lead_time_days: 3 (change from 21)
+```
+
+**Short-term Bridge (During Transition):**
+```
+Navigate to: Inventory → Configuration → LTAF
+
+Add LTAF during 60-day transition period:
+LTAF: 0.5 (gradual reduction)
+Reason: "Supplier transition - testing local supplier reliability"
+```
+
+**Financial Impact:**
+```
+Old Buffer (21-day lead time):
+- Red Zone: 3,150 units
+- Total Buffer: 14,175 units
+- Inventory Value: $113,400 (@ $8/patty)
+
+New Buffer (3-day lead time):
+- Red Zone: 450 units
+- Total Buffer: 2,025 units
+- Inventory Value: $16,200
+
+Working Capital Released: $97,200 per location! 🎉
+```
+
+---
+
+### 📉 Negative Scenarios (Demand Spikes, Supply Issues)
+
+#### Example 3: Port Congestion (Supply Risk)
+
+**Scenario:**
+Red Sea shipping delays add 10 days to your 14-day seafood lead time.
+
+**Actions:**
+```
+Navigate to: Inventory → Configuration → LTAF
+
+Product: All Seafood Items
+LTAF: 1.71 (24 days ÷ 14 days = 1.71)
+Start Date: Immediate
+End Date: 90 days (until port clears)
+Reason: "Red Sea port congestion - confirmed by supplier"
+```
+
+**Impact:**
+```
+Buffer automatically increases:
+- Old Red Zone: 2,100 units (14-day supply)
+- New Red Zone: 3,591 units (24-day equivalent)
+- Additional Safety Stock: +1,491 units
+
+Prevents stockouts worth: 
+$8,500/stockout × 12 prevented = $102,000 revenue protected
+```
+
+**System Alerts You'll See:**
+```
+┌─────────────────────────────────────────────┐
+│ ⚠️ SUPPLY RISK ALERT                        │
+├─────────────────────────────────────────────┤
+│ Active LTAF detected for 15 products        │
+│ Reason: Port congestion                     │
+│                                             │
+│ Recommendation:                             │
+│ • Increase PO now (+1,491 units)            │
+│ • Monitor supplier communication            │
+│ • Review LTAF in 30 days                    │
+└─────────────────────────────────────────────┘
+```
+
+---
+
+#### Example 4: Marketing Campaign (Demand Spike)
+
+**Scenario:**
+National Day promotion: "Buy 1 Get 1 Free" on all sandwiches (expected +120% demand).
+
+**Actions:**
+```
+Navigate to: Inventory → Configuration → DAF
+
+Product: All Sandwich Ingredients
+DAF: 2.2 (120% increase = ×2.2 multiplier)
+Start Date: 2025-09-23 (National Day)
+End Date: 2025-09-25 (3-day event)
+Reason: "National Day BOGO promotion"
+```
+
+**Calculation:**
+```
+Normal ADU: 150 buns/day
+Campaign ADU: 150 × 2.2 = 330 buns/day
+
+Buffers adjust automatically:
+- Old Red Zone: 525 buns
+- New Red Zone (with DAF): 1,155 buns
+- Pre-order recommendation: +630 buns BEFORE campaign starts
+
+Revenue impact: Prevents stockouts during peak sales event
+Campaign Sales: $45,000 (protected)
+```
+
+---
+
+### ⚖️ Combined Adjustments (DAF + LTAF Together)
+
+#### Example 5: Perfect Storm Scenario
+
+**Scenario:**
+Ramadan promotion (+80% demand) **AND** supplier factory maintenance (lead time doubles from 7 to 14 days).
+
+**Actions:**
+```
+1. Add DAF:
+   - DAF: 1.8 (Ramadan demand increase)
+   - Duration: 30 days
+
+2. Add LTAF:
+   - LTAF: 2.0 (supplier maintenance)
+   - Duration: 21 days
+```
+
+**Impact:**
+```
+Base Buffer:
+- ADU: 150 buns/day
+- Lead Time: 7 days
+- Red Zone: 525 buns
+
+With DAF ONLY (1.8):
+- Adjusted ADU: 270 buns/day
+- Red Zone: 945 buns
+
+With LTAF ONLY (2.0):
+- Adjusted DLT: 14 days
+- Red Zone: 1,050 buns
+
+With BOTH (DAF × LTAF):
+- Adjusted ADU: 270 buns/day
+- Adjusted DLT: 14 days
+- Red Zone: 1,890 buns (+260% vs base!)
+
+System Recommendation: Order 1,365 extra units IMMEDIATELY
+Investment: $819
+Revenue Protected: $12,500 (stockouts avoided)
+ROI: 1,426% 🎯
+```
+
+**Visual on Screen:**
+```
+🟢🟡🔴 Buffer Status for PROD_BUN_001
+├─ Base Red Zone: 525 units
+├─ 📈 DAF Active (+80%): "Ramadan promotion"
+├─ ⏱️ LTAF Active (×2.0): "Supplier maintenance"
+└─ 🎯 Effective Red Zone: 1,890 units
+
+Current NFP: 1,245 units
+Status: 🟡 YELLOW (66% buffer penetration)
+Action: ORDER NOW - Qty Recommended: 1,365 units
+```
+
+---
+
+## ERP Integration & Data Flow
+
+### 🔄 How DDMRP Connects to Your ERP System
+
+This DDMRP system is designed to work **alongside** your existing ERP (SAP, Oracle, Microsoft Dynamics, etc.), not replace it.
+
+**Division of Responsibilities:**
+
+| System | Owns | Responsibilities |
+|--------|------|------------------|
+| **Your ERP** | Master data<br/>Transactions<br/>Financial records | Product master<br/>Purchase orders<br/>Sales orders<br/>Inventory transactions<br/>Accounting |
+| **DDMRP System** | Planning logic<br/>Buffer calculations<br/>Replenishment proposals | Calculate buffers<br/>Generate recommendations<br/>Monitor buffer health<br/>Alert on breaches |
+
+**Think of it as:** ERP = Transaction System, DDMRP = Decision Support System
+
+---
+
+### Data Flow Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                      YOUR ERP SYSTEM                     │
+│  (SAP, Oracle, Dynamics, NetSuite, etc.)                │
+└──────────┬──────────────────────────┬───────────────────┘
+           │                          │
+           │ INBOUND DATA             │ OUTBOUND DATA
+           │ (Daily Extract)          │ (Replenishment Proposals)
+           ▼                          ▼
+┌──────────────────────────┐    ┌──────────────────────────┐
+│  📥 ERP → DDMRP          │    │  📤 DDMRP → ERP          │
+│                          │    │                          │
+│  • Product Master        │    │  • Purchase Requisitions │
+│  • Location Master       │    │  • Replenishment Orders  │
+│  • Vendor Master         │    │  • Buffer Alerts         │
+│  • Historical Sales      │    │  • Exception Reports     │
+│  • Current Inventory     │    │                          │
+│  • Open POs              │    │                          │
+│  • Open Sales Orders     │    │                          │
+│  • Lead Times            │    │                          │
+└──────────────────────────┘    └──────────────────────────┘
+           │                          │
+           │                          │
+           ▼                          ▼
+┌─────────────────────────────────────────────────────────┐
+│             🧠 DDMRP PLANNING ENGINE                     │
+│                                                          │
+│  • Calculate Buffers (ADU, DLT, Zones)                  │
+│  • Monitor NFP (Net Flow Position)                      │
+│  • Detect Breaches (Below TOY)                          │
+│  • Generate Replenishment Recommendations               │
+│  • Apply Dynamic Adjustments (DAF/LTAF/ZAF)             │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+### Integration Method 1: CSV/Excel Files (Manual)
+
+**Best For:** Initial setup, small companies, proof of concept
+
+**Daily Workflow:**
+
+**Morning (8:00 AM):**
+```
+1. Export from ERP:
+   ├─ File: inventory_snapshot_20250604.csv
+   ├─ Format: product_id, location_id, qty_on_hand, snapshot_date
+   └─ Upload to: DDMRP Settings → Master Data → Inventory Snapshot
+
+2. Export open POs:
+   ├─ File: open_pos_20250604.csv
+   ├─ Format: product_id, location_id, ordered_qty, expected_date
+   └─ Upload to: DDMRP Settings → Open Purchase Orders
+
+3. Export sales orders:
+   ├─ File: open_sos_20250604.csv
+   ├─ Format: product_id, location_id, qty, confirmed_date
+   └─ Upload to: DDMRP Settings → Open Sales Orders
+```
+
+**Evening (4:00 PM):**
+```
+4. Export from DDMRP:
+   ├─ Navigate to: Execution Priority page
+   ├─ Click: "Export Replenishment Proposals"
+   ├─ File: replenishment_proposals_20250604.csv
+   └─ Format: product_id, location_id, qty_recommend, target_due_date
+
+5. Import to ERP:
+   ├─ Convert proposals to Purchase Requisitions
+   ├─ Review and approve in ERP
+   └─ Generate POs from approved requisitions
+```
+
+**File Formats:**
+
+**Export Format (DDMRP → ERP):**
+```csv
+product_id,sku,location_id,qty_recommend,priority_level,buffer_penetration_pct,reason,target_due_date,supplier_id,unit_cost,total_value
+PROD_001,BUN-001,LOC_RY_001,1500,HIGH,78.5,"NFP below TOY",2025-06-07,SUP_001,0.60,900.00
+PROD_002,BEEF-001,LOC_JD_002,250,MEDIUM,62.3,"NFP below TOY",2025-06-08,SUP_002,8.00,2000.00
+```
+
+---
+
+### Integration Method 2: Database-to-Database (Semi-Automated)
+
+**Best For:** Medium companies with IT resources
+
+**Setup (One-Time):**
+```sql
+-- 1. Create database link from ERP to DDMRP
+-- (Example for Oracle ERP to PostgreSQL DDMRP)
+
+CREATE DATABASE LINK ddmrp_link
+CONNECT TO ddmrp_user IDENTIFIED BY [password]
+USING 'ddmrp_host:5432/ddmrp_db';
+
+-- 2. Create scheduled job to sync data daily
+CREATE OR REPLACE PROCEDURE sync_to_ddmrp IS
+BEGIN
+  -- Export inventory snapshot
+  INSERT INTO ddmrp.inventory_snapshot@ddmrp_link
+  SELECT product_id, location_id, qty_on_hand, SYSDATE
+  FROM erp.inventory_balances
+  WHERE snapshot_date = TRUNC(SYSDATE);
+  
+  -- Export open POs
+  INSERT INTO ddmrp.open_pos@ddmrp_link
+  SELECT product_id, location_id, ordered_qty, expected_receipt_date
+  FROM erp.purchase_orders
+  WHERE status = 'OPEN';
+  
+  COMMIT;
+END;
+```
+
+**Reverse Sync (DDMRP → ERP):**
+```sql
+-- Import replenishment proposals from DDMRP
+INSERT INTO erp.purchase_requisitions (
+  req_number, product_id, location_id, qty, 
+  requester, reason, due_date, status
+)
+SELECT 
+  'REQ-' || TO_CHAR(SYSDATE, 'YYYYMMDD') || '-' || proposal_id,
+  product_id,
+  location_id,
+  qty_recommend,
+  'DDMRP_SYSTEM',
+  reason,
+  target_due_date,
+  'PENDING_APPROVAL'
+FROM ddmrp.replenishment_orders@ddmrp_link
+WHERE proposal_ts >= TRUNC(SYSDATE)
+AND status = 'DRAFT';
+```
+
+---
+
+### Integration Method 3: REST API (Fully Automated)
+
+**Best For:** Large enterprises, real-time integration
+
+**DDMRP API Endpoints:**
+
+```typescript
+// 1. Push real-time sales data to DDMRP
+POST /api/sales/transactions
+Headers: { Authorization: "Bearer {api_key}" }
+Body: {
+  "sales": [
+    {
+      "transaction_id": "TXN_20250604_001",
+      "product_id": "PROD_001",
+      "location_id": "LOC_RY_001",
+      "quantity_sold": 150,
+      "transaction_date": "2025-06-04T14:30:00Z",
+      "revenue": 750.00
+    }
+  ]
+}
+
+// 2. Get replenishment recommendations
+GET /api/replenishment/recommendations
+Query Params: ?location_id=LOC_RY_001&priority=HIGH
+Response: {
+  "recommendations": [
+    {
+      "product_id": "PROD_001",
+      "sku": "BUN-001",
+      "location_id": "LOC_RY_001",
+      "qty_recommend": 1500,
+      "priority": "HIGH",
+      "buffer_penetration": 78.5,
+      "reason": "NFP below TOY",
+      "target_due_date": "2025-06-07",
+      "supplier_id": "SUP_001",
+      "unit_cost": 0.60,
+      "total_value": 900.00
+    }
+  ]
+}
+
+// 3. Webhook for breach alerts
+POST /api/webhooks/configure
+Body: {
+  "webhook_url": "https://your-erp.com/api/ddmrp/alerts",
+  "events": ["buffer_breach", "stockout_risk"],
+  "auth_token": "{your_token}"
+}
+
+// When breach occurs, DDMRP sends:
+POST https://your-erp.com/api/ddmrp/alerts
+Body: {
+  "event_type": "buffer_breach",
+  "timestamp": "2025-06-04T15:45:00Z",
+  "product_id": "PROD_001",
+  "location_id": "LOC_RY_001",
+  "breach_type": "below_tor",
+  "current_nfp": 245,
+  "tor_threshold": 525,
+  "severity": "HIGH",
+  "recommended_action": "Order 1,280 units immediately"
+}
+```
+
+---
+
+### Real-Time POS Integration
+
+**For Live Sales Data (Restaurant/Retail):**
+
+```typescript
+// Example: Integrate with POS system
+
+// Option A: Webhook from POS to DDMRP
+// POS sends transaction immediately after sale
+POST https://ddmrp-system.com/api/sales/realtime
+Body: {
+  "register_id": "POS_RY_001_R1",
+  "transaction_id": "TXN_123456",
+  "items": [
+    { "product_id": "PROD_001", "quantity": 2 },
+    { "product_id": "PROD_015", "quantity": 1 }
+  ],
+  "timestamp": "2025-06-04T12:34:56Z"
+}
+
+// Option B: DDMRP polls POS API every 15 minutes
+GET https://pos-system.com/api/sales/recent
+Query: ?since=2025-06-04T12:00:00Z&location=LOC_RY_001
+```
+
+**Benefits of Real-Time POS Integration:**
+- ✅ ADU updates continuously (vs daily batch)
+- ✅ Faster breach detection
+- ✅ Better demand sensing
+- ✅ Automatic DAF suggestions based on trends
+
+---
+
+### Automated PO Creation Workflow
+
+**Fully Automated Approval (for low-value items):**
+
+```
+┌────────────────────────────────────────────────────────┐
+│ 1. DDMRP Detects Breach                                │
+│    NFP falls below TOY → Generate recommendation       │
+└─────────────────┬──────────────────────────────────────┘
+                  │
+                  ▼
+┌────────────────────────────────────────────────────────┐
+│ 2. Auto-Approval Rules Check                           │
+│    ├─ Item Value < $500? ✓                             │
+│    ├─ Supplier Reliability > 95%? ✓                    │
+│    └─ Budget Available? ✓                              │
+└─────────────────┬──────────────────────────────────────┘
+                  │
+                  ▼
+┌────────────────────────────────────────────────────────┐
+│ 3. Auto-Create PO in ERP                               │
+│    ├─ PO Number: PO-20250604-001                       │
+│    ├─ Supplier: SUP_001                                │
+│    ├─ Quantity: 1,500 units                            │
+│    ├─ Total Value: $900                                │
+│    └─ Expected Delivery: 2025-06-07                    │
+└─────────────────┬──────────────────────────────────────┘
+                  │
+                  ▼
+┌────────────────────────────────────────────────────────┐
+│ 4. Send PO to Supplier                                 │
+│    ├─ Email: orders@supplier.com                       │
+│    ├─ EDI: X12 850 Purchase Order                      │
+│    └─ Portal: Upload to supplier web portal            │
+└─────────────────┬──────────────────────────────────────┘
+                  │
+                  ▼
+┌────────────────────────────────────────────────────────┐
+│ 5. Update DDMRP On-Order Quantity                      │
+│    ├─ Add 1,500 units to "On Order"                    │
+│    ├─ NFP increases immediately                        │
+│    └─ Buffer status changes: 🔴 Red → 🟡 Yellow        │
+└────────────────────────────────────────────────────────┘
+```
+
+**Semi-Automated (for high-value items):**
+
+Same flow, but adds approval step:
+
+```
+3a. Create PR (Purchase Requisition) instead of PO
+     ↓
+3b. Notify Procurement Manager via email/Slack
+     ↓
+3c. Manager reviews in ERP and approves
+     ↓
+3d. ERP converts PR to PO automatically
+```
+
+---
+
+### EDI Integration (Electronic Data Interchange)
+
+**For Large Suppliers:**
+
+```
+┌──────────────────────────────────────────────────────┐
+│ DDMRP → Your ERP → EDI Gateway → Supplier           │
+└──────────────────────────────────────────────────────┘
+
+EDI Documents Supported:
+├─ 850: Purchase Order (DDMRP replenishment → Supplier)
+├─ 855: Purchase Order Acknowledgment (Supplier confirms)
+├─ 856: Advance Ship Notice (Supplier ships goods)
+└─ 810: Invoice (Supplier bills you)
+```
+
+**Example X12 850 PO (generated from DDMRP recommendation):**
+```
+ST*850*0001~
+BEG*00*NE*PO-20250604-001**20250604~
+REF*DP*DEPT-001~
+DTM*002*20250607~  (Requested delivery date)
+N1*ST*Riyadh Distribution Center~
+N3*King Fahd Road~
+N4*Riyadh**11564*SA~
+PO1*1*1500*EA*0.60**VP*PROD_001*SK*BUN-001~  (Line item)
+CTT*1~
+SE*9*0001~
+```
+
+---
+
+### Zapier Integration (No-Code Automation)
+
+**For Small Teams:**
+
+**Use Case:** Send Slack alert when critical buffer breach occurs
+
+**Setup Steps:**
+
+1. **In DDMRP System:**
+   ```
+   Navigate to: Settings → Integrations → Zapier Webhooks
+   Click: "Generate Webhook URL"
+   Copy URL: https://hooks.zapier.com/hooks/catch/123456/abcdef/
+   ```
+
+2. **Configure Trigger:**
+   ```
+   Trigger Event: "Buffer Breach Detected"
+   Filter: breach_severity = "HIGH"
+   Webhook URL: [paste from step 1]
+   ```
+
+3. **In Zapier:**
+   ```
+   Trigger: Webhook (Catch Hook)
+   Action: Send Slack Message
+   
+   Message Template:
+   🚨 URGENT: Stock Alert!
+   
+   Product: {{product_name}}
+   Location: {{location_name}}
+   Current Stock: {{current_nfp}} units
+   Recommended Order: {{qty_recommend}} units
+   Supplier: {{supplier_name}}
+   
+   👉 Action Required: Create PO immediately
+   ```
+
+**Result:** Procurement team gets instant Slack notification instead of checking dashboard
+
+---
+
+### Common Integration Patterns
+
+#### Pattern 1: Morning Batch + Evening Proposal
+
+```
+Daily Schedule:
+├─ 06:00 AM: ERP exports overnight sales → DDMRP imports
+├─ 06:30 AM: DDMRP recalculates buffers
+├─ 07:00 AM: Planners review Execution Priority screen
+├─ 04:00 PM: DDMRP exports replenishment proposals
+└─ 04:30 PM: ERP imports proposals → Procurement reviews
+```
+
+#### Pattern 2: Real-Time with Hourly Reconciliation
+
+```
+Continuous:
+├─ POS sales stream to DDMRP every transaction
+├─ DDMRP monitors NFP in real-time
+└─ Alerts trigger immediately on breach
+
+Hourly (top of each hour):
+├─ Reconcile inventory with ERP
+├─ Sync open POs/SOs
+└─ Update buffer calculations
+```
+
+#### Pattern 3: Hybrid (Real-Time Sales + Daily Master Data)
+
+```
+Real-Time (24/7):
+└─ POS sales → DDMRP → Instant NFP updates
+
+Daily (Morning):
+├─ Product master sync
+├─ Vendor master sync
+├─ Lead time updates
+└─ Inventory reconciliation
+
+Weekly (Sunday):
+└─ Full historical sales reload (data quality check)
+```
+
+---
+
+### Troubleshooting Integration Issues
+
+**Problem:** "Replenishment proposals don't match ERP inventory"
+
+**Solution:**
+```
+1. Check timestamp sync:
+   - DDMRP uses: inventory_snapshot.snapshot_ts
+   - ERP uses: inventory_balances.as_of_date
+   - Must match exactly!
+
+2. Verify units of measure:
+   - DDMRP: "EACH"
+   - ERP: "CS" (cases)
+   - Convert: 1 CS = 24 EACH
+
+3. Location ID mapping:
+   - DDMRP: "LOC_RY_001"
+   - ERP: "Site: 1001, Warehouse: WH01"
+   - Create mapping table
+```
+
+---
+
+**Problem:** "System recommends ordering but supplier already shipped"
+
+**Solution:**
+```
+Enable real-time PO updates:
+
+Supplier sends ASN (856 EDI):
+↓
+ERP receives and updates PO status
+↓
+ERP sends webhook to DDMRP:
+POST /api/pos/update
+{
+  "po_id": "PO-123",
+  "status": "IN_TRANSIT",
+  "expected_arrival": "2025-06-06"
+}
+↓
+DDMRP increases "On Order" immediately
+↓
+NFP recalculates → No duplicate recommendation
+```
+
+---
 
 #### Step 16: Calculate Buffers
 Go to: **Inventory → Configuration Tab → System Settings**
