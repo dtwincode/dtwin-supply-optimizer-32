@@ -960,7 +960,21 @@ export type Database = {
             foreignKeyName: "location_hierarchy_location_id_fkey"
             columns: ["location_id"]
             isOneToOne: true
+            referencedRelation: "inventory_ddmrp_buffers_view"
+            referencedColumns: ["location_id"]
+          },
+          {
+            foreignKeyName: "location_hierarchy_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: true
             referencedRelation: "inventory_net_flow_view"
+            referencedColumns: ["location_id"]
+          },
+          {
+            foreignKeyName: "location_hierarchy_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: true
+            referencedRelation: "inventory_planning_view"
             referencedColumns: ["location_id"]
           },
           {
@@ -974,7 +988,21 @@ export type Database = {
             foreignKeyName: "location_hierarchy_parent_location_id_fkey"
             columns: ["parent_location_id"]
             isOneToOne: false
+            referencedRelation: "inventory_ddmrp_buffers_view"
+            referencedColumns: ["location_id"]
+          },
+          {
+            foreignKeyName: "location_hierarchy_parent_location_id_fkey"
+            columns: ["parent_location_id"]
+            isOneToOne: false
             referencedRelation: "inventory_net_flow_view"
+            referencedColumns: ["location_id"]
+          },
+          {
+            foreignKeyName: "location_hierarchy_parent_location_id_fkey"
+            columns: ["parent_location_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_planning_view"
             referencedColumns: ["location_id"]
           },
           {
