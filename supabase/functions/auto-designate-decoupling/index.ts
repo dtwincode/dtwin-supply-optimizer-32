@@ -16,8 +16,14 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { threshold = 70, scenario_name = 'default', batch_size = 100 } = await req.json();
-    console.log(`🎯 Starting auto-designation with threshold ${threshold}`);
+    let { threshold = 70, scenario_name = 'default', batch_size = 100 } = await req.json();
+    
+    // Normalize threshold: if 0-1 scale, convert to 0-100 scale
+    if (threshold > 0 && threshold <= 1) {
+      threshold = threshold * 100;
+    }
+    
+    console.log(`🎯 Starting auto-designation with threshold ${threshold}%`);
 
     // Check if component scoring is available
     const { error: checkError } = await supabase.rpc('calculate_component_8factor_score', { 
