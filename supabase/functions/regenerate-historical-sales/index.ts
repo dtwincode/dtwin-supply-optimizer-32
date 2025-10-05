@@ -177,6 +177,30 @@ Deno.serve(async (req) => {
 
     console.log(`Loaded ${Object.keys(priceMap).length} product prices`);
 
+    // Create realistic product popularity using Pareto distribution (80-20 rule)
+    // Top 20% of products should generate ~80% of volume
+    const productPopularityMap: Record<string, number> = {};
+    const sortedProducts = [...products].sort(() => Math.random() - 0.5); // Shuffle for randomness
+    
+    sortedProducts.forEach((product, index) => {
+      const percentile = (index + 1) / sortedProducts.length;
+      
+      // Power law distribution: y = x^(-alpha)
+      // Alpha = 1.161 gives roughly 80-20 distribution
+      // Higher percentile = lower popularity (except we invert it)
+      const alpha = 1.161;
+      const popularity = Math.pow(1 - percentile, -alpha);
+      
+      // Normalize to range 0.1 to 3.0
+      // Top products get 3x multiplier, bottom products get 0.1x
+      const normalizedPopularity = 0.1 + (popularity / 2.5);
+      productPopularityMap[product.product_id] = Math.min(3.0, normalizedPopularity);
+    });
+
+    console.log('Product popularity distribution created (Pareto 80-20 rule)');
+    console.log(`Top product multiplier: ${Math.max(...Object.values(productPopularityMap)).toFixed(2)}x`);
+    console.log(`Bottom product multiplier: ${Math.min(...Object.values(productPopularityMap)).toFixed(2)}x`);
+
     const salesData: any[] = [];
     const endDate = new Date();
     const startDate = new Date();
@@ -217,12 +241,16 @@ Deno.serve(async (req) => {
           const categoryPop = config.categoryPopularity[product.category || 'Other'] || 
                               config.categoryPopularity['Other'] || 0.7;
           const baseVolume = config.baseVolume;
+          
+          // Get product-specific popularity (Pareto distribution)
+          const productPopularity = productPopularityMap[product.product_id] || 1.0;
 
-          // Calculate quantity with all multipliers + random variation
+          // Calculate quantity with all multipliers + random variation + product popularity
           const randomVariation = config.randomVariationMin + Math.random() * config.randomVariationRange;
           const quantity = Math.round(
             baseVolume * 
             categoryPop * 
+            productPopularity * // NEW: Product-level popularity factor
             locationMult * 
             dayMultiplier * 
             seasonMultiplier * 
