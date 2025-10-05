@@ -2690,6 +2690,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      populate_demand_history_analysis: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       process_hierarchy_configuration: {
         Args: {
           p_mappings: Json
