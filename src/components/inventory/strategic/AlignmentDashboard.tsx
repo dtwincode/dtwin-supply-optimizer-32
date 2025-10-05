@@ -21,7 +21,7 @@ interface AlignmentIssue {
   region: string;
   productId: string;
   sku: string;
-  issueType: 'empty_decouple' | 'orphan_buffer';
+  issueType: 'empty_decouple' | 'orphan_buffer' | 'invalid_location';
   recommendation: string;
 }
 
@@ -34,6 +34,7 @@ export function AlignmentDashboard() {
     aligned: 0,
     emptyDecouples: 0,
     orphanBuffers: 0,
+    invalidLocations: 0,
   });
 
   useEffect(() => {
@@ -76,15 +77,39 @@ export function AlignmentDashboard() {
 
       const alignmentIssues: AlignmentIssue[] = [];
 
-      // Check for empty decouples (decoupling without buffer)
+      // Check for invalid locations FIRST (decoupling point with non-existent location)
       decouplingPoints?.forEach((dp) => {
-        const product = products?.find((p) => p.product_id === dp.product_id);
         const location = locations?.find((l) => l.location_id === dp.location_id);
+        const product = products?.find((p) => p.product_id === dp.product_id);
 
+        if (!location) {
+          alignmentIssues.push({
+            locationId: dp.location_id,
+            region: 'N/A',
+            productId: dp.product_id,
+            sku: product?.sku || 'Unknown',
+            issueType: 'invalid_location',
+            recommendation: 'Remove decoupling point - location does not exist in location_master',
+          });
+          
+          // Log to alignment_violations table
+          supabase.from('alignment_violations').upsert({
+            location_id: dp.location_id,
+            product_id: dp.product_id,
+            violation_type: 'invalid_location',
+            status: 'open',
+          }, {
+            onConflict: 'location_id,product_id,violation_type',
+            ignoreDuplicates: false,
+          });
+          return; // Skip other checks if location is invalid
+        }
+
+        // Check for empty decouples (decoupling without buffer)
         if (!product?.buffer_profile_id || product.buffer_profile_id === 'BP_DEFAULT') {
           alignmentIssues.push({
             locationId: dp.location_id,
-            region: location?.region || 'N/A',
+            region: location.region || 'N/A',
             productId: dp.product_id,
             sku: product?.sku || 'Unknown',
             issueType: 'empty_decouple',
@@ -140,6 +165,7 @@ export function AlignmentDashboard() {
       // Calculate stats
       const emptyDecouples = alignmentIssues.filter((i) => i.issueType === 'empty_decouple').length;
       const orphanBuffers = alignmentIssues.filter((i) => i.issueType === 'orphan_buffer').length;
+      const invalidLocations = alignmentIssues.filter((i) => i.issueType === 'invalid_location').length;
       
       // Fix double-counting: Count unique products with EITHER decoupling points OR buffer profiles
       const uniqueProductsInDecouplingPoints = new Set(decouplingPoints?.map(dp => dp.product_id) || []);
@@ -156,6 +182,7 @@ export function AlignmentDashboard() {
         aligned: Math.max(0, aligned),
         emptyDecouples,
         orphanBuffers,
+        invalidLocations,
       });
     } catch (error) {
       console.error('Error loading alignment issues:', error);
@@ -237,6 +264,38 @@ export function AlignmentDashboard() {
     }
   };
 
+  const handleFixInvalidLocation = async (issue: AlignmentIssue) => {
+    try {
+      // Delete the decoupling point with invalid location
+      const { error } = await supabase
+        .from('decoupling_points')
+        .delete()
+        .eq('product_id', issue.productId)
+        .eq('location_id', issue.locationId);
+
+      if (error) throw error;
+      
+      // Mark violation as resolved
+      await supabase
+        .from('alignment_violations')
+        .update({
+          status: 'resolved',
+          resolved_at: new Date().toISOString(),
+          resolution_action: `Removed decoupling point with invalid location: ${issue.locationId}`,
+        })
+        .eq('product_id', issue.productId)
+        .eq('location_id', issue.locationId)
+        .eq('violation_type', 'invalid_location')
+        .eq('status', 'open');
+
+      toast.success(`Removed invalid decoupling point: ${issue.locationId}`);
+      loadAlignmentIssues();
+    } catch (error) {
+      console.error('Error fixing invalid location:', error);
+      toast.error('Failed to remove invalid decoupling point');
+    }
+  };
+
   if (isLoading) {
     return (
       <Card>
@@ -250,7 +309,7 @@ export function AlignmentDashboard() {
   return (
     <div className="space-y-4">
       {/* Summary Cards */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-5 gap-4">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium">Total Configurations</CardTitle>
@@ -294,6 +353,18 @@ export function AlignmentDashboard() {
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">{stats.orphanBuffers}</div>
             <p className="text-xs text-muted-foreground mt-1">Buffer without decoupling</p>
+          </CardContent>
+        </Card>
+        <Card className="border-red-500/50 bg-red-500/5">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-1 text-red-600">
+              <XCircle className="h-3 w-3" />
+              Invalid Locations
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-600">{stats.invalidLocations}</div>
+            <p className="text-xs text-muted-foreground mt-1">Location doesn't exist</p>
           </CardContent>
         </Card>
       </div>
@@ -346,6 +417,11 @@ export function AlignmentDashboard() {
                           <XCircle className="h-3 w-3" />
                           Empty Decouple
                         </Badge>
+                      ) : issue.issueType === 'invalid_location' ? (
+                        <Badge className="bg-red-600 text-white gap-1">
+                          <XCircle className="h-3 w-3" />
+                          Invalid Location
+                        </Badge>
                       ) : (
                         <Badge variant="secondary" className="bg-orange-500 text-white gap-1">
                           <AlertTriangle className="h-3 w-3" />
@@ -364,6 +440,15 @@ export function AlignmentDashboard() {
                           onClick={() => handleFixEmptyDecouple(issue)}
                         >
                           Add Buffer
+                        </Button>
+                      ) : issue.issueType === 'invalid_location' ? (
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => handleFixInvalidLocation(issue)}
+                        >
+                          <XCircle className="h-3 w-3 mr-1" />
+                          Delete
                         </Button>
                       ) : (
                         <Button
