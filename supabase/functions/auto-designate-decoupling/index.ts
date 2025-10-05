@@ -17,17 +17,47 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { threshold = 0.75, scenario_name = 'default', batch_size = 50 } = await req.json();
+    const { threshold = 70, scenario_name = 'default', batch_size = 100 } = await req.json();
 
-    console.log(`🎯 Starting auto-designation with threshold ${threshold}, scenario ${scenario_name}, batch size ${batch_size}`);
+    console.log(`🎯 Starting COMPONENT auto-designation with threshold ${threshold}`);
 
-    // Get all product-location pairs that aren't already decoupling points
-    const { data: pairs, error: pairsError } = await supabase
-      .from('product_location_pairs')
-      .select('product_id, location_id')
+    // Step 1: Populate component demand analysis from BOM explosion
+    const { data: populateResult, error: populateError } = await supabase
+      .rpc('populate_component_demand_analysis');
+
+    if (populateError) {
+      console.error('Error populating component demand:', populateError);
+      throw populateError;
+    }
+
+    console.log(`✅ Populated ${populateResult} component demand records via BOM explosion`);
+
+    // Step 2: Get all RAW_MATERIAL and COMPONENT products
+    const { data: components, error: compError } = await supabase
+      .from('product_master')
+      .select('product_id, sku, name, product_type')
+      .in('product_type', ['RAW_MATERIAL', 'COMPONENT'])
       .limit(batch_size);
 
-    if (pairsError) throw pairsError;
+    if (compError) throw compError;
+
+    // Get all locations
+    const { data: locations, error: locError } = await supabase
+      .from('location_master')
+      .select('location_id, region');
+
+    if (locError) throw locError;
+
+    // Create component-location pairs
+    const pairs = components?.flatMap(comp => 
+      locations?.map(loc => ({
+        product_id: comp.product_id,
+        location_id: loc.location_id,
+        product_type: comp.product_type,
+        sku: comp.sku,
+        name: comp.name
+      })) || []
+    ) || [];
 
     if (!pairs || pairs.length === 0) {
       return new Response(
@@ -60,37 +90,39 @@ Deno.serve(async (req) => {
       (pair) => !existingSet.has(`${pair.product_id}:${pair.location_id}`)
     );
 
-    console.log(`Found ${availablePairs.length} pairs to analyze (${pairs.length - availablePairs.length} already designated)`);
+    console.log(`Found ${availablePairs.length} COMPONENT pairs to analyze (${pairs.length - availablePairs.length} already designated)`);
 
     let auto_designated = 0;
     let review_required = 0;
     let auto_rejected = 0;
     const scoring_details: any[] = [];
 
-    // Process each pair using 8-factor model
+    // Step 3: Process each COMPONENT-location pair
     for (const pair of availablePairs) {
       try {
-        // Call the 8-factor scoring function (0-100 scale with storage + MOQ)
+        // Call COMPONENT 8-factor scoring (uses BOM-exploded demand)
         const { data: scoreData, error: scoreError } = await supabase
-          .rpc('calculate_8factor_weighted_score', {
-            p_product_id: pair.product_id,
+          .rpc('calculate_component_8factor_score', {
+            p_component_id: pair.product_id,
             p_location_id: pair.location_id
           });
 
         if (scoreError) {
-          console.error(`Error scoring ${pair.product_id} @ ${pair.location_id}:`, scoreError);
+          console.error(`Error scoring ${pair.sku} @ ${pair.location_id}:`, scoreError);
           continue;
         }
 
         const score = scoreData.total_score; // 0-100 scale
-        const recommendation = scoreData.recommendation; // PULL_STORE_LEVEL, HYBRID_DC_LEVEL, PUSH_UPSTREAM
-        scoring_details.push(scoreData);
-
-        // Convert threshold from 0-1 scale to 0-100 scale (e.g., 0.75 → 75)
-        const threshold100 = threshold * 100;
+        const recommendation = scoreData.recommendation;
+        scoring_details.push({
+          ...scoreData,
+          sku: pair.sku,
+          name: pair.name,
+          product_type: pair.product_type
+        });
 
         // Auto-designate if score meets threshold
-        if (score >= threshold100) {
+        if (score >= threshold) {
           // Get buffer profile from product_master
           const { data: productData } = await supabase
             .from('product_master')
@@ -107,18 +139,18 @@ Deno.serve(async (req) => {
               location_id: pair.location_id,
               buffer_profile_id,
               is_strategic: true,
-              designation_reason: `Auto-designated: Score ${score.toFixed(2)} (Variability: ${scoreData.variability}, Criticality: ${scoreData.criticality})`
+              designation_reason: `Auto-designated COMPONENT: Score ${score.toFixed(2)} (${pair.product_type}: ${pair.sku})`
             });
 
           if (!insertError) {
             auto_designated++;
-            console.log(`✅ Designated ${pair.product_id} @ ${pair.location_id} (score: ${score.toFixed(1)}, recommendation: ${recommendation})`);
-          } else if (insertError.code !== '23505') { // Ignore duplicate key errors
-            console.error(`Error inserting ${pair.product_id} @ ${pair.location_id}:`, insertError);
+            console.log(`✅ Designated COMPONENT ${pair.sku} (${pair.name}) @ ${pair.location_id} | Score: ${score.toFixed(1)} | Rec: ${recommendation}`);
+          } else if (insertError.code !== '23505') {
+            console.error(`Error inserting ${pair.sku} @ ${pair.location_id}:`, insertError);
           }
-        } else if (score >= 50) { // 50-75: Review required (0.50-0.75 on 0-1 scale)
+        } else if (score >= 50) {
           review_required++;
-        } else { // < 50: Auto-reject
+        } else {
           auto_rejected++;
         }
       } catch (err) {
@@ -129,17 +161,18 @@ Deno.serve(async (req) => {
     const result = {
       success: true,
       summary: {
+        component_demand_records: populateResult,
         total_analyzed: availablePairs.length,
         auto_designated,
         review_required,
         auto_rejected,
         threshold_used: threshold,
-        scenario: scenario_name
+        note: 'Component-level designation (RAW_MATERIALS & COMPONENTS only, not finished goods)'
       },
-      scoring_details
+      scoring_details: scoring_details.slice(0, 50) // Limit to first 50
     };
 
-    console.log(`✅ Auto-designation complete:`, result.summary);
+    console.log(`✅ Component auto-designation complete:`, result.summary);
 
     return new Response(
       JSON.stringify(result),
