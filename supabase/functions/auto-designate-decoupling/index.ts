@@ -67,15 +67,14 @@ Deno.serve(async (req) => {
     let auto_rejected = 0;
     const scoring_details: any[] = [];
 
-    // Process each pair
+    // Process each pair using 8-factor model
     for (const pair of availablePairs) {
       try {
-        // Call the scoring function
+        // Call the 8-factor scoring function (0-100 scale with storage + MOQ)
         const { data: scoreData, error: scoreError } = await supabase
-          .rpc('calculate_decoupling_score_v2', {
+          .rpc('calculate_8factor_weighted_score', {
             p_product_id: pair.product_id,
-            p_location_id: pair.location_id,
-            p_scenario_name: scenario_name
+            p_location_id: pair.location_id
           });
 
         if (scoreError) {
@@ -83,11 +82,15 @@ Deno.serve(async (req) => {
           continue;
         }
 
-        const score = scoreData.total_score;
+        const score = scoreData.total_score; // 0-100 scale
+        const recommendation = scoreData.recommendation; // PULL_STORE_LEVEL, HYBRID_DC_LEVEL, PUSH_UPSTREAM
         scoring_details.push(scoreData);
 
+        // Convert threshold from 0-1 scale to 0-100 scale (e.g., 0.75 → 75)
+        const threshold100 = threshold * 100;
+
         // Auto-designate if score meets threshold
-        if (score >= threshold) {
+        if (score >= threshold100) {
           // Get buffer profile from product_master
           const { data: productData } = await supabase
             .from('product_master')
@@ -109,13 +112,13 @@ Deno.serve(async (req) => {
 
           if (!insertError) {
             auto_designated++;
-            console.log(`✅ Designated ${pair.product_id} @ ${pair.location_id} (score: ${score.toFixed(2)})`);
+            console.log(`✅ Designated ${pair.product_id} @ ${pair.location_id} (score: ${score.toFixed(1)}, recommendation: ${recommendation})`);
           } else if (insertError.code !== '23505') { // Ignore duplicate key errors
             console.error(`Error inserting ${pair.product_id} @ ${pair.location_id}:`, insertError);
           }
-        } else if (score >= 0.50) {
+        } else if (score >= 50) { // 50-75: Review required (0.50-0.75 on 0-1 scale)
           review_required++;
-        } else {
+        } else { // < 50: Auto-reject
           auto_rejected++;
         }
       } catch (err) {
