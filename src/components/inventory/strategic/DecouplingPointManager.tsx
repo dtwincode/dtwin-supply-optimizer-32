@@ -140,9 +140,15 @@ export function DecouplingPointManager() {
     setAutoDesignating(true);
     try {
       const threshold = getConfig('auto_designate_threshold', 0.75);
-      const { data, error } = await supabase.rpc("auto_designate_with_scoring_v2" as any, {
-        p_threshold: threshold,
-        p_scenario_name: "default",
+      
+      toast.info("Starting auto-designation analysis...");
+      
+      const { data, error } = await supabase.functions.invoke('auto-designate-decoupling', {
+        body: {
+          threshold,
+          scenario_name: "default",
+          batch_size: 100
+        }
       });
 
       if (error) throw error;
