@@ -34,16 +34,30 @@ Deno.serve(async (req) => {
     const useComponentScoring = checkError?.code !== 'PGRST202';
     console.log(useComponentScoring ? `✅ Component scoring active` : `⚠️ Using fallback scoring`);
 
+    // Get valid locations from location_master first
+    const { data: validLocs } = await supabase.from('location_master').select('location_id, region');
+    const validLocationIds = new Set((validLocs || []).map(l => l.location_id));
+    
     // Get pairs
     let pairs: any[] = [];
     if (useComponentScoring) {
       const { data: comps } = await supabase.from('product_master').select('product_id, sku, name, product_type').in('product_type', ['RAW_MATERIAL', 'COMPONENT']).limit(batch_size);
-      const { data: locs } = await supabase.from('location_master').select('location_id');
-      pairs = comps?.flatMap(c => locs?.map(l => ({ product_id: c.product_id, location_id: l.location_id, sku: c.sku, name: c.name, product_type: c.product_type })) || []) || [];
+      pairs = comps?.flatMap(c => 
+        Array.from(validLocationIds).map(location_id => ({ 
+          product_id: c.product_id, 
+          location_id, 
+          sku: c.sku, 
+          name: c.name, 
+          product_type: c.product_type 
+        }))
+      ) || [];
     } else {
       const { data: allPairs } = await supabase.from('product_location_pairs').select('product_id, location_id').limit(batch_size);
-      pairs = allPairs || [];
+      // Filter to only valid locations
+      pairs = (allPairs || []).filter(p => validLocationIds.has(p.location_id));
     }
+    
+    console.log(`Found ${validLocationIds.size} valid locations`);
 
     if (!pairs.length) {
       return new Response(JSON.stringify({ success: true, summary: { total_analyzed: 0, auto_designated: 0, review_required: 0, auto_rejected: 0, threshold_used: threshold }, scoring_details: [] }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
