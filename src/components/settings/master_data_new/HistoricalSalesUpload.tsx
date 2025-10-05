@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { SampleDataGenerator } from "./SampleDataGenerator";
+import { RegenerateDataButton } from "./RegenerateDataButton";
 
 const historicalSalesFields: FieldDescription[] = [
   { name: "sales_date", description: "Sale date (YYYY-MM-DD format or Excel date format)", required: true },
@@ -181,6 +182,19 @@ const HistoricalSalesUpload = () => {
     <div className="space-y-6">
       {/* Sample Data Generator */}
       <SampleDataGenerator />
+      
+      {/* Quick regenerate button */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="font-medium">Regenerate Sales Data</h4>
+              <p className="text-sm text-muted-foreground">Regenerate 90 days of realistic sales data with proper price variations</p>
+            </div>
+            <RegenerateDataButton />
+          </div>
+        </CardContent>
+      </Card>
       
       <UploadInstructions
         title="Historical Sales Data Upload Instructions"

@@ -263,8 +263,9 @@ Deno.serve(async (req) => {
           // Get price from pre-fetched price map
           let unitPrice = priceMap[product.product_id] || config.defaultFallbackPrice;
           
-          // Add random variation
-          unitPrice = unitPrice * (config.priceVariationMin + Math.random() * config.priceVariationRange);
+          // Add random variation (90-110% of base price) - NEW PER-TRANSACTION VARIATION
+          const priceVariation = 0.90 + Math.random() * 0.20; // 90% to 110%
+          unitPrice = unitPrice * priceVariation;
 
           const revenue = quantity * unitPrice;
 
