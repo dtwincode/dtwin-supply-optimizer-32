@@ -4,7 +4,7 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
 
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
@@ -52,11 +52,11 @@ serve(async (req) => {
       );
     }
 
-    // Check if OpenAI API key is configured
-    if (!openAIApiKey) {
-      console.error('OpenAI API key not configured');
+    // Check if Lovable API key is configured
+    if (!lovableApiKey) {
+      console.error('Lovable API key not configured');
       return new Response(
-        JSON.stringify({ error: 'OpenAI API key not configured in the environment variables' }),
+        JSON.stringify({ error: 'Lovable API key not configured in the environment variables' }),
         { status: 500, headers: corsHeaders }
       );
     }
@@ -244,34 +244,48 @@ Current timestamp: ${timestamp || new Date().toISOString()}
       }
     ];
 
-    // Make the API call to OpenAI (without forcing tools since we pre-fetched data)
-    console.log('Calling OpenAI API with pre-fetched database context');
+    // Make the API call to Lovable AI (without forcing tools since we pre-fetched data)
+    console.log('Calling Lovable AI (Gemini 2.5 Flash) with pre-fetched database context');
     
     try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${openAIApiKey}`,
+          'Authorization': `Bearer ${lovableApiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o-mini',
+          model: 'google/gemini-2.5-flash',
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: prompt }
           ],
-          temperature: 0.3,
           max_tokens: 1500,
         }),
       });
 
-      console.log('OpenAI API response status:', response.status);
+      console.log('Lovable AI response status:', response.status);
 
-      // Process the OpenAI response
+      // Process the Lovable AI response
       if (!response.ok) {
-        console.error('OpenAI API error status:', response.status);
+        console.error('Lovable AI error status:', response.status);
         const errorText = await response.text();
-        console.error('OpenAI API error response:', errorText);
+        console.error('Lovable AI error response:', errorText);
+        
+        // Handle rate limiting (429) and payment required (402)
+        if (response.status === 429) {
+          return new Response(
+            JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
+            { status: 429, headers: corsHeaders }
+          );
+        }
+        
+        if (response.status === 402) {
+          return new Response(
+            JSON.stringify({ error: 'Payment required. Please add credits to your Lovable workspace.' }),
+            { status: 402, headers: corsHeaders }
+          );
+        }
         
         let errorMessage;
         try {
@@ -284,18 +298,18 @@ Current timestamp: ${timestamp || new Date().toISOString()}
         console.error('Parsed error message:', errorMessage);
         
         return new Response(
-          JSON.stringify({ error: `OpenAI API error: ${errorMessage}` }),
+          JSON.stringify({ error: `Lovable AI error: ${errorMessage}` }),
           { status: 502, headers: corsHeaders }
         );
       }
 
       const data = await response.json();
-      console.log('OpenAI response received');
+      console.log('Lovable AI response received');
       
       if (!data.choices || data.choices.length === 0) {
-        console.error('Unexpected OpenAI response format:', JSON.stringify(data).slice(0, 200));
+        console.error('Unexpected Lovable AI response format:', JSON.stringify(data).slice(0, 200));
         return new Response(
-          JSON.stringify({ error: 'Invalid response from OpenAI' }),
+          JSON.stringify({ error: 'Invalid response from Lovable AI' }),
           { status: 502, headers: corsHeaders }
         );
       }
@@ -310,9 +324,9 @@ Current timestamp: ${timestamp || new Date().toISOString()}
         { headers: corsHeaders }
       );
     } catch (error) {
-      console.error('Error calling OpenAI API:', error.message);
+      console.error('Error calling Lovable AI:', error.message);
       return new Response(
-        JSON.stringify({ error: `Error calling OpenAI API: ${error.message}` }),
+        JSON.stringify({ error: `Error calling Lovable AI: ${error.message}` }),
         { status: 500, headers: corsHeaders }
       );
     }
