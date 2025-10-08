@@ -68,20 +68,72 @@ const BufferPenetrationBar = ({ penetration, color }: { penetration: number; col
 };
 
 export function ExecutionPriorityDashboard() {
-  const { data: priorities, isLoading } = useQuery({
-    queryKey: ["execution-priority"],
+  // Fetch from existing inventory_planning_view
+  const { data: inventoryData, isLoading } = useQuery({
+    queryKey: ["inventory-planning-execution"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("execution_priority_view" as any)
-        .select("*")
-        .order("buffer_penetration_pct", { ascending: true })
-        .limit(100);
+        .from("inventory_planning_view")
+        .select("*");
 
       if (error) throw error;
-      return data as unknown as ExecutionPriorityItem[];
+      return data;
     },
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 30000,
   });
+
+  // Calculate execution priority client-side
+  const priorities: ExecutionPriorityItem[] | undefined = inventoryData?.map(item => {
+    const nfp = (item.nfp as number) || 0;
+    const tor = (item.tor as number) || 1;
+    const toy = (item.toy as number) || (tor * 1.5);
+    const tog = (item.tog as number) || (tor * 2);
+    const penetration = (nfp / tor) * 100;
+    
+    let priority: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW" | "UNKNOWN" = "LOW";
+    let color: "DEEP_RED" | "RED" | "YELLOW" | "GREEN" | "UNKNOWN" = "GREEN";
+    
+    if (penetration < 20) {
+      priority = "CRITICAL";
+      color = "DEEP_RED";
+    } else if (penetration < 50) {
+      priority = "HIGH";
+      color = "RED";
+    } else if (penetration < 80) {
+      priority = "MEDIUM";
+      color = "YELLOW";
+    }
+    
+    const on_hand = (item.on_hand as number) || 0;
+    const qualified_demand = (item.qualified_demand as number) || 0;
+    const red_zone = (item.red_zone as number) || 0;
+    const projected_on_hand = on_hand - qualified_demand;
+    
+    return {
+      product_id: item.product_id as string,
+      location_id: item.location_id as string,
+      sku: item.sku as string,
+      product_name: item.product_name as string,
+      category: (item.category as string) || 'N/A',
+      nfp,
+      on_hand,
+      on_order: (item.on_order as number) || 0,
+      qualified_demand,
+      red_zone,
+      yellow_zone: (item.yellow_zone as number) || 0,
+      green_zone: (item.green_zone as number) || 0,
+      tor,
+      toy,
+      tog,
+      buffer_penetration_pct: penetration,
+      execution_priority: priority,
+      priority_color: color,
+      projected_on_hand,
+      critical_alert: nfp < tor,
+      current_oh_alert: on_hand < red_zone,
+      projected_oh_alert: projected_on_hand < red_zone
+    };
+  }).sort((a, b) => a.buffer_penetration_pct - b.buffer_penetration_pct).slice(0, 100);
 
   if (isLoading) return <PageLoading />;
 

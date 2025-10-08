@@ -30,37 +30,70 @@ interface TopUrgentItem {
 export function DDMRPPlannerWorkbench() {
   const navigate = useNavigate();
 
-  const { data: statusSummary, isLoading: statusLoading } = useQuery({
-    queryKey: ["buffer-status-summary"],
+  // Fetch from existing inventory_planning_view
+  const { data: inventoryData, isLoading } = useQuery({
+    queryKey: ["inventory-planning-workbench"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("buffer_status_summary" as any)
-        .select("*")
-        .single();
+        .from("inventory_planning_view")
+        .select("*");
 
       if (error) throw error;
-      return data as unknown as BufferStatusSummary;
+      return data;
     },
     refetchInterval: 30000,
   });
 
-  const { data: topUrgent, isLoading: urgentLoading } = useQuery({
-    queryKey: ["top-urgent-items"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("execution_priority_view" as any)
-        .select("product_id, location_id, sku, product_name, nfp, tor, buffer_penetration_pct, execution_priority")
-        .in("execution_priority", ["CRITICAL", "HIGH"])
-        .order("buffer_penetration_pct", { ascending: true })
-        .limit(5);
+  // Calculate buffer status summary client-side
+  const statusSummary: BufferStatusSummary | undefined = inventoryData ? {
+    red_count: inventoryData.filter(item => {
+      const status = (item.buffer_status as string)?.toUpperCase();
+      return status === 'RED';
+    }).length,
+    yellow_count: inventoryData.filter(item => {
+      const status = (item.buffer_status as string)?.toUpperCase();
+      return status === 'YELLOW';
+    }).length,
+    green_count: inventoryData.filter(item => {
+      const status = (item.buffer_status as string)?.toUpperCase();
+      return status === 'GREEN';
+    }).length,
+    blue_count: inventoryData.filter(item => {
+      const status = (item.buffer_status as string)?.toUpperCase();
+      return status === 'BLUE';
+    }).length,
+    total_count: inventoryData.length
+  } : undefined;
 
-      if (error) throw error;
-      return data as unknown as TopUrgentItem[];
-    },
-    refetchInterval: 30000,
-  });
+  // Calculate top urgent items client-side
+  const topUrgent: TopUrgentItem[] | undefined = inventoryData ? inventoryData
+    .map(item => {
+      const nfp = (item.nfp as number) || 0;
+      const tor = (item.tor as number) || 1;
+      const toy = (item.toy as number) || (tor * 1.5);
+      const penetration = (nfp / tor) * 100;
+      
+      let priority: string = 'LOW';
+      if (penetration < 20) priority = 'CRITICAL';
+      else if (penetration < 50) priority = 'HIGH';
+      else if (penetration < 80) priority = 'MEDIUM';
+      
+      return {
+        product_id: item.product_id as string,
+        location_id: item.location_id as string,
+        sku: item.sku as string,
+        product_name: item.product_name as string,
+        nfp,
+        tor,
+        buffer_penetration_pct: penetration,
+        execution_priority: priority
+      };
+    })
+    .filter(item => item.execution_priority === 'CRITICAL' || item.execution_priority === 'HIGH')
+    .sort((a, b) => a.buffer_penetration_pct - b.buffer_penetration_pct)
+    .slice(0, 5) : undefined;
 
-  if (statusLoading || urgentLoading) return <PageLoading />;
+  if (isLoading) return <PageLoading />;
 
   const handleRecalculateBuffers = async () => {
     try {

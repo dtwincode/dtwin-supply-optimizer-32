@@ -640,13 +640,6 @@ export type Database = {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "execution_priority_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
             referencedRelation: "inventory_ddmrp_buffers_view"
             referencedColumns: ["product_id"]
           },
@@ -669,13 +662,6 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "execution_priority_view"
             referencedColumns: ["product_id"]
           },
           {
@@ -974,13 +960,6 @@ export type Database = {
             foreignKeyName: "location_hierarchy_location_id_fkey"
             columns: ["location_id"]
             isOneToOne: true
-            referencedRelation: "execution_priority_view"
-            referencedColumns: ["location_id"]
-          },
-          {
-            foreignKeyName: "location_hierarchy_location_id_fkey"
-            columns: ["location_id"]
-            isOneToOne: true
             referencedRelation: "inventory_ddmrp_buffers_view"
             referencedColumns: ["location_id"]
           },
@@ -1003,13 +982,6 @@ export type Database = {
             columns: ["location_id"]
             isOneToOne: true
             referencedRelation: "location_master"
-            referencedColumns: ["location_id"]
-          },
-          {
-            foreignKeyName: "location_hierarchy_parent_location_id_fkey"
-            columns: ["parent_location_id"]
-            isOneToOne: false
-            referencedRelation: "execution_priority_view"
             referencedColumns: ["location_id"]
           },
           {
@@ -1355,13 +1327,6 @@ export type Database = {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "execution_priority_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
             referencedRelation: "inventory_ddmrp_buffers_view"
             referencedColumns: ["product_id"]
           },
@@ -1424,13 +1389,6 @@ export type Database = {
             foreignKeyName: "product_bom_child_product_id_fkey"
             columns: ["child_product_id"]
             isOneToOne: false
-            referencedRelation: "execution_priority_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "product_bom_child_product_id_fkey"
-            columns: ["child_product_id"]
-            isOneToOne: false
             referencedRelation: "inventory_ddmrp_buffers_view"
             referencedColumns: ["product_id"]
           },
@@ -1453,13 +1411,6 @@ export type Database = {
             columns: ["child_product_id"]
             isOneToOne: false
             referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "product_bom_parent_product_id_fkey"
-            columns: ["parent_product_id"]
-            isOneToOne: false
-            referencedRelation: "execution_priority_view"
             referencedColumns: ["product_id"]
           },
           {
@@ -1669,13 +1620,6 @@ export type Database = {
             foreignKeyName: "product_pricing_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "execution_priority_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "product_pricing_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
             referencedRelation: "inventory_ddmrp_buffers_view"
             referencedColumns: ["product_id"]
           },
@@ -1803,13 +1747,6 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "execution_priority_view"
-            referencedColumns: ["product_id"]
-          },
           {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
@@ -2214,13 +2151,6 @@ export type Database = {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "execution_priority_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
             referencedRelation: "inventory_ddmrp_buffers_view"
             referencedColumns: ["product_id"]
           },
@@ -2243,13 +2173,6 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "execution_priority_view"
             referencedColumns: ["product_id"]
           },
           {
@@ -2294,13 +2217,6 @@ export type Database = {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "execution_priority_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
             referencedRelation: "inventory_ddmrp_buffers_view"
             referencedColumns: ["product_id"]
           },
@@ -2323,13 +2239,6 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "execution_priority_view"
             referencedColumns: ["product_id"]
           },
           {
@@ -2362,16 +2271,6 @@ export type Database = {
           },
         ]
       }
-      buffer_status_summary: {
-        Row: {
-          blue_count: number | null
-          green_count: number | null
-          red_count: number | null
-          total_count: number | null
-          yellow_count: number | null
-        }
-        Relationships: []
-      }
       component_demand_view: {
         Row: {
           buffer_status: string | null
@@ -2395,13 +2294,6 @@ export type Database = {
           used_in_finished_goods: string[] | null
         }
         Relationships: [
-          {
-            foreignKeyName: "product_bom_child_product_id_fkey"
-            columns: ["component_product_id"]
-            isOneToOne: false
-            referencedRelation: "execution_priority_view"
-            referencedColumns: ["product_id"]
-          },
           {
             foreignKeyName: "product_bom_child_product_id_fkey"
             columns: ["component_product_id"]
@@ -2444,13 +2336,6 @@ export type Database = {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "execution_priority_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
             referencedRelation: "inventory_ddmrp_buffers_view"
             referencedColumns: ["product_id"]
           },
@@ -2473,13 +2358,6 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "execution_priority_view"
             referencedColumns: ["product_id"]
           },
           {
@@ -2520,34 +2398,6 @@ export type Database = {
           non_compliant_count: number | null
           partial_count: number | null
           total_tested: number | null
-        }
-        Relationships: []
-      }
-      execution_priority_view: {
-        Row: {
-          buffer_penetration_pct: number | null
-          category: string | null
-          critical_alert: boolean | null
-          current_oh_alert: boolean | null
-          execution_priority: string | null
-          green_zone: number | null
-          lead_time_days: number | null
-          location_id: string | null
-          nfp: number | null
-          on_hand: number | null
-          on_order: number | null
-          priority_color: string | null
-          product_id: string | null
-          product_name: string | null
-          projected_oh_alert: boolean | null
-          projected_on_hand: number | null
-          qualified_demand: number | null
-          red_zone: number | null
-          sku: string | null
-          tog: number | null
-          tor: number | null
-          toy: number | null
-          yellow_zone: number | null
         }
         Relationships: []
       }
@@ -2670,13 +2520,6 @@ export type Database = {
             foreignKeyName: "fk_product"
             columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "execution_priority_view"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "fk_product"
-            columns: ["product_id"]
-            isOneToOne: false
             referencedRelation: "inventory_ddmrp_buffers_view"
             referencedColumns: ["product_id"]
           },
@@ -2699,13 +2542,6 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "product_master"
-            referencedColumns: ["product_id"]
-          },
-          {
-            foreignKeyName: "historical_sales_data_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "execution_priority_view"
             referencedColumns: ["product_id"]
           },
           {
