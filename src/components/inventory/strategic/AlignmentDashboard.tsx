@@ -298,11 +298,15 @@ export function AlignmentDashboard() {
 
   if (isLoading) {
     return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="h-48 bg-muted animate-pulse rounded" />
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-5 gap-4">
+        {[...Array(5)].map((_, i) => (
+          <Card key={i}>
+            <CardContent className="p-6">
+              <div className="h-24 bg-muted animate-pulse rounded" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     );
   }
 
@@ -387,12 +391,21 @@ export function AlignmentDashboard() {
         </CardHeader>
         <CardContent>
           {issues.length === 0 ? (
-            <Alert>
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <AlertDescription className="text-green-600">
-                All configurations are properly aligned! No issues found.
-              </AlertDescription>
-            </Alert>
+            <div className="py-12 text-center space-y-4">
+              <div className="rounded-full bg-green-100 dark:bg-green-950 p-4 w-16 h-16 mx-auto flex items-center justify-center">
+                <CheckCircle className="h-8 w-8 text-green-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-green-600">All Aligned!</h3>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Your decoupling points and buffer profiles are properly configured.
+                </p>
+              </div>
+              <Button variant="outline" size="sm" onClick={loadAlignmentIssues}>
+                <RefreshCw className="h-3 w-3 mr-2" />
+                Run Health Check
+              </Button>
+            </div>
           ) : (
             <Table>
               <TableHeader>

@@ -54,7 +54,7 @@ export function InventoryGlobalFilters() {
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[280px] p-0 bg-popover z-50">
+        <PopoverContent className="w-[280px] p-0 bg-popover border shadow-lg z-[100]">
           <Command className="bg-popover">
               <CommandInput placeholder="Search product or SKU..." />
               <CommandList>
@@ -120,7 +120,7 @@ export function InventoryGlobalFilters() {
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0 bg-popover z-50">
+        <PopoverContent className="w-[200px] p-0 bg-popover border shadow-lg z-[100]">
           <Command className="bg-popover">
               <CommandInput placeholder="Search location..." />
               <CommandList>
@@ -181,7 +181,7 @@ export function InventoryGlobalFilters() {
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0 bg-popover z-50">
+        <PopoverContent className="w-[200px] p-0 bg-popover border shadow-lg z-[100]">
           <Command className="bg-popover">
               <CommandInput placeholder="Search channel..." />
               <CommandList>

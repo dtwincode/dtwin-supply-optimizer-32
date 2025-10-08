@@ -1,19 +1,24 @@
 
 import React, { useEffect, useState } from "react";
 import { useInventoryFilter } from "@/components/inventory/InventoryFilterContext";
-import { Card, CardContent } from "@/components/ui/card";
 import { fetchInventoryPlanningView } from "@/lib/inventory-planning.service";
 import { BufferBreachNotification } from "./BufferBreachNotification";
 import { BufferProfileDistributionChart } from "./BufferProfileDistributionChart";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, TrendingUp, Package, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { EnhancedMetricCard } from "../EnhancedMetricCard";
+import { MetricCardSkeleton } from "../SkeletonLoader";
 
 interface InventoryKPI {
   average_daily_usage: number;
   min_stock_level: number;
   max_stock_level: number;
   green_zone: number;
+  trend?: {
+    adu_change: number;
+    stock_change: number;
+  };
 }
 
 export function InventoryOverview() {
@@ -77,32 +82,51 @@ export function InventoryOverview() {
       <BufferBreachNotification />
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {kpiData ? (
+        {isLoading ? (
           <>
-            <Card>
-              <CardContent className="p-4">
-                <h4 className="font-semibold">Avg Daily Usage</h4>
-                <p className="text-lg">{kpiData.average_daily_usage.toFixed(2)}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <h4 className="font-semibold">Min Stock</h4>
-                <p className="text-lg">{kpiData.min_stock_level.toLocaleString()}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <h4 className="font-semibold">Max Stock</h4>
-                <p className="text-lg">{kpiData.max_stock_level.toLocaleString()}</p>
-              </CardContent>
-            </Card>
-            <Card className="col-span-full">
-              <CardContent className="p-4">
-                <h4 className="font-semibold">Green Zone</h4>
-                <p className="text-lg">{kpiData.green_zone.toLocaleString()}</p>
-              </CardContent>
-            </Card>
+            {[...Array(4)].map((_, i) => (
+              <MetricCardSkeleton key={i} />
+            ))}
+          </>
+        ) : kpiData ? (
+          <>
+            <EnhancedMetricCard
+              title="Avg Daily Usage"
+              value={kpiData.average_daily_usage.toFixed(2)}
+              icon={TrendingUp}
+              trend={kpiData.trend ? {
+                value: kpiData.trend.adu_change,
+                label: "vs last period"
+              } : undefined}
+              status="healthy"
+              benchmark="Target: 150 units"
+              sparklineData={[45, 52, 48, 65, 58, 72, 68]}
+            />
+            <EnhancedMetricCard
+              title="Min Stock Level"
+              value={kpiData.min_stock_level.toLocaleString()}
+              icon={Package}
+              subtitle="Safety stock threshold"
+              status={kpiData.min_stock_level < 1000 ? "warning" : "healthy"}
+            />
+            <EnhancedMetricCard
+              title="Max Stock Level"
+              value={kpiData.max_stock_level.toLocaleString()}
+              icon={AlertCircle}
+              subtitle="Maximum capacity"
+              status="neutral"
+            />
+            <EnhancedMetricCard
+              title="Green Zone Stock"
+              value={kpiData.green_zone.toLocaleString()}
+              icon={Package}
+              trend={kpiData.trend ? {
+                value: kpiData.trend.stock_change,
+                label: "vs last period"
+              } : undefined}
+              status="healthy"
+              subtitle="Replenishment buffer"
+            />
           </>
         ) : (
           <p className="col-span-full p-4">No KPI data available.</p>

@@ -1,6 +1,6 @@
 import { createBrowserRouter, Outlet } from "react-router-dom";
 import NotFound from "./pages/NotFound";
-import Inventory from "./pages/Inventory";
+import Inventory from "./pages/InventoryNew";
 import Settings from "./pages/Settings";
 import DDSOP from "./pages/DDSOP";
 import DDMRP from "./pages/DDMRP";
