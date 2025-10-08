@@ -217,33 +217,37 @@ const InventoryNew: React.FC = () => {
   };
 
   return (
-    <InventoryFilterProvider>
-      <SidebarProvider defaultOpen={true}>
-        <div className="flex min-h-screen w-full">
-          <InventorySidebar />
-          
-          <div className="flex-1 flex flex-col">
-            {/* Header */}
-            <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-6">
-              <SidebarTrigger />
-              <div className="flex-1">
-                <h1 className="text-lg font-semibold">
-                  {t("inventory.inventoryManagement") || "DDMRP Inventory Management"}
-                </h1>
-              </div>
-            </header>
+    <DashboardLayout>
+      <InventoryFilterProvider>
+        <SidebarProvider defaultOpen={true}>
+          <div className="flex w-full">
+            <InventorySidebar />
+            
+            <div className="flex-1 flex flex-col">
+              {/* Header */}
+              <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-6">
+                <SidebarTrigger />
+                <div className="flex-1">
+                  <h1 className="text-lg font-semibold">
+                    {t("inventory.inventoryManagement") || "DDMRP Inventory Management"}
+                  </h1>
+                </div>
+              </header>
 
-            {/* Main Content */}
-            <main className="flex-1 p-6 space-y-6">
-              <CollapsibleFilters />
-              <div className="animate-fade-in">
-                {renderContent()}
-              </div>
-            </main>
+              {/* Main Content */}
+              <main className="flex-1 space-y-6">
+                <div className="p-6 space-y-6">
+                  <CollapsibleFilters />
+                  <div className="animate-fade-in">
+                    {renderContent()}
+                  </div>
+                </div>
+              </main>
+            </div>
           </div>
-        </div>
-      </SidebarProvider>
-    </InventoryFilterProvider>
+        </SidebarProvider>
+      </InventoryFilterProvider>
+    </DashboardLayout>
   );
 };
 
