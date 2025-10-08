@@ -1,1 +1,4 @@
 project_id = "mttzjxktvbsixjaqiuxq"
+
+[functions.process-ai-query]
+verify_jwt = false

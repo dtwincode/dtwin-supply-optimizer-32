@@ -2,8 +2,11 @@
 // Import necessary modules for Deno
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 // Define CORS headers to allow requests from any origin
 const corsHeaders = {
@@ -62,31 +65,100 @@ serve(async (req) => {
     console.log(`Requested format: ${format}`);
     console.log(`Timestamp: ${timestamp}`);
 
+    // Initialize Supabase client
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
     // Build the system message with enhanced context for supply chain domain
     const systemPrompt = `
-You are an AI assistant for dtwin, a cloud-based demand-driven supply chain planning platform.
-Your role is to help demand planners analyze and optimize their supply chain.
+You are an AI assistant for dtwin, a Demand Driven Material Requirements Planning (DDMRP) platform.
+Your role is to help planners analyze supply chain performance, inventory buffers, and operational metrics.
 
 ${context || ''}
 
-Current capabilities:
-- You can answer questions about supply chain management concepts
-- You can explain DDMRP principles and methodologies
-- You can provide insights and best practices for demand planning
-- You can suggest ways to improve forecast accuracy and inventory management
+## DDMRP SYSTEM OVERVIEW
+This system implements full DDMRP methodology with the following core tables:
 
-When responding:
-- Be precise and concise in your explanations
-- Provide actionable insights when possible
-- Format your response in a way that's easy to understand
-- When you don't know something specific to the user's data, acknowledge it but provide general best practices
+**Buffer Management:**
+- inventory_ddmrp_buffers_view: Red/Yellow/Green zones, TOR/TOY/TOG thresholds, ADU, DLT
+- buffer_profile_master: Buffer profile configurations (LT factors, variability factors)
+- buffer_breach_alerts: Active breaches (BELOW_TOR, BELOW_TOY severity levels)
+- buffer_recalculation_history: Historical buffer adjustments
 
-Output format: ${format === 'chart' ? 'Describe what the chart should show and what insights it would reveal' : 
-              format === 'report' ? 'Provide a structured report with sections and insights' : 
-              'Clear and concise textual response'}
+**Demand & Planning:**
+- historical_sales_data: Sales transactions and demand history
+- demand_history_analysis: CV, variability scores, mean/std dev
+- product_classification: ABC-XYZ classification, variability levels
+- decoupling_points: Strategic inventory positions
+
+**Inventory & Execution:**
+- inventory_net_flow_view: NFP (Net Flow Position), on-hand, on-order, qualified demand
+- replenishment_orders: Recommended purchase orders based on buffer penetration
+- open_pos: Open purchase orders
+- open_so: Open sales orders
+
+**Performance & Analytics:**
+- supplier_performance: OTIF rates, reliability scores
+- actual_lead_time: Lead time tracking by product-location
+- usage_analysis: Weekly usage and volume scores
+
+**Adjustments:**
+- demand_adjustment_factor (DAF): Demand adjustments for promotions/events
+- lead_time_adjustment_factor (LTAF): Lead time variance adjustments
+- zone_adjustment_factor (ZAF): Zone-specific adjustments
+
+## YOUR CAPABILITIES:
+1. Query any table using the query_database tool
+2. Calculate DDMRP metrics (buffer penetration, stockout risk, service levels)
+3. Analyze buffer performance and breach patterns
+4. Provide insights on supplier reliability and lead times
+5. Recommend actions based on current inventory positions
+
+## RESPONSE GUIDELINES:
+- Always query real data when asked about current state
+- Calculate metrics accurately (e.g., buffer penetration = NFP / TOR * 100)
+- Provide actionable recommendations based on DDMRP principles
+- Use DDMRP terminology: NFP, TOR, TOY, TOG, ADU, DLT, DAF, LTAF
+- Format responses clearly with numbers and percentages
+
+Output format: ${format === 'chart' ? 'Describe what chart data to display with specific metrics' : 
+              format === 'report' ? 'Provide structured report with data-driven insights' : 
+              'Clear and concise response with specific data points'}
 
 Current timestamp: ${timestamp || new Date().toISOString()}
 `;
+
+    // Define tools for database querying
+    const tools = [
+      {
+        type: "function",
+        function: {
+          name: "query_database",
+          description: "Execute a SELECT query on the Supabase database to retrieve real-time data. Use this to answer questions about current inventory, buffers, performance, etc.",
+          parameters: {
+            type: "object",
+            properties: {
+              table: {
+                type: "string",
+                description: "The table or view to query (e.g., 'inventory_ddmrp_buffers_view', 'buffer_breach_alerts', 'historical_sales_data')"
+              },
+              select: {
+                type: "string",
+                description: "Columns to select (e.g., '*', 'product_id,nfp,tor', 'count(*)')"
+              },
+              filters: {
+                type: "object",
+                description: "Optional filters as key-value pairs (e.g., {severity: 'CRITICAL', acknowledged: false})"
+              },
+              limit: {
+                type: "number",
+                description: "Maximum number of rows to return (default 10, max 100)"
+              }
+            },
+            required: ["table", "select"]
+          }
+        }
+      }
+    ];
 
     // Make the API call to OpenAI
     console.log('Calling OpenAI API...');
@@ -99,13 +171,15 @@ Current timestamp: ${timestamp || new Date().toISOString()}
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o-mini', // Using the fast and efficient model
+          model: 'gpt-4o-mini',
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: prompt }
           ],
-          temperature: 0.7,
-          max_tokens: 1000,
+          tools: tools,
+          tool_choice: 'auto',
+          temperature: 0.3,
+          max_tokens: 1500,
         }),
       });
 
@@ -144,8 +218,95 @@ Current timestamp: ${timestamp || new Date().toISOString()}
         );
       }
 
-      const generatedText = data.choices[0].message.content;
-      console.log('Generated text length:', generatedText.length);
+      const message = data.choices[0].message;
+      
+      // Handle tool calls
+      if (message.tool_calls && message.tool_calls.length > 0) {
+        console.log('Processing tool calls:', message.tool_calls.length);
+        
+        const toolResults = [];
+        for (const toolCall of message.tool_calls) {
+          if (toolCall.function.name === 'query_database') {
+            const args = JSON.parse(toolCall.function.arguments);
+            console.log('Executing database query:', args);
+            
+            try {
+              let query = supabase.from(args.table).select(args.select);
+              
+              // Apply filters
+              if (args.filters) {
+                for (const [key, value] of Object.entries(args.filters)) {
+                  query = query.eq(key, value);
+                }
+              }
+              
+              // Apply limit
+              if (args.limit) {
+                query = query.limit(Math.min(args.limit, 100));
+              } else {
+                query = query.limit(10);
+              }
+              
+              const { data: queryData, error: queryError } = await query;
+              
+              if (queryError) {
+                toolResults.push({
+                  tool_call_id: toolCall.id,
+                  output: JSON.stringify({ error: queryError.message })
+                });
+              } else {
+                toolResults.push({
+                  tool_call_id: toolCall.id,
+                  output: JSON.stringify({ data: queryData, count: queryData?.length || 0 })
+                });
+              }
+            } catch (err) {
+              console.error('Error executing query:', err);
+              toolResults.push({
+                tool_call_id: toolCall.id,
+                output: JSON.stringify({ error: err.message })
+              });
+            }
+          }
+        }
+        
+        // Send tool results back to OpenAI for final response
+        const followUpResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openAIApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: prompt },
+              message,
+              {
+                role: 'tool',
+                tool_call_id: toolResults[0].tool_call_id,
+                content: toolResults[0].output
+              }
+            ],
+            temperature: 0.3,
+            max_tokens: 1500,
+          }),
+        });
+        
+        const followUpData = await followUpResponse.json();
+        const generatedText = followUpData.choices[0].message.content;
+        
+        console.log('Generated text with tool results');
+        return new Response(
+          JSON.stringify({ generatedText }),
+          { headers: corsHeaders }
+        );
+      }
+
+      // No tool calls, return direct response
+      const generatedText = message.content;
+      console.log('Generated text length:', generatedText?.length || 0);
       
       // Return the successful response
       console.log('Returning successful response');
