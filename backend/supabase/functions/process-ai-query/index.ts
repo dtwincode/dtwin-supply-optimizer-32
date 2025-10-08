@@ -244,8 +244,8 @@ Current timestamp: ${timestamp || new Date().toISOString()}
       }
     ];
 
-    // Make the API call to Lovable AI (without forcing tools since we pre-fetched data)
-    console.log('Calling Lovable AI (Gemini 2.5 Flash) with pre-fetched database context');
+    // Make the API call to Lovable AI with database query tools
+    console.log('Calling Lovable AI (Gemini 2.5 Flash) with database access');
     
     try {
       const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -260,6 +260,7 @@ Current timestamp: ${timestamp || new Date().toISOString()}
             { role: 'system', content: systemPrompt },
             { role: 'user', content: prompt }
           ],
+          tools: tools,
           max_tokens: 1500,
         }),
       });
