@@ -195,9 +195,13 @@ Current timestamp: ${timestamp || new Date().toISOString()}
     
     // Detect if query likely needs database access
     const needsData = /\b(how many|count|show|list|what|which|get|fetch|find|display|table|data|inventory|buffer|breach|supplier|lead time|performance|adu|dlt|nfp|tor|toy|tog)\b/i.test(prompt);
-    const toolChoice = needsData ? 'required' : 'auto';
     
-    console.log('Query needs data access:', needsData, '- tool_choice:', toolChoice);
+    // Force tool use for data queries using correct OpenAI format
+    const toolChoice = needsData 
+      ? { type: "function", function: { name: "query_database" } }
+      : 'auto';
+    
+    console.log('Query needs data access:', needsData, '- Forcing tool use:', needsData);
     
     try {
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
