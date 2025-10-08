@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export function RightSideFilters() {
   const { filters, setFilters } = useInventoryFilter();
@@ -39,6 +40,10 @@ export function RightSideFilters() {
       locationId: null,
       channelId: null,
       decouplingOnly: false,
+      bufferStatus: [],
+      planningPriority: null,
+      supplier: null,
+      category: null,
     });
   };
 
@@ -46,8 +51,20 @@ export function RightSideFilters() {
     filters.productId,
     filters.locationId,
     filters.channelId,
-    filters.decouplingOnly
+    filters.decouplingOnly,
+    filters.bufferStatus.length > 0,
+    filters.planningPriority,
+    filters.supplier,
+    filters.category,
   ].filter(Boolean).length;
+
+  const toggleBufferStatus = (status: string) => {
+    const current = filters.bufferStatus;
+    const updated = current.includes(status)
+      ? current.filter((s) => s !== status)
+      : [...current, status];
+    setFilters({ ...filters, bufferStatus: updated });
+  };
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -128,6 +145,47 @@ export function RightSideFilters() {
                   <SelectItem value="RETAIL">Retail</SelectItem>
                   <SelectItem value="WHOLESALE">Wholesale</SelectItem>
                   <SelectItem value="ECOMMERCE">E-Commerce</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Buffer Status Filter (Multi-Select) */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Buffer Status</label>
+              <div className="space-y-2 border rounded-md p-3">
+                {["RED", "YELLOW", "GREEN", "BLUE"].map((status) => (
+                  <div key={status} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`status-${status}`}
+                      checked={filters.bufferStatus.includes(status)}
+                      onCheckedChange={() => toggleBufferStatus(status)}
+                    />
+                    <label
+                      htmlFor={`status-${status}`}
+                      className="text-sm cursor-pointer"
+                    >
+                      {status}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Planning Priority Filter */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Planning Priority</label>
+              <Select
+                value={filters.planningPriority || "all"}
+                onValueChange={(value) => updateFilter('planningPriority', value === "all" ? null : value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="All Priorities" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Priorities</SelectItem>
+                  <SelectItem value="A">A - High Priority</SelectItem>
+                  <SelectItem value="B">B - Medium Priority</SelectItem>
+                  <SelectItem value="C">C - Low Priority</SelectItem>
                 </SelectContent>
               </Select>
             </div>

@@ -164,6 +164,8 @@ export function ExecutionPriorityDashboard() {
                   <TableHead>Product</TableHead>
                   <TableHead>Location</TableHead>
                   <TableHead className="text-right">NFP</TableHead>
+                  <TableHead className="text-right">Rec. Qty</TableHead>
+                  <TableHead className="text-right">Lead Time</TableHead>
                   <TableHead className="text-right">On Hand</TableHead>
                   <TableHead className="text-right">On Order</TableHead>
                   <TableHead className="text-center">Penetration %</TableHead>
@@ -185,6 +187,16 @@ export function ExecutionPriorityDashboard() {
                     <TableCell>{item.location_id}</TableCell>
                     <TableCell className="text-right font-semibold">
                       {item.nfp?.toFixed(0) || "0"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <span className="font-medium text-primary">
+                        {Math.max(0, (item.tog || 0) - (item.nfp || 0)).toFixed(0)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Badge variant="outline" className="text-xs">
+                        {Math.round(((item.yellow_zone || 0) + (item.red_zone || 0)) / (item.nfp > 0 ? item.nfp / 10 : 1))} days
+                      </Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">

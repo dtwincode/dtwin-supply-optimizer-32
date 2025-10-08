@@ -57,6 +57,10 @@ export function FilterChips() {
       locationId: null,
       channelId: null,
       decouplingOnly: false,
+      bufferStatus: [],
+      planningPriority: null,
+      supplier: null,
+      category: null,
     });
   };
 

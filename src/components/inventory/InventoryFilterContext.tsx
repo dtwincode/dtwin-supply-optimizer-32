@@ -5,6 +5,10 @@ interface InventoryFilter {
   locationId: string | null;
   channelId: string | null;
   decouplingOnly: boolean;
+  bufferStatus: string[];
+  planningPriority: string | null;
+  supplier: string | null;
+  category: string | null;
 }
 
 interface InventoryFilterContextType {
@@ -20,6 +24,10 @@ export const InventoryFilterProvider: React.FC<{ children: React.ReactNode }> = 
     locationId: null,
     channelId: null,
     decouplingOnly: false,
+    bufferStatus: [],
+    planningPriority: null,
+    supplier: null,
+    category: null,
   });
 
   return (

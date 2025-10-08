@@ -7,6 +7,7 @@ import { RightSideFilters } from "@/components/inventory/RightSideFilters";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { ExecutionPriorityDashboard } from "@/components/inventory/execution/ExecutionPriorityDashboard";
+import { DDMRPPlannerWorkbench } from "@/components/inventory/workbench/DDMRPPlannerWorkbench";
 import { MaterialSyncAlerts } from "@/components/inventory/alerts/MaterialSyncAlerts";
 import { AlignmentDashboard } from "@/components/inventory/strategic/AlignmentDashboard";
 import { DecouplingPointManager } from "@/components/inventory/strategic/DecouplingPointManager";
@@ -270,7 +271,7 @@ const InventoryNew: React.FC = () => {
               {/* Main Content (3/4 width on large screens) */}
               <div className="lg:col-span-3 space-y-6">
                 <TabsContent value="overview" className="mt-0 space-y-6">
-                  <ExecutionPriorityDashboard />
+                  <DDMRPPlannerWorkbench />
                 </TabsContent>
 
                 <TabsContent value="exceptions" className="mt-0 space-y-6">
