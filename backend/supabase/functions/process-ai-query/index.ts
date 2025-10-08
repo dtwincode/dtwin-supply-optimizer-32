@@ -68,24 +68,78 @@ serve(async (req) => {
     // Initialize Supabase client
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // PRE-FETCH DATABASE CONTEXT if query needs data
+    let databaseContext = '';
+    const needsData = /\b(how many|count|show|list|what|which|get|fetch|find|display|table|data|inventory|buffer|breach|supplier|lead time|performance|adu|dlt|nfp|tor|toy|tog)\b/i.test(prompt);
+    
+    if (needsData) {
+      console.log('Query detected as needing database access - pre-fetching data');
+      
+      try {
+        // Get table count
+        const { data: tables, error: tablesError } = await supabase
+          .from('information_schema.tables')
+          .select('table_name')
+          .eq('table_schema', 'public');
+        
+        if (!tablesError && tables) {
+          databaseContext += `\n\n## CURRENT DATABASE STATE:\n`;
+          databaseContext += `Total tables in database: ${tables.length}\n`;
+          databaseContext += `Table names: ${tables.map(t => t.table_name).join(', ')}\n\n`;
+        }
+        
+        // Get buffer breach count
+        const { count: breachCount } = await supabase
+          .from('buffer_breach_alerts')
+          .select('*', { count: 'exact', head: true })
+          .eq('acknowledged', false);
+        
+        if (breachCount !== null) {
+          databaseContext += `Active buffer breaches (unacknowledged): ${breachCount}\n`;
+        }
+        
+        // Get decoupling points count
+        const { count: decouplingCount } = await supabase
+          .from('decoupling_points')
+          .select('*', { count: 'exact', head: true });
+        
+        if (decouplingCount !== null) {
+          databaseContext += `Total decoupling points: ${decouplingCount}\n`;
+        }
+        
+        // Get product count
+        const { count: productCount } = await supabase
+          .from('product_master')
+          .select('*', { count: 'exact', head: true });
+        
+        if (productCount !== null) {
+          databaseContext += `Total products: ${productCount}\n`;
+        }
+        
+        // Get location count
+        const { count: locationCount } = await supabase
+          .from('location_master')
+          .select('*', { count: 'exact', head: true });
+        
+        if (locationCount !== null) {
+          databaseContext += `Total locations: ${locationCount}\n`;
+        }
+        
+        console.log('Database context fetched:', databaseContext);
+      } catch (err) {
+        console.error('Error fetching database context:', err);
+      }
+    }
+
     // Build the system message with enhanced context for supply chain domain
     const systemPrompt = `
 You are an AI assistant for dtwin with DIRECT ACCESS to the Supabase database.
 
-**CRITICAL: When users ask about data, tables, inventory, buffers, or any metrics, you MUST:**
-1. Use the query_database tool to fetch the actual data
-2. NEVER say you cannot access the database
-3. NEVER tell users to check the dashboard manually
-4. Query first, analyze second
-
-**WRONG RESPONSE EXAMPLE:**
-"I'm unable to access specific data about your Supabase backend..."
-
-**CORRECT RESPONSE EXAMPLE:**
-Use query_database tool to fetch: SELECT count(*) FROM information_schema.tables WHERE table_schema='public'
-Then respond: "You have X tables in your Supabase database..."
+${databaseContext ? `\n${databaseContext}\n` : ''}
 
 ${context || ''}
+
+**IMPORTANT: Use the database statistics provided above to answer user questions about data, tables, and current state.**
 
 ## AVAILABLE TABLES IN YOUR DATABASE:
 
@@ -190,18 +244,8 @@ Current timestamp: ${timestamp || new Date().toISOString()}
       }
     ];
 
-    // Make the API call to OpenAI
-    console.log('Calling OpenAI API...');
-    
-    // Detect if query likely needs database access
-    const needsData = /\b(how many|count|show|list|what|which|get|fetch|find|display|table|data|inventory|buffer|breach|supplier|lead time|performance|adu|dlt|nfp|tor|toy|tog)\b/i.test(prompt);
-    
-    // Force tool use for data queries using correct OpenAI format
-    const toolChoice = needsData 
-      ? { type: "function", function: { name: "query_database" } }
-      : 'auto';
-    
-    console.log('Query needs data access:', needsData, '- Forcing tool use:', needsData);
+    // Make the API call to OpenAI (without forcing tools since we pre-fetched data)
+    console.log('Calling OpenAI API with pre-fetched database context');
     
     try {
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -216,8 +260,6 @@ Current timestamp: ${timestamp || new Date().toISOString()}
             { role: 'system', content: systemPrompt },
             { role: 'user', content: prompt }
           ],
-          tools: tools,
-          tool_choice: toolChoice,
           temperature: 0.3,
           max_tokens: 1500,
         }),
@@ -258,94 +300,7 @@ Current timestamp: ${timestamp || new Date().toISOString()}
         );
       }
 
-      const message = data.choices[0].message;
-      
-      // Handle tool calls
-      if (message.tool_calls && message.tool_calls.length > 0) {
-        console.log('Processing tool calls:', message.tool_calls.length);
-        
-        const toolResults = [];
-        for (const toolCall of message.tool_calls) {
-          if (toolCall.function.name === 'query_database') {
-            const args = JSON.parse(toolCall.function.arguments);
-            console.log('Executing database query:', args);
-            
-            try {
-              let query = supabase.from(args.table).select(args.select);
-              
-              // Apply filters
-              if (args.filters) {
-                for (const [key, value] of Object.entries(args.filters)) {
-                  query = query.eq(key, value);
-                }
-              }
-              
-              // Apply limit
-              if (args.limit) {
-                query = query.limit(Math.min(args.limit, 100));
-              } else {
-                query = query.limit(10);
-              }
-              
-              const { data: queryData, error: queryError } = await query;
-              
-              if (queryError) {
-                toolResults.push({
-                  tool_call_id: toolCall.id,
-                  output: JSON.stringify({ error: queryError.message })
-                });
-              } else {
-                toolResults.push({
-                  tool_call_id: toolCall.id,
-                  output: JSON.stringify({ data: queryData, count: queryData?.length || 0 })
-                });
-              }
-            } catch (err) {
-              console.error('Error executing query:', err);
-              toolResults.push({
-                tool_call_id: toolCall.id,
-                output: JSON.stringify({ error: err.message })
-              });
-            }
-          }
-        }
-        
-        // Send tool results back to OpenAI for final response
-        const followUpResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${openAIApiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'gpt-4o-mini',
-            messages: [
-              { role: 'system', content: systemPrompt },
-              { role: 'user', content: prompt },
-              message,
-              {
-                role: 'tool',
-                tool_call_id: toolResults[0].tool_call_id,
-                content: toolResults[0].output
-              }
-            ],
-            temperature: 0.3,
-            max_tokens: 1500,
-          }),
-        });
-        
-        const followUpData = await followUpResponse.json();
-        const generatedText = followUpData.choices[0].message.content;
-        
-        console.log('Generated text with tool results');
-        return new Response(
-          JSON.stringify({ generatedText }),
-          { headers: corsHeaders }
-        );
-      }
-
-      // No tool calls, return direct response
-      const generatedText = message.content;
+      const generatedText = data.choices[0].message.content;
       console.log('Generated text length:', generatedText?.length || 0);
       
       // Return the successful response
