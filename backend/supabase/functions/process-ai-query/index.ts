@@ -17,7 +17,7 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  console.log('Process AI Query function called');
+  console.log('Process AI Query function called - Using Lovable AI (Gemini)');
   
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
