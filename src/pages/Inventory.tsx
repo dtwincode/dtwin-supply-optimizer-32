@@ -14,6 +14,7 @@ import { AlignmentDashboard } from "@/components/inventory/strategic/AlignmentDa
 import { DecouplingPointManager } from "@/components/inventory/strategic/DecouplingPointManager";
 import { ExceptionManagement } from "@/components/inventory/advanced/ExceptionManagement";
 import { BufferPerformance } from "@/components/inventory/analytics/BufferPerformance";
+import { DDMRPPerformanceDashboard } from "@/components/inventory/analytics/DDMRPPerformanceDashboard";
 import { SKUClassifications } from "@/components/inventory/classification/SKUClassifications";
 import { BufferProfileManagement } from "@/components/inventory/buffer-profiles/BufferProfileManagement";
 import { BreachAlertsDashboard } from "@/components/inventory/alerts/BreachAlertsDashboard";
@@ -158,8 +159,14 @@ const InventoryNew: React.FC = () => {
       case "analytics":
         return (
           <div className="space-y-6">
-            <BufferPerformance />
-            <SKUClassifications />
+            <DDMRPPerformanceDashboard />
+            <div className="mt-8">
+              <h2 className="text-xl font-semibold mb-4">Additional Buffer Insights</h2>
+              <BufferPerformance />
+            </div>
+            <div className="mt-6">
+              <SKUClassifications />
+            </div>
           </div>
         );
       case "advanced":
