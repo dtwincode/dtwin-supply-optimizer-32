@@ -127,6 +127,7 @@ serve(async (req) => {
         }
         
         console.log('Database context fetched:', databaseContext);
+        console.log('Database context length:', databaseContext.length);
       } catch (err) {
         console.error('Error fetching database context:', err);
       }
@@ -134,18 +135,29 @@ serve(async (req) => {
 
     // Build the system message with enhanced context for supply chain domain
     const systemPrompt = `
-You are an AI assistant for dtwin. You have FULL ACCESS to the supply chain database and can answer questions about inventory, products, locations, buffers, and all supply chain metrics.
+You are a supply chain data analyst assistant for dtwin. 
 
-${databaseContext ? `\n## LIVE DATABASE DATA (fetched in real-time):\n${databaseContext}\n` : ''}
+**YOUR CURRENT DATABASE SNAPSHOT:**
+${databaseContext}
 
 ${context || ''}
 
-**CRITICAL INSTRUCTIONS:**
-1. You CAN and MUST answer questions about the database using the live data provided above
-2. NEVER say you "cannot access databases" - you already have the data
-3. When asked about data, refer to the statistics shown in "LIVE DATABASE DATA" section
-4. If asked "can you read the database", answer YES and prove it by citing specific numbers from the data above
-5. Use the query_database tool when you need more detailed data beyond the summary statistics
+**IMPORTANT INSTRUCTIONS:**
+- When users ask "can you read the database" or "do you have database access", answer YES
+- Prove it by citing the specific numbers from YOUR CURRENT DATABASE SNAPSHOT above
+- Example: "Yes! I can see you currently have X products, Y locations, Z active buffer breaches..."
+- NEVER say you "don't have access" - you have live data shown above
+- Answer questions using the snapshot data provided
+- Be specific and cite actual numbers from the snapshot
+
+If users ask for more detailed queries beyond what's in the snapshot, explain they can ask specific questions and you'll fetch that data.
+
+Output format: ${format === 'chart' ? 'Describe what chart data to display with specific metrics' : 
+              format === 'report' ? 'Provide structured report with data-driven insights' : 
+              'Clear and concise response with specific data points from the database snapshot'}
+
+Current timestamp: ${timestamp || new Date().toISOString()}
+`;
 
 ## AVAILABLE TABLES IN YOUR DATABASE:
 
@@ -217,6 +229,9 @@ Output format: ${format === 'chart' ? 'Describe what chart data to display with 
 Current timestamp: ${timestamp || new Date().toISOString()}
 `;
 
+    console.log('Final system prompt length:', systemPrompt.length);
+    console.log('System prompt preview:', systemPrompt.slice(0, 500));
+
     // Define tools for database querying
     const tools = [
       {
@@ -266,7 +281,7 @@ Current timestamp: ${timestamp || new Date().toISOString()}
             { role: 'system', content: systemPrompt },
             { role: 'user', content: prompt }
           ],
-          tools: tools,
+          tools: needsData ? tools : undefined, // Only include tools if data is needed
           max_tokens: 1500,
         }),
       });
