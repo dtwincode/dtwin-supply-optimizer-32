@@ -68,62 +68,61 @@ serve(async (req) => {
     // Initialize Supabase client
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // ALWAYS PRE-FETCH BASIC DATABASE STATS (not just when keywords match)
+    // ALWAYS PRE-FETCH BASIC DATABASE STATS
     let databaseContext = '';
     console.log('Pre-fetching basic database statistics...');
+    console.log('Supabase URL:', supabaseUrl);
+    console.log('Supabase Key exists:', !!supabaseKey);
     
     try {
-        // Get table count
-        const { data: tables, error: tablesError } = await supabase
-          .from('information_schema.tables')
-          .select('table_name')
-          .eq('table_schema', 'public');
+      // Test simple query first
+      const { count: productCount, error: productError } = await supabase
+        .from('product_master')
+        .select('*', { count: 'exact', head: true });
+      
+      console.log('Product count query result:', { productCount, error: productError });
+      
+      if (productError) {
+        console.error('Error fetching product count:', productError);
+        databaseContext = `\nDatabase connection error: ${productError.message}\n`;
+      } else {
+        databaseContext += `\n\n## CURRENT DATABASE STATE:\n`;
+        databaseContext += `Total products: ${productCount || 0}\n`;
         
-        if (!tablesError && tables) {
-          databaseContext += `\n\n## CURRENT DATABASE STATE:\n`;
-          databaseContext += `Total tables in database: ${tables.length}\n`;
-          databaseContext += `Table names: ${tables.map(t => t.table_name).join(', ')}\n\n`;
+        // Get location count
+        const { count: locationCount, error: locationError } = await supabase
+          .from('location_master')
+          .select('*', { count: 'exact', head: true });
+        
+        console.log('Location count query result:', { locationCount, error: locationError });
+        
+        if (!locationError && locationCount !== null) {
+          databaseContext += `Total locations: ${locationCount}\n`;
         }
         
         // Get buffer breach count
-        const { count: breachCount } = await supabase
+        const { count: breachCount, error: breachError } = await supabase
           .from('buffer_breach_alerts')
           .select('*', { count: 'exact', head: true })
           .eq('acknowledged', false);
         
-        if (breachCount !== null) {
+        console.log('Breach count query result:', { breachCount, error: breachError });
+        
+        if (!breachError && breachCount !== null) {
           databaseContext += `Active buffer breaches (unacknowledged): ${breachCount}\n`;
         }
         
         // Get decoupling points count
-        const { count: decouplingCount } = await supabase
+        const { count: decouplingCount, error: decouplingError } = await supabase
           .from('decoupling_points')
           .select('*', { count: 'exact', head: true });
         
-        if (decouplingCount !== null) {
+        console.log('Decoupling count query result:', { decouplingCount, error: decouplingError });
+        
+        if (!decouplingError && decouplingCount !== null) {
           databaseContext += `Total decoupling points: ${decouplingCount}\n`;
         }
-        
-        // Get product count
-        const { count: productCount } = await supabase
-          .from('product_master')
-          .select('*', { count: 'exact', head: true });
-        
-        if (productCount !== null) {
-          databaseContext += `Total products: ${productCount}\n`;
-        }
-        
-        // Get location count
-        const { count: locationCount } = await supabase
-          .from('location_master')
-          .select('*', { count: 'exact', head: true });
-        
-        if (locationCount !== null) {
-          databaseContext += `Total locations: ${locationCount}\n`;
-        }
-        
-        console.log('Database context fetched:', databaseContext);
-        console.log('Database context length:', databaseContext.length);
+      }
       } catch (err) {
         console.error('Error fetching database context:', err);
         databaseContext = '\n## DATABASE ERROR:\nCould not fetch database statistics. Error: ' + err.message + '\n';
