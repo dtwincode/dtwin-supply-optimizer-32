@@ -7,30 +7,22 @@ import { CollapsibleFilters } from "@/components/inventory/CollapsibleFilters";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { InventorySidebar } from "@/components/inventory/navigation/InventorySidebar";
 
-// Strategic Planning
-import { DecouplingPointManager } from "@/components/inventory/strategic/DecouplingPointManager";
-import { SupplyChainNetwork } from "@/components/inventory/strategic/SupplyChainNetwork";
-import { DecouplingRecommendationPanel } from "@/components/inventory/strategic/DecouplingRecommendationPanel";
 import { AlignmentDashboard } from "@/components/inventory/strategic/AlignmentDashboard";
-
-// Bill of Materials
-import { BOMViewer, BOMExplosionTable, ComponentDemandChart } from "@/components/inventory/bom";
-
-// Operational View
-import { BufferStatusGrid } from "@/components/inventory/operational/BufferStatusGrid";
-import { BreachDetectionTrigger } from "@/components/inventory/operational/BreachDetectionTrigger";
+import { DecouplingPointManager } from "@/components/inventory/strategic/DecouplingPointManager";
 import { ExceptionManagement } from "@/components/inventory/advanced/ExceptionManagement";
-
-// Analytics & Insights
 import { BufferPerformance } from "@/components/inventory/analytics/BufferPerformance";
 import { SKUClassifications } from "@/components/inventory/classification/SKUClassifications";
-
-// Buffer Management
-import { BufferProfileManagement } from "@/components/inventory/buffer-profiles";
-import { BreachAlertsDashboard } from "@/components/inventory/alerts";
+import { BufferProfileManagement } from "@/components/inventory/buffer-profiles/BufferProfileManagement";
+import { BreachAlertsDashboard } from "@/components/inventory/alerts/BreachAlertsDashboard";
+import { BOMViewer } from "@/components/inventory/bom/BOMViewer";
+import { BOMExplosionTable } from "@/components/inventory/bom/BOMExplosionTable";
+import { ComponentDemandChart } from "@/components/inventory/bom/ComponentDemandChart";
+import { BufferDashboard } from "@/components/inventory/unified/BufferDashboard";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Shield, BarChart3 } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Configuration
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -108,139 +100,120 @@ const InventoryNew: React.FC = () => {
   };
 
   const renderContent = () => {
-    // Strategic Planning Views
-    if (view === "alignment") return <AlignmentDashboard />;
-    if (view === "decoupling") return <DecouplingPointManager />;
-    if (view === "network") return <SupplyChainNetwork />;
-    if (view === "recommendations") return <DecouplingRecommendationPanel />;
+    const view = searchParams.get("view");
+    const configTab = searchParams.get("tab");
 
-    // Operations Views
-    if (view === "buffer-status") return <BufferStatusGrid />;
-    if (view === "breach-detection") return <BreachDetectionTrigger />;
-    if (view === "exceptions") return <ExceptionManagement />;
-
-    // Analytics Views
-    if (view === "buffer-performance") return <BufferPerformance />;
-    if (view === "sku-classifications") return <SKUClassifications />;
-
-    // Buffer Profiles
-    if (view === "buffer-profiles") return <BufferProfileManagement />;
-
-    // Breach Alerts
-    if (view === "breach-alerts") return <BreachAlertsDashboard />;
-
-    // BOM Views
-    if (view === "bom-viewer") return <BOMViewer />;
-    if (view === "bom-explosion") return <BOMExplosionTable />;
-    if (view === "component-demand") return <ComponentDemandChart />;
-
-    // Configuration
+    // Configuration tabs
     if (view === "config") {
-      return (
-        <div className="space-y-6">
-          {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Calculator className="h-4 w-4" />
-                  Buffer Calculations
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Button 
-                  onClick={handleCalculateBuffers} 
-                  disabled={isCalculating}
-                  className="w-full"
-                >
-                  {isCalculating ? (
-                    <>
-                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                      Calculating...
-                    </>
-                  ) : (
-                    <>
-                      <Calculator className="mr-2 h-4 w-4" />
-                      Calculate Buffers
-                    </>
-                  )}
-                </Button>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Recalculate all buffer zones (TOR, TOY, TOG)
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4" />
-                  Demand Analysis
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Button 
-                  onClick={handleRunAnalysis} 
-                  disabled={isRunningAnalysis}
-                  variant="outline"
-                  className="w-full"
-                >
-                  {isRunningAnalysis ? (
-                    <>
-                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                      Analyzing...
-                    </>
-                  ) : (
-                    <>
-                      <TrendingUp className="mr-2 h-4 w-4" />
-                      Run Analysis
-                    </>
-                  )}
-                </Button>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Analyze demand patterns and variability
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Database className="h-4 w-4" />
-                  System Status
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-1">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">Tables Populated:</span>
-                    <span className="font-medium text-green-600">9/9</span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">Status:</span>
-                    <span className="font-medium text-green-600">Operational</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Configuration Content */}
-          {configTab === "menu" && <MenuMappingTab />}
-          {configTab === "moq" && <MOQDataTab />}
-          {configTab === "storage" && <StorageRequirementsTab />}
-          {configTab === "supplier" && <SupplierPerformanceTab />}
-          {configTab === "costs" && <CostStructureTab />}
-          {configTab === "daf" && <DynamicAdjustmentsTab />}
-          {configTab === "spike" && <SpikeDetectionTab />}
-          {configTab === "recalc" && <BufferRecalculationTab />}
-          {configTab === "analysis" && <AnalysisResultsTab />}
-          {configTab === "system" && <InventoryConfigTab />}
-        </div>
-      );
+      switch (configTab) {
+        case "profiles":
+          return <BufferProfileManagement />;
+        case "daf":
+          return <DynamicAdjustmentsTab />;
+        case "moq":
+          return <MOQDataTab />;
+        case "supplier":
+          return <SupplierPerformanceTab />;
+        case "spike":
+          return <SpikeDetectionTab />;
+        case "analysis":
+          return <AnalysisResultsTab />;
+        case "menu":
+          return <MenuMappingTab />;
+        case "storage":
+          return <StorageRequirementsTab />;
+        case "costs":
+          return <CostStructureTab />;
+        case "recalc":
+          return <BufferRecalculationTab />;
+        default:
+          return <BufferProfileManagement />;
+      }
     }
 
-    return <AlignmentDashboard />;
+    // Main views - Task-based organization
+    switch (view) {
+      case "alerts":
+        return (
+          <div className="space-y-6">
+            <BreachAlertsDashboard />
+            <ExceptionManagement />
+          </div>
+        );
+      case "buffers":
+        return <BufferDashboard mode="status" />;
+      case "decoupling":
+        return (
+          <div className="space-y-6">
+            <DecouplingPointManager />
+            <AlignmentDashboard />
+          </div>
+        );
+      case "analytics":
+        return (
+          <div className="space-y-6">
+            <BufferPerformance />
+            <SKUClassifications />
+          </div>
+        );
+      case "advanced":
+        return (
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Bill of Materials</CardTitle>
+                <CardDescription>Component analysis and demand explosion</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="viewer">
+                  <TabsList>
+                    <TabsTrigger value="viewer">BOM Viewer</TabsTrigger>
+                    <TabsTrigger value="explosion">BOM Explosion</TabsTrigger>
+                    <TabsTrigger value="demand">Component Demand</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="viewer"><BOMViewer /></TabsContent>
+                  <TabsContent value="explosion"><BOMExplosionTable /></TabsContent>
+                  <TabsContent value="demand"><ComponentDemandChart /></TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
+            <SKUClassifications />
+          </div>
+        );
+      default:
+        return (
+          <div className="space-y-6">
+            <BufferDashboard mode="overview" />
+            
+            {/* Quick Actions */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={handleCalculateBuffers}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5" />
+                    Recalculate Buffers
+                  </CardTitle>
+                  <CardDescription>
+                    Update buffer zones based on latest demand patterns
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={handleRunAnalysis}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5" />
+                    Run Demand Analysis
+                  </CardTitle>
+                  <CardDescription>
+                    Analyze demand patterns and variability
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </div>
+          </div>
+        );
+    }
   };
 
   return (

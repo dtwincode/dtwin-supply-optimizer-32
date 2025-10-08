@@ -1,14 +1,46 @@
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useInventoryFilter } from "./InventoryFilterContext";
+import { supabase } from "@/integrations/supabase/client";
 
 export function FilterChips() {
   const { filters, setFilters } = useInventoryFilter();
+  const [productName, setProductName] = useState<string>("");
+  const [locationName, setLocationName] = useState<string>("");
+
+  useEffect(() => {
+    const loadNames = async () => {
+      if (filters.productId) {
+        const { data, error } = await supabase
+          .from('products' as any)
+          .select('name')
+          .eq('product_id', filters.productId)
+          .single();
+        if (!error && data && typeof data === 'object' && 'name' in data) {
+          setProductName((data as any).name);
+        }
+      }
+
+      if (filters.locationId) {
+        const { data, error } = await supabase
+          .from('locations' as any)
+          .select('location_name')
+          .eq('location_id', filters.locationId)
+          .single();
+        if (!error && data && typeof data === 'object' && 'location_name' in data) {
+          setLocationName((data as any).location_name);
+        }
+      }
+    };
+
+    loadNames();
+  }, [filters.productId, filters.locationId]);
 
   const activeFilters = [
-    filters.productId && { key: "productId", label: `Product: ${filters.productId}`, value: filters.productId },
-    filters.locationId && { key: "locationId", label: `Location: ${filters.locationId}`, value: filters.locationId },
+    filters.productId && { key: "productId", label: `Product: ${productName || filters.productId}`, value: filters.productId },
+    filters.locationId && { key: "locationId", label: `Location: ${locationName || filters.locationId}`, value: filters.locationId },
     filters.channelId && { key: "channelId", label: `Channel: ${filters.channelId}`, value: filters.channelId },
     filters.decouplingOnly && { key: "decouplingOnly", label: "Decoupling Points Only", value: true },
   ].filter(Boolean);
