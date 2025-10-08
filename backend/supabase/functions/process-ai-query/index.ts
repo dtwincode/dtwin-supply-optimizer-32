@@ -68,15 +68,11 @@ serve(async (req) => {
     // Initialize Supabase client
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // PRE-FETCH DATABASE CONTEXT if query needs data
+    // ALWAYS PRE-FETCH BASIC DATABASE STATS (not just when keywords match)
     let databaseContext = '';
-    const needsData = /\b(how many|count|show|list|what|which|get|fetch|find|display|table|data|inventory|buffer|breach|supplier|lead time|performance|adu|dlt|nfp|tor|toy|tog)\b/i.test(prompt);
+    console.log('Pre-fetching basic database statistics...');
     
-    if (needsData) {
-      console.log('Query detected as needing database access - pre-fetching data');
-      console.log('Query prompt:', prompt);
-      
-      try {
+    try {
         // Get table count
         const { data: tables, error: tablesError } = await supabase
           .from('information_schema.tables')
@@ -130,31 +126,34 @@ serve(async (req) => {
         console.log('Database context length:', databaseContext.length);
       } catch (err) {
         console.error('Error fetching database context:', err);
+        databaseContext = '\n## DATABASE ERROR:\nCould not fetch database statistics. Error: ' + err.message + '\n';
       }
-    }
+    
+    console.log('=== DATABASE CONTEXT RESULT ===');
+    console.log('Length:', databaseContext.length);
+    console.log('Content:', databaseContext);
+    console.log('===============================');
 
     // Build the system message with enhanced context for supply chain domain
     const systemPrompt = `
-You are a supply chain data analyst assistant for dtwin. 
+You are a supply chain data analyst assistant for dtwin with access to live database statistics.
 
-**YOUR CURRENT DATABASE SNAPSHOT:**
-${databaseContext}
+**=== LIVE DATABASE SNAPSHOT (Fetched just now) ===**
+${databaseContext || 'No database statistics available'}
+**===============================================**
 
 ${context || ''}
 
-**IMPORTANT INSTRUCTIONS:**
-- When users ask "can you read the database" or "do you have database access", answer YES
-- Prove it by citing the specific numbers from YOUR CURRENT DATABASE SNAPSHOT above
-- Example: "Yes! I can see you currently have X products, Y locations, Z active buffer breaches..."
-- NEVER say you "don't have access" - you have live data shown above
-- Answer questions using the snapshot data provided
-- Be specific and cite actual numbers from the snapshot
-
-If users ask for more detailed queries beyond what's in the snapshot, explain they can ask specific questions and you'll fetch that data.
+**CRITICAL INSTRUCTIONS:**
+1. You HAVE database access - the snapshot above shows REAL data from the production database
+2. When users ask "how many products/locations" or "can you read the database", cite EXACT numbers from the snapshot above
+3. Example: "Yes! Your database currently has [X] total products across [Y] locations, with [Z] active buffer breaches"
+4. ALWAYS use specific numbers from the snapshot - NEVER say "I don't have access"
+5. If the snapshot is empty or shows an error, explain that there was a connection issue
 
 Output format: ${format === 'chart' ? 'Describe what chart data to display with specific metrics' : 
               format === 'report' ? 'Provide structured report with data-driven insights' : 
-              'Clear and concise response with specific data points from the database snapshot'}
+              'Clear and concise response with specific data points from the live database snapshot'}
 
 Current timestamp: ${timestamp || new Date().toISOString()}
 `;
@@ -281,7 +280,7 @@ Current timestamp: ${timestamp || new Date().toISOString()}
             { role: 'system', content: systemPrompt },
             { role: 'user', content: prompt }
           ],
-          tools: needsData ? tools : undefined, // Only include tools if data is needed
+          tools: undefined, // Tools disabled for now - using pre-fetched data only
           max_tokens: 1500,
         }),
       });
