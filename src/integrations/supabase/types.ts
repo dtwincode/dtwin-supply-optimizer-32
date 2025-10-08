@@ -71,6 +71,69 @@ export type Database = {
         }
         Relationships: []
       }
+      buffer_breach_alerts: {
+        Row: {
+          acknowledged: boolean | null
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          breach_type: string
+          buffer_penetration_pct: number | null
+          created_at: string | null
+          detected_at: string
+          id: string
+          location_id: string
+          nfp: number
+          notes: string | null
+          product_id: string
+          product_name: string | null
+          recommended_qty: number | null
+          severity: string
+          sku: string | null
+          tor: number
+          toy: number | null
+        }
+        Insert: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          breach_type: string
+          buffer_penetration_pct?: number | null
+          created_at?: string | null
+          detected_at?: string
+          id?: string
+          location_id: string
+          nfp: number
+          notes?: string | null
+          product_id: string
+          product_name?: string | null
+          recommended_qty?: number | null
+          severity: string
+          sku?: string | null
+          tor: number
+          toy?: number | null
+        }
+        Update: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          breach_type?: string
+          buffer_penetration_pct?: number | null
+          created_at?: string | null
+          detected_at?: string
+          id?: string
+          location_id?: string
+          nfp?: number
+          notes?: string | null
+          product_id?: string
+          product_name?: string | null
+          recommended_qty?: number | null
+          severity?: string
+          sku?: string | null
+          tor?: number
+          toy?: number | null
+        }
+        Relationships: []
+      }
       buffer_breach_events: {
         Row: {
           acknowledged: boolean | null
@@ -2647,6 +2710,14 @@ export type Database = {
       detect_buffer_breaches: {
         Args: Record<PropertyKey, never>
         Returns: number
+      }
+      detect_buffer_breaches_v2: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          breaches_detected: number
+          critical_count: number
+          high_count: number
+        }[]
       }
       detect_lead_time_variance: {
         Args: Record<PropertyKey, never>

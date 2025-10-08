@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ExecutionPriorityDashboard } from "@/components/inventory/execution/ExecutionPriorityDashboard";
 import { DDMRPPlannerWorkbench } from "@/components/inventory/workbench/DDMRPPlannerWorkbench";
 import { MaterialSyncAlerts } from "@/components/inventory/alerts/MaterialSyncAlerts";
+import { BufferBreachAlerts } from "@/components/inventory/alerts/BufferBreachAlerts";
 import { AlignmentDashboard } from "@/components/inventory/strategic/AlignmentDashboard";
 import { DecouplingPointManager } from "@/components/inventory/strategic/DecouplingPointManager";
 import { ExceptionManagement } from "@/components/inventory/advanced/ExceptionManagement";
@@ -275,7 +276,7 @@ const InventoryNew: React.FC = () => {
                 </TabsContent>
 
                 <TabsContent value="exceptions" className="mt-0 space-y-6">
-                  <BreachAlertsDashboard />
+                  <BufferBreachAlerts />
                   <MaterialSyncAlerts />
                   <ExceptionManagement />
                 </TabsContent>
