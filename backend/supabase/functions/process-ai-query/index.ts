@@ -74,6 +74,7 @@ serve(async (req) => {
     
     if (needsData) {
       console.log('Query detected as needing database access - pre-fetching data');
+      console.log('Query prompt:', prompt);
       
       try {
         // Get table count
@@ -133,13 +134,18 @@ serve(async (req) => {
 
     // Build the system message with enhanced context for supply chain domain
     const systemPrompt = `
-You are an AI assistant for dtwin with DIRECT ACCESS to the Supabase database.
+You are an AI assistant for dtwin. You have FULL ACCESS to the supply chain database and can answer questions about inventory, products, locations, buffers, and all supply chain metrics.
 
-${databaseContext ? `\n${databaseContext}\n` : ''}
+${databaseContext ? `\n## LIVE DATABASE DATA (fetched in real-time):\n${databaseContext}\n` : ''}
 
 ${context || ''}
 
-**IMPORTANT: Use the database statistics provided above to answer user questions about data, tables, and current state.**
+**CRITICAL INSTRUCTIONS:**
+1. You CAN and MUST answer questions about the database using the live data provided above
+2. NEVER say you "cannot access databases" - you already have the data
+3. When asked about data, refer to the statistics shown in "LIVE DATABASE DATA" section
+4. If asked "can you read the database", answer YES and prove it by citing specific numbers from the data above
+5. Use the query_database tool when you need more detailed data beyond the summary statistics
 
 ## AVAILABLE TABLES IN YOUR DATABASE:
 
@@ -306,6 +312,7 @@ Current timestamp: ${timestamp || new Date().toISOString()}
 
       const data = await response.json();
       console.log('Lovable AI response received');
+      console.log('Response data:', JSON.stringify(data).slice(0, 500));
       
       if (!data.choices || data.choices.length === 0) {
         console.error('Unexpected Lovable AI response format:', JSON.stringify(data).slice(0, 200));
@@ -316,7 +323,7 @@ Current timestamp: ${timestamp || new Date().toISOString()}
       }
 
       const generatedText = data.choices[0].message.content;
-      console.log('Generated text length:', generatedText?.length || 0);
+      console.log('Generated text:', generatedText?.slice(0, 200));
       
       // Return the successful response
       console.log('Returning successful response');
