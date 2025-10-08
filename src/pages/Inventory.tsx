@@ -220,12 +220,12 @@ const InventoryNew: React.FC = () => {
     <DashboardLayout>
       <InventoryFilterProvider>
         <SidebarProvider defaultOpen={true}>
-          <div className="flex w-full">
+          <div className="flex w-full -mx-6 -my-6">
             <InventorySidebar />
             
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col min-w-0">
               {/* Header */}
-              <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-6">
+              <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-6 shrink-0">
                 <SidebarTrigger />
                 <div className="flex-1">
                   <h1 className="text-lg font-semibold">
@@ -235,12 +235,10 @@ const InventoryNew: React.FC = () => {
               </header>
 
               {/* Main Content */}
-              <main className="flex-1 space-y-6">
-                <div className="p-6 space-y-6">
-                  <CollapsibleFilters />
-                  <div className="animate-fade-in">
-                    {renderContent()}
-                  </div>
+              <main className="flex-1 p-6 space-y-6 overflow-auto">
+                <CollapsibleFilters />
+                <div className="animate-fade-in">
+                  {renderContent()}
                 </div>
               </main>
             </div>
