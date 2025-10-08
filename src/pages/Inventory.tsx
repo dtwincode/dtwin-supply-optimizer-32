@@ -13,11 +13,9 @@ import { BufferBreachAlerts } from "@/components/inventory/alerts/BufferBreachAl
 import { AlignmentDashboard } from "@/components/inventory/strategic/AlignmentDashboard";
 import { DecouplingPointManager } from "@/components/inventory/strategic/DecouplingPointManager";
 import { ExceptionManagement } from "@/components/inventory/advanced/ExceptionManagement";
-import { BufferPerformance } from "@/components/inventory/analytics/BufferPerformance";
 import { DDMRPPerformanceDashboard } from "@/components/inventory/analytics/DDMRPPerformanceDashboard";
 import { SKUClassifications } from "@/components/inventory/classification/SKUClassifications";
 import { BufferProfileManagement } from "@/components/inventory/buffer-profiles/BufferProfileManagement";
-import { BreachAlertsDashboard } from "@/components/inventory/alerts/BreachAlertsDashboard";
 import { BOMViewer } from "@/components/inventory/bom/BOMViewer";
 import { BOMExplosionTable } from "@/components/inventory/bom/BOMExplosionTable";
 import { ComponentDemandChart } from "@/components/inventory/bom/ComponentDemandChart";
@@ -143,7 +141,7 @@ const InventoryNew: React.FC = () => {
       case "alerts":
         return (
           <div className="space-y-6">
-            <BreachAlertsDashboard />
+            <BufferBreachAlerts />
             <ExceptionManagement />
           </div>
         );
@@ -160,10 +158,6 @@ const InventoryNew: React.FC = () => {
         return (
           <div className="space-y-6">
             <DDMRPPerformanceDashboard />
-            <div className="mt-8">
-              <h2 className="text-xl font-semibold mb-4">Additional Buffer Insights</h2>
-              <BufferPerformance />
-            </div>
             <div className="mt-6">
               <SKUClassifications />
             </div>
@@ -298,7 +292,7 @@ const InventoryNew: React.FC = () => {
                 </TabsContent>
 
                 <TabsContent value="analytics" className="mt-0 space-y-6">
-                  <BufferPerformance />
+                  <DDMRPPerformanceDashboard />
                   <SKUClassifications />
                   <Card>
                     <CardHeader>
