@@ -41,7 +41,7 @@ const InventoryNew: React.FC = () => {
   const { t } = useI18n();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
-  const view = searchParams.get("view") || "alignment";
+  const view = searchParams.get("view");
   const configTab = searchParams.get("tab") || "menu";
   const [isCalculating, setIsCalculating] = useState(false);
   const [isRunningAnalysis, setIsRunningAnalysis] = useState(false);
