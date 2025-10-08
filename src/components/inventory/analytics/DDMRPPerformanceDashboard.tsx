@@ -1,22 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrendingUp, TrendingDown, Target, AlertTriangle, Activity, Package, Clock, CheckCircle2, XCircle } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Target, AlertTriangle, Activity, Package, Clock, CheckCircle2, TrendingUp } from 'lucide-react';
 import { useInventoryFilter } from '../InventoryFilterContext';
+import { useInventoryData } from '@/hooks/useInventoryData';
+import { UnifiedMetricCard } from '../shared/UnifiedMetricCard';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart } from 'recharts';
-import { toast } from 'sonner';
-
-interface PerformanceMetrics {
-  serviceLevel: number;
-  fillRate: number;
-  inventoryTurnover: number;
-  daysOfInventory: number;
-  stockoutFrequency: number;
-  bufferHealthScore: number;
-  otifCompliance: number;
-  avgBufferPenetration: number;
-}
 
 interface TrendData {
   period: string;
@@ -25,156 +14,49 @@ interface TrendData {
   stockouts: number;
 }
 
+/**
+ * DDMRP Performance Dashboard - 8 SAP/Microsoft-standard KPIs
+ * Refactored to use unified data service and calculations
+ */
 export const DDMRPPerformanceDashboard: React.FC = () => {
   const { filters } = useInventoryFilter();
-  const [metrics, setMetrics] = useState<PerformanceMetrics | null>(null);
-  const [trends, setTrends] = useState<TrendData[]>([]);
-  const [breachAnalysis, setBreachAnalysis] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { metrics, statusCounts, breaches, isLoading, filteredData } = useInventoryData(filters);
 
-  useEffect(() => {
-    loadPerformanceData();
-  }, [filters]);
-
-  const loadPerformanceData = async () => {
-    setIsLoading(true);
-    try {
-      // Fetch inventory planning data
-      const { data: inventoryData, error: invError } = await supabase
-        .from('inventory_planning_view')
-        .select('*');
-
-      if (invError) throw invError;
-
-      // Apply filters
-      let filtered = inventoryData || [];
-      if (filters.productId) {
-        filtered = filtered.filter(item => item.product_id === filters.productId);
-      }
-      if (filters.locationId) {
-        filtered = filtered.filter(item => item.location_id === filters.locationId);
-      }
-      if (filters.decouplingOnly) {
-        filtered = filtered.filter(item => item.decoupling_point);
-      }
-
-      // Fetch breach alerts for stockout frequency
-      const { data: breachData, error: breachError } = await supabase
-        .from('buffer_breach_alerts')
-        .select('*')
-        .gte('detected_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
-
-      if (breachError) throw breachError;
-
-      // Calculate Performance Metrics
-      const totalItems = filtered.length;
-      
-      // 1. Service Level % (items not in RED zone)
-      const redItems = filtered.filter(item => item.buffer_status === 'RED').length;
-      const serviceLevel = totalItems > 0 ? ((totalItems - redItems) / totalItems) * 100 : 0;
-
-      // 2. Fill Rate % (NFP/TOG ratio)
-      const fillRate = totalItems > 0 
-        ? filtered.reduce((sum, item) => {
-            const rate = (item.tog && item.nfp && item.tog > 0) ? Math.min((item.nfp / item.tog) * 100, 100) : 0;
-            return sum + rate;
-          }, 0) / totalItems
-        : 0;
-
-      // 3. Inventory Turnover (Annual)
-      const inventoryTurnover = totalItems > 0
-        ? filtered.reduce((sum, item) => {
-            const turnover = (item.on_hand && item.average_daily_usage && item.on_hand > 0 && item.average_daily_usage > 0)
-              ? (item.average_daily_usage * 365) / item.on_hand
-              : 0;
-            return sum + turnover;
-          }, 0) / totalItems
-        : 0;
-
-      // 4. Days of Inventory (DOI)
-      const daysOfInventory = totalItems > 0
-        ? filtered.reduce((sum, item) => {
-            const doi = (item.average_daily_usage && item.on_hand && item.average_daily_usage > 0)
-              ? item.on_hand / item.average_daily_usage
-              : 0;
-            return sum + doi;
-          }, 0) / totalItems
-        : 0;
-
-      // 5. Stockout Frequency (breaches per item per month)
-      const stockoutFrequency = totalItems > 0
-        ? (breachData?.length || 0) / totalItems
-        : 0;
-
-      // 6. Buffer Health Score (composite: 40% service level + 30% fill rate + 30% low stockouts)
-      const stockoutScore = Math.max(0, 100 - (stockoutFrequency * 20));
-      const bufferHealthScore = (serviceLevel * 0.4) + (fillRate * 0.3) + (stockoutScore * 0.3);
-
-      // 7. OTIF Compliance (from supplier performance - simplified to 95%)
-      const otifCompliance = 95.0;
-
-      // 8. Avg Buffer Penetration
-      const avgBufferPenetration = totalItems > 0
-        ? filtered.reduce((sum, item) => {
-            const penetration = (item.tor && item.nfp && item.tor > 0) ? (item.nfp / item.tor) * 100 : 0;
-            return sum + penetration;
-          }, 0) / totalItems
-        : 0;
-
-      setMetrics({
-        serviceLevel,
-        fillRate,
-        inventoryTurnover,
-        daysOfInventory,
-        stockoutFrequency,
-        bufferHealthScore,
-        otifCompliance,
-        avgBufferPenetration
+  // Generate trend data (simulated for now - would come from time-series data)
+  const generateTrendData = (): TrendData[] => {
+    const trendData: TrendData[] = [];
+    for (let i = 11; i >= 0; i--) {
+      const variation = (Math.random() - 0.5) * 5;
+      trendData.push({
+        period: `P${12 - i}`,
+        serviceLevel: Math.max(0, Math.min(100, metrics.serviceLevel + variation)),
+        fillRate: Math.max(0, Math.min(100, metrics.fillRate + variation)),
+        stockouts: Math.floor(Math.random() * 10)
       });
-
-      // Generate trend data (last 12 periods)
-      const trendData: TrendData[] = [];
-      for (let i = 11; i >= 0; i--) {
-        const baseServiceLevel = serviceLevel;
-        const variation = (Math.random() - 0.5) * 5;
-        trendData.push({
-          period: `P${12 - i}`,
-          serviceLevel: Math.max(0, Math.min(100, baseServiceLevel + variation)),
-          fillRate: Math.max(0, Math.min(100, fillRate + variation)),
-          stockouts: Math.floor(Math.random() * 10)
-        });
-      }
-      setTrends(trendData);
-
-      // Breach analysis by severity
-      const breachBySeverity = [
-        { severity: 'CRITICAL', count: breachData?.filter(b => b.severity === 'CRITICAL').length || 0, color: 'hsl(0 84% 60%)' },
-        { severity: 'HIGH', count: breachData?.filter(b => b.severity === 'HIGH').length || 0, color: 'hsl(48 96% 53%)' },
-        { severity: 'MEDIUM', count: breachData?.filter(b => b.severity === 'MEDIUM').length || 0, color: 'hsl(142 71% 45%)' }
-      ];
-      setBreachAnalysis(breachBySeverity);
-
-    } catch (error) {
-      console.error('Error loading performance data:', error);
-      toast.error('Failed to load performance metrics');
-    } finally {
-      setIsLoading(false);
     }
+    return trendData;
   };
 
-  const getStatusColor = (value: number, goodThreshold: number, warningThreshold: number) => {
-    if (value >= goodThreshold) return 'hsl(142 71% 45%)';
-    if (value >= warningThreshold) return 'hsl(48 96% 53%)';
-    return 'hsl(0 84% 60%)';
-  };
+  // Breach analysis by severity
+  const breachBySeverity = [
+    { 
+      severity: 'CRITICAL', 
+      count: breaches.filter(b => b.severity === 'CRITICAL').length, 
+      color: 'hsl(0 84% 60%)' 
+    },
+    { 
+      severity: 'HIGH', 
+      count: breaches.filter(b => b.severity === 'HIGH').length, 
+      color: 'hsl(48 96% 53%)' 
+    },
+    { 
+      severity: 'MEDIUM', 
+      count: breaches.filter(b => b.severity === 'MEDIUM').length, 
+      color: 'hsl(142 71% 45%)' 
+    }
+  ];
 
-  const getStatusIcon = (value: number, goodThreshold: number, warningThreshold: number) => {
-    if (value >= goodThreshold) return <CheckCircle2 className="h-5 w-5" style={{ color: 'hsl(142 71% 45%)' }} />;
-    if (value >= warningThreshold) return <AlertTriangle className="h-5 w-5" style={{ color: 'hsl(48 96% 53%)' }} />;
-    return <XCircle className="h-5 w-5" style={{ color: 'hsl(0 84% 60%)' }} />;
-  };
-
-  if (isLoading || !metrics) {
+  if (isLoading) {
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -188,128 +70,96 @@ export const DDMRPPerformanceDashboard: React.FC = () => {
     );
   }
 
+  const trends = generateTrendData();
+
   return (
     <div className="space-y-6">
-      {/* Core DDMRP KPIs */}
+      {/* Core 8 DDMRP KPIs - Using Unified Metric Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Service Level */}
-        <Card className="p-6 hover:shadow-lg transition-shadow">
-          <div className="flex items-start justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium text-muted-foreground">Service Level</span>
-            </div>
-            {getStatusIcon(metrics.serviceLevel, 95, 90)}
-          </div>
-          <div className="text-3xl font-bold mb-1" style={{ color: getStatusColor(metrics.serviceLevel, 95, 90) }}>
-            {metrics.serviceLevel.toFixed(1)}%
-          </div>
-          <div className="text-xs text-muted-foreground">Target: ≥95%</div>
-        </Card>
+        <UnifiedMetricCard
+          title="Service Level %"
+          value={`${metrics.serviceLevel.toFixed(1)}%`}
+          icon={Target}
+          subtitle="Items not in RED zone"
+          benchmark="Target: ≥95%"
+          status={
+            metrics.serviceLevel >= 95 ? "healthy" : 
+            metrics.serviceLevel >= 90 ? "warning" : "critical"
+          }
+        />
 
-        {/* Fill Rate */}
-        <Card className="p-6 hover:shadow-lg transition-shadow">
-          <div className="flex items-start justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <Activity className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium text-muted-foreground">Fill Rate</span>
-            </div>
-            {getStatusIcon(metrics.fillRate, 90, 80)}
-          </div>
-          <div className="text-3xl font-bold mb-1" style={{ color: getStatusColor(metrics.fillRate, 90, 80) }}>
-            {metrics.fillRate.toFixed(1)}%
-          </div>
-          <div className="text-xs text-muted-foreground">Target: ≥90%</div>
-        </Card>
+        <UnifiedMetricCard
+          title="Fill Rate %"
+          value={`${metrics.fillRate.toFixed(1)}%`}
+          icon={Activity}
+          subtitle="Average NFP/TOG ratio"
+          benchmark="Target: ≥90%"
+          status={
+            metrics.fillRate >= 90 ? "healthy" : 
+            metrics.fillRate >= 80 ? "warning" : "critical"
+          }
+        />
 
-        {/* Inventory Turnover */}
-        <Card className="p-6 hover:shadow-lg transition-shadow">
-          <div className="flex items-start justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium text-muted-foreground">Inventory Turnover</span>
-            </div>
-            {getStatusIcon(metrics.inventoryTurnover, 4, 2)}
-          </div>
-          <div className="text-3xl font-bold mb-1" style={{ color: getStatusColor(metrics.inventoryTurnover, 4, 2) }}>
-            {metrics.inventoryTurnover.toFixed(1)}x
-          </div>
-          <div className="text-xs text-muted-foreground">Per year</div>
-        </Card>
+        <UnifiedMetricCard
+          title="Inventory Turnover"
+          value={`${metrics.inventoryTurnover.toFixed(1)}x`}
+          icon={TrendingUp}
+          subtitle="Times per year"
+          benchmark="Target: ≥4x"
+          status={
+            metrics.inventoryTurnover >= 4 ? "healthy" : 
+            metrics.inventoryTurnover >= 2 ? "warning" : "critical"
+          }
+        />
 
-        {/* Days of Inventory */}
-        <Card className="p-6 hover:shadow-lg transition-shadow">
-          <div className="flex items-start justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium text-muted-foreground">Days of Inventory</span>
-            </div>
-            {getStatusIcon(100 - (metrics.daysOfInventory / 2), 85, 70)}
-          </div>
-          <div className="text-3xl font-bold mb-1">
-            {metrics.daysOfInventory.toFixed(0)}
-          </div>
-          <div className="text-xs text-muted-foreground">Days on hand</div>
-        </Card>
+        <UnifiedMetricCard
+          title="Days of Inventory"
+          value={metrics.daysOfInventory.toFixed(0)}
+          icon={Clock}
+          subtitle="Days on hand"
+          status="neutral"
+        />
 
-        {/* Stockout Frequency */}
-        <Card className="p-6 hover:shadow-lg transition-shadow">
-          <div className="flex items-start justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium text-muted-foreground">Stockout Frequency</span>
-            </div>
-            {getStatusIcon(100 - (metrics.stockoutFrequency * 20), 90, 70)}
-          </div>
-          <div className="text-3xl font-bold mb-1" style={{ color: getStatusColor(100 - (metrics.stockoutFrequency * 20), 90, 70) }}>
-            {metrics.stockoutFrequency.toFixed(2)}
-          </div>
-          <div className="text-xs text-muted-foreground">Breaches per item/month</div>
-        </Card>
+        <UnifiedMetricCard
+          title="Stockout Frequency"
+          value={metrics.stockoutFrequency.toFixed(2)}
+          icon={AlertTriangle}
+          subtitle="Breaches per item/month"
+          status={
+            metrics.stockoutFrequency < 0.1 ? "healthy" : 
+            metrics.stockoutFrequency < 0.2 ? "warning" : "critical"
+          }
+        />
 
-        {/* Buffer Health Score */}
-        <Card className="p-6 hover:shadow-lg transition-shadow border-2 border-primary/20">
-          <div className="flex items-start justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <Package className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium text-muted-foreground">Buffer Health Score</span>
-            </div>
-            {getStatusIcon(metrics.bufferHealthScore, 85, 70)}
-          </div>
-          <div className="text-3xl font-bold mb-1" style={{ color: getStatusColor(metrics.bufferHealthScore, 85, 70) }}>
-            {metrics.bufferHealthScore.toFixed(0)}
-          </div>
-          <div className="text-xs text-muted-foreground">Composite DDMRP score</div>
-        </Card>
+        <UnifiedMetricCard
+          title="Buffer Health Score"
+          value={metrics.bufferHealthScore.toFixed(0)}
+          icon={Package}
+          subtitle="Composite DDMRP score"
+          benchmark="Target: ≥85"
+          status={
+            metrics.bufferHealthScore >= 85 ? "healthy" : 
+            metrics.bufferHealthScore >= 70 ? "warning" : "critical"
+          }
+          className="border-2 border-primary/20"
+        />
 
-        {/* OTIF Compliance */}
-        <Card className="p-6 hover:shadow-lg transition-shadow">
-          <div className="flex items-start justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium text-muted-foreground">OTIF Compliance</span>
-            </div>
-            {getStatusIcon(metrics.otifCompliance, 95, 90)}
-          </div>
-          <div className="text-3xl font-bold mb-1" style={{ color: getStatusColor(metrics.otifCompliance, 95, 90) }}>
-            {metrics.otifCompliance.toFixed(1)}%
-          </div>
-          <div className="text-xs text-muted-foreground">On-Time In-Full</div>
-        </Card>
+        <UnifiedMetricCard
+          title="OTIF Compliance"
+          value={`${metrics.otifCompliance.toFixed(1)}%`}
+          icon={CheckCircle2}
+          subtitle="On-Time In-Full"
+          benchmark="Target: ≥95%"
+          status="neutral"
+        />
 
-        {/* Buffer Penetration */}
-        <Card className="p-6 hover:shadow-lg transition-shadow">
-          <div className="flex items-start justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <Activity className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium text-muted-foreground">Avg Buffer Penetration</span>
-            </div>
-          </div>
-          <div className="text-3xl font-bold mb-1">
-            {metrics.avgBufferPenetration.toFixed(0)}%
-          </div>
-          <div className="text-xs text-muted-foreground">NFP/TOR ratio</div>
-        </Card>
+        <UnifiedMetricCard
+          title="Avg Buffer Penetration"
+          value={`${metrics.avgBufferPenetration.toFixed(0)}%`}
+          icon={Activity}
+          subtitle="NFP/TOR ratio"
+          status="neutral"
+        />
       </div>
 
       {/* Trend Analysis */}
@@ -317,6 +167,7 @@ export const DDMRPPerformanceDashboard: React.FC = () => {
         <TabsList>
           <TabsTrigger value="trends">Performance Trends</TabsTrigger>
           <TabsTrigger value="breaches">Breach Analysis</TabsTrigger>
+          <TabsTrigger value="summary">Summary</TabsTrigger>
         </TabsList>
 
         <TabsContent value="trends" className="space-y-4">
@@ -365,7 +216,7 @@ export const DDMRPPerformanceDashboard: React.FC = () => {
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">Buffer Breach Analysis by Severity (Last 30 Days)</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {breachAnalysis.map((item, index) => (
+              {breachBySeverity.map((item, index) => (
                 <Card key={index} className="p-4 border-l-4" style={{ borderLeftColor: item.color }}>
                   <div className="flex items-center justify-between">
                     <div>
@@ -404,6 +255,36 @@ export const DDMRPPerformanceDashboard: React.FC = () => {
                 </div>
               </div>
             </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="summary" className="space-y-4">
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold mb-4">Buffer Status Summary</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="p-4 border-l-4 border-l-red-500 bg-red-50 dark:bg-red-950/20 rounded">
+                <div className="text-sm text-muted-foreground">RED Zone</div>
+                <div className="text-3xl font-bold text-red-600">{statusCounts.red}</div>
+              </div>
+              <div className="p-4 border-l-4 border-l-yellow-500 bg-yellow-50 dark:bg-yellow-950/20 rounded">
+                <div className="text-sm text-muted-foreground">YELLOW Zone</div>
+                <div className="text-3xl font-bold text-yellow-600">{statusCounts.yellow}</div>
+              </div>
+              <div className="p-4 border-l-4 border-l-green-500 bg-green-50 dark:bg-green-950/20 rounded">
+                <div className="text-sm text-muted-foreground">GREEN Zone</div>
+                <div className="text-3xl font-bold text-green-600">{statusCounts.green}</div>
+              </div>
+              <div className="p-4 border-l-4 border-l-blue-500 bg-blue-50 dark:bg-blue-950/20 rounded">
+                <div className="text-sm text-muted-foreground">BLUE Zone</div>
+                <div className="text-3xl font-bold text-blue-600">{statusCounts.blue}</div>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold mb-4">Total Inventory Items</h3>
+            <div className="text-5xl font-bold text-primary">{filteredData.length}</div>
+            <p className="text-sm text-muted-foreground mt-2">Items in current view</p>
           </Card>
         </TabsContent>
       </Tabs>
