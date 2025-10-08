@@ -3,10 +3,10 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { useSearchParams } from "react-router-dom";
 import { useI18n } from "@/contexts/I18nContext";
 import { InventoryFilterProvider } from "@/components/inventory/InventoryFilterContext";
-import { CollapsibleFilters } from "@/components/inventory/CollapsibleFilters";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { InventorySidebar } from "@/components/inventory/navigation/InventorySidebar";
+import { RightSideFilters } from "@/components/inventory/RightSideFilters";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+import { ActionPriorityDashboard } from "@/components/inventory/ActionPriorityDashboard";
 import { AlignmentDashboard } from "@/components/inventory/strategic/AlignmentDashboard";
 import { DecouplingPointManager } from "@/components/inventory/strategic/DecouplingPointManager";
 import { ExceptionManagement } from "@/components/inventory/advanced/ExceptionManagement";
@@ -18,8 +18,7 @@ import { BOMViewer } from "@/components/inventory/bom/BOMViewer";
 import { BOMExplosionTable } from "@/components/inventory/bom/BOMExplosionTable";
 import { ComponentDemandChart } from "@/components/inventory/bom/ComponentDemandChart";
 import { BufferDashboard } from "@/components/inventory/unified/BufferDashboard";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, BarChart3 } from "lucide-react";
+import { LayoutDashboard, AlertTriangle, Shield, BarChart3, Settings } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Configuration
@@ -40,11 +39,15 @@ import { SpikeDetectionTab, BufferRecalculationTab } from "@/components/ddmrp-co
 const InventoryNew: React.FC = () => {
   const { t } = useI18n();
   const { toast } = useToast();
-  const [searchParams] = useSearchParams();
-  const view = searchParams.get("view");
-  const configTab = searchParams.get("tab") || "menu";
+  const [searchParams, setSearchParams] = useSearchParams();
+  const view = searchParams.get("view") || "overview";
+  const configTab = searchParams.get("tab") || "profiles";
   const [isCalculating, setIsCalculating] = useState(false);
   const [isRunningAnalysis, setIsRunningAnalysis] = useState(false);
+
+  const handleTabChange = (value: string) => {
+    setSearchParams({ view: value });
+  };
 
   const handleCalculateBuffers = async () => {
     setIsCalculating(true);
@@ -219,31 +222,110 @@ const InventoryNew: React.FC = () => {
   return (
     <DashboardLayout>
       <InventoryFilterProvider>
-        <SidebarProvider defaultOpen={true}>
-          <div className="flex w-full -mx-6 -my-6">
-            <InventorySidebar />
-            
-            <div className="flex-1 flex flex-col min-w-0">
-              {/* Header */}
-              <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-6 shrink-0">
-                <SidebarTrigger />
-                <div className="flex-1">
-                  <h1 className="text-lg font-semibold">
-                    {t("inventory.inventoryManagement") || "DDMRP Inventory Management"}
-                  </h1>
-                </div>
-              </header>
-
-              {/* Main Content */}
-              <main className="flex-1 p-6 space-y-6 overflow-auto">
-                <CollapsibleFilters />
-                <div className="animate-fade-in">
-                  {renderContent()}
-                </div>
-              </main>
+        <div className="space-y-6">
+          {/* Page Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">
+                {t("inventory.inventoryManagement") || "DDMRP Inventory Management"}
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                World-class demand-driven material requirements planning
+              </p>
             </div>
           </div>
-        </SidebarProvider>
+
+          {/* Main Navigation Tabs */}
+          <Tabs value={view} onValueChange={handleTabChange} className="space-y-6">
+            <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
+              <TabsTrigger value="overview" className="flex items-center gap-2">
+                <LayoutDashboard className="h-4 w-4" />
+                <span className="hidden sm:inline">Overview</span>
+              </TabsTrigger>
+              <TabsTrigger value="exceptions" className="flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4" />
+                <span className="hidden sm:inline">Exceptions</span>
+              </TabsTrigger>
+              <TabsTrigger value="buffers" className="flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                <span className="hidden sm:inline">Buffers</span>
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="flex items-center gap-2">
+                <BarChart3 className="h-4 w-4" />
+                <span className="hidden sm:inline">Analytics</span>
+              </TabsTrigger>
+              <TabsTrigger value="configuration" className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                <span className="hidden sm:inline">Configuration</span>
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Content Area with Right-Side Filters */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              {/* Main Content (3/4 width on large screens) */}
+              <div className="lg:col-span-3 space-y-6">
+                <TabsContent value="overview" className="mt-0 space-y-6">
+                  <ActionPriorityDashboard />
+                </TabsContent>
+
+                <TabsContent value="exceptions" className="mt-0 space-y-6">
+                  <BreachAlertsDashboard />
+                  <ExceptionManagement />
+                </TabsContent>
+
+                <TabsContent value="buffers" className="mt-0 space-y-6">
+                  <BufferDashboard mode="status" />
+                  <DecouplingPointManager />
+                </TabsContent>
+
+                <TabsContent value="analytics" className="mt-0 space-y-6">
+                  <BufferPerformance />
+                  <SKUClassifications />
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Bill of Materials</CardTitle>
+                      <CardDescription>Component analysis and demand explosion</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Tabs defaultValue="viewer">
+                        <TabsList>
+                          <TabsTrigger value="viewer">BOM Viewer</TabsTrigger>
+                          <TabsTrigger value="explosion">BOM Explosion</TabsTrigger>
+                          <TabsTrigger value="demand">Component Demand</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="viewer"><BOMViewer /></TabsContent>
+                        <TabsContent value="explosion"><BOMExplosionTable /></TabsContent>
+                        <TabsContent value="demand"><ComponentDemandChart /></TabsContent>
+                      </Tabs>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="configuration" className="mt-0 space-y-6">
+                  <Tabs value={configTab} onValueChange={(value) => setSearchParams({ view: 'configuration', tab: value })}>
+                    <TabsList className="grid grid-cols-2 md:grid-cols-5">
+                      <TabsTrigger value="profiles">Buffer Profiles</TabsTrigger>
+                      <TabsTrigger value="daf">Adjustments</TabsTrigger>
+                      <TabsTrigger value="moq">MOQ</TabsTrigger>
+                      <TabsTrigger value="supplier">Suppliers</TabsTrigger>
+                      <TabsTrigger value="recalc">Auto-Recalc</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="profiles"><BufferProfileManagement /></TabsContent>
+                    <TabsContent value="daf"><DynamicAdjustmentsTab /></TabsContent>
+                    <TabsContent value="moq"><MOQDataTab /></TabsContent>
+                    <TabsContent value="supplier"><SupplierPerformanceTab /></TabsContent>
+                    <TabsContent value="recalc"><BufferRecalculationTab /></TabsContent>
+                  </Tabs>
+                </TabsContent>
+              </div>
+
+              {/* Right-Side Filters (1/4 width on large screens) */}
+              <div className="lg:col-span-1">
+                <RightSideFilters />
+              </div>
+            </div>
+          </Tabs>
+        </div>
       </InventoryFilterProvider>
     </DashboardLayout>
   );
