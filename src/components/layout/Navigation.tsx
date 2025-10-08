@@ -35,20 +35,6 @@ const navigationItems = [
     badgeColor: "bg-green-600",
   },
   {
-    name: "Execution Priority",
-    icon: AlertTriangle,
-    href: "/execution-priority",
-    badge: "New",
-    badgeColor: "bg-blue-600",
-  },
-  {
-    name: "Material Sync",
-    icon: Clock,
-    href: "/material-sync",
-    badge: "New",
-    badgeColor: "bg-blue-600",
-  },
-  {
     name: "navigation.supplyPlanning",
     icon: ShoppingCart,
     href: "/supply-planning",
