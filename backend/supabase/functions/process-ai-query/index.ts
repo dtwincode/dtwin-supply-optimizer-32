@@ -70,60 +70,85 @@ serve(async (req) => {
 
     // Build the system message with enhanced context for supply chain domain
     const systemPrompt = `
-You are an AI assistant for dtwin, a Demand Driven Material Requirements Planning (DDMRP) platform.
-Your role is to help planners analyze supply chain performance, inventory buffers, and operational metrics.
+You are an AI assistant for dtwin with DIRECT ACCESS to the Supabase database.
 
-**IMPORTANT: YOU CAN QUERY THE SUPABASE DATABASE DIRECTLY using the query_database tool.**
-When users ask questions about current data, inventory levels, buffer status, or any metrics, you MUST use the query_database tool to fetch real-time data.
+**CRITICAL: When users ask about data, tables, inventory, buffers, or any metrics, you MUST:**
+1. Use the query_database tool to fetch the actual data
+2. NEVER say you cannot access the database
+3. NEVER tell users to check the dashboard manually
+4. Query first, analyze second
+
+**WRONG RESPONSE EXAMPLE:**
+"I'm unable to access specific data about your Supabase backend..."
+
+**CORRECT RESPONSE EXAMPLE:**
+Use query_database tool to fetch: SELECT count(*) FROM information_schema.tables WHERE table_schema='public'
+Then respond: "You have X tables in your Supabase database..."
 
 ${context || ''}
 
-## DDMRP SYSTEM OVERVIEW
-This system implements full DDMRP methodology with the following core tables:
+## AVAILABLE TABLES IN YOUR DATABASE:
 
-**Buffer Management:**
-- inventory_ddmrp_buffers_view: Red/Yellow/Green zones, TOR/TOY/TOG thresholds, ADU, DLT
-- buffer_profile_master: Buffer profile configurations (LT factors, variability factors)
-- buffer_breach_alerts: Active breaches (BELOW_TOR, BELOW_TOY severity levels)
-- buffer_recalculation_history: Historical buffer adjustments
-
-**Demand & Planning:**
-- historical_sales_data: Sales transactions and demand history
-- demand_history_analysis: CV, variability scores, mean/std dev
-- product_classification: ABC-XYZ classification, variability levels
+**Buffer Management Tables:**
+- inventory_ddmrp_buffers_view: Red/Yellow/Green zones, TOR/TOY/TOG, ADU, DLT
+- buffer_profile_master: Buffer configurations
+- buffer_breach_alerts: Active breaches
+- buffer_recalculation_history: Buffer adjustment history
 - decoupling_points: Strategic inventory positions
 
-**Inventory & Execution:**
-- inventory_net_flow_view: NFP (Net Flow Position), on-hand, on-order, qualified demand
-- replenishment_orders: Recommended purchase orders based on buffer penetration
+**Demand & Planning Tables:**
+- historical_sales_data: Sales transactions
+- demand_history_analysis: CV, variability, mean/std dev
+- product_classification: ABC-XYZ classification
+- product_master: Product catalog
+- location_master: Location data
+
+**Inventory & Execution Tables:**
+- inventory_net_flow_view: NFP, on-hand, on-order
+- replenishment_orders: Purchase order recommendations
 - open_pos: Open purchase orders
 - open_so: Open sales orders
+- onhand_latest_view: Current inventory levels
 
-**Performance & Analytics:**
-- supplier_performance: OTIF rates, reliability scores
-- actual_lead_time: Lead time tracking by product-location
-- usage_analysis: Weekly usage and volume scores
+**Performance & Analytics Tables:**
+- supplier_performance: OTIF rates, reliability
+- actual_lead_time: Lead time tracking
+- usage_analysis: Volume and usage patterns
+- performance_tracking: KPI tracking
 
-**Adjustments:**
-- demand_adjustment_factor (DAF): Demand adjustments for promotions/events
-- lead_time_adjustment_factor (LTAF): Lead time variance adjustments
-- zone_adjustment_factor (ZAF): Zone-specific adjustments
+**Adjustment Factor Tables:**
+- demand_adjustment_factor (DAF): Demand adjustments
+- lead_time_adjustment_factor (LTAF): Lead time adjustments
+- zone_adjustment_factor (ZAF): Zone adjustments
 
-## YOUR CAPABILITIES - YOU MUST USE THE TOOLS PROVIDED:
-1. **USE query_database tool** to fetch any real-time data from tables
-2. Calculate DDMRP metrics based on queried data (buffer penetration, stockout risk, service levels)
-3. Analyze buffer performance and breach patterns from actual database records
-4. Provide insights on supplier reliability and lead times using real data
-5. Recommend actions based on current inventory positions in the database
+## QUERY EXAMPLES:
+- Count tables: SELECT count(*) FROM information_schema.tables WHERE table_schema='public'
+- List tables: SELECT table_name FROM information_schema.tables WHERE table_schema='public'
+- Buffer breaches: SELECT * FROM buffer_breach_alerts WHERE acknowledged=false
+- Inventory levels: SELECT product_id, nfp, tor, toy FROM inventory_ddmrp_buffers_view LIMIT 10
 
-## CRITICAL RESPONSE GUIDELINES:
-- **ALWAYS use the query_database tool when asked about data, tables, or current state**
-- DO NOT say you cannot access the database - you CAN via the query_database tool
-- Query first, then analyze the results
-- Calculate metrics accurately (e.g., buffer penetration = NFP / TOR * 100)
-- Provide actionable recommendations based on DDMRP principles
-- Use DDMRP terminology: NFP, TOR, TOY, TOG, ADU, DLT, DAF, LTAF
-- Format responses clearly with numbers and percentages from actual data
+## HOW TO USE query_database TOOL:
+The tool accepts these parameters:
+- table: Table/view name (e.g., 'buffer_breach_alerts', 'information_schema.tables')
+- select: Columns to return (e.g., '*', 'product_id,nfp,tor', 'count(*)')
+- filters: Optional filters as object (e.g., {severity: 'CRITICAL', acknowledged: false})
+- limit: Max rows (default 10, max 100)
+
+## YOU MUST:
+- Use query_database for ANY question about data, tables, counts, or current state
+- Query information_schema.tables to see all available tables
+- Fetch actual data before providing answers
+- Calculate metrics from real database records
+- Provide data-driven insights with specific numbers
+
+## DDMRP TERMINOLOGY:
+- NFP: Net Flow Position (on_hand + on_order - qualified_demand)
+- TOR: Top of Red (minimum buffer level)
+- TOY: Top of Yellow (reorder point)
+- TOG: Top of Green (maximum buffer level)
+- ADU: Average Daily Usage
+- DLT: Decoupled Lead Time
+- DAF/LTAF/ZAF: Dynamic adjustment factors
 
 Output format: ${format === 'chart' ? 'Describe what chart data to display with specific metrics' : 
               format === 'report' ? 'Provide structured report with data-driven insights' : 
@@ -168,6 +193,12 @@ Current timestamp: ${timestamp || new Date().toISOString()}
     // Make the API call to OpenAI
     console.log('Calling OpenAI API...');
     
+    // Detect if query likely needs database access
+    const needsData = /\b(how many|count|show|list|what|which|get|fetch|find|display|table|data|inventory|buffer|breach|supplier|lead time|performance|adu|dlt|nfp|tor|toy|tog)\b/i.test(prompt);
+    const toolChoice = needsData ? 'required' : 'auto';
+    
+    console.log('Query needs data access:', needsData, '- tool_choice:', toolChoice);
+    
     try {
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -182,7 +213,7 @@ Current timestamp: ${timestamp || new Date().toISOString()}
             { role: 'user', content: prompt }
           ],
           tools: tools,
-          tool_choice: 'auto',
+          tool_choice: toolChoice,
           temperature: 0.3,
           max_tokens: 1500,
         }),
