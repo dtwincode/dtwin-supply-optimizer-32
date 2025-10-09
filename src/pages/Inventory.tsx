@@ -14,6 +14,7 @@ import { ExceptionManagement } from "@/components/inventory/advanced/ExceptionMa
 import { DDMRPPerformanceDashboard } from "@/components/inventory/analytics/DDMRPPerformanceDashboard";
 import { ADUAnalysis } from "@/components/inventory/analytics/ADUAnalysis";
 import { OnOrderAnalysis } from "@/components/inventory/analytics/OnOrderAnalysis";
+import { DailySalesAnalysis } from "@/components/inventory/analytics/DailySalesAnalysis";
 import { SKUClassifications } from "@/components/inventory/classification/SKUClassifications";
 import { BufferProfileManagement } from "@/components/inventory/buffer-profiles/BufferProfileManagement";
 import { BOMViewer } from "@/components/inventory/bom/BOMViewer";
@@ -177,6 +178,7 @@ const InventoryNew: React.FC = () => {
                   <TabsTrigger value="performance">Performance</TabsTrigger>
                   <TabsTrigger value="adu">ADU Analysis</TabsTrigger>
                   <TabsTrigger value="onorder">On-Order</TabsTrigger>
+                  <TabsTrigger value="sales">Daily Sales</TabsTrigger>
                 </TabsList>
                 <TabsContent value="performance">
                   <DDMRPPerformanceDashboard />
@@ -186,6 +188,9 @@ const InventoryNew: React.FC = () => {
                 </TabsContent>
                 <TabsContent value="onorder">
                   <OnOrderAnalysis />
+                </TabsContent>
+                <TabsContent value="sales">
+                  <DailySalesAnalysis />
                 </TabsContent>
               </Tabs>
                   <SKUClassifications />
