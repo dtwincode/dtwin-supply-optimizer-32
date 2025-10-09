@@ -79,20 +79,57 @@ ${databaseContext}
 
 ${context || ''}
 
+## AVAILABLE TABLES YOU CAN QUERY:
+- location_master: Locations (columns: location_id, region, channel_id, location_type, restaurant_number)
+- product_master: Products (columns: product_id, sku, name, category, subcategory)
+- inventory_ddmrp_buffers_view: Buffer zones and inventory levels (columns: product_id, location_id, nfp, tor, toy, tog)
+- buffer_breach_alerts: Active breaches (columns: product_id, location_id, breach_type, severity, detected_at)
+- decoupling_points: Strategic inventory positions (columns: product_id, location_id, is_strategic, designation_reason)
+- historical_sales_data: Sales history (columns: product_id, location_id, sales_date, quantity_sold, revenue)
+
 CRITICAL INSTRUCTIONS:
-1. You HAVE database access - the snapshot above shows REAL data
-2. When asked "how many products/locations", cite EXACT numbers from the snapshot
-3. Example: "Your database has [X] products across [Y] locations, with [Z] active breaches"
-4. NEVER say "I don't have access" - you DO have access via the snapshot above
-5. If snapshot is empty, explain there was a connection issue
+1. You HAVE database access - use the query_database tool to fetch specific data
+2. When asked to "list locations" → Call query_database(table='location_master', select='*', limit=10)
+3. When asked to "show products" → Call query_database(table='product_master', select='*', limit=10)
+4. Always cite EXACT data from queries - show specific IDs, names, values
+5. Format results in a clear, readable way (tables, bullets, or formatted text)
 
 Output format: ${format === 'chart' ? 'Chart description with metrics' : 
                 format === 'report' ? 'Structured report with data' : 
-                'Clear response with specific numbers'}
+                'Clear response with specific data'}
 
 Current time: ${timestamp || new Date().toISOString()}`;
 
-    console.log('🤖 Calling Gemini 2.5 Flash...');
+    console.log('🤖 Calling Gemini 2.5 Flash with database tools...');
+    
+    // Define database query tool for AI
+    const tools = [
+      {
+        type: "function",
+        function: {
+          name: "query_database",
+          description: "Query the Supabase database to get specific data like products, locations, inventory levels, etc.",
+          parameters: {
+            type: "object",
+            properties: {
+              table: {
+                type: "string",
+                description: "Table to query (e.g., 'location_master', 'product_master', 'inventory_ddmrp_buffers_view')"
+              },
+              select: {
+                type: "string",
+                description: "Columns to select (e.g., '*', 'location_id,region,channel_id')"
+              },
+              limit: {
+                type: "number",
+                description: "Maximum rows to return (default 10, max 50)"
+              }
+            },
+            required: ["table", "select"]
+          }
+        }
+      }
+    ];
     
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -106,6 +143,7 @@ Current time: ${timestamp || new Date().toISOString()}`;
           { role: 'system', content: systemPrompt },
           { role: 'user', content: prompt }
         ],
+        tools: tools,
         max_tokens: 1500,
       }),
     });
@@ -146,8 +184,68 @@ Current time: ${timestamp || new Date().toISOString()}`;
       );
     }
 
-    const generatedText = data.choices[0].message.content;
-    console.log('📤 Returning response, length:', generatedText?.length);
+    const choice = data.choices[0];
+    
+    // Check if AI wants to call database tool
+    if (choice.message.tool_calls && choice.message.tool_calls.length > 0) {
+      console.log('🔧 AI requested database query');
+      const toolCall = choice.message.tool_calls[0];
+      const args = JSON.parse(toolCall.function.arguments);
+      
+      console.log('📊 Querying table:', args.table, 'with limit:', args.limit || 10);
+      
+      // Execute database query
+      const { data: queryData, error } = await supabase
+        .from(args.table)
+        .select(args.select)
+        .limit(args.limit || 10);
+      
+      if (error) {
+        console.error('❌ Database query error:', error);
+        return new Response(
+          JSON.stringify({ generatedText: `Database error: ${error.message}` }),
+          { headers: corsHeaders }
+        );
+      }
+      
+      console.log('✅ Query returned', queryData?.length, 'rows');
+      
+      // Call AI again with query results
+      const followupResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${lovableApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: prompt },
+            choice.message,
+            {
+              role: 'tool',
+              tool_call_id: toolCall.id,
+              content: JSON.stringify(queryData)
+            }
+          ],
+          max_tokens: 1500,
+        }),
+      });
+      
+      const followupData = await followupResponse.json();
+      const generatedText = followupData.choices[0].message.content;
+      console.log('📤 Returning response with query results');
+      
+      return new Response(
+        JSON.stringify({ generatedText }),
+        { headers: corsHeaders }
+      );
+    }
+
+    // No tool call - return direct response
+    const generatedText = choice.message.content;
+    console.log('📤 Returning direct response, length:', generatedText?.length);
     
     return new Response(
       JSON.stringify({ generatedText }),
