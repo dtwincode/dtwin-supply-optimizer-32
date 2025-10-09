@@ -12,6 +12,7 @@ import { BufferBreachAlerts } from "@/components/inventory/alerts/BufferBreachAl
 import { DecouplingPointManager } from "@/components/inventory/strategic/DecouplingPointManager";
 import { ExceptionManagement } from "@/components/inventory/advanced/ExceptionManagement";
 import { DDMRPPerformanceDashboard } from "@/components/inventory/analytics/DDMRPPerformanceDashboard";
+import { ADUAnalysis } from "@/components/inventory/analytics/ADUAnalysis";
 import { SKUClassifications } from "@/components/inventory/classification/SKUClassifications";
 import { BufferProfileManagement } from "@/components/inventory/buffer-profiles/BufferProfileManagement";
 import { BOMViewer } from "@/components/inventory/bom/BOMViewer";
@@ -170,7 +171,18 @@ const InventoryNew: React.FC = () => {
                 </TabsContent>
 
                 <TabsContent value="analytics" className="mt-0 space-y-6">
+              <Tabs defaultValue="performance" className="space-y-4">
+                <TabsList>
+                  <TabsTrigger value="performance">Performance</TabsTrigger>
+                  <TabsTrigger value="adu">ADU Analysis</TabsTrigger>
+                </TabsList>
+                <TabsContent value="performance">
                   <DDMRPPerformanceDashboard />
+                </TabsContent>
+                <TabsContent value="adu">
+                  <ADUAnalysis />
+                </TabsContent>
+              </Tabs>
                   <SKUClassifications />
                   <Card>
                     <CardHeader>
