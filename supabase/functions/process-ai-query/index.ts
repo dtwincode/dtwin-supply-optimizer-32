@@ -87,41 +87,77 @@ ${context || ''}
 - decoupling_points: Strategic positions (product_id, location_id, is_strategic, designation_reason)
 - historical_sales_data: Sales (product_id, location_id, sales_date, quantity_sold, revenue)
 
-## OUTPUT FORMAT: ${format}
+## CRITICAL: OUTPUT FORMAT IS "${format}"
 
 ${format === 'chart' ? `
-CHART FORMAT: Return JSON like this:
+YOU MUST RETURN ONLY THIS EXACT JSON STRUCTURE (NO OTHER TEXT):
 {
   "type": "chart",
   "chartData": {
-    "type": "bar"|"line"|"pie",
-    "title": "Chart Title",
-    "data": [{"name": "Item 1", "value": 100}, ...],
+    "type": "bar",
+    "title": "Your Chart Title Here",
+    "data": [
+      {"name": "Category 1", "value": 150},
+      {"name": "Category 2", "value": 230},
+      {"name": "Category 3", "value": 180}
+    ],
+    "xKey": "name",
+    "yKey": "value"
+  }
+}
+
+EXAMPLE: If user asks "Show breaches by severity as chart", query buffer_breach_alerts, then return:
+{
+  "type": "chart",
+  "chartData": {
+    "type": "pie",
+    "title": "Buffer Breaches by Severity",
+    "data": [
+      {"name": "CRITICAL", "value": 25},
+      {"name": "HIGH", "value": 45},
+      {"name": "MEDIUM", "value": 30}
+    ],
     "xKey": "name",
     "yKey": "value"
   }
 }
 ` : format === 'report' ? `
-REPORT FORMAT: Return JSON like this:
+YOU MUST RETURN ONLY THIS EXACT JSON STRUCTURE (NO OTHER TEXT):
 {
   "type": "report",
   "reportData": {
-    "title": "Report Title",
-    "summary": "Executive summary",
+    "title": "Your Report Title",
+    "summary": "Brief executive summary here",
     "sections": [
-      {"title": "Section 1", "type": "text", "content": "Text content"},
-      {"title": "Metrics", "type": "metrics", "content": {"metrics": [{"label": "Metric", "value": "100", "trend": "up", "change": "+5%"}]}},
-      {"title": "Data Table", "type": "table", "content": {"headers": ["Col1", "Col2"], "rows": [["A", "B"]]}},
-      {"title": "Key Insights", "type": "insights", "content": {"items": ["Insight 1", "Insight 2"]}}
+      {
+        "title": "Key Metrics",
+        "type": "metrics",
+        "content": {
+          "metrics": [
+            {"label": "Total Items", "value": "150", "trend": "up", "change": "+12%"}
+          ]
+        }
+      },
+      {
+        "title": "Details",
+        "type": "table",
+        "content": {
+          "headers": ["Column 1", "Column 2"],
+          "rows": [["Data 1", "Data 2"]]
+        }
+      }
     ]
   }
 }
-` : ''}
+` : `
+For TEXT format: Provide clear, conversational responses with real data from database queries.
+`}
 
-RULES:
-1. Use query_database tool to fetch data when needed
-2. If format is "chart" or "report", return ONLY valid JSON (no markdown, no explanation)
-3. For "text" format, provide clear narrative responses
+MANDATORY RULES:
+1. Use query_database tool to fetch real data from tables
+2. For "chart" or "report" format: Return ONLY valid JSON, no markdown code blocks, no explanations
+3. Chart types: "bar", "line", or "pie"
+4. Always use real data from queries, never fake data
 
 Current time: ${timestamp || new Date().toISOString()}`;
 
