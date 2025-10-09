@@ -13,6 +13,7 @@ import { DecouplingPointManager } from "@/components/inventory/strategic/Decoupl
 import { ExceptionManagement } from "@/components/inventory/advanced/ExceptionManagement";
 import { DDMRPPerformanceDashboard } from "@/components/inventory/analytics/DDMRPPerformanceDashboard";
 import { ADUAnalysis } from "@/components/inventory/analytics/ADUAnalysis";
+import { OnOrderAnalysis } from "@/components/inventory/analytics/OnOrderAnalysis";
 import { SKUClassifications } from "@/components/inventory/classification/SKUClassifications";
 import { BufferProfileManagement } from "@/components/inventory/buffer-profiles/BufferProfileManagement";
 import { BOMViewer } from "@/components/inventory/bom/BOMViewer";
@@ -175,12 +176,16 @@ const InventoryNew: React.FC = () => {
                 <TabsList>
                   <TabsTrigger value="performance">Performance</TabsTrigger>
                   <TabsTrigger value="adu">ADU Analysis</TabsTrigger>
+                  <TabsTrigger value="onorder">On-Order</TabsTrigger>
                 </TabsList>
                 <TabsContent value="performance">
                   <DDMRPPerformanceDashboard />
                 </TabsContent>
                 <TabsContent value="adu">
                   <ADUAnalysis />
+                </TabsContent>
+                <TabsContent value="onorder">
+                  <OnOrderAnalysis />
                 </TabsContent>
               </Tabs>
                   <SKUClassifications />
