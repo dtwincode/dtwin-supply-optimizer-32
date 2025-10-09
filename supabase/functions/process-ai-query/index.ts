@@ -73,30 +73,33 @@ serve(async (req) => {
       databaseContext += 'Database connection error\n';
     }
 
-    const systemPrompt = `You are a supply chain data analyst for dtwin with live database access.
+    const systemPrompt = `You are a supply chain data analyst for dtwin with DIRECT database query access.
 
 ${databaseContext}
 
 ${context || ''}
 
-## AVAILABLE TABLES YOU CAN QUERY:
-- location_master: Locations (columns: location_id, region, channel_id, location_type, restaurant_number)
-- product_master: Products (columns: product_id, sku, name, category, subcategory)
-- inventory_ddmrp_buffers_view: Buffer zones and inventory levels (columns: product_id, location_id, nfp, tor, toy, tog)
-- buffer_breach_alerts: Active breaches (columns: product_id, location_id, breach_type, severity, detected_at)
-- decoupling_points: Strategic inventory positions (columns: product_id, location_id, is_strategic, designation_reason)
-- historical_sales_data: Sales history (columns: product_id, location_id, sales_date, quantity_sold, revenue)
+## CRITICAL: YOU MUST USE query_database TOOL
 
-CRITICAL INSTRUCTIONS:
-1. You HAVE database access - use the query_database tool to fetch specific data
-2. When asked to "list locations" → Call query_database(table='location_master', select='*', limit=10)
-3. When asked to "show products" → Call query_database(table='product_master', select='*', limit=10)
-4. Always cite EXACT data from queries - show specific IDs, names, values
-5. Format results in a clear, readable way (tables, bullets, or formatted text)
+You have access to these tables:
+- location_master: Locations (location_id, region, channel_id, location_type, restaurant_number)
+- product_master: Products (product_id, sku, name, category, subcategory)
+- inventory_ddmrp_buffers_view: Buffer zones (product_id, location_id, nfp, tor, toy, tog, adu)
+- buffer_breach_alerts: Breaches (product_id, location_id, breach_type, severity, detected_at, acknowledged)
+- decoupling_points: Strategic positions (product_id, location_id, is_strategic, designation_reason)
+- historical_sales_data: Sales (product_id, location_id, sales_date, quantity_sold, revenue)
 
-Output format: ${format === 'chart' ? 'Chart description with metrics' : 
-                format === 'report' ? 'Structured report with data' : 
-                'Clear response with specific data'}
+MANDATORY TOOL USE RULES:
+1. When user asks to "list" or "show" data → YOU MUST call query_database tool
+2. When user wants specific records → YOU MUST call query_database tool
+3. Examples:
+   - "list locations" → query_database(table="location_master", select="*", limit=10)
+   - "show products" → query_database(table="product_master", select="*", limit=10)
+   - "buffer breaches" → query_database(table="buffer_breach_alerts", select="*", limit=10)
+
+DO NOT just describe what you CAN do. DO IT by calling the tool immediately.
+
+Output format: ${format === 'chart' ? 'Chart with metrics' : format === 'report' ? 'Structured report' : 'Clear formatted data'}
 
 Current time: ${timestamp || new Date().toISOString()}`;
 
@@ -176,6 +179,7 @@ Current time: ${timestamp || new Date().toISOString()}`;
 
     const data = await response.json();
     console.log('✅ Gemini response received');
+    console.log('Response structure:', JSON.stringify(data).slice(0, 500));
     
     if (!data.choices || data.choices.length === 0) {
       return new Response(
@@ -185,14 +189,19 @@ Current time: ${timestamp || new Date().toISOString()}`;
     }
 
     const choice = data.choices[0];
+    console.log('Choice finish_reason:', choice.finish_reason);
+    console.log('Has tool_calls?', !!choice.message.tool_calls);
     
     // Check if AI wants to call database tool
     if (choice.message.tool_calls && choice.message.tool_calls.length > 0) {
-      console.log('🔧 AI requested database query');
+      console.log('🔧 AI requested', choice.message.tool_calls.length, 'tool call(s)');
       const toolCall = choice.message.tool_calls[0];
+      console.log('Tool:', toolCall.function.name);
+      console.log('Arguments:', toolCall.function.arguments);
+      
       const args = JSON.parse(toolCall.function.arguments);
       
-      console.log('📊 Querying table:', args.table, 'with limit:', args.limit || 10);
+      console.log('📊 Querying table:', args.table, 'select:', args.select, 'limit:', args.limit || 10);
       
       // Execute database query
       const { data: queryData, error } = await supabase
@@ -209,6 +218,7 @@ Current time: ${timestamp || new Date().toISOString()}`;
       }
       
       console.log('✅ Query returned', queryData?.length, 'rows');
+      console.log('Sample data:', JSON.stringify(queryData?.[0]));
       
       // Call AI again with query results
       const followupResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -235,7 +245,7 @@ Current time: ${timestamp || new Date().toISOString()}`;
       
       const followupData = await followupResponse.json();
       const generatedText = followupData.choices[0].message.content;
-      console.log('📤 Returning response with query results');
+      console.log('📤 Returning response with query results, length:', generatedText?.length);
       
       return new Response(
         JSON.stringify({ generatedText }),
@@ -244,6 +254,7 @@ Current time: ${timestamp || new Date().toISOString()}`;
     }
 
     // No tool call - return direct response
+    console.log('ℹ️ No tool calls made by AI');
     const generatedText = choice.message.content;
     console.log('📤 Returning direct response, length:', generatedText?.length);
     
