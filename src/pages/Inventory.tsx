@@ -15,6 +15,7 @@ import { DDMRPPerformanceDashboard } from "@/components/inventory/analytics/DDMR
 import { ADUAnalysis } from "@/components/inventory/analytics/ADUAnalysis";
 import { OnOrderAnalysis } from "@/components/inventory/analytics/OnOrderAnalysis";
 import { DailySalesAnalysis } from "@/components/inventory/analytics/DailySalesAnalysis";
+import { NetFlowAnalysis } from "@/components/inventory/analytics/NetFlowAnalysis";
 import { SKUClassifications } from "@/components/inventory/classification/SKUClassifications";
 import { BufferProfileManagement } from "@/components/inventory/buffer-profiles/BufferProfileManagement";
 import { BOMViewer } from "@/components/inventory/bom/BOMViewer";
@@ -177,6 +178,7 @@ const InventoryNew: React.FC = () => {
                 <TabsList>
                   <TabsTrigger value="performance">Performance</TabsTrigger>
                   <TabsTrigger value="adu">ADU Analysis</TabsTrigger>
+                  <TabsTrigger value="nfp">Net Flow</TabsTrigger>
                   <TabsTrigger value="onorder">On-Order</TabsTrigger>
                   <TabsTrigger value="sales">Daily Sales</TabsTrigger>
                 </TabsList>
@@ -185,6 +187,9 @@ const InventoryNew: React.FC = () => {
                 </TabsContent>
                 <TabsContent value="adu">
                   <ADUAnalysis />
+                </TabsContent>
+                <TabsContent value="nfp">
+                  <NetFlowAnalysis />
                 </TabsContent>
                 <TabsContent value="onorder">
                   <OnOrderAnalysis />
