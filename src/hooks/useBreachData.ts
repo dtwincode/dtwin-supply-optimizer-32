@@ -12,9 +12,9 @@ export function useBreachData() {
       try {
         setIsLoading(true);
         const { data, error } = await supabase
-          .from('buffer_breach_events' as any)
+          .from('buffer_breach_alerts')
           .select('*')
-          .order('detected_ts', { ascending: false })
+          .order('detected_at', { ascending: false })
           .limit(100);
 
         if (error) {
@@ -36,9 +36,9 @@ export function useBreachData() {
 
     // Subscribe to real-time updates
     const subscription = supabase
-      .channel('buffer_breach_events')
+      .channel('buffer_breach_alerts')
       .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'buffer_breach_events' },
+        { event: '*', schema: 'public', table: 'buffer_breach_alerts' },
         () => loadBreaches()
       )
       .subscribe();
