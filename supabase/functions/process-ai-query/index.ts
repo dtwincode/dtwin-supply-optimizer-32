@@ -79,9 +79,7 @@ ${databaseContext}
 
 ${context || ''}
 
-## CRITICAL: YOU MUST USE query_database TOOL
-
-You have access to these tables:
+## AVAILABLE TABLES:
 - location_master: Locations (location_id, region, channel_id, location_type, restaurant_number)
 - product_master: Products (product_id, sku, name, category, subcategory)
 - inventory_ddmrp_buffers_view: Buffer zones (product_id, location_id, nfp, tor, toy, tog, adu)
@@ -89,17 +87,41 @@ You have access to these tables:
 - decoupling_points: Strategic positions (product_id, location_id, is_strategic, designation_reason)
 - historical_sales_data: Sales (product_id, location_id, sales_date, quantity_sold, revenue)
 
-MANDATORY TOOL USE RULES:
-1. When user asks to "list" or "show" data → YOU MUST call query_database tool
-2. When user wants specific records → YOU MUST call query_database tool
-3. Examples:
-   - "list locations" → query_database(table="location_master", select="*", limit=10)
-   - "show products" → query_database(table="product_master", select="*", limit=10)
-   - "buffer breaches" → query_database(table="buffer_breach_alerts", select="*", limit=10)
+## OUTPUT FORMAT: ${format}
 
-DO NOT just describe what you CAN do. DO IT by calling the tool immediately.
+${format === 'chart' ? `
+CHART FORMAT: Return JSON like this:
+{
+  "type": "chart",
+  "chartData": {
+    "type": "bar"|"line"|"pie",
+    "title": "Chart Title",
+    "data": [{"name": "Item 1", "value": 100}, ...],
+    "xKey": "name",
+    "yKey": "value"
+  }
+}
+` : format === 'report' ? `
+REPORT FORMAT: Return JSON like this:
+{
+  "type": "report",
+  "reportData": {
+    "title": "Report Title",
+    "summary": "Executive summary",
+    "sections": [
+      {"title": "Section 1", "type": "text", "content": "Text content"},
+      {"title": "Metrics", "type": "metrics", "content": {"metrics": [{"label": "Metric", "value": "100", "trend": "up", "change": "+5%"}]}},
+      {"title": "Data Table", "type": "table", "content": {"headers": ["Col1", "Col2"], "rows": [["A", "B"]]}},
+      {"title": "Key Insights", "type": "insights", "content": {"items": ["Insight 1", "Insight 2"]}}
+    ]
+  }
+}
+` : ''}
 
-Output format: ${format === 'chart' ? 'Chart with metrics' : format === 'report' ? 'Structured report' : 'Clear formatted data'}
+RULES:
+1. Use query_database tool to fetch data when needed
+2. If format is "chart" or "report", return ONLY valid JSON (no markdown, no explanation)
+3. For "text" format, provide clear narrative responses
 
 Current time: ${timestamp || new Date().toISOString()}`;
 

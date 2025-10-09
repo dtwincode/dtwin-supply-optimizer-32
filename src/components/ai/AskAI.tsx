@@ -23,11 +23,15 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ChartRenderer } from "./ChartRenderer";
+import { ReportRenderer } from "./ReportRenderer";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
+  type?: "text" | "chart" | "report";
+  data?: any;
 }
 
 const outputFormats = [
@@ -120,10 +124,27 @@ export const AskAI = () => {
         throw new Error("No response received from AI");
       }
 
+      // Try to parse as structured data (chart or report)
+      let parsedData: any = null;
+      let messageType: "text" | "chart" | "report" = "text";
+      
+      try {
+        parsedData = JSON.parse(data.generatedText);
+        if (parsedData.type === "chart" && parsedData.chartData) {
+          messageType = "chart";
+        } else if (parsedData.type === "report" && parsedData.reportData) {
+          messageType = "report";
+        }
+      } catch (e) {
+        // Not JSON, treat as text
+      }
+
       const assistantMessage: Message = {
         role: "assistant",
-        content: data.generatedText,
+        content: messageType === "text" ? data.generatedText : "",
         timestamp: new Date(),
+        type: messageType,
+        data: parsedData,
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
@@ -181,16 +202,36 @@ export const AskAI = () => {
                 className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[80%] rounded-lg p-4 ${
+                  className={`${
                     message.role === "user"
-                      ? "bg-primary text-primary-foreground ml-4"
-                      : "bg-muted mr-4"
+                      ? "max-w-[80%] bg-primary text-primary-foreground ml-4 rounded-lg p-4"
+                      : message.type === "chart" || message.type === "report"
+                        ? "w-full mr-4"
+                        : "max-w-[80%] bg-muted mr-4 rounded-lg p-4"
                   }`}
                 >
-                  <p className="whitespace-pre-wrap">{message.content}</p>
-                  <span className="text-xs opacity-70 mt-2 block">
-                    {message.timestamp.toLocaleTimeString()}
-                  </span>
+                  {message.type === "chart" && message.data?.chartData ? (
+                    <>
+                      <ChartRenderer chartData={message.data.chartData} />
+                      <span className="text-xs opacity-70 mt-2 block">
+                        {message.timestamp.toLocaleTimeString()}
+                      </span>
+                    </>
+                  ) : message.type === "report" && message.data?.reportData ? (
+                    <>
+                      <ReportRenderer reportData={message.data.reportData} />
+                      <span className="text-xs opacity-70 mt-2 block">
+                        {message.timestamp.toLocaleTimeString()}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <p className="whitespace-pre-wrap">{message.content}</p>
+                      <span className="text-xs opacity-70 mt-2 block">
+                        {message.timestamp.toLocaleTimeString()}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
             ))}
