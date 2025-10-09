@@ -68,72 +68,109 @@ const BufferPenetrationBar = ({ penetration, color }: { penetration: number; col
 };
 
 export function ExecutionPriorityDashboard() {
-  // Fetch from existing inventory_planning_view
-  const { data: inventoryData, isLoading } = useQuery({
-    queryKey: ["inventory-planning-execution"],
+  // Fetch from pre-computed execution_priority_view (if exists) or fallback to inventory_planning_view
+  const { data: priorities, isLoading } = useQuery<ExecutionPriorityItem[]>({
+    queryKey: ["execution-priority-view"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Try execution_priority_view first
+      const { data: viewData, error: viewError } = await supabase
+        .from("execution_priority_view" as any)
+        .select("*")
+        .order("buffer_penetration_pct", { ascending: true })
+        .limit(100);
+
+      if (!viewError && viewData && viewData.length > 0) {
+        console.log("✅ Using pre-computed execution_priority_view");
+        return viewData.map((item: any) => ({
+          product_id: item.product_id,
+          location_id: item.location_id,
+          sku: item.sku,
+          product_name: item.product_name,
+          category: item.category || 'N/A',
+          nfp: item.nfp || 0,
+          on_hand: item.on_hand || 0,
+          on_order: item.on_order || 0,
+          qualified_demand: item.qualified_demand || 0,
+          red_zone: item.red_zone || 0,
+          yellow_zone: item.yellow_zone || 0,
+          green_zone: item.green_zone || 0,
+          tor: item.tor || 0,
+          toy: item.toy || 0,
+          tog: item.tog || 0,
+          buffer_penetration_pct: item.buffer_penetration_pct || 0,
+          execution_priority: item.execution_priority || "UNKNOWN",
+          priority_color: item.priority_color || "UNKNOWN",
+          projected_on_hand: (item.on_hand || 0) - (item.qualified_demand || 0),
+          critical_alert: (item.nfp || 0) < (item.tor || 1),
+          current_oh_alert: (item.on_hand || 0) < (item.red_zone || 0),
+          projected_oh_alert: ((item.on_hand || 0) - (item.qualified_demand || 0)) < (item.red_zone || 0)
+        }));
+      }
+
+      // Fallback: calculate from inventory_planning_view
+      console.log("⚠️ execution_priority_view not available, calculating from inventory_planning_view");
+      const { data: inventoryData, error } = await supabase
         .from("inventory_planning_view")
         .select("*");
 
       if (error) throw error;
-      return data;
+
+      return inventoryData?.map(item => {
+        const nfp = (item.nfp as number) || 0;
+        const tor = (item.tor as number) || 1;
+        const toy = (item.toy as number) || (tor * 1.5);
+        const tog = (item.tog as number) || (tor * 2);
+        const penetration = (nfp / tor) * 100;
+        
+        let priority: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW" | "UNKNOWN" = "LOW";
+        let color: "DEEP_RED" | "RED" | "YELLOW" | "GREEN" | "UNKNOWN" = "GREEN";
+        
+        if (penetration < 20) {
+          priority = "CRITICAL";
+          color = "DEEP_RED";
+        } else if (penetration < 50) {
+          priority = "HIGH";
+          color = "RED";
+        } else if (penetration < 80) {
+          priority = "MEDIUM";
+          color = "YELLOW";
+        }
+        
+        const on_hand = (item.on_hand as number) || 0;
+        const qualified_demand = (item.qualified_demand as number) || 0;
+        const red_zone = (item.red_zone as number) || 0;
+        const projected_on_hand = on_hand - qualified_demand;
+        
+        return {
+          product_id: item.product_id as string,
+          location_id: item.location_id as string,
+          sku: item.sku as string,
+          product_name: item.product_name as string,
+          category: (item.category as string) || 'N/A',
+          nfp,
+          on_hand,
+          on_order: (item.on_order as number) || 0,
+          qualified_demand,
+          red_zone,
+          yellow_zone: (item.yellow_zone as number) || 0,
+          green_zone: (item.green_zone as number) || 0,
+          tor,
+          toy,
+          tog,
+          buffer_penetration_pct: penetration,
+          execution_priority: priority,
+          priority_color: color,
+          projected_on_hand,
+          critical_alert: nfp < tor,
+          current_oh_alert: on_hand < red_zone,
+          projected_oh_alert: projected_on_hand < red_zone
+        };
+      })
+      .sort((a, b) => a.buffer_penetration_pct - b.buffer_penetration_pct)
+      .slice(0, 100) || [];
     },
     refetchInterval: 30000,
   });
-
-  // Calculate execution priority client-side
-  const priorities: ExecutionPriorityItem[] | undefined = inventoryData?.map(item => {
-    const nfp = (item.nfp as number) || 0;
-    const tor = (item.tor as number) || 1;
-    const toy = (item.toy as number) || (tor * 1.5);
-    const tog = (item.tog as number) || (tor * 2);
-    const penetration = (nfp / tor) * 100;
-    
-    let priority: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW" | "UNKNOWN" = "LOW";
-    let color: "DEEP_RED" | "RED" | "YELLOW" | "GREEN" | "UNKNOWN" = "GREEN";
-    
-    if (penetration < 20) {
-      priority = "CRITICAL";
-      color = "DEEP_RED";
-    } else if (penetration < 50) {
-      priority = "HIGH";
-      color = "RED";
-    } else if (penetration < 80) {
-      priority = "MEDIUM";
-      color = "YELLOW";
-    }
-    
-    const on_hand = (item.on_hand as number) || 0;
-    const qualified_demand = (item.qualified_demand as number) || 0;
-    const red_zone = (item.red_zone as number) || 0;
-    const projected_on_hand = on_hand - qualified_demand;
-    
-    return {
-      product_id: item.product_id as string,
-      location_id: item.location_id as string,
-      sku: item.sku as string,
-      product_name: item.product_name as string,
-      category: (item.category as string) || 'N/A',
-      nfp,
-      on_hand,
-      on_order: (item.on_order as number) || 0,
-      qualified_demand,
-      red_zone,
-      yellow_zone: (item.yellow_zone as number) || 0,
-      green_zone: (item.green_zone as number) || 0,
-      tor,
-      toy,
-      tog,
-      buffer_penetration_pct: penetration,
-      execution_priority: priority,
-      priority_color: color,
-      projected_on_hand,
-      critical_alert: nfp < tor,
-      current_oh_alert: on_hand < red_zone,
-      projected_oh_alert: projected_on_hand < red_zone
-    };
-  }).sort((a, b) => a.buffer_penetration_pct - b.buffer_penetration_pct).slice(0, 100);
 
   if (isLoading) return <PageLoading />;
 
