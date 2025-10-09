@@ -61,17 +61,15 @@ export const usePurchaseOrderActions = () => {
 
       if (poError) throw poError;
 
-      // Update on_hand_inventory
+      // Get current on-hand from onhand_latest_view (optimized view)
       const { data: currentInventory } = await supabase
-        .from("on_hand_inventory")
+        .from("onhand_latest_view" as any)
         .select("qty_on_hand")
         .eq("product_id", productId)
         .eq("location_id", locationId)
-        .order("snapshot_ts", { ascending: false })
-        .limit(1)
-        .single();
+        .maybeSingle();
 
-      const newOnHand = (currentInventory?.qty_on_hand || 0) + receivedQty;
+      const newOnHand = ((currentInventory as any)?.qty_on_hand || 0) + receivedQty;
 
       const { error: inventoryError } = await supabase
         .from("on_hand_inventory")
