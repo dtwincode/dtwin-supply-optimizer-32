@@ -83,7 +83,7 @@ export const ForecastingDashboard = () => {
       // Build query with filters
       let query = supabase
         .from('historical_sales_data')
-        .select('sales_date, quantity_sold, product_id, location_id, product_master(name), location_master(region)')
+        .select('sales_date, quantity_sold, product_id, location_id, product_master!historical_sales_data_product_id_fkey(name), location_master(region)')
         .gte('sales_date', new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString())
         .order('sales_date', { ascending: true });
 
