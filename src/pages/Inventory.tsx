@@ -10,7 +10,7 @@ import { ExecutionPriorityDashboard } from "@/components/inventory/execution/Exe
 import { DDMRPPlannerWorkbench } from "@/components/inventory/workbench/DDMRPPlannerWorkbench";
 import { CoverageView } from "@/components/inventory/coverage/CoverageView";
 import { BufferBreachAlerts } from "@/components/inventory/alerts/BufferBreachAlerts";
-import { DecouplingPointManager, BullwhipAnalysisDashboard } from "@/components/inventory/strategic";
+import { DecouplingDashboard } from "@/components/inventory/strategic";
 import { ExceptionManagement } from "@/components/inventory/advanced/ExceptionManagement";
 import { DDMRPPerformanceDashboard } from "@/components/inventory/analytics/DDMRPPerformanceDashboard";
 import { ADUAnalysis } from "@/components/inventory/analytics/ADUAnalysis";
@@ -178,9 +178,8 @@ const InventoryNew: React.FC = () => {
                   <BufferDashboard mode="status" />
                 </TabsContent>
 
-                <TabsContent value="decoupling" className="mt-0 space-y-6">
-                  <BullwhipAnalysisDashboard />
-                  <DecouplingPointManager />
+                <TabsContent value="decoupling" className="mt-0">
+                  <DecouplingDashboard />
                 </TabsContent>
 
                 <TabsContent value="analytics" className="mt-0 space-y-6">

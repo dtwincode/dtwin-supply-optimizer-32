@@ -182,36 +182,40 @@ export function DecouplingPointManager() {
 
   return (
     <div className="space-y-6">
+      {/* Action Bar */}
       <Card>
-        <CardHeader>
+        <CardContent className="pt-6">
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <MapPin className="h-5 w-5" />
-              Strategic Decoupling Points
-            </CardTitle>
+            <div className="space-y-1">
+              <h3 className="text-lg font-semibold">Decoupling Point Management</h3>
+              <p className="text-sm text-muted-foreground">
+                {decouplingPoints.length} active decoupling points | {availablePairs.filter(p => !p.is_decoupling_point).length} available pairs
+              </p>
+            </div>
             <div className="flex gap-2">
               <Button
                 onClick={handleAutoDesignate}
                 disabled={autoDesignating}
-                variant="secondary"
+                variant="default"
+                size="lg"
               >
                 {autoDesignating ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Analyzing...
+                    Analyzing 9 Factors...
                   </>
                 ) : (
                   <>
                     <Sparkles className="h-4 w-4 mr-2" />
-                    Auto-Designate
+                    Auto-Designate (AI)
                   </>
                 )}
               </Button>
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button>
+                <Button variant="outline" size="lg">
                   <Plus className="h-4 w-4 mr-2" />
-                  Designate New
+                  Manual Designate
                 </Button>
               </DialogTrigger>
               <DialogContent>
@@ -276,105 +280,92 @@ export function DecouplingPointManager() {
               </Dialog>
             </div>
           </div>
-        </CardHeader>
-        <CardContent>
-          {/* Scoring Results Summary */}
-          {scoringResults && (
-            <div className="mb-6 p-4 bg-muted/50 rounded-lg space-y-3 border">
-              <h3 className="text-sm font-semibold">Auto-Designation Results (9-Factor Model with Bullwhip Effect)</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Total Analyzed</p>
-                  <p className="text-2xl font-bold">{scoringResults.summary?.total_analyzed || 0}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Auto-Designated</p>
-                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                    {scoringResults.summary?.auto_designated || 0}
-                  </p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Review Required</p>
-                  <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-                    {scoringResults.summary?.review_required || 0}
-                  </p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Auto-Rejected</p>
-                  <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-                    {scoringResults.summary?.auto_rejected || 0}
-                  </p>
-                </div>
-              </div>
-              <div className="text-xs text-muted-foreground mt-2">
-                Threshold: {scoringResults.summary?.threshold_used || getConfig('auto_designate_threshold', 0.75)} | 
-                Scenario: {scoringResults.summary?.scenario || 'default'} | 
-                Mode: {scoringResults.summary?.scoring_mode || 'STANDARD'}
-              </div>
-              <div className="text-xs text-muted-foreground mt-1 italic">
-                ✨ Using 9-factor model: Variability (20%), Criticality (20%), Holding Cost (15%), 
-                Supplier Reliability (10%), Lead Time (10%), Volume (10%), Storage Intensity (7.5%), 
-                MOQ Rigidity (7.5%), <strong>Bullwhip Effect (15%)</strong>
-              </div>
-            </div>
-          )}
-
-          <div className="space-y-3">
-            {decouplingPoints.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <MapPin className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                <p>No decoupling points designated yet</p>
-              </div>
-            ) : (
-              decouplingPoints.map((dp) => (
-                <div
-                  key={dp.id}
-                  className="border rounded-lg p-4 flex items-center justify-between hover:shadow-md transition-shadow"
-                >
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-semibold">{dp.product_id}</span>
-                      <Badge variant="outline">{dp.location_id}</Badge>
-                      <Badge>{dp.buffer_profile_id}</Badge>
-                    </div>
-                    {dp.designation_reason && (
-                      <p className="text-sm text-muted-foreground">
-                        {dp.designation_reason}
-                      </p>
-                    )}
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRemove(dp.id)}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
-              ))
-            )}
-          </div>
         </CardContent>
       </Card>
 
+      {/* Results Summary */}
+      {scoringResults && (
+        <Card className="border-primary/50">
+          <CardHeader>
+            <CardTitle className="text-base">Latest Auto-Designation Results</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-4 gap-4">
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Analyzed</p>
+                <p className="text-xl font-bold">{scoringResults.summary?.total_analyzed || 0}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Designated</p>
+                <p className="text-xl font-bold text-green-600">
+                  {scoringResults.summary?.auto_designated || 0}
+                </p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Review</p>
+                <p className="text-xl font-bold text-yellow-600">
+                  {scoringResults.summary?.review_required || 0}
+                </p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Rejected</p>
+                <p className="text-xl font-bold text-red-600">
+                  {scoringResults.summary?.auto_rejected || 0}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Active Decoupling Points - Grid Layout */}
       <Card>
         <CardHeader>
-          <CardTitle>Available Product-Location Pairs</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <MapPin className="h-5 w-5" />
+            Active Strategic Decoupling Points
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 max-h-96 overflow-y-auto">
-            {availablePairs
-              .filter((p) => !p.is_decoupling_point)
-              .map((pair) => (
+          {decouplingPoints.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <MapPin className="h-12 w-12 mx-auto mb-2 opacity-50" />
+              <p>No decoupling points designated yet</p>
+              <p className="text-sm mt-1">Use Auto-Designate or Manual Designate to begin</p>
+            </div>
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2">
+              {decouplingPoints.map((dp) => (
                 <div
-                  key={`${pair.product_id}-${pair.location_id}`}
-                  className="border rounded p-3 text-sm"
+                  key={dp.id}
+                  className="border rounded-lg p-4 hover:shadow-md transition-shadow group"
                 >
-                  <div className="font-medium">{pair.product_id}</div>
-                  <div className="text-muted-foreground">{pair.location_id}</div>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="font-semibold text-base">{dp.product_id}</span>
+                        <Badge variant="outline" className="text-xs">{dp.location_id}</Badge>
+                        <Badge className="text-xs">{dp.buffer_profile_id}</Badge>
+                      </div>
+                      {dp.designation_reason && (
+                        <p className="text-xs text-muted-foreground line-clamp-2">
+                          {dp.designation_reason}
+                        </p>
+                      )}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemove(dp.id)}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
                 </div>
               ))}
-          </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
