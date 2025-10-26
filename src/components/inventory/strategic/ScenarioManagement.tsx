@@ -79,8 +79,8 @@ export function ScenarioManagement() {
       storage_intensity_weight: 0.075,
       moq_rigidity_weight: 0.075,
       bullwhip_weight: 0.10,
-      auto_designate_threshold: 70,
-      review_threshold: 50,
+      auto_designate_threshold: 70, // Hidden from UI but kept with default
+      review_threshold: 50, // Hidden from UI but kept with default
       is_active: false,
       is_locked: false,
     };
@@ -229,9 +229,9 @@ export function ScenarioManagement() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Decoupling Score Scenarios</h2>
+          <h2 className="text-2xl font-bold">Scoring Scenarios</h2>
           <p className="text-muted-foreground mt-1">
-            Configure and manage weighted scoring scenarios for decoupling point designation
+            Each scenario represents a different weighting strategy for the 9 DDMRP factors
           </p>
         </div>
         <Button onClick={createNewScenario} disabled={isEditing}>
@@ -277,10 +277,6 @@ export function ScenarioManagement() {
                       <p className="text-sm text-muted-foreground mt-1">
                         {scenario.description || 'No description'}
                       </p>
-                      <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
-                        <span>Auto: ≥{scenario.auto_designate_threshold}%</span>
-                        <span>Review: ≥{scenario.review_threshold}%</span>
-                      </div>
                     </div>
                     <div className="flex gap-2">
                       {!scenario.is_active && (
@@ -339,7 +335,9 @@ export function ScenarioManagement() {
                   : 'Scenario Details'}
               </CardTitle>
               <CardDescription>
-                {isEditing ? 'Adjust weights (must sum to 100%)' : 'View scenario configuration'}
+                {isEditing 
+                  ? 'Configure how much weight each factor has. All weights must sum to 100%' 
+                  : 'View the weight distribution for this scenario'}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -410,46 +408,7 @@ export function ScenarioManagement() {
                 ))}
               </div>
 
-              {/* Thresholds */}
-              <div className="space-y-4 pt-4 border-t">
-                <Label className="font-semibold">Decision Thresholds</Label>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm">Auto-Designate (≥)</Label>
-                    <span className="text-sm font-medium">
-                      {selectedScenario.auto_designate_threshold}%
-                    </span>
-                  </div>
-                  <Slider
-                    value={[selectedScenario.auto_designate_threshold]}
-                    onValueChange={([value]) =>
-                      setSelectedScenario({ ...selectedScenario, auto_designate_threshold: value })
-                    }
-                    max={100}
-                    step={5}
-                    disabled={!isEditing || selectedScenario.is_locked}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm">Review Required (≥)</Label>
-                    <span className="text-sm font-medium">
-                      {selectedScenario.review_threshold}%
-                    </span>
-                  </div>
-                  <Slider
-                    value={[selectedScenario.review_threshold]}
-                    onValueChange={([value]) =>
-                      setSelectedScenario({ ...selectedScenario, review_threshold: value })
-                    }
-                    max={100}
-                    step={5}
-                    disabled={!isEditing || selectedScenario.is_locked}
-                  />
-                </div>
-              </div>
+              {/* Thresholds - Hidden from UI, kept in backend with default values */}
 
               {/* Actions */}
               <div className="flex gap-2 pt-4">
