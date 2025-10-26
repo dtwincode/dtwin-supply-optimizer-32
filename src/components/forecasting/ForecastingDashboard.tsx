@@ -80,6 +80,21 @@ export const ForecastingDashboard = () => {
   const loadForecastData = async () => {
     setLoading(true);
     try {
+      // First, determine which locations to query based on region filter
+      let locationIds: string[] = [];
+      if (selectedRegion !== 'ALL') {
+        const filteredLocations = locations.filter(l => l.region === selectedRegion);
+        locationIds = filteredLocations.map(l => l.location_id);
+        
+        if (locationIds.length === 0) {
+          // No locations match the region filter
+          setForecastData([]);
+          setAggregatedData([]);
+          setLoading(false);
+          return;
+        }
+      }
+
       // Build query with filters
       let query = supabase
         .from('historical_sales_data')
@@ -87,22 +102,23 @@ export const ForecastingDashboard = () => {
         .gte('sales_date', new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString())
         .order('sales_date', { ascending: true });
 
-      // Apply filters
+      // Apply product filter
       if (selectedProduct !== 'ALL') {
         query = query.eq('product_id', selectedProduct);
       }
+
+      // Apply location filter
       if (selectedLocation !== 'ALL') {
         query = query.eq('location_id', selectedLocation);
+      } else if (selectedRegion !== 'ALL' && locationIds.length > 0) {
+        // If region is selected but not specific location, filter by locations in that region
+        query = query.in('location_id', locationIds);
       }
 
       const { data: historical, error: histError } = await query;
       if (histError) throw histError;
 
-      // Filter by region if selected
-      let filteredData = historical || [];
-      if (selectedRegion !== 'ALL') {
-        filteredData = filteredData.filter((d: any) => d.location_master?.region === selectedRegion);
-      }
+      const filteredData = historical || [];
 
       // Aggregate based on level
       const aggregated = aggregateForecasts(filteredData);
