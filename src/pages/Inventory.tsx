@@ -135,6 +135,10 @@ const InventoryNew: React.FC = () => {
                 <LayoutDashboard className="h-4 w-4" />
                 <span className="hidden sm:inline">Decoupling</span>
               </TabsTrigger>
+              <TabsTrigger value="buffers" className="flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                <span className="hidden sm:inline">Buffers</span>
+              </TabsTrigger>
               <TabsTrigger value="exceptions" className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4" />
                 <span className="hidden sm:inline">Exceptions</span>
@@ -142,10 +146,6 @@ const InventoryNew: React.FC = () => {
               <TabsTrigger value="execution" className="flex items-center gap-2">
                 <Activity className="h-4 w-4" />
                 <span className="hidden sm:inline">Execution Priority</span>
-              </TabsTrigger>
-              <TabsTrigger value="buffers" className="flex items-center gap-2">
-                <Shield className="h-4 w-4" />
-                <span className="hidden sm:inline">Buffers</span>
               </TabsTrigger>
               <TabsTrigger value="analytics" className="flex items-center gap-2">
                 <BarChart3 className="h-4 w-4" />
@@ -165,6 +165,14 @@ const InventoryNew: React.FC = () => {
                   <CoverageView searchTerm={searchTerm} />
                 </TabsContent>
 
+                <TabsContent value="decoupling" className="mt-0">
+                  <DecouplingDashboard />
+                </TabsContent>
+
+                <TabsContent value="buffers" className="mt-0 space-y-6">
+                  <BufferDashboard mode="status" />
+                </TabsContent>
+
                 <TabsContent value="exceptions" className="mt-0 space-y-6">
                   <BufferBreachAlerts />
                   <ExceptionManagement />
@@ -172,14 +180,6 @@ const InventoryNew: React.FC = () => {
 
                 <TabsContent value="execution" className="mt-0 space-y-6">
                   <ExecutionPriorityDashboard />
-                </TabsContent>
-
-                <TabsContent value="buffers" className="mt-0 space-y-6">
-                  <BufferDashboard mode="status" />
-                </TabsContent>
-
-                <TabsContent value="decoupling" className="mt-0">
-                  <DecouplingDashboard />
                 </TabsContent>
 
                 <TabsContent value="analytics" className="mt-0 space-y-6">
