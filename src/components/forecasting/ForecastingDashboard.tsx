@@ -40,6 +40,8 @@ export const ForecastingDashboard = () => {
   const [aggregatedData, setAggregatedData] = useState<AggregatedForecast[]>([]);
   const [activeModel, setActiveModel] = useState<string>("Simple Moving Average");
   const [modelDetails, setModelDetails] = useState<any>(null);
+  const [availableModels, setAvailableModels] = useState<any[]>([]);
+  const [selectedModelName, setSelectedModelName] = useState<string>('best');
 
   useEffect(() => {
     loadMasterData();
@@ -47,7 +49,7 @@ export const ForecastingDashboard = () => {
 
   useEffect(() => {
     loadForecastData();
-  }, [selectedProduct, selectedLocation, selectedRegion, aggregationLevel]);
+  }, [selectedProduct, selectedLocation, selectedRegion, aggregationLevel, selectedModelName]);
 
   const loadMasterData = async () => {
     try {
@@ -138,27 +140,39 @@ export const ForecastingDashboard = () => {
 
       console.log('Enriched data:', filteredData.length, 'records');
 
-      // Fetch best model for selected product-location (if specific selection)
+      // Fetch all available models for selected product-location
       if (selectedProduct !== 'ALL' && selectedLocation !== 'ALL') {
-        const { data: modelData, error: modelError } = await supabase
+        const { data: allModels, error: modelError } = await supabase
           .from('forecast_model_selection')
           .select('*')
           .eq('product_id', selectedProduct)
           .eq('location_id', selectedLocation)
-          .eq('is_best_model', true)
-          .maybeSingle();
+          .order('smape', { ascending: true });
 
-        if (!modelError && modelData) {
-          setActiveModel(modelData.model_name);
-          setModelDetails(modelData);
-          console.log('Using best model:', modelData.model_name, 'with SMAPE:', modelData.smape);
+        if (!modelError && allModels && allModels.length > 0) {
+          setAvailableModels(allModels);
+          
+          // Set active model based on selection
+          if (selectedModelName === 'best') {
+            const bestModel = allModels[0];
+            setActiveModel(bestModel.model_name);
+            setModelDetails(bestModel);
+            console.log('Using model:', bestModel.model_name, 'with SMAPE:', bestModel.smape);
+          } else {
+            const selectedModel = allModels.find(m => m.model_name === selectedModelName) || allModels[0];
+            setActiveModel(selectedModel.model_name);
+            setModelDetails(selectedModel);
+            console.log('Using model:', selectedModel.model_name, 'with SMAPE:', selectedModel.smape);
+          }
         } else {
           setActiveModel('Simple Moving Average (Default)');
           setModelDetails(null);
+          setAvailableModels([]);
         }
       } else {
         setActiveModel('Aggregated - Multiple Models');
         setModelDetails(null);
+        setAvailableModels([]);
       }
 
       // Aggregate based on level
@@ -402,6 +416,39 @@ export const ForecastingDashboard = () => {
               </Select>
             </div>
           </div>
+
+          {/* Model Selector - Only shown when specific product-location is selected */}
+          {availableModels.length > 0 && selectedProduct !== 'ALL' && selectedLocation !== 'ALL' && (
+            <div className="space-y-2 border-t pt-4">
+              <label className="text-sm font-medium">Forecast Model</label>
+              <Select value={selectedModelName} onValueChange={setSelectedModelName}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="best">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="default" className="text-xs">Best</Badge>
+                      <span>{availableModels[0]?.model_name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        (SMAPE: {availableModels[0]?.smape?.toFixed(2)}%)
+                      </span>
+                    </div>
+                  </SelectItem>
+                  {availableModels.map((model) => (
+                    <SelectItem key={model.id} value={model.model_name}>
+                      <div className="flex items-center gap-2">
+                        <span>{model.model_name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          (SMAPE: {model.smape?.toFixed(2)}%)
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </CardContent>
       </Card>
 
