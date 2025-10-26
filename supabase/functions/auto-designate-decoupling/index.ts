@@ -78,7 +78,7 @@ Deno.serve(async (req) => {
         const fnName = useComponentScoring ? 'calculate_component_9factor_score' : 'calculate_8factor_weighted_score';
         const params = useComponentScoring 
           ? { p_component_id: pair.product_id, p_location_id: pair.location_id, p_scenario_name: scenario_name } 
-          : { p_product_id: pair.product_id, p_location_id: pair.location_id, p_scenario_name: scenario_name };
+          : { p_product_id: pair.product_id, p_location_id: pair.location_id }; // No scenario_name for 8-factor
         
         const { data: scoreData, error: scoreError } = await supabase.rpc(fnName, params);
         if (scoreError) {
