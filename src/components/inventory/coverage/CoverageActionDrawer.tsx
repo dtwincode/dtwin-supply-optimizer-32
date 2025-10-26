@@ -49,33 +49,52 @@ export const CoverageActionDrawer: React.FC<CoverageActionDrawerProps> = ({
         .eq('product_id', productId)
         .order('contract_start_date', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
-      if (contractError) throw contractError;
+      if (contractError) {
+        console.error('Error fetching contract:', contractError);
+        throw contractError;
+      }
+
+      // If no contract found, use fallback data
+      if (!contractData) {
+        setSupplierData({
+          vendor_name: 'No Supplier Assigned',
+          unit_cost: 0,
+          lead_time_days: fallbackDlt,
+          on_time_delivery_rate: 0.95,
+          payment_terms: 'N/A'
+        });
+        return;
+      }
 
       // Fetch vendor name
       const { data: vendorData, error: vendorError } = await supabase
         .from('vendor_master')
         .select('vendor_name')
         .eq('vendor_id', contractData.supplier_id)
-        .single();
+        .maybeSingle();
 
-      if (vendorError) throw vendorError;
+      if (vendorError) {
+        console.error('Error fetching vendor:', vendorError);
+      }
 
       // Fetch supplier performance
       const { data: perfData, error: perfError } = await supabase
         .from('supplier_performance')
         .select('on_time_delivery_rate')
         .eq('supplier_id', contractData.supplier_id)
-        .single();
+        .maybeSingle();
 
-      if (perfError) throw perfError;
+      if (perfError) {
+        console.error('Error fetching performance:', perfError);
+      }
 
       setSupplierData({
-        vendor_name: vendorData.vendor_name,
+        vendor_name: vendorData?.vendor_name ?? 'Unknown Vendor',
         unit_cost: contractData.unit_cost ?? 0,
         lead_time_days: contractData.lead_time_days ?? fallbackDlt,
-        on_time_delivery_rate: perfData.on_time_delivery_rate ?? 0.95,
+        on_time_delivery_rate: perfData?.on_time_delivery_rate ?? 0.95,
         payment_terms: contractData.payment_terms ?? 'N/A'
       });
     } catch (error) {
