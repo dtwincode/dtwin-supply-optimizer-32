@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 interface ForecastDataPoint {
   date: string;
   actual: number | null;
-  forecast: number;
+  forecast: number | null;
   product_id: string;
   location_id: string;
   product_name: string;
@@ -129,20 +129,25 @@ export const ForecastingDashboard = () => {
         ? filteredData.reduce((sum: number, d: any) => sum + (d.quantity_sold || 0), 0) / filteredData.length
         : 0;
 
+      console.log('Filtered data length:', filteredData.length);
+      console.log('Average demand:', avgDemand);
+
       const chartData: ForecastDataPoint[] = [];
 
       // Add historical data (aggregated by date)
       const dateMap = new Map<string, number>();
       filteredData.forEach((d: any) => {
-        const dateKey = new Date(d.sales_date).toLocaleDateString();
+        const dateKey = new Date(d.sales_date).toISOString().split('T')[0];
         dateMap.set(dateKey, (dateMap.get(dateKey) || 0) + d.quantity_sold);
       });
 
-      dateMap.forEach((qty, date) => {
+      // Sort dates and add to chart
+      const sortedDates = Array.from(dateMap.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+      sortedDates.forEach(([date, qty]) => {
         chartData.push({
-          date,
+          date: new Date(date).toLocaleDateString(),
           actual: qty,
-          forecast: 0,
+          forecast: null,
           product_id: selectedProduct,
           location_id: selectedLocation,
           product_name: '',
@@ -150,9 +155,13 @@ export const ForecastingDashboard = () => {
         });
       });
 
-      // Add forecast data (next 30 days)
+      // Add forecast data (next 30 days) - start from last historical date
+      const lastDate = sortedDates.length > 0 
+        ? new Date(sortedDates[sortedDates.length - 1][0])
+        : new Date();
+
       for (let i = 1; i <= 30; i++) {
-        const forecastDate = new Date();
+        const forecastDate = new Date(lastDate);
         forecastDate.setDate(forecastDate.getDate() + i);
         chartData.push({
           date: forecastDate.toLocaleDateString(),
@@ -165,6 +174,9 @@ export const ForecastingDashboard = () => {
         });
       }
 
+      console.log('Chart data length:', chartData.length);
+      console.log('Sample chart data:', chartData.slice(0, 5));
+      
       setForecastData(chartData);
     } catch (error) {
       console.error('Error loading forecast data:', error);
@@ -386,6 +398,7 @@ export const ForecastingDashboard = () => {
                       strokeWidth={2}
                       name="Actual Demand"
                       connectNulls={false}
+                      dot={false}
                     />
                     <Line 
                       type="monotone" 
@@ -394,6 +407,8 @@ export const ForecastingDashboard = () => {
                       strokeWidth={2}
                       strokeDasharray="5 5"
                       name="Forecasted Demand"
+                      connectNulls={false}
+                      dot={false}
                     />
                   </LineChart>
                 </ResponsiveContainer>
