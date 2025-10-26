@@ -142,6 +142,10 @@ export const CoverageView: React.FC<CoverageViewProps> = ({ searchTerm }) => {
           suggested_order_qty: suggestedOrderQty,
           buffer_profile_id: inv.buffer_profile_id || undefined,
           category: inv.category || undefined,
+          channel_id: inv.channel_id || undefined,
+          planning_priority: undefined, // Not in view, would need join to product_master
+          supplier_id: undefined, // Not in view, would need join to product_master
+          is_decoupling_point: inv.decoupling_point || false,
           tor,
           toy,
           tog,
@@ -201,17 +205,42 @@ export const CoverageView: React.FC<CoverageViewProps> = ({ searchTerm }) => {
         return false;
       }
       
-      // Product filter from context
+      // Product filter
       if (filters.productId && item.product_id !== filters.productId) {
         return false;
       }
       
-      // Location filter from context
+      // Location filter
       if (filters.locationId && item.location_id !== filters.locationId) {
         return false;
       }
       
-      // Buffer status filter from context
+      // Channel filter
+      if (filters.channelId && item.channel_id !== filters.channelId) {
+        return false;
+      }
+      
+      // Category filter
+      if (filters.category && item.category !== filters.category) {
+        return false;
+      }
+      
+      // Planning Priority filter
+      if (filters.planningPriority && item.planning_priority !== filters.planningPriority) {
+        return false;
+      }
+      
+      // Supplier filter
+      if (filters.supplier && item.supplier_id !== filters.supplier) {
+        return false;
+      }
+      
+      // Decoupling points only
+      if (filters.decouplingOnly && !item.is_decoupling_point) {
+        return false;
+      }
+      
+      // Buffer status filter
       if (filters.bufferStatus.length > 0) {
         const status = item.dos < item.dlt ? 'RED' : 
                       item.dos <= item.dlt * 1.5 ? 'YELLOW' : 'GREEN';

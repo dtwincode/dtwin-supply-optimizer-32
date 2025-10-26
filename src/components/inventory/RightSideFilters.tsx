@@ -169,6 +169,44 @@ export function RightSideFilters({ searchTerm = '', onSearchChange }: RightSideF
               </Select>
             </div>
 
+            {/* Category Filter */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Category</label>
+              <Select
+                value={filters.category || "all"}
+                onValueChange={(value) => updateFilter('category', value === "all" ? null : value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  <SelectItem value="ENTREES">Entrees</SelectItem>
+                  <SelectItem value="SIDES">Sides</SelectItem>
+                  <SelectItem value="BEVERAGES">Beverages</SelectItem>
+                  <SelectItem value="DESSERTS">Desserts</SelectItem>
+                  <SelectItem value="CONDIMENTS">Condiments</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Supplier Filter */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Supplier</label>
+              <Select
+                value={filters.supplier || "all"}
+                onValueChange={(value) => updateFilter('supplier', value === "all" ? null : value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="All Suppliers" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Suppliers</SelectItem>
+                  {/* Suppliers would be dynamically loaded */}
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Buffer Status Filter (Multi-Select) */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Buffer Status</label>

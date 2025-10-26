@@ -20,6 +20,10 @@ export interface CoverageItem {
   suggested_order_qty: number;
   buffer_profile_id?: string;
   category?: string;
+  channel_id?: string;
+  planning_priority?: string;
+  supplier_id?: string;
+  is_decoupling_point?: boolean;
   tor?: number;
   toy?: number;
   tog?: number;
