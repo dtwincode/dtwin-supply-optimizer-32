@@ -417,38 +417,54 @@ export const ForecastingDashboard = () => {
             </div>
           </div>
 
-          {/* Model Selector - Only shown when specific product-location is selected */}
-          {availableModels.length > 0 && selectedProduct !== 'ALL' && selectedLocation !== 'ALL' && (
-            <div className="space-y-2 border-t pt-4">
-              <label className="text-sm font-medium">Forecast Model</label>
-              <Select value={selectedModelName} onValueChange={setSelectedModelName}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="best">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="default" className="text-xs">Best</Badge>
-                      <span>{availableModels[0]?.model_name}</span>
-                      <span className="text-xs text-muted-foreground">
-                        (SMAPE: {availableModels[0]?.smape?.toFixed(2)}%)
-                      </span>
-                    </div>
-                  </SelectItem>
-                  {availableModels.map((model) => (
-                    <SelectItem key={model.id} value={model.model_name}>
+          {/* Model Selector Section */}
+          <div className="space-y-2 border-t pt-4">
+            <label className="text-sm font-medium">Forecast Model</label>
+            {selectedProduct !== 'ALL' && selectedLocation !== 'ALL' ? (
+              availableModels.length > 0 ? (
+                <Select value={selectedModelName} onValueChange={setSelectedModelName}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="best">
                       <div className="flex items-center gap-2">
-                        <span>{model.model_name}</span>
+                        <Badge variant="default" className="text-xs">Best</Badge>
+                        <span>{availableModels[0]?.model_name}</span>
                         <span className="text-xs text-muted-foreground">
-                          (SMAPE: {model.smape?.toFixed(2)}%)
+                          (SMAPE: {availableModels[0]?.smape?.toFixed(2)}%)
                         </span>
                       </div>
                     </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+                    {availableModels.map((model) => (
+                      <SelectItem key={model.id} value={model.model_name}>
+                        <div className="flex items-center gap-2">
+                          <span>{model.model_name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            (SMAPE: {model.smape?.toFixed(2)}%)
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    No models evaluated yet for this product-location. Go to "Model Evaluation" tab to run evaluation.
+                  </AlertDescription>
+                </Alert>
+              )
+            ) : (
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Select a specific Product and Location above to choose a forecast model
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
         </CardContent>
       </Card>
 
