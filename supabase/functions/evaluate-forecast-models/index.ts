@@ -7,6 +7,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+
 // Time Series Models Implementation
 class TimeSeriesModels {
   // Simple Moving Average
@@ -191,6 +193,67 @@ class Metrics {
   }
 }
 
+// AI-powered forecasting using Lovable AI
+async function forecastWithAI(data: number[], modelType: 'ARIMA' | 'Prophet' | 'SARIMA'): Promise<number[]> {
+  if (!LOVABLE_API_KEY) {
+    console.log('LOVABLE_API_KEY not found, skipping AI models');
+    return Array(data.length).fill(NaN);
+  }
+
+  const prompt = `You are a time series forecasting expert. Given the following historical demand data, perform ${modelType} forecasting.
+
+Historical data (last ${data.length} days): ${JSON.stringify(data)}
+
+Instructions:
+- Analyze the data for trend, seasonality, and patterns
+- Apply ${modelType} model principles
+- Return fitted values for all historical periods
+- For SARIMA, detect weekly seasonality (period=7)
+- For Prophet, account for weekly patterns and potential changepoints
+
+Return ONLY a JSON array of ${data.length} forecasted values matching the input length. No explanation, just the array.`;
+
+  try {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          { role: 'system', content: 'You are a statistical forecasting expert. Always return valid JSON arrays of numbers.' },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.1,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error(`AI API error: ${response.status}`);
+      return Array(data.length).fill(NaN);
+    }
+
+    const result = await response.json();
+    const content = result.choices?.[0]?.message?.content || '[]';
+    
+    // Extract JSON array from response
+    const jsonMatch = content.match(/\[[\d\s,.\-]+\]/);
+    if (jsonMatch) {
+      const forecast = JSON.parse(jsonMatch[0]);
+      if (Array.isArray(forecast) && forecast.length === data.length) {
+        return forecast.map(v => Number(v));
+      }
+    }
+    
+    return Array(data.length).fill(NaN);
+  } catch (error) {
+    console.error(`Error in ${modelType} forecast:`, error);
+    return Array(data.length).fill(NaN);
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -239,7 +302,10 @@ serve(async (req) => {
     for (const [key, pair] of pairs.entries()) {
       if (pair.data.length < 30) continue; // Need minimum data
 
-      const models = [
+      console.log(`Evaluating models for ${pair.product_id} at ${pair.location_id} (${pair.data.length} samples)`);
+
+      // Traditional statistical models
+      const traditionalModels = [
         { name: 'SMA_7', params: { period: 7 }, forecast: TimeSeriesModels.sma(pair.data, 7) },
         { name: 'SMA_14', params: { period: 14 }, forecast: TimeSeriesModels.sma(pair.data, 14) },
         { name: 'SMA_30', params: { period: 30 }, forecast: TimeSeriesModels.sma(pair.data, 30) },
@@ -253,6 +319,15 @@ serve(async (req) => {
         { name: 'LinearTrend', params: {}, forecast: TimeSeriesModels.linearTrend(pair.data) },
         { name: 'Croston', params: { alpha: 0.1 }, forecast: TimeSeriesModels.croston(pair.data, 0.1) },
       ];
+
+      // AI-powered models (only if API key is available)
+      const aiModels = LOVABLE_API_KEY ? [
+        { name: 'ARIMA', params: { model: 'ARIMA' }, forecast: await forecastWithAI(pair.data, 'ARIMA') },
+        { name: 'SARIMA', params: { model: 'SARIMA', period: 7 }, forecast: await forecastWithAI(pair.data, 'SARIMA') },
+        { name: 'Prophet', params: { model: 'Prophet' }, forecast: await forecastWithAI(pair.data, 'Prophet') },
+      ] : [];
+
+      const models = [...traditionalModels, ...aiModels];
 
       let bestModel: any = null;
       let bestScore = Infinity;

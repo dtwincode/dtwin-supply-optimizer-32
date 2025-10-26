@@ -69,6 +69,9 @@ export const ModelEvaluation = () => {
   };
 
   const getModelColor = (modelName: string) => {
+    if (modelName === 'ARIMA') return 'bg-indigo-600';
+    if (modelName === 'SARIMA') return 'bg-violet-600';
+    if (modelName === 'Prophet') return 'bg-fuchsia-600';
     if (modelName.startsWith('TES')) return 'bg-purple-500';
     if (modelName.startsWith('DES')) return 'bg-blue-500';
     if (modelName.startsWith('SES')) return 'bg-green-500';
@@ -118,7 +121,13 @@ export const ModelEvaluation = () => {
               <li>Triple Exponential Smoothing (TES/Holt-Winters): 7-day seasonality</li>
               <li>Linear Trend Model</li>
               <li>Croston's Method (for intermittent demand)</li>
+              <li className="font-semibold text-primary">ARIMA (AutoRegressive Integrated Moving Average) - AI-powered</li>
+              <li className="font-semibold text-primary">SARIMA (Seasonal ARIMA with weekly patterns) - AI-powered</li>
+              <li className="font-semibold text-primary">Prophet (Facebook's forecasting with seasonality) - AI-powered</li>
             </ul>
+            <p className="text-xs mt-2 italic">
+              * AI-powered models use Lovable AI for advanced statistical forecasting
+            </p>
           </div>
         </CardContent>
       </Card>
