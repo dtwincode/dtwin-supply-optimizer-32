@@ -7,6 +7,7 @@ interface UseProjectionDataProps {
   productId: string;
   locationId: string;
   enabled?: boolean;
+  horizonDays?: number; // Projection horizon in days
 }
 
 interface ProjectionData {
@@ -19,7 +20,8 @@ interface ProjectionData {
 export function useProjectionData({ 
   productId, 
   locationId, 
-  enabled = true 
+  enabled = true,
+  horizonDays 
 }: UseProjectionDataProps): ProjectionData {
   const [dailyProjections, setDailyProjections] = useState<DayProjection[]>([]);
   const [weeklyProjections, setWeeklyProjections] = useState<WeekProjection[]>([]);
@@ -85,6 +87,7 @@ export function useProjectionData({
           openPOs: validPOs,
           moq: bufferData?.moq || 0,
           roundingMultiple: bufferData?.rounding_multiple || 1,
+          horizonDays: horizonDays, // Pass through horizon
         };
 
         // Calculate projections
@@ -102,7 +105,7 @@ export function useProjectionData({
     };
 
     loadProjectionData();
-  }, [productId, locationId, enabled]);
+  }, [productId, locationId, enabled, horizonDays]);
 
   return { dailyProjections, weeklyProjections, isLoading, error };
 }

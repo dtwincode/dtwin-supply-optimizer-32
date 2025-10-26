@@ -50,6 +50,7 @@ export interface ProjectionInput {
   openPOs: OpenPO[];
   moq?: number;
   roundingMultiple?: number;
+  horizonDays?: number; // Projection horizon in days (default: 14 or 2.5x DLT)
 }
 
 /**
@@ -103,17 +104,20 @@ function groupOpenPOsByDate(openPOs: OpenPO[]): Map<string, number> {
 }
 
 /**
- * Calculate daily projections for 14 days
+ * Calculate daily projections for specified horizon
  */
 export function calculateDailyProjections(input: ProjectionInput): DayProjection[] {
   const projections: DayProjection[] = [];
   const today = new Date();
   const poMap = groupOpenPOsByDate(input.openPOs);
   
+  // Use provided horizon or calculate default (2.5x DLT, minimum 14 days)
+  const horizonDays = input.horizonDays ?? Math.max(14, Math.ceil(input.dlt * 2.5));
+  
   let runningOnHand = input.currentOnHand;
   let runningOnOrder = input.currentOnOrder;
   
-  for (let day = 0; day < 14; day++) {
+  for (let day = 0; day < horizonDays; day++) {
     const projectionDate = addDays(today, day);
     const dateString = format(projectionDate, 'yyyy-MM-dd');
     const isWeekend = projectionDate.getDay() === 0 || projectionDate.getDay() === 6;
@@ -174,18 +178,19 @@ export function calculateDailyProjections(input: ProjectionInput): DayProjection
 }
 
 /**
- * Calculate weekly aggregated projections for 4 weeks
+ * Calculate weekly aggregated projections based on horizon
  */
 export function calculateWeeklyProjections(input: ProjectionInput): WeekProjection[] {
   const dailyProjections = calculateDailyProjections(input);
   const today = new Date();
-  const fourWeeksOut = addDays(today, 28);
+  const horizonDays = input.horizonDays ?? Math.max(14, Math.ceil(input.dlt * 2.5));
+  const horizonEnd = addDays(today, horizonDays);
   
-  // Generate week intervals
+  // Generate week intervals based on horizon
   const weeks = eachWeekOfInterval(
-    { start: today, end: fourWeeksOut },
+    { start: today, end: horizonEnd },
     { weekStartsOn: 0 } // Sunday
-  ).slice(0, 4);
+  );
   
   const weeklyProjections: WeekProjection[] = weeks.map((weekStart, index) => {
     const weekEnd = endOfWeek(weekStart, { weekStartsOn: 0 });

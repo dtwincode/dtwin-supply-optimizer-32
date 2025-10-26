@@ -31,12 +31,29 @@ export const CoverageTimelineDrawer: React.FC<CoverageTimelineDrawerProps> = ({
   const [adjustedQty, setAdjustedQty] = useState(0);
   const [view, setView] = useState<'chart' | 'table'>('table');
   const [period, setPeriod] = useState<'daily' | 'weekly'>('daily');
+  const [horizonMode, setHorizonMode] = useState<'2W' | '4W' | '8W' | 'auto'>('auto');
   
-  // Fetch projection data
+  // Calculate horizon days based on mode
+  const getHorizonDays = () => {
+    if (!item) return 14;
+    
+    switch (horizonMode) {
+      case '2W': return 14;
+      case '4W': return 28;
+      case '8W': return 56;
+      case 'auto': return Math.max(14, Math.ceil(item.dlt * 2.5));
+      default: return 14;
+    }
+  };
+  
+  const horizonDays = getHorizonDays();
+  
+  // Fetch projection data with dynamic horizon
   const { dailyProjections, weeklyProjections, isLoading } = useProjectionData({
     productId: item?.product_id || '',
     locationId: item?.location_id || '',
     enabled: isOpen && !!item,
+    horizonDays,
   });
 
   React.useEffect(() => {
@@ -90,7 +107,8 @@ export const CoverageTimelineDrawer: React.FC<CoverageTimelineDrawerProps> = ({
                 Coverage Timeline Analysis
               </SheetTitle>
               <SheetDescription>
-                14-day projection for {item.sku} at {item.location_id}
+                {horizonDays}-day projection for {item.sku} at {item.location_id}
+                {horizonMode === 'auto' && item.dlt && ` (Auto: 2.5× ${item.dlt}d DLT)`}
               </SheetDescription>
             </div>
             <ProjectionToggle
@@ -98,6 +116,9 @@ export const CoverageTimelineDrawer: React.FC<CoverageTimelineDrawerProps> = ({
               onViewChange={setView}
               period={period}
               onPeriodChange={setPeriod}
+              horizonMode={horizonMode}
+              onHorizonChange={setHorizonMode}
+              autoHorizonDays={horizonMode === 'auto' ? horizonDays : undefined}
             />
           </div>
         </SheetHeader>
@@ -130,7 +151,7 @@ export const CoverageTimelineDrawer: React.FC<CoverageTimelineDrawerProps> = ({
               <CardContent className="pt-6">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-medium">14-Day Projection</h3>
+                    <h3 className="text-sm font-medium">{horizonDays}-Day Projection</h3>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <div className="w-3 h-3 bg-primary rounded"></div>
