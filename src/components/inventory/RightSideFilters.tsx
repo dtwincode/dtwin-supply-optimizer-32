@@ -1,8 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { X, Filter } from "lucide-react";
+import { X, Filter, Search } from "lucide-react";
 import { useInventoryFilter } from "./InventoryFilterContext";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,7 +11,12 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { ChevronDown } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
-export function RightSideFilters() {
+interface RightSideFiltersProps {
+  searchTerm?: string;
+  onSearchChange?: (value: string) => void;
+}
+
+export function RightSideFilters({ searchTerm = '', onSearchChange }: RightSideFiltersProps) {
   const { filters, setFilters } = useInventoryFilter();
   const [isOpen, setIsOpen] = useState(true);
   const [products, setProducts] = useState<any[]>([]);
@@ -88,6 +94,20 @@ export function RightSideFilters() {
         
         <CollapsibleContent>
           <CardContent className="space-y-4">
+            {/* Search */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Search</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="SKU / Product Name..."
+                  value={searchTerm}
+                  onChange={(e) => onSearchChange?.(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
             {/* Product Filter */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Product</label>

@@ -49,6 +49,7 @@ const InventoryNew: React.FC = () => {
   const configTab = searchParams.get("tab") || "profiles";
   const [isCalculating, setIsCalculating] = useState(false);
   const [isRunningAnalysis, setIsRunningAnalysis] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleTabChange = (value: string) => {
     setSearchParams({ view: value });
@@ -157,7 +158,7 @@ const InventoryNew: React.FC = () => {
               {/* Main Content (3/4 width on large screens) */}
               <div className="lg:col-span-3 space-y-6">
                 <TabsContent value="coverage" className="mt-0 space-y-6">
-                  <CoverageView />
+                  <CoverageView searchTerm={searchTerm} />
                 </TabsContent>
 
                 <TabsContent value="exceptions" className="mt-0 space-y-6">
@@ -240,7 +241,10 @@ const InventoryNew: React.FC = () => {
 
               {/* Right-Side Filters (1/4 width on large screens) */}
               <div className="lg:col-span-1">
-                <RightSideFilters />
+                <RightSideFilters 
+                  searchTerm={searchTerm}
+                  onSearchChange={setSearchTerm}
+                />
               </div>
             </div>
           </Tabs>

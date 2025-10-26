@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useInventoryFilter } from '../InventoryFilterContext';
@@ -13,12 +12,15 @@ import { CoverageActionDrawer } from './CoverageActionDrawer';
 import { CoverageFooter } from './CoverageFooter';
 import { PredictiveAlerts } from './PredictiveAlerts';
 
-export const CoverageView: React.FC = () => {
+interface CoverageViewProps {
+  searchTerm: string;
+}
+
+export const CoverageView: React.FC<CoverageViewProps> = ({ searchTerm }) => {
   const { toast } = useToast();
   const { filters } = useInventoryFilter();
   const [items, setItems] = useState<CoverageItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
   const [selectedItem, setSelectedItem] = useState<CoverageItem | null>(null);
   const [isTimelineOpen, setIsTimelineOpen] = useState(false);
   const [isActionOpen, setIsActionOpen] = useState(false);
@@ -362,33 +364,18 @@ export const CoverageView: React.FC = () => {
           </div>
         </div>
       )}
-      
-      {/* Search Bar */}
-      <Card className="sticky top-0 z-20 shadow-md">
-        <CardContent className="p-4">
-          <div className="flex gap-2 items-center">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search SKU / Product Name..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            
-            <Button 
-              variant="outline" 
-              size="icon"
-              onClick={loadCoverageData}
-              disabled={isLoading}
-              title="Refresh data"
-            >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Refresh Button Bar */}
+      <div className="flex justify-end">
+        <Button 
+          variant="outline"
+          onClick={loadCoverageData}
+          disabled={isLoading}
+          className="gap-2"
+        >
+          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+          Refresh Data
+        </Button>
+      </div>
 
       {/* KPI Summary */}
       <CoverageKPICards 
