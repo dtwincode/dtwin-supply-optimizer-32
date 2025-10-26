@@ -45,7 +45,7 @@ const InventoryNew: React.FC = () => {
   const { t } = useI18n();
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
-  const view = searchParams.get("view") || "overview";
+  const view = searchParams.get("view") || "coverage";
   const configTab = searchParams.get("tab") || "profiles";
   const [isCalculating, setIsCalculating] = useState(false);
   const [isRunningAnalysis, setIsRunningAnalysis] = useState(false);
@@ -125,11 +125,7 @@ const InventoryNew: React.FC = () => {
 
           {/* Main Navigation Tabs */}
           <Tabs value={view} onValueChange={handleTabChange} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:inline-grid">
-              <TabsTrigger value="overview" className="flex items-center gap-2">
-                <LayoutDashboard className="h-4 w-4" />
-                <span className="hidden sm:inline">Overview</span>
-              </TabsTrigger>
+            <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:inline-grid">
               <TabsTrigger value="coverage" className="flex items-center gap-2">
                 <Layers className="h-4 w-4" />
                 <span className="hidden sm:inline">Coverage</span>
@@ -160,10 +156,6 @@ const InventoryNew: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               {/* Main Content (3/4 width on large screens) */}
               <div className="lg:col-span-3 space-y-6">
-                <TabsContent value="overview" className="mt-0 space-y-6">
-                  <DDMRPPlannerWorkbench />
-                </TabsContent>
-
                 <TabsContent value="coverage" className="mt-0 space-y-6">
                   <CoverageView />
                 </TabsContent>
