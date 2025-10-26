@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { AlertTriangle, TrendingUp, Activity } from "lucide-react";
+import { AlertTriangle, TrendingUp, Activity, ChevronDown, Info } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
 
 interface BullwhipData {
   product_id: string;
@@ -79,70 +82,90 @@ export function BullwhipAnalysisDashboard() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
+    <TooltipProvider>
+      <div className="space-y-6">
+        {/* Summary Cards */}
+        <div className="grid gap-4 md:grid-cols-3">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-sm font-medium">Critical Items</CardTitle>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Info className="h-3 w-3 text-muted-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Items with bullwhip ratio ≥ 2.0 require immediate attention</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+              <AlertTriangle className="h-4 w-4 text-destructive" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-destructive">{criticalItems.length}</div>
+              <p className="text-xs text-muted-foreground">
+                High amplification (ratio ≥ 2.0)
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-sm font-medium">Avg Bullwhip Ratio</CardTitle>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Info className="h-3 w-3 text-muted-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Order variability / Demand variability. Lower is better.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{avgRatio}</div>
+              <p className="text-xs text-muted-foreground">
+                Target: &lt; 1.5 (stable demand)
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Items Analyzed</CardTitle>
+              <Activity className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{data.length}</div>
+              <p className="text-xs text-muted-foreground">
+                Product-location pairs
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Alert for Critical Items */}
+        {criticalItems.length > 0 && (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>High Amplification Detected</AlertTitle>
+            <AlertDescription>
+              {criticalItems.length} product-location pairs show severe demand amplification (ratio ≥ 2.0). 
+              These items are strong candidates for strategic decoupling points to break the bullwhip effect.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Detailed Table */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Critical Items</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-destructive" />
+          <CardHeader>
+            <CardTitle>Bullwhip Analysis Details</CardTitle>
+            <CardDescription>
+              Demand amplification metrics for each product-location pair
+            </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{criticalItems.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Bullwhip ratio ≥ 2.0
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Ratio</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{avgRatio}</div>
-            <p className="text-xs text-muted-foreground">
-              Across all analyzed items
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Items Analyzed</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{data.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Product-location pairs
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Alert for Critical Items */}
-      {criticalItems.length > 0 && (
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>High Bullwhip Effect Detected</AlertTitle>
-          <AlertDescription>
-            {criticalItems.length} item(s) showing severe demand amplification (ratio ≥ 2.0). 
-            These should be prioritized for decoupling point designation to absorb variability.
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {/* Detailed Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Bullwhip Effect Analysis</CardTitle>
-          <CardDescription>
-            Demand amplification ratio = Order Variability / Customer Demand Variability. 
-            Ratios &gt; 1.0 indicate upstream amplification (the bullwhip effect).
-          </CardDescription>
-        </CardHeader>
         <CardContent>
           {data.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
@@ -184,41 +207,58 @@ export function BullwhipAnalysisDashboard() {
               </Table>
             </div>
           )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Explanation Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Understanding the Bullwhip Effect</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            The <strong>Bullwhip Effect</strong> is a critical supply chain phenomenon where small fluctuations 
-            in downstream customer demand cause progressively larger fluctuations in upstream order quantities. 
-            This is a primary reason for placing strategic decoupling points in DDMRP.
-          </p>
-          
-          <div className="space-y-2">
-            <h4 className="text-sm font-semibold">How It Works:</h4>
-            <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-              <li><strong>Ratio = 1.0:</strong> No amplification (order variability = demand variability)</li>
-              <li><strong>Ratio = 1.5:</strong> Orders are 50% more variable than customer demand</li>
-              <li><strong>Ratio = 2.0:</strong> Orders are twice as variable as customer demand (CRITICAL)</li>
-              <li><strong>Ratio = 3.0+:</strong> Severe amplification requiring immediate action</li>
-            </ul>
-          </div>
+        {/* Collapsible Explanation */}
+        <Card>
+          <CardHeader>
+            <Collapsible>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full flex items-center justify-between p-0 hover:bg-transparent">
+                  <CardTitle className="text-base">What is the Bullwhip Effect?</CardTitle>
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-4 space-y-4">
+                <div>
+                  <h4 className="font-semibold mb-2 text-sm">Definition</h4>
+                  <p className="text-sm text-muted-foreground">
+                    The bullwhip effect occurs when small fluctuations in retail demand cause
+                    progressively larger swings in orders upstream. A 5% variance in consumer
+                    demand can result in 40-50% variance in manufacturer orders.
+                  </p>
+                </div>
 
-          <div className="space-y-2">
-            <h4 className="text-sm font-semibold">DDMRP Solution:</h4>
-            <p className="text-sm text-muted-foreground">
-              Strategic decoupling points <strong>absorb variability</strong> by maintaining buffer inventory. 
-              This breaks the demand signal chain and prevents upstream amplification, reducing costs and 
-              improving service levels across the supply chain.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+                <div>
+                  <h4 className="font-semibold mb-2 text-sm">Calculation</h4>
+                  <p className="text-sm text-muted-foreground">
+                    <strong>Bullwhip Ratio = Order CV / Demand CV</strong>
+                    <br />
+                    CV (Coefficient of Variation) = Standard Deviation / Mean
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2 text-sm">DDMRP Mitigation</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Strategic decoupling points absorb demand variability and prevent cascading
+                    upstream, reducing the bullwhip effect by 30-50% (Ptak & Smith, 2016).
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2 text-sm">Scoring Weight</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Bullwhip contributes 15% to the 9-factor weighted score. Items with ratio ≥ 2.0
+                    receive maximum bullwhip score.
+                  </p>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          </CardHeader>
+        </Card>
+      </div>
+    </TooltipProvider>
   );
 }
