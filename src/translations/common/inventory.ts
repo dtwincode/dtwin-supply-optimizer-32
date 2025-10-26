@@ -81,4 +81,24 @@ export const inventoryTranslations: TranslationSet = {
     en: "Actions",
     ar: "الإجراءات",
   },
+  coverage: {
+    en: "Coverage",
+    ar: "التغطية",
+  },
+  daysOfSupply: {
+    en: "Days of Supply",
+    ar: "أيام التوريد",
+  },
+  avgDoS: {
+    en: "Avg Days of Supply",
+    ar: "متوسط أيام التوريد",
+  },
+  atRiskSKUs: {
+    en: "At-Risk SKUs",
+    ar: "منتجات معرضة للخطر",
+  },
+  coverageTrend: {
+    en: "Coverage Trend",
+    ar: "اتجاه التغطية",
+  },
 };

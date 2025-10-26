@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { ExecutionPriorityDashboard } from "@/components/inventory/execution/ExecutionPriorityDashboard";
 import { DDMRPPlannerWorkbench } from "@/components/inventory/workbench/DDMRPPlannerWorkbench";
+import { CoverageView } from "@/components/inventory/coverage/CoverageView";
 import { BufferBreachAlerts } from "@/components/inventory/alerts/BufferBreachAlerts";
 import { DecouplingPointManager } from "@/components/inventory/strategic/DecouplingPointManager";
 import { ExceptionManagement } from "@/components/inventory/advanced/ExceptionManagement";
@@ -22,7 +23,7 @@ import { BOMViewer } from "@/components/inventory/bom/BOMViewer";
 import { BOMExplosionTable } from "@/components/inventory/bom/BOMExplosionTable";
 import { ComponentDemandChart } from "@/components/inventory/bom/ComponentDemandChart";
 import { BufferDashboard } from "@/components/inventory/unified/BufferDashboard";
-import { LayoutDashboard, AlertTriangle, Shield, BarChart3, Settings, Activity } from "lucide-react";
+import { LayoutDashboard, AlertTriangle, Shield, BarChart3, Settings, Activity, Layers } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Configuration
@@ -124,10 +125,14 @@ const InventoryNew: React.FC = () => {
 
           {/* Main Navigation Tabs */}
           <Tabs value={view} onValueChange={handleTabChange} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:inline-grid">
+            <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:inline-grid">
               <TabsTrigger value="overview" className="flex items-center gap-2">
                 <LayoutDashboard className="h-4 w-4" />
                 <span className="hidden sm:inline">Overview</span>
+              </TabsTrigger>
+              <TabsTrigger value="coverage" className="flex items-center gap-2">
+                <Layers className="h-4 w-4" />
+                <span className="hidden sm:inline">Coverage</span>
               </TabsTrigger>
               <TabsTrigger value="exceptions" className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4" />
@@ -157,6 +162,10 @@ const InventoryNew: React.FC = () => {
               <div className="lg:col-span-3 space-y-6">
                 <TabsContent value="overview" className="mt-0 space-y-6">
                   <DDMRPPlannerWorkbench />
+                </TabsContent>
+
+                <TabsContent value="coverage" className="mt-0 space-y-6">
+                  <CoverageView />
                 </TabsContent>
 
                 <TabsContent value="exceptions" className="mt-0 space-y-6">
