@@ -25,14 +25,14 @@ Deno.serve(async (req) => {
     
     console.log(`🎯 Starting auto-designation with threshold ${threshold}%`);
 
-    // Check if component scoring is available
-    const { error: checkError } = await supabase.rpc('calculate_component_8factor_score', { 
+    // Check if component scoring is available (9-factor with bullwhip)
+    const { error: checkError } = await supabase.rpc('calculate_component_9factor_score', { 
       p_component_id: 'TEST', 
       p_location_id: 'TEST' 
     });
     
     const useComponentScoring = checkError?.code !== 'PGRST202';
-    console.log(useComponentScoring ? `✅ Component scoring active` : `⚠️ Using fallback scoring`);
+    console.log(useComponentScoring ? `✅ 9-factor component scoring active` : `⚠️ Using 9-factor standard scoring`);
 
     // Get valid locations from location_master first
     const { data: validLocs } = await supabase.from('location_master').select('location_id, region');
@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
 
     for (const pair of availablePairs) {
       try {
-        const fnName = useComponentScoring ? 'calculate_component_8factor_score' : 'calculate_8factor_weighted_score';
+        const fnName = useComponentScoring ? 'calculate_component_9factor_score' : 'calculate_9factor_weighted_score';
         const params = useComponentScoring ? { p_component_id: pair.product_id, p_location_id: pair.location_id } : { p_product_id: pair.product_id, p_location_id: pair.location_id };
         
         const { data: scoreData, error: scoreError } = await supabase.rpc(fnName, params);
@@ -94,7 +94,7 @@ Deno.serve(async (req) => {
             location_id: pair.location_id,
             buffer_profile_id: prodData?.buffer_profile_id || 'BP_DEFAULT',
             is_strategic: true,
-            designation_reason: `Auto: Score ${score.toFixed(2)} ${useComponentScoring ? `(Component: ${pair.sku})` : ''}`
+            designation_reason: `Auto: 9-Factor Score ${score.toFixed(2)} ${useComponentScoring ? `(Component: ${pair.sku})` : ''} - Includes Bullwhip Effect`
           });
 
           if (!insertError) {

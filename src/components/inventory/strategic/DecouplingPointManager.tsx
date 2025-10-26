@@ -281,7 +281,7 @@ export function DecouplingPointManager() {
           {/* Scoring Results Summary */}
           {scoringResults && (
             <div className="mb-6 p-4 bg-muted/50 rounded-lg space-y-3 border">
-              <h3 className="text-sm font-semibold">Auto-Designation Results</h3>
+              <h3 className="text-sm font-semibold">Auto-Designation Results (9-Factor Model with Bullwhip Effect)</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="space-y-1">
                   <p className="text-xs text-muted-foreground">Total Analyzed</p>
@@ -308,7 +308,13 @@ export function DecouplingPointManager() {
               </div>
               <div className="text-xs text-muted-foreground mt-2">
                 Threshold: {scoringResults.summary?.threshold_used || getConfig('auto_designate_threshold', 0.75)} | 
-                Scenario: {scoringResults.summary?.scenario || 'default'}
+                Scenario: {scoringResults.summary?.scenario || 'default'} | 
+                Mode: {scoringResults.summary?.scoring_mode || 'STANDARD'}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1 italic">
+                ✨ Using 9-factor model: Variability (20%), Criticality (20%), Holding Cost (15%), 
+                Supplier Reliability (10%), Lead Time (10%), Volume (10%), Storage Intensity (7.5%), 
+                MOQ Rigidity (7.5%), <strong>Bullwhip Effect (15%)</strong>
               </div>
             </div>
           )}
