@@ -158,9 +158,9 @@ const InventoryNew: React.FC = () => {
             </TabsList>
 
             {/* Content Area with Right-Side Filters */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              {/* Main Content (3/4 width on large screens) */}
-              <div className="lg:col-span-3 space-y-6">
+            <div className={`grid grid-cols-1 gap-6 ${view !== 'decoupling' ? 'lg:grid-cols-4' : ''}`}>
+              {/* Main Content (3/4 width on large screens, full width on decoupling) */}
+              <div className={view !== 'decoupling' ? 'lg:col-span-3 space-y-6' : 'space-y-6'}>
                 <TabsContent value="coverage" className="mt-0 space-y-6">
                   <CoverageView searchTerm={searchTerm} />
                 </TabsContent>
@@ -246,13 +246,15 @@ const InventoryNew: React.FC = () => {
                 </TabsContent>
               </div>
 
-              {/* Right-Side Filters (1/4 width on large screens) */}
-              <div className="lg:col-span-1">
-                <RightSideFilters 
-                  searchTerm={searchTerm}
-                  onSearchChange={setSearchTerm}
-                />
-              </div>
+              {/* Right-Side Filters (1/4 width on large screens) - Hidden on decoupling view */}
+              {view !== 'decoupling' && (
+                <div className="lg:col-span-1">
+                  <RightSideFilters 
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                  />
+                </div>
+              )}
             </div>
           </Tabs>
         </div>
