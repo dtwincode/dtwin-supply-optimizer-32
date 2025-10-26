@@ -20,9 +20,7 @@ const navigationItems = [{
 }, {
   name: "navigation.inventory",
   icon: Package,
-  href: "/inventory",
-  badge: "Phase 7",
-  badgeColor: "bg-green-600"
+  href: "/inventory"
 }, {
   name: "navigation.supplyPlanning",
   icon: ShoppingCart,
@@ -72,7 +70,6 @@ const Navigation = memo(({
       {navigationItems.map(item => <Link key={item.name} to={item.href} className={cn("flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-colors duration-200", location.pathname === item.href || item.href !== "/" && location.pathname.startsWith(item.href) ? "bg-dtwin-medium text-white" : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800")}>
           <item.icon className={`h-4 w-4 ${isRTL ? "ml-2" : "mr-2"}`} />
           <span className="flex-1">{t(item.name)}</span>
-          {item.badge}
         </Link>)}
     </nav>;
 });
