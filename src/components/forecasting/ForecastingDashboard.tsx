@@ -98,7 +98,7 @@ export const ForecastingDashboard = () => {
       // Build query with filters
       let query = supabase
         .from('historical_sales_data')
-        .select('sales_date, quantity_sold, product_id, location_id, product_master!historical_sales_data_product_id_fkey(name), location_master(region)')
+        .select('sales_date, quantity_sold, product_id, location_id, product_master!historical_sales_data_product_id_fkey(name)')
         .gte('sales_date', new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString())
         .order('sales_date', { ascending: true });
 
@@ -118,7 +118,11 @@ export const ForecastingDashboard = () => {
       const { data: historical, error: histError } = await query;
       if (histError) throw histError;
 
-      const filteredData = historical || [];
+      // Enrich data with region information from locations array
+      const filteredData = (historical || []).map((h: any) => ({
+        ...h,
+        region: locations.find(l => l.location_id === h.location_id)?.region
+      }));
 
       // Aggregate based on level
       const aggregated = aggregateForecasts(filteredData);
@@ -239,7 +243,7 @@ export const ForecastingDashboard = () => {
         // Aggregate by region
         const regionMap = new Map<string, { actual: number; count: number }>();
         data.forEach((d: any) => {
-          const key = d.location_master?.region || 'Unknown';
+          const key = d.region || 'Unknown';
           const curr = regionMap.get(key) || { actual: 0, count: 0 };
           regionMap.set(key, {
             actual: curr.actual + d.quantity_sold,
