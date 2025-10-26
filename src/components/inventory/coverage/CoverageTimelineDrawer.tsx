@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 import { CoverageItem } from './CoverageTable';
-import { Calendar, TrendingDown, Package } from 'lucide-react';
+import { Calendar, TrendingDown, Package, AlertTriangle } from 'lucide-react';
 import { SupplyChainImpact } from './SupplyChainImpact';
+import { ProjectionToggle } from './ProjectionToggle';
+import { DailyProjectionTable } from './DailyProjectionTable';
+import { WeeklyProjectionTable } from './WeeklyProjectionTable';
+import { useProjectionData } from '@/hooks/useProjectionData';
 import { isWeekend, getDayOfWeek } from '@/utils/timeUtils';
 
 interface CoverageTimelineDrawerProps {
@@ -22,6 +29,15 @@ export const CoverageTimelineDrawer: React.FC<CoverageTimelineDrawerProps> = ({
   onConfirmOrder
 }) => {
   const [adjustedQty, setAdjustedQty] = useState(0);
+  const [view, setView] = useState<'chart' | 'table'>('table');
+  const [period, setPeriod] = useState<'daily' | 'weekly'>('daily');
+  
+  // Fetch projection data
+  const { dailyProjections, weeklyProjections, isLoading } = useProjectionData({
+    productId: item?.product_id || '',
+    locationId: item?.location_id || '',
+    enabled: isOpen && !!item,
+  });
 
   React.useEffect(() => {
     if (item) {
@@ -61,19 +77,29 @@ export const CoverageTimelineDrawer: React.FC<CoverageTimelineDrawerProps> = ({
   };
 
   const timeline = generateTimeline();
-  const maxValue = Math.max(...timeline.map(d => Math.max(d.nfp, d.supply, d.demand)));
+  const maxNfp = Math.max(...timeline.map(d => d.nfp));
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent side="bottom" className="h-[60vh]">
+      <SheetContent side="bottom" className="h-[80vh] overflow-y-auto">
         <SheetHeader>
-          <SheetTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
-            Timeline Analysis - {item.sku}
-          </SheetTitle>
-          <SheetDescription>
-            {item.product_name} at {item.location_id}
-          </SheetDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <SheetTitle className="flex items-center gap-2">
+                <Package className="h-5 w-5" />
+                Coverage Timeline Analysis
+              </SheetTitle>
+              <SheetDescription>
+                14-day projection for {item.sku} at {item.location_id}
+              </SheetDescription>
+            </div>
+            <ProjectionToggle
+              view={view}
+              onViewChange={setView}
+              period={period}
+              onPeriodChange={setPeriod}
+            />
+          </div>
         </SheetHeader>
 
         <div className="mt-6 space-y-6">
@@ -98,84 +124,100 @@ export const CoverageTimelineDrawer: React.FC<CoverageTimelineDrawerProps> = ({
             </div>
           </div>
 
-          {/* Timeline Chart */}
-          <div className="bg-muted/30 p-4 rounded-lg">
-            <p className="text-sm font-medium mb-3">14-Day Projection (2 Weeks)</p>
-            <div className="relative h-32">
-              {/* Grid lines */}
-              <div className="absolute inset-0 flex flex-col justify-between">
-                {[0, 1, 2, 3, 4].map((i) => (
-                  <div key={i} className="border-t border-muted-foreground/10" />
-                ))}
-              </div>
-              
-              {/* Week separators */}
-              <div className="absolute inset-0 flex justify-around">
-                <div className="w-px bg-primary/30 h-full" style={{ marginLeft: '50%' }} />
-              </div>
-              
-              {/* Timeline bars */}
-              <div className="absolute inset-0 flex items-end justify-between gap-1">
-                {timeline.map((day, idx) => {
-                  const nfpHeight = (Math.max(0, day.nfp) / maxValue) * 100;
-                  const supplyHeight = (day.supply / maxValue) * 100;
-                  const demandHeight = (day.demand / maxValue) * 100;
-                  
-                  const isBreached = day.nfp < (item.dlt * item.adu);
-                  const isWeekendDay = isWeekend(day.day);
-                  
-                  return (
-                    <div key={idx} className="flex-1 flex flex-col items-center gap-0.5">
-                      {/* Supply indicator */}
-                      {day.supply > 0 && (
-                        <div 
-                          className="w-full bg-green-500 rounded-t transition-all"
-                          style={{ height: `${supplyHeight}%` }}
-                        />
-                      )}
-                      {/* NFP bar */}
-                      <div 
-                        className={`w-full rounded-t transition-all ${
-                          isBreached ? 'bg-red-500' : isWeekendDay ? 'bg-blue-400/60' : 'bg-blue-500'
-                        }`}
-                        style={{ height: `${nfpHeight}%` }}
-                      />
-                      {/* Day label */}
-                      <p className={`text-[8px] mt-1 ${isWeekendDay ? 'text-muted-foreground/60' : 'text-muted-foreground'}`}>
-                        D{day.day}
-                      </p>
+          {/* Projection View */}
+          {view === 'chart' ? (
+            <Card>
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-medium">14-Day Projection</h3>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 bg-primary rounded"></div>
+                        <span>NFP</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 bg-green-500 rounded"></div>
+                        <span>Supply</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 bg-yellow-500 rounded"></div>
+                        <span>Demand</span>
+                      </div>
                     </div>
-                  );
-                })}
-              </div>
+                  </div>
+                  
+                  {/* Timeline bars */}
+                  <div className="space-y-1">
+                    {timeline.map((day) => {
+                      const isWeekendDay = isWeekend(day.day);
+                      const dayOfWeek = getDayOfWeek(day.day);
+                      const isWeekStart = day.day % 7 === 0;
+                      
+                      return (
+                        <div key={day.day} className="space-y-1">
+                          {isWeekStart && day.day > 0 && (
+                            <div className="flex items-center gap-2 mt-2 mb-1">
+                              <Separator className="flex-1" />
+                              <span className="text-xs font-medium text-muted-foreground">
+                                Week {Math.floor(day.day / 7) + 1}
+                              </span>
+                              <Separator className="flex-1" />
+                            </div>
+                          )}
+                          <div className={`flex items-center gap-2 ${isWeekendDay ? 'bg-muted/30 rounded px-2 py-1' : ''}`}>
+                            <span className="text-xs w-16 text-muted-foreground">
+                              {day.day === 0 ? 'Today' : `Day ${day.day}`}
+                              <br />
+                              <span className="text-[10px]">{dayOfWeek}</span>
+                            </span>
+                            <div className="flex-1 h-8 bg-muted rounded-sm relative overflow-hidden">
+                              {/* NFP Bar */}
+                              <div
+                                className={`absolute left-0 top-0 h-full transition-all ${
+                                  day.nfp < item.dlt * item.adu ? 'bg-destructive' : 'bg-primary'
+                                }`}
+                                style={{ width: `${Math.max(0, Math.min(100, (day.nfp / maxNfp) * 100))}%` }}
+                              />
+                              {/* Supply indicator */}
+                              {day.supply > 0 && (
+                                <div className="absolute right-2 top-1/2 -translate-y-1/2 bg-green-500 text-white text-[10px] px-1.5 py-0.5 rounded font-semibold">
+                                  +{day.supply.toFixed(0)}
+                                </div>
+                              )}
+                              {/* Demand indicator */}
+                              {day.demand > 0 && (
+                                <div className="absolute left-2 top-1/2 -translate-y-1/2 bg-yellow-500 text-white text-[10px] px-1.5 py-0.5 rounded font-semibold">
+                                  -{day.demand.toFixed(0)}
+                                </div>
+                              )}
+                            </div>
+                            <span className="text-xs w-12 text-right font-medium">
+                              {day.nfp.toFixed(1)}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <div>
+              {isLoading ? (
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-center text-muted-foreground">Loading projection data...</div>
+                  </CardContent>
+                </Card>
+              ) : period === 'daily' ? (
+                <DailyProjectionTable projections={dailyProjections} />
+              ) : (
+                <WeeklyProjectionTable projections={weeklyProjections} />
+              )}
             </div>
-            
-            {/* Week labels */}
-            <div className="flex justify-around mt-2 text-xs text-muted-foreground font-medium">
-              <span>Week 1</span>
-              <span>Week 2</span>
-            </div>
-            
-            {/* Legend */}
-            <div className="flex gap-4 mt-3 text-xs flex-wrap">
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 bg-blue-500 rounded" />
-                <span>NFP (Weekday)</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 bg-blue-400/60 rounded" />
-                <span>Weekend</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 bg-green-500 rounded" />
-                <span>Incoming Supply</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 bg-red-500 rounded" />
-                <span>Below DLT</span>
-              </div>
-            </div>
-          </div>
+          )}
 
           {/* Order Quantity Adjustment */}
           <div className="space-y-3">
