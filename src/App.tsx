@@ -5,6 +5,7 @@ import Settings from "./pages/Settings";
 import DDSOP from "./pages/DDSOP";
 import DDMRP from "./pages/DDMRP";
 import DDOM from "./pages/DDOM";
+import Forecasting from "./pages/Forecasting";
 import { AuthProvider } from "./contexts/AuthContext";
 import Auth from "./pages/Auth";
 import { LanguageProvider } from "./contexts/LanguageContext";
@@ -33,6 +34,7 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/inventory" element={<Inventory />} />
                 <Route path="/supply-planning" element={<DDOM />} />
+                <Route path="/forecasting" element={<Forecasting />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/ddmrp" element={<DDMRP />} />
                 <Route path="/ddsop" element={<DDSOP />} />
