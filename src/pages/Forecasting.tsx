@@ -1,10 +1,11 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TrendingUp, Target, BarChart3, Settings } from "lucide-react";
+import { TrendingUp, Target, BarChart3, Settings, PlayCircle } from "lucide-react";
 import { ForecastingDashboard } from "@/components/forecasting/ForecastingDashboard";
 import { ForecastAccuracy } from "@/components/forecasting/ForecastAccuracy";
 import { ModelSelection } from "@/components/forecasting/ModelSelection";
+import { ModelEvaluation } from "@/components/forecasting/ModelEvaluation";
 
 const Forecasting = () => {
   return (
@@ -41,6 +42,10 @@ const Forecasting = () => {
               <TrendingUp className="h-4 w-4" />
               Dashboard
             </TabsTrigger>
+            <TabsTrigger value="evaluation" className="flex items-center gap-2">
+              <PlayCircle className="h-4 w-4" />
+              Model Evaluation
+            </TabsTrigger>
             <TabsTrigger value="accuracy" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
               Accuracy Analysis
@@ -53,6 +58,10 @@ const Forecasting = () => {
 
           <TabsContent value="dashboard" className="space-y-4">
             <ForecastingDashboard />
+          </TabsContent>
+
+          <TabsContent value="evaluation" className="space-y-4">
+            <ModelEvaluation />
           </TabsContent>
 
           <TabsContent value="accuracy" className="space-y-4">

@@ -661,6 +661,60 @@ export type Database = {
         }
         Relationships: []
       }
+      forecast_model_selection: {
+        Row: {
+          aic: number | null
+          created_at: string | null
+          id: string
+          is_best_model: boolean | null
+          last_evaluated_at: string | null
+          location_id: string
+          mae: number | null
+          mape: number | null
+          model_name: string
+          model_params: Json | null
+          product_id: string
+          rmse: number | null
+          smape: number | null
+          training_samples: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          aic?: number | null
+          created_at?: string | null
+          id?: string
+          is_best_model?: boolean | null
+          last_evaluated_at?: string | null
+          location_id: string
+          mae?: number | null
+          mape?: number | null
+          model_name: string
+          model_params?: Json | null
+          product_id: string
+          rmse?: number | null
+          smape?: number | null
+          training_samples?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          aic?: number | null
+          created_at?: string | null
+          id?: string
+          is_best_model?: boolean | null
+          last_evaluated_at?: string | null
+          location_id?: string
+          mae?: number | null
+          mape?: number | null
+          model_name?: string
+          model_params?: Json | null
+          product_id?: string
+          rmse?: number | null
+          smape?: number | null
+          training_samples?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       historical_sales_data: {
         Row: {
           created_at: string | null
@@ -2795,17 +2849,14 @@ export type Database = {
         Returns: undefined
       }
       assign_buffer_profiles_by_classification: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: undefined
       }
       auto_designate_with_scoring_v2: {
         Args: { p_scenario_name?: string; p_threshold?: number }
         Returns: Json
       }
-      auto_trigger_ltaf_on_variance: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
+      auto_trigger_ltaf_on_variance: { Args: never; Returns: number }
       calculate_8factor_weighted_score: {
         Args: { p_location_id: string; p_product_id: string }
         Returns: Json
@@ -2850,16 +2901,10 @@ export type Database = {
         Args: { p_location_id: string; p_product_id: string }
         Returns: number
       }
-      ddmrp_nightly: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      detect_buffer_breaches: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
+      ddmrp_nightly: { Args: never; Returns: undefined }
+      detect_buffer_breaches: { Args: never; Returns: number }
       detect_buffer_breaches_v2: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           breaches_detected: number
           critical_count: number
@@ -2867,7 +2912,7 @@ export type Database = {
         }[]
       }
       detect_lead_time_variance: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           location_id: string
           ltaf_recommended: number
@@ -2885,18 +2930,9 @@ export type Database = {
         Args: { location_id_filter?: string }
         Returns: number
       }
-      get_inventory_planning_data: {
-        Args: Record<PropertyKey, never>
-        Returns: Json[]
-      }
-      get_product_classifications: {
-        Args: Record<PropertyKey, never>
-        Returns: Json[]
-      }
-      get_threshold_config: {
-        Args: Record<PropertyKey, never>
-        Returns: Json[]
-      }
+      get_inventory_planning_data: { Args: never; Returns: Json[] }
+      get_product_classifications: { Args: never; Returns: Json[] }
+      get_threshold_config: { Args: never; Returns: Json[] }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2904,14 +2940,8 @@ export type Database = {
         }
         Returns: boolean
       }
-      integrate_forecast_data: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      populate_demand_history_analysis: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
+      integrate_forecast_data: { Args: never; Returns: string }
+      populate_demand_history_analysis: { Args: never; Returns: number }
       process_hierarchy_configuration: {
         Args: {
           p_mappings: Json
@@ -2938,26 +2968,14 @@ export type Database = {
           product_id: string
         }[]
       }
-      refresh_component_demand_view: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      refresh_execution_priority_view: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      refresh_component_demand_view: { Args: never; Returns: undefined }
+      refresh_execution_priority_view: { Args: never; Returns: undefined }
       remove_unselected_columns: {
         Args: { p_selected_columns: string[]; p_table_name: string }
         Returns: undefined
       }
-      update_performance_tracking: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      update_threshold_bayesian: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      update_performance_tracking: { Args: never; Returns: undefined }
+      update_threshold_bayesian: { Args: never; Returns: undefined }
       validate_buffer_criteria: {
         Args: { p_location_id: string; p_product_id: string }
         Returns: Json
