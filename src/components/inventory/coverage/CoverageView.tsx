@@ -99,10 +99,32 @@ export const CoverageView: React.FC = () => {
         const nfp = onHand + onOrder - qualifiedDemand;
         const dos = adu > 0 ? nfp / adu : 0;
         
-        // Calculate suggested order qty to reach 15 days of supply
-        const targetDoS = 15;
-        const targetNFP = targetDoS * adu;
-        const suggestedOrderQty = Math.max(0, targetNFP - nfp);
+        // Buffer zones from inventory_planning_view
+        const tor = inv.tor || 0;
+        const toy = inv.toy || 0;
+        const tog = inv.tog || 0;
+        
+        // Calculate execution priority based on buffer position
+        let execution_priority: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+        if (nfp <= tor) execution_priority = 'CRITICAL';
+        else if (nfp <= toy) execution_priority = 'HIGH';
+        else if (nfp <= tog) execution_priority = 'MEDIUM';
+        else execution_priority = 'LOW';
+        
+        // DDMRP-compliant order quantity calculation
+        const targetNFP = tog || (15 * adu); // Use TOG or fallback to 15 days
+        const projectedNFP = nfp + onOrder;
+        const shouldOrder = projectedNFP < (toy || targetNFP * 0.5);
+        
+        let suggestedOrderQty = 0;
+        if (shouldOrder) {
+          const baseOrderQty = Math.max(0, targetNFP - nfp);
+          const moq = inv.min_order_qty || 0;
+          const rounding = inv.rounding_multiple || 1;
+          
+          // Apply MOQ and rounding
+          suggestedOrderQty = Math.max(moq, Math.ceil(baseOrderQty / rounding) * rounding);
+        }
 
         return {
           product_id: inv.product_id!,
@@ -118,7 +140,11 @@ export const CoverageView: React.FC = () => {
           dos,
           suggested_order_qty: suggestedOrderQty,
           buffer_profile_id: inv.buffer_profile_id || undefined,
-          category: inv.category || undefined
+          category: inv.category || undefined,
+          tor,
+          toy,
+          tog,
+          execution_priority
         };
       });
 
@@ -222,6 +248,41 @@ export const CoverageView: React.FC = () => {
     }
   };
 
+  // Handle bulk order creation for critical items
+  const handleBulkCreateOrders = async (criticalItems: CoverageItem[]) => {
+    try {
+      const orders = criticalItems
+        .filter(item => item.suggested_order_qty > 0)
+        .map(item => ({
+          product_id: item.product_id,
+          location_id: item.location_id,
+          ordered_qty: item.suggested_order_qty,
+          received_qty: 0,
+          order_date: new Date().toISOString().split('T')[0],
+          expected_date: new Date(Date.now() + item.dlt * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          status: 'OPEN'
+        }));
+
+      const { error } = await supabase.from('open_pos').insert(orders);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Bulk Orders Created',
+        description: `Successfully created ${orders.length} emergency purchase orders`,
+      });
+
+      loadCoverageData();
+    } catch (error) {
+      console.error('Error creating bulk orders:', error);
+      toast({
+        title: 'Error Creating Bulk Orders',
+        description: error instanceof Error ? error.message : 'Failed to create orders',
+        variant: 'destructive'
+      });
+    }
+  };
+
   // Handle export
   const handleExport = () => {
     const csv = [
@@ -251,9 +312,49 @@ export const CoverageView: React.FC = () => {
 
   const uniqueLocations = Array.from(new Set(items.map(i => i.location_id)));
   const uniqueProfiles = Array.from(new Set(items.map(i => i.buffer_profile_id).filter(Boolean)));
+  
+  // Critical items (0 DoS or below TOR)
+  const criticalItems = items.filter(i => i.dos === 0 || (i.tor && i.nfp <= i.tor));
 
   return (
     <div className="space-y-6 pb-24">
+      {/* Critical Alert Banner */}
+      {criticalItems.length > 0 && (
+        <div className="bg-destructive/10 border-2 border-destructive rounded-lg p-6 animate-pulse">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-3 w-3 bg-destructive rounded-full animate-pulse" />
+                <h3 className="text-xl font-bold text-destructive">
+                  🚨 CRITICAL STOCKOUT ALERT
+                </h3>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                {criticalItems.length} SKUs are at critical levels (0 Days of Supply or below Red Zone). 
+                Immediate action required to prevent stockouts.
+              </p>
+              <div className="flex gap-2">
+                <Button 
+                  size="lg" 
+                  variant="destructive"
+                  onClick={() => handleBulkCreateOrders(criticalItems)}
+                  className="font-bold"
+                >
+                  📦 GENERATE {criticalItems.filter(i => i.suggested_order_qty > 0).length} EMERGENCY ORDERS NOW
+                </Button>
+                <Button 
+                  size="lg" 
+                  variant="outline"
+                  onClick={() => setStatusFilter('red')}
+                >
+                  View Critical Items
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Header Bar */}
       <Card className="sticky top-0 z-20 shadow-md">
         <CardContent className="p-4">

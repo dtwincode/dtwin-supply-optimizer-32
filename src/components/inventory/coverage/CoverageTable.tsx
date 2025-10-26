@@ -20,6 +20,10 @@ export interface CoverageItem {
   suggested_order_qty: number;
   buffer_profile_id?: string;
   category?: string;
+  tor?: number;
+  toy?: number;
+  tog?: number;
+  execution_priority?: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
 }
 
 interface CoverageTableProps {
@@ -43,12 +47,22 @@ export const CoverageTable: React.FC<CoverageTableProps> = ({
   };
 
   const filteredItems = useMemo(() => {
-    if (statusFilter === 'all') return items;
+    let filtered = items;
     
-    return items.filter(item => {
-      const status = getDoSStatus(item.dos, item.dlt);
-      if (statusFilter === 'at-risk') return item.dos < item.dlt;
-      return status === statusFilter;
+    if (statusFilter !== 'all') {
+      filtered = items.filter(item => {
+        const status = getDoSStatus(item.dos, item.dlt);
+        if (statusFilter === 'at-risk') return item.dos < item.dlt;
+        return status === statusFilter;
+      });
+    }
+    
+    // Sort by execution priority
+    return filtered.sort((a, b) => {
+      const priorityOrder = { CRITICAL: 1, HIGH: 2, MEDIUM: 3, LOW: 4 };
+      const aPriority = a.execution_priority || 'LOW';
+      const bPriority = b.execution_priority || 'LOW';
+      return priorityOrder[aPriority] - priorityOrder[bPriority];
     });
   }, [items, statusFilter]);
 
@@ -76,6 +90,21 @@ export const CoverageTable: React.FC<CoverageTableProps> = ({
     );
   };
 
+  const getPriorityBadge = (priority: string) => {
+    switch (priority) {
+      case 'CRITICAL':
+        return <Badge variant="destructive" className="font-bold animate-pulse">🚨 CRITICAL</Badge>;
+      case 'HIGH':
+        return <Badge variant="destructive" className="font-semibold">HIGH</Badge>;
+      case 'MEDIUM':
+        return <Badge className="bg-yellow-500 text-white font-semibold">MEDIUM</Badge>;
+      case 'LOW':
+        return <Badge variant="outline" className="border-green-500 text-green-700">LOW</Badge>;
+      default:
+        return <Badge variant="outline">-</Badge>;
+    }
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -89,6 +118,7 @@ export const CoverageTable: React.FC<CoverageTableProps> = ({
             <TableHead className="text-right">Qualified Demand</TableHead>
             <TableHead className="text-right">NFP</TableHead>
             <TableHead className="text-center">Days of Supply</TableHead>
+            <TableHead className="text-center">Execution Priority</TableHead>
             <TableHead className="text-right">Suggested Qty</TableHead>
             <TableHead className="text-center">Action</TableHead>
           </TableRow>
@@ -170,6 +200,9 @@ export const CoverageTable: React.FC<CoverageTableProps> = ({
                       </TooltipProvider>
                       <span className="text-xs text-muted-foreground">days</span>
                     </div>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {getPriorityBadge(item.execution_priority || 'LOW')}
                   </TableCell>
                   <TableCell className="text-right">
                     <span className="font-mono font-semibold text-primary">

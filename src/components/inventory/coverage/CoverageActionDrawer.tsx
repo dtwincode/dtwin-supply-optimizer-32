@@ -30,10 +30,12 @@ export const CoverageActionDrawer: React.FC<CoverageActionDrawerProps> = ({
 
   if (!item) return null;
 
-  const targetDoS = 15; // Default target: 15 days
+  // Use TOG (Top of Green) as target, fallback to 15 days
+  const targetNFP = item.tog || (15 * item.adu);
+  const targetDoS = targetNFP / item.adu;
   const projectedNFP = item.nfp + orderQty;
   const projectedDoS = projectedNFP / item.adu;
-  const willReachTarget = projectedDoS >= targetDoS;
+  const willReachTarget = projectedNFP >= targetNFP;
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
@@ -91,7 +93,7 @@ export const CoverageActionDrawer: React.FC<CoverageActionDrawerProps> = ({
                 className="text-lg font-semibold"
               />
               <p className="text-xs text-muted-foreground">
-                Suggested: {item.suggested_order_qty.toFixed(0)} units (to reach {targetDoS} days)
+                Suggested: {item.suggested_order_qty.toFixed(0)} units (to reach TOG: {targetDoS.toFixed(1)} days)
               </p>
             </div>
 
@@ -118,12 +120,24 @@ export const CoverageActionDrawer: React.FC<CoverageActionDrawerProps> = ({
               {willReachTarget ? (
                 <div className="flex items-center gap-2 text-green-600 text-xs bg-green-50 p-2 rounded">
                   <div className="h-2 w-2 bg-green-600 rounded-full" />
-                  Will reach target coverage of {targetDoS} days
+                  ✓ Will reach TOG (Top of Green Zone)
                 </div>
               ) : (
                 <div className="flex items-center gap-2 text-yellow-600 text-xs bg-yellow-50 p-2 rounded">
                   <div className="h-2 w-2 bg-yellow-600 rounded-full" />
-                  Below target. Consider ordering {((targetDoS * item.adu) - item.nfp).toFixed(0)} units
+                  Below TOG. Consider ordering {(targetNFP - item.nfp).toFixed(0)} units
+                </div>
+              )}
+              
+              {/* Buffer Zone Reference */}
+              {(item.tor || item.toy || item.tog) && (
+                <div className="text-xs text-muted-foreground border-t pt-2 mt-2">
+                  <p className="font-medium mb-1">Buffer Zones:</p>
+                  <div className="flex gap-3">
+                    {item.tor && <span>🔴 TOR: {item.tor.toFixed(0)}</span>}
+                    {item.toy && <span>🟡 TOY: {item.toy.toFixed(0)}</span>}
+                    {item.tog && <span>🟢 TOG: {item.tog.toFixed(0)}</span>}
+                  </div>
                 </div>
               )}
             </div>
