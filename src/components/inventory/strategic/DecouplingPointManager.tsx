@@ -224,8 +224,8 @@ export function DecouplingPointManager() {
       setScoringResults(results);
       
       toast.success(
-        `Auto-Designation Complete: ${results?.summary?.auto_designated || 0} new points added`,
-        { description: `From this run: ${results?.summary?.review_required || 0} require review, ${results?.summary?.auto_rejected || 0} rejected of ${results?.summary?.total_analyzed || 0} analyzed` }
+        `Auto-Designation Complete: ${results?.summary?.auto_designated || 0} new points added in this run`,
+        { description: `This run only: ${results?.summary?.review_required || 0} require review, ${results?.summary?.auto_rejected || 0} rejected of ${results?.summary?.total_analyzed || 0} analyzed` }
       );
 
       loadData();
@@ -256,7 +256,7 @@ export function DecouplingPointManager() {
             <div className="space-y-1">
               <h3 className="text-lg font-semibold">Decoupling Point Management</h3>
               <p className="text-sm text-muted-foreground">
-                <span className="font-semibold text-foreground">{decouplingPoints.length}</span> total active points | <span className="font-semibold text-foreground">{availablePairs.filter(p => !p.is_decoupling_point).length}</span> pairs available for designation
+                <span className="font-semibold text-foreground">{decouplingPoints.length}</span> existing decoupling points (all-time) | <span className="font-semibold text-foreground">{availablePairs.filter(p => !p.is_decoupling_point).length}</span> pairs still available
               </p>
             </div>
             <div className="flex gap-2">
@@ -355,7 +355,7 @@ export function DecouplingPointManager() {
         <Card className="border-primary/50">
           <CardHeader>
             <CardTitle className="text-base">Latest Auto-Designation Run Results</CardTitle>
-            <CardDescription className="text-xs">Results from the most recent auto-designation analysis (not total counts)</CardDescription>
+            <CardDescription className="text-xs">⚠️ Shows results from the most recent run only, not all-time totals</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-4 gap-4">
