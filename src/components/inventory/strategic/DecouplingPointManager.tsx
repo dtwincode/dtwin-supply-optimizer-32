@@ -242,6 +242,18 @@ export function DecouplingPointManager() {
   const handleClearAll = async () => {
     setIsClearing(true);
     try {
+      // First, delete all related buffer_recalculation_history records
+      const { error: historyError } = await supabase
+        .from("buffer_recalculation_history")
+        .delete()
+        .neq("id", "00000000-0000-0000-0000-000000000000"); // Delete all
+
+      if (historyError) {
+        console.error("Error clearing buffer history:", historyError);
+        // Continue anyway - history might not exist
+      }
+
+      // Then delete all decoupling points
       const { error } = await supabase
         .from("decoupling_points")
         .delete()
