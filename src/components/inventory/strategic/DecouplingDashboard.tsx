@@ -2,12 +2,11 @@ import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Activity, Target, TrendingUp, AlertCircle, Settings, GitCompare } from "lucide-react";
+import { Activity, Target, TrendingUp, AlertCircle, Settings } from "lucide-react";
 import { BullwhipAnalysisDashboard } from "./BullwhipAnalysisDashboard";
 import { DecouplingPointManager } from "./DecouplingPointManager";
 import { DecouplingScoreExplainer } from "./DecouplingScoreExplainer";
 import { ScenarioManagement } from "./ScenarioManagement";
-import { ScenarioComparison } from "./ScenarioComparison";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 
@@ -130,14 +129,10 @@ export function DecouplingDashboard() {
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <Target className="h-4 w-4" />
             Overview
-          </TabsTrigger>
-          <TabsTrigger value="comparison" className="flex items-center gap-2">
-            <GitCompare className="h-4 w-4" />
-            Compare Scenarios
           </TabsTrigger>
           <TabsTrigger value="bullwhip" className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4" />
@@ -155,10 +150,6 @@ export function DecouplingDashboard() {
 
         <TabsContent value="overview" className="mt-6">
           <DecouplingPointManager />
-        </TabsContent>
-
-        <TabsContent value="comparison" className="mt-6">
-          <ScenarioComparison />
         </TabsContent>
 
         <TabsContent value="bullwhip" className="mt-6">
