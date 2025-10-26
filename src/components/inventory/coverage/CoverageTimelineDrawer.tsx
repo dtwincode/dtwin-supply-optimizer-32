@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { CoverageItem } from './CoverageTable';
 import { Calendar, TrendingDown, Package } from 'lucide-react';
 import { SupplyChainImpact } from './SupplyChainImpact';
+import { isWeekend, getDayOfWeek } from '@/utils/timeUtils';
 
 interface CoverageTimelineDrawerProps {
   item: CoverageItem | null;
@@ -99,13 +100,18 @@ export const CoverageTimelineDrawer: React.FC<CoverageTimelineDrawerProps> = ({
 
           {/* Timeline Chart */}
           <div className="bg-muted/30 p-4 rounded-lg">
-            <p className="text-sm font-medium mb-3">14-Day Projection</p>
+            <p className="text-sm font-medium mb-3">14-Day Projection (2 Weeks)</p>
             <div className="relative h-32">
               {/* Grid lines */}
               <div className="absolute inset-0 flex flex-col justify-between">
                 {[0, 1, 2, 3, 4].map((i) => (
                   <div key={i} className="border-t border-muted-foreground/10" />
                 ))}
+              </div>
+              
+              {/* Week separators */}
+              <div className="absolute inset-0 flex justify-around">
+                <div className="w-px bg-primary/30 h-full" style={{ marginLeft: '50%' }} />
               </div>
               
               {/* Timeline bars */}
@@ -116,6 +122,7 @@ export const CoverageTimelineDrawer: React.FC<CoverageTimelineDrawerProps> = ({
                   const demandHeight = (day.demand / maxValue) * 100;
                   
                   const isBreached = day.nfp < (item.dlt * item.adu);
+                  const isWeekendDay = isWeekend(day.day);
                   
                   return (
                     <div key={idx} className="flex-1 flex flex-col items-center gap-0.5">
@@ -129,23 +136,35 @@ export const CoverageTimelineDrawer: React.FC<CoverageTimelineDrawerProps> = ({
                       {/* NFP bar */}
                       <div 
                         className={`w-full rounded-t transition-all ${
-                          isBreached ? 'bg-red-500' : 'bg-blue-500'
+                          isBreached ? 'bg-red-500' : isWeekendDay ? 'bg-blue-400/60' : 'bg-blue-500'
                         }`}
                         style={{ height: `${nfpHeight}%` }}
                       />
                       {/* Day label */}
-                      <p className="text-[8px] text-muted-foreground mt-1">D{day.day}</p>
+                      <p className={`text-[8px] mt-1 ${isWeekendDay ? 'text-muted-foreground/60' : 'text-muted-foreground'}`}>
+                        D{day.day}
+                      </p>
                     </div>
                   );
                 })}
               </div>
             </div>
             
+            {/* Week labels */}
+            <div className="flex justify-around mt-2 text-xs text-muted-foreground font-medium">
+              <span>Week 1</span>
+              <span>Week 2</span>
+            </div>
+            
             {/* Legend */}
-            <div className="flex gap-4 mt-3 text-xs">
+            <div className="flex gap-4 mt-3 text-xs flex-wrap">
               <div className="flex items-center gap-1">
                 <div className="w-3 h-3 bg-blue-500 rounded" />
-                <span>NFP</span>
+                <span>NFP (Weekday)</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 bg-blue-400/60 rounded" />
+                <span>Weekend</span>
               </div>
               <div className="flex items-center gap-1">
                 <div className="w-3 h-3 bg-green-500 rounded" />

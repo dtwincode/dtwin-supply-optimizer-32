@@ -11,6 +11,7 @@ import { CoverageTimelineDrawer } from './CoverageTimelineDrawer';
 import { CoverageActionDrawer } from './CoverageActionDrawer';
 import { CoverageFooter } from './CoverageFooter';
 import { PredictiveAlerts } from './PredictiveAlerts';
+import { TimeWindowContextCard } from './TimeWindowContextCard';
 
 interface CoverageViewProps {
   searchTerm: string;
@@ -393,6 +394,13 @@ export const CoverageView: React.FC<CoverageViewProps> = ({ searchTerm }) => {
           </div>
         </div>
       )}
+      {/* Time Window Context */}
+      <TimeWindowContextCard 
+        lastUpdated={lastUpdated}
+        autoRefreshEnabled={true}
+        autoRefreshIntervalMinutes={15}
+      />
+
       {/* Refresh Button Bar */}
       <div className="flex justify-end">
         <Button 
@@ -462,6 +470,8 @@ export const CoverageView: React.FC<CoverageViewProps> = ({ searchTerm }) => {
         avgDoS={kpiData.avgDoS}
         lastUpdated={lastUpdated}
         onExport={handleExport}
+        autoRefreshEnabled={true}
+        autoRefreshIntervalMinutes={15}
       />
     </div>
   );

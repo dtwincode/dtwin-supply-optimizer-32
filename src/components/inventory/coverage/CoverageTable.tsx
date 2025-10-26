@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, Eye, AlertCircle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { formatDaysWithWeeks } from '@/utils/timeUtils';
 
 export interface CoverageItem {
   product_id: string;
@@ -194,11 +195,17 @@ export const CoverageTable: React.FC<CoverageTableProps> = ({
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger>
-                            <span className="text-lg font-bold">{item.dos.toFixed(1)}</span>
+                            <div className="text-center">
+                              <span className="text-lg font-bold block">{item.dos.toFixed(1)}</span>
+                              <span className="text-[10px] text-muted-foreground">
+                                ({(item.dos / 7).toFixed(1)} wks)
+                              </span>
+                            </div>
                           </TooltipTrigger>
                           <TooltipContent>
                             <p>DoS = NFP / ADU</p>
                             <p className="text-xs">({item.nfp.toFixed(1)} / {item.adu.toFixed(1)})</p>
+                            <p className="text-xs mt-1">{formatDaysWithWeeks(item.dos)}</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>

@@ -3,6 +3,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, Clock } from 'lucide-react';
 import { CoverageItem } from './CoverageTable';
+import { getTimeContext } from '@/utils/timeUtils';
 
 interface PredictiveAlertsProps {
   items: CoverageItem[];
@@ -48,9 +49,14 @@ export const PredictiveAlerts: React.FC<PredictiveAlertsProps> = ({ items, onVie
                   <span className="font-mono font-semibold">{item.sku}</span>
                   <span className="text-muted-foreground">{item.location_id}</span>
                 </div>
-                <span className="font-bold text-orange-700">
-                  {item.daysUntilBreach.toFixed(1)} days
-                </span>
+                <div className="text-right">
+                  <div className="font-bold text-orange-700">
+                    {item.daysUntilBreach.toFixed(1)} days
+                  </div>
+                  <div className="text-[10px] text-muted-foreground">
+                    {getTimeContext(item.daysUntilBreach)}
+                  </div>
+                </div>
               </div>
             ))}
             {projectedBreaches.length > 5 && (
