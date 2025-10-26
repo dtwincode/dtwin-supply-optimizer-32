@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CoverageItem } from './CoverageTable';
 import { Calendar, TrendingDown, Package } from 'lucide-react';
+import { SupplyChainImpact } from './SupplyChainImpact';
 
 interface CoverageTimelineDrawerProps {
   item: CoverageItem | null;
@@ -185,6 +186,9 @@ export const CoverageTimelineDrawer: React.FC<CoverageTimelineDrawerProps> = ({
               {' '}({item.dlt} days from now)
             </p>
           </div>
+
+          {/* Supply Chain Impact - Multi-Echelon View */}
+          <SupplyChainImpact item={item} />
         </div>
       </SheetContent>
     </Sheet>
