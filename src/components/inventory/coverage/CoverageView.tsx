@@ -2,10 +2,10 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, RefreshCw, Settings } from 'lucide-react';
+import { Search, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useInventoryFilter } from '../InventoryFilterContext';
 import { CoverageKPICards } from './CoverageKPICards';
 import { CoverageTable, CoverageItem } from './CoverageTable';
 import { CoverageTimelineDrawer } from './CoverageTimelineDrawer';
@@ -15,12 +15,10 @@ import { PredictiveAlerts } from './PredictiveAlerts';
 
 export const CoverageView: React.FC = () => {
   const { toast } = useToast();
+  const { filters } = useInventoryFilter();
   const [items, setItems] = useState<CoverageItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'red' | 'yellow' | 'green' | 'at-risk'>('all');
-  const [locationFilter, setLocationFilter] = useState<string>('all');
-  const [bufferProfileFilter, setBufferProfileFilter] = useState<string>('all');
   const [selectedItem, setSelectedItem] = useState<CoverageItem | null>(null);
   const [isTimelineOpen, setIsTimelineOpen] = useState(false);
   const [isActionOpen, setIsActionOpen] = useState(false);
@@ -192,7 +190,7 @@ export const CoverageView: React.FC = () => {
     };
   }, [items]);
 
-  // Filter items based on search and filters
+  // Filter items based on search and context filters
   const filteredItems = useMemo(() => {
     return items.filter(item => {
       // Search filter
@@ -201,19 +199,28 @@ export const CoverageView: React.FC = () => {
         return false;
       }
       
-      // Location filter
-      if (locationFilter !== 'all' && item.location_id !== locationFilter) {
+      // Product filter from context
+      if (filters.productId && item.product_id !== filters.productId) {
         return false;
       }
       
-      // Buffer profile filter
-      if (bufferProfileFilter !== 'all' && item.buffer_profile_id !== bufferProfileFilter) {
+      // Location filter from context
+      if (filters.locationId && item.location_id !== filters.locationId) {
         return false;
+      }
+      
+      // Buffer status filter from context
+      if (filters.bufferStatus.length > 0) {
+        const status = item.dos < item.dlt ? 'RED' : 
+                      item.dos <= item.dlt * 1.5 ? 'YELLOW' : 'GREEN';
+        if (!filters.bufferStatus.includes(status)) {
+          return false;
+        }
       }
       
       return true;
     });
-  }, [items, searchTerm, locationFilter, bufferProfileFilter]);
+  }, [items, searchTerm, filters]);
 
   // Handle order creation
   const handleCreateOrder = async (item: CoverageItem, quantity: number) => {
@@ -311,9 +318,6 @@ export const CoverageView: React.FC = () => {
     a.click();
   };
 
-  const uniqueLocations = Array.from(new Set(items.map(i => i.location_id)));
-  const uniqueProfiles = Array.from(new Set(items.map(i => i.buffer_profile_id).filter(Boolean)));
-  
   // Critical items (0 DoS or below TOR)
   const criticalItems = items.filter(i => i.dos === 0 || (i.tor && i.nfp <= i.tor));
 
@@ -346,7 +350,10 @@ export const CoverageView: React.FC = () => {
                 <Button 
                   size="lg" 
                   variant="outline"
-                  onClick={() => setStatusFilter('red')}
+                  onClick={() => {
+                    // Scroll to table
+                    document.querySelector('[data-coverage-table]')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
                 >
                   View Critical Items
                 </Button>
@@ -356,58 +363,29 @@ export const CoverageView: React.FC = () => {
         </div>
       )}
       
-      {/* Header Bar */}
+      {/* Search Bar */}
       <Card className="sticky top-0 z-20 shadow-md">
         <CardContent className="p-4">
-          <div className="flex flex-col lg:flex-row gap-4 items-center">
-            <div className="relative flex-1 w-full">
+          <div className="flex gap-2 items-center">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search SKU / Item / Location..."
+                placeholder="Search SKU / Product Name..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
             </div>
             
-            <div className="flex gap-2 w-full lg:w-auto">
-              <Select value={locationFilter} onValueChange={setLocationFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="All Locations" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Locations</SelectItem>
-                  {uniqueLocations.map(loc => (
-                    <SelectItem key={loc} value={loc}>{loc}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select value={bufferProfileFilter} onValueChange={setBufferProfileFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="All Profiles" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Profiles</SelectItem>
-                  {uniqueProfiles.map(prof => (
-                    <SelectItem key={prof} value={prof || 'none'}>{prof || 'None'}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Button 
-                variant="outline" 
-                size="icon"
-                onClick={loadCoverageData}
-                disabled={isLoading}
-              >
-                <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-              </Button>
-
-              <Button variant="outline" size="icon">
-                <Settings className="h-4 w-4" />
-              </Button>
-            </div>
+            <Button 
+              variant="outline" 
+              size="icon"
+              onClick={loadCoverageData}
+              disabled={isLoading}
+              title="Refresh data"
+            >
+              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -415,17 +393,19 @@ export const CoverageView: React.FC = () => {
       {/* KPI Summary */}
       <CoverageKPICards 
         data={kpiData} 
-        onCardClick={(filter) => setStatusFilter(filter as typeof statusFilter)} 
+        onCardClick={() => {}} 
       />
 
       {/* Predictive Breach Alerts */}
       <PredictiveAlerts 
         items={items}
-        onViewAtRisk={() => setStatusFilter('at-risk')}
+        onViewAtRisk={() => {
+          document.querySelector('[data-coverage-table]')?.scrollIntoView({ behavior: 'smooth' });
+        }}
       />
 
       {/* Coverage Table */}
-      <Card>
+      <Card data-coverage-table>
         <CardContent className="p-6">
           <CoverageTable
             items={filteredItems}
@@ -437,7 +417,7 @@ export const CoverageView: React.FC = () => {
               setSelectedItem(item);
               setIsActionOpen(true);
             }}
-            statusFilter={statusFilter}
+            statusFilter="all"
           />
         </CardContent>
       </Card>
