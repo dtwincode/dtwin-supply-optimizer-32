@@ -22,6 +22,61 @@ serve(async (req) => {
   }
 
   try {
+    // ⚠️ SECURITY: Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('❌ Missing Authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized: Missing authentication' }),
+        { status: 401, headers: corsHeaders }
+      );
+    }
+
+    // Create authenticated Supabase client to verify user
+    const supabaseAuth = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser();
+    
+    if (authError || !user) {
+      console.error('❌ Invalid authentication:', authError?.message);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized: Invalid authentication token' }),
+        { status: 401, headers: corsHeaders }
+      );
+    }
+
+    console.log('✅ User authenticated:', user.id);
+
+    // ⚠️ SECURITY: Check user has planner or admin role
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    const { data: roles, error: roleError } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id);
+
+    if (roleError || !roles || roles.length === 0) {
+      console.error('❌ User has no roles assigned');
+      return new Response(
+        JSON.stringify({ error: 'Forbidden: User does not have required permissions' }),
+        { status: 403, headers: corsHeaders }
+      );
+    }
+
+    const userRoles = roles.map(r => r.role);
+    const hasAccess = userRoles.includes('admin') || userRoles.includes('planner');
+
+    if (!hasAccess) {
+      console.error('❌ User lacks planner/admin role:', userRoles);
+      return new Response(
+        JSON.stringify({ error: 'Forbidden: Requires planner or admin role' }),
+        { status: 403, headers: corsHeaders }
+      );
+    }
+
+    console.log('✅ User authorized with roles:', userRoles);
+
     const body = await req.json();
     const { prompt, context, format = 'text', timestamp } = body;
     
