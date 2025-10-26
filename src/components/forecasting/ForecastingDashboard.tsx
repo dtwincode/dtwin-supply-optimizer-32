@@ -38,6 +38,8 @@ export const ForecastingDashboard = () => {
   const [aggregationLevel, setAggregationLevel] = useState<string>("product-location");
   const [forecastData, setForecastData] = useState<ForecastDataPoint[]>([]);
   const [aggregatedData, setAggregatedData] = useState<AggregatedForecast[]>([]);
+  const [activeModel, setActiveModel] = useState<string>("Simple Moving Average");
+  const [modelDetails, setModelDetails] = useState<any>(null);
 
   useEffect(() => {
     loadMasterData();
@@ -135,6 +137,29 @@ export const ForecastingDashboard = () => {
       }));
 
       console.log('Enriched data:', filteredData.length, 'records');
+
+      // Fetch best model for selected product-location (if specific selection)
+      if (selectedProduct !== 'ALL' && selectedLocation !== 'ALL') {
+        const { data: modelData, error: modelError } = await supabase
+          .from('forecast_model_selection')
+          .select('*')
+          .eq('product_id', selectedProduct)
+          .eq('location_id', selectedLocation)
+          .eq('is_best_model', true)
+          .maybeSingle();
+
+        if (!modelError && modelData) {
+          setActiveModel(modelData.model_name);
+          setModelDetails(modelData);
+          console.log('Using best model:', modelData.model_name, 'with SMAPE:', modelData.smape);
+        } else {
+          setActiveModel('Simple Moving Average (Default)');
+          setModelDetails(null);
+        }
+      } else {
+        setActiveModel('Aggregated - Multiple Models');
+        setModelDetails(null);
+      }
 
       // Aggregate based on level
       const aggregated = aggregateForecasts(filteredData);
@@ -390,12 +415,35 @@ export const ForecastingDashboard = () => {
         <TabsContent value="timeseries">
           <Card>
             <CardHeader>
-              <CardTitle>Demand Forecast (90-Day History + 30-Day Forecast)</CardTitle>
-              <CardDescription>Actual vs forecasted demand at selected aggregation level</CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Demand Forecast (90-Day History + 30-Day Forecast)</CardTitle>
+                  <CardDescription>Actual vs forecasted demand at selected aggregation level</CardDescription>
+                </div>
+                <div className="text-right">
+                  <Badge variant="outline" className="text-xs">
+                    Active Model: {activeModel}
+                  </Badge>
+                  {modelDetails && (
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Accuracy: {modelDetails.smape?.toFixed(1)}% SMAPE | 
+                      MAE: {modelDetails.mae?.toFixed(1)}
+                    </div>
+                  )}
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               {loading ? (
                 <Skeleton className="h-[400px] w-full" />
+              ) : forecastData.length === 0 ? (
+                <div className="h-[400px] flex items-center justify-center text-muted-foreground">
+                  <div className="text-center space-y-2">
+                    <AlertCircle className="h-12 w-12 mx-auto opacity-50" />
+                    <p>No data available for the selected filters</p>
+                    <p className="text-xs">Try selecting different product/location combinations</p>
+                  </div>
+                </div>
               ) : (
                 <ResponsiveContainer width="100%" height={400}>
                   <LineChart data={forecastData}>
@@ -434,6 +482,59 @@ export const ForecastingDashboard = () => {
               )}
             </CardContent>
           </Card>
+
+          {/* Model Info Card */}
+          {modelDetails && selectedProduct !== 'ALL' && selectedLocation !== 'ALL' && (
+            <Card className="mt-4">
+              <CardHeader>
+                <CardTitle className="text-sm">Selected Model Details</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Model</p>
+                    <p className="font-semibold">{modelDetails.model_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">SMAPE</p>
+                    <p className="font-semibold">{modelDetails.smape?.toFixed(2)}%</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">MAPE</p>
+                    <p className="font-semibold">{modelDetails.mape?.toFixed(2)}%</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">MAE</p>
+                    <p className="font-semibold">{modelDetails.mae?.toFixed(1)}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">RMSE</p>
+                    <p className="font-semibold">{modelDetails.rmse?.toFixed(1)}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Training Samples</p>
+                    <p className="font-semibold">{modelDetails.training_samples}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Last Evaluated</p>
+                    <p className="font-semibold text-xs">
+                      {new Date(modelDetails.last_evaluated_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Status</p>
+                    <Badge variant="default" className="text-xs">Best Fit</Badge>
+                  </div>
+                </div>
+                {modelDetails.model_params && (
+                  <div className="mt-4 p-3 bg-muted rounded-md">
+                    <p className="text-xs text-muted-foreground mb-1">Model Parameters:</p>
+                    <pre className="text-xs">{JSON.stringify(modelDetails.model_params, null, 2)}</pre>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="aggregated">
