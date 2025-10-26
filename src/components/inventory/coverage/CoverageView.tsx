@@ -11,6 +11,7 @@ import { CoverageTable, CoverageItem } from './CoverageTable';
 import { CoverageTimelineDrawer } from './CoverageTimelineDrawer';
 import { CoverageActionDrawer } from './CoverageActionDrawer';
 import { CoverageFooter } from './CoverageFooter';
+import { PredictiveAlerts } from './PredictiveAlerts';
 
 export const CoverageView: React.FC = () => {
   const { toast } = useToast();
@@ -415,6 +416,12 @@ export const CoverageView: React.FC = () => {
       <CoverageKPICards 
         data={kpiData} 
         onCardClick={(filter) => setStatusFilter(filter as typeof statusFilter)} 
+      />
+
+      {/* Predictive Breach Alerts */}
+      <PredictiveAlerts 
+        items={items}
+        onViewAtRisk={() => setStatusFilter('at-risk')}
       />
 
       {/* Coverage Table */}

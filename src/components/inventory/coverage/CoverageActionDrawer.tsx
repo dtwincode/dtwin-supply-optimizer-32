@@ -1,17 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CoverageItem } from './CoverageTable';
-import { ShoppingCart, Calendar, TrendingUp, Package } from 'lucide-react';
+import { ShoppingCart, Calendar, TrendingUp, Package, Truck, DollarSign, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { supabase } from '@/integrations/supabase/client';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface CoverageActionDrawerProps {
   item: CoverageItem | null;
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (item: CoverageItem, quantity: number) => void;
+}
+
+interface SupplierData {
+  vendor_name: string;
+  unit_cost: number;
+  lead_time_days: number;
+  on_time_delivery_rate: number;
+  payment_terms: string;
 }
 
 export const CoverageActionDrawer: React.FC<CoverageActionDrawerProps> = ({
@@ -21,10 +31,65 @@ export const CoverageActionDrawer: React.FC<CoverageActionDrawerProps> = ({
   onConfirm
 }) => {
   const [orderQty, setOrderQty] = useState(0);
+  const [supplierData, setSupplierData] = useState<SupplierData | null>(null);
+  const [loadingSupplier, setLoadingSupplier] = useState(false);
 
-  React.useEffect(() => {
+  const loadSupplierData = async (productId: string, fallbackDlt: number) => {
+    setLoadingSupplier(true);
+    try {
+      // Fetch supplier contract data
+      const { data: contractData, error: contractError } = await supabase
+        .from('supplier_contracts')
+        .select(`
+          unit_cost,
+          lead_time_days,
+          payment_terms,
+          supplier_id
+        `)
+        .eq('product_id', productId)
+        .order('contract_start_date', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (contractError) throw contractError;
+
+      // Fetch vendor name
+      const { data: vendorData, error: vendorError } = await supabase
+        .from('vendor_master')
+        .select('vendor_name')
+        .eq('vendor_id', contractData.supplier_id)
+        .single();
+
+      if (vendorError) throw vendorError;
+
+      // Fetch supplier performance
+      const { data: perfData, error: perfError } = await supabase
+        .from('supplier_performance')
+        .select('on_time_delivery_rate')
+        .eq('supplier_id', contractData.supplier_id)
+        .single();
+
+      if (perfError) throw perfError;
+
+      setSupplierData({
+        vendor_name: vendorData.vendor_name,
+        unit_cost: contractData.unit_cost ?? 0,
+        lead_time_days: contractData.lead_time_days ?? fallbackDlt,
+        on_time_delivery_rate: perfData.on_time_delivery_rate ?? 0.95,
+        payment_terms: contractData.payment_terms ?? 'N/A'
+      });
+    } catch (error) {
+      console.error('Error loading supplier data:', error);
+      setSupplierData(null);
+    } finally {
+      setLoadingSupplier(false);
+    }
+  };
+
+  useEffect(() => {
     if (item) {
       setOrderQty(item.suggested_order_qty);
+      loadSupplierData(item.product_id, item.dlt);
     }
   }, [item]);
 
@@ -141,6 +206,59 @@ export const CoverageActionDrawer: React.FC<CoverageActionDrawerProps> = ({
                 </div>
               )}
             </div>
+
+            {/* Supplier Information */}
+            {supplierData && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Truck className="h-4 w-4" />
+                    Supplier Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Vendor</p>
+                      <p className="font-semibold">{supplierData.vendor_name}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Lead Time</p>
+                      <p className="font-semibold flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {supplierData.lead_time_days} days
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Unit Cost</p>
+                      <p className="font-semibold flex items-center gap-1">
+                        <DollarSign className="h-3 w-3" />
+                        {supplierData.unit_cost.toFixed(2)} SAR
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Total Cost</p>
+                      <p className="font-bold text-primary">
+                        {(supplierData.unit_cost * orderQty).toFixed(2)} SAR
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="border-t pt-2 space-y-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">On-Time Delivery Rate:</span>
+                      <Badge variant={supplierData.on_time_delivery_rate >= 0.9 ? "outline" : "destructive"} className={supplierData.on_time_delivery_rate >= 0.9 ? "border-green-500 text-green-700" : ""}>
+                        {(supplierData.on_time_delivery_rate * 100).toFixed(1)}%
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">Payment Terms:</span>
+                      <span className="font-medium">{supplierData.payment_terms}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Delivery Information */}
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
