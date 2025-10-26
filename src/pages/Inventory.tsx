@@ -131,6 +131,10 @@ const InventoryNew: React.FC = () => {
                 <Layers className="h-4 w-4" />
                 <span className="hidden sm:inline">Coverage</span>
               </TabsTrigger>
+              <TabsTrigger value="decoupling" className="flex items-center gap-2">
+                <LayoutDashboard className="h-4 w-4" />
+                <span className="hidden sm:inline">Decoupling</span>
+              </TabsTrigger>
               <TabsTrigger value="exceptions" className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4" />
                 <span className="hidden sm:inline">Exceptions</span>
@@ -142,10 +146,6 @@ const InventoryNew: React.FC = () => {
               <TabsTrigger value="buffers" className="flex items-center gap-2">
                 <Shield className="h-4 w-4" />
                 <span className="hidden sm:inline">Buffers</span>
-              </TabsTrigger>
-              <TabsTrigger value="decoupling" className="flex items-center gap-2">
-                <LayoutDashboard className="h-4 w-4" />
-                <span className="hidden sm:inline">Decoupling</span>
               </TabsTrigger>
               <TabsTrigger value="analytics" className="flex items-center gap-2">
                 <BarChart3 className="h-4 w-4" />
