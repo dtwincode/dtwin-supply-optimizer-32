@@ -81,22 +81,33 @@ export function DecouplingPointManager() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      // Load existing decoupling points with product details
+      // Load existing decoupling points
       const { data: dpData, error: dpError } = await supabase
         .from("decoupling_points")
-        .select(`
-          *,
-          product_master!inner(sku, name)
-        `)
+        .select("*")
         .order("created_at", { ascending: false });
 
       if (dpError) throw dpError;
       
-      const enrichedDpData = (dpData || []).map((dp: any) => ({
-        ...dp,
-        sku: dp.product_master?.sku,
-        product_name: dp.product_master?.name,
-      }));
+      // Get unique product IDs
+      const productIds = [...new Set(dpData?.map(dp => dp.product_id) || [])];
+      
+      // Fetch product details
+      const { data: productsData } = await supabase
+        .from("product_master")
+        .select("product_id, sku, name")
+        .in("product_id", productIds);
+      
+      const productMap = new Map(productsData?.map(p => [p.product_id, p]) || []);
+      
+      const enrichedDpData = (dpData || []).map((dp: any) => {
+        const product = productMap.get(dp.product_id);
+        return {
+          ...dp,
+          sku: product?.sku,
+          product_name: product?.name,
+        };
+      });
       
       setDecouplingPoints(enrichedDpData);
 
