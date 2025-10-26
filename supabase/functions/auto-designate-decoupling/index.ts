@@ -76,7 +76,9 @@ Deno.serve(async (req) => {
     for (const pair of availablePairs) {
       try {
         const fnName = useComponentScoring ? 'calculate_component_9factor_score' : 'calculate_9factor_weighted_score';
-        const params = useComponentScoring ? { p_component_id: pair.product_id, p_location_id: pair.location_id } : { p_product_id: pair.product_id, p_location_id: pair.location_id };
+        const params = useComponentScoring 
+          ? { p_component_id: pair.product_id, p_location_id: pair.location_id, p_scenario_name: scenario_name } 
+          : { p_product_id: pair.product_id, p_location_id: pair.location_id, p_scenario_name: scenario_name };
         
         const { data: scoreData, error: scoreError } = await supabase.rpc(fnName, params);
         if (scoreError) {
@@ -121,7 +123,8 @@ Deno.serve(async (req) => {
         review_required,
         auto_rejected,
         threshold_used: threshold,
-        scoring_mode: useComponentScoring ? 'COMPONENT' : 'STANDARD'
+        scoring_mode: useComponentScoring ? 'COMPONENT' : 'STANDARD',
+        scenario_used: scenario_name
       },
       scoring_details: scoring_details.slice(0, 50)
     }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
