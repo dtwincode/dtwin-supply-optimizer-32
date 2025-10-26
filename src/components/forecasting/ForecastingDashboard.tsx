@@ -80,14 +80,19 @@ export const ForecastingDashboard = () => {
   const loadForecastData = async () => {
     setLoading(true);
     try {
+      console.log('Starting loadForecastData...');
+      console.log('Filters:', { selectedProduct, selectedLocation, selectedRegion, aggregationLevel });
+      
       // First, determine which locations to query based on region filter
       let locationIds: string[] = [];
       if (selectedRegion !== 'ALL') {
         const filteredLocations = locations.filter(l => l.region === selectedRegion);
         locationIds = filteredLocations.map(l => l.location_id);
+        console.log('Filtered locations for region:', locationIds.length);
         
         if (locationIds.length === 0) {
           // No locations match the region filter
+          console.log('No locations match the selected region');
           setForecastData([]);
           setAggregatedData([]);
           setLoading(false);
@@ -116,13 +121,20 @@ export const ForecastingDashboard = () => {
       }
 
       const { data: historical, error: histError } = await query;
-      if (histError) throw histError;
+      if (histError) {
+        console.error('Database query error:', histError);
+        throw histError;
+      }
+
+      console.log('Historical data fetched:', historical?.length || 0, 'records');
 
       // Enrich data with region information from locations array
       const filteredData = (historical || []).map((h: any) => ({
         ...h,
         region: locations.find(l => l.location_id === h.location_id)?.region
       }));
+
+      console.log('Enriched data:', filteredData.length, 'records');
 
       // Aggregate based on level
       const aggregated = aggregateForecasts(filteredData);
@@ -179,7 +191,8 @@ export const ForecastingDashboard = () => {
       }
 
       console.log('Chart data length:', chartData.length);
-      console.log('Sample chart data:', chartData.slice(0, 5));
+      console.log('Sample chart data (first 3):', chartData.slice(0, 3));
+      console.log('Sample chart data (last 3):', chartData.slice(-3));
       
       setForecastData(chartData);
     } catch (error) {
@@ -390,7 +403,9 @@ export const ForecastingDashboard = () => {
                     <XAxis 
                       dataKey="date" 
                       tick={{ fontSize: 12 }}
-                      interval="preserveStartEnd"
+                      angle={-45}
+                      textAnchor="end"
+                      height={80}
                     />
                     <YAxis />
                     <Tooltip />
