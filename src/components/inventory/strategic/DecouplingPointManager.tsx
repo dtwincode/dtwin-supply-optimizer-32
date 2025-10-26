@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, MapPin, Sparkles, Loader2, Package, ChevronRight } from "lucide-react";
+import { Plus, Trash2, MapPin, Sparkles, Loader2, Package, ChevronRight, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -73,6 +73,8 @@ export function DecouplingPointManager() {
   const [locationSummaries, setLocationSummaries] = useState<LocationSummary[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<LocationSummary | null>(null);
   const [drillDownOpen, setDrillDownOpen] = useState(false);
+  const [clearAllOpen, setClearAllOpen] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -237,6 +239,28 @@ export function DecouplingPointManager() {
     }
   };
 
+  const handleClearAll = async () => {
+    setIsClearing(true);
+    try {
+      const { error } = await supabase
+        .from("decoupling_points")
+        .delete()
+        .neq("id", "00000000-0000-0000-0000-000000000000"); // Delete all
+
+      if (error) throw error;
+
+      toast.success(`Successfully removed all ${decouplingPoints.length} decoupling points`);
+      setClearAllOpen(false);
+      setScoringResults(null);
+      loadData();
+    } catch (error) {
+      console.error("Error clearing decoupling points:", error);
+      toast.error("Failed to clear decoupling points");
+    } finally {
+      setIsClearing(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <Card>
@@ -260,6 +284,17 @@ export function DecouplingPointManager() {
               </p>
             </div>
             <div className="flex gap-2">
+              {decouplingPoints.length > 0 && (
+                <Button
+                  onClick={() => setClearAllOpen(true)}
+                  variant="destructive"
+                  size="lg"
+                  className="gap-2"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Clear All ({decouplingPoints.length})
+                </Button>
+              )}
               <Button
                 onClick={handleAutoDesignate}
                 disabled={autoDesignating}
@@ -525,6 +560,49 @@ export function DecouplingPointManager() {
               </Table>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Clear All Confirmation Dialog */}
+      <Dialog open={clearAllOpen} onOpenChange={setClearAllOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="h-5 w-5" />
+              Clear All Decoupling Points?
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              This will permanently delete all <span className="font-bold text-foreground">{decouplingPoints.length}</span> existing decoupling points. This action cannot be undone.
+            </p>
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setClearAllOpen(false)}
+                disabled={isClearing}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleClearAll}
+                disabled={isClearing}
+              >
+                {isClearing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Clearing...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Clear All
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
