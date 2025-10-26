@@ -126,7 +126,7 @@ const InventoryNew: React.FC = () => {
 
           {/* Main Navigation Tabs */}
           <Tabs value={view} onValueChange={handleTabChange} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:inline-grid">
+            <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:inline-grid">
               <TabsTrigger value="coverage" className="flex items-center gap-2">
                 <Layers className="h-4 w-4" />
                 <span className="hidden sm:inline">Coverage</span>
@@ -142,6 +142,10 @@ const InventoryNew: React.FC = () => {
               <TabsTrigger value="buffers" className="flex items-center gap-2">
                 <Shield className="h-4 w-4" />
                 <span className="hidden sm:inline">Buffers</span>
+              </TabsTrigger>
+              <TabsTrigger value="decoupling" className="flex items-center gap-2">
+                <LayoutDashboard className="h-4 w-4" />
+                <span className="hidden sm:inline">Decoupling</span>
               </TabsTrigger>
               <TabsTrigger value="analytics" className="flex items-center gap-2">
                 <BarChart3 className="h-4 w-4" />
@@ -172,6 +176,9 @@ const InventoryNew: React.FC = () => {
 
                 <TabsContent value="buffers" className="mt-0 space-y-6">
                   <BufferDashboard mode="status" />
+                </TabsContent>
+
+                <TabsContent value="decoupling" className="mt-0 space-y-6">
                   <DecouplingPointManager />
                 </TabsContent>
 
