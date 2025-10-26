@@ -428,22 +428,11 @@ export const ForecastingDashboard = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="best">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="default" className="text-xs">Best</Badge>
-                        <span>{availableModels[0]?.model_name}</span>
-                        <span className="text-xs text-muted-foreground">
-                          (SMAPE: {availableModels[0]?.smape?.toFixed(2)}%)
-                        </span>
-                      </div>
+                      Best Model: {availableModels[0]?.model_name} (SMAPE: {availableModels[0]?.smape?.toFixed(2)}%)
                     </SelectItem>
                     {availableModels.map((model) => (
                       <SelectItem key={model.id} value={model.model_name}>
-                        <div className="flex items-center gap-2">
-                          <span>{model.model_name}</span>
-                          <span className="text-xs text-muted-foreground">
-                            (SMAPE: {model.smape?.toFixed(2)}%)
-                          </span>
-                        </div>
+                        {model.model_name} (SMAPE: {model.smape?.toFixed(2)}%)
                       </SelectItem>
                     ))}
                   </SelectContent>
