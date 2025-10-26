@@ -298,6 +298,19 @@ serve(async (req) => {
 
     const results: any[] = [];
 
+    // Fetch enabled models configuration
+    const { data: enabledModelsData, error: configError } = await supabaseClient
+      .from('forecast_model_config')
+      .select('model_name')
+      .eq('is_enabled', true);
+
+    if (configError) {
+      console.error('Error fetching model config:', configError);
+    }
+
+    const enabledModelNames = new Set(enabledModelsData?.map(m => m.model_name) || []);
+    console.log('Enabled models:', Array.from(enabledModelNames));
+
     // Evaluate models for each pair
     for (const [key, pair] of pairs.entries()) {
       if (pair.data.length < 30) continue; // Need minimum data
@@ -327,7 +340,7 @@ serve(async (req) => {
         { name: 'Prophet', params: { model: 'Prophet' }, forecast: await forecastWithAI(pair.data, 'Prophet') },
       ] : [];
 
-      const models = [...traditionalModels, ...aiModels];
+      const models = [...traditionalModels, ...aiModels].filter(m => enabledModelNames.has(m.name));
 
       let bestModel: any = null;
       let bestScore = Infinity;

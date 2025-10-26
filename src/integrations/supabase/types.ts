@@ -661,6 +661,42 @@ export type Database = {
         }
         Relationships: []
       }
+      forecast_model_config: {
+        Row: {
+          complexity: string
+          created_at: string | null
+          description: string | null
+          id: string
+          is_enabled: boolean | null
+          model_category: string
+          model_name: string
+          updated_at: string | null
+          use_case: string | null
+        }
+        Insert: {
+          complexity: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          model_category: string
+          model_name: string
+          updated_at?: string | null
+          use_case?: string | null
+        }
+        Update: {
+          complexity?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          model_category?: string
+          model_name?: string
+          updated_at?: string | null
+          use_case?: string | null
+        }
+        Relationships: []
+      }
       forecast_model_selection: {
         Row: {
           aic: number | null
