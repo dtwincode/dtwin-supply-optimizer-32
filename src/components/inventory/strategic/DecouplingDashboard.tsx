@@ -1,20 +1,15 @@
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, Target, TrendingUp, AlertCircle, Settings } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Activity, Target, TrendingUp, AlertCircle, Settings, GitCompare } from "lucide-react";
 import { BullwhipAnalysisDashboard } from "./BullwhipAnalysisDashboard";
 import { DecouplingPointManager } from "./DecouplingPointManager";
 import { DecouplingScoreExplainer } from "./DecouplingScoreExplainer";
 import { ScenarioManagement } from "./ScenarioManagement";
+import { ScenarioComparison } from "./ScenarioComparison";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 
 interface Scenario {
   id: string;
@@ -26,12 +21,11 @@ interface Scenario {
 export function DecouplingDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
   const [pendingCount, setPendingCount] = useState<number>(0);
-  const [scenarios, setScenarios] = useState<Scenario[]>([]);
-  const [selectedScenario, setSelectedScenario] = useState<string>("default");
+  const [activeScenario, setActiveScenario] = useState<Scenario | null>(null);
 
   useEffect(() => {
     loadPendingCount();
-    loadScenarios();
+    loadActiveScenario();
   }, []);
 
   const loadPendingCount = async () => {
@@ -43,20 +37,15 @@ export function DecouplingDashboard() {
     setPendingCount(count || 0);
   };
 
-  const loadScenarios = async () => {
+  const loadActiveScenario = async () => {
     const { data } = await supabase
       .from('decoupling_weights_config')
       .select('id, scenario_name, description, is_active')
-      .order('scenario_name');
+      .eq('is_active', true)
+      .maybeSingle();
     
-    if (data && data.length > 0) {
-      // Type assertion since the columns exist after migration
-      const scenariosData = data as unknown as Scenario[];
-      setScenarios(scenariosData);
-      const active = scenariosData.find(s => s.is_active);
-      if (active) {
-        setSelectedScenario(active.scenario_name);
-      }
+    if (data) {
+      setActiveScenario(data as unknown as Scenario);
     }
   };
 
@@ -104,47 +93,51 @@ export function DecouplingDashboard() {
         </Card>
       </div>
 
-      {/* Scenario Selector */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-4">
-            <div className="flex-1 space-y-2">
-              <Label>Active Scoring Scenario</Label>
-              <Select value={selectedScenario} onValueChange={setSelectedScenario}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select scenario" />
-                </SelectTrigger>
-                <SelectContent>
-                  {scenarios.map((scenario) => (
-                    <SelectItem key={scenario.id} value={scenario.scenario_name}>
-                      <div className="flex items-center gap-2">
-                        <span>{scenario.scenario_name}</span>
-                        {scenario.is_active && (
-                          <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded">
-                            Active
-                          </span>
-                        )}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {scenarios.find(s => s.scenario_name === selectedScenario)?.description && (
-                <p className="text-xs text-muted-foreground">
-                  {scenarios.find(s => s.scenario_name === selectedScenario)?.description}
+      {/* Active Scenario Display */}
+      {activeScenario && (
+        <Card className="border-primary">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-lg">Current Active Scenario</h3>
+                  <Badge variant="default">Active</Badge>
+                </div>
+                <p className="text-2xl font-bold mt-2">{activeScenario.scenario_name}</p>
+                {activeScenario.description && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {activeScenario.description}
+                  </p>
+                )}
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-muted-foreground">
+                  All decoupling calculations use this scenario
                 </p>
-              )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-2"
+                  onClick={() => setActiveTab("scenarios")}
+                >
+                  Change Scenario
+                </Button>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <Target className="h-4 w-4" />
-            Overview & Management
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="comparison" className="flex items-center gap-2">
+            <GitCompare className="h-4 w-4" />
+            Compare Scenarios
           </TabsTrigger>
           <TabsTrigger value="bullwhip" className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4" />
@@ -162,6 +155,10 @@ export function DecouplingDashboard() {
 
         <TabsContent value="overview" className="mt-6">
           <DecouplingPointManager />
+        </TabsContent>
+
+        <TabsContent value="comparison" className="mt-6">
+          <ScenarioComparison />
         </TabsContent>
 
         <TabsContent value="bullwhip" className="mt-6">

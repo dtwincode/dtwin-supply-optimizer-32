@@ -172,17 +172,30 @@ export function ScenarioManagement() {
   };
 
   const toggleActive = async (scenario: Scenario) => {
-    // If activating, deactivate all others
-    if (!scenario.is_active) {
-      await supabase
-        .from('decoupling_weights_config')
-        .update({ is_active: false })
-        .neq('id', scenario.id);
+    if (scenario.is_active) {
+      toast.error('Cannot deactivate the active scenario. Activate another scenario first.');
+      return;
     }
 
+    // Confirm before switching active scenario
+    const confirmed = window.confirm(
+      `Switch active scenario to "${scenario.scenario_name}"?\n\n` +
+      `This will affect all future decoupling point calculations. ` +
+      `Use the Scenario Comparison tool first to preview the impact.`
+    );
+
+    if (!confirmed) return;
+
+    // Deactivate all others
+    await supabase
+      .from('decoupling_weights_config')
+      .update({ is_active: false })
+      .neq('id', scenario.id);
+
+    // Activate selected
     const { error } = await supabase
       .from('decoupling_weights_config')
-      .update({ is_active: !scenario.is_active })
+      .update({ is_active: true })
       .eq('id', scenario.id);
     
     if (error) {
@@ -190,7 +203,7 @@ export function ScenarioManagement() {
       return;
     }
 
-    toast.success(`Scenario ${!scenario.is_active ? 'activated' : 'deactivated'}`);
+    toast.success(`Scenario "${scenario.scenario_name}" is now active`);
     loadScenarios();
   };
 
@@ -270,20 +283,19 @@ export function ScenarioManagement() {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleActive(scenario);
-                        }}
-                      >
-                        {scenario.is_active ? (
+                      {!scenario.is_active && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleActive(scenario);
+                          }}
+                          title="Set as active scenario"
+                        >
                           <Unlock className="h-4 w-4" />
-                        ) : (
-                          <Lock className="h-4 w-4" />
-                        )}
-                      </Button>
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="icon"
